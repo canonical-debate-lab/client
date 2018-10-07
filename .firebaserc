@@ -1,0 +1,7 @@
+{
+	"projects": {
+		"default": "canonical-debate-dev",
+		"dev": "canonical-debate-dev",
+		"prod": "canonical-debate-prod"
+	}
+}

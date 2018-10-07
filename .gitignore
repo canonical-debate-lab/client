@@ -1,0 +1,7 @@
+node_modules
+
+/Source/BakedConfig_Dev.ts
+/Source/BakedConfig_Prod.ts
+/dist
+/Source_JS
+/Scripts/Config/dll

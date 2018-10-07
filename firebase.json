@@ -1,0 +1,17 @@
+{
+	"database": {
+		"rules": "Firebase/DatabaseRules.json"
+	},
+	"hosting": {
+		"public": "dist",
+		"ignore": [
+			"**/#*",
+		],
+		"rewrites": [
+			{
+				"source": "**",
+				"destination": "/index.html"
+			}
+		]
+	}
+}

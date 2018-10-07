@@ -1,0 +1,60 @@
+{
+	"compilerOptions": {
+		// general
+		"sourceMap": true,
+		"watch": true,
+		"outDir": "Source_JS",
+		"forceConsistentCasingInFileNames": true, // creates duplicates in import-helper plugins otherwise
+
+		// modules/paths
+		"module": "es2015",
+		"moduleResolution": "node",
+		//"rootDir": ".",
+		"rootDir": "Source",
+		//"baseUrl": ".",
+		"baseUrl": "Source",
+		"paths": { // ("paths" is relative to "baseUrl")
+			"*": [
+				//"node_modules/@types/*", // prefer "/node_modules/@types" over "/node_modules/[something]/node_modules/@types" (eg, when using npm link)
+				"../node_modules/@types/*", // prefer "/node_modules/@types" over "/node_modules/[something]/node_modules/@types" (eg, when using npm link)
+				"*"
+			]
+		},
+
+		// compiler options
+		//"target": "es2015",
+		//"target": "es2017",
+		"target": "esnext",
+		"lib": [
+			"es6",
+			"es5",
+			"dom"
+		],
+		//"allowJs": true,
+		//"maxNodeModuleJsDepth": 1,
+		"jsx": "react",
+		"noImplicitAny": false,
+		"experimentalDecorators": true,
+		"allowSyntheticDefaultImports": true
+	},
+	"files": ["Source/Main.ts"],
+	"include": [
+		"Typings/**/*.d.ts",
+		//"Typings/globals/**/*.d.ts",
+		"Source/**/*.ts",
+		"Source/**/*.tsx"
+		//"Source/**/*.js",
+		//"Source/**/*.jsx"
+	],
+	"exclude": [
+		"Build",
+		"Tests",
+		"node_modules"
+
+		/*"Typings/main",
+		"Typings/main.d.ts",
+		"Typings/browser",
+		"Typings/browser.d.ts",*/
+	],
+	"compileOnSave": true
+}
