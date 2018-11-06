@@ -1,4 +1,4 @@
-import { BaseComponent } from "Utils/UI/BaseComponent";
+import { BaseComponent } from 'Utils/UI/BaseComponent';
 
 export class HomeUI extends BaseComponent<{}, {}> {
 	render() {

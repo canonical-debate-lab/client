@@ -1,10 +1,10 @@
-import {applyMiddleware, compose, createStore, StoreEnhancer} from "redux";
-import {MakeRootReducer} from "../../Store/index";
-import {routerForBrowser} from "redux-little-router";
-import firebase_ from "firebase";
-import {DBPath} from "Utils/Database/DatabaseHelpers";
-import {PreDispatchAction, PostDispatchAction} from "Store/ActionProcessor";
-import {firebaseConfig} from "Main";
+import firebase_ from 'firebase';
+import { firebaseConfig } from 'Main';
+import { applyMiddleware, compose, createStore, StoreEnhancer } from 'redux';
+import { routerForBrowser } from 'redux-little-router';
+import { PostDispatchAction, PreDispatchAction } from 'Store/ActionProcessor';
+import { DBPath } from 'Utils/Database/DatabaseHelpers';
+import { MakeRootReducer } from '../../Store/index';
 
 const firebase = firebase_ as any;
 
@@ -29,11 +29,11 @@ export function CreateStore(initialState = {}) {
 	let lateMiddleware = [
 		// for some reason, this breaks stuff if we have it the last one
 		store=>next=>action=> {
-			PreDispatchAction(action); if (action.type == "ApplyActionSet") for (let sub of action.actions) PreDispatchAction(sub);
+			PreDispatchAction(action); if (action.type == 'ApplyActionSet') for (let sub of action.actions) PreDispatchAction(sub);
 			const returnValue = next(action);
-			//MidDispatchAction(action, returnValue); if (action.type == "ApplyActionSet") for (let sub of action.actions) MidDispatchAction(sub, returnValue);
+			//MidDispatchAction(action, returnValue); if (action.type == 'ApplyActionSet') for (let sub of action.actions) MidDispatchAction(sub, returnValue);
 			WaitXThenRun(0, ()=> {
-				PostDispatchAction(action); if (action.type == "ApplyActionSet") for (let sub of action.actions) PostDispatchAction(sub);
+				PostDispatchAction(action); if (action.type == 'ApplyActionSet') for (let sub of action.actions) PostDispatchAction(sub);
 			});
 			return returnValue;
 		},
@@ -50,7 +50,7 @@ export function CreateStore(initialState = {}) {
 	// ==========
 
 	let reduxFirebaseConfig = {
-		userProfile: DBPath("users"), // root that user profiles are written to
+		userProfile: DBPath('users'), // root that user profiles are written to
 		enableLogging: false, // enable/disable Firebase Database Logging
 		updateProfileOnLogin: false, // enable/disable updating of profile on login
 		// profileDecorator: (userData) => ({ email: userData.email }) // customize format of user profile
@@ -70,7 +70,7 @@ export function CreateStore(initialState = {}) {
 		rootReducer,
 		initialState,
 		// Note: Compose applies functions from right to left: compose(f, g, h) = (...args)=>f(g(h(...args))).
-		// You can think of the earlier ones as "wrapping" and being able to "monitor" the ones after it, but (usually) telling them "you apply first, then I will".
+		// You can think of the earlier ones as 'wrapping' and being able to 'monitor' the ones after it, but (usually) telling them 'you apply first, then I will'.
 		compose(...[
 			//autoRehydrate({log: true}),
 			routerEnhancer,
@@ -85,16 +85,16 @@ export function CreateStore(initialState = {}) {
 
 	function Dispatch_WithStack(action) {
 		if (g.actionStacks || (DEV && !actionStacks_actionTypeIgnorePatterns.Any(a=>action.type.startsWith(a)))) {
-			action["stack"] = new Error().stack.split("\n").slice(1); // add stack, so we can inspect in redux-devtools
+			action['stack'] = new Error().stack.split('\n').slice(1); // add stack, so we can inspect in redux-devtools
 		}
-		store["dispatch_orig"](action);
+		store['dispatch_orig'](action);
 	}
 	if (store.dispatch != Dispatch_WithStack) {
-		store["dispatch_orig"] = store.dispatch;
+		store['dispatch_orig'] = store.dispatch;
 		store.dispatch = Dispatch_WithStack;
 	}
 	const actionStacks_actionTypeIgnorePatterns = [
-		"@@reactReduxFirebase/", // ignore redux actions
+		'@@reactReduxFirebase/', // ignore redux actions
 	];
 
 	/*let w = watch(()=>State());
@@ -103,19 +103,19 @@ export function CreateStore(initialState = {}) {
 	}));*/
 
 	// begin periodically persisting the store
-	//let persister = persistStore(store, {whitelist: ["main"]});
+	//let persister = persistStore(store, {whitelist: ['main']});
 	// you want to remove some keys before you save
 	//let persister = persistStore(store, null, ()=>g.storeRehydrated = true);
 	let persister = persistStore(store);
-	if (startURL.GetQueryVar("clearState")) {
-		Log("Clearing redux-store's state and local-storage...");
+	if (startURL.GetQueryVar('clearState')) {
+		Log('Clearing redux-store's state and local-storage...');
 		ClearLocalData(persister);
 	}
 
 	if (DEV) {
 		if (module.hot) {
-			module.hot.accept("../../Store", () => {
-				let {MakeRootReducer} = require("../../Store");
+			module.hot.accept('../../Store', () => {
+				let {MakeRootReducer} = require('../../Store');
 				store.reducer = MakeRootReducer(extraReducers);
 				store.replaceReducer(store.reducer);
 			});
@@ -129,7 +129,7 @@ export function ClearLocalData(persister) {
 	persister.purge();
 	//localStorage.clear();
 	for (let key in localStorage) {
-		if (key.startsWith("firebase:")) continue; // keep auth-info
+		if (key.startsWith('firebase:')) continue; // keep auth-info
 		delete localStorage[key];
 	}
 }

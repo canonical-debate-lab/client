@@ -1,2 +1,2 @@
-require("react");
-require("redux");
+require('react');
+require('redux');

@@ -1,7 +1,7 @@
-import {combineReducers} from "redux";
-import {SplitStringBySlash_Cached} from "Utils/Database/StringSplitCache";
-import { DeepGet } from "js-vextensions";
-import { OnAccessPath } from "Utils/Database/FirebaseConnect";
+import {combineReducers} from 'redux';
+import {SplitStringBySlash_Cached} from 'Utils/Database/StringSplitCache';
+import {DeepGet} from 'js-vextensions';
+import {OnAccessPath} from 'Utils/Database/FirebaseConnect';
 
 export class RootState {
 }
@@ -28,22 +28,22 @@ function State<T>(...args) {
 	if (args.length == 0) return state;
 
 	let pathSegments: (string | number)[], options = new State_Options();
-	if (typeof args[0] == "object") {
+	if (typeof args[0] == 'object') {
 		[options, ...pathSegments] = args;
 	} else {
 		pathSegments = args;
 	}
 
-	if (typeof pathSegments[0] == "function") {
+	if (typeof pathSegments[0] == 'function') {
 		pathSegments = ConvertPathGetterFuncToPropChain(args[0]);
-	} else { //if (typeof pathSegments[0] == "string") {
+	} else { //if (typeof pathSegments[0] == 'string') {
 		if (pathSegments.length == 1) pathSegments = SplitStringBySlash_Cached(pathSegments[0] as string); // if only one string provided, assume it's the full path
 	}
 
 	if (DEV) {
 		Assert(pathSegments.every(segment=>segment != null), ()=>`Path-segment cannot be null. @segments(${pathSegments})`);
-		Assert(pathSegments.every(segment=>typeof segment == "number" || !segment.Contains("/")),
-			()=>`Each string path-segment must be a plain prop-name. (ie. contain no "/" separators) @segments(${pathSegments})`);
+		Assert(pathSegments.every(segment=>typeof segment == 'number' || !segment.Contains('/')),
+			()=>`Each string path-segment must be a plain prop-name. (ie. contain no '/' separators) @segments(${pathSegments})`);
 	}
 
 	let countAsAccess = options.countAsAccess != null ? options.countAsAccess : true;
@@ -51,20 +51,20 @@ function State<T>(...args) {
 	let selectedData = DeepGet(state, pathSegments);
 	//if (countAsAccess && pathSegments.length) {
 	if (countAsAccess) {
-		let path = typeof pathSegments[0] == "string" && pathSegments.length == 1 ? pathSegments[0] as string : pathSegments.join("/");
-		//Assert(g.inConnectFunc, "State(), with countAsAccess:true, must be called from within a Connect() func.");
+		let path = typeof pathSegments[0] == 'string' && pathSegments.length == 1 ? pathSegments[0] as string : pathSegments.join('/');
+		//Assert(g.inConnectFunc, 'State(), with countAsAccess:true, must be called from within a Connect() func.');
 		OnAccessPath(path);
 	}
 	return selectedData;
 }
 function ConvertPathGetterFuncToPropChain(pathGetterFunc: Function) {
 	let pathStr = pathGetterFunc.toString().match(/return a\.(.+?);/)[1] as string;
-	Assert(!pathStr.includes("["), `State-getter-func cannot contain bracket-based property-access.\n${nl
-		}For variable inclusion, use multiple segments as in "State("main", "mapViews", mapID)".`);
-	//let result = pathStr.replace(/\./g, "/");
-	let result = pathStr.split(".");
+	Assert(!pathStr.includes('['), `State-getter-func cannot contain bracket-based property-access.\n${nl
+		}For variable inclusion, use multiple segments as in 'State('main', 'mapViews', mapID)'.`);
+	//let result = pathStr.replace(/\./g, '/');
+	let result = pathStr.split('.');
 	return result;
 }
 export function StorePath(pathGetterFunc: (state: RootState)=>any) {
-	return ConvertPathGetterFuncToPropChain(pathGetterFunc).join("/");
+	return ConvertPathGetterFuncToPropChain(pathGetterFunc).join('/');
 }

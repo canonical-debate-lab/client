@@ -1,12 +1,12 @@
-import {Component} from "react";
+import {Component} from 'react';
 
 export function HasSealedProps(target: Object) {
 	let oldConstructor = target.constructor;
 	target.constructor = function() {
-		for (let key in target["prototype"]) {
-			let method = target["prototype"][key];
+		for (let key in target['prototype']) {
+			let method = target['prototype'][key];
 			if (method.sealed && this[key] != method) {
-				throw new Error(`Cannot override sealed method "${key}".`);
+				throw new Error(`Cannot override sealed method '${key}'.`);
 			}
 		}
 		return oldConstructor.apply(this, arguments);

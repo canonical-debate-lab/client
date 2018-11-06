@@ -1,11 +1,10 @@
-import { GetPropsChanged, GetPropsChanged_WithValues } from "js-vextensions";
-import Moment from "moment";
-import { connect } from "react-redux";
-import { ShallowChanged } from "react-vextensions";
-import { ApplyActionSet, RootState } from "../../Store/index";
-import {watchEvents} from "react-redux-firebase/lib/actions/query";
-import {getEventsFromInput} from "react-redux-firebase/lib/utils";
-import { activeStoreAccessCollectors } from "./DatabaseHelpers";
+import { GetPropsChanged } from 'js-vextensions';
+import { connect } from 'react-redux';
+import { watchEvents } from 'react-redux-firebase/lib/actions/query';
+import { getEventsFromInput } from 'react-redux-firebase/lib/utils';
+import { ShallowChanged } from 'react-vextensions';
+import { ApplyActionSet, RootState } from '../../Store/index';
+import { activeStoreAccessCollectors } from './DatabaseHelpers';
 
 // Place a selector in Connect() whenever it uses data that:
 // 1) might change during the component's lifetime, and:
@@ -18,7 +17,7 @@ export function Connect<T, P>(innerMapStateToPropsFunc: (state: RootState, props
 export function Connect<T, P>(mapStateToProps_inner_getter: ()=>(state: RootState, props: P)=>any);
 export function Connect<T, P>(funcOrFuncGetter) {
 	let mapStateToProps_inner: (state: RootState, props: P)=>any, mapStateToProps_inner_getter: ()=>(state: RootState, props: P)=>any;
-	let isFuncGetter = funcOrFuncGetter.length == 0; //&& typeof TryCall(funcOrFuncGetter) == "function";
+	let isFuncGetter = funcOrFuncGetter.length == 0; //&& typeof TryCall(funcOrFuncGetter) == 'function';
 	if (!isFuncGetter) mapStateToProps_inner = funcOrFuncGetter;
 	else mapStateToProps_inner_getter = funcOrFuncGetter;
 
@@ -37,10 +36,10 @@ export function Connect<T, P>(funcOrFuncGetter) {
 		} else {
 			for (let path in s.lastAccessedStorePaths_withData) {
 				if (State({countAsAccess: false}, path) !== s.lastAccessedStorePaths_withData[path]) {
-					//store.dispatch({type: "Data changed!" + path});
+					//store.dispatch({type: 'Data changed!' + path});
 					storeDataChanged = true;
 					changedPath = path;
-					if (changedPath.includes("bot_currentNodeID")) debugger;
+					if (changedPath.includes('bot_currentNodeID')) debugger;
 					break;
 				}
 			}
@@ -101,8 +100,8 @@ export function Connect<T, P>(funcOrFuncGetter) {
 }
 
 let actionTypeBufferInfos = {
-	"@@reactReduxFirebase/START": {time: 300},
-	"@@reactReduxFirebase/SET": {time: 300},
+	'@@reactReduxFirebase/START': {time: 300},
+	'@@reactReduxFirebase/SET': {time: 300},
 };
 let actionTypeLastDispatchTimes = {};
 let actionTypeBufferedActions = {};
@@ -136,12 +135,12 @@ function DispatchDBAction(action) {
 }
 
 let requestedPaths = {} as {[key: string]: boolean};
-/** This only adds paths to a "request list". Connect() is in charge of making the actual db requests. */
+/** This only adds paths to a 'request list'. Connect() is in charge of making the actual db requests. */
 export function RequestPath(path: string) {
-	//MaybeLog(a=>a.dbRequests, ()=>"Requesting db-path (stage 1): " + path);
+	//MaybeLog(a=>a.dbRequests, ()=>'Requesting db-path (stage 1): ' + path);
 	requestedPaths[path] = true;
 }
-/** This only adds paths to a "request list". Connect() is in charge of making the actual db requests. */
+/** This only adds paths to a 'request list'. Connect() is in charge of making the actual db requests. */
 export function RequestPaths(paths: string[]) {
 	for (let path of paths) {
 		RequestPath(path);
@@ -156,8 +155,8 @@ export function GetRequestedPaths() {
 
 let accessedStorePaths = {} as {[key: string]: boolean};
 export function OnAccessPath(path: string) {
-	//Log("Accessing-path Stage1: " + path);
-	//let path = pathSegments.join("/");
+	//Log('Accessing-path Stage1: ' + path);
+	//let path = pathSegments.join('/');
 	accessedStorePaths[path] = true;
 	if (activeStoreAccessCollectors) {
 		for (let collector of activeStoreAccessCollectors) {
@@ -173,6 +172,6 @@ export function ClearAccessedPaths() {
 	accessedStorePaths = {};
 }
 export function GetAccessedPaths() {
-	//Log("GetAccessedPaths:" + accessedStorePaths.VKeys());
+	//Log('GetAccessedPaths:' + accessedStorePaths.VKeys());
 	return accessedStorePaths.VKeys();
 }

@@ -1,50 +1,48 @@
-const webpack = require("webpack");
-const cssnano = require("cssnano");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
-const config = require("../Config");
-const debug = require("debug")("app:webpack:config");
-const path = require("path");
-const fs = require("fs");
-const HardSourceWebpackPlugin = require("hard-source-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const StringReplacePlugin = require("string-replace-webpack-plugin");
+/* eslint-disable func-names */
+const webpack = require('webpack');
+const cssnano = require('cssnano');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const debug = require('debug')('app:webpack:config');
+const path = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const StringReplacePlugin = require('string-replace-webpack-plugin');
+const config = require('../Config');
 
 const paths = config.utils_paths;
 const {QUICK, USE_TSLOADER, OUTPUT_STATS} = process.env;
 
-let root = path.join(__dirname, "..", "..");
+const root = path.join(__dirname, '..', '..');
 
-debug("Creating configuration.");
+debug('Creating configuration.');
 const webpackConfig = {
-	name: "client",
-	//mode: "none",
-	mode: "development",
-	//mode: "production",
+	name: 'client',
+	// mode: 'none',
+	mode: 'development',
+	// mode: 'production',
 	optimization: {
 		namedModules: true,
 		noEmitOnErrors: true,
 	},
-	target: "web",
+	target: 'web',
 	devtool: config.compiler_devtool,
 	module: {},
 	resolve: {
 		modules: [
-			"node_modules",
+			'node_modules',
 			paths.source(),
 		],
-		extensions: [".js", ".jsx", ".json"].concat(USE_TSLOADER ? [".ts", ".tsx"] : []),
+		extensions: ['.js', '.jsx', '.json'].concat(USE_TSLOADER ? ['.ts', '.tsx'] : []),
 		alias: {
-			"react": paths.root() + "/node_modules/react/",
-			"react-dom": paths.root() + "/node_modules/react-dom/",
-		}
+			react: `${paths.root()}/node_modules/react/`,
+			'react-dom': `${paths.root()}/node_modules/react-dom/`,
+		},
 	},
 };
 
 // entry points
 // ==========
 
-const APP_ENTRY = paths.source(USE_TSLOADER ? "Main.ts" : "Main.js");
+const APP_ENTRY = paths.source(USE_TSLOADER ? 'Main.ts' : 'Main.js');
 
 webpackConfig.entry = {
 	app: DEV && config.useHotReloading
@@ -56,20 +54,20 @@ webpackConfig.entry = {
 // ==========
 
 webpackConfig.output = {
-	filename: `[name].js?[hash]`, // have js/css files have static names, so google can still display content (even when js file has changed)
+	filename: '[name].js?[hash]', // have js/css files have static names, so google can still display content (even when js file has changed)
 	path: paths.dist(),
 	publicPath: config.compiler_public_path,
 	pathinfo: true, // include comments next to require-funcs saying path
-}
+};
 
 // plugins
 // ==========
 
 webpackConfig.plugins = [
 	// Plugin to show any webpack warnings and prevent tests from running
-	function() {
-		let errors = [];
-		this.plugin("done", function(stats) {
+	function () {
+		const errors = [];
+		this.plugin('done', (stats) => {
 			if (stats.compilation.errors.length) {
 				// Log each of the warnings
 				stats.compilation.errors.forEach(function(error) {
@@ -83,46 +81,47 @@ webpackConfig.plugins = [
 	},
 	new webpack.DefinePlugin(config.globals),
 	new HtmlWebpackPlugin({
-		//template: paths.source("index.html"),
-		//template: paths.root("Source/index.html"),
-		template: "./Source/index.html",
+		//template: paths.source('index.html'),
+		//template: paths.root('Source/index.html'),
+		template: './Source/index.html',
 		hash: false,
-		filename: "index.html",
-		inject: "body",
+		filename: 'index.html',
+		inject: 'body',
 		minify: false,
 	}),
-	function() {
-		this.plugin("compilation", function(compilation) {
-			compilation.plugin("html-webpack-plugin-after-html-processing", function(htmlPluginData) {
+	function () {
+		this.plugin('compilation', (compilation) => {
+			compilation.plugin('html-webpack-plugin-after-html-processing', (htmlPluginData) => {
 				// this gets the build's hash like we want
-				var hash = htmlPluginData.html.match(/\.js\?([0-9a-f]+)["']/)[1];
-				htmlPluginData.html = htmlPluginData.html.replace("/dll.vendor.js?[hash]", "/dll.vendor.js?" + hash);
-				if (!htmlPluginData.html.includes("/dll.vendor.js?" + hash)) throw new Error("Failed to insert vendor hash.");
+				const hash = htmlPluginData.html.match(/\.js\?([0-9a-f]+)['']/)[1];
+				htmlPluginData.html = htmlPluginData.html.replace('/dll.vendor.js?[hash]', `/dll.vendor.js?${hash}`);
+				if (!htmlPluginData.html.includes(`/dll.vendor.js?${hash}`)) throw new Error('Failed to insert vendor hash.');
 				return htmlPluginData;
 			});
 		});
 	},
 
 	new webpack.DllReferencePlugin({
-		context: path.resolve(root, "Source"),
-		manifest: "Scripts/Config/dll/vendor-manifest.json",
+		context: path.resolve(root, 'Source'),
+		manifest: 'Scripts/Config/dll/vendor-manifest.json',
 	}),
 
 	// speeds up (non-incremental) builds by quite a lot // disabled atm, since it causes the website css to not be loaded on 2nd compile
 	//new HardSourceWebpackPlugin(),
 
 	new StringReplacePlugin(),
-]
+];
 
-if (DEV) {
-	/*debug("Enable plugins for live development (HMR, NoErrors).")
+/*if (DEV) {
+	debug('Enable plugins for live development (HMR, NoErrors).')
 	webpackConfig.plugins.push(
 		new webpack.HotModuleReplacementPlugin(),
 		new webpack.NoEmitOnErrorsPlugin()
 		//new webpack.NamedModulesPlugin()
-	);*/
-} else if (PROD && !QUICK) {
-	debug("Enable plugins for production (OccurenceOrder, Dedupe & UglifyJS).")
+	);
+} else*/
+if (PROD && !QUICK) {
+	debug('Enable plugins for production (OccurenceOrder, Dedupe & UglifyJS).');
 	webpackConfig.plugins.push(
 		//new webpack.optimize.OccurrenceOrderPlugin(),
 		//new webpack.optimize.DedupePlugin(),
@@ -137,8 +136,8 @@ if (DEV) {
 				keep_fnames: true,
 			},
 			sourceMap: true,
-		})
-	)
+		}),
+	);
 }
 
 // loaders
@@ -149,19 +148,19 @@ webpackConfig.module.rules = [
 	{
 		test: USE_TSLOADER ? /\.(jsx?|tsx?)$/ : /\.jsx?$/,
 		include: [paths.source()],
-		loader: "babel-loader",
-		options: config.compiler_babel
+		loader: 'babel-loader',
+		options: config.compiler_babel,
 	},
 	{
 		test: /\.json$/,
-		loader: "json-loader",
+		loader: 'json-loader',
 		include: [
-			paths.root("./node_modules/ajv/lib/refs"),
-		]
+			paths.root('./node_modules/ajv/lib/refs'),
+		],
 	},
 ];
 if (USE_TSLOADER) {
-	webpackConfig.module.rules.push({test: /\.tsx?$/, loader: "ts-loader", options: {include: [paths.source()]}});
+	webpackConfig.module.rules.push({test: /\.tsx?$/, loader: 'ts-loader', options: {include: [paths.source()]}});
 }
 
 // file text-replacements
@@ -170,11 +169,11 @@ if (USE_TSLOADER) {
 /*webpackConfig.module.rules.push({
 	test: /\.jsx?$/,
 	loader: StringReplacePlugin.replace({replacements: [
-		// optimization; replace `State(a=>a.some.thing)` with `State("some/thing")`
+		// optimization; replace `State(a=>a.some.thing)` with `State('some/thing')`
 		{
 			pattern: /State\(a ?=> ?a\.([a-zA-Z_.]+)\)/g,
 			replacement: function(match, sub1, offset, string) {
-				return `State("${sub1.replace(/\./g, "/")}")`;
+				return `State('${sub1.replace(/\./g, '/')}')`;
 			}
 		},
 	]})
@@ -184,8 +183,8 @@ if (USE_TSLOADER) {
 // ==========
 
 // We use cssnano with the postcss loader, so we tell css-loader not to duplicate minimization.
-//const BASE_CSS_LOADER = "css-loader?sourceMap&-minimize"
-const BASE_CSS_LOADER = "css-loader?-minimize";
+//const BASE_CSS_LOADER = 'css-loader?sourceMap&-minimize'
+const BASE_CSS_LOADER = 'css-loader?-minimize';
 
 webpackConfig.module.rules.push({
 	test: /\.scss$/,
@@ -193,57 +192,57 @@ webpackConfig.module.rules.push({
 		MiniCssExtractPlugin.loader,
 		BASE_CSS_LOADER,
 		{
-			loader: "postcss-loader",
+			loader: 'postcss-loader',
 			options: cssnano({
 				autoprefixer: {
 					add: true,
 					remove: true,
-					browsers: ["last 2 versions"]
+					browsers: ['last 2 versions'],
 				},
 				discardComments: {
-					removeAll: true
+					removeAll: true,
 				},
 				discardUnused: false,
 				mergeIdents: false,
 				reduceIdents: false,
 				safe: true,
 				//sourcemap: true
-			})
+			}),
 		},
 		{
-			//loader: "sass-loader?sourceMap",
-			loader: "sass-loader",
+			//loader: 'sass-loader?sourceMap',
+			loader: 'sass-loader',
 			options: {
-				includePaths: [paths.source("styles")],
-			}
-		}
-	]
+				includePaths: [paths.source('styles')],
+			},
+		},
+	],
 });
 webpackConfig.module.rules.push({
 	test: /\.css$/,
 	use: [
 		MiniCssExtractPlugin.loader,
-		"css-loader",
-	]
+		'css-loader',
+	],
 });
 
 webpackConfig.plugins.push(new MiniCssExtractPlugin({
 	// Options similar to the same options in webpackOptions.output. Both options are optional.
-	filename: "[name].css",
-	chunkFilename: "[id].css"
+	filename: '[name].css',
+	chunkFilename: '[id].css',
 }));
 
 // finalize configuration
 // ==========
 
 if (OUTPUT_STATS) {
-	let CyclicDependencyChecker = require("webpack-dependency-tools").CyclicDependencyChecker;
+	const {CyclicDependencyChecker} = require('webpack-dependency-tools');
 	webpackConfig.plugins.push(
-		new CyclicDependencyChecker()
+		new CyclicDependencyChecker(),
 	);
 
 	webpackConfig.profile = true;
-	webpackConfig.stats = "verbose";
+	webpackConfig.stats = 'verbose';
 }
 
 module.exports = webpackConfig;
