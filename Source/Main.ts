@@ -8,19 +8,10 @@ import "js-vextensions";
 import "./Frame/General/ClassExtensions/CE_General";
 import "./Frame/General/Start_1";
 import "./Server/Server";
-import "codemirror";
-import "codemirror/addon/scroll/simplescrollbars";
-import "./Frame/UI/CodeMirrorConfig";
 //import ReactPerf from "react-addons-perf";
 import "./Frame/General/Profiling";
 
 import ReactDOM from "react-dom";
-import {Store} from "redux";
-import {RootState} from "./Store/index";
-import {FirebaseApp} from "./Frame/Database/DatabaseHelpers";
-import {GetCurrentURL} from "./Frame/General/URLs";
-import {VURL} from "js-vextensions";
-import Raven from "raven-js";
 //import Promise from "bluebird";
 
 // startup (non-hot)

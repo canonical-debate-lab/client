@@ -5,7 +5,7 @@ import Action from "Utils/General/Action";
 import ReactDOM from "react-dom";
 import {ParseModuleData, Require, GetModuleNameFromPath} from "webpack-runtime-require";
 
-var {store, persister} = CreateStore({}, {});
+export var {store, persister} = CreateStore({}, {});
 window["store"] = store;
 declare global {
 	type ProjectStore = Store<RootState> & {reducer: (state: RootState, action: Action<any>)=>RootState};

@@ -15,10 +15,10 @@ const compile = ()=> {
 				throw new Error("Config set to fail on warning, exiting with status code '1'.");
 			}
 			debug("Copying resources to dist folder.");
-			//fs.copySync(paths.client("Resources"), paths.dist());
-			fs.copySync(paths.base("Resources"), paths.dist());
-			fs.copySync(paths.base("Scripts/Config/dll/dll.vendor.js"), paths.dist("dll.vendor.js"));
-			fs.copySync(paths.base("Scripts/Config/dll/dll.vendor.js.map"), paths.dist("dll.vendor.js.map"));
+			//fs.copySync(paths.source("Resources"), paths.dist());
+			fs.copySync(paths.root("Resources"), paths.dist());
+			fs.copySync(paths.root("Scripts/Config/dll/dll.vendor.js"), paths.dist("dll.vendor.js"));
+			fs.copySync(paths.root("Scripts/Config/dll/dll.vendor.js.map"), paths.dist("dll.vendor.js.map"));
 		})
 		.then(()=> {
 			debug("Compilation completed successfully.");

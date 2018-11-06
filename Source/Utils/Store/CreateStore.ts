@@ -1,22 +1,9 @@
 import {applyMiddleware, compose, createStore, StoreEnhancer, Store} from "redux";
-import thunk from "redux-thunk";
-import {DBPath} from "../../Frame/Database/DatabaseHelpers";
-import {persistStore, persistReducer} from "redux-persist";
-import {createFilter, createBlacklistFilter} from "redux-persist-transform-filter";
 import {MakeRootReducer, RootState} from "../../Store/index";
-import watch from "redux-watch";
-import {PreDispatchAction, MidDispatchAction, PostDispatchAction} from "./ActionProcessor";
-//import {version, firebaseConfig} from "../../BakedConfig";
-//var {version, firebaseConfig} = require(PROD ? "../../BakedConfig_Prod" : "../../BakedConfig_Dev");
-//import {batchedUpdatesMiddleware} from "redux-batched-updates";
-import {batchedSubscribe} from "redux-batched-subscribe";
 import {unstable_batchedUpdates} from "react-dom";
 import {routerForBrowser} from "redux-little-router";
 
 import firebase_ from "firebase";
-import { reactReduxFirebase, firebaseReducer } from "react-redux-firebase";
-//import { reduxFirestore, firestoreReducer } from "redux-firestore";
-//import "firebase/firestore";
 
 let firebase = firebase_ as any;
 
@@ -36,10 +23,6 @@ const {reducer: routerReducer, middleware: routerMiddleware, enhancer: routerEnh
 //import {browserHistory} from "react-router";
 
 export function CreateStore(initialState = {}, history) {
-	// Window Vars Config
-	// ==========
-	g.version = version;
-
 	// Middleware Configuration
 	// ==========
 	const middleware = [

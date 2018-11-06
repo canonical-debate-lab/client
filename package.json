@@ -143,11 +143,17 @@
   "license": "MIT",
   "dependencies": {
     "firebase": "^3.6.5",
+    "js-vextensions": "0.0.4",
     "react": "15.6.2",
     "react-dom": "^15.5.4",
+    "react-vcomponents": "0.0.3",
+    "react-vextensions": "0.0.3",
+    "react-vmenu": "0.0.4",
+    "react-vmessagebox": "0.0.2",
     "recharts": "^0.21.2",
     "redux": "^3.6.0",
     "redux-little-router": "^13.1.2",
+    "redux-persist": "^5.10.0",
     "webpack-runtime-require": "^0.1.1"
   },
   "devDependencies": {
@@ -177,6 +183,9 @@
     "css-loader": "^0.28.4",
     "cssnano": "^3.7.4",
     "debug": "^2.2.0",
+    "eslint": "^5.8.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
     "express": "^4.14.0",
     "fast-sass-loader": "^1.2.5",
     "file-loader": "^0.9.0",

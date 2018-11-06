@@ -19,17 +19,15 @@ Object.assign(config, {
 	// project structure
 	// ----------
 	
-	path_base: path.resolve(__dirname, ".."),
-	dir_client: USE_TSLOADER ? "Source" : "Source_JS",
+	path_root: path.resolve(__dirname, ".."),
+	dir_source: USE_TSLOADER ? "Source" : "Source_JS",
 	dir_dist: "dist",
-	dir_server: "Scripts/Server",
-	dir_test: "Tests",
 
 	// server configuration
 	// ----------
 
 	server_host: ip.address(), // use string "localhost" to prevent exposure on local network
-	server_port: PORT || 3000,
+	server_port: PORT || 3005,
 
 	// compiler configuration
 	// ----------
@@ -124,9 +122,9 @@ Object.assign(config.globals, {
 // ==========
 
 config.utils_paths = {
-	base: (...extra)=>path.resolve(config.path_base, ...extra),
-	client: (...extra)=>path.resolve(config.path_base, config.dir_client, ...extra),
-	dist: (...extra)=>path.resolve(config.path_base, config.dir_dist, ...extra),
+	root: (...extra)=>path.resolve(config.path_root, ...extra),
+	source: (...extra)=>path.resolve(config.path_root, config.dir_source, ...extra),
+	dist: (...extra)=>path.resolve(config.path_root, config.dir_dist, ...extra),
 };
 
 // environment configuration

@@ -29,7 +29,7 @@ if (DEV) {
 	debug("Enable webpack dev and HMR middleware");
 	app.use(require("webpack-dev-middleware")(compiler, {
 		publicPath: webpackConfig.output.publicPath,
-		contentBase: paths.client(),
+		contentBase: paths.source(),
 		hot: config.useHotReloading,
 		quiet: config.compiler_quiet,
 		noInfo: config.compiler_quiet,
@@ -43,9 +43,9 @@ if (DEV) {
 
 	// Serve static assets from ~/Source/Resources since Webpack is unaware of these files.
 	// This middleware doesn't need to be enabled outside of development since this directory will be copied into ~/dist when the application is compiled.
-	//app.use(express.static(paths.client("Resources")));
-	app.use(express.static(paths.base("Resources")));
-	app.use(express.static(paths.base("Scripts/Config/dll"))); // enable static-loading of dll.vendor.js
+	//app.use(express.static(paths.source("Resources")));
+	app.use(express.static(paths.root("Resources")));
+	app.use(express.static(paths.root("Scripts/Config/dll"))); // enable static-loading of dll.vendor.js
 	app.use(express.static(paths.dist())); // enable static loading of files in dist, for dll.vendor.js
 } else {
 	debug(

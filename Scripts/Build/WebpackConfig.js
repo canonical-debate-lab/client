@@ -27,15 +27,16 @@ const webpackConfig = {
 	},
 	target: "web",
 	devtool: config.compiler_devtool,
+	module: {},
 	resolve: {
 		modules: [
 			"node_modules",
-			paths.client(),
+			paths.source(),
 		],
 		extensions: [".js", ".jsx", ".json"].concat(USE_TSLOADER ? [".ts", ".tsx"] : []),
 		alias: {
-			"react": paths.base() + "/node_modules/react/",
-			"react-dom": paths.base() + "/node_modules/react-dom/",
+			"react": paths.root() + "/node_modules/react/",
+			"react-dom": paths.root() + "/node_modules/react-dom/",
 		}
 	},
 };
@@ -43,7 +44,7 @@ const webpackConfig = {
 // entry points
 // ==========
 
-const APP_ENTRY = paths.client(USE_TSLOADER ? "Main.ts" : "Main.js");
+const APP_ENTRY = paths.source(USE_TSLOADER ? "Main.ts" : "Main.js");
 
 webpackConfig.entry = {
 	app: DEV && config.useHotReloading
@@ -82,8 +83,8 @@ webpackConfig.plugins = [
 	},
 	new webpack.DefinePlugin(config.globals),
 	new HtmlWebpackPlugin({
-		//template: paths.client("index.html"),
-		//template: paths.base("Source/index.html"),
+		//template: paths.source("index.html"),
+		//template: paths.root("Source/index.html"),
 		template: "./Source/index.html",
 		hash: false,
 		filename: "index.html",
@@ -147,7 +148,7 @@ if (DEV) {
 webpackConfig.module.rules = [
 	{
 		test: USE_TSLOADER ? /\.(jsx?|tsx?)$/ : /\.jsx?$/,
-		include: [paths.client()],
+		include: [paths.source()],
 		loader: "babel-loader",
 		options: config.compiler_babel
 	},
@@ -155,12 +156,12 @@ webpackConfig.module.rules = [
 		test: /\.json$/,
 		loader: "json-loader",
 		include: [
-			"./node_modules/ajv/lib/refs",
+			paths.root("./node_modules/ajv/lib/refs"),
 		]
 	},
 ];
 if (USE_TSLOADER) {
-	webpackConfig.module.rules.push({test: /\.tsx?$/, loader: "ts-loader", options: {include: [paths.client()]}});
+	webpackConfig.module.rules.push({test: /\.tsx?$/, loader: "ts-loader", options: {include: [paths.source()]}});
 }
 
 // file text-replacements
@@ -213,7 +214,7 @@ webpackConfig.module.rules.push({
 			//loader: "sass-loader?sourceMap",
 			loader: "sass-loader",
 			options: {
-				includePaths: [paths.client("styles")],
+				includePaths: [paths.source("styles")],
 			}
 		}
 	]
