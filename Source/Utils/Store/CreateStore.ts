@@ -1,42 +1,29 @@
-import {applyMiddleware, compose, createStore, StoreEnhancer, Store} from "redux";
-import {MakeRootReducer, RootState} from "../../Store/index";
-import {unstable_batchedUpdates} from "react-dom";
+import {applyMiddleware, compose, createStore, StoreEnhancer} from "redux";
+import {MakeRootReducer} from "../../Store/index";
 import {routerForBrowser} from "redux-little-router";
-
 import firebase_ from "firebase";
+import {DBPath} from "Utils/Database/DatabaseHelpers";
+import {PreDispatchAction, PostDispatchAction} from "Store/ActionProcessor";
+import {firebaseConfig} from "Main";
 
-let firebase = firebase_ as any;
+const firebase = firebase_ as any;
 
-let routes = {
-	"/": {},
-	"/:seg": {},
-	"/:seg/:seg": {},
-	"/:seg/:seg/:seg": {},
-	"/:seg/:seg/:seg/:seg": {},
-	"/:seg/:seg/:seg/:seg/:seg": {},
+const routes = {
+	'/': {},
+	'/:seg': {},
+	'/:seg/:seg': {},
+	'/:seg/:seg/:seg': {},
+	'/:seg/:seg/:seg/:seg': {},
+	'/:seg/:seg/:seg/:seg/:seg': {},
 };
 const {reducer: routerReducer, middleware: routerMiddleware, enhancer: routerEnhancer} = routerForBrowser({
-  routes,
+	routes,
 });
 
-//export const browserHistory = createBrowserHistory();
-//import {browserHistory} from "react-router";
-
-export function CreateStore(initialState = {}, history) {
+export function CreateStore(initialState = {}) {
 	// Middleware Configuration
 	// ==========
 	const middleware = [
-		//thunk.withExtraArgument(getFirebase),
-		// for some reason, this breaks stuff if we have it the last one
-		/*store=>next=>action=> {
-			Log("What!" + action.type);
-			PreDispatchAction(action);
-			const returnValue = next(action);
-			MidDispatchAction(action, returnValue);
-			WaitXThenRun(0, ()=>PostDispatchAction(action));
-			return returnValue;
-		},*/
-		//routerMiddleware(browserHistory),
 		routerMiddleware,
 	];
 	let lateMiddleware = [
@@ -44,7 +31,7 @@ export function CreateStore(initialState = {}, history) {
 		store=>next=>action=> {
 			PreDispatchAction(action); if (action.type == "ApplyActionSet") for (let sub of action.actions) PreDispatchAction(sub);
 			const returnValue = next(action);
-			MidDispatchAction(action, returnValue); if (action.type == "ApplyActionSet") for (let sub of action.actions) MidDispatchAction(sub, returnValue);
+			//MidDispatchAction(action, returnValue); if (action.type == "ApplyActionSet") for (let sub of action.actions) MidDispatchAction(sub, returnValue);
 			WaitXThenRun(0, ()=> {
 				PostDispatchAction(action); if (action.type == "ApplyActionSet") for (let sub of action.actions) PostDispatchAction(sub);
 			});
@@ -57,51 +44,11 @@ export function CreateStore(initialState = {}, history) {
 
 	let reduxDevToolsConfig = {
 		maxAge: 70,
-		/*actionSanitizer: action=> {
-			function Sanitize(action) {
-				if (action.type == "@@reactReduxFirebase/SET" && action.path.startsWith(DBPath("nodes"))) {
-					return {...action, data: "<<IGNORED>>"};
-				}
-				return action;
-			}
-			if (action.type == "ApplyActionSet") {
-				return {...action, actions: action.actions.map(a=>Sanitize(a))};
-			}
-			return Sanitize(action);
-		},
-		stateSanitizer: action=> {
-			function Sanitize(action) {
-				if (action.type == "@@reactReduxFirebase/SET" && action.path.startsWith(DBPath("nodes"))) {
-					return {...action, data: "<<IGNORED>>"};
-				}
-				return action;
-			}
-			if (action.type == "ApplyActionSet") {
-				return {...action, actions: action.actions.map(a=>Sanitize(a))};
-			}
-			return Sanitize(action);
-		},*/
-		/*serialize: {
-			replacer: (key, value)=> {
-				// ignore "nodes" subtree
-				if (value && value.currentRevision) return "<<IGNORED>>";
-				//if (value && value.currentRevision) return {data: "<<IGNORED>>"};
-				return value;
-			},
-			reviver: (key, value)=> {
-				// ignore "nodes" subtree
-				if (value && value.currentRevision) return "<<IGNORED>>";
-				return value;
-			},
-		},*/
-		/*actionsFilter: (action) => (action.places ? Object.assign(action, { places: [] }) : action),
- 		statesFilter: (state) => (state.places ? Object.assign(state, {places: [] }) : state)*/
 	};
 
 	// Store Instantiation and HMR Setup
 	// ==========
 
-	//reduxConfig["userProfile"] = DBPath("users"); // root that user profiles are written to
 	let reduxFirebaseConfig = {
 		userProfile: DBPath("users"), // root that user profiles are written to
 		enableLogging: false, // enable/disable Firebase Database Logging
@@ -128,8 +75,8 @@ export function CreateStore(initialState = {}, history) {
 			//autoRehydrate({log: true}),
 			routerEnhancer,
 			applyMiddleware(...middleware),
-			reactReduxFirebase(firebase, reduxFirebaseConfig),
-			batchedSubscribe(unstable_batchedUpdates),
+			//reactReduxFirebase(firebase, reduxFirebaseConfig),
+			//batchedSubscribe(unstable_batchedUpdates),
 			applyMiddleware(...lateMiddleware), // place late-middleware after reduxFirebase, so it can intercept all its dispatched events
 			g.devToolsExtension && g.devToolsExtension(reduxDevToolsConfig),
 		].filter(a=>a)) as StoreEnhancer<any>

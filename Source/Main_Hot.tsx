@@ -1,7 +1,7 @@
 import { CreateStore } from "Utils/Store/CreateStore";
 import {Store} from "redux";
 import { RootState } from "Store";
-import Action from "Utils/General/Action";
+import {Action} from "Utils/General/Action";
 import ReactDOM from "react-dom";
 import {ParseModuleData, Require, GetModuleNameFromPath} from "webpack-runtime-require";
 

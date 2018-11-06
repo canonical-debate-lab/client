@@ -42,7 +42,7 @@ if (ENV_COMPILE_TIME != "production") {
 //let {version} = require("../../../package.json");
 // Note: Use two BakedConfig files, so that dev-server can continue running, with its own baked-config data, even while prod-deploy occurs.
 // Note: Don't reference the BakedConfig files from anywhere but here (in runtime code) -- because we want to be able to override it, below.
-let {version, firebaseConfig} = DEV ? require("./BakedConfig_Dev") : require("./BakedConfig_Prod");
+export let {version, firebaseConfig} = DEV ? require("./BakedConfig_Dev") : require("./BakedConfig_Prod");
 
 // hot-reloading
 // ==========
