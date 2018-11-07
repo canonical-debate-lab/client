@@ -1,10 +1,10 @@
 import firebase_ from 'firebase';
 import { firebaseConfig } from 'Main';
-import { applyMiddleware, compose, createStore, StoreEnhancer } from 'redux';
+import { applyMiddleware, compose, createStore, StoreEnhancer, Store } from 'redux';
 import { routerForBrowser } from 'redux-little-router';
 import { PostDispatchAction, PreDispatchAction } from 'Store/ActionProcessor';
-import { DBPath } from 'Utils/Database/DatabaseHelpers';
-import { MakeRootReducer } from '../../Store/index';
+import { MakeRootReducer, RootState } from 'Store/index';
+import { Action } from './Action'; // eslint-disable-line
 
 const firebase = firebase_ as any;
 
@@ -16,9 +16,19 @@ const routes = {
 	'/:seg/:seg/:seg/:seg': {},
 	'/:seg/:seg/:seg/:seg/:seg': {},
 };
-const {reducer: routerReducer, middleware: routerMiddleware, enhancer: routerEnhancer} = routerForBrowser({
+const { reducer: routerReducer, middleware: routerMiddleware, enhancer: routerEnhancer } = routerForBrowser({
 	routes,
 });
+
+export function ClearLocalData(persister) {
+	persister.purge();
+	// localStorage.clear();
+	Object.keys(window.localStorage).forEach((key) => {
+		if (key.startsWith('firebase:')) return; // keep auth-info
+		delete window.localStorage[key];
+	});
+}
+
 
 export function CreateStore(initialState = {}) {
 	// Middleware Configuration
@@ -26,14 +36,14 @@ export function CreateStore(initialState = {}) {
 	const middleware = [
 		routerMiddleware,
 	];
-	let lateMiddleware = [
+	const lateMiddleware = [
 		// for some reason, this breaks stuff if we have it the last one
-		store=>next=>action=> {
-			PreDispatchAction(action); if (action.type == 'ApplyActionSet') for (let sub of action.actions) PreDispatchAction(sub);
+		() => next => (action) => {
+			PreDispatchAction(action);
 			const returnValue = next(action);
-			//MidDispatchAction(action, returnValue); if (action.type == 'ApplyActionSet') for (let sub of action.actions) MidDispatchAction(sub, returnValue);
-			WaitXThenRun(0, ()=> {
-				PostDispatchAction(action); if (action.type == 'ApplyActionSet') for (let sub of action.actions) PostDispatchAction(sub);
+			// MidDispatchAction(action, returnValue);
+			WaitXThenRun(0, () => {
+				PostDispatchAction(action);
 			});
 			return returnValue;
 		},
@@ -42,94 +52,71 @@ export function CreateStore(initialState = {}) {
 	// redux-dev-tools config
 	// ==========
 
-	let reduxDevToolsConfig = {
+	const reduxDevToolsConfig = {
 		maxAge: 70,
 	};
 
 	// Store Instantiation and HMR Setup
 	// ==========
 
-	let reduxFirebaseConfig = {
+	/* const reduxFirebaseConfig = {
 		userProfile: DBPath('users'), // root that user profiles are written to
 		enableLogging: false, // enable/disable Firebase Database Logging
 		updateProfileOnLogin: false, // enable/disable updating of profile on login
 		// profileDecorator: (userData) => ({ email: userData.email }) // customize format of user profile
-		//useFirestoreForProfile: true, // for now, use firebase
+		// useFirestoreForProfile: true, // for now, use firebase
 		preserveOnLogout: [DBPath()],
-	};
-	if (firebase.apps.length == 0) {
+	}; */
+	if (firebase.apps.length === 0) {
 		firebase.initializeApp(firebaseConfig);
 	}
-	//g.firestoreDB = firebase.firestore(); // can also use store.firebase.firestore()
+	// g.firestoreDB = firebase.firestore(); // can also use store.firebase.firestore()
 
-	let extraReducers = {
+	const extraReducers = {
 		router: routerReducer,
 	};
-	let rootReducer = MakeRootReducer(extraReducers);
+	const rootReducer = MakeRootReducer(extraReducers);
 	const store = createStore(
 		rootReducer,
 		initialState,
 		// Note: Compose applies functions from right to left: compose(f, g, h) = (...args)=>f(g(h(...args))).
 		// You can think of the earlier ones as 'wrapping' and being able to 'monitor' the ones after it, but (usually) telling them 'you apply first, then I will'.
 		compose(...[
-			//autoRehydrate({log: true}),
+			// autoRehydrate({log: true}),
 			routerEnhancer,
 			applyMiddleware(...middleware),
-			//reactReduxFirebase(firebase, reduxFirebaseConfig),
-			//batchedSubscribe(unstable_batchedUpdates),
+			// reactReduxFirebase(firebase, reduxFirebaseConfig),
+			// batchedSubscribe(unstable_batchedUpdates),
 			applyMiddleware(...lateMiddleware), // place late-middleware after reduxFirebase, so it can intercept all its dispatched events
-			g.devToolsExtension && g.devToolsExtension(reduxDevToolsConfig),
-		].filter(a=>a)) as StoreEnhancer<any>
+			window['devToolsExtension'] && window['devToolsExtension'](reduxDevToolsConfig),
+		].filter(a => a)) as StoreEnhancer<any>,
 	) as ProjectStore;
 	store.reducer = rootReducer;
 
-	function Dispatch_WithStack(action) {
-		if (g.actionStacks || (DEV && !actionStacks_actionTypeIgnorePatterns.Any(a=>action.type.startsWith(a)))) {
-			action['stack'] = new Error().stack.split('\n').slice(1); // add stack, so we can inspect in redux-devtools
-		}
-		store['dispatch_orig'](action);
-	}
-	if (store.dispatch != Dispatch_WithStack) {
-		store['dispatch_orig'] = store.dispatch;
-		store.dispatch = Dispatch_WithStack;
-	}
-	const actionStacks_actionTypeIgnorePatterns = [
-		'@@reactReduxFirebase/', // ignore redux actions
-	];
-
-	/*let w = watch(()=>State());
+	/* let w = watch(()=>State());
 	store.subscribe(w((newVal, oldVal) => {
 		ProcessAction(g.lastAction, newVal, oldVal);
-	}));*/
+	})); */
 
 	// begin periodically persisting the store
-	//let persister = persistStore(store, {whitelist: ['main']});
+	// let persister = persistStore(store, {whitelist: ['main']});
 	// you want to remove some keys before you save
-	//let persister = persistStore(store, null, ()=>g.storeRehydrated = true);
-	let persister = persistStore(store);
+	// let persister = persistStore(store, null, ()=>g.storeRehydrated = true);
+	const persister = persistStore(store);
 	if (startURL.GetQueryVar('clearState')) {
-		Log('Clearing redux-store's state and local-storage...');
+		Log('Clearing redux-store\'s state and local-storage...');
 		ClearLocalData(persister);
 	}
 
 	if (DEV) {
 		if (module.hot) {
 			module.hot.accept('../../Store', () => {
-				let {MakeRootReducer} = require('../../Store');
-				store.reducer = MakeRootReducer(extraReducers);
+				const MakeRootReducer_new = require('Store').MakeRootReducer; // eslint-disable-line global-require
+				store.reducer = MakeRootReducer_new(extraReducers);
 				store.replaceReducer(store.reducer);
 			});
 		}
 	}
 
-	return {store, persister};
-}
-
-export function ClearLocalData(persister) {
-	persister.purge();
-	//localStorage.clear();
-	for (let key in localStorage) {
-		if (key.startsWith('firebase:')) continue; // keep auth-info
-		delete localStorage[key];
-	}
+	return { store, persister };
 }

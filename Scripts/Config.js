@@ -1,13 +1,13 @@
 const path = require('path');
 const debug = require('debug')('app:config');
-const {argv} = require('yargs');
+const { argv } = require('yargs');
 const ip = require('ip');
 
-const {NODE_ENV, PORT, USE_TSLOADER, BASENAME} = process.env;
+const { NODE_ENV, PORT, USE_TSLOADER, BASENAME } = process.env;
 
 // make these variables global throughout the compile-time scripts
 global.ENV = NODE_ENV;
-global.ENV_SHORT = {development: 'dev', production: 'prod'}[ENV] || ENV;
+global.ENV_SHORT = { development: 'dev', production: 'prod' }[ENV] || ENV;
 global.DEV = ENV === 'development';
 global.PROD = ENV === 'production';
 global.TEST = ENV === 'test';
@@ -49,7 +49,7 @@ Object.assign(config, {
 			'babel-plugin-transform-es2015-destructuring',
 			'babel-plugin-transform-es2015-duplicate-keys',
 			// 'babel-plugin-transform-es2015-for-of', // ohhh, I hate this thing... (the try-catch wrapping within transpiled for-of's)
-			PROD && ['babel-plugin-transform-es2015-for-of', {loose: true}], // loose removes the try-catch wrapping
+			PROD && ['babel-plugin-transform-es2015-for-of', { loose: true }], // loose removes the try-catch wrapping
 			'babel-plugin-transform-es2015-function-name',
 			'babel-plugin-transform-es2015-literals',
 			'babel-plugin-transform-es2015-modules-commonjs', // uncommented; went back to using interop... (regenerator needs it -_-)
@@ -69,10 +69,10 @@ Object.assign(config, {
 			'babel-plugin-transform-class-properties',
 
 			PROD && 'babel-plugin-transform-runtime', // for 'async' transpilation; had been disabled, but found still needed for googlebot
-			//['babel-plugin-transform-runtime', {'regenerator': false}],
+			// ['babel-plugin-transform-runtime', {'regenerator': false}],
 			'babel-plugin-lodash',
-			'babel-plugin-transform-decorators-legacy'
-		].filter(a=>a),
+			'babel-plugin-transform-decorators-legacy',
+		].filter(a => a),
 	},
 	// list of types: https://webpack.js.org/configuration/devtool
 	compiler_devtool: 'cheap-source-map', // shows: transpiled-to-js [.8s/rebuild]
@@ -88,8 +88,8 @@ Object.assign(config, {
 	// Test Configuration
 	// ----------
 	coverage_reporters: [
-		{type: 'text-summary'},
-		{type: 'lcov', dir: 'coverage'},
+		{ type: 'text-summary' },
+		{ type: 'lcov', dir: 'coverage' },
 	],
 });
 
@@ -107,13 +107,16 @@ config.globals = {
 
 if (PROD) {
 	// If building for production, lock all the env-variables as compile-time defines. (meaning eg. `if (DEV)` blocks are compiled out)
-	Object.assign(config.globals, {ENV_SHORT: S(ENV_SHORT), ENV: S(ENV), DEV: S(DEV), PROD: S(PROD), TEST: S(TEST)});
+	Object.assign(config.globals, { ENV_SHORT: S(ENV_SHORT), ENV: S(ENV), DEV: S(DEV), PROD: S(PROD), TEST: S(TEST) });
 }
 
 // DON'T EVER USE THESE; we only include them in case libraries use them (such as redux)
 Object.assign(config.globals, {
-	'process.env': {NODE_ENV: S(ENV)}, NODE_ENV: S(ENV),
-	__DEV__: S(DEV), __PROD__: S(PROD), __TEST__: S(TEST),
+	'process.env': { NODE_ENV: S(ENV) },
+	NODE_ENV: S(ENV),
+	__DEV__: S(DEV),
+	__PROD__: S(PROD),
+	__TEST__: S(TEST),
 	__COVERAGE__: !argv.watch ? S(TEST) : null,
 	__BASENAME__: S(BASENAME),
 });
@@ -141,7 +144,7 @@ if (PROD) {
 	config.compiler_stats = {
 		chunks: true,
 		chunkModules: true,
-		colors: true
+		colors: true,
 	};
 }
 

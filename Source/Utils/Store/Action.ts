@@ -10,10 +10,10 @@ export class Action<Payload> {
 
 	Is<Payload2>(actionType: new(..._)=>Action<Payload2>): this is Action<Payload2> {
 		if (actionType == null) return false; // this can occur during start-up 'assert reducer sanity' phase
-		return this.type == actionType.name;
-		//return this instanceof actionType; // alternative
+		return this.type === actionType.name;
+		// return this instanceof actionType; // alternative
 	}
 	IsAny(...actionTypes: (new(..._)=>Action<any>)[]) {
-		return actionTypes.find(a=>this.type == a.name) != null;
+		return actionTypes.find(a => this.type === a.name) != null;
 	}
 }

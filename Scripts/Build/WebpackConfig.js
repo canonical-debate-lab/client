@@ -9,7 +9,7 @@ const StringReplacePlugin = require('string-replace-webpack-plugin');
 const config = require('../Config');
 
 const paths = config.utils_paths;
-const {QUICK, USE_TSLOADER, OUTPUT_STATS} = process.env;
+const { QUICK, USE_TSLOADER } = process.env;
 
 const root = path.join(__dirname, '..', '..');
 
@@ -70,7 +70,7 @@ webpackConfig.plugins = [
 		this.plugin('done', (stats) => {
 			if (stats.compilation.errors.length) {
 				// Log each of the warnings
-				stats.compilation.errors.forEach(function(error) {
+				stats.compilation.errors.forEach((error) => {
 					errors.push(error.message || error);
 				});
 
@@ -160,7 +160,7 @@ webpackConfig.module.rules = [
 	},
 ];
 if (USE_TSLOADER) {
-	webpackConfig.module.rules.push({test: /\.tsx?$/, loader: 'ts-loader', options: {include: [paths.source()]}});
+	webpackConfig.module.rules.push({test: /\.tsx?$/, loader: 'ts-loader', options: { include: [paths.source()] }});
 }
 
 // file text-replacements
@@ -231,18 +231,5 @@ webpackConfig.plugins.push(new MiniCssExtractPlugin({
 	filename: '[name].css',
 	chunkFilename: '[id].css',
 }));
-
-// finalize configuration
-// ==========
-
-if (OUTPUT_STATS) {
-	const {CyclicDependencyChecker} = require('webpack-dependency-tools');
-	webpackConfig.plugins.push(
-		new CyclicDependencyChecker(),
-	);
-
-	webpackConfig.profile = true;
-	webpackConfig.stats = 'verbose';
-}
 
 module.exports = webpackConfig;

@@ -1,7 +1,7 @@
-import {combineReducers} from 'redux';
-import {SplitStringBySlash_Cached} from 'Utils/Database/StringSplitCache';
-import {DeepGet} from 'js-vextensions';
-import {OnAccessPath} from 'Utils/Database/FirebaseConnect';
+import { DeepGet } from 'js-vextensions';
+import { combineReducers } from 'redux';
+import { OnAccessPath } from 'Utils/Database/FirebaseConnect';
+import { SplitStringBySlash_Cached } from 'Utils/Database/StringSplitCache';
 
 export class RootState {
 }

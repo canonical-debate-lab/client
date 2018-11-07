@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { watchEvents } from 'react-redux-firebase/lib/actions/query';
 import { getEventsFromInput } from 'react-redux-firebase/lib/utils';
 import { ShallowChanged } from 'react-vextensions';
-import { ApplyActionSet, RootState } from '../../Store/index';
+import { RootState } from '../../Store/index';
 import { activeStoreAccessCollectors } from './DatabaseHelpers';
 
 // Place a selector in Connect() whenever it uses data that:
@@ -23,7 +23,7 @@ export function Connect<T, P>(funcOrFuncGetter) {
 
 	let mapStateToProps_wrapper = function(state: RootState, props: P) {
 		let s = this;
-		g.inConnectFunc = true;
+		window['inConnectFunc'] = true;
 
 		ClearRequestedPaths();
 		ClearAccessedPaths();
@@ -48,7 +48,7 @@ export function Connect<T, P>(funcOrFuncGetter) {
 		let changedProps = GetPropsChanged(s.lastProps, props, false);
 
 		if (!storeDataChanged && changedProps.length == 0) {
-			g.inConnectFunc = false;
+			window['inConnectFunc'] = false;
 			return s.lastResult;
 		}
 
@@ -70,7 +70,7 @@ export function Connect<T, P>(funcOrFuncGetter) {
 				// for now, we just never unwatch
 				//unWatchEvents(firebase, DispatchDBAction, getEventsFromInput(removedPaths));
 				let addedPaths = requestedPaths.Except(...oldRequestedPaths);
-				watchEvents(firebase, DispatchDBAction, getEventsFromInput(addedPaths));
+				watchEvents(firebase, store.dispatch, getEventsFromInput(addedPaths));
 				// for debugging, you can check currently-watched-paths using: store.firebase._.watchers
 			});
 			s.lastRequestedPaths = requestedPaths;
@@ -85,7 +85,7 @@ export function Connect<T, P>(funcOrFuncGetter) {
 		s.lastProps = props;
 		s.lastResult = result;
 
-		g.inConnectFunc = false;
+		window['inConnectFunc'] = false;
 
 		return result;
 	};
@@ -97,41 +97,6 @@ export function Connect<T, P>(funcOrFuncGetter) {
 		mapStateToProps_inner = mapStateToProps_inner_getter();
 		return mapStateToProps_wrapper;
 	}, null, null, {withRef: true});
-}
-
-let actionTypeBufferInfos = {
-	'@@reactReduxFirebase/START': {time: 300},
-	'@@reactReduxFirebase/SET': {time: 300},
-};
-let actionTypeLastDispatchTimes = {};
-let actionTypeBufferedActions = {};
-
-function DispatchDBAction(action) {
-	let timeSinceLastDispatch = Date.now() - (actionTypeLastDispatchTimes[action.type] || 0);
-	let bufferInfo = actionTypeBufferInfos[action.type];
-
-	// if we're not supposed to buffer this action type, or it's been long enough since last dispatch of this type
-	if (bufferInfo == null || timeSinceLastDispatch >= bufferInfo.time) {
-		// dispatch action right away
-		store.dispatch(action);
-		actionTypeLastDispatchTimes[action.type] = Date.now();
-	}
-	// else, buffer action to be dispatched later
-	else {
-		// if timer not started, start it now
-		if (actionTypeBufferedActions[action.type] == null) {
-			setTimeout(()=> {
-				// now that wait is over, apply any buffered event-triggers
-				store.dispatch(new ApplyActionSet(actionTypeBufferedActions[action.type]));
-
-				actionTypeLastDispatchTimes[action.type] = Date.now();
-				actionTypeBufferedActions[action.type] = null;
-			}, (actionTypeLastDispatchTimes[action.type] + bufferInfo.time) - Date.now());
-		}
-
-		// add action to buffer, to be run when timer ends
-		actionTypeBufferedActions[action.type] = (actionTypeBufferedActions[action.type] || []).concat(action);
-	}
 }
 
 let requestedPaths = {} as {[key: string]: boolean};

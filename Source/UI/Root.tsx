@@ -1,5 +1,5 @@
 import { Vector2i, VURL } from 'js-vextensions';
-//import '../Frame/Styles/bootstrap/bootstrap.scss';
+//import '../Utils/Styles/bootstrap/bootstrap.scss';
 import { Provider } from 'react-redux';
 import { Column } from 'react-vcomponents';
 // We only need to import the modules necessary for initial render
@@ -8,9 +8,9 @@ import { VMenuLayer } from 'react-vmenu';
 import { MessageBoxUI } from 'react-vmessagebox';
 import { RouterProvider } from 'redux-little-router';
 import { PersistGate as PersistGate_ } from 'redux-persist/integration/react';
-//import '../Frame/Styles/Core.scss';
-import '../../Source/Frame/Styles/Core.scss';
-import '../Frame/UI/JQueryExtensions';
+//import '../Utils/Styles/Core.scss';
+import '../../Source/Utils/Styles/Core.scss';
+import '../Utils/UI/JQueryExtensions';
 import { HomeUI } from '../UI/Home';
 import { persister } from 'Main_Hot';
 let PersistGate = PersistGate_ as any;
