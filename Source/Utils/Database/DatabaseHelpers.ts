@@ -2,12 +2,13 @@ import { Assert, CachedTransform, DeepSet, GetStorageForCachedTransform, GetTree
 import { unWatchEvents, watchEvents } from 'react-redux-firebase/lib/actions/query';
 import { getEventsFromInput } from 'react-redux-firebase/lib/utils';
 import { ShallowChanged } from 'react-vextensions';
-import { StartBufferingActions, StopBufferingActions } from 'Store';
-import { FirebaseData } from 'Store/firebase';
-import { State_overrideData_path } from 'UI/@Shared/StateOverrides';
 import u from 'updeep';
 import { SplitStringBySlash_Cached } from 'Utils/Database/StringSplitCache';
 import { ClearRequestedPaths, GetRequestedPaths, RequestPath } from './FirebaseConnect';
+import { store } from 'Main_Hot';
+import {FirebaseData} from "Store/firebase";
+import { dbVersion } from 'Main';
+import { State } from 'Store';
 
 export function DBPath(path = '', inVersionRoot = true) {
 	Assert(path != null, 'Path cannot be null.');
@@ -210,10 +211,9 @@ export async function GetDataAsync(...args) {
  */
 G({GetAsync});
 export async function GetAsync<T>(dbGetterFunc: ()=>T, statsLogger?: ({requestedPaths: string})=>void): Promise<T> {
-	Assert(!g.inConnectFunc, 'Cannot run GetAsync() from within a Connect() function.');
+	Assert(!window['inConnectFunc'], 'Cannot run GetAsync() from within a Connect() function.');
 	//Assert(!g.inGetAsyncFunc, 'Cannot run GetAsync() from within a GetAsync() function.');
 	let firebase = store.firebase;
-	let dbDataLocked = State_overrideData_path == `firebase/data/${DBPath()}`;
 
 	let result;
 
@@ -226,29 +226,21 @@ export async function GetAsync<T>(dbGetterFunc: ()=>T, statsLogger?: ({requested
 		result = dbGetterFunc();
 		let newRequestedPaths = GetRequestedPaths().Except(requestedPathsSoFar.VKeys());
 
-		if (!dbDataLocked) {
-			StartBufferingActions();
-			//let oldNodeRenderCount = NodeUI.renderCount;
-			unWatchEvents(firebase, store.dispatch, getEventsFromInput(newRequestedPaths)); // do this just to trigger re-get
-			// start watching paths (causes paths to be requested)
-			watchEvents(firebase, store.dispatch, getEventsFromInput(newRequestedPaths));
-			//Assert(NodeUI.renderCount == oldNodeRenderCount, 'NodeUIs rendered during unwatch/watch event!');
-			StopBufferingActions();
-		}
+		unWatchEvents(firebase, store.dispatch, getEventsFromInput(newRequestedPaths)); // do this just to trigger re-get
+		// start watching paths (causes paths to be requested)
+		watchEvents(firebase, store.dispatch, getEventsFromInput(newRequestedPaths));
 
 		for (let path of newRequestedPaths) {
 			requestedPathsSoFar[path] = true;
 			// wait till data is received (assuming we don't have a state-override that's just locking the content of firebase.data anyway)
-			if (!dbDataLocked) {
-				await WaitTillPathDataIsReceived(path);
-			}
+			await WaitTillPathDataIsReceived(path);
 		}
 
 		// stop watching paths (since we already got their data)
 		// todo: find correct way of unwatching events; the way below seems to sometimes unwatch while still needed watched
 		// for now, we just never unwatch
 		//unWatchEvents(firebase, store.dispatch, getEventsFromInput(newRequestedPaths));
-	} while (ShallowChanged(requestedPathsSoFar, requestedPathsSoFar_last) && !dbDataLocked)
+	} while (ShallowChanged(requestedPathsSoFar, requestedPathsSoFar_last))
 
 	/*let paths_final = requestedPathsSoFar.VKeys();
 	let paths_data = await Promise.all(paths_final.map(path=>GetDataAsync(path)));

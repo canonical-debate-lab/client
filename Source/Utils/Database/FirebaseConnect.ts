@@ -3,8 +3,10 @@ import { connect } from 'react-redux';
 import { watchEvents } from 'react-redux-firebase/lib/actions/query';
 import { getEventsFromInput } from 'react-redux-firebase/lib/utils';
 import { ShallowChanged } from 'react-vextensions';
-import { RootState } from '../../Store/index';
+import { RootState, State } from '../../Store/index';
 import { activeStoreAccessCollectors } from './DatabaseHelpers';
+import { store } from 'Main_Hot';
+import { GetUser, GetUserID, GetUserPermissionGroups } from 'Store/firebase/users';
 
 // Place a selector in Connect() whenever it uses data that:
 // 1) might change during the component's lifetime, and:

@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-// declare global { const React; }
+declare global { const React; }
 window['React'] = React;
 
 // needed for webpack-runtime-require runtime-imports

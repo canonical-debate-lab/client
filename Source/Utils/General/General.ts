@@ -1,4 +1,5 @@
 import 'Main';
+import { GetStackTraceStr, emptyEntities } from 'js-vextensions';
 
 type LogOptions = {appendStackTrace?: boolean, logLater?: boolean};
 declare global {
@@ -23,3 +24,14 @@ window['Log'] = (...args) => {
 
 	return messageSegments.length === 1 ? messageSegments[0] : messageSegments;
 }
+
+
+// use a singleton for empty-obj and empty-array (that way VCache and other shallow-compare systems work with them)
+export const emptyObj = {};
+export const emptyArray = [];
+export const emptyArray_forLoading = []; // this one causes the "..." to show for node-children which are loading
+export function IsSpecialEmptyArray<T>(array: Array<T>) {
+	return array == emptyArray || array == emptyArray_forLoading;
+}
+// use the same empty-entities in js-vextensions
+emptyEntities.VSet({emptyObj, emptyArray, emptyArray_forLoading});

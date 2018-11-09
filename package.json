@@ -143,9 +143,10 @@
   "license": "MIT",
   "dependencies": {
     "firebase": "^3.6.5",
-    "js-vextensions": "0.0.4",
+    "js-vextensions": "0.0.5",
     "react": "15.6.2",
     "react-dom": "^15.5.4",
+    "react-redux-firebase": "^2.1.9",
     "react-vcomponents": "0.0.3",
     "react-vextensions": "0.0.3",
     "react-vmenu": "0.0.4",
@@ -154,6 +155,7 @@
     "redux": "^3.6.0",
     "redux-little-router": "^13.1.2",
     "redux-persist": "^5.10.0",
+    "updeep": "^1.0.0",
     "webpack-runtime-require": "^0.3.1"
   },
   "devDependencies": {

@@ -1,4 +1,4 @@
-import { BaseComponent } from 'Utils/UI/BaseComponent';
+import { BaseComponent } from "react-vextensions";
 
 export class HomeUI extends BaseComponent<{}, {}> {
 	render() {

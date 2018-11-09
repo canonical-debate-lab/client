@@ -14,16 +14,16 @@ import { VURL } from 'js-vextensions';
 declare global { let ENV_COMPILE_TIME: string; }
 // only compile-time if compiled for production (otherwise, can be overriden)
 declare global {
-	// let ENV_SHORT: string;
+	let ENV_SHORT: string;
 	let ENV: string;
 	let DEV: boolean;
-	// let PROD: boolean;
-	// let TEST: boolean;
+	let PROD: boolean;
+	let TEST: boolean;
 }
 
 // let {version, ENV, ENV_SHORT, DEV, PROD, TEST} = DEV ? require('./BakedConfig_Dev') : require('./BakedConfig_Prod');
 // if environment at compile time was not 'production' (ie. if these globals weren't set/locked), then set them here at runtime
-const startURL = VURL.Parse(window.location.href);
+export const startURL = VURL.Parse(window.location.href);
 if (ENV_COMPILE_TIME !== 'production') {
 	window['ENV'] = ENV_COMPILE_TIME;
 	if (startURL.GetQueryVar('env') && startURL.GetQueryVar('env') !== 'null') {
@@ -44,6 +44,12 @@ if (ENV_COMPILE_TIME !== 'production') {
 // Note: Use two BakedConfig files, so that dev-server can continue running, with its own baked-config data, even while prod-deploy occurs.
 // Note: Don't reference the BakedConfig files from anywhere but here (in runtime code) -- because we want to be able to override it, below.
 export const { version, firebaseConfig } = DEV ? require('./BakedConfig_Dev') : require('./BakedConfig_Prod'); // eslint-disable-line global-require
+
+export let dbVersion = 1;
+if (startURL.GetQueryVar("dbVersion") && startURL.GetQueryVar("dbVersion") != "null") {
+	dbVersion = parseInt(startURL.GetQueryVar("dbVersion"));
+	console.log("Using dbVersion: " + dbVersion);
+}
 
 // hot-reloading
 // ==========

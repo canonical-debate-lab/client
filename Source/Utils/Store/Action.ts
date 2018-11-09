@@ -17,3 +17,20 @@ export class Action<Payload> {
 		return actionTypes.find(a => this.type === a.name) != null;
 	}
 }
+
+export function IsACTSetFor(action: Action<any>, path: string) {
+	if (!action.type.startsWith("ACTSet_")) return false;
+	// exact match
+	if (action.payload["path"] == path) return true;
+	// wildcard match
+	if (path.includes("$any")) {
+		let pathParts = path.split("/");
+		let actionPathParts = action.payload["path"].split("/");
+		for (let [index, pathPart] of pathParts.entries()) {
+			let matches = pathPart == actionPathParts[index] || pathPart == "$any";
+			if (!matches) return false;
+		}
+		return true;
+	}
+	return false;
+}

@@ -13,6 +13,15 @@ import '../../Source/Utils/Styles/Core.scss';
 import '../Utils/UI/JQueryExtensions';
 import { HomeUI } from '../UI/Home';
 import { persister } from 'Main_Hot';
+import { State } from 'Store';
+import { Connect } from 'Utils/Database/FirebaseConnect';
+import { GetUserID } from 'Store/firebase/users';
+import { AddressBarWrapper } from './@Shared/AddressBarWrapper';
+import { NavBar } from './@Shared/NavBar';
+import { Route } from 'Utils/UI/Components/Route';
+import { NormalizeURL } from 'Utils/URL/URLManager';
+import { GADUI } from './GAD';
+import { backgrounds, FixStyles } from 'Utils/UI/General';
 let PersistGate = PersistGate_ as any;
 
 export class RootUIWrapper extends BaseComponent<{store}, {}> {
@@ -57,7 +66,7 @@ export class RootUIWrapper extends BaseComponent<{store}, {}> {
 			if (event['handledGlobally']) return;
 			event['handledGlobally'] = true;
 
-			g.mousePos = new Vector2i(event.pageX, event.pageY);
+			window['mousePos'] = new Vector2i(event.pageX, event.pageY);
 		});
 	}
 }
@@ -73,7 +82,8 @@ class RootUI extends BaseComponentWithConnector(connector, {}) {
 	}
 	render() {
 		let {currentPage} = this.props;
-		let background = GetUserBackground(GetUserID());
+		//let background = GetUserBackground(GetUserID());
+		let background = backgrounds[0];
 		return (
 			<Column className='background'/*'unselectable'*/ style={{height: '100%'}}>
 				{/*<div className='background' style={{
@@ -95,24 +105,9 @@ class RootUI extends BaseComponentWithConnector(connector, {}) {
 				<OverlayUI/>
 				<NavBar/>
 				{/*<InfoButton_TooltipWrapper/>*/}
-				<main style={ES({position: 'relative', flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column'})}>
-					<Route path='/stream'><StreamUI/></Route>
-					<Route path='/chat'><ChatUI/></Route>
-					<Route path='/reputation'><ReputationUI/></Route>
-
-					<Route path='/database'><DatabaseUI/></Route>
-					<Route path='/forum'><ForumUI/></Route>
-					<Route path='/feedback'><FeedbackUI/></Route>
-					<Route path='/more'><MoreUI/></Route>
+				<main style={FixStyles({position: 'relative', flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column'})}>
 					<Route withConditions={url=>NormalizeURL(VURL.FromState(url)).pathNodes[0] == 'home'}><HomeUI/></Route>
-					<Route path='/social'><SocialUI/></Route>
-					<Route path='/personal'><PersonalUI/></Route>
-					<Route path='/debates'><DebatesUI/></Route>
-					<Route path='/global'><GlobalUI/></Route>
-
-					<Route path='/search'><SearchUI/></Route>
-					<Route path='/guide'><GuideUI/></Route>
-					<Route path='/profile'><ProfileUI/></Route>
+					<Route path='/gad'><GADUI/></Route>
 				</main>
 			</Column>
 		);

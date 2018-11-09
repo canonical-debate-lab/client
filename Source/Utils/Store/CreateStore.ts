@@ -1,10 +1,12 @@
 import firebase_ from 'firebase';
-import { firebaseConfig } from 'Main';
+import { firebaseConfig, startURL } from 'Main';
 import { applyMiddleware, compose, createStore, StoreEnhancer, Store } from 'redux';
 import { routerForBrowser } from 'redux-little-router';
 import { PostDispatchAction, PreDispatchAction } from 'Store/ActionProcessor';
 import { MakeRootReducer, RootState } from 'Store/index';
 import { Action } from './Action'; // eslint-disable-line
+import { ProjectStore } from 'Main_Hot';
+import {persistStore, persistReducer} from "redux-persist";
 
 const firebase = firebase_ as any;
 

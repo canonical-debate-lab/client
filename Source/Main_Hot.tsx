@@ -7,8 +7,11 @@ import { RootState } from 'Store';
 import { Action } from 'Utils/Store/Action';
 import { RootUIWrapper } from 'UI/Root';
 
-export const { store, persister } = CreateStore({});
-export type ProjectStore = Store<RootState> & {reducer: (state: RootState, action: Action<any>)=>RootState}; // eslint-disable-line
+export const { store, persister } = CreateStore({}) as { store: ProjectStore, persister };
+export type ProjectStore = Store<RootState> & {
+	reducer: (state: RootState, action: Action<any>)=>RootState,
+	firebase,
+};
 
 const mountNode = document.getElementById('root');
 ReactDOM.render(<RootUIWrapper store={store}/>, mountNode);
