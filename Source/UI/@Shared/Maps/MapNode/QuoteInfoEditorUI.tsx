@@ -1,25 +1,13 @@
-import {BaseComponent} from "react-vextensions";
-import {ClaimForm} from "../../../../Store/firebase/nodes/@MapNode";
-import {Column} from "react-vcomponents";
-import {Row, Pre} from "react-vcomponents";
-import {MapNodeType} from "../../../../Store/firebase/nodes/@MapNodeType";
-import {TextInput} from "react-vcomponents";
-import Editor from "react-md-editor";
-import {Button} from "react-vcomponents";
-import {Component} from "react";
-import Icons from "react-md-editor/lib/icons";
-import {GetNodeDisplayText} from "../../../../Store/firebase/nodes/$node";
-import {GetSourceNamePlaceholderText, GetSourceAuthorPlaceholderText} from "../../../../Store/firebase/contentNodes/$contentNode";
-import {Select} from "react-vcomponents";
-import {ContentNode} from "../../../../Store/firebase/contentNodes/@ContentNode";
-import {SourceType, SourceChain, Source} from "Store/firebase/contentNodes/@SourceChain";
-import {GetEntries} from "../../../../Frame/General/Enums";
-//import {ButtonProps} from "../../../../Frame/ReactComponents/Button"; // "import" approach causes typescript rebuilds to fail
-import {CleanUpdatedSourceChains} from "./SourceChainsEditorUI";
-import SourceChainsEditorUI from "./SourceChainsEditorUI";
-import {SubPanel_Quote} from "./NodeUI_Inner/SubPanel";
-import { MarkdownToolbar, MarkdownEditor } from "react-vmarkdown";
- import {GetErrorMessagesUnderElement} from "js-vextensions";
+import { GetErrorMessagesUnderElement } from "js-vextensions";
+import { Column, Pre, Row } from "react-vcomponents";
+import { BaseComponent } from "react-vextensions";
+import { MarkdownEditor, MarkdownToolbar } from "react-vmarkdown";
+import { ContentNode } from "../../../../Store/firebase/contentNodes/@ContentNode";
+import { GetNodeDisplayText } from "../../../../Store/firebase/nodes/$node";
+import { ClaimForm } from "../../../../Store/firebase/nodes/@MapNode";
+import { MapNodeType } from "../../../../Store/firebase/nodes/@MapNodeType";
+import { SubPanel_Quote } from "./NodeUI_Inner/SubPanel";
+import SourceChainsEditorUI, { CleanUpdatedSourceChains } from "./SourceChainsEditorUI";
 
 //@ApplyBasicStyles
 export default class QuoteInfoEditorUI extends BaseComponent

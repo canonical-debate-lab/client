@@ -100,11 +100,10 @@ export class NavBar extends BaseComponentWithConnector(connector, {}) {
 					
 					<span style={{margin: "0 auto", paddingRight: 6}}>
 						<NavBarButton page="database" text="Database"/>
-						<NavBarButton page="feedback" text="Feedback"/>
-						<NavBarButton page="forum" text="Forum"/>
+						{/* <NavBarButton page="feedback" text="Feedback"/>
+						<NavBarButton page="forum" text="Forum"/> */}
 						<NavBarButton page="more" text="More"/>
 						<NavBarButton page="home" text="Canonical Debate" style={{margin: "0 auto", textAlign: "center", fontSize: 23}}/>
-						<NavBarButton page="social" text="Social"/>
 						<NavBarButton page="personal" text="Personal"/>
 						<NavBarButton page="debates" text="Debates"/>
 						<NavBarButton page="global" text="Global"/>

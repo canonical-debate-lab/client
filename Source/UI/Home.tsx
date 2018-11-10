@@ -3,7 +3,7 @@ import { BaseComponent } from "react-vextensions";
 import { ScrollView } from "react-vscrollview";
 import { Connect } from "../Frame/Database/FirebaseConnect";
 import SubNavBar, { SubNavBarButton } from "./@Shared/SubNavBar";
-import AboutUI from "./Home/About";
+import {AboutUI} from "./Home/About";
 import HomeUI2 from "./Home/Home";
 
 type Props = {} & Partial<{currentSubpage: string}>;

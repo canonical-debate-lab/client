@@ -164,8 +164,6 @@ if (USE_TSLOADER) {
 	webpackConfig.module.rules.push({test: /\.tsx?$/, loader: 'ts-loader', options: { include: [paths.client()] }});
 }
 
-console.log("refs path:" + paths.base('./node_modules/ajv/lib/refs'));
-
 // file text-replacements
 // ==========
 
