@@ -1,6 +1,6 @@
 import { GetValues_ForSchema } from '../../../Frame/General/Enums';
 import { AddAJVExtraCheck, AddSchema } from '../../../Server/Server';
-import { MapNodeRevision } from "./@MapNodeRevision";
+import { MapNodeRevision } from './@MapNodeRevision';
 import { MapNodeType } from './@MapNodeType';
 
 export const globalMapID = 1;
@@ -15,7 +15,7 @@ export enum AccessLevel {
 
 export enum ClaimType {
 	Normal = 10,
-	//ImpactPremise = 20,
+	// ImpactPremise = 20,
 	Equation = 30,
 	Quote = 40,
 	Image = 50,
@@ -37,11 +37,11 @@ export class MapNode {
 	createdAt: number;
 
 	currentRevision: number;
-	
+
 	parents: ParentSet;
 	children: ChildSet;
 	childrenOrder: number[];
-	//talkRoot: number;
+	// talkRoot: number;
 	multiPremiseArgument?: boolean;
 
 	layerPlusAnchorParents: LayerPlusAnchorParentSet;
@@ -50,25 +50,25 @@ export class MapNode {
 	informalArgumentsHolder?: boolean;
 	premiseAddHelper?: boolean;
 }
-export const MapNode_id = "^[0-9]+$";
-//export const MapNode_chainAfterFormat = "^(\\[start\\]|[0-9]+)$";
+export const MapNode_id = '^[0-9]+$';
+// export const MapNode_chainAfterFormat = "^(\\[start\\]|[0-9]+)$";
 AddSchema({
 	properties: {
-		type: {oneOf: GetValues_ForSchema(MapNodeType)},
-		creator: {type: "string"},
-		createdAt: {type: "number"},
+		type: { oneOf: GetValues_ForSchema(MapNodeType) },
+		creator: { type: 'string' },
+		createdAt: { type: 'number' },
 
-		currentRevision: {type: "number"},
-		
-		parents: {$ref: "ParentSet"},
-		children: {$ref: "ChildSet"},
-		childrenOrder: {items: {type: "number"}},
-		//talkRoot: {type: "number"},
-		multiPremiseArgument: {type: "boolean"},
+		currentRevision: { type: 'number' },
 
-		layerPlusAnchorParents: {$ref: "LayerPlusAnchorParentSet"},
+		parents: { $ref: 'ParentSet' },
+		children: { $ref: 'ChildSet' },
+		childrenOrder: { items: { type: 'number' } },
+		// talkRoot: {type: "number"},
+		multiPremiseArgument: { type: 'boolean' },
+
+		layerPlusAnchorParents: { $ref: 'LayerPlusAnchorParentSet' },
 	},
-	required: ["type", "creator", "createdAt", "currentRevision"],
+	required: ['type', 'creator', 'createdAt', 'currentRevision'],
 	/*allOf: [
 		// if an argument, require "childrenOrder" prop
 		{
@@ -80,17 +80,17 @@ AddSchema({
 			then: {required: ["childrenOrder"]},
 			else: {prohibited: ["childrenOrder"]}
 		}
-	],*/
-}, "MapNode");
-AddAJVExtraCheck("MapNode", (node: MapNode)=> {
+	], */
+}, 'MapNode');
+AddAJVExtraCheck('MapNode', (node: MapNode) => 
 	/*if (node.childrenOrder && node.childrenOrder.length != node.children.VKeys(true).length) {
 		return "Children and childrenOrder lengths differ!";
 	}*/
-	return null;
-});
+	 null
+);
 
 // helpers
-//export type MapNodeL2 = MapNode & {finalType: MapNodeType};
+// export type MapNodeL2 = MapNode & {finalType: MapNodeType};
 // similar to a database entry, after having related data from other tables "joined"
 export interface MapNodeL2 extends MapNode {
 	current: MapNodeRevision;
@@ -109,36 +109,36 @@ export enum Polarity {
 // ==========
 
 export type ParentSet = { [key: number]: ParentEntry; };
-AddSchema({patternProperties: {"^[0-9]+$": {$ref: "ParentEntry"}}}, "ParentSet");
-export type ParentEntry = { _: boolean; }
+AddSchema({ patternProperties: { '^[0-9]+$': { $ref: 'ParentEntry' } } }, 'ParentSet');
+export type ParentEntry = { _: boolean; };
 AddSchema({
-	properties: {_: {type: "boolean"}},
-	required: ["_"],
-}, "ParentEntry");
+	properties: { _: { type: 'boolean' } },
+	required: ['_'],
+}, 'ParentEntry');
 
 export type ChildSet = { [key: number]: ChildEntry; };
-AddSchema({patternProperties: {"^[0-9]+$": {$ref: "ChildEntry"}}}, "ChildSet");
+AddSchema({ patternProperties: { '^[0-9]+$': { $ref: 'ChildEntry' } } }, 'ChildSet');
 export type ChildEntry = {
 	_: boolean;
 	form?: ClaimForm;
 	seriesAnchor?: boolean;
 	polarity?: Polarity;
-}
+};
 AddSchema({
 	properties: {
-		_: {type: "boolean"},
-		form: {oneOf: GetValues_ForSchema(ClaimForm)},
-		seriesAnchor: {type: ["null", "boolean"]},
-		polarity: {oneOf: GetValues_ForSchema(Polarity)},
+		_: { type: 'boolean' },
+		form: { oneOf: GetValues_ForSchema(ClaimForm) },
+		seriesAnchor: { type: ['null', 'boolean'] },
+		polarity: { oneOf: GetValues_ForSchema(Polarity) },
 	},
-	required: ["_"],
-}, "ChildEntry");
+	required: ['_'],
+}, 'ChildEntry');
 
 // layer+anchor parents
 // ==========
 
 export type LayerPlusAnchorParentSet = { [key: string]: boolean; };
-AddSchema({patternProperties: {"^[0-9_]+$": {type: "boolean"}}}, "LayerPlusAnchorParentSet");
+AddSchema({ patternProperties: { '^[0-9_]+$': { type: 'boolean' } } }, 'LayerPlusAnchorParentSet');
 
 // others
 // ==========
@@ -148,7 +148,7 @@ export class ImageAttachment {
 }
 AddSchema({
 	properties: {
-		id: {type: "number"},
+		id: { type: 'number' },
 	},
-	required: ["id"],
-}, "ImageAttachment");
+	required: ['id'],
+}, 'ImageAttachment');
