@@ -1,104 +1,104 @@
-import {BaseComponent} from "react-vextensions";
-import {styles} from "../Frame/UI/GlobalStyles";
-import {Column, Row, Pre, Button, TextInput, Div, CheckBox, Select, ColorPickerBox} from "react-vcomponents";
-import {Connect} from "Frame/Database/FirebaseConnect";
-import {GetUser, GetUserID} from "Store/firebase/users";
-import {User} from "Store/firebase/users/@User";
-import { UpdateProfile } from "Server/Commands/UpdateProfile";
-import {BoxController, ShowMessageBox} from "react-vmessagebox";
-import {ACTTopRightOpenPanelSet} from "../Store/main";
+import { BaseComponent } from 'react-vextensions';
+import { Column, Row, Pre, Button, TextInput, Div, CheckBox, Select, ColorPickerBox } from 'react-vcomponents';
+import { Connect } from 'Frame/Database/FirebaseConnect';
+import { GetUser, GetUserID } from 'Store/firebase/users';
+import { User } from 'Store/firebase/users/@User';
+import { UpdateProfile } from 'Server/Commands/UpdateProfile';
+import { BoxController, ShowMessageBox } from 'react-vmessagebox';
+import { styles } from '../Frame/UI/GlobalStyles';
+import { ACTTopRightOpenPanelSet } from '../Store/main';
 
 export type BackgroundConfig = {color?: string, url_1920?: string, url_3840?: string, position?: string};
 
-export let backgrounds = {
+export const backgrounds = {
 	1: {
-		color: "#E5E8EC",
+		color: '#E5E8EC',
 	},
 	2: {
-		url_1920: "https://firebasestorage.googleapis.com/v0/b/debate-map-dev.appspot.com/o/Backgrounds%2FOcean_x1920.jpg?alt=media&token=53fc5864-a6de-431b-a724-fe4f9305f336",
-		url_3840: "https://firebasestorage.googleapis.com/v0/b/debate-map-dev.appspot.com/o/Backgrounds%2FOcean_x3840.jpg?alt=media&token=2d1c25f3-a25e-4cb4-8586-06f419e4d63c",
-		position: "center bottom",
+		url_1920: 'https://firebasestorage.googleapis.com/v0/b/debate-map-dev.appspot.com/o/Backgrounds%2FOcean_x1920.jpg?alt=media&token=53fc5864-a6de-431b-a724-fe4f9305f336',
+		url_3840: 'https://firebasestorage.googleapis.com/v0/b/debate-map-dev.appspot.com/o/Backgrounds%2FOcean_x3840.jpg?alt=media&token=2d1c25f3-a25e-4cb4-8586-06f419e4d63c',
+		position: 'center bottom',
 	},
 	3: {
-		url_1920: "https://firebasestorage.googleapis.com/v0/b/debate-map-dev.appspot.com/o/Backgrounds%2FNebula_x1920.jpg?alt=media&token=f2fec09e-7394-4453-a08e-7f8608553e14",
-		url_3840: "https://firebasestorage.googleapis.com/v0/b/debate-map-dev.appspot.com/o/Backgrounds%2FNebula_x2560.jpg?alt=media&token=c4ed8a83-d9ed-410f-9ae1-1d830355349a",
+		url_1920: 'https://firebasestorage.googleapis.com/v0/b/debate-map-dev.appspot.com/o/Backgrounds%2FNebula_x1920.jpg?alt=media&token=f2fec09e-7394-4453-a08e-7f8608553e14',
+		url_3840: 'https://firebasestorage.googleapis.com/v0/b/debate-map-dev.appspot.com/o/Backgrounds%2FNebula_x2560.jpg?alt=media&token=c4ed8a83-d9ed-410f-9ae1-1d830355349a',
 	},
 } as any as {[key: string]: BackgroundConfig};
 
 type Props = {} & Partial<{user: User}>;
 @Connect((state, props: Props)=> ({
 	user: GetUser(GetUserID()),
-}))
+	}))
 export class ProfileUI extends BaseComponent<Props, {}> {
 	render() {
-		let {user} = this.props;
+		const { user } = this.props;
 		if (user == null) return <Column style={styles.page}>Must be signed-in to access.</Column>;
 
 		return (
-			<Column style={styles.page}>
+			<Column style={E(styles.page, { flex: '0 0 auto' })}>
 				<Row>
 					<Pre>Username: {user.displayName}</Pre>
-					<Button ml={5} text="Change" onClick={()=> {
+					<Button ml={5} text="Change" onClick={() => {
 						ShowChangeDisplayNameDialog(user._key, user.displayName);
 					}}/>
 				</Row>
-				<Row mt={10}>Background:</Row>
-				<Column mt={5} style={{background: "rgba(0,0,0,.7)"}}>
+				<Row mt={5}>Background:</Row>
+				<Column mt={5} style={{ background: 'rgba(0,0,0,.7)' }}>
 					<Row>
-						{backgrounds.Props().map(prop=> {
-							let id = prop.name.ToInt();
-							let background = prop.value;
-							let selected = (user.backgroundID || 1) == id;
+						{backgrounds.Props().map((prop) => {
+							const id = prop.name.ToInt();
+							const background = prop.value;
+							const selected = (user.backgroundID || 1) == id;
 							return (
 								<Div key={prop.index}
 									style={E(
 										{
-											width: 100, height: 100, border: "1px solid black", cursor: "pointer",
+											width: 100, height: 100, border: '1px solid black', cursor: 'pointer',
 											backgroundColor: background.color, backgroundImage: `url(${background.url_1920})`,
-											backgroundPosition: "center", backgroundSize: "cover",
+											backgroundPosition: 'center', backgroundSize: 'cover',
 										},
-										selected && {border: "1px solid rgba(255,255,255,.3)"},
+										selected && { border: '1px solid rgba(255,255,255,.3)' },
 									)}
-									onClick={()=> {
-										new UpdateProfile({id: user._key, updates: {backgroundID: id}}).Run();
+									onClick={() => {
+										new UpdateProfile({ id: user._key, updates: { backgroundID: id } }).Run();
 									}}>
 								</Div>
 							);
 						})}
 					</Row>
 				</Column>
-				<Row mt={10}>
-					<CheckBox text="Custom background" checked={user.backgroundCustom_enabled} onChange={val=> {
-						new UpdateProfile({id: user._key, updates: {backgroundCustom_enabled: val}}).Run();
+				<Row mt={5}>
+					<CheckBox text="Custom background" checked={user.backgroundCustom_enabled} onChange={(val) => {
+						new UpdateProfile({ id: user._key, updates: { backgroundCustom_enabled: val } }).Run();
 					}}/>
 				</Row>
-				<Row mt={15}>
+				<Row mt={5}>
 					<Pre>Color: </Pre>
-					<ColorPickerBox color={user.backgroundCustom_color || "#FFFFFF"} onChange={val=> {
-						new UpdateProfile({id: user._key, updates: {backgroundCustom_color: val}}).Run();
+					<ColorPickerBox color={user.backgroundCustom_color || '#FFFFFF'} onChange={(val) => {
+						new UpdateProfile({ id: user._key, updates: { backgroundCustom_color: val } }).Run();
 					}}/>
-					<Button ml={5} text="Clear" onClick={()=> {
-						new UpdateProfile({id: user._key, updates: {backgroundCustom_color: null}}).Run();
+					<Button ml={5} text="Clear" onClick={() => {
+						new UpdateProfile({ id: user._key, updates: { backgroundCustom_color: null } }).Run();
 					}}/>
 				</Row>
-				<Row mt={15}>
+				<Row mt={5}>
 					<Pre>URL: </Pre>
-					<TextInput delayChangeTillDefocus={true} style={ES({flex: 1})}
-						value={user.backgroundCustom_url} onChange={val=> {
-							new UpdateProfile({id: user._key, updates: {backgroundCustom_url: val}}).Run();
+					<TextInput delayChangeTillDefocus={true} style={ES({ flex: 1 })}
+						value={user.backgroundCustom_url} onChange={(val) => {
+							new UpdateProfile({ id: user._key, updates: { backgroundCustom_url: val } }).Run();
 						}}/>
 				</Row>
-				<Row mt={15}>
+				<Row mt={5}>
 					<Pre>Anchor: </Pre>
-					<Select options={[{name: "top", value: "center top"}, {name: "center", value: "center center"}, {name: "bottom", value: "center bottom"}]}
-						value={user.backgroundCustom_position || "center center"} onChange={val=> {
-							new UpdateProfile({id: user._key, updates: {backgroundCustom_position: val}}).Run();
+					<Select options={[{ name: 'top', value: 'center top' }, { name: 'center', value: 'center center' }, { name: 'bottom', value: 'center bottom' }]}
+						value={user.backgroundCustom_position || 'center center'} onChange={(val) => {
+							new UpdateProfile({ id: user._key, updates: { backgroundCustom_position: val } }).Run();
 						}}/>
 				</Row>
-				<Row mt={10}><h4>Tools</h4></Row>
-				<Row mt={10}>
-					<Button text="Clear local data" onClick={()=> {
-						ShowMessageBox({title: `Clear local data?`, cancelButton: true, message:
+				<Row mt={10} mb={5} style={{ fontSize: 15, fontWeight: 'bold' }}>Tools</Row>
+				<Row>
+					<Button text="Clear local data" onClick={() => {
+						ShowMessageBox({ title: 'Clear local data?', cancelButton: true, message:
 `Are you sure you want to clear local data?
 
 Some of the things this will clear: (not exhaustive)
@@ -110,11 +110,11 @@ Some of the things this won't clear:
 * Your posts and comments.
 
 This is usually only done if an error is occuring because of outdated or invalid data.`,
-							onOK: ()=> {
-								let {ClearLocalData} = require("Frame/Store/CreateStore");
-								ClearLocalData(persister);
-								window.location.reload();
-							}
+						onOK: () => {
+							const { ClearLocalData } = require('Frame/Store/CreateStore');
+							ClearLocalData(persister);
+							window.location.reload();
+						},
 						});
 					}}/>
 				</Row>
@@ -124,20 +124,20 @@ This is usually only done if an error is occuring because of outdated or invalid
 }
 
 export function ShowChangeDisplayNameDialog(userID: string, oldDisplayName: string) {
-	let firebase = store.firebase.helpers;
+	const firebase = store.firebase.helpers;
 
 	let newDisplayName = oldDisplayName;
 
-	let valid = true;
-	let boxController: BoxController = ShowMessageBox({
-		title: `Change display name`, cancelButton: true,
-		message: ()=> {
+	const valid = true;
+	const boxController: BoxController = ShowMessageBox({
+		title: 'Change display name', cancelButton: true,
+		message: () => {
 			boxController.options.okButtonClickable = valid;
 			return (
-				<Column style={{padding: `10px 0`, width: 600}}>
+				<Column style={{ padding: '10px 0', width: 600 }}>
 					<Row>
 						<Pre>Display name: </Pre>
-						<TextInput value={newDisplayName} onChange={val=> {
+						<TextInput value={newDisplayName} onChange={(val) => {
 							newDisplayName = val;
 							boxController.UpdateUI();
 						}}/>
@@ -145,8 +145,8 @@ export function ShowChangeDisplayNameDialog(userID: string, oldDisplayName: stri
 				</Column>
 			);
 		},
-		onOK: ()=> {
-			new UpdateProfile({id: userID, updates: {displayName: newDisplayName}}).Run();
-		}
+		onOK: () => {
+			new UpdateProfile({ id: userID, updates: { displayName: newDisplayName } }).Run();
+		},
 	});
 }

@@ -69,7 +69,7 @@ export class RootUIWrapper extends BaseComponent<{store}, {}> {
 	ComponentDidMount() {
 		if (DEV) {
 			setTimeout(() => {
-				G({Perf: React.addons.Perf});
+				G({ Perf: React.addons.Perf });
 				React.addons.Perf.start();
 			}, 100);
 		}
@@ -84,7 +84,7 @@ export class RootUIWrapper extends BaseComponent<{store}, {}> {
 	}
 }
 
-let connector = (state, {}: {})=> ({
+const connector = (state, {}: {}) => ({
 	currentPage: State(a => a.main.page),
 });
 @Connect(connector)
@@ -97,7 +97,7 @@ class RootUI extends BaseComponentWithConnector(connector, {}) {
 		// let {currentPage} = this.props;
 		const background = GetUserBackground(GetUserID());
 		return (
-			<Column className='background'/*'unselectable'*/ style={{height: '100%'}}>
+			<Column className='background'/*'unselectable' */ style={{ height: '100%' }}>
 				{/* <div className='background' style={{
 					position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, opacity: .5,
 				}}/> */}
@@ -117,8 +117,8 @@ class RootUI extends BaseComponentWithConnector(connector, {}) {
 				<AddressBarWrapper/>
 				<OverlayUI/>
 				<NavBar/>
-				{/*<InfoButton_TooltipWrapper/>*/}
-				<main style={ES({position: 'relative', flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column'})}>
+				{/* <InfoButton_TooltipWrapper/>*/}
+				<main style={ES({ position: 'relative', flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' })}>
 					<Route path='/stream'><StreamUI/></Route>
 					<Route path='/chat'><ChatUI/></Route>
 					<Route path='/reputation'><ReputationUI/></Route>
@@ -127,7 +127,7 @@ class RootUI extends BaseComponentWithConnector(connector, {}) {
 					<Route path='/forum'><ForumUI/></Route>
 					<Route path='/feedback'><FeedbackUI/></Route>
 					<Route path='/more'><MoreUI/></Route>
-					<Route withConditions={url=>NormalizeURL(VURL.FromState(url)).pathNodes[0] == 'home'}><HomeUI/></Route>
+					<Route withConditions={url => NormalizeURL(VURL.FromState(url)).pathNodes[0] == 'home'}><HomeUI/></Route>
 					<Route path='/social'><SocialUI/></Route>
 					<Route path='/personal'><PersonalUI/></Route>
 					<Route path='/debates'><DebatesUI/></Route>
@@ -145,7 +145,7 @@ class RootUI extends BaseComponentWithConnector(connector, {}) {
 class OverlayUI extends BaseComponent<{}, {}> {
 	render() {
 		return (
-			<div style={{position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflow: 'hidden'}}>
+			<div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflow: 'hidden' }}>
 				<MessageBoxUI/>
 				<VMenuLayer/>
 			</div>
