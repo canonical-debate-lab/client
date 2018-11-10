@@ -1,5 +1,4 @@
 import {BaseComponent, BaseComponentWithConnector} from "react-vextensions";
-import MapNodeUI_Inner from "./NodeUI_Inner";
 import {Button, Span} from "react-vcomponents";
 import {E} from "js-vextensions";
 import {connect} from "react-redux";

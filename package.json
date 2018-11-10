@@ -183,7 +183,7 @@
     "react-tooltip": "^3.3.0",
     "react-vcomponents": "0.0.3",
     "react-vextensions": "0.0.3",
-    "react-vmarkdown": "^0.0.2",
+    "react-vmarkdown": "0.0.3",
     "react-vmenu": "0.0.4",
     "react-vmessagebox": "0.0.2",
     "react-vscrollview": "0.0.2",

@@ -1,20 +1,17 @@
-import {applyMiddleware, compose, createStore, StoreEnhancer, Store} from "redux";
-import thunk from "redux-thunk";
-import {DBPath} from "../../Frame/Database/DatabaseHelpers";
-import {persistStore, persistReducer} from "redux-persist";
-import {createFilter, createBlacklistFilter} from "redux-persist-transform-filter";
-import {MakeRootReducer, RootState} from "../../Store/index";
-import watch from "redux-watch";
-import {PreDispatchAction, MidDispatchAction, PostDispatchAction} from "./ActionProcessor";
+import firebase_ from "firebase";
+import { unstable_batchedUpdates } from "react-dom";
+import { reactReduxFirebase } from "react-redux-firebase";
+import { applyMiddleware, compose, createStore, StoreEnhancer } from "redux";
 //import {version, firebaseConfig} from "../../BakedConfig";
 //var {version, firebaseConfig} = require(PROD ? "../../BakedConfig_Prod" : "../../BakedConfig_Dev");
 //import {batchedUpdatesMiddleware} from "redux-batched-updates";
-import {batchedSubscribe} from "redux-batched-subscribe";
-import {unstable_batchedUpdates} from "react-dom";
-import {routerForBrowser} from "redux-little-router";
+import { batchedSubscribe } from "redux-batched-subscribe";
+import { routerForBrowser } from "redux-little-router";
+import { persistStore } from "redux-persist";
+import { DBPath } from "../../Frame/Database/DatabaseHelpers";
+import { MakeRootReducer } from "../../Store/index";
+import { MidDispatchAction, PostDispatchAction, PreDispatchAction } from "./ActionProcessor";
 
-import firebase_ from "firebase";
-import { reactReduxFirebase, firebaseReducer } from "react-redux-firebase";
 //import { reduxFirestore, firestoreReducer } from "redux-firestore";
 //import "firebase/firestore";
 
@@ -161,7 +158,7 @@ export function CreateStore(initialState = {}, history) {
 	}
 	if (store.dispatch != Dispatch_WithStack) {
 		store["dispatch_orig"] = store.dispatch;
-		store.dispatch = Dispatch_WithStack;
+		store.dispatch = Dispatch_WithStack as any;
 	}
 	const actionStacks_actionTypeIgnorePatterns = [
 		"@@reactReduxFirebase/", // ignore redux actions

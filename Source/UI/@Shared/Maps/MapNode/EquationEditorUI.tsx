@@ -1,26 +1,7 @@
-import {TransformRatingForContext} from "../../../../Store/firebase/nodeRatings";
-import {Assert} from "js-vextensions";
-import {BaseComponent, RenderSource} from "react-vextensions";
-import {Pre, RowLR, TextArea_AutoSize} from "react-vcomponents";
-import {Term, TermType, Term_nameFormat, Term_disambiguationFormat} from "../../../../Store/firebase/terms/@Term";
-import {Column} from "react-vcomponents";
-import {Row} from "react-vcomponents";
-import {TextInput} from "react-vcomponents";
-import Moment from "moment";
-import {GetUser} from "../../../../Store/firebase/users";
-import {User} from "Store/firebase/users/@User";
-import {Connect} from "../../../../Frame/Database/FirebaseConnect";
-import {GetEntries} from "../../../../Frame/General/Enums";
-import {Select} from "react-vcomponents";
-import {CheckBox} from "react-vcomponents";
-import {ScrollView} from "react-vscrollview";
-import {Button} from "react-vcomponents";
-import TermComponent from "../../../../Store/firebase/termComponents/@TermComponent";
-import {GetNiceNameForTermType} from "../../../../UI/Content/TermsUI";
-import {GetTermVariantNumber} from "../../../../Store/firebase/terms";
-import {InfoButton} from "../../../../Frame/ReactComponents/InfoButton";
-import {Equation} from "../../../../Store/firebase/nodes/@Equation";
- import {GetErrorMessagesUnderElement} from "js-vextensions";
+import { GetErrorMessagesUnderElement } from "js-vextensions";
+import { CheckBox, Column, Pre, Row, RowLR, TextArea, TextInput } from "react-vcomponents";
+import { BaseComponent } from "react-vextensions";
+import { Equation } from "../../../../Store/firebase/nodes/@Equation";
 
 type Props = {baseData: Equation, creating: boolean, editing?: boolean, style?, onChange?: (newData: Equation)=>void};
 	//& Partial<{creator: User, variantNumber: number}>;
@@ -53,7 +34,7 @@ export default class EquationEditorUI extends BaseComponent<Props, {newData: Equ
 				</RowLR>
 				<RowLR mt={5} splitAt={splitAt}>
 					<Pre>Text: </Pre>
-					<TextArea_AutoSize required enabled={creating || editing} allowLineBreaks={newData.latex} style={{width: "100%"}}
+					<TextArea required enabled={creating || editing} allowLineBreaks={newData.latex} autoSize={true} style={{width: "100%"}}
 						value={newData.text} onChange={val=>Change(newData.text = val)}/>
 				</RowLR>
 				<Row mt={5} style={{display: "flex", alignItems: "center"}}>

@@ -2,7 +2,7 @@ import {AsNodeL1, GetFinalPolarity} from "Store/firebase/nodes/$node";
 import {GetUserAccessLevel, GetUserID} from "Store/firebase/users";
 import {User} from "Store/firebase/users/@User";
 import {GetErrorMessagesUnderElement} from "js-vextensions";
-import {CheckBox, Column, Div, Pre, Row, Select, Spinner, TextArea_AutoSize, TextInput} from "react-vcomponents";
+import {CheckBox, Column, Div, Pre, Row, Select, Spinner, TextArea, TextInput} from "react-vcomponents";
 import {BaseComponent, RenderSource} from "react-vextensions";
 import {Connect} from "../../../../Frame/Database/FirebaseConnect";
 import {GetEntries} from "../../../../Frame/General/Enums";
@@ -131,7 +131,7 @@ class Title_Base extends BaseComponent<Props_Enhanced, {}> {
 					{/*<TextInput enabled={enabled} style={ES({flex: 1})} required={!hasOtherTitlesEntered && !willUseYesNoTitleHere}
 						ref={a=>a && forNew && this.lastRender_source == RenderSource.Mount && WaitXThenRun(0, ()=>a.DOM.focus())}
 						value={newRevisionData.titles["base"]} onChange={val=>Change(newRevisionData.titles["base"] = val)}/>*/}
-					<TextArea_AutoSize enabled={enabled} required={!hasOtherTitlesEntered && !willUseYesNoTitleHere} pattern={MapNodeRevision_titlePattern}
+					<TextArea enabled={enabled} required={!hasOtherTitlesEntered && !willUseYesNoTitleHere} pattern={MapNodeRevision_titlePattern} autoSize={true}
 						allowLineBreaks={false} style={ES({flex: 1})}
 						ref={a=>a && forNew && this.lastRender_source == RenderSource.Mount && WaitXThenRun(0, ()=>a.DOM.focus())}
 						value={newRevisionData.titles["base"]} onChange={val=>Change(newRevisionData.titles["base"] = val)}/>
@@ -168,14 +168,14 @@ class OtherTitles extends BaseComponent<Props_Enhanced, {}> {
 				<Row key={0} mt={5} style={{display: "flex", alignItems: "center"}}>
 					<Pre>Title (negation): </Pre>
 					{/*<TextInput enabled={enabled} style={ES({flex: 1})} value={newRevisionData.titles["negation"]} onChange={val=>Change(newRevisionData.titles["negation"] = val)}/>*/}
-					<TextArea_AutoSize enabled={enabled} allowLineBreaks={false} style={ES({flex: 1})} pattern={MapNodeRevision_titlePattern}
+					<TextArea enabled={enabled} allowLineBreaks={false} style={ES({flex: 1})} pattern={MapNodeRevision_titlePattern} autoSize={true}
 						value={newRevisionData.titles["negation"]} onChange={val=>Change(newRevisionData.titles["negation"] = val)}/>
 				</Row>
 				<Row key={1} mt={5} style={{display: "flex", alignItems: "center"}}>
 					<Pre>Title (question): </Pre>
 					{/*<TextInput enabled={enabled} style={ES({flex: 1})} required={willUseQuestionTitleHere}
 						value={newRevisionData.titles["yesNoQuestion"]} onChange={val=>Change(newRevisionData.titles["yesNoQuestion"] = val)}/>*/}
-					<TextArea_AutoSize enabled={enabled} allowLineBreaks={false} style={ES({flex: 1})} pattern={MapNodeRevision_titlePattern}
+					<TextArea enabled={enabled} allowLineBreaks={false} style={ES({flex: 1})} pattern={MapNodeRevision_titlePattern} autoSize={true}
 						value={newRevisionData.titles["yesNoQuestion"]} onChange={val=>Change(newRevisionData.titles["yesNoQuestion"] = val)}/>
 				</Row>
 				{willUseQuestionTitleHere && forNew &&

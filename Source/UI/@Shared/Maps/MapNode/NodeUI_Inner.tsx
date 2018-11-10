@@ -7,7 +7,7 @@ import {NodeMathUI} from "UI/@Shared/Maps/MapNode/NodeMathUI";
 import {SetNodeUILocked} from "UI/@Shared/Maps/MapNode/NodeUI";
 import classNames from "classnames";
 import keycode from "keycode";
-import {Button, Pre, Row, TextArea_AutoSize} from "react-vcomponents";
+import {Button, Pre, Row, TextArea} from "react-vcomponents";
 import {BaseComponent, BaseComponentWithConnector, GetInnerComp} from "react-vextensions";
 import {DBPath, RemoveHelpers, SlicePath, WaitTillPathDataIsReceived, WaitTillPathDataIsReceiving} from "../../../../Frame/Database/DatabaseHelpers";
 import {Connect} from "../../../../Frame/Database/FirebaseConnect";
@@ -340,7 +340,7 @@ class TitlePanel extends BaseComponent<TitlePanelProps, {editing: boolean, newTi
 						isSubnode && {margin: "4px 0 1px 0"},
 					)}>
 						{!applyingEdit &&
-							<TextArea_AutoSize required={true} pattern={MapNodeRevision_titlePattern} allowLineBreaks={false} style={ES({flex: 1})}
+							<TextArea required={true} pattern={MapNodeRevision_titlePattern} allowLineBreaks={false} autoSize={true} style={ES({flex: 1})}
 								ref={a=>a && a.DOM.focus()}
 								onKeyDown={e=> {
 									if (e.keyCode == keycode.codes.esc) {

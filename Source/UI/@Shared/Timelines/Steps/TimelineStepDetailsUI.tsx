@@ -1,31 +1,11 @@
-import {Assert} from "js-vextensions";
-import {BaseComponent} from "react-vextensions";
-import {Pre, RowLR} from "react-vcomponents";
-import {Column} from "react-vcomponents";
-import {Row} from "react-vcomponents";
-import {TextInput} from "react-vcomponents";
-import Moment from "moment";
-import {GetUser} from "../../../../Store/firebase/users";
-import {User} from "Store/firebase/users/@User";
-import {Connect} from "../../../../Frame/Database/FirebaseConnect";
-import {GetEntries} from "../../../../Frame/General/Enums";
-import {Select} from "react-vcomponents";
-import {CheckBox} from "react-vcomponents";
-import {ScrollView} from "react-vscrollview";
-import {Button} from "react-vcomponents";
-import TermComponent from "../../../../Store/firebase/termComponents/@TermComponent";
-import {GetNiceNameForTermType} from "../../../../UI/Content/TermsUI";
-import {GetTermVariantNumber} from "../../../../Store/firebase/terms";
-import {InfoButton} from "../../../../Frame/ReactComponents/InfoButton";
-import {Spinner} from "react-vcomponents";
-import {Timeline} from "Store/firebase/timelines/@Timeline";
-import {TimelineStep, NodeReveal} from "../../../../Store/firebase/timelineSteps/@TimelineStep";
-import {UpdateTimelineStep} from "../../../../Server/Commands/UpdateTimelineStep";
-import {RemoveHelpers} from "../../../../Frame/Database/DatabaseHelpers";
-import {BoxController, ShowMessageBox} from "react-vmessagebox";
-import {TextArea, TextArea_AutoSize} from "react-vcomponents";
-import {GetErrorMessagesUnderElement} from "js-vextensions";
-import {GetUpdates} from "Frame/Database/DatabaseHelpers";
+import { GetUpdates } from "Frame/Database/DatabaseHelpers";
+import { GetErrorMessagesUnderElement } from "js-vextensions";
+import { Button, Column, Pre, Row, RowLR, Spinner, TextInput, TextArea } from "react-vcomponents";
+import { BaseComponent } from "react-vextensions";
+import { ShowMessageBox } from "react-vmessagebox";
+import { RemoveHelpers } from "../../../../Frame/Database/DatabaseHelpers";
+import { UpdateTimelineStep } from "../../../../Server/Commands/UpdateTimelineStep";
+import { NodeReveal, TimelineStep } from "../../../../Store/firebase/timelineSteps/@TimelineStep";
 
 type Props = {baseData: TimelineStep, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: TimelineStep, ui: TimelineStepDetailsUI)=>void};
 export default class TimelineStepDetailsUI extends BaseComponent<Props, {newData: TimelineStep}> {
@@ -53,7 +33,7 @@ export default class TimelineStepDetailsUI extends BaseComponent<Props, {newData
 				</RowLR>
 				<Column mt={5} style={{width}}>
 					<Pre>Message:</Pre>
-					<TextArea_AutoSize value={newData.message} onChange={val=>Change(newData.message = val)}/>
+					<TextArea autoSize={true} value={newData.message} onChange={val=>Change(newData.message = val)}/>
 				</Column>
 				<Row mt={5}>
 					<Pre>Nodes to show:</Pre>

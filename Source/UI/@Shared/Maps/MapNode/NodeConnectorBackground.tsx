@@ -1,11 +1,7 @@
-import {BaseComponent, SimpleShouldUpdate_Overridable} from "react-vextensions";
-import NodeUI from "./NodeUI";
-import {Vector2i} from "js-vextensions";
-import ShallowCompare from "react/lib/shallowCompare";
-import {MapNode, MapNodeL2, MapNodeL3} from "../../../../Store/firebase/nodes/@MapNode";
-import {MapNodeType, MapNodeType_Info, GetNodeColor} from "../../../../Store/firebase/nodes/@MapNodeType";
-import {Connect} from "../../../../Frame/Database/FirebaseConnect";
-import {GetNodeForm, GetRatingTypesForNode} from "../../../../Store/firebase/nodes/$node";
+import { Vector2i } from "js-vextensions";
+import { BaseComponent, SimpleShouldUpdate_Overridable } from "react-vextensions";
+import { MapNodeL3 } from "../../../../Store/firebase/nodes/@MapNode";
+import { GetNodeColor } from "../../../../Store/firebase/nodes/@MapNodeType";
 
 type Props = {
 	node: MapNodeL3, linkSpawnPoint: Vector2i, straightLines?: boolean, nodeChildren: MapNodeL3[],

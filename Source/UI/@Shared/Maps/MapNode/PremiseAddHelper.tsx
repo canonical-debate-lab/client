@@ -1,6 +1,6 @@
 import {Connect} from "Frame/Database/FirebaseConnect";
 import {BaseComponent} from "react-vextensions";
-import {Row, TextArea_AutoSize, Button} from "react-vcomponents";
+import {Row, Button, TextArea} from "react-vcomponents";
 import {MapNode, MapNodeL3, ClaimForm, ChildEntry} from "../../../../Store/firebase/nodes/@MapNode";
 import {SetNodeUILocked} from "UI/@Shared/Maps/MapNode/NodeUI";
 import {WaitTillPathDataIsReceiving, WaitTillPathDataIsReceived} from "../../../../Frame/Database/DatabaseHelpers";
@@ -26,7 +26,7 @@ export class PremiseAddHelper extends BaseComponent<{mapID: number, parentNode: 
 			<Row style={{alignItems: "stretch", padding: "5px 0px"}}>
 				{/*<TextInput placeholder="Type the argument's first claim/premise here." style={ES({flex: 1})}
 					value={premiseTitle} onChange={val=>this.SetState({premiseTitle: val})}/>*/}
-				<TextArea_AutoSize className="noValidationColoring" required={true} pattern={MapNodeRevision_titlePattern} allowLineBreaks={false} style={{width: "100%"}}
+				<TextArea className="noValidationColoring" required={true} pattern={MapNodeRevision_titlePattern} allowLineBreaks={false} autoSize={true} style={{width: "100%"}}
 					placeholder="Type the argument's first claim/premise here."
 					onKeyDown={async e=> {
 						if (e.keyCode == keycode.codes.enter) {

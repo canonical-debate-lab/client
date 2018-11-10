@@ -1,6 +1,6 @@
 import {BaseComponent, BaseComponentWithConnector} from "react-vextensions";
 import {firebaseConnect} from "react-redux-firebase";
-import AdminUI from "./More/Admin";
+import {AdminUI} from "./More/Admin";
 import SubNavBar from "./@Shared/SubNavBar";
 import {SubNavBarButton} from "./@Shared/SubNavBar";
 import {IsUserAdmin} from "../Store/firebase/userExtras";

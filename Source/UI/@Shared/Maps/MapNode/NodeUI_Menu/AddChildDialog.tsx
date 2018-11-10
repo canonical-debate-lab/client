@@ -1,6 +1,6 @@
 import {SetNodeUILocked} from "UI/@Shared/Maps/MapNode/NodeUI";
 import {E, GetErrorMessagesUnderElement} from "js-vextensions";
-import {Column, Pre, Row, Select, TextArea_AutoSize} from "react-vcomponents";
+import {Column, Pre, Row, Select, TextArea} from "react-vcomponents";
 import {GetInnerComp} from "react-vextensions";
 import {BoxController, ShowMessageBox} from "react-vmessagebox";
 import {DBPath, WaitTillPathDataIsReceived, WaitTillPathDataIsReceiving} from "../../../../../Frame/Database/DatabaseHelpers";
@@ -132,8 +132,8 @@ The details of the argument should be described within the argument's premises. 
 								`.trim()}/>*/}
 							</Row>
 							<Row style={{display: "flex", alignItems: "center"}}>
-								<TextArea_AutoSize required={true} pattern={MapNodeRevision_titlePattern}
-									allowLineBreaks={false} style={ES({flex: 1})}
+								<TextArea required={true} pattern={MapNodeRevision_titlePattern}
+									allowLineBreaks={false} autoSize={true} style={ES({flex: 1})}
 									value={newPremiseRevision.titles["base"]}
 									onChange={val=>Change(newPremiseRevision.titles["base"] = val, validationError = GetErrorMessagesUnderElement(root.DOM)[0])}/>
 							</Row>
