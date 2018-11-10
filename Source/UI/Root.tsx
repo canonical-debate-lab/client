@@ -11,7 +11,7 @@ import { PersistGate as PersistGate_ } from 'redux-persist/integration/react';
 import { GetUserID } from 'Store/firebase/users';
 import { AddressBarWrapper } from 'UI/@Shared/AddressBarWrapper';
 import GuideUI from 'UI/Guide';
-import '../Frame/Styles/Core.scss';
+import '../../Source/Frame/Styles/Core.scss'; // keep absolute-ish, since scss file not copied to Source_JS folder
 import { Connect } from '../Frame/Database/FirebaseConnect';
 import { NormalizeURL } from '../Frame/General/URLs';
 import Route from '../Frame/ReactComponents/Route';
