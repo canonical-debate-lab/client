@@ -22,7 +22,10 @@ function createConfigFile(callback, environment) {
 				storageBucket: "canonical-debate-dev.appspot.com"
 			}
 			: {
-				// todo
+				apiKey: "AIzaSyBvdtm4ydCO1FgyEPJX1CeEqwUxoCYGfWw",
+				authDomain: "canonical-debate-prod.firebaseapp.com",
+				databaseURL: "https://canonical-debate-prod.firebaseio.com",
+				storageBucket: "canonical-debate-prod.appspot.com"
 			},
 	};
 

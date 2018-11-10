@@ -98,7 +98,7 @@ export class NavBar extends BaseComponentWithConnector(connector, {}) {
 						<NotificationsUI/>
 					</Div>
 					
-					<span style={{margin: "0 auto", paddingRight: 6}}>
+					<span style={{margin: "0 auto", paddingLeft: 78}}>
 						<NavBarButton page="database" text="Database"/>
 						{/* <NavBarButton page="feedback" text="Feedback"/>
 						<NavBarButton page="forum" text="Forum"/> */}
