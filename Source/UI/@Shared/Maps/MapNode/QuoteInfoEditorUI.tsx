@@ -13,8 +13,8 @@ import {GetSourceNamePlaceholderText, GetSourceAuthorPlaceholderText} from "../.
 import {Select} from "react-vcomponents";
 import {ContentNode} from "../../../../Store/firebase/contentNodes/@ContentNode";
 import {SourceType, SourceChain, Source} from "Store/firebase/contentNodes/@SourceChain";
-import {GetEntries} from "../../../../Utils/General/Enums";
-//import {ButtonProps} from "../../../../Utils/ReactComponents/Button"; // "import" approach causes typescript rebuilds to fail
+import {GetEntries} from "../../../../Frame/General/Enums";
+//import {ButtonProps} from "../../../../Frame/ReactComponents/Button"; // "import" approach causes typescript rebuilds to fail
 import {CleanUpdatedSourceChains} from "./SourceChainsEditorUI";
 import SourceChainsEditorUI from "./SourceChainsEditorUI";
 import {SubPanel_Quote} from "./NodeUI_Inner/SubPanel";

@@ -1,7 +1,7 @@
+import { GetValues_ForSchema } from '../../../Frame/General/Enums';
+import { AddAJVExtraCheck, AddSchema } from '../../../Server/Server';
 import { MapNodeRevision } from "./@MapNodeRevision";
 import { MapNodeType } from './@MapNodeType';
-import { GetValues_ForSchema } from "js-vextensions";
-import { AddAJVExtraCheck } from "Server/Server";
 
 export const globalMapID = 1;
 export const globalRootNodeID = 1;
@@ -13,6 +13,13 @@ export enum AccessLevel {
 	Admin = 40,
 }
 
+export enum ClaimType {
+	Normal = 10,
+	//ImpactPremise = 20,
+	Equation = 30,
+	Quote = 40,
+	Image = 50,
+}
 export enum ClaimForm {
 	Base = 10,
 	Negation = 20,
@@ -36,6 +43,8 @@ export class MapNode {
 	childrenOrder: number[];
 	//talkRoot: number;
 	multiPremiseArgument?: boolean;
+
+	layerPlusAnchorParents: LayerPlusAnchorParentSet;
 
 	// local-only
 	informalArgumentsHolder?: boolean;
@@ -124,3 +133,22 @@ AddSchema({
 	},
 	required: ["_"],
 }, "ChildEntry");
+
+// layer+anchor parents
+// ==========
+
+export type LayerPlusAnchorParentSet = { [key: string]: boolean; };
+AddSchema({patternProperties: {"^[0-9_]+$": {type: "boolean"}}}, "LayerPlusAnchorParentSet");
+
+// others
+// ==========
+
+export class ImageAttachment {
+	id: number;
+}
+AddSchema({
+	properties: {
+		id: {type: "number"},
+	},
+	required: ["id"],
+}, "ImageAttachment");

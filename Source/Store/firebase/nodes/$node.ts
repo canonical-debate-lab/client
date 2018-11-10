@@ -1,20 +1,64 @@
-import { CachedTransform, VURL, GetValues } from "js-vextensions";
-import { GetNodeRevision } from "../nodeRevisions";
-import { GetNode, GetNodeID, GetParentNode, GetParentNodeL2, HolderType, IsLinkValid, IsNewLinkValid } from "../nodes";
-import { PermissionGroupSet } from '../userExtras/@UserExtraInfo';
-import { ChildEntry, ClaimForm, MapNode, MapNodeL2, MapNodeL3, Polarity } from "./@MapNode";
-import { MapNodeRevision } from "./@MapNodeRevision";
-import { MapNodeType } from './@MapNodeType';
-import { SplitStringBySlash_Cached } from "Utils/Database/StringSplitCache";
-import { SlicePath } from "Utils/Database/DatabaseHelpers";
+import {GetImage} from '../images';
+import {MapNode, MapNodeL2, ClaimForm, ChildEntry, ClaimType, MapNodeL3, Polarity} from "./@MapNode";
+import {RatingType} from "../nodeRatings/@RatingType";
+import {MapNodeType} from './@MapNodeType';
+import {GetParentNode, IsLinkValid, IsNewLinkValid, IsNodeSubnode, GetNode, GetParentNodeL2, GetNodeChildrenL2, GetNodeChildren, GetNodeID, HolderType} from "../nodes";
+import {GetValues} from '../../../Frame/General/Enums';
+import {PermissionGroupSet} from '../userExtras/@UserExtraInfo';
+import {ImageType, GetNiceNameForImageType} from "../images/@Image";
+import katex from "katex";
+import {PreProcessLatex} from "../../../UI/@Shared/Maps/MapNode/NodeMathUI";
+import {SplitStringBySlash_Cached} from "../../../Frame/Database/StringSplitCache";
+import {SlicePath} from "../../../Frame/Database/DatabaseHelpers";
+import {VURL, CachedTransform} from "js-vextensions";
+import {MapNodeRevision} from "./@MapNodeRevision";
+import {GetNodeRevision} from "../nodeRevisions";
 
 export function GetFontSizeForNode(node: MapNodeL2, isSubnode = false) {
 	if (node.current.fontSizeOverride) return node.current.fontSizeOverride;
+	if (node.current.equation) return node.current.equation.latex ? 14 : 13;
 	if (isSubnode) return 11;
 	return 14;
 }
 export function GetPaddingForNode(node: MapNodeL2, isSubnode = false) {
 	return isSubnode ? "1px 4px 2px" : "5px 5px 4px";
+}
+export type RatingTypeInfo = {type: RatingType, main?: boolean, collapsed?: boolean};
+export function GetRatingTypesForNode(node: MapNodeL2): RatingTypeInfo[] {
+	if (node.type == MapNodeType.Category) {
+		if (node.current.votingDisabled) return [];
+		return [{type: "significance", main: true}];
+	}
+	if (node.type == MapNodeType.Package) {
+		return [{type: "significance", main: true}];
+	}
+	if (node.type == MapNodeType.MultiChoiceQuestion) {
+		return [{type: "significance", main: true}];
+	}
+	if (node.type == MapNodeType.Claim) {
+		let result: RatingTypeInfo[];
+		//result = [{type: "truth", main: true}]; //, {type: "significance", main: true}];
+		result = [{type: "truth", main: true}]; //, {type: "relevance", main: true}];
+		/*if ((node as MapNodeL2).link && (node as MapNodeL2).link.form == ClaimForm.YesNoQuestion) {
+			result.Remove(result.First(a=>a.type == "significance"));
+			result.Insert(0, {type: "significance", main: true});
+		}*/
+		return result;
+	}
+	if (node.type == MapNodeType.Argument) {
+		//return [{type: "strength", main: true}, {type: "impact", main: true}];
+		return [{type: "relevance"}, {type: "impact", main: true}];
+	}
+	Assert(false);
+}
+export function GetMainRatingType(node: MapNodeL2): RatingType {
+	return GetRatingTypesForNode(node).FirstOrX(a=>a.main, {}).type;
+}
+export function GetSortByRatingType(node: MapNodeL3): RatingType {
+	if ((node as MapNodeL3).link && (node as MapNodeL3).link.form == ClaimForm.YesNoQuestion) {
+		return "significance";
+	}
+	return GetMainRatingType(node);
 }
 
 export function ReversePolarity(polarity: Polarity) {
@@ -98,10 +142,13 @@ export function GetNodeL3(path: string) {
 		if (finalPolarity == null) return null;
 	}
 
-	let parent = GetParentNode(path);
-	if (parent == null && path.Contains("/")) return null;
-	var link = GetLinkUnderParent(node._id, parent);
-	if (link == null && path.Contains("/")) return null;
+	let isSubnode = IsNodeSubnode(node);
+	if (!isSubnode) {
+		let parent = GetParentNode(path);
+		if (parent == null && path.Contains("/")) return null;
+		var link = GetLinkUnderParent(node._id, parent);
+		if (link == null && path.Contains("/")) return null;
+	}
 
 	let nodeL3 = AsNodeL3(node, finalPolarity, link);
 	return CachedTransform("GetNodeL3", [path], nodeL3, ()=>nodeL3);
@@ -148,6 +195,43 @@ export function GetNodeDisplayText(node: MapNodeL2, path?: string, form?: ClaimF
 	form = form || GetNodeForm(node, path);
 
 	if (node.type == MapNodeType.Claim) {
+		if (node.current.equation) {
+			let result = node.current.equation.text;
+			if (node.current.equation.latex && !isBot) {
+				//result = result.replace(/\\[^{]+/g, "").replace(/[{}]/g, "");
+				let latex = PreProcessLatex(result);
+				try {
+					let html = katex.renderToString(latex);
+					let dom = $(html).children(".katex-html");
+					result = dom.text();
+				} catch (ex) {
+					if (ex.message.startsWith("KaTeX parse error: ")) {
+						return ex.message.replace(/^KaTeX/, "LaTeX");
+					}
+				}
+			}
+			return result;
+		}
+		if (node.current.contentNode) {
+			return `The statement below was made` //(as shown)`
+				+ (node.current.contentNode.sourceChains[0][0].name ? ` in "${node.current.contentNode.sourceChains[0][0].name}"` : "")
+				+ (node.current.contentNode.sourceChains[0][0].author ? ` by ${node.current.contentNode.sourceChains[0][0].author}` : "")
+				+ (node.current.contentNode.sourceChains[0][0].link ? ` at "${
+					VURL.Parse(node.current.contentNode.sourceChains[0][0].link, false).toString({domain_protocol: false})}"` : "") // maybe temp
+				+ `.`;
+		}
+		if (node.current.image) {
+			let image = GetImage(node.current.image.id);
+			if (image == null) return `...`;
+			//if (image.sourceChains == null) return `The ${GetNiceNameForImageType(image.type)} below is unmodified.`; // temp
+			return `The ${GetNiceNameForImageType(image.type)} below was published` //(as shown)`
+				+ (image.sourceChains[0][0].name ? ` in "${image.sourceChains[0][0].name}"` : "")
+				+ (image.sourceChains[0][0].author ? ` by ${image.sourceChains[0][0].author}` : "")
+				+ (image.sourceChains[0][0].link ? ` at "${
+					VURL.Parse(image.sourceChains[0][0].link, false).toString({domain_protocol: false})}"` : "") // maybe temp
+				+ `.`;
+		}
+
 		if (form) {
 			if (form == ClaimForm.Negation)
 				return node.current.titles.negation || "[negation title not set]";
@@ -170,18 +254,40 @@ export function GetValidNewChildTypes(parent: MapNodeL2, parentPath: string, hol
 	return validChildTypes;
 }
 
+export function GetClaimType(node: MapNodeL2) {
+	if (node.type != MapNodeType.Claim) return null;
+	return (
+		node.current.equation ? ClaimType.Equation :
+		node.current.contentNode ? ClaimType.Quote :
+		node.current.image ? ClaimType.Image :
+		ClaimType.Normal
+	);
+}
+
 export function IsSinglePremiseArgument(node: MapNode) {
+	/*nodeChildren = nodeChildren || GetNodeChildren(node);
+	if (nodeChildren.Any(a=>a == null)) return null;
+	//return nodeChildren.Any(child=>IsPremiseOfSinglePremiseArgument(child, node));
+	return node.type == MapNodeType.Argument && nodeChildren.filter(a=>a.type == MapNodeType.Claim).length == 1;*/
 	return node && node.type == MapNodeType.Argument && !node.multiPremiseArgument;
 }
 export function IsMultiPremiseArgument(node: MapNode) {
+	/*nodeChildren = nodeChildren || GetNodeChildren(node);
+	if (nodeChildren.Any(a=>a == null)) return null;
+	//return node.type == MapNodeType.Argument && !IsSinglePremiseArgument(node, nodeChildren);
+	return node.type == MapNodeType.Argument && nodeChildren.filter(a=>a.type == MapNodeType.Claim).length > 1;*/
 	return node && node.type == MapNodeType.Argument && node.multiPremiseArgument;
 }
 
 export function IsPremiseOfSinglePremiseArgument(node: MapNode, parent: MapNode) {
 	if (parent == null) return null;
+	//let parentChildren = GetNodeChildrenL2(parent);
+	/*if (parentChildren.Any(a=>a == null)) return false;
+	return node.type == MapNodeType.Claim && parentChildren.filter(a=>a.type == MapNodeType.Claim).length == 1 && node.link.form != ClaimForm.YesNoQuestion;*/
 	return node.type == MapNodeType.Claim && IsSinglePremiseArgument(parent);
 }
 export function IsPremiseOfMultiPremiseArgument(node: MapNode, parent: MapNode) {
 	if (parent == null) return null;
+	//let parentChildren = GetNodeChildrenL2(parent);
 	return node.type == MapNodeType.Claim && IsMultiPremiseArgument(parent);
 }

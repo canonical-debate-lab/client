@@ -1,5 +1,8 @@
-import {AccessLevel} from "./@MapNode";
-import { GetValues_ForSchema } from "js-vextensions";
+import {MapNodeType} from "./@MapNodeType";
+import {AccessLevel, ImageAttachment} from "./@MapNode";
+import {Equation} from "./@Equation";
+import {ContentNode} from "../contentNodes/@ContentNode";
+import {GetValues_ForSchema} from "../../../Frame/General/Enums";
 
 export class MapNodeRevision {
 	 constructor(initialData: Partial<MapNodeRevision>) {
@@ -26,6 +29,9 @@ export class MapNodeRevision {
 
 	// components (for theses)
 	argumentType: ArgumentType;
+	equation: Equation;
+	contentNode: ContentNode;
+	image: ImageAttachment;
 }
 //export const MapNodeRevision_titlePattern = `(^\\S$)|(^\\S.*\\S$)`; // must start and end with non-whitespace
 export const MapNodeRevision_titlePattern = `^\\S.*$`; // must start with non-whitespace

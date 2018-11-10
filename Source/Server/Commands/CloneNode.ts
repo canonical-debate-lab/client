@@ -1,6 +1,6 @@
-import { SplitStringBySlash_Cached } from "Utils/Database/StringSplitCache";
+import { SplitStringBySlash_Cached } from "Frame/Database/StringSplitCache";
 import { DEL, E } from "js-vextensions";
-import { GetAsync_Raw, RemoveHelpers } from "../../Utils/Database/DatabaseHelpers";
+import { GetAsync_Raw, RemoveHelpers } from "../../Frame/Database/DatabaseHelpers";
 import { GetLinkAtPath, GetNodeForm, GetNodeL2 } from "../../Store/firebase/nodes/$node";
 import { ClaimForm, MapNode, Polarity } from "../../Store/firebase/nodes/@MapNode";
 import { MapNodeType } from "../../Store/firebase/nodes/@MapNodeType";

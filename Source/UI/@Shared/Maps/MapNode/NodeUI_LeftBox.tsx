@@ -14,11 +14,11 @@ import {GetRatingAverage, GetRatings, ShouldRatingTypeBeReversed, GetRatingAvera
 import {ACTMapNodePanelOpen} from "../../../../Store/main/mapViews/$mapView/rootNodeViews";
 import {GetRatingTypesForNode, GetNodeForm, GetMainRatingType, GetNodeL3, IsPremiseOfSinglePremiseArgument} from "../../../../Store/firebase/nodes/$node";
 import {RootState} from "../../../../Store/index";
-import {Connect} from "../../../../Utils/Database/FirebaseConnect";
+import {Connect} from "../../../../Frame/Database/FirebaseConnect";
 import {GetParentNode, GetParentNodeL3} from "../../../../Store/firebase/nodes";
-import {SlicePath} from "../../../../Utils/Database/DatabaseHelpers";
+import {SlicePath} from "../../../../Frame/Database/DatabaseHelpers";
 import {GetNode} from "Store/firebase/nodes";
-import {SplitStringBySlash_Cached} from "Utils/Database/StringSplitCache";
+import {SplitStringBySlash_Cached} from "Frame/Database/StringSplitCache";
 import { IsUserCreatorOrMod } from "Store/firebase/userExtras";
 import {GetUserID} from "Store/firebase/users";
 import chroma from "chroma-js";

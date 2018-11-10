@@ -1,5 +1,5 @@
 import {BaseComponentWithConnector, BaseComponent, GetInnerComp, RenderSource} from "react-vextensions";
-import { Connect } from "Utils/Database/FirebaseConnect";
+import { Connect } from "Frame/Database/FirebaseConnect";
 import {Column, Row, Button, Div} from "react-vcomponents";
 import { MapNodeL3 } from "Store/firebase/nodes/@MapNode";
 import NodeConnectorBackground from "UI/@Shared/Maps/MapNode/NodeConnectorBackground";
@@ -11,15 +11,15 @@ import {Vector2i} from "js-vextensions";
 import {ArgumentsControlBar} from "../ArgumentsControlBar";
 import {Polarity} from "../../../../../Store/firebase/nodes/@MapNode";
 import { ACTMapNodeChildLimitSet } from "Store/main/mapViews/$mapView/rootNodeViews";
-import Icon from "Utils/ReactComponents/Icon";
+import Icon from "Frame/ReactComponents/Icon";
 import {IsMultiPremiseArgument, GetSortByRatingType, GetMainRatingType} from "../../../../../Store/firebase/nodes/$node";
 import {NodeChildHolderBox} from "./NodeChildHolderBox";
 import { GetNodeChildrenL3, HolderType } from "Store/firebase/nodes";
-import { IsSpecialEmptyArray, emptyObj } from "Utils/Store/ReducerUtils";
+import { IsSpecialEmptyArray, emptyObj } from "Frame/Store/ReducerUtils";
 import { GetRatingAverage_AtPath, GetFillPercent_AtPath } from "Store/firebase/nodeRatings";
 import { CachedTransform } from "js-vextensions";
 import { ArgumentType } from "Store/firebase/nodes/@MapNodeRevision";
-import {SplitStringBySlash_Cached} from "../../../../../Utils/Database/StringSplitCache";
+import {SplitStringBySlash_Cached} from "../../../../../Frame/Database/StringSplitCache";
 
 /*export class ChildPackUI extends BaseComponent
 		<{

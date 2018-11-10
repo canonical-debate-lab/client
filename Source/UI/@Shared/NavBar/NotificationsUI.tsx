@@ -1,5 +1,5 @@
 import {BaseComponent, AddGlobalStyle} from "react-vextensions";
-import {Connect} from "../../../Utils/Database/FirebaseConnect";
+import {Connect} from "../../../Frame/Database/FirebaseConnect";
 import {NotificationMessage} from "../../../Store/main/@NotificationMessage";
 import {Button, Div} from "react-vcomponents";
 import {ACTNotificationMessageRemove} from "../../../Store/main";

@@ -1,5 +1,4 @@
 {
 	"typescript.tsdk": "./node_modules/typescript/lib",
-	"files.eol": "\n",
-	"eslint.enable": false // disabled for now
+	"eslint.enable": false
 }

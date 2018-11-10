@@ -1,5 +1,5 @@
 import {Map, MapType} from "../../../../Store/firebase/maps/@Map";
-import {Connect} from "Utils/Database/FirebaseConnect";
+import {Connect} from "Frame/Database/FirebaseConnect";
 import {IsUserCreatorOrMod} from "../../../../Store/firebase/userExtras";
 import {GetUserID, GetUser} from "Store/firebase/users";
 import {BaseComponent, GetInnerComp} from "react-vextensions";
@@ -12,7 +12,7 @@ import {Column} from "react-vcomponents";
 import UpdateMapDetails from "../../../../Server/Commands/UpdateMapDetails";
 import {ShowMessageBox} from "react-vmessagebox";
 import DeleteMap from "../../../../Server/Commands/DeleteMap";
-import {colors} from "../../../../Utils/UI/GlobalStyles";
+import {colors} from "../../../../Frame/UI/GlobalStyles";
 import { GetLayers, GetMapLayerIDs, ForDeleteLayer_GetError } from "../../../../Store/firebase/layers";
 import {Layer} from "Store/firebase/layers/@Layer";
 import {ShowSignInPopup} from "UI/@Shared/NavBar/UserPanel";
@@ -29,7 +29,7 @@ import DeleteLayer from "../../../../Server/Commands/DeleteLayer";
 import {ACTPersonalMapSelect} from "../../../../Store/main/personal";
 import {IsUserMap} from "../../../../Store/firebase/maps";
 import { TimelineDropDown } from "UI/@Shared/Maps/MapUI/ActionBar_Left/Timeline";
-import {GetUpdates, GetAsync} from "Utils/Database/DatabaseHelpers";
+import {GetUpdates, GetAsync} from "Frame/Database/DatabaseHelpers";
 import {GetNodeL2} from "Store/firebase/nodes/$node";
 import {GetChildCount} from "Store/firebase/nodes";
 

@@ -1,5 +1,5 @@
 import {Map, MapType} from "../../../../Store/firebase/maps/@Map";
-import {Connect} from "Utils/Database/FirebaseConnect";
+import {Connect} from "Frame/Database/FirebaseConnect";
 import {IsUserCreatorOrMod} from "../../../../Store/firebase/userExtras";
 import {GetUserID} from "Store/firebase/users";
 import {BaseComponent, GetInnerComp, BaseComponentWithConnector} from "react-vextensions";
@@ -12,14 +12,14 @@ import {Column} from "react-vcomponents";
 import UpdateMapDetails from "../../../../Server/Commands/UpdateMapDetails";
 import {ShowMessageBox} from "react-vmessagebox";
 import DeleteMap from "../../../../Server/Commands/DeleteMap";
-import {colors} from "../../../../Utils/UI/GlobalStyles";
+import {colors} from "../../../../Frame/UI/GlobalStyles";
 import {Spinner} from "react-vcomponents";
 import {ACTSetInitialChildLimit, WeightingType} from "../../../../Store/main";
 import {TextInput} from "react-vcomponents";
 import { ShareDropDown } from "UI/@Shared/Maps/MapUI/ActionBar_Right/ShareDropDown";
 import {LayoutDropDown} from "./ActionBar_Right/LayoutDropDown";
 import { ShowChangesSinceType } from "Store/main/maps/@MapInfo";
-import {GetEntries} from "../../../../Utils/General/Enums";
+import {GetEntries} from "../../../../Frame/General/Enums";
 import {ACTSet} from "Store";
 import {ApplyActionSet} from "../../../../Store/index";
 

@@ -6,6 +6,7 @@ module.exports = {
 	],
 	parser: "typescript-eslint-parser",
 	parserOptions: {
+		ecmaVersion: 8,
 		ecmaFeatures: {
 			jsx: true,
 			modules: true
@@ -15,6 +16,7 @@ module.exports = {
 		"import",
 		"react",
 		"jsx-a11y",
+		//"babel",
 	],
 	settings: {
 		"import/extensions": [".js", ".jsx", ".ts", ".tsx"],
@@ -23,6 +25,17 @@ module.exports = {
 				"config": "./Scripts/Build/WebpackConfig.js"
 			}
 		}
+	},
+	env: {
+		"browser": true,
+		"commonjs": true,
+		"es6": true,
+		"node": true
+	},
+	globals : {
+		/*"DEV": false,
+		"PROD": false,
+		"TEST": false,*/
 	},
 	rules: {
 		"indent": ["error", "tab"],

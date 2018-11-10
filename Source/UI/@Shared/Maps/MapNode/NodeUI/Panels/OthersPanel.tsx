@@ -1,4 +1,4 @@
-import Icon from "Utils/ReactComponents/Icon";
+import Icon from "Frame/ReactComponents/Icon";
 import { GetNodeViewers } from "Store/firebase/nodeViewers";
 import { GetParentNodeID, GetParentNodeL3 } from "Store/firebase/nodes";
 import { GetUser, GetUserID, GetUserPermissionGroups } from "Store/firebase/users";
@@ -6,9 +6,9 @@ import Moment from "moment";
 import { Button, CheckBox, Column, Div, Pre, Row, Select } from "react-vcomponents";
 import { BaseComponent, BaseComponentWithConnector } from "react-vextensions";
 import { ShowMessageBox } from "react-vmessagebox";
-import { Connect } from "../../../../../../Utils/Database/FirebaseConnect";
-import { GetEntries } from "../../../../../../Utils/General/Enums";
-import {InfoButton} from "../../../../../../Utils/ReactComponents/InfoButton";
+import { Connect } from "../../../../../../Frame/Database/FirebaseConnect";
+import { GetEntries } from "../../../../../../Frame/General/Enums";
+import {InfoButton} from "../../../../../../Frame/ReactComponents/InfoButton";
 import ChangeClaimType, { CanConvertFromClaimTypeXToY } from "../../../../../../Server/Commands/ChangeClaimType";
 import {ReverseArgumentPolarity} from "../../../../../../Server/Commands/ReverseArgumentPolarity";
 import UpdateLink from "../../../../../../Server/Commands/UpdateLink";
@@ -20,7 +20,7 @@ import { ArgumentType } from "../../../../../../Store/firebase/nodes/@MapNodeRev
 import { MapNodeType } from "../../../../../../Store/firebase/nodes/@MapNodeType";
 import { IsUserCreatorOrMod } from "../../../../../../Store/firebase/userExtras";
 import { User } from "../../../../../../Store/firebase/users/@User";
-import {SlicePath} from "Utils/Database/DatabaseHelpers";
+import {SlicePath} from "Frame/Database/DatabaseHelpers";
 
 let connector = (state, {node}: {map?: Map, node: MapNodeL3, path: string})=> ({
 	_: GetUserPermissionGroups(GetUserID()),

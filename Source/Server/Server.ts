@@ -62,7 +62,7 @@ Details: ${ToJSON(this.errors, null, 3)}
 G({Validate}); declare global { function Validate(schemaName: string, data); }
 function Validate(schemaName: string, data, removeHelpers = true) {
 	if (removeHelpers) {
-		let {RemoveHelpers} = require("../Utils/Database/DatabaseHelpers");
+		let {RemoveHelpers} = require("../Frame/Database/DatabaseHelpers");
 		data = RemoveHelpers(Clone(data));
 	}
 

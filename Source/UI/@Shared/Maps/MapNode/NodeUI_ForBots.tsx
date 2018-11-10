@@ -2,7 +2,7 @@ import {GetNodeView, GetFocusedNodeID} from "../../../../Store/main/mapViews";
 import {Vector2i} from "js-vextensions";
 import {Map} from "../../../../Store/firebase/maps/@Map";
 import {MapNodeView} from "../../../../Store/main/mapViews/@MapViews";
-import {Connect} from "../../../../Utils/Database/FirebaseConnect";
+import {Connect} from "../../../../Frame/Database/FirebaseConnect";
 import {RootState} from "../../../../Store";
 import {GetNodeChildren, GetNodeParents, GetParentNode, GetNode, GetNodeParentsL2, GetParentNodeL2, GetNodeChildrenL2} from "../../../../Store/firebase/nodes";
 import {GetRatings} from "../../../../Store/firebase/nodeRatings";
@@ -10,7 +10,7 @@ import {CachedTransform} from "js-vextensions";
 import {Column} from "react-vcomponents";
 import {Row} from "react-vcomponents";
 import {VURL} from "js-vextensions";
-import {Link} from "../../../../Utils/ReactComponents/Link";
+import {Link} from "../../../../Frame/ReactComponents/Link";
 import {BaseComponent, BaseProps, GetInnerComp} from "react-vextensions";
 import {Pre} from "react-vcomponents";
 import {MapNode, MapNodeL2, Polarity} from "../../../../Store/firebase/nodes/@MapNode";
@@ -26,7 +26,7 @@ import RatingsPanel from "./NodeUI/Panels/RatingsPanel";
 import {ScrollView} from "react-vscrollview";
 import {ACTSet} from "Store";
 import {GetOpenMapID} from "../../../../Store/main";
-import {GetNewURL} from "../../../../Utils/URL/URLManager";
+import {GetNewURL} from "../../../../Frame/URL/URLManager";
 
 type Props = {map: Map, node: MapNodeL2}
 	& Partial<{nodeParents: MapNodeL2[], nodeChildren: MapNodeL2[]}>;

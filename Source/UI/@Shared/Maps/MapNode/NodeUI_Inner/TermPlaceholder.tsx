@@ -1,4 +1,4 @@
-import { Connect } from "Utils/Database/FirebaseConnect";
+import { Connect } from "Frame/Database/FirebaseConnect";
 import {GetTerm, GetTermVariantNumber} from "../../../../../Store/firebase/terms";
 import {BaseComponent} from "react-vextensions";
 import {Term} from "../../../../../Store/firebase/terms/@Term";

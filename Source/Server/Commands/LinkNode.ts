@@ -1,4 +1,4 @@
-import { GetAsync } from "Utils/Database/DatabaseHelpers";
+import { GetAsync } from "Frame/Database/DatabaseHelpers";
 import { MapEdit } from "Server/CommandMacros";
 import { GetNode } from "Store/firebase/nodes";
 import { Assert, E } from "js-vextensions";

@@ -1,7 +1,7 @@
 {
 	"projects": {
-		"default": "canonical-debate-dev",
-		"dev": "canonical-debate-dev",
-		"prod": "canonical-debate-prod"
+		"default": "debate-map-dev",
+		"dev": "debate-map-dev",
+		"prod": "debate-map-prod"
 	}
 }

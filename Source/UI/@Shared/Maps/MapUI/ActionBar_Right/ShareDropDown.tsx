@@ -1,5 +1,5 @@
 import {Map} from "../../../../../Store/firebase/maps/@Map";
-import {Connect} from "Utils/Database/FirebaseConnect";
+import {Connect} from "Frame/Database/FirebaseConnect";
 import {BaseComponent} from "react-vextensions";
 import {GetUserID} from "Store/firebase/users";
 import {IsUserCreatorOrMod} from "../../../../../Store/firebase/userExtras";
@@ -16,15 +16,15 @@ import { ACTMap_SelectedTimelineSet } from "Store/main/maps/$map";
 import AddTimelineStep from "Server/Commands/AddTimelineStep";
 import {Select} from "react-vcomponents";
 import {UpdateTimelineStep} from "../../../../../Server/Commands/UpdateTimelineStep";
-import {GetEntries} from "../../../../../Utils/General/Enums";
-import {RemoveHelpers} from "../../../../../Utils/Database/DatabaseHelpers";
+import {GetEntries} from "../../../../../Frame/General/Enums";
+import {RemoveHelpers} from "../../../../../Frame/Database/DatabaseHelpers";
 import DeleteTimelineStep from "Server/Commands/DeleteTimelineStep";
 import DeleteTimeline from "../../../../../Server/Commands/DeleteTimeline";
 import {TextInput} from "react-vcomponents";
-import {GetCurrentURL} from "../../../../../Utils/General/URLs";
+import {GetCurrentURL} from "../../../../../Frame/General/URLs";
 import {VURL} from "js-vextensions";
-import {GetNewURL} from "Utils/URL/URLManager";
-import { CopyText } from "Utils/General/Others";
+import {GetNewURL} from "Frame/URL/URLManager";
+import { CopyText } from "Frame/General/Others";
 import {WaitXThenRun} from "js-vextensions";
 
 type ShareDropDownProps = {map: Map} & Partial<{newURL: VURL, timelines: Timeline[]}>;

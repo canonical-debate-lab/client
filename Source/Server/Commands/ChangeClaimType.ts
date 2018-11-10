@@ -1,7 +1,8 @@
-import { GetAsync_Raw } from "Utils/Database/DatabaseHelpers";
+import { GetAsync_Raw } from "Frame/Database/DatabaseHelpers";
 import { MapEdit } from "Server/CommandMacros";
-import { Assert, GetValues_ForSchema } from "js-vextensions";
-import { GetDataAsync } from "./../../Utils/Database/DatabaseHelpers";
+import { Assert } from "js-vextensions";
+import { GetDataAsync } from "./../../Frame/Database/DatabaseHelpers";
+import { GetValues_ForSchema } from "./../../Frame/General/Enums";
 import { GetClaimType, GetNodeL2 } from "./../../Store/firebase/nodes/$node";
 import { Equation } from "./../../Store/firebase/nodes/@Equation";
 import { ClaimType, MapNodeL2 } from "./../../Store/firebase/nodes/@MapNode";

@@ -1,28 +1,73 @@
-import { Assert, CachedTransform, GetTreeNodesInObjTree, IsNumberString, Vector2i } from "js-vextensions";
-import { ShallowChanged } from "react-vextensions";
-import { SplitStringBySlash_Cached } from "Utils/Database/StringSplitCache";
-import { DBPath } from "../../Utils/Database/DatabaseHelpers";
-import { ACTMapViewMerge, MapViewReducer } from "./mapViews/$mapView";
-import { MapNodeView, MapView, MapViews } from "./mapViews/@MapViews";
-import { Action } from "Utils/Store/Action";
-import { State } from "Store";
+import {Vector2i} from "js-vextensions";
+import Action from "../../Frame/General/Action";
+import {GetTreeNodesInObjTree, GetTreeNodesInPath, VisitTreeNodesInPath, TreeNode} from "js-vextensions";
+import {IsNumberString} from "js-vextensions";
+import {A, Assert} from "js-vextensions";
+import {MapViews, MapView, MapNodeView} from "./mapViews/@MapViews";
+import {ToInt} from "js-vextensions";
+import {GetMap, GetRootNodeID} from "../firebase/maps";
+import u from "updeep";
+import {MapViewReducer, ACTMapViewMerge} from "./mapViews/$mapView";
+import {ShallowChanged} from "react-vextensions";
+import {DBPath} from "../../Frame/Database/DatabaseHelpers";
+import {VURL} from "js-vextensions";
+import {ACTDebateMapSelect, ACTDebateMapSelect_WithData} from "./debates";
+import {CachedTransform} from "js-vextensions";
+import {SplitStringBySlash_Cached} from "Frame/Database/StringSplitCache";
+import {CreateDemoMapView} from "../../UI/Home/DemoMap";
+import {ACTPersonalMapSelect_WithData} from "./personal";
 
 export function MapViewsReducer(state = new MapViews(), action: Action<any>) {
+	/*if (action.Is(ACTOpenMapSet))
+		return {...state, [action.payload]: state[action.payload] || new MapView()};*/
+
 	let newState = {...state};
 
+	// if demo map-view not added, add it (I know... this is not the best way... :-| )
+	if (newState[-100] == null)
+		newState[-100] = CreateDemoMapView();
 	if (action.type == "@@reactReduxFirebase/SET" && action["data"]) {
 		let match = action["path"].match("^" + DBPath("maps") + "/([0-9]+)");
 		// if map-data was just loaded
 		if (match) {
 			let mapID = parseInt(match[1]);
 			// and no map-view exists for it yet, create one (by expanding root-node, and changing focus-node/view-offset)
+			//if (GetMapView(mapID) == null) {
+			//if (state[mapID].rootNodeViews.VKeys().length == 0) {
 			if (newState[mapID] == null) {
+				//newState[mapID] = new MapView();
 				newState[mapID] = {
 					rootNodeViews: {
 						[action["data"].rootNode]: new MapNodeView().VSet({expanded: true, focused: true, viewOffset: new Vector2i(200, 0)})
 					}
 				};
 			}
+		}
+	}
+	if ((action.Is(ACTPersonalMapSelect_WithData) || action.Is(ACTDebateMapSelect_WithData)) && action.payload.map) {
+		if (newState[action.payload.id] == null) {
+			//newState[action.payload.id] = new MapView();
+			newState[action.payload.id] = {
+				rootNodeViews: {
+					[action.payload.map.rootNode]: new MapNodeView().VSet({expanded: true, focused: true, viewOffset: new Vector2i(200, 0)})
+				}
+			};
+		}
+	}
+	/*if (action.type == LOCATION_CHANGED && VURL.FromState(action.payload).pathNodes[0] == "global") {
+		let mapID = 1, rootNode = 1;
+		// if no map-view exists for it yet, create one (by expanding root-node, and changing focus-node/view-offset)
+		if (newState[mapID] == null) {
+			newState[mapID] = {
+				rootNodeViews: {
+					[rootNode]: new MapNodeView().VSet({expanded: true, focused: true, viewOffset: new Vector2i(200, 0)})
+				}
+			};
+		}
+	}*/
+	if (action.Is(ACTMapViewMerge)) {
+		if (newState[action.payload.mapID] == null) {
+			newState[action.payload.mapID] = action.payload.mapView;
 		}
 	}
 

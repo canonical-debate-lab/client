@@ -1,4 +1,4 @@
-import { GetValues_ForSchema } from "js-vextensions";
+import {GetValues_ForSchema} from "../../../Frame/General/Enums";
 
 export enum MapType {
 	Personal = 10,

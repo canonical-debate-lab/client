@@ -6,6 +6,8 @@
 		"public": "dist",
 		"ignore": [
 			"**/#*",
+			"**/*-autosave.kra",
+			"**/*.kra~"
 		],
 		"rewrites": [
 			{

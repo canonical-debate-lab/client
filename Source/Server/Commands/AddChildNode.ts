@@ -1,7 +1,7 @@
 import { MapEdit, UserEdit } from "Server/CommandMacros";
 import { MapNodeRevision } from "Store/firebase/nodes/@MapNodeRevision";
 import { Assert } from "js-vextensions";
-import { GetDataAsync } from "../../Utils/Database/DatabaseHelpers";
+import { GetDataAsync } from "../../Frame/Database/DatabaseHelpers";
 import { ChildEntry, MapNode } from "../../Store/firebase/nodes/@MapNode";
 import { Command, MergeDBUpdates } from "../Command";
 import {AddNode} from "./AddNode";

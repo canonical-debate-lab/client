@@ -1,9 +1,9 @@
-import {Connect} from "Utils/Database/FirebaseConnect";
+import {Connect} from "Frame/Database/FirebaseConnect";
 import {BaseComponent} from "react-vextensions";
 import {Row, TextArea_AutoSize, Button} from "react-vcomponents";
 import {MapNode, MapNodeL3, ClaimForm, ChildEntry} from "../../../../Store/firebase/nodes/@MapNode";
 import {SetNodeUILocked} from "UI/@Shared/Maps/MapNode/NodeUI";
-import {WaitTillPathDataIsReceiving, WaitTillPathDataIsReceived} from "../../../../Utils/Database/DatabaseHelpers";
+import {WaitTillPathDataIsReceiving, WaitTillPathDataIsReceived} from "../../../../Frame/Database/DatabaseHelpers";
 import {MapNodeType} from "../../../../Store/firebase/nodes/@MapNodeType";
 import {MapNodeRevision, MapNodeRevision_titlePattern} from "../../../../Store/firebase/nodes/@MapNodeRevision";
 import AddChildNode from "../../../../Server/Commands/AddChildNode";

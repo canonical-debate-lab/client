@@ -1,9 +1,11 @@
 import {BaseComponent} from "react-vextensions";
+import { Connect } from "../../Frame/Database/FirebaseConnect";
 import {VURL} from "js-vextensions";
 import { push, replace } from "redux-little-router";
-import { store } from "Main_Hot";
-import { DoesURLChangeCountAsPageChange } from "Utils/Store/ActionProcessor";
-import { Connect } from "Utils/Database/FirebaseConnect";
+import { DoesURLChangeCountAsPageChange } from "Frame/Store/ActionProcessor";
+import {GetCurrentURL} from "../../Frame/General/URLs";
+import {GetNewURL} from "Frame/URL/URLManager";
+import {loadingURL} from "../../Frame/URL/URLManager";
 
 let lastURL: VURL;
 
@@ -23,12 +25,12 @@ export class AddressBarWrapper extends BaseComponent<Props, {}> {
 		
 		if (lastURL) {
 			var action = pushURL ? push(newURL) : replace(newURL);
-			//MaybeLog(a=>a.urlLoads, ()=>`Dispatching new-url: ${newURL} @type:${action.type}`);
+			MaybeLog(a=>a.urlLoads, ()=>`Dispatching new-url: ${newURL} @type:${action.type}`);
 		} else {
 			// if page just loaded, do one "start-up" LOCATION_CHANGED action, with whatever's in the address-bar
 			let startURL = GetCurrentURL(true).toString({domain: false});
 			var action = replace(startURL);
-			//MaybeLog(a=>a.urlLoads, ()=>`Dispatching start-url: ${GetCurrentURL(true)} @type:${action.type}`);
+			MaybeLog(a=>a.urlLoads, ()=>`Dispatching start-url: ${GetCurrentURL(true)} @type:${action.type}`);
 		}
 
 		//action.byUser = false;

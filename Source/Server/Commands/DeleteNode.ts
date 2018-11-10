@@ -1,10 +1,11 @@
-import {GetAsync, GetAsync_Raw} from "Utils/Database/DatabaseHelpers";
+import {GetAsync, GetAsync_Raw} from "Frame/Database/DatabaseHelpers";
 import {GetNodeL2} from "Store/firebase/nodes/$node";
 import {MapNodeRevision} from "Store/firebase/nodes/@MapNodeRevision";
 import {Assert, ToInt} from "js-vextensions";
-import {GetDataAsync} from "../../Utils/Database/DatabaseHelpers";
+import {GetDataAsync} from "../../Frame/Database/DatabaseHelpers";
 import {GetMaps} from "../../Store/firebase/maps";
 import {GetNodeRevisions} from "../../Store/firebase/nodeRevisions";
+import {GetNodeViewers} from "../../Store/firebase/nodeViewers";
 import {ForDelete_GetError} from "../../Store/firebase/nodes";
 import {MapNodeL2} from "../../Store/firebase/nodes/@MapNode";
 import {Command, MergeDBUpdates} from "../Command";
@@ -45,7 +46,9 @@ export class DeleteNode extends Command<{mapID?: number, nodeID: number, withCon
 		this.oldParentChildrenOrders = await Promise.all((this.oldData.parents || {}).VKeys().map(parentID=> {
 			return GetDataAsync("nodes", parentID, "childrenOrder") as Promise<number[]>;
 		}));
-		
+
+		this.viewerIDs_main = await GetAsync(()=>GetNodeViewers(nodeID));
+
 		this.mapIDs = (await GetAsync(()=>GetMaps())).map(a=>a._id);
 
 		if (withContainerArgument) {

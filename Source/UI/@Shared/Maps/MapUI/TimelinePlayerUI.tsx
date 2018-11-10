@@ -1,7 +1,7 @@
 import {BaseComponent, FindReact} from "react-vextensions";
 import {Pre, Span} from "react-vcomponents";
 import {Column} from "react-vcomponents";
-import {Connect} from "../../../../Utils/Database/FirebaseConnect";
+import {Connect} from "../../../../Frame/Database/FirebaseConnect";
 import {GetOpenMapID} from "../../../../Store/main";
 import {Timeline} from "Store/firebase/timelines/@Timeline";
 import {Row} from "react-vcomponents";
@@ -9,20 +9,20 @@ import {Button} from "react-vcomponents";
 import {ScrollView} from "react-vscrollview";
 import {ACTMap_PlayingTimelineSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimeline, GetPlayingTimelineStep} from "Store/main/maps/$map";
 import { Map } from "Store/firebase/maps/@Map";
-import VReactMarkdown_Remarkable from "../../../../Utils/ReactComponents/VReactMarkdown_Remarkable";
+import VReactMarkdown_Remarkable from "../../../../Frame/ReactComponents/VReactMarkdown_Remarkable";
 import {TimelineStep} from "../../../../Store/firebase/timelineSteps/@TimelineStep";
 import {GetPlayingTimelineStepIndex, ACTMap_PlayingTimelineAppliedStepSet, GetPlayingTimelineAppliedStepIndex} from "../../../../Store/main/maps/$map";
-import {ReplacementFunc} from "../../../../Utils/ReactComponents/VReactMarkdown";
-import {Segment} from "../../../../Utils/General/RegexHelpers";
+import {ReplacementFunc} from "../../../../Frame/ReactComponents/VReactMarkdown";
+import {Segment} from "../../../../Frame/General/RegexHelpers";
 import {NodeUI_Inner} from "../MapNode/NodeUI_Inner";
 import {GetNode} from "Store/firebase/nodes";
 import {MapNode, MapNodeL2, MapNodeL3, Polarity} from "../../../../Store/firebase/nodes/@MapNode";
-import {GetDataAsync, GetAsync} from "Utils/Database/DatabaseHelpers";
+import {GetDataAsync, GetAsync} from "Frame/Database/DatabaseHelpers";
 import NodeUI from "../MapNode/NodeUI";
 import { GetNodeL2 } from "Store/firebase/nodes/$node";
 import {GetNodeL3, AsNodeL3} from "../../../../Store/firebase/nodes/$node";
 import {GetNodeID} from "../../../../Store/firebase/nodes";
-import {GetValues, GetEntries} from "../../../../Utils/General/Enums";
+import {GetValues, GetEntries} from "../../../../Frame/General/Enums";
 
 function GetPropsFromPropsStr(propsStr: string) {
 	let propStrMatches = propsStr.Matches(/ (.+?)="(.+?)"/g);

@@ -1,5 +1,5 @@
-import {Connect} from "Utils/Database/FirebaseConnect";
-import {emptyArray, emptyArray_forLoading} from "Utils/Store/ReducerUtils";
+import {Connect} from "Frame/Database/FirebaseConnect";
+import {emptyArray, emptyArray_forLoading} from "Frame/Store/ReducerUtils";
 import {GetMarkerPercent_AtPath, GetRatings} from "Store/firebase/nodeRatings";
 import {RatingType} from "Store/firebase/nodeRatings/@RatingType";
 import {GetParentNodeL3, HolderType} from "Store/firebase/nodes";

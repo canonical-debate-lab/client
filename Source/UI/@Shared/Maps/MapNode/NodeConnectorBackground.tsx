@@ -4,7 +4,7 @@ import {Vector2i} from "js-vextensions";
 import ShallowCompare from "react/lib/shallowCompare";
 import {MapNode, MapNodeL2, MapNodeL3} from "../../../../Store/firebase/nodes/@MapNode";
 import {MapNodeType, MapNodeType_Info, GetNodeColor} from "../../../../Store/firebase/nodes/@MapNodeType";
-import {Connect} from "../../../../Utils/Database/FirebaseConnect";
+import {Connect} from "../../../../Frame/Database/FirebaseConnect";
 import {GetNodeForm, GetRatingTypesForNode} from "../../../../Store/firebase/nodes/$node";
 
 type Props = {

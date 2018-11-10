@@ -1,8 +1,9 @@
-import {GetData} from "../../Utils/Database/DatabaseHelpers";
+import {GetData} from "../../Frame/Database/DatabaseHelpers";
 import {PermissionGroupSet} from "./userExtras/@UserExtraInfo";
 import UserExtraInfo from "./userExtras/@UserExtraInfo";
 import {CachedTransform} from "js-vextensions";
 import {AccessLevel} from "./nodes/@MapNode";
+import {backgrounds} from "../../UI/Profile";
 import {User} from "Store/firebase/users/@User";
 import {GetAuth, IsAuthValid} from "../firebase";
 
@@ -50,4 +51,23 @@ export function GetUserAccessLevel(userID: string) {
 	if (groups.verified) return AccessLevel.Verified;
 	//if (groups.basic) return AccessLevel.Basic;
 	Assert(false);
+}
+
+/*export function GetUserInfo(userID: string) {
+}*/
+
+export function GetUserBackground(userID: string) {
+	let user = GetUser(userID);
+	if (!user) return backgrounds[1];
+
+	if (user.backgroundCustom_enabled) {
+		return {
+			url_1920: user.backgroundCustom_url,
+			url_3840: user.backgroundCustom_url,
+			position: user.backgroundCustom_position || "center center",
+		};
+	}
+
+	let background = backgrounds[user.backgroundID] || backgrounds[1];
+	return background;
 }

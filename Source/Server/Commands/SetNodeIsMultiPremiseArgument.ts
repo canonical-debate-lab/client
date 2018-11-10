@@ -1,5 +1,5 @@
 import { MapEdit, UserEdit } from "Server/CommandMacros";
-import { GetDataAsync } from "../../Utils/Database/DatabaseHelpers";
+import { GetDataAsync } from "../../Frame/Database/DatabaseHelpers";
 import { MapNode } from "../../Store/firebase/nodes/@MapNode";
 import { Command } from "../Command";
 

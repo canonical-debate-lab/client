@@ -5,7 +5,7 @@ import {Button, Column, Row} from "react-vcomponents";
 import {BaseComponent, BaseComponentWithConnector} from "react-vextensions";
 import {BoxController, ShowMessageBox} from "react-vmessagebox";
 import {ScrollView} from "react-vscrollview";
-import {Connect} from "../../../../../../Utils/Database/FirebaseConnect";
+import {Connect} from "../../../../../../Frame/Database/FirebaseConnect";
 import {Map} from "../../../../../../Store/firebase/maps/@Map";
 import {GetParentNodeL3} from "../../../../../../Store/firebase/nodes";
 import {GetLinkUnderParent} from "../../../../../../Store/firebase/nodes/$node";

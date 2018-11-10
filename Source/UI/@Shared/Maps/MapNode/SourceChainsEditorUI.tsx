@@ -4,7 +4,7 @@ import {Button} from "react-vcomponents";
 import {Column} from "react-vcomponents";
 import {Row} from "react-vcomponents";
 import {TextInput} from "react-vcomponents";
-import {GetEntries} from "../../../../Utils/General/Enums";
+import {GetEntries} from "../../../../Frame/General/Enums";
 import {GetSourceNamePlaceholderText, GetSourceAuthorPlaceholderText} from "../../../../Store/firebase/contentNodes/$contentNode";
 import {Select} from "react-vcomponents";
  import {GetErrorMessagesUnderElement} from "js-vextensions";

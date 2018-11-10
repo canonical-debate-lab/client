@@ -1,0 +1,40 @@
+Dev
+==========
+
+SeparateTypeScript:
+* InitialCompile: 32s-listed (next results: 27s)
+* AfterChange: 3s-listed (+ 6s-actual in typescript cmd)
+
+IntegratedTypeScript:
+* InitialCompile: 59s-listed
+* AfterChange: 5s-listed
+
+So: integrated seems to slow down initial by 27s (~50%), but speed up incremental by 4s (~50%).
+
+Prod
+==========
+
+SeparateTypeScript:
+* InitialCompile_Quick: 32s-listed
+* InitialCompile_Full: 86s-listed
+
+So: full compile seems to slow down initial by 54s.
+
+IntegratedTypeScript:
+* InitialCompile_Quick: 59-listed? (inferred from other stats -- 32s + 27s)
+* InitialCompile_Full: 113-listed? (inferred from other stats -- 86s + 27s)
+
+
+
+
+TSLoader vs ATL
+==========
+TSLoader start: 57s
+TSLoader Home change: 6.5s
+
+ATL-sync-checker start: 37s
+ATL-sync-checker change: 7.5s
+
+Note: drawback with async version is that it doesn't block hmr update, so causes error in browser.
+ATL-async-checker start: 29s
+ATL-async-checker change: 5s

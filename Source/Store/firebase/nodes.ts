@@ -1,14 +1,14 @@
-import { CachedTransform_WithStore } from "Utils/Database/DatabaseHelpers";
-import { SplitStringBySlash_Cached } from "Utils/Database/StringSplitCache";
+import { CachedTransform_WithStore } from "Frame/Database/DatabaseHelpers";
+import { SplitStringBySlash_Cached } from "Frame/Database/StringSplitCache";
+import { emptyArray } from "Frame/Store/ReducerUtils";
 import { CachedTransform, IsNaN } from "js-vextensions";
-import { GetData, GetDataAsync, SlicePath } from "../../Utils/Database/DatabaseHelpers";
+import { GetData, GetDataAsync, SlicePath } from "../../Frame/Database/DatabaseHelpers";
 import { GetNodeL2, GetNodeL3 } from "./nodes/$node";
 import { MapNode, MapNodeL2, MapNodeL3, globalRootNodeID } from "./nodes/@MapNode";
 import { MapNodeType, MapNodeType_Info } from "./nodes/@MapNodeType";
 import { IsUserCreatorOrMod } from "./userExtras";
 import { HasAdminPermissions, HasModPermissions, PermissionGroupSet } from "./userExtras/@UserExtraInfo";
 import { GetUserAccessLevel, GetUserID } from "./users";
-import { emptyArray } from "Utils/General/General";
 
 export enum HolderType {
 	Truth = 10,
@@ -49,7 +49,11 @@ export function GetChildCount(node: MapNode) {
 }
 
 export function IsRootNode(node: MapNode) {
+	if (IsNodeSubnode(node)) return false;
 	return node.type == MapNodeType.Category && GetParentCount(node) == 0;
+}
+export function IsNodeSubnode(node: MapNode) {
+	return node.layerPlusAnchorParents != null;
 }
 
 export function GetParentNodeID(path: string) {
@@ -167,6 +171,7 @@ export function ForUnlink_GetError(userID: string, node: MapNodeL2, asPartOfCut 
 	if (!IsUserCreatorOrMod(userID, node)) return `${baseText}you are not its owner. (or a mod)`;
 	if (!asPartOfCut && (node.parents || {}).VKeys(true).length <= 1)  return `${baseText}doing so would orphan it. Try deleting it instead.`;
 	if (IsRootNode(node)) return `${baseText}it's the root-node of a map.`;
+	if (IsNodeSubnode(node)) return `${baseText}it's a subnode. Try deleting it instead.`;
 	return null;
 }
 export function ForDelete_GetError(userID: string, node: MapNodeL2, subcommandInfo?: {asPartOfMapDelete?: boolean, childrenBeingDeleted?: number[]}) {
@@ -189,5 +194,12 @@ export function ForCut_GetError(userID: string, node: MapNodeL2) {
 
 export function ForCopy_GetError(userID: string, node: MapNode) {
 	if (IsRootNode(node)) return `Cannot copy the root-node of a map.`;
+	if (IsNodeSubnode(node)) return `Cannot copy a subnode.`;
 	return null;
 }
+
+/*export function GetUnlinkErrorMessage(parent: MapNode, child: MapNode) {
+	//let childNodes = node.children.Select(a=>nodes[a]);
+	let parentNodes = nodes.filter(a=>a.children && a.children[node._id]);
+	if (parentNodes.length <= 1)
+}*/

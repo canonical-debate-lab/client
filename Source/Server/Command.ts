@@ -1,8 +1,7 @@
 import {FirebaseData} from "Store/firebase";
 import {GetUserID} from "Store/firebase/users";
 import u from "updeep";
-import {ApplyDBUpdates, ApplyDBUpdates_Local, DBPath, RemoveHelpers} from "../Utils/Database/DatabaseHelpers";
-import { State } from "Store";
+import {ApplyDBUpdates, ApplyDBUpdates_Local, DBPath, RemoveHelpers} from "../Frame/Database/DatabaseHelpers";
 
 export class CommandUserInfo {
 	id: string;
@@ -68,7 +67,7 @@ export abstract class Command<Payload> {
 		}
 		currentCommandRun_listeners = [];
 		
-		//MaybeLog(a=>a.commands, ()=>`Running command. @type:${this.constructor.name} @payload(${ToJSON(this.payload)})`);
+		MaybeLog(a=>a.commands, ()=>`Running command. @type:${this.constructor.name} @payload(${ToJSON(this.payload)})`);
 
 		try {
 			await this.PreRun();
@@ -80,7 +79,7 @@ export abstract class Command<Payload> {
 			await ApplyDBUpdates(DBPath(), dbUpdates);
 
 			//MaybeLog(a=>a.commands, ()=>`Finishing command. @type:${this.constructor.name} @payload(${ToJSON(this.payload)}) @dbUpdates(${ToJSON(dbUpdates)})`);
-			//MaybeLog(a=>a.commands, l=>l(`Finishing command. @type:${this.constructor.name} @payload(`, this.payload, `) @dbUpdates(`, dbUpdates, `)`));
+			MaybeLog(a=>a.commands, l=>l(`Finishing command. @type:${this.constructor.name} @payload(`, this.payload, `) @dbUpdates(`, dbUpdates, `)`));
 		} finally {
 			OnCurrentCommandFinished();
 		}
