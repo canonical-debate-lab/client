@@ -1,11 +1,10 @@
-import {GetData} from "../../Frame/Database/DatabaseHelpers";
-import {PermissionGroupSet} from "./userExtras/@UserExtraInfo";
-import UserExtraInfo from "./userExtras/@UserExtraInfo";
-import {CachedTransform} from "js-vextensions";
-import {AccessLevel} from "./nodes/@MapNode";
-import {backgrounds} from "../../UI/Profile";
-import {User} from "Store/firebase/users/@User";
-import {GetAuth, IsAuthValid} from "../firebase";
+import { CachedTransform } from "js-vextensions";
+import { User } from "Store/firebase/users/@User";
+import { GetData } from "../../Frame/Database/DatabaseHelpers";
+import { backgrounds } from "../../UI/Profile";
+import { GetAuth, IsAuthValid } from "../firebase";
+import { AccessLevel } from "./nodes/@MapNode";
+import UserExtraInfo, { PermissionGroupSet } from "./userExtras/@UserExtraInfo";
 
 /*export function GetAuth(state: RootState) { 
 	return state.firebase.auth;
@@ -27,10 +26,10 @@ export function GetUser(userID: string): User {
 }
 export function GetUsers(): User[] {
 	let userMap = GetData("users");
-	return CachedTransform("GetUsers", [], userMap, ()=>userMap ? userMap.VValues(true) : []);
+	return CachedTransform("GetUsers", [], userMap, () => userMap ? userMap.VValues(true) : []);
 }
 
-export type UserExtraInfoMap = {[key: string]: UserExtraInfo};
+export type UserExtraInfoMap = { [key: string]: UserExtraInfo };
 export function GetUserExtraInfoMap(): UserExtraInfoMap {
 	return GetData("userExtras");
 }
@@ -45,7 +44,7 @@ export function GetUserPermissionGroups(userID: string): PermissionGroupSet {
 export function GetUserAccessLevel(userID: string) {
 	let groups = GetUserPermissionGroups(userID);
 	if (groups == null) return AccessLevel.Basic;
-	
+
 	if (groups.admin) return AccessLevel.Admin;
 	if (groups.mod) return AccessLevel.Mod;
 	if (groups.verified) return AccessLevel.Verified;
@@ -53,21 +52,19 @@ export function GetUserAccessLevel(userID: string) {
 	Assert(false);
 }
 
-/*export function GetUserInfo(userID: string) {
-}*/
-
 export function GetUserBackground(userID: string) {
-	let user = GetUser(userID);
+	const user = GetUser(userID);
 	if (!user) return backgrounds[1];
 
 	if (user.backgroundCustom_enabled) {
 		return {
+			color: user.backgroundCustom_color,
 			url_1920: user.backgroundCustom_url,
 			url_3840: user.backgroundCustom_url,
 			position: user.backgroundCustom_position || "center center",
 		};
 	}
 
-	let background = backgrounds[user.backgroundID] || backgrounds[1];
+	const background = backgrounds[user.backgroundID] || backgrounds[1];
 	return background;
 }

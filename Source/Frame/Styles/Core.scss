@@ -190,13 +190,14 @@
 
 	// fallback, for if code-based approach fails
 	.background {
-		background-image: url(/Images/Backgrounds/Ocean_x1920.jpg);
+		//background-image: url(/Images/Backgrounds/Ocean_x1920.jpg);
+		background-color: #E5E8EC;
 		background-position: center bottom;
 		background-size: cover;
 	}
-	@media (min-width: 1921px) {
+	/*@media (min-width: 1921px) {
 		.background {
 			background-image: url(/Images/Backgrounds/Ocean_x3840.jpg);
 		}
-	}
+	}*/
 }

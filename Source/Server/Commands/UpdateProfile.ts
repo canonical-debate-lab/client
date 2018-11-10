@@ -12,7 +12,10 @@ WaitTillSchemaAddedThenRun(MTName, ()=> {
 		properties: {
 			id: {type: "string"},
 			updates: Schema({
-				properties: GetSchemaJSON(MTName).properties.Including("displayName", "backgroundID", "backgroundCustom_enabled", "backgroundCustom_url", "backgroundCustom_position"),
+				properties: GetSchemaJSON(MTName).properties.Including(
+					"displayName", "backgroundID",
+					"backgroundCustom_enabled", "backgroundCustom_color", "backgroundCustom_url", "backgroundCustom_position"
+				),
 			}),
 		},
 		required: ["id", "updates"],

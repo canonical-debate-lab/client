@@ -13,6 +13,7 @@ export type User = {
 	// custom
 	backgroundID?: number;
 	backgroundCustom_enabled?: boolean;
+	backgroundCustom_color?: string;
 	backgroundCustom_url?: string;
 	backgroundCustom_position?: string;
 };
@@ -26,6 +27,7 @@ AddSchema({
 		// custom
 		backgroundID: {type: "number"},
 		backgroundCustom_enabled: {type: "boolean"},
+		backgroundCustom_color: {type: "string"},
 		backgroundCustom_url: {type: "string"},
 		backgroundCustom_position: {type: "string"},
 	}

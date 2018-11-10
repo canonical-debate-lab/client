@@ -1,6 +1,6 @@
 import {BaseComponent} from "react-vextensions";
 import {styles} from "../Frame/UI/GlobalStyles";
-import {Column, Row, Pre, Button, TextInput, Div, CheckBox, Select} from "react-vcomponents";
+import {Column, Row, Pre, Button, TextInput, Div, CheckBox, Select, ColorPickerBox} from "react-vcomponents";
 import {Connect} from "Frame/Database/FirebaseConnect";
 import {GetUser, GetUserID} from "Store/firebase/users";
 import {User} from "Store/firebase/users/@User";
@@ -8,23 +8,28 @@ import { UpdateProfile } from "Server/Commands/UpdateProfile";
 import {BoxController, ShowMessageBox} from "react-vmessagebox";
 import {ACTTopRightOpenPanelSet} from "../Store/main";
 
+export type BackgroundConfig = {color?: string, url_1920?: string, url_3840?: string, position?: string};
+
 export let backgrounds = {
 	1: {
+		color: "#E5E8EC",
+	},
+	2: {
 		url_1920: "https://firebasestorage.googleapis.com/v0/b/debate-map-dev.appspot.com/o/Backgrounds%2FOcean_x1920.jpg?alt=media&token=53fc5864-a6de-431b-a724-fe4f9305f336",
 		url_3840: "https://firebasestorage.googleapis.com/v0/b/debate-map-dev.appspot.com/o/Backgrounds%2FOcean_x3840.jpg?alt=media&token=2d1c25f3-a25e-4cb4-8586-06f419e4d63c",
 		position: "center bottom",
 	},
-	2: {
+	3: {
 		url_1920: "https://firebasestorage.googleapis.com/v0/b/debate-map-dev.appspot.com/o/Backgrounds%2FNebula_x1920.jpg?alt=media&token=f2fec09e-7394-4453-a08e-7f8608553e14",
 		url_3840: "https://firebasestorage.googleapis.com/v0/b/debate-map-dev.appspot.com/o/Backgrounds%2FNebula_x2560.jpg?alt=media&token=c4ed8a83-d9ed-410f-9ae1-1d830355349a",
 	},
-};
+} as any as {[key: string]: BackgroundConfig};
 
 type Props = {} & Partial<{user: User}>;
 @Connect((state, props: Props)=> ({
 	user: GetUser(GetUserID()),
 }))
-export default class ProfileUI extends BaseComponent<Props, {}> {
+export class ProfileUI extends BaseComponent<Props, {}> {
 	render() {
 		let {user} = this.props;
 		if (user == null) return <Column style={styles.page}>Must be signed-in to access.</Column>;
@@ -37,8 +42,8 @@ export default class ProfileUI extends BaseComponent<Props, {}> {
 						ShowChangeDisplayNameDialog(user._key, user.displayName);
 					}}/>
 				</Row>
-				<Row>Background image:</Row>
-				<Column style={{background: "rgba(0,0,0,.7)"}}>
+				<Row mt={10}>Background:</Row>
+				<Column mt={5} style={{background: "rgba(0,0,0,.7)"}}>
 					<Row>
 						{backgrounds.Props().map(prop=> {
 							let id = prop.name.ToInt();
@@ -49,7 +54,8 @@ export default class ProfileUI extends BaseComponent<Props, {}> {
 									style={E(
 										{
 											width: 100, height: 100, border: "1px solid black", cursor: "pointer",
-											background: `url(${background.url_1920})`, backgroundPosition: "center", backgroundSize: "cover",
+											backgroundColor: background.color, backgroundImage: `url(${background.url_1920})`,
+											backgroundPosition: "center", backgroundSize: "cover",
 										},
 										selected && {border: "1px solid rgba(255,255,255,.3)"},
 									)}
@@ -61,27 +67,36 @@ export default class ProfileUI extends BaseComponent<Props, {}> {
 						})}
 					</Row>
 				</Column>
-				<Row mt={5}>
+				<Row mt={10}>
 					<CheckBox text="Custom background" checked={user.backgroundCustom_enabled} onChange={val=> {
 						new UpdateProfile({id: user._key, updates: {backgroundCustom_enabled: val}}).Run();
 					}}/>
 				</Row>
-				<Row mt={5}>
+				<Row mt={15}>
+					<Pre>Color: </Pre>
+					<ColorPickerBox color={user.backgroundCustom_color || "#FFFFFF"} onChange={val=> {
+						new UpdateProfile({id: user._key, updates: {backgroundCustom_color: val}}).Run();
+					}}/>
+					<Button ml={5} text="Clear" onClick={()=> {
+						new UpdateProfile({id: user._key, updates: {backgroundCustom_color: null}}).Run();
+					}}/>
+				</Row>
+				<Row mt={15}>
 					<Pre>URL: </Pre>
 					<TextInput delayChangeTillDefocus={true} style={ES({flex: 1})}
 						value={user.backgroundCustom_url} onChange={val=> {
 							new UpdateProfile({id: user._key, updates: {backgroundCustom_url: val}}).Run();
 						}}/>
 				</Row>
-				<Row mt={5}>
+				<Row mt={15}>
 					<Pre>Anchor: </Pre>
 					<Select options={[{name: "top", value: "center top"}, {name: "center", value: "center center"}, {name: "bottom", value: "center bottom"}]}
 						value={user.backgroundCustom_position || "center center"} onChange={val=> {
 							new UpdateProfile({id: user._key, updates: {backgroundCustom_position: val}}).Run();
 						}}/>
 				</Row>
-				<Row mt={5}><h4>Tools</h4></Row>
-				<Row>
+				<Row mt={10}><h4>Tools</h4></Row>
+				<Row mt={10}>
 					<Button text="Clear local data" onClick={()=> {
 						ShowMessageBox({title: `Clear local data?`, cancelButton: true, message:
 `Are you sure you want to clear local data?

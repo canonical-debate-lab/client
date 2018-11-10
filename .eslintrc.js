@@ -7,6 +7,7 @@ module.exports = {
 	parser: "typescript-eslint-parser",
 	parserOptions: {
 		ecmaVersion: 8,
+		sourceType: "module",
 		ecmaFeatures: {
 			jsx: true,
 			modules: true
@@ -17,13 +18,22 @@ module.exports = {
 		"react",
 		"jsx-a11y",
 		//"babel",
+		"only-warn",
 	],
 	settings: {
-		"import/extensions": [".js", ".jsx", ".ts", ".tsx"],
+		//"import/extensions": [".js", ".jsx", ".ts", ".tsx"],
 		"import/resolver": {
 			"webpack": {
 				"config": "./Scripts/Build/WebpackConfig.js"
-			}
+			},
+			"node": {
+				"extensions": [
+				  ".js",
+				  ".jsx",
+				  ".ts",
+				  ".tsx",
+				]
+			 }
 		}
 	},
 	env: {
