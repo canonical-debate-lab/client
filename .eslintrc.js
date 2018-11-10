@@ -24,9 +24,10 @@ module.exports = {
 		//"import/extensions": [".js", ".jsx", ".ts", ".tsx"],
 		"import/resolver": {
 			"webpack": {
-				"config": "./Scripts/Build/WebpackConfig.js"
+				"config": "./Scripts/Build/WebpackConfig.js",
 			},
 			"node": {
+				"paths": ["Source"],
 				"extensions": [
 				  ".js",
 				  ".jsx",
@@ -63,7 +64,9 @@ module.exports = {
 		"no-console": "off", // lets us use console.log, etc.
 		"object-curly-newline": "off", // fixes that eslint would complain about vscode's import reformatting, when more than 3 variables were imported from a single file
 		"no-restricted-syntax": [0, "ForOfStatement"], // allow for-of loops for now
-		"no-continue": "off"
+		"no-continue": "off",
+		"import/no-useless-path-segments": "off", // disabled because vs-code's auto-import tool doesn't always write paths matching eslint's "fewest segments" criteria
+		"class-methods-use-this": "off", // class-methods do not need to "use this" to be valid/useful -- for example: React's componentDidMount
 	},
 	globals: {
 		ENV: true,
@@ -75,6 +78,8 @@ module.exports = {
 		window: true,
 		document: true,
 
+		React: true,
+		State: true,
 		store: true,
 	},
 };

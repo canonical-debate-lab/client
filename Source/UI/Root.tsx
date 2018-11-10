@@ -32,12 +32,13 @@ import ReputationUI from './Reputation';
 import SearchUI from './Search';
 import SocialUI from './Social';
 import StreamUI from './Stream';
-let PersistGate = PersistGate_ as any;
+
+const PersistGate = PersistGate_ as any;
 
 ColorPickerBox.Init(ReactColor, chroma);
 
 export class RootUIWrapper extends BaseComponent<{store}, {}> {
-	/*ComponentWillMount() {
+	/* ComponentWillMount() {
 		let startVal = g.storeRehydrated;
 		// wrap storeRehydrated property, so we know when it's set (from CreateStore.ts callback)
 		(g as Object)._AddGetterSetter('storeRehydrated',
@@ -48,11 +49,11 @@ export class RootUIWrapper extends BaseComponent<{store}, {}> {
 			});
 		// trigger setter right now (in case value is already true)
 		g.storeRehydrated = startVal;
-	}*/
+	} */
 
 	render() {
-		let {store} = this.props;
-		//if (!g.storeRehydrated) return <div/>;
+		const { store } = this.props;
+		// if (!g.storeRehydrated) return <div/>;
 
 		return (
 			<Provider store={store}>
@@ -67,14 +68,14 @@ export class RootUIWrapper extends BaseComponent<{store}, {}> {
 
 	ComponentDidMount() {
 		if (DEV) {
-			WaitXThenRun(100, ()=> {
+			setTimeout(() => {
 				G({Perf: React.addons.Perf});
 				React.addons.Perf.start();
-			});
+			}, 100);
 		}
 
-		//$(document).on('mousemove', '*', function(event, ui) {
-		document.addEventListener('mousemove', event=> {
+		// $(document).on('mousemove', '*', function(event, ui) {
+		document.addEventListener('mousemove', (event) => {
 			if (event['handledGlobally']) return;
 			event['handledGlobally'] = true;
 
@@ -84,7 +85,7 @@ export class RootUIWrapper extends BaseComponent<{store}, {}> {
 }
 
 let connector = (state, {}: {})=> ({
-	currentPage: State(a=>a.main.page),
+	currentPage: State(a => a.main.page),
 });
 @Connect(connector)
 class RootUI extends BaseComponentWithConnector(connector, {}) {
@@ -93,13 +94,13 @@ class RootUI extends BaseComponentWithConnector(connector, {}) {
 		return ShallowChanged(newProps.Excluding('router'), this.props.Excluding('router')) || ShallowChanged(newState, this.state);
 	}
 	render() {
-		let {currentPage} = this.props;
-		let background = GetUserBackground(GetUserID());
+		// let {currentPage} = this.props;
+		const background = GetUserBackground(GetUserID());
 		return (
 			<Column className='background'/*'unselectable'*/ style={{height: '100%'}}>
-				{/*<div className='background' style={{
+				{/* <div className='background' style={{
 					position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, opacity: .5,
-				}}/>*/}
+				}}/> */}
 				<style>{`
 				.background {
 					background-color: ${background.color};
