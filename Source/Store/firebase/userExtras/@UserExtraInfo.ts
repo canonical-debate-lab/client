@@ -10,10 +10,10 @@ export default class UserExtraInfo {
 }
 AddSchema({
 	properties: {
-		edits: {type: "number"},
-		lastEditAt: {type: "number"},
+		edits: { type: 'number' },
+		lastEditAt: { type: 'number' },
 	},
-}, "UserExtraInfo");
+}, 'UserExtraInfo');
 
 export class PermissionGroupSet {
 	basic: boolean;
@@ -26,6 +26,8 @@ export function CanGetBasicPermissions(permissions: PermissionGroupSet) {
 	return permissions == null || permissions.basic; // if anon/not-logged-in, assume user can get basic permissions once logged in
 }
 export function HasBasicPermissions(permissions: PermissionGroupSet) {
+	return HasModPermissions(permissions); // temp; will be removed once GAD is over
+
 	return permissions && permissions.basic;
 }
 export function HasModPermissions(permissions: PermissionGroupSet) {
