@@ -10,6 +10,7 @@ import keycode from 'keycode';
 import { Button, Pre, Row, TextArea } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector, GetInnerComp } from 'react-vextensions';
 import { DragSource, DropTarget } from 'react-dnd';
+import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { DBPath, RemoveHelpers, SlicePath, WaitTillPathDataIsReceived, WaitTillPathDataIsReceiving } from '../../../../Frame/Database/DatabaseHelpers';
 import { Connect } from '../../../../Frame/Database/FirebaseConnect';
 import { ParseSegmentsForPatterns } from '../../../../Frame/General/RegexHelpers';

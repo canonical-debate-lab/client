@@ -25,8 +25,8 @@ import { ForCopy_GetError, ForCut_GetError, ForDelete_GetError, ForUnlink_GetErr
 import { GetNodeDisplayText, GetNodeL3, GetValidNewChildTypes, IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
 import { ClaimForm, MapNode, MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
 import { GetMapNodeTypeDisplayName, MapNodeType, MapNodeType_Info } from '../../../../Store/firebase/nodes/@MapNodeType';
-import { IsUserBasicOrAnon, IsUserCreatorOrMod, IsUserMod } from '../../../../Store/firebase/userExtras';
-import { GetUserID, GetUserPermissionGroups } from '../../../../Store/firebase/users';
+import { IsUserCreatorOrMod, CanGetBasicPermissions, HasModPermissions, HasBasicPermissions } from '../../../../Store/firebase/userExtras';
+import { GetUserID, GetUserPermissions } from '../../../../Store/firebase/users';
 import { ACTNodeCopy, GetCopiedNode } from '../../../../Store/main';
 import { GetPathNodeIDs } from '../../../../Store/main/mapViews';
 import { ShowSignInPopup } from '../../NavBar/UserPanel';
@@ -59,7 +59,7 @@ const connector = (_: RootState, { map, node, path, holderType }: Props) => {
 	return {
 		_: (ForUnlink_GetError(GetUserID(), node), ForDelete_GetError(GetUserID(), node)),
 		// userID: GetUserID(), // not needed in Connect(), since permissions already watches its data
-		permissions: GetUserPermissionGroups(GetUserID()),
+		permissions: GetUserPermissions(GetUserID()),
 		parent,
 		// nodeChildren: GetNodeChildrenL3(node, path),
 		nodeChildren: GetNodeChildrenL3(node, path),
@@ -92,25 +92,26 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 		const sharedProps = this.props;
 		return (
 			<VMenuStub preOpen={e => e.passThrough != true}>
-				{IsUserBasicOrAnon(userID) && !inList && validChildTypes.map((childType) => {
+				{CanGetBasicPermissions(userID) && !inList && validChildTypes.map((childType) => {
 					const childTypeInfo = MapNodeType_Info.for[childType];
 					// let displayName = GetMapNodeTypeDisplayName(childType, node, form);
 					const polarities = childType == MapNodeType.Argument ? [Polarity.Supporting, Polarity.Opposing] : [null];
 					return polarities.map((polarity) => {
 						const displayName = GetMapNodeTypeDisplayName(childType, node, ClaimForm.Base, polarity);
 						return (
-							<VMenuItem key={`${childType}_${polarity}`} text={`Add ${displayName}`} style={styles.vMenuItem} onClick={(e) => {
-								if (e.button != 0) return;
-								if (userID == null) return ShowSignInPopup();
+							<VMenuItem key={`${childType}_${polarity}`} text={`Add ${displayName}`} style={styles.vMenuItem}
+								onClick={(e) => {
+									if (e.button != 0) return;
+									if (userID == null) return ShowSignInPopup();
 
-								ShowAddChildDialog(node, path, childType, polarity, userID, map._id);
-							}}/>
+									ShowAddChildDialog(node, path, childType, polarity, userID, map._id);
+								}}/>
 						);
 					});
 				})}
 				{// IsUserBasicOrAnon(userID) && !inList && path.includes("/") && !path.includes("L") && !componentBox &&
 				// for now, only let mods add layer-subnodes (confusing otherwise)
-					IsUserMod(userID) && !inList && path.includes('/') && !path.includes('L') && !componentBox
+					HasModPermissions(userID) && !inList && path.includes('/') && !path.includes('L') && !componentBox
 					&& <VMenuItem text="Add subnode (in layer)" style={styles.vMenuItem}
 						onClick={(e) => {
 							if (e.button != 0) return;
@@ -141,7 +142,7 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 							await new SetNodeIsMultiPremiseArgument({ nodeID: parent._id, multiPremiseArgument: true }).Run();
 						}}/>}
 				{IsUserCreatorOrMod(userID, node) && IsMultiPremiseArgument(node)
-						&& nodeChildren.every(a => a != null) && nodeChildren.filter(a => a.type == MapNodeType.Claim).length == 1 && !componentBox
+					&& nodeChildren.every(a => a != null) && nodeChildren.filter(a => a.type == MapNodeType.Claim).length == 1 && !componentBox
 					&& <VMenuItem text="Convert to single-premise" style={styles.vMenuItem}
 						onClick={async (e) => {
 							if (e.button != 0) return;
@@ -156,7 +157,7 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 								store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: GetNodeID(path), time: Date.now() }));
 							}
 						}}/>}
-				{IsUserBasicOrAnon(userID) && !inList && !componentBox
+				{!inList && !componentBox
 					&& <VMenuItem text={copiedNode ? <span>Cut <span style={{ fontSize: 10, opacity: 0.7 }}>(right-click to clear)</span></span> as any : 'Cut'}
 						enabled={ForCut_GetError(userID, node) == null} title={ForCut_GetError(userID, node)}
 						style={styles.vMenuItem}
@@ -173,7 +174,7 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 
 							store.dispatch(new ACTNodeCopy({ path, asCut: true }));
 						}}/>}
-				{IsUserBasicOrAnon(userID) && !componentBox
+				{!componentBox
 					&& <VMenuItem text={copiedNode ? <span>Copy <span style={{ fontSize: 10, opacity: 0.7 }}>(right-click to clear)</span></span> as any : 'Copy'} style={styles.vMenuItem}
 						enabled={ForCopy_GetError(userID, node) == null} title={ForCopy_GetError(userID, node)}
 						onClick={(e) => {
@@ -265,7 +266,7 @@ class PasteAsLink_MenuItem extends BaseComponentWithConnector(PasteAsLink_MenuIt
 class PasteAsLink_MenuItem extends BaseComponent<SharedProps, {}> {
 	render() {
 		const { map, node, path, holderType, copiedNode, copiedNodePath, copiedNode_asCut, combinedWithParentArg } = this.props;
-		if (!IsUserBasicOrAnon(GetUserID())) return <div/>;
+		if (!CanGetBasicPermissions('me')) return <div/>;
 		if (copiedNode == null) return <div/>;
 		const copiedNode_parent = GetParentNodeL3(path);
 
@@ -322,7 +323,7 @@ class UnlinkContainerArgument_MenuItem extends BaseComponent<SharedProps, {}> {
 		const argument = GetNodeL3(argumentPath);
 		const argumentText = GetNodeDisplayText(argument, argumentPath);
 		const forUnlink_error = ForUnlink_GetError(GetUserID(), argument);
-		if (!IsUserCreatorOrMod(GetUserID(), argument)) return <div/>;
+		if (!IsUserCreatorOrMod('me', argument)) return <div/>;
 
 		const argumentParentPath = SlicePath(argumentPath, 1);
 		const argumentParent = GetNodeL3(argumentParentPath);
@@ -355,7 +356,7 @@ class DeleteContainerArgument_MenuItem extends BaseComponent<SharedProps, {}> {
 		const argument = GetNodeL3(argumentPath);
 		const argumentText = GetNodeDisplayText(argument, argumentPath);
 		const forDelete_error = ForDelete_GetError(GetUserID(), argument, { childrenBeingDeleted: [node._id] });
-		if (!IsUserCreatorOrMod(GetUserID(), argument)) return <div/>;
+		if (!IsUserCreatorOrMod('me', argument)) return <div/>;
 
 		const canDeleteBaseClaim = IsUserCreatorOrMod(GetUserID(), node);
 		const baseClaim_action = node.parents.VKeys(true).length > 1 || !canDeleteBaseClaim ? 'unlink' : 'delete';

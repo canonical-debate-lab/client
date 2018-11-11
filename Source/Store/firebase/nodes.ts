@@ -6,8 +6,8 @@ import { GetData, GetDataAsync, SlicePath } from '../../Frame/Database/DatabaseH
 import { GetNodeL2, GetNodeL3 } from './nodes/$node';
 import { MapNode, MapNodeL2, MapNodeL3, globalRootNodeID } from './nodes/@MapNode';
 import { MapNodeType, MapNodeType_Info } from './nodes/@MapNodeType';
-import { IsUserCreatorOrMod } from './userExtras';
-import { HasAdminPermissions, HasModPermissions, PermissionGroupSet } from './userExtras/@UserExtraInfo';
+import { IsUserCreatorOrMod, CanGetBasicPermissions, HasAdminPermissions } from './userExtras';
+import { PermissionGroupSet } from './userExtras/@UserExtraInfo';
 import { GetUserAccessLevel, GetUserID } from './users';
 
 export enum HolderType {
@@ -151,6 +151,7 @@ export function ForLink_GetError(parentType: MapNodeType, childType: MapNodeType
 	if (!parentTypeInfo.Contains(childType)) return `The child's type (${MapNodeType[childType]}) is not valid for the parent's type (${MapNodeType[parentType]}).`;
 }
 export function ForNewLink_GetError(parentID: number, newChild: Pick<MapNode, '_id' | 'type'>, permissions: PermissionGroupSet, newHolderType?: HolderType) {
+	if (!CanGetBasicPermissions(permissions)) return "You're not signed in, or lack basic permissions.";
 	const parent = GetNode(parentID);
 	if (parent == null) return 'Parent data not found.';
 	// const parentPathIDs = SplitStringBySlash_Cached(parentPath).map(a => a.ToInt());
@@ -196,6 +197,7 @@ export function ForCut_GetError(userID: string, node: MapNodeL2) {
 }
 
 export function ForCopy_GetError(userID: string, node: MapNode) {
+	if (!CanGetBasicPermissions(userID)) return "You're not signed in, or lack basic permissions.";
 	if (IsRootNode(node)) return 'Cannot copy the root-node of a map.';
 	if (IsNodeSubnode(node)) return 'Cannot copy a subnode.';
 	return null;

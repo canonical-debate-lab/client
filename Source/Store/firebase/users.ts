@@ -37,12 +37,14 @@ export function GetUserJoinDate(userID: string): number {
 	if (userID == null) return null;
 	return GetData('userExtras', userID, 'joinDate');
 }
-export function GetUserPermissionGroups(userID: string): PermissionGroupSet {
+export function GetUserPermissions(userID: string | 'me'): PermissionGroupSet {
+	if (userID === 'me') userID = GetUserID();
 	if (userID == null) return null;
 	return GetData('userExtras', userID, 'permissionGroups');
 }
-export function GetUserAccessLevel(userID: string) {
-	const groups = GetUserPermissionGroups(userID);
+export function GetUserAccessLevel(userID: string | 'me') {
+	if (userID === 'me') userID = GetUserID();
+	const groups = GetUserPermissions(userID);
 	if (groups == null) return AccessLevel.Basic;
 
 	if (groups.admin) return AccessLevel.Admin;

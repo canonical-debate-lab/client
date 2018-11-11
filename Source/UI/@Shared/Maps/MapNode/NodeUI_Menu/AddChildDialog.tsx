@@ -3,6 +3,7 @@ import { Column, Pre, Row, Select, TextArea } from 'react-vcomponents';
 import { GetInnerComp } from 'react-vextensions';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { ACTSet } from 'Store';
+import { HasModPermissions } from 'Store/firebase/userExtras';
 import { GetEntries } from '../../../../../Frame/General/Enums';
 import { Link } from '../../../../../Frame/ReactComponents/Link';
 import {AddChildNode} from '../../../../../Server/Commands/AddChildNode';
@@ -12,7 +13,6 @@ import { Equation } from '../../../../../Store/firebase/nodes/@Equation';
 import { ChildEntry, ClaimForm, ClaimType, ImageAttachment, MapNode, MapNodeL3, Polarity } from '../../../../../Store/firebase/nodes/@MapNode';
 import { ArgumentType, MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../../Store/firebase/nodes/@MapNodeRevision';
 import { GetMapNodeTypeDisplayName, MapNodeType, MapNodeType_Info } from '../../../../../Store/firebase/nodes/@MapNodeType';
-import { IsUserMod } from '../../../../../Store/firebase/userExtras';
 import { ACTSetLastAcknowledgementTime } from '../../../../../Store/main';
 import { ACTMapNodeExpandedSet } from '../../../../../Store/main/mapViews/$mapView/rootNodeViews';
 import { NodeDetailsUI } from '../NodeDetailsUI';
@@ -54,7 +54,7 @@ export function ShowAddChildDialog(parentNode: MapNodeL3, parentPath: string, ch
 			boxController.options.okButtonClickable = validationError == null;
 
 			const claimTypes = GetEntries(ClaimType);
-			if (!IsUserMod(userID)) {
+			if (!HasModPermissions(userID)) {
 				claimTypes.Remove(claimTypes.find(a => a.value == ClaimType.Image));
 			}
 

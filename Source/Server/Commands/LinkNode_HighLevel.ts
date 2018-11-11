@@ -4,7 +4,7 @@ import { GetNode, GetHolderType, ForNewLink_GetError, ForLink_GetError } from 'S
 import { Assert, E } from 'js-vextensions';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
-import { GetUserPermissionGroups, GetUserID } from 'Store/firebase/users';
+import { GetUserPermissions, GetUserID } from 'Store/firebase/users';
 import { ClaimForm, MapNode, Polarity } from './../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from './../../Store/firebase/nodes/@MapNodeType';
 import { Command, MergeDBUpdates } from './../Command';
@@ -19,7 +19,7 @@ type Payload = { mapID: number, oldParentID: number, newParentID: number, nodeID
 
 export function LinkNode_HighLevel_GetCommandError(command: LinkNode_HighLevel) {
 	const { mapID, newParentID, nodeID, newForm, newPolarity } = command.payload;
-	const permissions = GetUserPermissionGroups(GetUserID());
+	const permissions = GetUserPermissions('me');
 	const node = GetNode(nodeID);
 	if (node == null) return 'Node data not found.';
 	const newParent = GetNode(newParentID);

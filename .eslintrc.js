@@ -68,6 +68,7 @@ module.exports = {
 		"import/no-useless-path-segments": "off", // disabled because vs-code's auto-import tool doesn't always write paths matching eslint's "fewest segments" criteria
 		"class-methods-use-this": "off", // class-methods do not need to "use this" to be valid/useful -- for example: React's componentDidMount
 		"object-property-newline": "off",
+		"no-use-before-define": ["error", { "functions": false, "classes": false }],
 	},
 	globals: {
 		ENV: true,

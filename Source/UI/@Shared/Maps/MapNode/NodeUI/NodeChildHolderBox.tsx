@@ -10,6 +10,7 @@ import { MapNodeL3 } from 'Store/firebase/nodes/@MapNode';
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView/rootNodeViews';
 import { MapNodeView } from 'Store/main/mapViews/@MapViews';
+import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath } from '../../../../../Store/firebase/nodeRatings';
 import { IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument } from '../../../../../Store/firebase/nodes/$node';
@@ -107,10 +108,10 @@ export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { 
 				expanded && nodeChildrenToShow.length && innerBoxOffset == 0 && { opacity: 0, pointerEvents: 'none' },
 			)}>
 				<Row className="clickThrough" style={E(
-					{/* position: "relative", /* removal fixes */ alignItems: 'flex-start', /*marginLeft: `calc(100% - ${width}px)`, */ width },
+					{/* position: "relative", /* removal fixes */ alignItems: 'flex-start', /* marginLeft: `calc(100% - ${width}px)`, */ width },
 				)}>
 					<div ref={c => this.lineHolder = c} className="clickThroughChain" style={{ position: 'absolute', width: '100%', height: '100%' }}>
-						{type == HolderType.Truth 
+						{type == HolderType.Truth
 							&& <Squiggle start={[0, lineHolderHeight + 2]} startControl_offset={[0, -lineOffset]}
 								end={[(width / 2) - 2, innerBoxOffset + height - 2]} endControl_offset={[0, lineOffset]} color={lineColor}/>}
 						{type == HolderType.Relevance && !isMultiPremiseArgument
@@ -154,7 +155,7 @@ export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { 
 					{nodeChildrenToShow != emptyArray && !expanded && nodeChildrenToShow.length != 0
 						&& <NodeChildCountMarker childCount={nodeChildrenToShow.length}/>}
 					{/*! nodeView.expanded && (addedDescendants > 0 || editedDescendants > 0) &&
-						<NodeChangesMarker {...{addedDescendants, editedDescendants, textOutline, limitBarPos}}/>*/}
+						<NodeChangesMarker {...{addedDescendants, editedDescendants, textOutline, limitBarPos}}/> */}
 				</Row>
 				{nodeView[expandKey]
 					&& <NodeChildHolder ref={c => this.childHolder = c}
@@ -202,7 +203,7 @@ export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { 
 		if (height != this.lastHeight || dividePoint != this.lastDividePoint) {
 			/* if (height != this.lastHeight) {
 				this.OnHeightChange();
-			}*/
+			} */
 			if (dividePoint != this.lastDividePoint) {
 				const { height } = this.GetMeasurementInfo();
 				const distFromInnerBoxTopToMainBoxCenter = height / 2;

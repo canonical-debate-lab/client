@@ -2,6 +2,8 @@ import { Column, Row } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
 import { Map } from 'Store/firebase/maps/@Map';
 import { AddArgumentButton } from 'UI/@Shared/Maps/MapNode/NodeUI/AddArgumentButton';
+import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
+import { GetUserPermissions } from 'Store/firebase/users';
 import { MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
 
 export class ArgumentsControlBar extends BaseComponent<{map: Map, node: MapNodeL3, path: string, childBeingAdded: boolean}, {}> {

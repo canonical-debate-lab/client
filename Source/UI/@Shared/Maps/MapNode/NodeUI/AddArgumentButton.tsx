@@ -3,6 +3,7 @@ import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { Button } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
 import { DropTarget } from 'react-dnd';
+import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { MapNodeL3, Polarity } from '../../../../../Store/firebase/nodes/@MapNode';
 import { GetNodeColor, MapNodeType } from '../../../../../Store/firebase/nodes/@MapNodeType';
@@ -41,6 +42,7 @@ export class AddArgumentButton extends BaseComponent<Props, {}> {
 
 		return (
 			<Button text={`Add ${polarity == Polarity.Supporting ? 'pro' : 'con'}`} title={`Add ${Polarity[polarity].toLowerCase()} argument`}
+				enabled={CanGetBasicPermissions('me')}
 				// text={`Add ${Polarity[polarity].toLowerCase()} argument`}
 				style={E(
 					{
