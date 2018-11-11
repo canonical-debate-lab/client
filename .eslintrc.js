@@ -60,7 +60,7 @@ module.exports = {
 		"camelcase": "off",
 		"strict": ["error", "never"], // fix for extraneous (and incorrect) entry for "strict" rule in airbnb-base/index.js
 		"dot-notation": "off", // disabling this lets us access custom properties on window (dot notation throws TS error, and if this were enabled, you couldn't use bracket notation either)
-		"no-underscore-dangle": ["error", {"allow": ["__webpack_require__"]}], // lets us access the special __webpack_require__ variable
+		"no-underscore-dangle": ["error", {"allow": ["__webpack_require__", "_key", "_id"]}], // lets us access some special variables/properties
 		"no-console": "off", // lets us use console.log, etc.
 		"object-curly-newline": "off", // fixes that eslint would complain about vscode's import reformatting, when more than 3 variables were imported from a single file
 		"no-restricted-syntax": [0, "ForOfStatement"], // allow for-of loops for now

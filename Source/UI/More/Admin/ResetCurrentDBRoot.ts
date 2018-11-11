@@ -1,21 +1,23 @@
-import {MapNode} from "../../../Store/firebase/nodes/@MapNode";
-import {MapNodeType} from "../../../Store/firebase/nodes/@MapNodeType";
-import {ShowMessageBox} from "react-vmessagebox";
-import {MapType, Map} from "../../../Store/firebase/maps/@Map";
-import UserExtraInfo from "../../../Store/firebase/userExtras/@UserExtraInfo";
-import {FirebaseData} from "../../../Store/firebase";
-import { GetUserID } from "Store/firebase/users";
-import {ApplyDBUpdates} from "Frame/Database/DatabaseHelpers";
-import {DBPath} from "../../../Frame/Database/DatabaseHelpers";
-import { MapNodeRevision } from "Store/firebase/nodes/@MapNodeRevision";
+import { ApplyDBUpdates } from 'Frame/Database/DatabaseHelpers';
+import { ShowMessageBox } from 'react-vmessagebox';
+import { ValidateDBData } from 'Server/Command';
+import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
+import { GetUserID } from 'Store/firebase/users';
+import { DBPath } from '../../../Frame/Database/DatabaseHelpers';
+import { FirebaseData } from '../../../Store/firebase';
+import { Map, MapType } from '../../../Store/firebase/maps/@Map';
+import { MapNode } from '../../../Store/firebase/nodes/@MapNode';
+import { MapNodeType } from '../../../Store/firebase/nodes/@MapNodeType';
+import UserExtraInfo from '../../../Store/firebase/userExtras/@UserExtraInfo';
 
-// Note: This is currently not used, and probably doesn't even work atm.
+// Note: This is currently not used, and probably doesn`t even work atm.
 
-//export default async function ResetCurrentDBRoot(database: firebase.Database) {
+// export default async function ResetCurrentDBRoot(database: firebase.Database) {
+const sharedData = {} as {creatorInfo: any};
 export async function ResetCurrentDBRoot() {
-	let userKey = GetUserID();
+	const userKey = GetUserID();
 
-	let data = {} as FirebaseData;
+	const data = {} as FirebaseData;
 	data.general = {
 		lastTermID: 0,
 		lastTermComponentID: 0,
@@ -34,34 +36,43 @@ export async function ResetCurrentDBRoot() {
 	data.nodeRevisions = {};
 	data.userExtras = {};
 
+	sharedData.creatorInfo = { creator: userKey, createdAt: Date.now() };
+
 	AddUserExtras(data, userKey, new UserExtraInfo({
 		joinDate: Date.now(),
-		permissionGroups: {basic: true, verified: true, mod: true, admin: true},
+		permissionGroups: { basic: true, verified: true, mod: true, admin: true },
 	}));
-	AddMap(data, {name: "Global", type: MapType.Global, rootNode: 1} as Map, 1);
+	AddMap(data, { name: 'Global', type: MapType.Global, rootNode: 1 } as Map, 1);
 	AddNode(data,
-		new MapNode({type: MapNodeType.Category}),
-		new MapNodeRevision({titles: {base: "Root"}, creator: userKey}),
-		1,
-	);
+		new MapNode({ type: MapNodeType.Category }),
+		new MapNodeRevision({ titles: { base: 'Root' } }),
+		1);
+
+	ValidateDBData(data);
 
 	await ApplyDBUpdates(DBPath(), data);
-	ShowMessageBox({message: "Done!"});
+
+	ShowMessageBox({ message: 'Done!' });
 }
 
 function AddUserExtras(data: FirebaseData, userID: string, extraInfo: UserExtraInfo) {
 	data.userExtras[userID] = extraInfo;
 }
 function AddMap(data: FirebaseData, entry: Map, id?: number) {
+	entry = E(sharedData.creatorInfo, entry);
+
 	data.maps[id || ++data.general.lastMapID] = entry as any;
 }
 function AddNode(data: FirebaseData, node: MapNode, revision: MapNodeRevision, nodeID?: number) {
+	node = E(sharedData.creatorInfo, node);
+	revision = E(sharedData.creatorInfo, revision);
+
 	nodeID = nodeID || ++data.general.lastNodeID;
-	let revisionID = ++data.general.lastNodeRevisionID;
+	const revisionID = ++data.general.lastNodeRevisionID;
 
 	node.currentRevision = revisionID;
 	data.nodes[nodeID] = node as any;
 
 	revision.node = nodeID;
-	data.nodeRevisions[revisionID] = revision as any;
+	data.nodeRevisions[revisionID] = revision;
 }

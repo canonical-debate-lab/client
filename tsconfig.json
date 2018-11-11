@@ -20,6 +20,8 @@
 				"*"
 			]
 		},
+		// temp, for while old react-dnd (with "require" declaration) is used for react@15
+		"skipLibCheck": true,
 
 		// compiler options
 		//"target": "es2015",

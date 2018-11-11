@@ -1,7 +1,7 @@
-import {FirebaseData} from "Store/firebase";
-import {GetUserID} from "Store/firebase/users";
-import u from "updeep";
-import {ApplyDBUpdates, ApplyDBUpdates_Local, DBPath, RemoveHelpers} from "../Frame/Database/DatabaseHelpers";
+import { FirebaseData } from 'Store/firebase';
+import { GetUserID } from 'Store/firebase/users';
+import u from 'updeep';
+import { ApplyDBUpdates, ApplyDBUpdates_Local, DBPath, RemoveHelpers } from '../Frame/Database/DatabaseHelpers';
 
 export class CommandUserInfo {
 	id: string;
@@ -9,25 +9,25 @@ export class CommandUserInfo {
 
 let currentCommandRun_listeners = null;
 async function WaitTillCurrentCommandFinishes() {
-	return new Promise((resolve, reject)=> {
-		currentCommandRun_listeners.push({resolve, reject});
+	return new Promise((resolve, reject) => {
+		currentCommandRun_listeners.push({ resolve, reject });
 	});
 }
 function OnCurrentCommandFinished() {
-	let currentCommandRun_listeners_copy = currentCommandRun_listeners;
+	const currentCommandRun_listeners_copy = currentCommandRun_listeners;
 	currentCommandRun_listeners = null;
-	for (let listener of currentCommandRun_listeners_copy) {
+	for (const listener of currentCommandRun_listeners_copy) {
 		listener.resolve();
 	}
 }
 
 export abstract class Command<Payload> {
 	constructor(payload: Payload) {
-		this.userInfo = {id: GetUserID()}; // temp
+		this.userInfo = { id: GetUserID() }; // temp
 		this.type = this.constructor.name;
 		this.payload = payload;
-		//this.Extend(payload);
-		//Object.setPrototypeOf(this, Object.getPrototypeOf({}));
+		// this.Extend(payload);
+		// Object.setPrototypeOf(this, Object.getPrototypeOf({}));
 	}
 	userInfo: CommandUserInfo;
 	type: string;
@@ -66,24 +66,24 @@ export abstract class Command<Payload> {
 			await WaitTillCurrentCommandFinishes();
 		}
 		currentCommandRun_listeners = [];
-		
-		MaybeLog(a=>a.commands, ()=>`Running command. @type:${this.constructor.name} @payload(${ToJSON(this.payload)})`);
+
+		MaybeLog(a => a.commands, l => l('Running command. @type:', this.constructor.name, ' @payload(', this.payload, ')'));
 
 		try {
 			await this.PreRun();
 
-			let dbUpdates = this.GetDBUpdates();
+			const dbUpdates = this.GetDBUpdates();
 			await this.Validate_LateHeavy(dbUpdates);
-			//FixDBUpdates(dbUpdates);
-			//await store.firebase.helpers.DBRef().update(dbUpdates);
+			// FixDBUpdates(dbUpdates);
+			// await store.firebase.helpers.DBRef().update(dbUpdates);
 			await ApplyDBUpdates(DBPath(), dbUpdates);
 
-			//MaybeLog(a=>a.commands, ()=>`Finishing command. @type:${this.constructor.name} @payload(${ToJSON(this.payload)}) @dbUpdates(${ToJSON(dbUpdates)})`);
-			MaybeLog(a=>a.commands, l=>l(`Finishing command. @type:${this.constructor.name} @payload(`, this.payload, `) @dbUpdates(`, dbUpdates, `)`));
+			// MaybeLog(a=>a.commands, ()=>`Finishing command. @type:${this.constructor.name} @payload(${ToJSON(this.payload)}) @dbUpdates(${ToJSON(dbUpdates)})`);
+			MaybeLog(a => a.commands, l => l('Finishing command. @type:', this.constructor.name, ' @command(', this, ') @dbUpdates(', dbUpdates, ')'));
 		} finally {
 			OnCurrentCommandFinished();
 		}
-		
+
 		// later on (once set up on server), this will send the data back to the client, rather than return it
 		return this.returnData;
 	}
@@ -91,7 +91,7 @@ export abstract class Command<Payload> {
 	// standard validation of common paths/object-types; perhaps disable in production
 	async Validate_LateHeavy(dbUpdates: any) {
 		// validate "nodes/X"
-		/*let nodesBeingUpdated = (dbUpdates.VKeys() as string[]).map(a=> {
+		/* let nodesBeingUpdated = (dbUpdates.VKeys() as string[]).map(a=> {
 			let match = a.match(/^nodes\/([0-9]+).*#/);
 			return match ? match[1].ToInt() : null;
 		}).filter(a=>a).Distinct();
@@ -106,7 +106,7 @@ export abstract class Command<Payload> {
 			if (newNodeData != null) { // (if null, means we're deleting it, which is fine)
 				AssertValidate("MapNode", newNodeData, `New node-data is invalid.`);
 			}
-		}*/
+		} */
 
 		// locally-apply db-updates, then validate the result (for now, only works for already-loaded data paths)
 		let newData = RemoveHelpers(Clone(State(`firebase/data/${DBPath()}`)));
@@ -116,14 +116,14 @@ export abstract class Command<Payload> {
 }
 
 export function ValidateDBData(data: FirebaseData) {
-	for (let map of (data.maps || {}).VValues(true)) AssertValidate("Map", map, `Map invalid`);
-	for (let node of (data.nodes || {}).VValues(true)) AssertValidate("MapNode", node, `Node invalid`);
-	for (let revision of (data.nodeRevisions || {}).VValues(true)) AssertValidate("MapNodeRevision", revision, `Node-revision invalid`);
-	for (let termComp of (data.termComponents || {}).VValues(true)) AssertValidate("TermComponent", termComp, `Term-component invalid`);
-	for (let term of (data.terms || {}).VValues(true)) AssertValidate("Term", term, `Term invalid`);
+	for (const map of (data.maps || {}).VValues(true)) AssertValidate('Map', map, 'Map invalid');
+	for (const node of (data.nodes || {}).VValues(true)) AssertValidate('MapNode', node, 'Node invalid');
+	for (const revision of (data.nodeRevisions || {}).VValues(true)) AssertValidate('MapNodeRevision', revision, 'Node-revision invalid');
+	for (const termComp of (data.termComponents || {}).VValues(true)) AssertValidate('TermComponent', termComp, 'Term-component invalid');
+	for (const term of (data.terms || {}).VValues(true)) AssertValidate('Term', term, 'Term invalid');
 }
 
-/*type Update = {path: string, data: any};
+/* type Update = {path: string, data: any};
 function FixDBUpdates(updatesMap) {
 	let updates = updatesMap.Props().map(prop=>({path: prop.name, data: prop.value}));
 	for (let update of updates) {
@@ -137,16 +137,17 @@ function FixDBUpdates(updatesMap) {
 			update.data = u.updateIn(updateToMerge_relativePath, constant(updateToMerge.data), update.data)
 		}
 	}
-}*/
+} */
 type Update = {path: string, data: any};
-export function MergeDBUpdates(baseUpdatesMap, updatesToMergeMap) {
-	let baseUpdates = baseUpdatesMap.Props().map(prop=>({path: prop.name, data: prop.value})) as Update[];
-	let updatesToMerge = updatesToMergeMap.Props().map(prop=>({path: prop.name, data: prop.value})) as Update[];
+export function MergeDBUpdates(baseUpdatesMap: Object, updatesToMergeMap: Object) {
+	const baseUpdates = baseUpdatesMap.Pairs().map(pair => ({ path: pair.key, data: pair.value })) as Update[];
+	const updatesToMerge = updatesToMergeMap.Pairs().map(pair => ({ path: pair.key, data: pair.value })) as Update[];
 
-	for (let update of updatesToMerge) {
+	for (const update of updatesToMerge) {
+		Assert(!(update.data instanceof Command), 'You forgot to add the GetDBUpdates() method-call, ie: sub.GetDBUpdates().');
 		// if an update-to-merge exists for a path, remove any base-updates starting with that path (since the to-merge ones have priority)
 		if (update.data == null) {
-			for (let update2 of baseUpdates.slice()) { // make copy, since Remove() seems to break iteration otherwise
+			for (const update2 of baseUpdates.slice()) { // make copy, since Remove() seems to break iteration otherwise
 				if (update2.path.startsWith(update.path)) {
 					baseUpdates.Remove(update2);
 				}
@@ -154,20 +155,18 @@ export function MergeDBUpdates(baseUpdatesMap, updatesToMergeMap) {
 		}
 	}
 
-	let finalUpdates = [] as Update[];
-	for (let update of baseUpdates) {
-		let updatesToMergeIntoThisOne: Update[] = updatesToMerge.filter(update2=> {
-			return update2.path.startsWith(update.path);
-		});
-		for (let updateToMerge of updatesToMergeIntoThisOne) {
-			let updateToMerge_relativePath = updateToMerge.path.substr(`${update.path}/`.length);
+	const finalUpdates = [] as Update[];
+	for (const update of baseUpdates) {
+		const updatesToMergeIntoThisOne: Update[] = updatesToMerge.filter(update2 => update2.path.startsWith(update.path));
+		for (const updateToMerge of updatesToMergeIntoThisOne) {
+			const updateToMerge_relativePath = updateToMerge.path.substr(`${update.path}/`.length);
 
-			//if (updateToMerge.data) {
+			// if (updateToMerge.data) {
 			// assume that the update-to-merge has priority, so have it completely overwrite the data at its path
-			update.data = u.updateIn(updateToMerge_relativePath.replace(/\//g, "."), u.constant(updateToMerge.data), update.data);
-			/*} else {
+			update.data = u.updateIn(updateToMerge_relativePath.replace(/\//g, '.'), u.constant(updateToMerge.data), update.data);
+			/* } else {
 				update.data = null;
-			}*/
+			} */
 
 			// remove from updates-to-merge list (since we just merged it)
 			updatesToMerge.Remove(updateToMerge);
@@ -177,10 +176,10 @@ export function MergeDBUpdates(baseUpdatesMap, updatesToMergeMap) {
 	}
 
 	// for any "update to merge" which couldn't be merged into one of the base-updates, just add it as its own update (it won't clash with the others)
-	for (let update of updatesToMerge) {
+	for (const update of updatesToMerge) {
 		finalUpdates.push(update);
 	}
 
-	let finalUpdatesMap = finalUpdates.reduce((result, current)=>result.VSet(current.path, current.data), {});
+	const finalUpdatesMap = finalUpdates.reduce((result, current) => result.VSet(current.path, current.data), {});
 	return finalUpdatesMap;
 }

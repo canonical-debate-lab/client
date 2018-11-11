@@ -1,8 +1,8 @@
 import CloneNode from 'Server/Commands/CloneNode';
-import LinkNode from 'Server/Commands/LinkNode';
+import { LinkNode } from 'Server/Commands/LinkNode';
 import SetNodeIsMultiPremiseArgument from 'Server/Commands/SetNodeIsMultiPremiseArgument';
-import UnlinkNode from 'Server/Commands/UnlinkNode';
-import { HolderType } from 'Store/firebase/nodes';
+import { UnlinkNode } from 'Server/Commands/UnlinkNode';
+import { HolderType, GetParentNodeID, GetParentNode, GetParentNodeL2 } from 'Store/firebase/nodes';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { ACTSetLastAcknowledgementTime, GetCopiedNodePath } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
@@ -12,15 +12,16 @@ import { BaseComponentWithConnector, BaseComponent } from 'react-vextensions';
 import { VMenuStub } from 'react-vmenu';
 import { VMenuItem } from 'react-vmenu/dist/VMenu';
 import { ShowMessageBox } from 'react-vmessagebox';
+import { LinkNode_HighLevel, LinkNode_HighLevel_GetCommandError } from 'Server/Commands/LinkNode_HighLevel';
 import { GetAsync, SlicePath } from '../../../../Frame/Database/DatabaseHelpers';
 import { Connect } from '../../../../Frame/Database/FirebaseConnect';
 import { styles } from '../../../../Frame/UI/GlobalStyles';
-import AddChildNode from '../../../../Server/Commands/AddChildNode';
+import { AddChildNode } from '../../../../Server/Commands/AddChildNode';
 import { DeleteNode } from '../../../../Server/Commands/DeleteNode';
 import { RootState } from '../../../../Store';
 import { GetPathsToNodesChangedSinceX } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
-import { ForCopy_GetError, ForCut_GetError, ForDelete_GetError, ForUnlink_GetError, GetNodeChildrenL3, GetNodeID, GetParentNodeL3, IsNewLinkValid, IsNodeSubnode } from '../../../../Store/firebase/nodes';
+import { ForCopy_GetError, ForCut_GetError, ForDelete_GetError, ForUnlink_GetError, GetNodeChildrenL3, GetNodeID, GetParentNodeL3, IsNodeSubnode } from '../../../../Store/firebase/nodes';
 import { GetNodeDisplayText, GetNodeL3, GetValidNewChildTypes, IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
 import { ClaimForm, MapNode, MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
 import { GetMapNodeTypeDisplayName, MapNodeType, MapNodeType_Info } from '../../../../Store/firebase/nodes/@MapNodeType';
@@ -75,9 +76,8 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 		const { map, node, path, inList, holderType,
 			permissions, parent, nodeChildren, combinedWithParentArg, copiedNode, copiedNodePath, copiedNode_asCut, pathsToChangedInSubtree } = this.props;
 		const userID = GetUserID();
-		const firebase = store.firebase.helpers;
 		// let validChildTypes = MapNodeType_Info.for[node.type].childTypes;
-		let validChildTypes = GetValidNewChildTypes(node, path, holderType, permissions);
+		let validChildTypes = GetValidNewChildTypes(node, holderType, permissions);
 		const componentBox = holderType != null;
 		if (holderType) {
 			validChildTypes = validChildTypes.Except(MapNodeType.Claim);
@@ -99,7 +99,7 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 					return polarities.map((polarity) => {
 						const displayName = GetMapNodeTypeDisplayName(childType, node, ClaimForm.Base, polarity);
 						return (
-							<VMenuItem key={`${childType }_${polarity}`} text={`Add ${displayName}`} style={styles.vMenuItem} onClick={(e) => {
+							<VMenuItem key={`${childType}_${polarity}`} text={`Add ${displayName}`} style={styles.vMenuItem} onClick={(e) => {
 								if (e.button != 0) return;
 								if (userID == null) return ShowSignInPopup();
 
@@ -190,7 +190,8 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 							store.dispatch(new ACTNodeCopy({ path, asCut: false }));
 						}}/>}
 				<PasteAsLink_MenuItem {...sharedProps}/>
-				{IsUserBasicOrAnon(userID) && copiedNode && IsNewLinkValid(path, holderType, copiedNode.Extended({ _id: -1 }), permissions) && !copiedNode_asCut
+				{/* // disabled for now, since I need to create a new command to wrap the logic. One route: create a CloneNode_HighLevel command, modeled after LinkNode_HighLevel (or containing it as a sub)
+					IsUserBasicOrAnon(userID) && copiedNode && IsNewLinkValid(GetParentNodeID(path), copiedNode.Extended({ _id: -1 }), permissions, holderType) && !copiedNode_asCut
 					&& <VMenuItem text={`Paste as clone: "${GetNodeDisplayText(copiedNode, null, formForClaimChildren).KeepAtMost(50)}"`} style={styles.vMenuItem} onClick={async (e) => {
 						if (e.button != 0) return;
 						if (userID == null) return ShowSignInPopup();
@@ -204,7 +205,7 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 						if (copiedNode_asCut) {
 							await new UnlinkNode({ mapID: map._id, parentID: baseNodePath_ids.XFromLast(1), childID: baseNodePath_ids.Last() }).Run();
 						}
-					}}/>}
+					}}/> */}
 				<UnlinkContainerArgument_MenuItem {...sharedProps}/>
 				{IsUserCreatorOrMod(userID, node) && !inList && !componentBox
 					&& <VMenuItem text={`Unlink${combinedWithParentArg ? ' claim' : ''}`}
@@ -254,67 +255,55 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 	}
 }
 
+/* let PasteAsLink_MenuItem_connector = (state, {}: SharedProps)=> {
+	let moveOpPayload = {};
+	let valid = IsUserBasicOrAnon(GetUserID()) && copiedNode != null && IsMoveNodeOpValid(moveOpPayload);
+	return {valid};
+};
+@Connect(connector)
+class PasteAsLink_MenuItem extends BaseComponentWithConnector(PasteAsLink_MenuItem_connector, {}) { */
 class PasteAsLink_MenuItem extends BaseComponent<SharedProps, {}> {
 	render() {
 		const { map, node, path, holderType, copiedNode, copiedNodePath, copiedNode_asCut, combinedWithParentArg } = this.props;
 		if (!IsUserBasicOrAnon(GetUserID())) return <div/>;
 		if (copiedNode == null) return <div/>;
-
-		// if we're copying a claim into a place where it's supposed to be an argument, we have to create a wrapper argument-node for it
-		const createWrapperArg = copiedNode.type == MapNodeType.Claim && holderType != null;
-		if (createWrapperArg) {
-			// just prepare the data here; it doesn't get added until later, in the proceed() function
-			var argumentWrapper = new MapNode({
-				type: MapNodeType.Argument,
-				parents: { [node._id]: { _: true } },
-			});
-			var argumentWrapperRevision = new MapNodeRevision({});
-			if (!IsNewLinkValid(path, holderType, argumentWrapper, GetUserPermissionGroups(GetUserID()))) return <div/>;
-		} else if (!IsNewLinkValid(path, holderType, copiedNode, GetUserPermissionGroups(GetUserID()))) return <div/>;
+		const copiedNode_parent = GetParentNodeL3(path);
 
 		const formForClaimChildren = node.type == MapNodeType.Category ? ClaimForm.YesNoQuestion : ClaimForm.Base;
+		const linkCommand = new LinkNode_HighLevel({
+			mapID: map._id, oldParentID: GetParentNodeID(copiedNodePath), newParentID: node._id, nodeID: copiedNode._id,
+			newForm: copiedNode.type == MapNodeType.Claim ? formForClaimChildren : null,
+			newPolarity: (copiedNode.type == MapNodeType.Argument ? copiedNode.link.polarity : null) || (copiedNode_parent && copiedNode_parent.type == MapNodeType.Argument ? copiedNode_parent.link.polarity : null),
+			unlinkFromOldParent: copiedNode_asCut, deleteOrphanedArgumentWrapper: true,
+		});
+		const error = LinkNode_HighLevel_GetCommandError(linkCommand);
 
 		return (
 			<VMenuItem text={`Paste${copiedNode_asCut ? '' : ' as link'}: "${GetNodeDisplayText(copiedNode, null, formForClaimChildren).KeepAtMost(50)}"`}
-				// enabled={ForPaste_GetError(userID, map, node) == null} title={ForCut_GetError(userID, map, node)}
+				enabled={error == null} title={error}
 				style={styles.vMenuItem} onClick={(e) => {
 					if (e.button != 0) return;
 					if (GetUserID() == null) return ShowSignInPopup();
 
 					if (copiedNode.type == MapNodeType.Argument && !copiedNode_asCut) {
-						return void ShowMessageBox({ title: 'Argument at two locations?', cancelButton: true, onOK: proceed, message:
-`Are you sure you want to paste this argument as a linked child?
+						// eslint-disable-next-line
+						return void ShowMessageBox({
+							title: 'Argument at two locations?', cancelButton: true, onOK: proceed,
+							message: `
+								Are you sure you want to paste this argument as a linked child?
 
-Only do this if you're sure that the impact-premise applies exactly the same to both the old parent and the new parent.${''
-			} (usually it does not, ie. usually it's specific to its original parent claim)
+								Only do this if you're sure that the impact-premise applies exactly the same to both the old parent and the new parent. (usually it does not, ie. usually it's specific to its original parent claim)
 
-If not, paste the argument as a clone instead.`,
+								If not, paste the argument as a clone instead.
+							`.AsMultiline(0),
 						});
 					}
 					proceed();
 
 					async function proceed() {
-						let pastedNodeHolder = node;
-
-						if (createWrapperArg) {
-							const addArgumentWrapper = new AddChildNode({
-								mapID: map._id, node: argumentWrapper, revision: argumentWrapperRevision,
-								link: E({ _: true, polarity: Polarity.Supporting }) as any,
-							});
-							const { nodeID } = await addArgumentWrapper.Run();
-							// pastedNodeHolder = AsNodeL3(AsNodeL2(argumentWrapper, argumentWrapperRevision), Polarity.Supporting);
-							pastedNodeHolder = await GetAsync(() => GetNodeL3(`${path}/${nodeID}`));
-							store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID, time: Date.now() }));
-						}
-
-						await new LinkNode(E(
-							{ mapID: map._id, parentID: pastedNodeHolder._id, childID: copiedNode._id },
-							copiedNode.type == MapNodeType.Claim && { childForm: formForClaimChildren },
-							copiedNode.type == MapNodeType.Argument && { childPolarity: copiedNode.link.polarity },
-						)).Run();
-						if (copiedNode_asCut) {
-							const copiedNodePath_ids = GetPathNodeIDs(copiedNodePath);
-							await new UnlinkNode({ mapID: map._id, parentID: copiedNodePath_ids.XFromLast(1), childID: copiedNodePath_ids.Last() }).Run();
+						const { argumentWrapperID } = await linkCommand.Run();
+						if (argumentWrapperID) {
+							store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: argumentWrapperID, time: Date.now() }));
 						}
 					}
 				}}/>
