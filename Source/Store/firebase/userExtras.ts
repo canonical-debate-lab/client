@@ -19,15 +19,15 @@ export function HasBasicPermissions(userIDOrPermissions: string | 'me' | Permiss
 	if (true) return HasModPermissions(userIDOrPermissions); // temp; will be removed once GAD is over
 
 	/* const permissions = IsString(userIDOrPermissions) ? GetUserPermissions(userIDOrPermissions) : userIDOrPermissions;
-	return permissions && permissions.basic; */
+	return permissions ? permissions.basic : false; */
 }
 export function HasModPermissions(userIDOrPermissions: string | 'me' | PermissionGroupSet) {
 	const permissions = IsString(userIDOrPermissions) ? GetUserPermissions(userIDOrPermissions) : userIDOrPermissions;
-	return permissions && permissions.mod;
+	return permissions ? permissions.mod : false;
 }
 export function HasAdminPermissions(userIDOrPermissions: string | 'me' | PermissionGroupSet) {
 	const permissions = IsString(userIDOrPermissions) ? GetUserPermissions(userIDOrPermissions) : userIDOrPermissions;
-	return permissions && permissions.admin;
+	return permissions ? permissions.admin : false;
 }
 /** If user is the creator, also requires that they (still) have basic permissions. */
 export function IsUserCreatorOrMod(userID: string | 'me', entity: Term | Image | Map | MapNode | Post | Thread) {
