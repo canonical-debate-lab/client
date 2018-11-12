@@ -1,17 +1,14 @@
-import { Assert, GetPropsChanged_WithValues, GetPropsChanged, GetStackTraceStr } from 'js-vextensions';
-import { connect } from 'react-redux';
-import { ShallowChanged, GetInnerComp } from 'react-vextensions';
-import { watchEvents, unWatchEvents } from 'react-redux-firebase/lib/actions/query';
-import { getEventsFromInput } from 'react-redux-firebase/lib/utils';
-import { TryCall, Timer } from 'js-vextensions';
-import { SplitStringBySlash_Cached } from 'Frame/Database/StringSplitCache';
-import { GetUserID } from 'Store/firebase/users';
 import { activeStoreAccessCollectors } from 'Frame/Database/DatabaseHelpers';
-import Moment from 'moment';
+import { GetPropsChanged, GetPropsChanged_WithValues } from 'js-vextensions';
 import _ from 'lodash';
-import Action from '../General/Action';
+import Moment from 'moment';
+import { connect } from 'react-redux';
+import { unWatchEvents, watchEvents } from 'react-redux-firebase/lib/actions/query';
+import { getEventsFromInput } from 'react-redux-firebase/lib/utils';
+import { ShallowChanged } from 'react-vextensions';
+import { GetUserID } from 'Store/firebase/users';
 import { GetUser, GetUserPermissions } from '../../Store/firebase/users';
-import { RootState, ApplyActionSet } from '../../Store/index';
+import { ApplyActionSet, RootState } from '../../Store/index';
 
 // Place a selector in Connect() whenever it uses data that:
 // 1) might change during the component's lifetime, and:
@@ -130,9 +127,7 @@ export function Connect<T, P>(funcOrFuncGetter) {
 			setImmediate(() => {
 				s._firebaseEvents = getEventsFromInput(requestedPaths);
 				const removedPaths = oldRequestedPaths.Except(...requestedPaths);
-				// todo: find correct way of unwatching events; the way below seems to sometimes unwatch while still needed watched
-				// for now, we just never unwatch
-				// unWatchEvents(firebase, DispatchDBAction, getEventsFromInput(removedPaths));
+				unWatchEvents(firebase, DispatchDBAction, getEventsFromInput(removedPaths));
 				const addedPaths = requestedPaths.Except(...oldRequestedPaths);
 				watchEvents(firebase, DispatchDBAction, getEventsFromInput(addedPaths));
 				// for debugging, you can check currently-watched-paths using: store.firebase._.watchers
@@ -177,6 +172,9 @@ const actionTypeBufferedActions = {};
 function DispatchDBAction(action) {
 	const timeSinceLastDispatch = Date.now() - (actionTypeLastDispatchTimes[action.type] || 0);
 	const bufferInfo = actionTypeBufferInfos[action.type];
+
+	// These are merely informational entries into the redux store. We don't use them, so block these actions from being dispatched.
+	if (action.type === '@@reactReduxFirebase/SET_LISTENER' || action.type === '@@reactReduxFirebase/UNSET_LISTENER') return;
 
 	// if we're not supposed to buffer this action type, or it's been long enough since last dispatch of this type
 	if (bufferInfo == null || timeSinceLastDispatch >= bufferInfo.time) {

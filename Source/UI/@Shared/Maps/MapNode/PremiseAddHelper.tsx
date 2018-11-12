@@ -4,7 +4,7 @@ import { BaseComponent } from 'react-vextensions';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { SetNodeUILocked } from 'UI/@Shared/Maps/MapNode/NodeUI';
 import { WaitTillPathDataIsReceived, WaitTillPathDataIsReceiving } from '../../../../Frame/Database/DatabaseHelpers';
-import {AddChildNode} from '../../../../Server/Commands/AddChildNode';
+import { AddChildNode } from '../../../../Server/Commands/AddChildNode';
 import { ChildEntry, ClaimForm, MapNode, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
 import { MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../Store/firebase/nodes/@MapNodeRevision';
 import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';

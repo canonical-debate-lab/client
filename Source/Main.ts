@@ -1,3 +1,6 @@
+/* eslint-disable */
+// don't change the order of these imports, as a few rely on other modules being loaded first
+
 // "static" imports
 import "./Frame/General/Start_0";
 import "babel-polyfill";
@@ -23,11 +26,13 @@ import {VURL} from "js-vextensions";
 import Raven from "raven-js";
 //import Promise from "bluebird";
 
+/* eslint-enable */
+
 // startup (non-hot)
 // ==========
 
-//G({Promise});
-/*function PromiseWrapper(...args) {
+// G({Promise});
+/* function PromiseWrapper(...args) {
 	//let promise = Promise.apply(this, ...args);
 	let promise = new Promise(...args);
 
@@ -40,7 +45,7 @@ for (var key in Promise)
 	PromiseWrapper[key] = Promise[key];
 G({React, Promise: PromiseWrapper});*/
 
-//G({ReactPerf});
+// G({ReactPerf});
 
 declare global { export var startURL: VURL; }
 g.startURL = GetCurrentURL(true);
@@ -48,45 +53,48 @@ g.startURL = GetCurrentURL(true);
 // always compile-time
 declare global { var ENV_COMPILE_TIME: string; }
 // only compile-time if compiled for production (otherwise, can be overriden)
-declare global { var ENV_SHORT: string, ENV: string, DEV: boolean, PROD: boolean, TEST: boolean; }
+declare global { var ENV_SHORT: string; var ENV: string; var DEV: boolean; var PROD: boolean; var 
+TEST: boolean; }
 
-//let {version, ENV, ENV_SHORT, DEV, PROD, TEST} = DEV ? require("./BakedConfig_Dev") : require("./BakedConfig_Prod");
+// let {version, ENV, ENV_SHORT, DEV, PROD, TEST} = DEV ? require("./BakedConfig_Dev") : require("./BakedConfig_Prod");
 // if environment at compile time was not "production" (ie. if these globals weren't set/locked), then set them here at runtime
-if (ENV_COMPILE_TIME != "production") {
+if (ENV_COMPILE_TIME != 'production') {
 	g.ENV = ENV_COMPILE_TIME;
-	if (startURL.GetQueryVar("env") && startURL.GetQueryVar("env") != "null") {
-		g.ENV = startURL.GetQueryVar("env");
-		//alert("Using env: " + g.ENV);
-		console.log("Using env: " + ENV);
+	if (startURL.GetQueryVar('env') && startURL.GetQueryVar('env') != 'null') {
+		g.ENV = startURL.GetQueryVar('env');
+		// alert("Using env: " + g.ENV);
+		console.log('Using env: ' + ENV);
 	}
 
-	g.ENV_SHORT = {development: "dev", production: "prod"}[ENV] || ENV;
-	g.DEV = ENV == "development";
-	g.PROD = ENV == "production";
-	g.TEST = ENV == "test";
+	g.ENV_SHORT = { development: 'dev', production: 'prod' }[ENV] || ENV;
+	g.DEV = ENV == 'development';
+	g.PROD = ENV == 'production';
+	g.TEST = ENV == 'test';
 }
 
-//let {version} = require("../../../package.json");
+// let {version} = require("../../../package.json");
 // Note: Use two BakedConfig files, so that dev-server can continue running, with its own baked-config data, even while prod-deploy occurs.
 // Note: Don't reference the BakedConfig files from anywhere but here (in runtime code) -- because we want to be able to override it, below.
-//let {version, dbVersion, firebaseConfig} = DEV ? require("./BakedConfig_Dev") : require("./BakedConfig_Prod");
-let {version, firebaseConfig} = DEV ? require("./BakedConfig_Dev") : require("./BakedConfig_Prod");
-let dbVersion = 10;
-if (startURL.GetQueryVar("dbVersion") && startURL.GetQueryVar("dbVersion") != "null") {
-	dbVersion = parseInt(startURL.GetQueryVar("dbVersion"));
-	console.log("Using dbVersion: " + dbVersion);
-}
-G({version, dbVersion, firebaseConfig}); declare global { var version: string, dbVersion: number, firebaseConfig; }
+// let {version, dbVersion, firebaseConfig} = DEV ? require("./BakedConfig_Dev") : require("./BakedConfig_Prod");
+const { version, firebaseConfig } = DEV ? require('./BakedConfig_Dev') : require('./BakedConfig_Prod');
 
-if (PROD && window.location.hostname != "localhost") { // if localhost, never enable Raven (even if env-override is set to production)
-	Raven.config("https://40c1e4f57e8b4bbeb1e5b0cf11abf9e9@sentry.io/155432", {
+let dbVersion = 10;
+if (startURL.GetQueryVar('dbVersion') && startURL.GetQueryVar('dbVersion') != 'null') {
+	dbVersion = parseInt(startURL.GetQueryVar('dbVersion'));
+	console.log('Using dbVersion: ' + dbVersion);
+}
+G({ version, dbVersion, firebaseConfig }); declare global { var version: string; var dbVersion: number; var 
+firebaseConfig; }
+
+if (PROD && window.location.hostname != 'localhost') { // if localhost, never enable Raven (even if env-override is set to production)
+	Raven.config('https://40c1e4f57e8b4bbeb1e5b0cf11abf9e9@sentry.io/155432', {
 		release: version,
 		environment: ENV,
 	}).install();
 }
 
 // You know what? It's better to just disable this until you specifically want to use it... (causes too many seemingly-false-positives otherwise)
-/*if (devEnv) {
+/* if (devEnv) {
 	// this logs warning if a component doesn't have any props or state change, yet is re-rendered
 	const {whyDidYouUpdate} = require("why-did-you-update");
 	whyDidYouUpdate(React, {
@@ -104,8 +112,8 @@ if (PROD && window.location.hostname != "localhost") { // if localhost, never en
 // ==========
 
 /*declare global { let useHotReloading: boolean; }
-g.useHotReloading = false;*/
-/*let hotReloading = false;
+g.useHotReloading = false; */
+/* let hotReloading = false;
 G({hotReloading}); declare global { let hotReloading: boolean; }*/
 declare global { let hasHotReloaded: boolean; }
 g.hasHotReloaded = false;
@@ -113,10 +121,10 @@ g.hasHotReloaded = false;
 if (DEV) {
 	if (module.hot) {
 		// setup hot module replacement
-		module.hot.accept("./Main_Hot", () => {
+		module.hot.accept('./Main_Hot', () => {
 			hasHotReloaded = true;
-			setTimeout(()=> {
-				ReactDOM.unmountComponentAtNode(document.getElementById("root"));
+			setTimeout(() => {
+				ReactDOM.unmountComponentAtNode(document.getElementById('root'));
 				LoadHotModules();
 			});
 		});
@@ -124,9 +132,9 @@ if (DEV) {
 }
 
 function LoadHotModules() {
-	//Log("Reloading hot modules...");
-	require("./Main_Hot");
+	// Log("Reloading hot modules...");
+	require('./Main_Hot');
 }
 
-//setTimeout(()=>LoadHotModules());
+// setTimeout(()=>LoadHotModules());
 LoadHotModules();

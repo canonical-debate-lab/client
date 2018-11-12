@@ -79,6 +79,7 @@ module.exports = {
 			// module text-replacements (a better alternative than directly modifying files in node_modules, as that conflicts with npm's installations/control)
 			// ==========
 
+			// react
 			{
 				test: /ReactDebugTool.js/,
 				loader: StringReplacePlugin.replace({ replacements: [
@@ -93,6 +94,7 @@ module.exports =
 					},
 				] }),
 			},
+			// react-redux
 			{
 				test: /connectAdvanced.js/,
 				loader: StringReplacePlugin.replace({ replacements: [
@@ -111,7 +113,22 @@ module.exports =
 					// make WrappedComponent (the class) accessible as "this.WrappedComponent" from within Connect (FirebaseConnect.ts), and Connect functions
 					{
 						pattern: 'proxy.dependsOnOwnProps = true;',
-						replacement: (match, p1) => `${match} proxy.WrappedComponent = _ref.WrappedComponent;`,
+						replacement: match => `${match} proxy.WrappedComponent = _ref.WrappedComponent;`,
+					},
+				] }),
+			},
+			// redux
+			{
+				test: /createStore.js/,
+				loader: StringReplacePlugin.replace({ replacements: [
+					// optimize redux so that if a reducer does not change the state at all, then the store-subscribers are not notified
+					{
+						pattern: 'currentState = currentReducer(currentState, action)',
+						replacement: match => `var oldState = currentState; ${match}`,
+					},
+					{
+						pattern: 'for (var i = 0; i < listeners.length; i++) {',
+						replacement: match => `if (currentState !== oldState) ${match}`,
 					},
 				] }),
 			},

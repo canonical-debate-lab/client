@@ -316,6 +316,7 @@ class ReasonScoreValueMarkers extends BaseComponent<{node: MapNodeL3, reasonScor
 
 type TitlePanelProps = {parent: NodeUI_Inner, map: Map, node: MapNodeL2, nodeView: MapNodeView, path: string} & Partial<{equationNumber: number}>;
 @Connect((state, {node, path}: TitlePanelProps)=> ({
+	_: GetNodeDisplayText(node, path),
 	$1: node.current.image && GetImage(node.current.image.id),
 	equationNumber: node.current.equation ? GetEquationStepNumber(path) : null,
 	}))

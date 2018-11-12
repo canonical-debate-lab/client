@@ -1,11 +1,11 @@
 import { SplitStringBySlash_Cached } from 'Frame/Database/StringSplitCache';
-import { StartBufferingActions, StopBufferingActions } from 'Store';
-import { FirebaseData } from 'Store/firebase';
-import { State_overrideData_path } from 'UI/@Shared/StateOverrides';
 import { Assert, CachedTransform, DeepSet, GetStorageForCachedTransform, GetTreeNodesInObjTree } from 'js-vextensions';
 import { unWatchEvents, watchEvents } from 'react-redux-firebase/lib/actions/query';
 import { getEventsFromInput } from 'react-redux-firebase/lib/utils';
 import { ShallowChanged } from 'react-vextensions';
+import { StartBufferingActions, StopBufferingActions } from 'Store';
+import { FirebaseData } from 'Store/firebase';
+import { State_overrideData_path } from 'UI/@Shared/StateOverrides';
 import u from 'updeep';
 import { ClearRequestedPaths, GetRequestedPaths, RequestPath } from './FirebaseConnect';
 
@@ -278,6 +278,7 @@ export async function GetAsync<T>(dbGetterFunc: ()=>T, statsLogger?: ({requested
 		if (!dbDataLocked) {
 			StartBufferingActions();
 			// let oldNodeRenderCount = NodeUI.renderCount;
+			// todo: make sure this is still correct (I think it's not, since new versions don't actually unwatch a path until the watcher-count gets to 0, so we'd have to loop or something)
 			unWatchEvents(firebase, store.dispatch, getEventsFromInput(newRequestedPaths)); // do this just to trigger re-get
 			// start watching paths (causes paths to be requested)
 			watchEvents(firebase, store.dispatch, getEventsFromInput(newRequestedPaths));
@@ -319,39 +320,61 @@ export async function GetAsync_Raw<T>(dbGetterFunc: ()=>T, statsLogger?: ({reque
 	return RemoveHelpers(Clone(value));
 }
 
+type ReceiveStatus = 'not started' | 'receiving' | 'received';
+export const pathReceiveStatuses = {} as {[key: string]: ReceiveStatus};
+export const pathReceivingListeners = {} as {[key: string]: Function[]};
+export const pathReceivedListeners = {} as {[key: string]: Function[]};
+export function NotifyPathsReceiving(paths: string[]) {
+	for (const path of paths) {
+		pathReceiveStatuses[path] = 'receiving';
+		if (pathReceivingListeners[path]) {
+			// pathReceivingListeners[path].forEach(listener => listener());
+			for (const listener of pathReceivingListeners[path]) listener();
+		}
+	}
+}
+export function NotifyPathsReceived(paths: string[]) {
+	for (const path of paths) {
+		pathReceiveStatuses[path] = 'received';
+		if (pathReceivedListeners[path]) {
+			for (const listener of pathReceivedListeners[path]) listener();
+		}
+	}
+}
 export function WaitTillPathDataIsReceiving(path: string): Promise<any> {
 	return new Promise((resolve, reject) => {
-		let pathDataReceiving = (State as any)().firebase.requesting[path];
-		// if data already receiving, return right away
+		let pathDataReceiving = pathReceiveStatuses[path] === 'receiving';
+		// if data already receiving, resolve right away
 		if (pathDataReceiving) resolve();
 
-		// else, add listener, and wait till store received the data (then return it)
+		// else, add listener, and wait till store is receiving the data (then resolve it)
 		const listener = () => {
-			pathDataReceiving = (State as any)().firebase.requesting[path];
+			pathDataReceiving = pathReceiveStatuses[path] === 'receiving';
 			if (pathDataReceiving) {
-				unsubscribe();
+				pathReceivingListeners[path].Remove(listener);
 				resolve();
 			}
 		};
-		let unsubscribe = store.subscribe(listener);
+		pathReceivingListeners[path] = pathReceivingListeners[path] || [];
+		pathReceivingListeners[path].push(listener);
 	});
 }
 export function WaitTillPathDataIsReceived(path: string): Promise<any> {
 	return new Promise((resolve, reject) => {
-		let pathDataReceived = (State as any)().firebase.requested[path];
-		// if data already received, return right away
+		let pathDataReceived = pathReceiveStatuses[path] === 'received';
+		// if data already received, resolve right away
 		if (pathDataReceived) resolve();
 
-		// else, add listener, and wait till store received the data (then return it)
+		// else, add listener, and wait till store has received the data (then resolve it)
 		const listener = () => {
-			// pathDataReceived = State(a=>a.firebase.requested[path]);
-			pathDataReceived = (State as any)().firebase.requested[path];
+			pathDataReceived = pathReceiveStatuses[path] === 'received';
 			if (pathDataReceived) {
-				unsubscribe();
+				pathReceivedListeners[path].Remove(listener);
 				resolve();
 			}
 		};
-		let unsubscribe = store.subscribe(listener);
+		pathReceivedListeners[path] = pathReceivedListeners[path] || [];
+		pathReceivedListeners[path].push(listener);
 	});
 }
 

@@ -8,11 +8,18 @@ import { GetParentNode, IsNodeSubnode, GetNode, GetParentNodeL2, GetNodeChildren
 import { GetValues } from '../../../Frame/General/Enums';
 import { PermissionGroupSet } from '../userExtras/@UserExtraInfo';
 import { ImageType, GetNiceNameForImageType } from '../images/@Image';
-import { PreProcessLatex } from '../../../UI/@Shared/Maps/MapNode/NodeMathUI';
 import { SplitStringBySlash_Cached } from '../../../Frame/Database/StringSplitCache';
 import { SlicePath } from '../../../Frame/Database/DatabaseHelpers';
 import { MapNodeRevision } from './@MapNodeRevision';
 import { GetNodeRevision } from '../nodeRevisions';
+
+export function PreProcessLatex(text: string) {
+	// text = text.replace(/\\term{/g, "\\text{");
+	// "\term{some-term}{123}" -> "\text{@term[some-term,123]}
+	text = text.replace(/\\term{(.+?)}{([0-9]+?)}/g, (m, g1, g2) => `\\text{@term[${g1},${g2}]}`);
+	text = text.replace(/\\term/g, () => '[syntax wrong]'); // for user syntax mistakes, keep from causing error
+	return text;
+}
 
 export function GetFontSizeForNode(node: MapNodeL2, isSubnode = false) {
 	if (node.current.fontSizeOverride) return node.current.fontSizeOverride;

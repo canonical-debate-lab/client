@@ -1,8 +1,11 @@
+/* eslint-disable */
+// don't change the order of these imports, as a few rely on other modules being loaded first
+
 import './Frame/General/Globals';
 import { ParseModuleData, Require, GetModuleNameFromPath } from 'webpack-runtime-require';
 import { Store } from 'redux';
-// eslint-disable-next-line
-import {FirebaseApp, DBPath, GetData} from "./Frame/Database/DatabaseHelpers"; // this must go here
+import "./Frame/Database/FirebaseConnect";
+import {FirebaseApp, DBPath, GetData} from "./Frame/Database/DatabaseHelpers";
 import ReactDOM from 'react-dom';
 import React from 'react/lib/ReactWithAddons';
 import './Store/firebase/nodeRatings/@RatingsRoot';
@@ -16,13 +19,15 @@ import { replace, push } from 'redux-little-router';
 import { GetUserID, GetUser } from 'Store/firebase/users';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { GetDataAsync, GetAsync, ApplyDBUpdates } from 'Frame/Database/DatabaseHelpers';
-import {Persister} from "redux-persist/src/types";
+import { Persister } from "redux-persist/src/types";
 import Action from "Frame/General/Action";
-import {Link} from "Frame/ReactComponents/Link";
+import { Link } from "Frame/ReactComponents/Link";
 import VReactMarkdown_Remarkable from "./Frame/ReactComponents/VReactMarkdown_Remarkable";
 import { GetUserPermissions } from './Store/firebase/users';
 import { RootState, MakeRootReducer } from './Store/index';
 import { CreateStore } from './Frame/Store/CreateStore';
+
+/* eslint-enable */
 
 JSVE.logFunc = Log;
 

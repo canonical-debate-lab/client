@@ -77,6 +77,9 @@ const connector = (state, { node, path, map }: Props) => {
 		subnodes,
 		parentNodeView,
 
+		isSinglePremiseArgument: IsSinglePremiseArgument(node),
+		isMultiPremiseArgument: IsMultiPremiseArgument(node),
+
 		userViewedNodes: GetUserViewedNodes(GetUserID(), { useUndefinedForInProgress: true }),
 		playingTimeline: GetPlayingTimeline(map._id),
 		playingTimeline_currentStepIndex: GetPlayingTimelineStepIndex(map._id),
@@ -126,6 +129,7 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 	render() {
 		let { map, node, path, asSubnode, widthOverride, style, onHeightOrPosChange,
 			initialChildLimit, form, children, nodeView, parentNodeView, nodeChildren, nodeChildrenToShow, subnodes,
+			isSinglePremiseArgument, isMultiPremiseArgument,
 			playingTimeline, playingTimeline_currentStepIndex, playingTimelineShowableNodes, playingTimelineVisibleNodes, playingTimeline_currentStepRevealNodes,
 			addedDescendants, editedDescendants } = this.props;
 		const { dividePoint, selfHeight } = this.state;
@@ -166,8 +170,6 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 			// Assert(!relevanceArguments.Any(a=>a.type == MapNodeType.Claim), "Single-premise argument has more than one premise!");
 		}
 
-		const isSinglePremiseArgument = IsSinglePremiseArgument(node);
-		const isMultiPremiseArgument = IsMultiPremiseArgument(node);
 		const showArgumentsControlBar = (node.type == MapNodeType.Claim || isSinglePremiseArgument) && nodeView.expanded && nodeChildrenToShow != emptyArray_forLoading;
 
 		const { width, expectedHeight } = this.GetMeasurementInfo();
@@ -183,7 +185,7 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 		let showBelowMessage = nodeChildren.length > 0 && nodeChildren.length < minChildCount; */
 
 		// maybe temp
-		const combineWithChildClaim = IsSinglePremiseArgument(node);
+		const combineWithChildClaim = isSinglePremiseArgument;
 		const premises = nodeChildrenToShow.filter(a => a.type == MapNodeType.Claim);
 		if (combineWithChildClaim && premises.length == 1) {
 			// Assert(premises.length == 1, `Single-premise argument #${node._id} has more than one premise! (${premises.map(a=>a._id).join(",")})`);

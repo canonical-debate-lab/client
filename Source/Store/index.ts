@@ -1,31 +1,22 @@
-import { Assert, DeepGet, DeepSet } from 'js-vextensions';
+import { CombineReducers_Advanced } from 'Frame/Store/ReducerUtils';
+import { LocationDescriptorObject } from 'history';
+import { Assert, DeepGet } from 'js-vextensions';
+import { firebaseStateReducer } from 'react-redux-firebase';
 import { VMenuReducer, VMenuState } from 'react-vmenu';
-import { combineReducers } from 'redux';
-import { firebaseStateReducer, helpers } from 'react-redux-firebase';
 // import {reducer as formReducer} from "redux-form";
-import { ACTMessageBoxShow, MessageBoxOptions, MessageBoxReducer, MessageBoxState } from 'react-vmessagebox';
-import {createSelector} from "reselect";
-import {DBPath, GetData} from "../Frame/Database/DatabaseHelpers";
-import {Debugger} from "../Frame/General/Others";
-import {E} from "js-vextensions";
-import {MainState, MainReducer} from "./main";
-import {LocationDescriptorObject} from "history";
-import {ACTDebateMapSelect} from "./main/debates";
-import u from "updeep";
-import {VURL} from "js-vextensions";
-import {HandleError} from "../Frame/General/Errors";
-import {ForumData, ForumReducer} from "firebase-forum";
-import {FeedbackData, FeedbackReducer} from "firebase-feedback";
-import {OnAccessPath} from "../Frame/Database/FirebaseConnect";
-import {persistReducer, getStoredState} from "redux-persist";
-import storage from "redux-persist/lib/storage"; // defaults to localStorage for web and AsyncStorage for react-native
-import Action, { IsACTSetFor } from "../Frame/General/Action";
-import { State_overrideData_path, State_overrideData_value, State_overrideCountAsAccess_value } from '../UI/@Shared/StateOverrides';
+import { MessageBoxReducer, MessageBoxState } from 'react-vmessagebox';
+import u from 'updeep';
+import { pathReceiveStatuses, NotifyPathsReceiving, NotifyPathsReceived } from 'Frame/Database/DatabaseHelpers';
+import { OnAccessPath } from '../Frame/Database/FirebaseConnect';
 import { SplitStringBySlash_Cached } from '../Frame/Database/StringSplitCache';
+import Action, { IsACTSetFor } from '../Frame/General/Action';
+import { HandleError } from '../Frame/General/Errors';
+import { State_overrideCountAsAccess_value, State_overrideData_path, State_overrideData_value } from '../UI/@Shared/StateOverrides';
+import { MainReducer, MainState } from './main';
 
 // State() actually also returns the root-state (if no data-getter is supplied), but we don't reveal that in type-info (as its only to be used in console)
 G({ State });
-/*declare global {
+/* declare global {
 	function State<T>(pathSegment: ((state: RootState)=>T) | string | number, state?: RootState, countAsAccess?: boolean): T;
 	function State<T>(pathSegments: (((state: RootState)=>T) | string | number)[], state?: RootState, countAsAccess?: boolean): any;
 }
@@ -80,8 +71,8 @@ function State<T>(...args) {
 
 	if (args.length == 0) return state;
 
-	let pathSegments: (string | number)[]; let 
-options = new State_Options();
+	let pathSegments: (string | number)[]; let
+		options = new State_Options();
 	if (typeof args[0] === 'object') {
 		[options, ...pathSegments] = args;
 	} else {
@@ -133,7 +124,7 @@ export class ACTSet extends Action<ACTSet_Payload> {
 	constructor(path: string | ((state: RootState)=>any), value) {
 		if (typeof path === 'function') path = StorePath(path);
 		super({ path, value });
-		this.type = 'ACTSet_' + path; // .replace(/[^a-zA-Z0-9]/g, "_"); // add path to action-type, for easier debugging in dev-tools
+		this.type = `ACTSet_${path}`; // .replace(/[^a-zA-Z0-9]/g, "_"); // add path to action-type, for easier debugging in dev-tools
 	}
 }
 export function SimpleReducer(path: string | ((store: RootState)=>any), defaultValue = null) {
@@ -172,21 +163,45 @@ export class RootState {
 	router: RouterState;
 	messageBox: MessageBoxState;
 	vMenu: VMenuState;
-	forum: ForumData;
-	feedback: FeedbackData;
+	/* forum: ForumData;
+	feedback: FeedbackData; */
 }
 export function MakeRootReducer(extraReducers?) {
-	const innerReducer = combineReducers({
-		main: MainReducer,
-		firebase: firebaseStateReducer,
-		// form: formReducer,
-		// router: routerReducer,
-		// router: RouterReducer,
-		messageBox: MessageBoxReducer,
-		vMenu: VMenuReducer,
-		forum: ForumReducer,
-		feedback: FeedbackReducer,
-		...extraReducers,
+	const innerReducer = CombineReducers_Advanced({
+		preReduce: (state, action) => {
+			if (action.type == '@@reactReduxFirebase/START' || action.type == '@@reactReduxFirebase/SET') {
+				const newFirebaseState = firebaseStateReducer(state.firebase, action);
+
+				// Watch for changes to requesting and requested, and channel those statuses into a custom pathReceiveStatuses map.
+				// This way, when an action only changes these statuses, we can cancel the action dispatch, greatly reducing performance impact.
+				NotifyPathsReceiving(newFirebaseState.requesting.Pairs().filter(a => a.value).map(a => a.key));
+				NotifyPathsReceived(newFirebaseState.requested.Pairs().filter(a => a.value).map(a => a.key));
+
+				// Here we check if the action changed more than just the statuses. If it didn't, then the action dispatch is canceled. (basically -- the action applies no state change, leading to store subscribers not being notified)
+				const oldData = DeepGet(state.firebase.data, action['path']);
+				const newData = DeepGet(newFirebaseState.data, action['path']);
+				// if (newData === oldData) {
+				if (newData === oldData || ToJSON(newData) === ToJSON(oldData)) {
+					return state;
+				}
+			}
+		},
+		reducers: {
+			main: MainReducer,
+			firebase: firebaseStateReducer,
+			// form: formReducer,
+			// router: routerReducer,
+			// router: RouterReducer,
+			messageBox: MessageBoxReducer,
+			vMenu: VMenuReducer,
+			/* forum: ForumReducer,
+			feedback: FeedbackReducer, */
+			...extraReducers,
+		},
+		actionSendInclusions: {
+			'@@reactReduxFirebase/START': ['firebase'],
+			'@@reactReduxFirebase/SET': ['firebase'],
+		},
 	});
 
 	const rootReducer = (state: RootState, rootAction) => {
@@ -208,11 +223,11 @@ export function MakeRootReducer(extraReducers?) {
 				const oldResult = result;
 				result = innerReducer(result, action) as RootState;
 				// if (action.Is(ACTSet)) {
-				/*if (action.type.startsWith("ACTSet_")) {
+				/* if (action.type.startsWith("ACTSet_")) {
 					result = u.updateIn(action.payload.path.replace(/\//g, "."), u.constant(action.payload.value), result);
 				} */
 
-				if (action.type.startsWith('ACTSet_') && result == oldResult) {
+				if (action.type.startsWith('ACTSet_') && result === oldResult) {
 					LogWarning(`An ${action.type} action was dispatched, but did not cause any change to the store contents! Did you forget to add a reducer entry?`);
 				}
 			} catch (ex) {
@@ -222,7 +237,7 @@ export function MakeRootReducer(extraReducers?) {
 
 		// make-so certain paths are ignored in redux-devtools-extension's Chart panel
 		// temp removed; caused issues with new redux-persist
-		/*let ignorePaths = [
+		/* let ignorePaths = [
 			`firebase/data/${DBPath("nodes")}`,
 			`firebase/data/${DBPath("nodeRevisions")}`,
 		];
@@ -241,7 +256,7 @@ export function MakeRootReducer(extraReducers?) {
 	return rootReducer;
 }
 
-/*function RouterReducer(state = {location: null}, action) {
+/* function RouterReducer(state = {location: null}, action) {
 	let oldURL = VURL.FromState(state.location);
 	let newURL = oldURL.Clone();
 	if (action.Is(ACTDebateMapSelect) && action.payload.id == null) {
