@@ -1,15 +1,15 @@
-import { UserEdit } from "Server/CommandMacros";
-import { Timeline } from "Store/firebase/timelines/@Timeline";
-import { GetDataAsync } from "../../Frame/Database/DatabaseHelpers";
-import { Command } from "../Command";
+import { UserEdit } from 'Server/CommandMacros';
+import { Timeline } from 'Store/firebase/timelines/@Timeline';
+import { GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
+import { Command } from '../Command';
 
 @UserEdit
-export default class AddTimeline extends Command<{mapID: number, timeline: Timeline}> {
+export class AddTimeline extends Command<{mapID: number, timeline: Timeline}, number> {
 	timelineID: number;
 	async Prepare() {
-		let {mapID, timeline} = this.payload;
+		const { mapID, timeline } = this.payload;
 
-		let lastTimelineID = await GetDataAsync("general", "lastTimelineID") as number;
+		const lastTimelineID = await GetDataAsync('general', 'lastTimelineID') as number;
 		this.timelineID = lastTimelineID + 1;
 		timeline.mapID = mapID;
 		timeline.createdAt = Date.now();
@@ -17,14 +17,14 @@ export default class AddTimeline extends Command<{mapID: number, timeline: Timel
 		this.returnData = this.timelineID;
 	}
 	async Validate() {
-		let {timeline} = this.payload;
-		AssertValidate("Timeline", timeline, `Timeline invalid`);
+		const { timeline } = this.payload;
+		AssertValidate('Timeline', timeline, 'Timeline invalid');
 	}
-	
+
 	GetDBUpdates() {
-		let {mapID, timeline} = this.payload;
-		let updates = {
-			"general/lastTimelineID": this.timelineID,
+		const { mapID, timeline } = this.payload;
+		const updates = {
+			'general/lastTimelineID': this.timelineID,
 			[`timelines/${this.timelineID}`]: timeline,
 			[`maps/${mapID}/timelines/${this.timelineID}`]: true,
 		} as any;

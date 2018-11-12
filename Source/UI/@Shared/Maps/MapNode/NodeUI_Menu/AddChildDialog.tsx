@@ -4,9 +4,10 @@ import { GetInnerComp } from 'react-vextensions';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { ACTSet } from 'Store';
 import { HasModPermissions } from 'Store/firebase/userExtras';
+import { AddArgumentAndClaim } from 'Server/Commands/AddArgumentAndClaim';
 import { GetEntries } from '../../../../../Frame/General/Enums';
 import { Link } from '../../../../../Frame/ReactComponents/Link';
-import {AddChildNode} from '../../../../../Server/Commands/AddChildNode';
+import { AddChildNode } from '../../../../../Server/Commands/AddChildNode';
 import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
 import { AsNodeL2, AsNodeL3, GetClaimType, GetNodeForm } from '../../../../../Store/firebase/nodes/$node';
 import { Equation } from '../../../../../Store/firebase/nodes/@Equation';
@@ -145,18 +146,22 @@ The details of the argument should be described within the argument's premises. 
 				return void setTimeout(()=>ShowMessageBox({title: `Validation error`, message: `Validation error: ${validationError}`}));
 			} */
 			store.dispatch(new ACTSet(a => a.main.currentNodeBeingAdded_path, `${parentPath}/?`));
-			const info = await new AddChildNode({
-				mapID, parentID: newNode.parents.VKeys(true)[0].ToInt(), node: newNode.Excluding('parents') as MapNode, revision: newRevision, link: newLink,
-			}).Run();
-			// store.dispatch(new ACTSetCurrentNodeBeingAdded({path: parentPath + "/" + info.nodeID}));
-			// store.dispatch(new ACTSet(a=>a.main.currentNodeBeingAdded_path, parentPath + "/" + info.nodeID));
-			store.dispatch(new ACTMapNodeExpandedSet({ mapID, path: `${parentPath}/${info.nodeID}`, expanded: true, recursive: false }));
-			store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.nodeID, time: Date.now() }));
 
 			if (childType == MapNodeType.Argument) {
-				const info2 = await new AddChildNode({ mapID, parentID: info.nodeID, node: newPremise, revision: newPremiseRevision }).Run();
-				// store.dispatch(new ACTMapNodeExpandedSet({mapID, path: `${parentPath}/${info.nodeID}/${info2.nodeID}`, expanded: true, recursive: false}));
-				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info2.nodeID, time: Date.now() }));
+				const info = await new AddArgumentAndClaim({
+					mapID,
+					argumentParentID: newNode.parents.VKeys(true)[0].ToInt(), argumentNode: newNode.Excluding('parents') as MapNode, argumentRevision: newRevision, argumentLink: newLink,
+					claimNode: newPremise, claimRevision: newPremiseRevision,
+				}).Run();
+				store.dispatch(new ACTMapNodeExpandedSet({ mapID, path: `${parentPath}/${info.argumentNodeID}`, expanded: true, recursive: false }));
+				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.argumentNodeID, time: Date.now() }));
+				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.claimNodeID, time: Date.now() }));
+			} else {
+				const info = await new AddChildNode({
+					mapID, parentID: newNode.parents.VKeys(true)[0].ToInt(), node: newNode.Excluding('parents') as MapNode, revision: newRevision, link: newLink,
+				}).Run();
+				store.dispatch(new ACTMapNodeExpandedSet({ mapID, path: `${parentPath}/${info.nodeID}`, expanded: true, recursive: false }));
+				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.nodeID, time: Date.now() }));
 			}
 
 			store.dispatch(new ACTSet(a => a.main.currentNodeBeingAdded_path, null));

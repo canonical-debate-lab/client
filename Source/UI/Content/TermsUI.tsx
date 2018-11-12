@@ -5,18 +5,18 @@ import { ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
 import { RemoveHelpers } from '../../Frame/Database/DatabaseHelpers';
 import { Connect } from '../../Frame/Database/FirebaseConnect';
-import DeleteTerm from '../../Server/Commands/DeleteTerm';
-import UpdateTermData from '../../Server/Commands/UpdateTermData';
+import { DeleteTerm } from '../../Server/Commands/DeleteTerm';
+import { UpdateTermData } from '../../Server/Commands/UpdateTermData';
 import { GetFullNameP, GetTermVariantNumber, GetTerms } from '../../Store/firebase/terms';
 import { Term, TermType } from '../../Store/firebase/terms/@Term';
 import { IsUserCreatorOrMod, CanGetBasicPermissions } from '../../Store/firebase/userExtras';
 import { PermissionGroupSet } from '../../Store/firebase/userExtras/@UserExtraInfo';
 import { GetUserID, GetUserPermissions } from '../../Store/firebase/users';
 import { ACTTermSelect, GetSelectedTerm } from '../../Store/main/database';
-import TermComponentsUI from '../../UI/Content/Terms/TermComponentsUI';
+import { TermComponentsUI } from '../../UI/Content/Terms/TermComponentsUI';
 import { ShowSignInPopup } from '../@Shared/NavBar/UserPanel';
 import { ShowAddTermComponentDialog } from './Terms/AddTermComponentDialog';
-import TermDetailsUI, { ShowAddTermDialog } from './Terms/TermDetailsUI';
+import { TermDetailsUI, ShowAddTermDialog } from './Terms/TermDetailsUI';
 
 type Props = {} & Partial<{terms: Term[], selectedTerm: Term, permissions: PermissionGroupSet}>;
 @Connect(state=> ({
@@ -24,7 +24,7 @@ type Props = {} & Partial<{terms: Term[], selectedTerm: Term, permissions: Permi
 	selectedTerm: GetSelectedTerm(),
 	permissions: GetUserPermissions(GetUserID()),
 	}))
-export default class TermsUI extends BaseComponent<Props, {selectedTerm_newData: Term, selectedTerm_newDataError: string}> {
+export class TermsUI extends BaseComponent<Props, {selectedTerm_newData: Term, selectedTerm_newDataError: string}> {
 	ComponentWillReceiveProps(props) {
 		if (props.selectedTerm != this.props.selectedTerm) {
 			this.SetState({ selectedTerm_newData: null, selectedTerm_newDataError: null });

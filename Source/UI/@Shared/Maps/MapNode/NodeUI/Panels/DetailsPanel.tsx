@@ -4,8 +4,8 @@ import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponent, GetInnerComp } from 'react-vextensions';
 import { DBPath, GetUpdates, RemoveHelpers, WaitTillPathDataIsReceived, WaitTillPathDataIsReceiving } from '../../../../../../Frame/Database/DatabaseHelpers';
 import { Connect } from '../../../../../../Frame/Database/FirebaseConnect';
-import AddNodeRevision from '../../../../../../Server/Commands/AddNodeRevision';
-import UpdateLink from '../../../../../../Server/Commands/UpdateLink';
+import { AddNodeRevision } from '../../../../../../Server/Commands/AddNodeRevision';
+import { UpdateLink } from '../../../../../../Server/Commands/UpdateLink';
 import { Map } from '../../../../../../Store/firebase/maps/@Map';
 import { GetParentNode, GetParentNodeID, GetParentNodeL3, IsNodeSubnode } from '../../../../../../Store/firebase/nodes';
 import { GetLinkUnderParent } from '../../../../../../Store/firebase/nodes/$node';
@@ -31,7 +31,7 @@ export default class DetailsPanel extends BaseComponent<DetailsPanel_Props, {dat
 
 		const isSubnode = IsNodeSubnode(node);
 
-		let parentNode = GetParentNodeL3(path);
+		const parentNode = GetParentNodeL3(path);
 		// if parent-node not loaded yet, don't render yet
 		if (!isSubnode && path.includes('/') && parentNode == null) return null;
 
@@ -59,7 +59,7 @@ export default class DetailsPanel extends BaseComponent<DetailsPanel_Props, {dat
 
 							if (parentNode) SetNodeUILocked(parentNode._id, true);
 							try {
-								let revisionID = await new AddNodeRevision({ mapID: map._id, revision: RemoveHelpers(this.detailsUI.GetNewRevisionData()) }).Run();
+								const revisionID = await new AddNodeRevision({ mapID: map._id, revision: RemoveHelpers(this.detailsUI.GetNewRevisionData()) }).Run();
 								store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._id, time: Date.now() }));
 								await WaitTillPathDataIsReceiving(DBPath(`nodeRevisions/${revisionID}`));
 								await WaitTillPathDataIsReceived(DBPath(`nodeRevisions/${revisionID}`));
@@ -67,7 +67,7 @@ export default class DetailsPanel extends BaseComponent<DetailsPanel_Props, {dat
 								if (parentNode) SetNodeUILocked(parentNode._id, false);
 							}
 						}}/>
-						{/* error && <Pre>{error.message}</Pre>*/}
+						{/* error && <Pre>{error.message}</Pre> */}
 					</Row>}
 			</Column>
 		);

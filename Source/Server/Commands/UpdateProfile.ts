@@ -22,7 +22,7 @@ WaitTillSchemaAddedThenRun(MTName, () => {
 	}, `Update${MTName}_payload`);
 });
 
-export class UpdateProfile extends Command<{id: string, updates: Partial<MainType>}> {
+export class UpdateProfile extends Command<{id: string, updates: Partial<MainType>}, {}> {
 	Validate_Early() {
 		AssertValidate(`Update${MTName}_payload`, this.payload, 'Payload invalid');
 	}

@@ -6,10 +6,15 @@ import { ChildEntry, MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { Command, MergeDBUpdates } from '../Command';
 import { AddNode } from './AddNode';
 
+type Payload = {mapID: number, parentID: number, node: MapNode, revision: MapNodeRevision, link?: ChildEntry, asMapRoot?: boolean};
+
 @MapEdit
 @UserEdit
-export class AddChildNode extends Command
-		<{mapID: number, parentID: number, node: MapNode, revision: MapNodeRevision, link?: ChildEntry, asMapRoot?: boolean}> {
+export class AddChildNode extends Command<Payload, {nodeID: number, revisionID: number}> {
+	// set these from parent command if the parent command has earlier subs that increment last-node-id, etc.
+	lastNodeID_addAmount = 0;
+	lastNodeRevisionID_addAmount = 0;
+
 	Validate_Early() {
 		const { node } = this.payload;
 		Assert(node.parents == null, 'node.parents must be empty. Instead, supply a parentID property in the payload.');
@@ -22,6 +27,8 @@ export class AddChildNode extends Command
 
 		const node_withParents = node.Extended(parentID ? { parents: { [parentID]: true } } : {});
 		this.sub_addNode = new AddNode({ mapID, node: node_withParents, revision }).MarkAsSubcommand();
+		this.sub_addNode.VSet({ lastNodeID_addAmount: this.lastNodeID_addAmount, lastNodeRevisionID_addAmount: this.lastNodeRevisionID_addAmount });
+		this.sub_addNode.Validate_Early();
 		await this.sub_addNode.Prepare();
 
 		this.payload.link = link || { _: true };

@@ -4,10 +4,11 @@ import { GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { Command, MergeDBUpdates } from '../Command';
 import { GetSchemaJSON } from '../Server';
-import AddNodeRevision from './AddNodeRevision';
+import { AddNodeRevision } from './AddNodeRevision';
 
 /** Do not use this from client-side code. This is only to be used internally, by higher-level commands -- usually AddChildNode. */
-export class AddNode extends Command<{mapID: number, node: MapNode, revision: MapNodeRevision}> {
+export class AddNode extends Command<{mapID: number, node: MapNode, revision: MapNodeRevision}, {}> {
+	// set these from parent command if the parent command has earlier subs that increment last-node-id, etc.
 	lastNodeID_addAmount = 0;
 	lastNodeRevisionID_addAmount = 0;
 

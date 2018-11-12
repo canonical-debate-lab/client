@@ -1,89 +1,77 @@
-import {Assert} from "js-vextensions";
-import {BaseComponent, RenderSource, BaseComponentWithConnector} from "react-vextensions";
-import {Pre, Row, Column, RowLR} from "react-vcomponents";
-import {TextInput} from "react-vcomponents";
-import Moment from "moment";
-import {GetUser} from "../../../Store/firebase/users";
-import {User} from "Store/firebase/users/@User";
-import {Connect} from "../../../Frame/Database/FirebaseConnect";
-import {GetEntries} from "../../../Frame/General/Enums";
-import {Select} from "react-vcomponents";
-import {CheckBox} from "react-vcomponents";
-import {ScrollView} from "react-vscrollview";
-import {Button} from "react-vcomponents";
-import TermComponent from "../../../Store/firebase/termComponents/@TermComponent";
-import {GetNiceNameForTermType} from "../../../UI/Content/TermsUI";
-import {GetTermVariantNumber} from "../../../Store/firebase/terms";
-import {InfoButton} from "../../../Frame/ReactComponents/InfoButton";
-import {Map, Map_namePattern} from "../../../Store/firebase/maps/@Map";
-import {Spinner} from "react-vcomponents";
- import {GetErrorMessagesUnderElement} from "js-vextensions";
+import { GetErrorMessagesUnderElement } from 'js-vextensions';
+import Moment from 'moment';
+import { CheckBox, Column, Pre, RowLR, Spinner, TextInput } from 'react-vcomponents';
+import { BaseComponentWithConnector } from 'react-vextensions';
+import { Connect } from '../../../Frame/Database/FirebaseConnect';
+import { Map, Map_namePattern } from '../../../Store/firebase/maps/@Map';
+import { GetUser } from '../../../Store/firebase/users';
 
 type Props = {baseData: Map, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: Map, ui: MapDetailsUI)=>void};
-let connector = (state, {baseData, forNew}: Props)=> ({
+const connector = (state, { baseData, forNew }: Props) => ({
 	creator: !forNew && GetUser(baseData.creator),
 });
 @Connect(connector)
-export class MapDetailsUI extends BaseComponentWithConnector(connector, {newData: null as Map}) {
+export class MapDetailsUI extends BaseComponentWithConnector(connector, { newData: null as Map }) {
 	static defaultProps = {enabled: true};
 	ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.baseData != this.props.baseData) { // if base-data changed
-			this.SetState({newData: Clone(props.baseData)});
+			this.SetState({ newData: Clone(props.baseData) });
 		}
 	}
 
 	render() {
-		let {forNew, enabled, style, onChange, creator} = this.props;
-		let {newData} = this.state;
-		let Change = _=> {
+		const { forNew, enabled, style, onChange, creator } = this.props;
+		const { newData } = this.state;
+		const Change = (_) => {
 			if (onChange) onChange(this.GetNewData(), this);
 			this.Update();
 		};
 
-		let splitAt = 170, width = 600;
+		const splitAt = 170; const
+			width = 600;
 		return (
 			<Column style={style}>
-				{!forNew &&
-					<table className="selectableAC" style={{/*borderCollapse: "separate", borderSpacing: "10px 0"*/}}>
+				{!forNew
+					&& <table className="selectableAC" style={{/* borderCollapse: "separate", borderSpacing: "10px 0" */}}>
 						<thead>
 							<tr><th>ID</th><th>Creator</th><th>Created at</th></tr>
 						</thead>
 						<tbody>
 							<tr>
 								<td>{newData._id}</td>
-								<td>{creator ? creator.displayName : `n/a`}</td>
-								<td>{Moment(newData.createdAt).format(`YYYY-MM-DD HH:mm:ss`)}</td>
+								<td>{creator ? creator.displayName : 'n/a'}</td>
+								<td>{Moment(newData.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
 							</tr>
 						</tbody>
 					</table>}
-				<RowLR mt={5} splitAt={splitAt} style={{width}}>
+				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 					<Pre>Name: </Pre>
 					<TextInput
 						pattern={Map_namePattern} required
-						enabled={enabled} style={{width: "100%"}}
-						value={newData.name} onChange={val=>Change(newData.name = val)}/>
+						enabled={enabled} style={{ width: '100%' }}
+						value={newData.name} onChange={val => Change(newData.name = val)}/>
 				</RowLR>
-				<RowLR mt={5} splitAt={splitAt} style={{width}}>
+				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 					<Pre>Note: </Pre>
-					<TextInput enabled={enabled} style={{width: "100%"}}
-						value={newData.note} onChange={val=>Change(newData.note = val)}/>
+					<TextInput enabled={enabled} style={{ width: '100%' }}
+						value={newData.note} onChange={val => Change(newData.note = val)}/>
 				</RowLR>
-				<RowLR mt={5} splitAt={splitAt} style={{width}}>
+				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 					<Pre>Inline note: </Pre>
-					<CheckBox enabled={enabled} style={{width: "100%"}}
-						checked={newData.noteInline} onChange={val=>Change(newData.noteInline = val)}/>
+					<CheckBox enabled={enabled} style={{ width: '100%' }}
+						checked={newData.noteInline} onChange={val => Change(newData.noteInline = val)}/>
 				</RowLR>
-				<RowLR mt={5} splitAt={splitAt} style={{width}}>
+				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 					<Pre>Default expand depth: </Pre>
 					<Spinner min={1} max={3} enabled={enabled}
-						value={newData.defaultExpandDepth|0} onChange={val=>Change(newData.defaultExpandDepth = val)}/>
+						value={newData.defaultExpandDepth | 0} onChange={val => Change(newData.defaultExpandDepth = val)}/>
 				</RowLR>
-				{/*!forNew &&
+				{/*! forNew &&
 					<RowLR mt={5} splitAt={splitAt} style={{width}}>
 						<Pre>Root-node ID: </Pre>
 						<Spinner enabled={enabled} style={{width: "100%"}}
 							value={newData.rootNode} onChange={val=>Change(newData.rootNode = val)}/>
-					</RowLR>*/}
+					</RowLR> */}
 			</Column>
 		);
 	}
@@ -92,7 +80,7 @@ export class MapDetailsUI extends BaseComponentWithConnector(connector, {newData
 	}
 
 	GetNewData() {
-		let {newData} = this.state;
+		const { newData } = this.state;
 		return Clone(newData) as Map;
 	}
 }

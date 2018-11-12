@@ -1,35 +1,29 @@
-import {GetUser, GetUserID} from "../../../Store/firebase/users";
-import {BoxController, ShowMessageBox} from "react-vmessagebox";
-import {Column} from "react-vcomponents";
-import {Row} from "react-vcomponents";
-import {TextInput} from "react-vcomponents";
-import {GetInnerComp} from "react-vextensions";
-import {Pre} from "react-vcomponents";
-import {Term, TermType} from "../../../Store/firebase/terms/@Term";
-import AddTerm from "../../../Server/Commands/AddTerm";
-import ImageDetailsUI from "./ImageDetailsUI";
-import AddImage from "../../../Server/Commands/AddImage";
-import {Image, ImageType} from "../../../Store/firebase/images/@Image";
+import { Column } from 'react-vcomponents';
+import { BoxController, ShowMessageBox } from 'react-vmessagebox';
+import { AddImage } from '../../../Server/Commands/AddImage';
+import { Image, ImageType } from '../../../Store/firebase/images/@Image';
+import { GetUserID } from '../../../Store/firebase/users';
+import ImageDetailsUI from './ImageDetailsUI';
 
 export function ShowAddImageDialog(userID: string) {
-	let firebase = store.firebase.helpers;
+	const firebase = store.firebase.helpers;
 
 	let newImage = new Image({
-		name: "",
+		name: '',
 		type: ImageType.Photo,
-		description: "",
+		description: '',
 		creator: GetUserID(),
 	});
-	
+
 	let valid = false;
-	let boxController: BoxController = ShowMessageBox({
-		title: `Add image`, cancelButton: true,
-		message: ()=> {
+	const boxController: BoxController = ShowMessageBox({
+		title: 'Add image', cancelButton: true,
+		message: () => {
 			boxController.options.okButtonClickable = valid;
 			return (
-				<Column style={{padding: `10px 0`, width: 600}}>
+				<Column style={{ padding: '10px 0', width: 600 }}>
 					<ImageDetailsUI baseData={newImage} creating={true} editing={false}
-						onChange={(val, error)=> {
+						onChange={(val, error) => {
 							newImage = val;
 							valid = !error;
 							boxController.UpdateUI();
@@ -37,8 +31,8 @@ export function ShowAddImageDialog(userID: string) {
 				</Column>
 			);
 		},
-		onOK: ()=> {
-			new AddImage({image: newImage}).Run();
-		}
+		onOK: () => {
+			new AddImage({ image: newImage }).Run();
+		},
 	});
 }

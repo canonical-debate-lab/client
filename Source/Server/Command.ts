@@ -21,7 +21,7 @@ function OnCurrentCommandFinished() {
 	}
 }
 
-export abstract class Command<Payload> {
+export abstract class Command<Payload, ReturnData> {
 	constructor(payload: Payload) {
 		this.userInfo = { id: GetUserID() }; // temp
 		this.type = this.constructor.name;
@@ -61,7 +61,7 @@ export abstract class Command<Payload> {
 		await this.Validate();
 	}
 	/** [async] Validates the data, prepares it, and executes it -- thus applying it into the database. */
-	async Run() {
+	async Run(): Promise<ReturnData> {
 		while (currentCommandRun_listeners) {
 			await WaitTillCurrentCommandFinishes();
 		}

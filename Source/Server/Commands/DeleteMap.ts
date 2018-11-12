@@ -8,7 +8,7 @@ import { UserMapInfoSet } from '../../Store/firebase/userMapInfo/@UserMapInfo';
 import { Command, MergeDBUpdates } from '../Command';
 
 @UserEdit
-export default class DeleteMap extends Command<{mapID: number}> {
+export class DeleteMap extends Command<{mapID: number}, {}> {
 	oldData: Map;
 	userMapInfoSets: {[key: string]: UserMapInfoSet};
 	sub_deleteNode: DeleteNode;

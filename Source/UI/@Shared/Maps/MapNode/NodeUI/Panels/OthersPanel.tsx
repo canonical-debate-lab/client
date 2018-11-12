@@ -1,26 +1,26 @@
+import { SlicePath } from 'Frame/Database/DatabaseHelpers';
 import Icon from 'Frame/ReactComponents/Icon';
-import { GetNodeViewers } from 'Store/firebase/nodeViewers';
-import { GetParentNodeID, GetParentNodeL3 } from 'Store/firebase/nodes';
-import { GetUser, GetUserID, GetUserPermissions } from 'Store/firebase/users';
 import Moment from 'moment';
 import { Button, CheckBox, Column, Div, Pre, Row, Select } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
-import {SlicePath} from "Frame/Database/DatabaseHelpers";
-import { Connect } from "../../../../../../Frame/Database/FirebaseConnect";
-import { GetEntries } from "../../../../../../Frame/General/Enums";
-import {InfoButton} from "../../../../../../Frame/ReactComponents/InfoButton";
-import ChangeClaimType, { CanConvertFromClaimTypeXToY } from "../../../../../../Server/Commands/ChangeClaimType";
-import {ReverseArgumentPolarity} from "../../../../../../Server/Commands/ReverseArgumentPolarity";
-import UpdateLink from "../../../../../../Server/Commands/UpdateLink";
-import UpdateNodeChildrenOrder from "../../../../../../Server/Commands/UpdateNodeChildrenOrder";
-import { Map } from "../../../../../../Store/firebase/maps/@Map";
-import { GetClaimType, GetNodeDisplayText, GetNodeForm, GetNodeL3 } from "../../../../../../Store/firebase/nodes/$node";
-import { ClaimForm, ClaimType, MapNodeL3 } from "../../../../../../Store/firebase/nodes/@MapNode";
-import { ArgumentType } from "../../../../../../Store/firebase/nodes/@MapNodeRevision";
-import { MapNodeType } from "../../../../../../Store/firebase/nodes/@MapNodeType";
-import { IsUserCreatorOrMod } from "../../../../../../Store/firebase/userExtras";
-import { User } from "../../../../../../Store/firebase/users/@User";
+import { GetParentNodeID, GetParentNodeL3 } from 'Store/firebase/nodes';
+import { GetNodeViewers } from 'Store/firebase/nodeViewers';
+import { GetUser, GetUserID, GetUserPermissions } from 'Store/firebase/users';
+import { Connect } from '../../../../../../Frame/Database/FirebaseConnect';
+import { GetEntries } from '../../../../../../Frame/General/Enums';
+import { InfoButton } from '../../../../../../Frame/ReactComponents/InfoButton';
+import { CanConvertFromClaimTypeXToY, ChangeClaimType } from '../../../../../../Server/Commands/ChangeClaimType';
+import { ReverseArgumentPolarity } from '../../../../../../Server/Commands/ReverseArgumentPolarity';
+import { UpdateLink } from '../../../../../../Server/Commands/UpdateLink';
+import { UpdateNodeChildrenOrder } from '../../../../../../Server/Commands/UpdateNodeChildrenOrder';
+import { Map } from '../../../../../../Store/firebase/maps/@Map';
+import { GetClaimType, GetNodeDisplayText, GetNodeForm, GetNodeL3 } from '../../../../../../Store/firebase/nodes/$node';
+import { ClaimForm, ClaimType, MapNodeL3 } from '../../../../../../Store/firebase/nodes/@MapNode';
+import { ArgumentType } from '../../../../../../Store/firebase/nodes/@MapNodeRevision';
+import { MapNodeType } from '../../../../../../Store/firebase/nodes/@MapNodeType';
+import { IsUserCreatorOrMod } from '../../../../../../Store/firebase/userExtras';
+import { User } from '../../../../../../Store/firebase/users/@User';
 
 const connector = (state, { node }: {map?: Map, node: MapNodeL3, path: string}) => ({
 	_: GetUserPermissions(GetUserID()),
@@ -87,7 +87,7 @@ class InfoTable extends BaseComponent<{node: MapNodeL3, creator: User}, {}> {
 	render() {
 		const { node, creator } = this.props;
 		return (
-			<table className="selectableAC lighterBackground" style={{ marginBottom: 5 /*borderCollapse: "separate", borderSpacing: "10px 0" */}}>
+			<table className="selectableAC lighterBackground" style={{ marginBottom: 5 /* borderCollapse: "separate", borderSpacing: "10px 0" */}}>
 				<thead>
 					<tr><th>ID</th><th>Creator</th><th>Created at</th></tr>
 				</thead>
@@ -109,7 +109,7 @@ class AtThisLocation extends BaseComponent<{node: MapNodeL3, path: string}, {}> 
 		if (path.split('/').length == 0) return <div/>; // if the root of a map, or subnode
 
 		if (node.type == MapNodeType.Claim) {
-			let claimType = GetClaimType(node);
+			const claimType = GetClaimType(node);
 			var canSetAsNegation = claimType == ClaimType.Normal && node.link.form != ClaimForm.YesNoQuestion;
 			var canSetAsSeriesAnchor = claimType == ClaimType.Equation && !node.current.equation.isStep; // && !creating;
 		}
@@ -153,7 +153,7 @@ class ChildrenOrder extends BaseComponent<{mapID: number, node: MapNodeL3}, {}> 
 			<Column mt={5}>
 				<Row style={{ fontWeight: 'bold' }}>Children order:</Row>
 				{node.childrenOrder.map((childID, index) => {
-					const childPath = (node._id ? `${node._id  }/` : '') + childID;
+					const childPath = (node._id ? `${node._id}/` : '') + childID;
 					const child = GetNodeL3(childPath);
 					const childTitle = child ? GetNodeDisplayText(child, childPath, GetNodeForm(child, node)) : '...';
 					return (
@@ -163,7 +163,7 @@ class ChildrenOrder extends BaseComponent<{mapID: number, node: MapNodeL3}, {}> 
 							{/* <TextInput enabled={false} style={ES({flex: 1})} required pattern={MapNode_id}
 								value={`#${childID.toString()}: ${childTitle}`}
 								//onChange={val=>Change(!IsNaN(val.ToInt()) && (newData.childrenOrder[index] = val.ToInt()))}
-							/>*/}
+							/> */}
 							<Button text={<Icon size={16} icon="arrow-up"/> as any} m={2} ml={5} style={{ padding: 3 }} enabled={index > 0}
 								onClick={() => {
 									const newOrder = node.childrenOrder.slice(0);

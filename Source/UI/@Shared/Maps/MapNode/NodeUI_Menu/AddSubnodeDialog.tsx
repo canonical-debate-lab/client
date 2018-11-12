@@ -1,34 +1,21 @@
-import {GetEntries} from "../../../../../Frame/General/Enums";
-import {MapNode, ClaimForm, ChildEntry, MapNodeL2, ClaimType, ImageAttachment} from "../../../../../Store/firebase/nodes/@MapNode";
-import {ShowMessageBox, BoxController} from "react-vmessagebox";
-import {Select} from "react-vcomponents";
-import {TextInput} from "react-vcomponents";
-import {BaseComponent, GetInnerComp} from "react-vextensions";
-import {Pre} from "react-vcomponents";
-import {Row} from "react-vcomponents";
-import {Column} from "react-vcomponents";
-import keycode from "keycode";
-import {Button} from "react-vcomponents";
-import {E} from "js-vextensions";
-import {AddNode} from "../../../../../Server/Commands/AddNode";
-import QuoteInfoEditorUI from "../QuoteInfoEditorUI";
-import {ContentNode} from "../../../../../Store/firebase/contentNodes/@ContentNode";
-import {CleanUpdatedContentNode} from "../QuoteInfoEditorUI";
-import {CheckBox} from "react-vcomponents";
-import {InfoButton} from "../../../../../Frame/ReactComponents/InfoButton";
-import {NodeDetailsUI} from "../NodeDetailsUI";
-import {GetClaimType, AsNodeL2, AsNodeL3} from "../../../../../Store/firebase/nodes/$node";
-import {ACTMapNodeExpandedSet} from "../../../../../Store/main/mapViews/$mapView/rootNodeViews";
-import {Equation} from "../../../../../Store/firebase/nodes/@Equation";
-import {GetLayers} from "../../../../../Store/firebase/layers";
-import {Connect} from "Frame/Database/FirebaseConnect";
-import {GetUserID} from "Store/firebase/users";
-import {Layer} from "Store/firebase/layers/@Layer";
-import AddSubnode from "../../../../../Server/Commands/AddSubnode";
- import {GetErrorMessagesUnderElement} from "js-vextensions";
-import {MapNodeRevision} from "../../../../../Store/firebase/nodes/@MapNodeRevision";
+import { Connect } from 'Frame/Database/FirebaseConnect';
+import { E, GetErrorMessagesUnderElement } from 'js-vextensions';
+import { Column, Pre, Row, Select } from 'react-vcomponents';
+import { BaseComponent, GetInnerComp } from 'react-vextensions';
+import { BoxController, ShowMessageBox } from 'react-vmessagebox';
+import { Layer } from 'Store/firebase/layers/@Layer';
 import { HasModPermissions } from 'Store/firebase/userExtras';
-import {MapNodeType, MapNodeType_Info, GetMapNodeTypeDisplayName} from "../../../../../Store/firebase/nodes/@MapNodeType";
+import { GetUserID } from 'Store/firebase/users';
+import { GetEntries } from '../../../../../Frame/General/Enums';
+import { AddSubnode } from '../../../../../Server/Commands/AddSubnode';
+import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
+import { GetLayers } from '../../../../../Store/firebase/layers';
+import { AsNodeL2, AsNodeL3, GetClaimType } from '../../../../../Store/firebase/nodes/$node';
+import { Equation } from '../../../../../Store/firebase/nodes/@Equation';
+import { ChildEntry, ClaimForm, ClaimType, ImageAttachment, MapNode, MapNodeL2 } from '../../../../../Store/firebase/nodes/@MapNode';
+import { MapNodeRevision } from '../../../../../Store/firebase/nodes/@MapNodeRevision';
+import { MapNodeType } from '../../../../../Store/firebase/nodes/@MapNodeType';
+import { NodeDetailsUI } from '../NodeDetailsUI';
 
 export function ShowAddSubnodeDialog(mapID: number, anchorNode: MapNodeL2, anchorNodePath: string) {
 	let dialog: AddSubnodeDialog;
@@ -107,7 +94,7 @@ class AddSubnodeDialog extends BaseComponent<Props, {layer: Layer, newNode: MapN
 						onChange={(newNodeData, newRevisionData, newLinkData, comp) => {
 							this.SetState({ newNode: newNodeData, newRevision: newRevisionData, newLink: newLinkData });
 						}}/>
-					{/*validationError && <Row mt={3} style={{color: "rgba(255,200,200,.5)"}}>{FinalizeValidationError(validationError)}</Row> */}
+					{/* validationError && <Row mt={3} style={{color: "rgba(255,200,200,.5)"}}>{FinalizeValidationError(validationError)}</Row> */}
 				</Column>
 			</div>
 		);
@@ -134,7 +121,7 @@ class AddSubnodeDialog extends BaseComponent<Props, {layer: Layer, newNode: MapN
 
 		/* if (validationError) {
 			return void setTimeout(()=>ShowMessageBox({title: `Validation error`, message: `Validation error: ${validationError}`}));
-		}*/
+		} */
 
 		const newNodeID = await new AddSubnode({
 			mapID, layerID: layer._id, anchorNodeID: anchorNode._id,

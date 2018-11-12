@@ -5,16 +5,16 @@ import { GetErrorMessagesUnderElement } from 'js-vextensions';
 import { CheckBox, Column, Div, Pre, Row, Select, Spinner, TextArea, TextInput } from 'react-vcomponents';
 import { BaseComponent, RenderSource } from 'react-vextensions';
 import { HasAdminPermissions } from 'Store/firebase/userExtras';
-import {Connect} from "../../../../Frame/Database/FirebaseConnect";
-import {GetEntries} from "../../../../Frame/General/Enums";
-import {AsNodeL2, GetClaimType} from "../../../../Store/firebase/nodes/$node";
-import {AccessLevel, ChildEntry, ClaimForm, ClaimType, MapNode, MapNodeL2, MapNodeL3} from "../../../../Store/firebase/nodes/@MapNode";
-import {ArgumentType, GetArgumentTypeDisplayText, MapNodeRevision, MapNodeRevision_titlePattern} from "../../../../Store/firebase/nodes/@MapNodeRevision";
-import {MapNodeType} from "../../../../Store/firebase/nodes/@MapNodeType";
-import {GetUser} from "../../../../Store/firebase/users";
-import EquationEditorUI from "./EquationEditorUI";
-import ImageAttachmentEditorUI from "./ImageAttachmentEditorUI";
-import QuoteInfoEditorUI from "./QuoteInfoEditorUI";
+import { Connect } from '../../../../Frame/Database/FirebaseConnect';
+import { GetEntries } from '../../../../Frame/General/Enums';
+import { AsNodeL2, GetClaimType } from '../../../../Store/firebase/nodes/$node';
+import { AccessLevel, ChildEntry, ClaimForm, ClaimType, MapNode, MapNodeL2, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
+import { ArgumentType, GetArgumentTypeDisplayText, MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../Store/firebase/nodes/@MapNodeRevision';
+import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
+import { GetUser } from '../../../../Store/firebase/users';
+import EquationEditorUI from './EquationEditorUI';
+import ImageAttachmentEditorUI from './ImageAttachmentEditorUI';
+import QuoteInfoEditorUI from './QuoteInfoEditorUI';
 
 type Props = {
 	baseData: MapNode,
@@ -35,11 +35,12 @@ export class NodeDetailsUI extends BaseComponent<Props, State> {
 
 	ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.baseData != this.props.baseData) // if base-data changed
-			{this.SetState({
-				newData: AsNodeL1(Clone(props.baseData)),
-				newRevisionData: Clone(props.baseRevisionData),
-				newLinkData: Clone(props.baseLinkData),
-			});}
+		{ this.SetState({
+			newData: AsNodeL1(Clone(props.baseData)),
+			newRevisionData: Clone(props.baseRevisionData),
+			newLinkData: Clone(props.baseLinkData),
+		});
+ }
 	}
 
 	quoteEditor: QuoteInfoEditorUI;
@@ -48,7 +49,7 @@ export class NodeDetailsUI extends BaseComponent<Props, State> {
 		const { newData, newLinkData, newRevisionData } = this.state;
 		const firebase = store.firebase.helpers;
 		const Change = (..._) => {
-			if (onChange) {onChange(this.GetNewData(), this.GetNewRevisionData(), this.GetNewLinkData(), this);}
+			if (onChange) { onChange(this.GetNewData(), this.GetNewRevisionData(), this.GetNewLinkData(), this); }
 			this.Update();
 		};
 
@@ -60,7 +61,7 @@ export class NodeDetailsUI extends BaseComponent<Props, State> {
 		const splitAt = 170;
 		return (
 			<Column style={E({ padding: 5 }, style)}>
-				{/*<Div style={{fontSize: 12}}>ID: {node._id}</Div>
+				{/* <Div style={{fontSize: 12}}>ID: {node._id}</Div>
 				<Div mt={3} style={{fontSize: 12}}>Created at: {Moment(node.createdAt).format(`YYYY-MM-DD HH:mm:ss`)
 					} (by: {creator ? creator.displayName : `n/a`})</Div> */}
 				{(newData.type != MapNodeType.Claim || claimType == ClaimType.Normal)
@@ -129,10 +130,10 @@ class Title_Base extends BaseComponent<Props_Enhanced, {}> {
 					<Pre>Title (base): </Pre>
 					{/* <TextInput enabled={enabled} style={ES({flex: 1})} required={!hasOtherTitlesEntered && !willUseYesNoTitleHere}
 						ref={a=>a && forNew && this.lastRender_source == RenderSource.Mount && WaitXThenRun(0, ()=>a.DOM.focus())}
-						value={newRevisionData.titles["base"]} onChange={val=>Change(newRevisionData.titles["base"] = val)}/>*/}
+						value={newRevisionData.titles["base"]} onChange={val=>Change(newRevisionData.titles["base"] = val)}/> */}
 					<TextArea enabled={enabled} required={!hasOtherTitlesEntered && !willUseYesNoTitleHere} pattern={MapNodeRevision_titlePattern} autoSize={true}
 						allowLineBreaks={false} style={ES({ flex: 1 })}
-						ref={a => a && forNew && this.lastRender_source == RenderSource.Mount && WaitXThenRun(0, () => a.DOM.focus())}
+						ref={a => a && forNew && this.lastRender_source == RenderSource.Mount && WaitXThenRun(0, () => a.DOM && a.DOM.focus())}
 						value={newRevisionData.titles['base']} onChange={val => Change(newRevisionData.titles['base'] = val)}/>
 				</Row>
 				{forNew && newData.type == MapNodeType.Argument
@@ -166,14 +167,14 @@ class OtherTitles extends BaseComponent<Props_Enhanced, {}> {
 			<Div>
 				<Row key={0} mt={5} style={{ display: 'flex', alignItems: 'center' }}>
 					<Pre>Title (negation): </Pre>
-					{/*<TextInput enabled={enabled} style={ES({flex: 1})} value={newRevisionData.titles["negation"]} onChange={val=>Change(newRevisionData.titles["negation"] = val)}/> */}
+					{/* <TextInput enabled={enabled} style={ES({flex: 1})} value={newRevisionData.titles["negation"]} onChange={val=>Change(newRevisionData.titles["negation"] = val)}/> */}
 					<TextArea enabled={enabled} allowLineBreaks={false} style={ES({ flex: 1 })} pattern={MapNodeRevision_titlePattern} autoSize={true}
 						value={newRevisionData.titles['negation']} onChange={val => Change(newRevisionData.titles['negation'] = val)}/>
 				</Row>
 				<Row key={1} mt={5} style={{ display: 'flex', alignItems: 'center' }}>
 					<Pre>Title (question): </Pre>
 					{/* <TextInput enabled={enabled} style={ES({flex: 1})} required={willUseQuestionTitleHere}
-						value={newRevisionData.titles["yesNoQuestion"]} onChange={val=>Change(newRevisionData.titles["yesNoQuestion"] = val)}/>*/}
+						value={newRevisionData.titles["yesNoQuestion"]} onChange={val=>Change(newRevisionData.titles["yesNoQuestion"] = val)}/> */}
 					<TextArea enabled={enabled} allowLineBreaks={false} style={ES({ flex: 1 })} pattern={MapNodeRevision_titlePattern} autoSize={true}
 						value={newRevisionData.titles['yesNoQuestion']} onChange={val => Change(newRevisionData.titles['yesNoQuestion'] = val)}/>
 				</Row>

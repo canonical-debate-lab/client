@@ -8,7 +8,7 @@ import { Command, MergeDBUpdates } from '../Command';
 import { AddChildNode } from './AddChildNode';
 
 @UserEdit
-export default class AddMap extends Command<{map: Map}> {
+export class AddMap extends Command<{map: Map}, {}> {
 	mapID: number;
 	sub_addNode: AddChildNode;
 	async Prepare() {

@@ -1,20 +1,20 @@
+import {MapNodeStats} from "Store/firebase/nodeStats/@MapNodeStats";
 import UserExtraInfo from "./firebase/userExtras/@UserExtraInfo";
 import {MapNode} from "./firebase/nodes/@MapNode";
 import {RatingsSet, RatingsRoot} from "./firebase/nodeRatings/@RatingsRoot";
 import {Term} from "./firebase/terms/@Term";
 import {Map} from "./firebase/maps/@Map";
-import TermComponent from "./firebase/termComponents/@TermComponent";
+import {TermComponent} from "./firebase/termComponents/@TermComponent";
 import { GeneralData } from "./firebase/general";
 import {ViewerSet} from "./firebase/nodeViewers/@ViewerSet";
 import {Image} from "./firebase/images/@Image";
-import {MapNodeStats} from "Store/firebase/nodeStats/@MapNodeStats";
-import {ViewedNodeSet} from "./firebase/userViewedNodes/@ViewedNodeSet";
-import { ForumData } from "firebase-forum";
-import { Layer } from "Store/firebase/layers/@Layer";
-import {UserMapInfoSet} from "./firebase/userMapInfo/@UserMapInfo";
-import {MapNodeRevision} from "./firebase/nodes/@MapNodeRevision";
-import {NodeEditTimes} from "Store/firebase/mapNodeEditTimes";
-import {User} from "Store/firebase/users/@User";
+import { ViewedNodeSet } from './firebase/userViewedNodes/@ViewedNodeSet';
+import { ForumData } from 'firebase-forum';
+import { Layer } from 'Store/firebase/layers/@Layer';
+import { UserMapInfoSet } from './firebase/userMapInfo/@UserMapInfo';
+import { MapNodeRevision } from './firebase/nodes/@MapNodeRevision';
+import { NodeEditTimes } from 'Store/firebase/mapNodeEditTimes';
+import { User } from 'Store/firebase/users/@User';
 
 export interface FirebaseData {
 	forum: ForumData;
@@ -39,7 +39,7 @@ export interface FirebaseData {
 }
 
 export function GetAuth() {
-	return State("firebase", "auth");
+	return State('firebase', 'auth');
 }
 export function IsAuthValid(auth) {
 	return auth && !auth.isEmpty;

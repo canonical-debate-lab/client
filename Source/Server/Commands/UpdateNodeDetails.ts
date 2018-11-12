@@ -51,7 +51,7 @@ AddSchema({
 
 @MapEdit
 @UserEdit
-export default class UpdateNodeDetails extends Command
+export class UpdateNodeDetails extends Command
 		<{mapID?: number, nodeID: number, nodeUpdates: Partial<MapNode>, linkParentID?: number, linkUpdates?: Partial<ChildEntry>}> {
 	Validate_Early() {
 		/*let allowedNodePropUpdates = ["relative", "titles", "contentNode"];
@@ -62,7 +62,7 @@ export default class UpdateNodeDetails extends Command
 		Assert(linkUpdates.VKeys().Except(...allowedLinkPropUpdates).length == 0,
 			`Cannot use this command to update link-props other than: ${allowedLinkPropUpdates.join(", ")
 			}\n\nYou provided: ${linkUpdates.VKeys().Except(...allowedLinkPropUpdates).join(", ")}`);*#/
-		
+
 		AssertValidate("UpdateNodeDetails_payload", this.payload, `Payload invalid`);
 	}
 
@@ -88,7 +88,7 @@ export default class UpdateNodeDetails extends Command
 			AssertValidate("ChildEntry", this.newLinkData, `New link-data invalid`);
 		}
 	}
-	
+
 	GetDBUpdates() {
 		let {nodeID, nodeUpdates, linkParentID, linkUpdates} = this.payload;
 		let updates = {};
@@ -98,4 +98,4 @@ export default class UpdateNodeDetails extends Command
 		}
 		return updates;
 	}
-}*/
+} */

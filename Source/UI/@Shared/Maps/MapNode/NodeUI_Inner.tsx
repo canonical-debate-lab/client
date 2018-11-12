@@ -1,26 +1,25 @@
+import classNames from 'classnames';
 import { IsDoubleClick } from 'Frame/General/Others';
-import { RS_CalculateTruthScore, RS_CalculateTruthScoreComposite, RS_GetAllValues, ReasonScoreValues_RSPrefix } from 'Store/firebase/nodeRatings/ReasonScore';
+import keycode from 'keycode';
+import { DragSource } from 'react-dnd';
+import { Button, Pre, Row, TextArea } from 'react-vcomponents';
+import { BaseComponent, BaseComponentWithConnector, GetInnerComp } from 'react-vextensions';
+import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthScoreComposite, RS_GetAllValues } from 'Store/firebase/nodeRatings/ReasonScore';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
 import { NodeMathUI } from 'UI/@Shared/Maps/MapNode/NodeMathUI';
 import { SetNodeUILocked } from 'UI/@Shared/Maps/MapNode/NodeUI';
-import classNames from 'classnames';
-import keycode from 'keycode';
-import { Button, Pre, Row, TextArea } from 'react-vcomponents';
-import { BaseComponent, BaseComponentWithConnector, GetInnerComp } from 'react-vextensions';
-import { DragSource, DropTarget } from 'react-dnd';
-import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { DBPath, RemoveHelpers, SlicePath, WaitTillPathDataIsReceived, WaitTillPathDataIsReceiving } from '../../../../Frame/Database/DatabaseHelpers';
 import { Connect } from '../../../../Frame/Database/FirebaseConnect';
 import { ParseSegmentsForPatterns } from '../../../../Frame/General/RegexHelpers';
 import { InfoButton } from '../../../../Frame/ReactComponents/InfoButton';
 import VReactMarkdown_Remarkable from '../../../../Frame/ReactComponents/VReactMarkdown_Remarkable';
-import AddNodeRevision from '../../../../Server/Commands/AddNodeRevision';
+import { AddNodeRevision } from '../../../../Server/Commands/AddNodeRevision';
 import { GetImage } from '../../../../Store/firebase/images';
 import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
-import { GetNodeRatingsRoot, GetRatingAverage_AtPath, GetRatings, RatingFilter, GetFillPercent_AtPath, GetMarkerPercent_AtPath } from '../../../../Store/firebase/nodeRatings';
+import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatingAverage_AtPath, GetRatings, RatingFilter } from '../../../../Store/firebase/nodeRatings';
 import { RatingType, ratingTypes } from '../../../../Store/firebase/nodeRatings/@RatingType';
 import { GetParentNode, GetParentNodeL3, IsNodeSubnode } from '../../../../Store/firebase/nodes';
 import { GetFontSizeForNode, GetMainRatingType, GetNodeDisplayText, GetNodeForm, GetNodeL3, GetPaddingForNode, IsPremiseOfSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
@@ -45,7 +44,6 @@ import SubPanel from './NodeUI_Inner/SubPanel';
 import { TermPlaceholder } from './NodeUI_Inner/TermPlaceholder';
 import { MapNodeUI_LeftBox } from './NodeUI_LeftBox';
 import { NodeUI_Menu } from './NodeUI_Menu';
-import { ReasonScoreValues } from '../../../../Store/firebase/nodeRatings/ReasonScore';
 
 // drag and drop
 // ==========

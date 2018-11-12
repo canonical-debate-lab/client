@@ -1,6 +1,6 @@
-import CloneNode from 'Server/Commands/CloneNode';
+import { CloneNode } from 'Server/Commands/CloneNode';
 import { LinkNode } from 'Server/Commands/LinkNode';
-import SetNodeIsMultiPremiseArgument from 'Server/Commands/SetNodeIsMultiPremiseArgument';
+import { SetNodeIsMultiPremiseArgument } from 'Server/Commands/SetNodeIsMultiPremiseArgument';
 import { UnlinkNode } from 'Server/Commands/UnlinkNode';
 import { HolderType, GetParentNodeID, GetParentNode, GetParentNodeL2 } from 'Store/firebase/nodes';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';

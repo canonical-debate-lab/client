@@ -8,7 +8,7 @@ import { MapEdit, UserEdit } from '../CommandMacros';
 
 @MapEdit
 @UserEdit
-export class UnlinkNode extends Command<{mapID: number, parentID: number, childID: number}> {
+export class UnlinkNode extends Command<{mapID: number, parentID: number, childID: number}, {}> {
 	parent_oldChildrenOrder: number[];
 	async Prepare() {
 		const { parentID, childID } = this.payload;

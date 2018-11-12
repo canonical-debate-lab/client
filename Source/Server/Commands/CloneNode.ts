@@ -8,7 +8,7 @@ import { Command, MergeDBUpdates } from '../Command';
 import { AddChildNode } from './AddChildNode';
 import { LinkNode } from './LinkNode';
 
-export default class CloneNode extends Command<{mapID: number, baseNodePath: string, newParentID: number}> {
+export class CloneNode extends Command<{mapID: number, baseNodePath: string, newParentID: number}, {nodeID: number, revisionID: number}> {
 	sub_addNode: AddChildNode;
 	sub_linkChildren: LinkNode[];
 	async Prepare() {

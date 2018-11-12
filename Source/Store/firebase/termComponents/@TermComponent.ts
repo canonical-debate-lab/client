@@ -1,7 +1,7 @@
-export default class TermComponent {
+export class TermComponent {
 	constructor(initialData: {text: string} & Partial<TermComponent>) {
 		this.Extend(initialData);
-		//this.createdAt = Date.now();
+		// this.createdAt = Date.now();
 	}
 
 	_id?: number;
@@ -11,15 +11,15 @@ export default class TermComponent {
 }
 AddSchema({
 	properties: {
-		text: {type: "string"},
-		parentTerms: {$ref: "ParentTermSet"},
+		text: { type: 'string' },
+		parentTerms: { $ref: 'ParentTermSet' },
 	},
-	required: ["text", "parentTerms"],
-}, "TermComponent");
+	required: ['text', 'parentTerms'],
+}, 'TermComponent');
 
 /*export type ParentTermSet = {[key: number]: ParentTerm};
 AddSchema({patternProperties: {"^[0-9]+$": {$ref: "ParentTerm"}}}, "ParentTermSet");
 export type ParentTerm = boolean;
-AddSchema({type: "boolean"}, "ParentTerm");*/
+AddSchema({type: "boolean"}, "ParentTerm"); */
 export type ParentTermSet = {[key: number]: boolean};
-AddSchema({patternProperties: {"^[0-9]+$": {type: "boolean"}}}, "ParentTermSet");
+AddSchema({ patternProperties: { '^[0-9]+$': { type: 'boolean' } } }, 'ParentTermSet');

@@ -9,7 +9,7 @@ import { UserEdit } from '../CommandMacros';
 
 @MapEdit
 @UserEdit
-export class LinkNode extends Command<{mapID: number, parentID: number, childID: number, childForm?: ClaimForm, childPolarity?: Polarity}> {
+export class LinkNode extends Command<{mapID: number, parentID: number, childID: number, childForm?: ClaimForm, childPolarity?: Polarity}, {}> {
 	Validate_Early() {
 		const { parentID, childID } = this.payload;
 		Assert(parentID != childID, 'Parent-id and child-id cannot be the same!');
