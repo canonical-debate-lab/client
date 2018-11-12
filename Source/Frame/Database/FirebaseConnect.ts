@@ -127,7 +127,7 @@ export function Connect<T, P>(funcOrFuncGetter) {
 			setImmediate(() => {
 				s._firebaseEvents = getEventsFromInput(requestedPaths);
 				const removedPaths = oldRequestedPaths.Except(...requestedPaths);
-				unWatchEvents(firebase, DispatchDBAction, getEventsFromInput(removedPaths));
+				// unWatchEvents(firebase, DispatchDBAction, getEventsFromInput(removedPaths)); // removed for now; had some issues with unwatching when still needed watched
 				const addedPaths = requestedPaths.Except(...oldRequestedPaths);
 				watchEvents(firebase, DispatchDBAction, getEventsFromInput(addedPaths));
 				// for debugging, you can check currently-watched-paths using: store.firebase._.watchers
@@ -158,13 +158,14 @@ export function Connect<T, P>(funcOrFuncGetter) {
 	}, null, null, { withRef: true });
 }
 
-const actionTypeBufferInfos = {
+// in dev-mode, don't buffer actinos as this makes it harder to debug using Redux dev-tools panel
+const actionTypeBufferInfos = DEV ? {} : {
 	'@@reactReduxFirebase/START': { time: 300 },
 	'@@reactReduxFirebase/SET': { time: 300 },
 	// buffer these less, since is we buffer too much it can slow down the progressive-response of the Connect() functions to new data
-	'@@reactReduxFirebase/SET_LISTENER': { time: 100 },
+	/* '@@reactReduxFirebase/SET_LISTENER': { time: 100 },
 	'@@reactReduxFirebase/LISTENER_RESPONSE': { time: 100 },
-	'@@reactReduxFirebase/UNSET_LISTENER': { time: 100 },
+	'@@reactReduxFirebase/UNSET_LISTENER': { time: 100 }, */
 };
 const actionTypeLastDispatchTimes = {};
 const actionTypeBufferedActions = {};

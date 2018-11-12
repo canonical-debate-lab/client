@@ -208,7 +208,8 @@ export function GetData(...args) {
 	const result = State('firebase', 'data', ...pathSegments) as any;
 	// let result = State("firebase", "data", ...pathSegments) as any;
 	if (result == null && options.useUndefinedForInProgress) {
-		const requestCompleted = State().firebase.requested[path];
+		// const requestCompleted = State().firebase.requested[path];
+		const requestCompleted = pathReceiveStatuses[path] == 'received';
 		if (!requestCompleted) return undefined; // undefined means, current-data for path is null/non-existent, but we haven't completed the current request yet
 		return null; // null means, we've completed the request, and there is no data at that path
 	}
@@ -278,8 +279,8 @@ export async function GetAsync<T>(dbGetterFunc: ()=>T, statsLogger?: ({requested
 		if (!dbDataLocked) {
 			StartBufferingActions();
 			// let oldNodeRenderCount = NodeUI.renderCount;
-			// todo: make sure this is still correct (I think it's not, since new versions don't actually unwatch a path until the watcher-count gets to 0, so we'd have to loop or something)
-			unWatchEvents(firebase, store.dispatch, getEventsFromInput(newRequestedPaths)); // do this just to trigger re-get
+			// todo: we may need to call unWatchEvents in a loop until getWatcherCount==0 for each of the paths (or we could try calling some firebase function directly to trigger re-request -- this is probably better)
+			// unWatchEvents(firebase, store.dispatch, getEventsFromInput(newRequestedPaths)); // do this just to trigger re-get // removed for now; had some issues with unwatching when still needed watched
 			// start watching paths (causes paths to be requested)
 			watchEvents(firebase, store.dispatch, getEventsFromInput(newRequestedPaths));
 			// Assert(NodeUI.renderCount == oldNodeRenderCount, "NodeUIs rendered during unwatch/watch event!");
