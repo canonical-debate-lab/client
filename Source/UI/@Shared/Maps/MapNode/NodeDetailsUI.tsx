@@ -35,12 +35,13 @@ export class NodeDetailsUI extends BaseComponent<Props, State> {
 
 	ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.baseData != this.props.baseData) // if base-data changed
-		{ this.SetState({
-			newData: AsNodeL1(Clone(props.baseData)),
-			newRevisionData: Clone(props.baseRevisionData),
-			newLinkData: Clone(props.baseLinkData),
-		});
- }
+		{
+			this.SetState({
+				newData: AsNodeL1(Clone(props.baseData)),
+				newRevisionData: Clone(props.baseRevisionData),
+				newLinkData: Clone(props.baseLinkData),
+			});
+		}
 	}
 
 	quoteEditor: QuoteInfoEditorUI;
@@ -124,6 +125,7 @@ class Title_Base extends BaseComponent<Props_Enhanced, {}> {
 		const hasOtherTitles = newData.type == MapNodeType.Claim && claimType == ClaimType.Normal;
 		const hasOtherTitlesEntered = newRevisionData.titles.negation || newRevisionData.titles.yesNoQuestion;
 		const willUseYesNoTitleHere = WillNodeUseQuestionTitleHere(newDataAsL2, newLinkData);
+
 		return (
 			<div>
 				<Row style={{ display: 'flex', alignItems: 'center' }}>

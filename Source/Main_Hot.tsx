@@ -1,29 +1,27 @@
 import './Frame/General/Globals';
 import { ParseModuleData, Require, GetModuleNameFromPath } from 'webpack-runtime-require';
 import { Store } from 'redux';
-import {FirebaseApp, DBPath, GetData} from "./Frame/Database/DatabaseHelpers";
-import ReactDOM from "react-dom";
-import StackTrace from "stacktrace-js";
-import React from "react/lib/ReactWithAddons";
-import {OnAccessPath, Connect} from "./Frame/Database/FirebaseConnect";
-import "./Store/firebase/nodeRatings/@RatingsRoot";
-import {JSVE, DeepGet} from "js-vextensions";
-import "./Frame/General/Logging";
-import "./Frame/General/Testing";
-import {Manager as Manager_Forum} from "firebase-forum";
-import {Manager as Manager_Feedback} from "firebase-feedback";
-import Moment from "moment";
-import {GetNewURL} from "./Frame/URL/URLManager";
-import {replace, push} from "redux-little-router";
-import {GetUserID, GetUser} from "Store/firebase/users";
-import {ShowSignInPopup} from "UI/@Shared/NavBar/UserPanel";
-import {GetDataAsync, GetAsync, ApplyDBUpdates} from "Frame/Database/DatabaseHelpers";
-import {GetUserPermissions} from "./Store/firebase/users";
-import VReactMarkdown_Remarkable from "./Frame/ReactComponents/VReactMarkdown_Remarkable";
+// eslint-disable-next-line
+import {FirebaseApp, DBPath, GetData} from "./Frame/Database/DatabaseHelpers"; // this must go here
+import ReactDOM from 'react-dom';
+import React from 'react/lib/ReactWithAddons';
+import './Store/firebase/nodeRatings/@RatingsRoot';
+import { JSVE, DeepGet } from 'js-vextensions';
+import './Frame/General/Logging';
+import './Frame/General/Testing';
+import { Manager as Manager_Forum } from 'firebase-forum';
+import { Manager as Manager_Feedback } from 'firebase-feedback';
+import Moment from 'moment';
+import { replace, push } from 'redux-little-router';
+import { GetUserID, GetUser } from 'Store/firebase/users';
+import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
+import { GetDataAsync, GetAsync, ApplyDBUpdates } from 'Frame/Database/DatabaseHelpers';
 import {Persister} from "redux-persist/src/types";
 import Action from "Frame/General/Action";
 import {Link} from "Frame/ReactComponents/Link";
-import {RootState, MakeRootReducer} from "./Store/index";
+import VReactMarkdown_Remarkable from "./Frame/ReactComponents/VReactMarkdown_Remarkable";
+import { GetUserPermissions } from './Store/firebase/users';
+import { RootState, MakeRootReducer } from './Store/index';
 import { CreateStore } from './Frame/Store/CreateStore';
 
 JSVE.logFunc = Log;
@@ -48,7 +46,7 @@ const sharedData = {
 		StopStateCountAsAccessOverride();
 		StopStateDataOverride();
 		return newURL;
-	},*/
+	}, */
 	Link,
 	FormatTime: (time: number, formatStr: string) => {
 		if (formatStr == '[calendar]') {
@@ -80,7 +78,7 @@ const sharedData = {
 			dbUpdates[ToFirebasePath(localPath)] = value;
 			delete dbUpdates[localPath];
 		}
-		ApplyDBUpdates(rootPath, dbUpdates);*/
+		ApplyDBUpdates(rootPath, dbUpdates); */
 		ApplyDBUpdates(rootPath, dbUpdates.Props().ToMap(prop => ToFirebasePath(prop.name), prop => prop.value));
 	},
 

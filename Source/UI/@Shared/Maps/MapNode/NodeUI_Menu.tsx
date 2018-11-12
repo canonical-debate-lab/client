@@ -9,7 +9,7 @@ import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
 import { ShowAddSubnodeDialog } from 'UI/@Shared/Maps/MapNode/NodeUI_Menu/AddSubnodeDialog';
 import { E } from 'js-vextensions';
 import { BaseComponentWithConnector, BaseComponent } from 'react-vextensions';
-import { VMenuStub } from 'react-vmenu';
+import { VMenuStub, VMenuUI, VMenu } from 'react-vmenu';
 import { VMenuItem } from 'react-vmenu/dist/VMenu';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { LinkNode_HighLevel, LinkNode_HighLevel_GetCommandError } from 'Server/Commands/LinkNode_HighLevel';
@@ -31,6 +31,17 @@ import { ACTNodeCopy, GetCopiedNode } from '../../../../Store/main';
 import { GetPathNodeIDs } from '../../../../Store/main/mapViews';
 import { ShowSignInPopup } from '../../NavBar/UserPanel';
 import { ShowAddChildDialog } from './NodeUI_Menu/AddChildDialog';
+
+export class NodeUI_Menu_Stub extends BaseComponent<Props, {}> {
+	render() {
+		const { ...rest } = this.props;
+		return (
+			<VMenuStub preOpen={e => e.passThrough != true}>
+				<NodeUI_Menu {...rest}/>
+			</VMenuStub>
+		);
+	}
+}
 
 type Props = {map: Map, node: MapNodeL3, path: string, inList?: boolean, holderType?: HolderType};
 type SharedProps = Props & Partial<{combinedWithParentArg: boolean, copiedNode: MapNodeL3, copiedNodePath: string, copiedNode_asCut: boolean}> & {};
@@ -91,7 +102,7 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 
 		const sharedProps = this.props;
 		return (
-			<VMenuStub preOpen={e => e.passThrough != true}>
+			<div>
 				{CanGetBasicPermissions(userID) && !inList && validChildTypes.map((childType) => {
 					const childTypeInfo = MapNodeType_Info.for[childType];
 					// let displayName = GetMapNodeTypeDisplayName(childType, node, form);
@@ -251,7 +262,7 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 								},
 							});
 						}}/>}
-			</VMenuStub>
+			</div>
 		);
 	}
 }

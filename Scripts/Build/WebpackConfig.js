@@ -75,14 +75,14 @@ webpackConfig.plugins = [
 				});
 
 				// Pretend no assets were generated. This prevents the tests from running, making it clear that there were warnings.
-				//throw new Error(errors)
+				// throw new Error(errors)
 			}
 		});
 	},
 	new webpack.DefinePlugin(config.globals),
 	new HtmlWebpackPlugin({
-		//template: paths.client('index.html'),
-		//template: paths.base('Source/index.html'),
+		// template: paths.client('index.html'),
+		// template: paths.base('Source/index.html'),
 		template: './Source/index.html',
 		hash: false,
 		filename: 'index.html',
@@ -107,24 +107,24 @@ webpackConfig.plugins = [
 	}),
 
 	// speeds up (non-incremental) builds by quite a lot // disabled atm, since it causes the website css to not be loaded on 2nd compile
-	//new HardSourceWebpackPlugin(),
+	// new HardSourceWebpackPlugin(),
 
 	new StringReplacePlugin(),
 ];
 
-/*if (DEV) {
+/* if (DEV) {
 	debug('Enable plugins for live development (HMR, NoErrors).')
 	webpackConfig.plugins.push(
 		new webpack.HotModuleReplacementPlugin(),
 		new webpack.NoEmitOnErrorsPlugin()
 		//new webpack.NamedModulesPlugin()
 	);
-} else*/
+} else */
 if (PROD && !QUICK) {
 	debug('Enable plugins for production (OccurenceOrder, Dedupe & UglifyJS).');
 	webpackConfig.plugins.push(
-		//new webpack.optimize.OccurrenceOrderPlugin(),
-		//new webpack.optimize.DedupePlugin(),
+		// new webpack.optimize.OccurrenceOrderPlugin(),
+		// new webpack.optimize.DedupePlugin(),
 		new webpack.optimize.UglifyJsPlugin({
 			compress: {
 				unused: true,
@@ -151,23 +151,23 @@ webpackConfig.module.rules = [
 		loader: 'babel-loader',
 		options: config.compiler_babel,
 	},
-	/*{
+	/* {
 		test: /\.json$/,
 		loader: 'json-loader',
 		include: [paths.base("node_modules")],
 		/*include: [
 			paths.base('./node_modules/ajv/lib/refs/'),
 		],*#/
-	},*/
+	}, */
 ];
 if (USE_TSLOADER) {
-	webpackConfig.module.rules.push({test: /\.tsx?$/, loader: 'ts-loader', options: { include: [paths.client()] }});
+	webpackConfig.module.rules.push({ test: /\.tsx?$/, loader: 'ts-loader', options: { include: [paths.client()] } });
 }
 
 // file text-replacements
 // ==========
 
-/*webpackConfig.module.rules.push({
+/* webpackConfig.module.rules.push({
 	test: /\.jsx?$/,
 	loader: StringReplacePlugin.replace({replacements: [
 		// optimization; replace `State(a=>a.some.thing)` with `State('some/thing')`
@@ -178,13 +178,13 @@ if (USE_TSLOADER) {
 			}
 		},
 	]})
-});*/
+}); */
 
 // css loaders
 // ==========
 
 // We use cssnano with the postcss loader, so we tell css-loader not to duplicate minimization.
-//const BASE_CSS_LOADER = 'css-loader?sourceMap&-minimize'
+// const BASE_CSS_LOADER = 'css-loader?sourceMap&-minimize'
 const BASE_CSS_LOADER = 'css-loader?-minimize';
 
 webpackConfig.module.rules.push({
@@ -207,11 +207,11 @@ webpackConfig.module.rules.push({
 				mergeIdents: false,
 				reduceIdents: false,
 				safe: true,
-				//sourcemap: true
+				// sourcemap: true
 			}),
 		},
 		{
-			//loader: 'sass-loader?sourceMap',
+			// loader: 'sass-loader?sourceMap',
 			loader: 'sass-loader',
 			options: {
 				includePaths: [paths.client('styles')],
@@ -235,25 +235,26 @@ webpackConfig.plugins.push(new MiniCssExtractPlugin({
 
 // file loaders
 webpackConfig.module.rules.push(
-	{test: /\.woff(\?.*)?$/, use: "url-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=application/font-woff"},
-	{test: /\.woff2(\?.*)?$/, use: "url-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=application/font-woff2"},
-	{test: /\.otf(\?.*)?$/, use: "file-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=font/opentype"},
-	{test: /\.ttf(\?.*)?$/, use: "url-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=application/octet-stream"},
-	{test: /\.eot(\?.*)?$/, use: "file-loader?prefix=fonts/&name=[path][name].[ext]"},
-	//{test: /\.svg(\?.*)?$/, use: "url-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=image/svg+xml"},
-	{test: /\.(png|jpg)$/, use: "url-loader?limit=8192"}
-)
+	{ test: /\.woff(\?.*)?$/, use: 'url-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=application/font-woff' },
+	{ test: /\.woff2(\?.*)?$/, use: 'url-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=application/font-woff2' },
+	{ test: /\.otf(\?.*)?$/, use: 'file-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=font/opentype' },
+	{ test: /\.ttf(\?.*)?$/, use: 'url-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=application/octet-stream' },
+	{ test: /\.eot(\?.*)?$/, use: 'file-loader?prefix=fonts/&name=[path][name].[ext]' },
+	// {test: /\.svg(\?.*)?$/, use: "url-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=image/svg+xml"},
+	{ test: /\.(png|jpg)$/, use: 'url-loader?limit=8192' },
+);
 
 // Finalize Configuration
 // ==========
 
-const SpriteLoaderPlugin = require("svg-sprite-loader/plugin");
+const SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
+
 webpackConfig.plugins.push(
-	new SpriteLoaderPlugin()
+	new SpriteLoaderPlugin(),
 );
 webpackConfig.module.rules.push({
 	test: /\.svg$/,
-	loader: "svg-sprite-loader",
+	loader: 'svg-sprite-loader',
 });
 
 module.exports = webpackConfig;

@@ -43,7 +43,7 @@ import TagsPanel from './NodeUI/Panels/TagsPanel';
 import SubPanel from './NodeUI_Inner/SubPanel';
 import { TermPlaceholder } from './NodeUI_Inner/TermPlaceholder';
 import { MapNodeUI_LeftBox } from './NodeUI_LeftBox';
-import { NodeUI_Menu } from './NodeUI_Menu';
+import { NodeUI_Menu, NodeUI_Menu_Stub } from './NodeUI_Menu';
 
 // drag and drop
 // ==========
@@ -182,6 +182,8 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 					if (nodeView == null || !nodeView.selected) {
 						store.dispatch(new ACTMapNodeSelect({ mapID: map._id, path }));
 					}
+				}}
+				onDirectClick={(e) => {
 					if (combinedWithParentArgument) {
 						store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: parent._id, time: Date.now() }));
 					}
@@ -214,7 +216,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 				text={[
 					<TitlePanel ref={c => this.titlePanel = c} {...{ parent: this, map, node, nodeView, path }}/>,
 					subPanelShow && <SubPanel node={node}/>,
-					<NodeUI_Menu {...{ map, node, path }}/>,
+					<NodeUI_Menu_Stub {...{ map, node, path }}/>,
 				].AutoKey()}
 				{...{ backgroundFillPercent, backgroundColor, markerPercent }}
 				toggleExpanded={(e) => {

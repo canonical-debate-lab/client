@@ -16,7 +16,7 @@ module.exports = {
 	plugins: [
 		"import",
 		"react",
-		"jsx-a11y",
+		//"jsx-a11y", // warns about accessibility concerns
 		//"babel",
 		"only-warn",
 	],
@@ -69,6 +69,7 @@ module.exports = {
 		"class-methods-use-this": "off", // class-methods do not need to "use this" to be valid/useful -- for example: React's componentDidMount
 		"object-property-newline": "off",
 		"no-use-before-define": ["error", { "functions": false, "classes": false }],
+		"sort-imports": "off", // there are a couple places (eg Main_Hot.tsx) where changing the import order will cause errors
 	},
 	globals: {
 		ENV: true,

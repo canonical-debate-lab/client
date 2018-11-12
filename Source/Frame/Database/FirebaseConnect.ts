@@ -1,16 +1,17 @@
 import { Assert, GetPropsChanged_WithValues, GetPropsChanged, GetStackTraceStr } from 'js-vextensions';
-import {connect} from "react-redux";
-import {ShallowChanged, GetInnerComp} from "react-vextensions";
-import {watchEvents, unWatchEvents} from "react-redux-firebase/lib/actions/query";
-import {getEventsFromInput} from "react-redux-firebase/lib/utils";
-import { TryCall, Timer } from "js-vextensions";
-import { SplitStringBySlash_Cached } from "Frame/Database/StringSplitCache";
-import {GetUser, GetUserPermissions} from "../../Store/firebase/users";
-import {GetUserID} from "Store/firebase/users";
-import { activeStoreAccessCollectors } from "Frame/Database/DatabaseHelpers";
-import Action from "../General/Action";
-import Moment from "moment";
-import {RootState, ApplyActionSet} from "../../Store/index";
+import { connect } from 'react-redux';
+import { ShallowChanged, GetInnerComp } from 'react-vextensions';
+import { watchEvents, unWatchEvents } from 'react-redux-firebase/lib/actions/query';
+import { getEventsFromInput } from 'react-redux-firebase/lib/utils';
+import { TryCall, Timer } from 'js-vextensions';
+import { SplitStringBySlash_Cached } from 'Frame/Database/StringSplitCache';
+import { GetUserID } from 'Store/firebase/users';
+import { activeStoreAccessCollectors } from 'Frame/Database/DatabaseHelpers';
+import Moment from 'moment';
+import _ from 'lodash';
+import Action from '../General/Action';
+import { GetUser, GetUserPermissions } from '../../Store/firebase/users';
+import { RootState, ApplyActionSet } from '../../Store/index';
 
 // Place a selector in Connect() whenever it uses data that:
 // 1) might change during the component's lifetime, and:
@@ -33,36 +34,36 @@ import {RootState, ApplyActionSet} from "../../Store/index";
 		}
 		return FirebaseConnect;
 	}
-}*/
+} */
 
 G({ FirebaseConnect: Connect }); // make global, for firebase-forum
 // if you're sending in a connect-func rather than a connect-func-wrapper, then you need to make it have at least one argument (to mark it as such)
 export function Connect<T, P>(innerMapStateToPropsFunc: (state: RootState, props: P)=>any);
 export function Connect<T, P>(mapStateToProps_inner_getter: ()=>(state: RootState, props: P)=>any);
 export function Connect<T, P>(funcOrFuncGetter) {
-	let mapStateToProps_inner: (state: RootState, props: P)=>any; let 
-mapStateToProps_inner_getter: ()=>(state: RootState, props: P)=>any;
+	let mapStateToProps_inner: (state: RootState, props: P)=>any;
+	let mapStateToProps_inner_getter: ()=>(state: RootState, props: P)=>any;
 	const isFuncGetter = funcOrFuncGetter.length == 0; // && typeof TryCall(funcOrFuncGetter) == "function";
 	if (!isFuncGetter) mapStateToProps_inner = funcOrFuncGetter;
 	else mapStateToProps_inner_getter = funcOrFuncGetter;
 
-	const mapStateToProps_wrapper = function (state: RootState, props: P) {
+	function mapStateToProps_wrapper(state: RootState, props: P) {
 		const s = this;
-		g.inConnectFunc = true;
+		g.inConnectFuncFor = s.WrappedComponent;
 
 		// if (ShouldLog(a=>a.check_callStackDepths)) {
 		/* if (DEV) {
 			let callStackDepth = GetStackTraceStr().split("\n").length;
 			// if we're at a call-stack-depth of X, we know something's wrong, so break
 			Assert(callStackDepth < 1000, `Call-stack-depth too deep (${callStackDepth})! Something must be wrong with the UI code.`);
-		}*/
+		} */
 
 		ClearRequestedPaths();
 		ClearAccessedPaths();
 		// Assert(GetAccessedPaths().length == 0, "Accessed-path must be empty at start of mapStateToProps call (ie. the code in Connect()).");
 		// let firebase = state.firebase;
 		// let firebase = props["firebase"];
-		const firebase = store.firebase;
+		const { firebase } = store;
 
 		let changedPath = null;
 		let storeDataChanged = false;
@@ -86,7 +87,7 @@ mapStateToProps_inner_getter: ()=>(state: RootState, props: P)=>any;
 
 		// let result = storeDataChanged ? mapStateToProps_inner(state, props) : s.lastResult;
 		if (!storeDataChanged && changedProps.length == 0) {
-			g.inConnectFunc = false;
+			g.inConnectFuncFor = null;
 			return s.lastResult;
 		}
 
@@ -113,7 +114,7 @@ mapStateToProps_inner_getter: ()=>(state: RootState, props: P)=>any;
 			let debugText = `${props["node"] ? " @ID:" + props["node"]._id : ""} @changedPath: ${changedPath} @changedProps: ${changedProps.join(", ")}`;
 			let wrapperFunc = eval(`(function ${debugText.replace(/[^a-zA-Z0-9]/g, "_")}() { return mapStateToProps_inner.apply(s, arguments); })`);
 			var result = wrapperFunc.call(s, state, props);
-		} else*/ {
+		} else */ {
 			var result = mapStateToProps_inner.call(s, state, props);
 		}
 
@@ -148,10 +149,10 @@ mapStateToProps_inner_getter: ()=>(state: RootState, props: P)=>any;
 		s.lastProps = props;
 		s.lastResult = result;
 
-		g.inConnectFunc = false;
+		g.inConnectFuncFor = null;
 
 		return result;
-	};
+	}
 
 	if (mapStateToProps_inner) {
 		return connect(mapStateToProps_wrapper, null, null, { withRef: true }); // {withRef: true} lets you do wrapperComp.getWrappedInstance()
@@ -165,6 +166,10 @@ mapStateToProps_inner_getter: ()=>(state: RootState, props: P)=>any;
 const actionTypeBufferInfos = {
 	'@@reactReduxFirebase/START': { time: 300 },
 	'@@reactReduxFirebase/SET': { time: 300 },
+	// buffer these less, since is we buffer too much it can slow down the progressive-response of the Connect() functions to new data
+	'@@reactReduxFirebase/SET_LISTENER': { time: 100 },
+	'@@reactReduxFirebase/LISTENER_RESPONSE': { time: 100 },
+	'@@reactReduxFirebase/UNSET_LISTENER': { time: 100 },
 };
 const actionTypeLastDispatchTimes = {};
 const actionTypeBufferedActions = {};
@@ -200,7 +205,7 @@ function DispatchDBAction(action) {
 let requestedPaths = {} as {[key: string]: boolean};
 /** This only adds paths to a "request list". Connect() is in charge of making the actual db requests. */
 export function RequestPath(path: string) {
-	MaybeLog(a => a.dbRequests, () => 'Requesting db-path (stage 1): ' + path);
+	MaybeLog(a => a.dbRequests, () => `${_.padEnd(`Requesting db-path (stage 1): ${path}`, 150)}Component:${g.inConnectFuncFor ? g.inConnectFuncFor.name : ''}`);
 	requestedPaths[path] = true;
 }
 /** This only adds paths to a "request list". Connect() is in charge of making the actual db requests. */
@@ -227,7 +232,7 @@ export function OnAccessPath(path: string) {
 		}
 	}
 }
-/*export function OnAccessPaths(paths: string[]) {
+/* export function OnAccessPaths(paths: string[]) {
 	for (let path of paths)
 		OnAccessPath(path);
 } */

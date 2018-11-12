@@ -17,7 +17,7 @@ import { IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument } from '../../
 import { GetNodeColor } from '../../../../../Store/firebase/nodes/@MapNodeType';
 import { ExpandableBox } from '../ExpandableBox';
 import { Squiggle } from '../NodeConnectorBackground';
-import { NodeUI_Menu } from '../NodeUI_Menu';
+import { NodeUI_Menu, NodeUI_Menu_Stub } from '../NodeUI_Menu';
 import { NodeChildCountMarker } from './NodeChildCountMarker';
 import { NodeChildHolder } from './NodeChildHolder';
 import RatingsPanel from './Panels/RatingsPanel';
@@ -149,7 +149,7 @@ export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { 
 										return <RatingsPanel node={node} path={path} ratingType={holderTypeStr as RatingType} ratings={ratings}/>;
 									})()}
 								</div>,
-							<NodeUI_Menu {...{ map, node, path }} holderType={type}/>,
+							<NodeUI_Menu_Stub {...{ map, node, path }} holderType={type}/>,
 						].AutoKey()}
 					/>
 					{nodeChildrenToShow != emptyArray && !expanded && nodeChildrenToShow.length != 0

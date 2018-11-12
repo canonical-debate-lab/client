@@ -13,9 +13,9 @@ export function DBPath(path = '', inVersionRoot = true) {
 	Assert(path != null, 'Path cannot be null.');
 	Assert(IsString(path), 'Path must be a string.');
 	/* let versionPrefix = path.match(/^v[0-9]+/);
-	if (versionPrefix == null) // if no version prefix already, add one (referencing the current version)*/
+	if (versionPrefix == null) // if no version prefix already, add one (referencing the current version) */
 	if (inVersionRoot) {
-		path = `v${dbVersion}-${ENV_SHORT}${  path ? `/${path}` : ""}`;
+		path = `v${dbVersion}-${ENV_SHORT}${path ? `/${path}` : ''}`;
 	}
 	return path;
 }
@@ -62,17 +62,17 @@ export type FirebaseApp = FirebaseApplication & {
 		// custom
 		DBRef(path?: string, inVersionRoot?: boolean): firebase.DatabaseReference,
 	},
-};*/
+}; */
 export type FirebaseApp = any;
 type DataSnapshot = any;
 
 export function ProcessDBData(data, standardizeForm: boolean, addHelpers: boolean, rootKey: string) {
-	let treeNodes = GetTreeNodesInObjTree(data, true);
+	const treeNodes = GetTreeNodesInObjTree(data, true);
 	for (const treeNode of treeNodes) {
 		// turn the should-not-have-been-array arrays (the ones without a "0" property) into objects
 		if (standardizeForm && treeNode.Value instanceof Array && treeNode.Value[0] === undefined) {
 			// if changing root, we have to actually modify the prototype of the passed-in "data" object
-			/*if (treeNode.Value == data) {
+			/* if (treeNode.Value == data) {
 				Object.setPrototypeOf(data, Object.getPrototypeOf({}));
 				for (var key of Object.keys(data)) {
 					if (data[key] === undefined)
@@ -85,7 +85,7 @@ export function ProcessDBData(data, standardizeForm: boolean, addHelpers: boolea
 			for (const key in valueAsObject) {
 				// if fake array-item added by Firebase/js (just so the array would have no holes), remove it
 				// if (valueAsObject[key] == null)
-				if (valueAsObject[key] === undefined) {delete valueAsObject[key];}
+				if (valueAsObject[key] === undefined) { delete valueAsObject[key]; }
 			}
 
 			if (treeNode.Value == data) treeNode.obj[treeNode.prop] = valueAsObject; // if changing root, we need to modify wrapper.data
@@ -99,7 +99,7 @@ export function ProcessDBData(data, standardizeForm: boolean, addHelpers: boolea
 				Object.setPrototypeOf(data, Object.getPrototypeOf([]));
 				data.length = data.VKeys(true).filter(a=>IsNumberString(a));
 				continue;
-			}*/
+			} */
 
 			const valueAsArray = [].Extend(treeNode.Value) as any;
 
@@ -127,9 +127,9 @@ export function ProcessDBData(data, standardizeForm: boolean, addHelpers: boolea
 const helperProps = ['_key', '_id'];
 /** Note: this mutates the original object. */
 export function RemoveHelpers(data) {
-	let treeNodes = GetTreeNodesInObjTree(data, true);
+	const treeNodes = GetTreeNodesInObjTree(data, true);
 	for (const treeNode of treeNodes) {
-		if (helperProps.Contains(treeNode.prop)) {delete treeNode.obj[treeNode.prop];}
+		if (helperProps.Contains(treeNode.prop)) { delete treeNode.obj[treeNode.prop]; }
 	}
 	return data;
 }
@@ -165,49 +165,50 @@ G({ GetData });
  * Returns undefined when the current-data for the path is null/non-existent, but a request is in-progress.
  * Returns null when we've completed the request, and there is no data at that path. */
 // export function GetData(pathSegments: (string | number)[], options?: GetData_Options) {
-/*export function GetData(pathSegment1: string | number, pathSegment2: string | number, ...pathSegments: (string | number)[]);
+/* export function GetData(pathSegment1: string | number, pathSegment2: string | number, ...pathSegments: (string | number)[]);
 export function GetData(options: GetData_Options, pathSegment1: string | number, pathSegment2: string | number, ...pathSegments: (string | number)[]); */
 export function GetData(...pathSegments: (string | number)[]);
 export function GetData(options: GetData_Options, ...pathSegments: (string | number)[]);
 export function GetData(...args) {
-	let pathSegments: (string | number)[], options: GetData_Options;
-	if (typeof args[0] == "string") pathSegments = args;
+	let pathSegments: (string | number)[];
+	let options: GetData_Options;
+	if (typeof args[0] === 'string') pathSegments = args;
 	else [options, ...pathSegments] = args;
 	options = E(new GetData_Options(), options);
 
 	if (DEV) {
-		Assert(pathSegments.every(segment=>typeof segment == "number" || !segment.Contains("/")),
+		Assert(pathSegments.every(segment => typeof segment === 'number' || !segment.Contains('/')),
 			`Each string path-segment must be a plain prop-name. (ie. contain no "/" separators) @segments(${pathSegments})`);
 	}
 
 	pathSegments = DBPathSegments(pathSegments, options.inVersionRoot);
 
-	let path = pathSegments.join("/");
+	const path = pathSegments.join('/');
 	AssertValidatePath(path);
-	/*if (options.queries && options.queries.VKeys().length) {
+	/* if (options.queries && options.queries.VKeys().length) {
 		let queriesStr = "";
 		for (let {name, value, index} of options.queries.Props()) {
 			queriesStr += (index == 0 ? "#" : "&") + name + "=" + value;
 		}
 		pathSegments[pathSegments.length - 1] = pathSegments.Last() + queriesStr;
 		path += queriesStr.replace(/[#=]/g, "_");
-	}*/
+	} */
 
 	if (options.makeRequest) {
-		let queriesStr = "";
+		let queriesStr = '';
 		if (options.queries && options.queries.VKeys().length) {
-			for (let {name, value, index} of options.queries.Props()) {
-				queriesStr += (index == 0 ? "#" : "&") + name + "=" + value;
+			for (const { name, value, index } of options.queries.Props()) {
+				queriesStr += `${(index == 0 ? '#' : '&') + name}=${value}`;
 			}
 		}
 		RequestPath(path + queriesStr);
 	}
 
-	//let result = State("firebase", "data", ...SplitStringByForwardSlash_Cached(path)) as any;
-	let result = State("firebase", "data", ...pathSegments) as any;
-	//let result = State("firebase", "data", ...pathSegments) as any;
+	// let result = State("firebase", "data", ...SplitStringByForwardSlash_Cached(path)) as any;
+	const result = State('firebase', 'data', ...pathSegments) as any;
+	// let result = State("firebase", "data", ...pathSegments) as any;
 	if (result == null && options.useUndefinedForInProgress) {
-		let requestCompleted = State().firebase.requested[path];
+		const requestCompleted = State().firebase.requested[path];
 		if (!requestCompleted) return undefined; // undefined means, current-data for path is null/non-existent, but we haven't completed the current request yet
 		return null; // null means, we've completed the request, and there is no data at that path
 	}
@@ -224,12 +225,12 @@ G({ GetDataAsync });
 // export async function GetDataAsync(path: string, inVersionRoot = true, addHelpers = true, firebase: firebase.DatabaseReference = store.firebase.helpers.ref("")) {
 // export async function GetDataAsync(path: string, inVersionRoot = true, addHelpers = true) {
 /* export async function GetDataAsync(pathSegment1: string | number, pathSegment2: string | number, ...pathSegments: (string | number)[]);
-export async function GetDataAsync(options: GetDataAsync_Options, pathSegment1: string | number, pathSegment2: string | number, ...pathSegments: (string | number)[]);*/
+export async function GetDataAsync(options: GetDataAsync_Options, pathSegment1: string | number, pathSegment2: string | number, ...pathSegments: (string | number)[]); */
 export async function GetDataAsync(...pathSegments: (string | number)[]);
 export async function GetDataAsync(options: GetDataAsync_Options, ...pathSegments: (string | number)[]);
 export async function GetDataAsync(...args) {
-	let pathSegments: (string | number)[]; let 
-options: GetDataAsync_Options;
+	let pathSegments: (string | number)[]; let
+		options: GetDataAsync_Options;
 	if (typeof args[0] === 'string') pathSegments = args;
 	else [options, ...pathSegments] = args;
 	options = E(new GetDataAsync_Options(), options);
@@ -241,7 +242,7 @@ options: GetDataAsync_Options;
 		firebase.ref(DBPath(path, options.inVersionRoot)).once('value',
 			(snapshot: DataSnapshot) => {
 				let result = snapshot.val();
-				if (result) {result = ProcessDBData(result, true, options.addHelpers, pathSegments.Last()+"");}
+				if (result) { result = ProcessDBData(result, true, options.addHelpers, `${pathSegments.Last()}`); }
 				resolve(result);
 			},
 			(ex: Error) => {
@@ -258,7 +259,7 @@ options: GetDataAsync_Options;
  */
 G({ GetAsync });
 export async function GetAsync<T>(dbGetterFunc: ()=>T, statsLogger?: ({requestedPaths: string})=>void): Promise<T> {
-	Assert(!g.inConnectFunc, 'Cannot run GetAsync() from within a Connect() function.');
+	Assert(g.inConnectFuncFor == null, 'Cannot run GetAsync() from within a Connect() function.');
 	// Assert(!g.inGetAsyncFunc, "Cannot run GetAsync() from within a GetAsync() function.");
 	const firebase = store.firebase;
 	const dbDataLocked = State_overrideData_path == `firebase/data/${DBPath()}`;
@@ -303,7 +304,7 @@ export async function GetAsync<T>(dbGetterFunc: ()=>T, statsLogger?: ({requested
 	let listener = ()=> {
 		listener(); // unsubscribe
 	};
-	store.subscribe(listener);*/
+	store.subscribe(listener); */
 
 	if (statsLogger) {
 		statsLogger({ requestedPaths: requestedPathsSoFar });
@@ -354,7 +355,7 @@ export function WaitTillPathDataIsReceived(path: string): Promise<any> {
 	});
 }
 
-/*;(function() {
+/* ;(function() {
 	var Firebase = require("firebase");
 	var FirebaseRef = Firebase.database.Reference;
 
@@ -418,7 +419,7 @@ export function WaitTillPathDataIsReceived(path: string): Promise<any> {
 })(); */
 
 // export function FirebaseConnect<T>(paths: string[]); // just disallow this atm, since you might as well just use a connect/getter func
-/*export function FirebaseConnect<T>(pathsOrGetterFunc?: string[] | ((props: T)=>string[]));
+/* export function FirebaseConnect<T>(pathsOrGetterFunc?: string[] | ((props: T)=>string[]));
 export function FirebaseConnect<T>(pathsOrGetterFunc?) {
 	return firebaseConnect(props=> {
 		let paths =
@@ -476,7 +477,7 @@ export function CachedTransform_WithStore<T, T2, T3>(
 	// for each accessed store entry, add it to VCache's "last dynamic props" for this transform
 	for (const path of collector.storePathsRequested) {
 		const val = State({ countAsAccess: false }, path);
-		storage.lastDynamicProps['store_' + path] = val;
+		storage.lastDynamicProps[`store_${path}`] = val;
 	}
 
 	return result;
@@ -493,7 +494,7 @@ export async function ApplyDBUpdates(rootPath: string, dbUpdates) {
 	for (let {name: path, value} of dbUpdates.Props()) {
 		dbUpdates[rootPath + path] = value;
 		delete dbUpdates[path];
-	}*/
+	} */
 
 	await store.firebase.helpers.ref(rootPath).update(dbUpdates);
 }

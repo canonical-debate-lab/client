@@ -7,6 +7,7 @@ import { VMenuItem } from 'react-vmenu/dist/VMenu';
 import { ScrollView } from 'react-vscrollview';
 import { TimelinePlayerUI } from 'UI/@Shared/Maps/MapUI/TimelinePlayerUI';
 import { DragDropContext } from 'react-dnd';
+import MouseBackend from 'react-dnd-mouse-backend';
 import { Connect } from '../../../Frame/Database/FirebaseConnect';
 import { GetDistanceBetweenRectAndPoint } from '../../../Frame/General/Geometry';
 import { inFirefox } from '../../../Frame/General/Others';
@@ -25,7 +26,6 @@ import { ActionBar_Left } from './MapUI/ActionBar_Left';
 import { ActionBar_Right } from './MapUI/ActionBar_Right';
 // import HTML5Backend from "react-dnd-html5-backend";
 // import TouchBackend from "react-dnd-touch-backend";
-import MouseBackend from 'react-dnd-mouse-backend';
 
 // temp fix for "isOver({shallow: true})"
 // var DragDropMonitor = require("dnd-core/lib/DragDropMonitor").default;
@@ -251,7 +251,10 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 			this.scrollView.ScrollBy({x: MapUI.padding.leftAndRight, y: MapUI.padding.topAndBottom}); */
 	}
 	OnLoadComplete() {
-		console.log(`NodeUI render count: ${NodeUI.renderCount} (${NodeUI.renderCount / $('.NodeUI').length} per visible node)`);
+		console.log(`
+			NodeUI render count: ${NodeUI.renderCount} (${NodeUI.renderCount / $('.NodeUI').length} per visible node)
+			TimeSincePageLoad: ${Date.now() - performance.timing.domComplete}ms
+		`.AsMultiline(0));
 		this.LoadScroll();
 		// UpdateURL(false);
 	}

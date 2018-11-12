@@ -1,7 +1,7 @@
 {
-  "name": "debate-map",
+  "name": "canonical-debate",
   "version": "0.0.1",
-  "description": "Tree-based mapping of beliefs, arguments, and evidence.",
+  "description": "TODO",
   "engines": {
     "node": ">=4.2.0",
     "npm": "^3.0.0"
@@ -141,9 +141,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Venryx/DebateMap.git"
+    "url": "git+https://github.com/canonical-debate-lab/client.git"
   },
-  "author": "Venryx (https://github.com/Venryx)",
   "license": "MIT",
   "dependencies": {
     "ajv": "^5.0.0",
@@ -286,7 +285,7 @@
     "url-loader": "^0.5.6",
     "webpack": "^4.6.0",
     "webpack-bundle-analyzer": "^2.4.0",
-    "webpack-cli": "^2.0.14",
+    "webpack-cli": "3.1.2",
     "webpack-dependency-tools": "^0.0.1",
     "webpack-dev-middleware": "^1.6.1",
     "webpack-hot-middleware": "^2.22.1",

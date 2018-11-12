@@ -22,7 +22,7 @@ export class AddArgumentAndClaim extends Command<Payload, {argumentNodeID: numbe
 		this.sub_addArgument.Validate_Early();
 		await this.sub_addArgument.Prepare();
 
-		this.sub_addClaim = new AddChildNode({ mapID, parentID: this.sub_addArgument.returnData.nodeID, node: claimNode, revision: claimRevision, link: claimLink });
+		this.sub_addClaim = new AddChildNode({ mapID, parentID: this.sub_addArgument.returnData.nodeID, node: claimNode, revision: claimRevision, link: claimLink }).MarkAsSubcommand();
 		this.sub_addClaim.lastNodeID_addAmount = 1;
 		this.sub_addClaim.lastNodeRevisionID_addAmount = 1;
 		this.sub_addClaim.Validate_Early();
