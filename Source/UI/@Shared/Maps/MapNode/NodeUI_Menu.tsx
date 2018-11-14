@@ -279,7 +279,7 @@ class PasteAsLink_MenuItem extends BaseComponent<SharedProps, {}> {
 		const { map, node, path, holderType, copiedNode, copiedNodePath, copiedNode_asCut, combinedWithParentArg } = this.props;
 		if (!CanGetBasicPermissions('me')) return <div/>;
 		if (copiedNode == null) return <div/>;
-		const copiedNode_parent = GetParentNodeL3(path);
+		const copiedNode_parent = GetParentNodeL3(copiedNodePath);
 
 		const formForClaimChildren = node.type == MapNodeType.Category ? ClaimForm.YesNoQuestion : ClaimForm.Base;
 		const linkCommand = new LinkNode_HighLevel({
