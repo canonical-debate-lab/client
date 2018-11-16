@@ -60,8 +60,8 @@ const dropTargetDecorator = DropTarget('node',
 				message: `
 					Are you sure you want to ${ctrlDown ? 'copy' : 'move'} the dragged node as a new argument?
 
-					Dragged claim/argument: ${GetNodeDisplayText(draggedNode)}
 					Destination (new parent): ${GetNodeDisplayText(dropOnNode)}
+					Dragged claim/argument: ${GetNodeDisplayText(draggedNode)}
 				`.AsMultiline(0),
 				onOK: async () => {
 					const { argumentWrapperID } = await linkCommand.Run();
