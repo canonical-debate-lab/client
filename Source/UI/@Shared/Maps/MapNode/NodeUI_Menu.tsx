@@ -286,6 +286,7 @@ class PasteAsLink_MenuItem extends BaseComponent<SharedProps, {}> {
 			mapID: map._id, oldParentID: GetParentNodeID(copiedNodePath), newParentID: node._id, nodeID: copiedNode._id,
 			newForm: copiedNode.type == MapNodeType.Claim ? formForClaimChildren : null,
 			newPolarity: (copiedNode.type == MapNodeType.Argument ? copiedNode.link.polarity : null) || (copiedNode_parent && copiedNode_parent.type == MapNodeType.Argument ? copiedNode_parent.link.polarity : null),
+			allowCreateWrapperArg: holderType != null || !node.multiPremiseArgument,
 			unlinkFromOldParent: copiedNode_asCut, deleteOrphanedArgumentWrapper: true,
 		});
 		const error = LinkNode_HighLevel_GetCommandError(linkCommand);

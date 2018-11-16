@@ -22,10 +22,11 @@ function OnCurrentCommandFinished() {
 }
 
 export abstract class Command<Payload, ReturnData> {
+	static defaultPayload = {};
 	constructor(payload: Payload) {
 		this.userInfo = { id: GetUserID() }; // temp
 		this.type = this.constructor.name;
-		this.payload = payload;
+		this.payload = E(this.constructor['defaultPayload'], payload);
 		// this.Extend(payload);
 		// Object.setPrototypeOf(this, Object.getPrototypeOf({}));
 	}

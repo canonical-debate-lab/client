@@ -15,7 +15,10 @@ import { AddNode } from './AddNode';
 import { AddChildNode } from './AddChildNode';
 import { DeleteNode } from './DeleteNode';
 
-type Payload = { mapID: number, oldParentID: number, newParentID: number, nodeID: number, newForm?: ClaimForm, newPolarity?: Polarity, unlinkFromOldParent?: boolean, deleteOrphanedArgumentWrapper?: boolean };
+type Payload = {
+	mapID: number, oldParentID: number, newParentID: number, nodeID: number,
+	newForm?: ClaimForm, newPolarity?: Polarity, allowCreateWrapperArg?: boolean,
+	unlinkFromOldParent?: boolean, deleteOrphanedArgumentWrapper?: boolean };
 
 export function LinkNode_HighLevel_GetCommandError(command: LinkNode_HighLevel) {
 	const { mapID, newParentID, nodeID, newForm, newPolarity } = command.payload;
@@ -37,6 +40,7 @@ export function LinkNode_HighLevel_GetCommandError(command: LinkNode_HighLevel) 
 }
 
 export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: number}> {
+	static defaultPayload = {allowCreateWrapperArg: true};
 	Validate_Early() {
 		const { oldParentID, nodeID } = this.payload;
 		Assert(oldParentID !== nodeID, 'Parent-id and child-id cannot be the same!');
@@ -50,7 +54,7 @@ export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: nu
 	sub_deleteOldParent: DeleteNode;
 	sub_unlinkFromOldParent: UnlinkNode;
 	async Prepare() {
-		const { mapID, oldParentID, newParentID, nodeID, newForm, newPolarity, unlinkFromOldParent, deleteOrphanedArgumentWrapper } = this.payload;
+		const { mapID, oldParentID, newParentID, nodeID, newForm, newPolarity, allowCreateWrapperArg, unlinkFromOldParent, deleteOrphanedArgumentWrapper } = this.payload;
 		this.returnData = {};
 
 		this.node_data = await GetAsync(() => GetNodeL2(nodeID));
@@ -59,22 +63,28 @@ export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: nu
 
 		let newParentID_forClaim = newParentID;
 
-		const createWrapperArg = this.node_data.type === MapNodeType.Claim && this.newParent_data.type.IsOneOf(MapNodeType.Claim, MapNodeType.Argument);
-		if (createWrapperArg) {
-			Assert(newPolarity, 'Since this command has to create a wrapper-argument, you must supply the newPolarity property.');
-			const argumentWrapper = new MapNode({ type: MapNodeType.Argument });
-			const argumentWrapperRevision = new MapNodeRevision({});
+		const canCreateWrapperArg = this.node_data.type === MapNodeType.Claim && this.newParent_data.type.IsOneOf(MapNodeType.Claim, MapNodeType.Argument);
+		if (canCreateWrapperArg) {
+			const createWrapperArg = canCreateWrapperArg && allowCreateWrapperArg;
+			if (createWrapperArg) {
+				Assert(newPolarity, 'Since this command has to create a wrapper-argument, you must supply the newPolarity property.');
+				const argumentWrapper = new MapNode({ type: MapNodeType.Argument });
+				const argumentWrapperRevision = new MapNodeRevision({});
 
-			this.sub_addArgumentWrapper = new AddChildNode({
-				mapID, parentID: newParentID, node: argumentWrapper, revision: argumentWrapperRevision,
-				// link: E({ _: true }, newPolarity && { polarity: newPolarity }) as any,
-				link: E({ _: true, polarity: newPolarity }) as any,
-			}).MarkAsSubcommand();
-			this.sub_addArgumentWrapper.Validate_Early();
-			await this.sub_addArgumentWrapper.Prepare();
+				this.sub_addArgumentWrapper = new AddChildNode({
+					mapID, parentID: newParentID, node: argumentWrapper, revision: argumentWrapperRevision,
+					// link: E({ _: true }, newPolarity && { polarity: newPolarity }) as any,
+					link: E({ _: true, polarity: newPolarity }) as any,
+				}).MarkAsSubcommand();
+				this.sub_addArgumentWrapper.Validate_Early();
+				await this.sub_addArgumentWrapper.Prepare();
 
-			this.returnData.argumentWrapperID = this.sub_addArgumentWrapper.sub_addNode.nodeID;
-			newParentID_forClaim = this.sub_addArgumentWrapper.sub_addNode.nodeID;
+				this.returnData.argumentWrapperID = this.sub_addArgumentWrapper.sub_addNode.nodeID;
+				newParentID_forClaim = this.sub_addArgumentWrapper.sub_addNode.nodeID;
+			} else {
+				const mustCreateWrapperArg = canCreateWrapperArg && !this.newParent_data.multiPremiseArgument;
+				Assert(mustCreateWrapperArg === false, `Linking node #${nodeID} under #${newParentID} requires creating a wrapper-arg, but this was disallowed by passed prop.`);
+			}
 		}
 
 		this.sub_linkToNewParent = new LinkNode({ mapID, parentID: newParentID_forClaim, childID: nodeID, childForm: newForm, childPolarity: newPolarity }).MarkAsSubcommand();
