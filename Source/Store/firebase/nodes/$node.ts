@@ -201,7 +201,12 @@ export function IsNodeTitleValid_GetError(node: MapNode, title: string) {
 /** Gets the main display-text for a node. (doesn't include equation explanation, quote sources, etc.) */
 export function GetNodeDisplayText(node: MapNodeL2, path?: string, form?: ClaimForm): string {
 	form = form || GetNodeForm(node, path);
+	const basicTitle = node.current.titles.base || node.current.titles.yesNoQuestion || node.current.titles.negation || '';
 
+	if (node.type == MapNodeType.Argument && !node.multiPremiseArgument && !basicTitle) {
+		const baseClaim = GetNodeL2((node.children.VKeys(true)[0] || '').ToInt());
+		if (baseClaim) return GetNodeDisplayText(baseClaim);
+	}
 	if (node.type == MapNodeType.Claim) {
 		if (node.current.equation) {
 			let result = node.current.equation.text;
@@ -221,23 +226,23 @@ export function GetNodeDisplayText(node: MapNodeL2, path?: string, form?: ClaimF
 			return result;
 		}
 		if (node.current.contentNode) {
-			return `The statement below was made${ // (as shown)`
-				 node.current.contentNode.sourceChains[0][0].name ? ` in "${node.current.contentNode.sourceChains[0][0].name}"` : ''
-				 }${node.current.contentNode.sourceChains[0][0].author ? ` by ${node.current.contentNode.sourceChains[0][0].author}` : ''
-				 }${node.current.contentNode.sourceChains[0][0].link ? ` at "${
-				VURL.Parse(node.current.contentNode.sourceChains[0][0].link, false).toString({ domain_protocol: false })}"` : '' // maybe temp
-				 }.`;
+			const firstSource = node.current.contentNode.sourceChains[0][0];
+			return `The statement below was made${ // (as shown)
+				firstSource.name ? ` in "${firstSource.name}"` : ''}${
+				firstSource.author ? ` by ${firstSource.author}` : ''}${
+				firstSource.link ? ` at "${VURL.Parse(firstSource.link, false).toString({ domain_protocol: false })}"` : '' // maybe temp
+			}.`;
 		}
 		if (node.current.image) {
 			const image = GetImage(node.current.image.id);
 			if (image == null) return '...';
 			// if (image.sourceChains == null) return `The ${GetNiceNameForImageType(image.type)} below is unmodified.`; // temp
+			const firstSource = node.current.contentNode.sourceChains[0][0];
 			return `The ${GetNiceNameForImageType(image.type)} below was published${ // (as shown)`
-				 image.sourceChains[0][0].name ? ` in "${image.sourceChains[0][0].name}"` : ''
-				 }${image.sourceChains[0][0].author ? ` by ${image.sourceChains[0][0].author}` : ''
-				 }${image.sourceChains[0][0].link ? ` at "${
-				VURL.Parse(image.sourceChains[0][0].link, false).toString({ domain_protocol: false })}"` : '' // maybe temp
-				 }.`;
+				firstSource.name ? ` in "${firstSource.name}"` : ''}${
+				firstSource.author ? ` by ${firstSource.author}` : ''}${
+				firstSource.link ? ` at "${VURL.Parse(firstSource.link, false).toString({ domain_protocol: false })}"` : '' // maybe temp
+			}.`;
 		}
 
 		if (form) {
@@ -246,7 +251,7 @@ export function GetNodeDisplayText(node: MapNodeL2, path?: string, form?: ClaimF
 			return node.current.titles.base || '[base title not set]';
 		}
 	}
-	return node.current.titles.base || node.current.titles.yesNoQuestion || node.current.titles.negation || '';
+	return basicTitle;
 }
 
 export function GetValidChildTypes(nodeType: MapNodeType, path: string) {

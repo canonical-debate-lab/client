@@ -7,6 +7,8 @@ import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { ForNewLink_GetError, GetParentNodeID, GetParentNodeL3, GetHolderType } from 'Store/firebase/nodes';
 import { LinkNode_HighLevel, LinkNode_HighLevel_GetCommandError } from 'Server/Commands/LinkNode_HighLevel';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
+import { ShowMessageBox } from 'react-vmessagebox';
+import { GetNodeDisplayText } from 'Store/firebase/nodes/$node';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { MapNodeL3, Polarity, ClaimForm } from '../../../../../Store/firebase/nodes/@MapNode';
 import { GetNodeColor, MapNodeType } from '../../../../../Store/firebase/nodes/@MapNodeType';
@@ -53,12 +55,21 @@ const dropTargetDecorator = DropTarget('node',
 			const error = LinkNode_HighLevel_GetCommandError(linkCommand);
 			if (error) return;
 
-			(async () => {
-				const { argumentWrapperID } = await linkCommand.Run();
-				if (argumentWrapperID) {
-					store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: argumentWrapperID, time: Date.now() }));
-				}
-			})();
+			ShowMessageBox({
+				title: `${ctrlDown ? 'Copy' : 'Move'} node as new argument?`, cancelButton: true,
+				message: `
+					Are you sure you want to ${ctrlDown ? 'copy' : 'move'} the dragged node as a new argument?
+
+					Dragged claim/argument: ${GetNodeDisplayText(draggedNode)}
+					Destination (new parent): ${GetNodeDisplayText(dropOnNode)}
+				`.AsMultiline(0),
+				onOK: async () => {
+					const { argumentWrapperID } = await linkCommand.Run();
+					if (argumentWrapperID) {
+						store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: argumentWrapperID, time: Date.now() }));
+					}
+				},
+			});
 		},
 	},
 	(connect, monitor) => ({
