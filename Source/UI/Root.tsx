@@ -32,6 +32,24 @@ import ReputationUI from './Reputation';
 import SearchUI from './Search';
 import SocialUI from './Social';
 import StreamUI from './Stream';
+import { VDragLayer } from './@Shared/VDragLayer';
+import { DragDropContext } from 'react-dnd';
+import MouseBackend from 'react-dnd-mouse-backend';
+import keycode from 'keycode';
+// import HTML5Backend from "react-dnd-html5-backend";
+// import TouchBackend from "react-dnd-touch-backend";
+
+// temp fix for "isOver({shallow: true})"
+// var DragDropMonitor = require("dnd-core/lib/DragDropMonitor").default;
+let DragDropMonitor = require('dnd-core/lib/DragDropMonitorImpl').default; // eslint-disable-line
+DragDropMonitor.prototype.GetTargetComponents = function () { // eslint-disable-line
+	return this.getTargetIds().map(targetID => this.registry.handlers[targetID].component);
+};
+/* var createTargetMonitor = require("react-dnd/lib/createTargetMonitor").default;
+var TargetMonitor = createTargetMonitor({getMonitor: function() {}}).constructor;
+TargetMonitor.prototype.GetTargetComponent = function() {
+    return this.internalMonitor.registry.handlers[this.targetId].component;
+}; */
 
 const PersistGate = PersistGate_ as any;
 
@@ -81,13 +99,39 @@ export class RootUIWrapper extends BaseComponent<{store}, {}> {
 
 			g.mousePos = new Vector2i(event.pageX, event.pageY);
 		});
+
+		document.addEventListener('keydown', (event) => {
+			if (event.which == keycode.codes.ctrl) g.ctrlDown = true;
+			if (event.which == keycode.codes.shift) g.shiftDown = true;
+			if (event.which == keycode.codes.alt) g.altDown = true;
+		});
+		document.addEventListener('keyup', (event) => {
+			if (event.which == keycode.codes.ctrl) g.ctrlDown = false;
+			if (event.which == keycode.codes.shift) g.shiftDown = false;
+			if (event.which == keycode.codes.alt) g.altDown = false;
+		});
+
+		// if in dev-mode, disable the body`s minHeight attribute
+		if (DEV) {
+			document.body.style.minHeight = null;
+		}
 	}
 }
+
+declare global {
+	var mousePos: Vector2i;
+	var ctrlDown: boolean;
+	var shiftDown: boolean;
+	var altDown: boolean;
+}
+g.mousePos = new Vector2i(undefined, undefined);
+G({ ctrlDown: false, shiftDown: false, altDown: false });
 
 const connector = (state, {}: {}) => ({
 	currentPage: State(a => a.main.page),
 });
 @Connect(connector)
+@DragDropContext(MouseBackend)
 class RootUI extends BaseComponentWithConnector(connector, {}) {
 	shouldComponentUpdate(newProps, newState) {
 		// ignore change of 'router' prop -- we don't use it
@@ -97,7 +141,7 @@ class RootUI extends BaseComponentWithConnector(connector, {}) {
 		// let {currentPage} = this.props;
 		const background = GetUserBackground(GetUserID());
 		return (
-			<Column className='background'/*'unselectable' */ style={{ height: '100%' }}>
+			<Column className='background'/* 'unselectable' */ style={{ height: '100%' }}>
 				{/* <div className='background' style={{
 					position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, opacity: .5,
 				}}/> */}
@@ -117,7 +161,7 @@ class RootUI extends BaseComponentWithConnector(connector, {}) {
 				<AddressBarWrapper/>
 				<OverlayUI/>
 				<NavBar/>
-				{/* <InfoButton_TooltipWrapper/>*/}
+				{/* <InfoButton_TooltipWrapper/> */}
 				<main style={ES({ position: 'relative', flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' })}>
 					<Route path='/stream'><StreamUI/></Route>
 					<Route path='/chat'><ChatUI/></Route>
@@ -148,6 +192,7 @@ class OverlayUI extends BaseComponent<{}, {}> {
 			<div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflow: 'hidden' }}>
 				<MessageBoxUI/>
 				<VMenuLayer/>
+				<VDragLayer/>
 			</div>
 		);
 	}

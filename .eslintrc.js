@@ -2,7 +2,7 @@ module.exports = {
 	extends: [
 		"airbnb-base",
 		"plugin:react/recommended",
-		"plugin:jsx-a11y/recommended",
+		//"plugin:jsx-a11y/recommended",
 	],
 	parser: "typescript-eslint-parser",
 	parserOptions: {
@@ -70,6 +70,7 @@ module.exports = {
 		"object-property-newline": "off",
 		"no-use-before-define": ["error", { "functions": false, "classes": false }],
 		"sort-imports": "off", // there are a couple places (eg Main_Hot.tsx) where changing the import order will cause errors
+		"arrow-body-style": "off",
 	},
 	globals: {
 		ENV: true,

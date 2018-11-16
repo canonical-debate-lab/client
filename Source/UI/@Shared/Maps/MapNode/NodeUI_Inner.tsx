@@ -21,7 +21,7 @@ import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebas
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatingAverage_AtPath, GetRatings, RatingFilter } from '../../../../Store/firebase/nodeRatings';
 import { RatingType, ratingTypes } from '../../../../Store/firebase/nodeRatings/@RatingType';
-import { GetParentNode, GetParentNodeL3, IsNodeSubnode } from '../../../../Store/firebase/nodes';
+import { GetParentNode, GetParentNodeL3, IsNodeSubnode, ForCopy_GetError } from '../../../../Store/firebase/nodes';
 import { GetFontSizeForNode, GetMainRatingType, GetNodeDisplayText, GetNodeForm, GetNodeL3, GetPaddingForNode, IsPremiseOfSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
 import { GetEquationStepNumber } from '../../../../Store/firebase/nodes/$node/equation';
 import { ClaimForm, MapNodeL2, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
@@ -49,7 +49,10 @@ import { NodeUI_Menu, NodeUI_Menu_Stub } from './NodeUI_Menu';
 // ==========
 
 const dragSourceDecorator = DragSource('node',
-	{ beginDrag: ({ node }) => ({ node }) },
+	{
+		canDrag: ({ map, node, path }) => ForCopy_GetError(GetUserID(), node) == null,
+		beginDrag: ({ map, node, path }) => ({ map, node, path }),
+	},
 	(connect, monitor) => ({
 		connectDragSource: connect.dragSource(),
 		isDragging: monitor.isDragging(),
@@ -124,6 +127,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 			panelPosition, useLocalPanelState, style, form,
 			ratingsRoot, mainRating_average, mainRating_mine, reasonScoreValues,
 			showReasonScoreValues, changeType, backgroundFillPercent, markerPercent } = this.props;
+		const { connectDragSource } = this.props as any; // lazy
 		const { hovered, hoverPanel, hoverTermID, /* local_selected, */ local_openPanel } = this.state;
 		const nodeTypeInfo = MapNodeType_Info.for[node.type];
 		let backgroundColor = GetNodeColor(node);
@@ -168,7 +172,8 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 		const expanded = nodeView && nodeView.expanded;
 
 		return (
-			<ExpandableBox {...{ width, widthOverride, outlineColor, expanded }} parent={this}
+			<ExpandableBox ref={a => connectDragSource(GetDOM(a))}
+				{...{ width, widthOverride, outlineColor, expanded }} parent={this}
 				className={classNames('NodeUI_Inner', { root: pathNodeIDs.length == 0 })}
 				style={E(style)}
 				padding={GetPaddingForNode(node, isSubnode)}

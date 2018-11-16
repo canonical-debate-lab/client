@@ -255,7 +255,7 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 					/* useAutoOffset && {display: "flex", height: "100%", flexDirection: "column", justifyContent: "center"},
 					!useAutoOffset && {paddingTop: innerBoxOffset}, */
 					// {paddingTop: innerBoxOffset},
-					{ marginTop: nodeView.expanded && !isMultiPremiseArgument ? (dividePoint - (selfHeight / 2)).KeepAtLeast(0) : 0 },
+					{ marginTop: nodeView.expanded && !isMultiPremiseArgument ? (dividePoint - (selfHeight / 2)).NaNTo(0).KeepAtLeast(0) : 0 },
 				)}>
 					{limitBar_above && children}
 					{asSubnode

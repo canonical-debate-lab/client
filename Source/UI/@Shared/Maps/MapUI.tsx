@@ -6,8 +6,6 @@ import { VMenuStub } from 'react-vmenu';
 import { VMenuItem } from 'react-vmenu/dist/VMenu';
 import { ScrollView } from 'react-vscrollview';
 import { TimelinePlayerUI } from 'UI/@Shared/Maps/MapUI/TimelinePlayerUI';
-import { DragDropContext } from 'react-dnd';
-import MouseBackend from 'react-dnd-mouse-backend';
 import { Connect } from '../../../Frame/Database/FirebaseConnect';
 import { GetDistanceBetweenRectAndPoint } from '../../../Frame/General/Geometry';
 import { inFirefox } from '../../../Frame/General/Others';
@@ -24,20 +22,7 @@ import NodeUI_ForBots from './MapNode/NodeUI_ForBots';
 import { NodeUI_Inner } from './MapNode/NodeUI_Inner';
 import { ActionBar_Left } from './MapUI/ActionBar_Left';
 import { ActionBar_Right } from './MapUI/ActionBar_Right';
-// import HTML5Backend from "react-dnd-html5-backend";
-// import TouchBackend from "react-dnd-touch-backend";
 
-// temp fix for "isOver({shallow: true})"
-// var DragDropMonitor = require("dnd-core/lib/DragDropMonitor").default;
-let DragDropMonitor = require('dnd-core/lib/DragDropMonitorImpl').default; // eslint-disable-line
-DragDropMonitor.prototype.GetTargetComponents = function () { // eslint-disable-line
-	return this.getTargetIds().map(targetID => this.registry.handlers[targetID].component);
-};
-/* var createTargetMonitor = require("react-dnd/lib/createTargetMonitor").default;
-var TargetMonitor = createTargetMonitor({getMonitor: function() {}}).constructor;
-TargetMonitor.prototype.GetTargetComponent = function() {
-    return this.internalMonitor.registry.handlers[this.targetId].component;
-}; */
 
 export function GetNodeBoxForPath(path: string) {
 	const nodeInnerBoxes = FindDOMAll('.NodeUI_Inner').map(a => DeepGet(FindReact(a), 'props/parent') as NodeUI_Inner);
@@ -95,7 +80,6 @@ const connector = (state: RootState, { map, rootNode }: Props) => {
 	};
 };
 @Connect(connector)
-@DragDropContext(MouseBackend)
 export class MapUI extends BaseComponentWithConnector(connector, {}) {
 	// static defaultProps = {padding: {left: 2000, right: 2000, top: 1000, bottom: 1000}};
 	static defaultProps = {
