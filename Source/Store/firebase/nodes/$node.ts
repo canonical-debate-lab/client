@@ -204,7 +204,7 @@ export function GetNodeDisplayText(node: MapNodeL2, path?: string, form?: ClaimF
 	const basicTitle = node.current.titles.base || node.current.titles.yesNoQuestion || node.current.titles.negation || '';
 
 	if (node.type == MapNodeType.Argument && !node.multiPremiseArgument && !basicTitle) {
-		const baseClaim = GetNodeL2((node.children.VKeys(true)[0] || '').ToInt());
+		const baseClaim = GetNodeL2(node.children && node.children.VKeys(true).length ? node.children.VKeys(true)[0].ToInt() : null);
 		if (baseClaim) return GetNodeDisplayText(baseClaim);
 	}
 	if (node.type == MapNodeType.Claim) {
