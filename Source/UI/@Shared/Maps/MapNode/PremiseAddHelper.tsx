@@ -54,7 +54,7 @@ export class PremiseAddHelper extends BaseComponent<{mapID: number, parentNode: 
 		store.dispatch(new ACTMapNodeExpandedSet({ mapID, path: `${parentPath}/${info.nodeID}`, expanded: true, recursive: false }));
 		store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.nodeID, time: Date.now() }));
 
-		await WaitTillPathDataIsReceiving(`nodeRevisions/${info.revisionID}`);
+		// await WaitTillPathDataIsReceiving(`nodeRevisions/${info.revisionID}`);
 		await WaitTillPathDataIsReceived(`nodeRevisions/${info.revisionID}`);
 		SetNodeUILocked(parentNode._id, false);
 	}

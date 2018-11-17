@@ -407,7 +407,7 @@ class TitlePanel extends BaseComponent<TitlePanelProps, {editing: boolean, newTi
 			SetNodeUILocked(parentNode._id, true);
 			const revisionID = await new AddNodeRevision({ mapID: map._id, revision: RemoveHelpers(newRevision) }).Run();
 			store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._id, time: Date.now() }));
-			await WaitTillPathDataIsReceiving(DBPath(`nodeRevisions/${revisionID}`));
+			// await WaitTillPathDataIsReceiving(DBPath(`nodeRevisions/${revisionID}`));
 			await WaitTillPathDataIsReceived(DBPath(`nodeRevisions/${revisionID}`));
 			SetNodeUILocked(parentNode._id, false);
 		}

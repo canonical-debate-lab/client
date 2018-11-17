@@ -1,5 +1,5 @@
-import { activeStoreAccessCollectors, PathToListenerPath, GetPathParts } from 'Frame/Database/DatabaseHelpers';
-import { GetPropsChanged, GetPropsChanged_WithValues } from 'js-vextensions';
+import { activeStoreAccessCollectors, PathToListenerPath, GetPathParts, NotifyPathsReceiving, NotifyPathsReceived } from 'Frame/Database/DatabaseHelpers';
+import { GetPropsChanged, GetPropsChanged_WithValues, DeepGet, DeepGet } from 'js-vextensions';
 import _ from 'lodash';
 import Moment from 'moment';
 import { connect } from 'react-redux';
@@ -10,6 +10,9 @@ import { setListeners, unsetListeners } from 'redux-firestore/es/actions/firesto
 import firebase from 'firebase';
 import { GetUser, GetUserPermissions } from '../../Store/firebase/users';
 import { ApplyActionSet, RootState } from '../../Store/index';
+import { DoesActionSetFirestoreData, GetFirestoreDataSetterActionPath } from 'Store/firebase';
+import { firestoreReducer } from 'redux-firestore';
+import { AddDispatchInterceptor } from 'Frame/Store/CreateStore';
 
 // Place a selector in Connect() whenever it uses data that:
 // 1) might change during the component's lifetime, and:
@@ -207,36 +210,57 @@ const actionTypeBufferInfos = DEV ? {} : {
 const actionTypeLastDispatchTimes = {};
 const actionTypeBufferedActions = {};
 
-function DispatchDBAction(action) {
+AddDispatchInterceptor((action) => {
 	const timeSinceLastDispatch = Date.now() - (actionTypeLastDispatchTimes[action.type] || 0);
 	const bufferInfo = actionTypeBufferInfos[action.type];
 
 	// These are merely informational entries into the redux store. We don't use them, so block these actions from being dispatched.
-	if (action.type === '@@reduxFirestore/SET_LISTENER' || action.type === '@@reduxFirestore/UNSET_LISTENER') return;
+	// if (action.type === '@@reduxFirestore/SET_LISTENER' || action.type === '@@reduxFirestore/UNSET_LISTENER') return;
+	if (action.type === '@@reduxFirestore/SET_LISTENER' || action.type === '@@reduxFirestore/UNSET_LISTENER' || DoesActionSetFirestoreData(action)) {
+		// let path = GetFirestoreDataSetterActionPath(action);
+		const state = State();
+		// const newFirebaseState = firebaseStateReducer(state.firebase, action);
+		const newFirestoreState = firestoreReducer(state.firestore, action);
+
+		// Watch for changes to requesting and requested, and channel those statuses into a custom pathReceiveStatuses map.
+		// This way, when an action only changes these statuses, we can cancel the action dispatch, greatly reducing performance impact.
+		NotifyPathsReceiving(newFirestoreState.status.requesting.Pairs().filter(a => a.value).map(a => a.key));
+		NotifyPathsReceived(newFirestoreState.status.requested.Pairs().filter(a => a.value).map(a => a.key));
+
+		// Here we check if the action changed more than just the statuses. If it didn't, then the action dispatch is canceled. (basically -- the action applies no state change, leading to store subscribers not being notified)
+		/* const oldData = DeepGet(state.firestore.data, path);
+		const newData = DeepGet(newFirestoreState.data, path);
+		// if (newData === oldData) {
+		if (newData === oldData || ToJSON(newData) === ToJSON(oldData)) {
+			return false;
+		} */
+		if (action.type === '@@reduxFirestore/SET_LISTENER' || action.type === '@@reduxFirestore/UNSET_LISTENER') {
+			return false; // block dispatch
+		}
+	}
 
 	// if we're not supposed to buffer this action type, or it's been long enough since last dispatch of this type
 	if (bufferInfo == null || timeSinceLastDispatch >= bufferInfo.time) {
-		// dispatch action right away
-		store.dispatch(action);
 		actionTypeLastDispatchTimes[action.type] = Date.now();
+		// dispatch action right away
+		return true;
 	}
+
 	// else, buffer action to be dispatched later
-	else {
-		// if timer not started, start it now
-		if (actionTypeBufferedActions[action.type] == null) {
-			setTimeout(() => {
-				// now that wait is over, apply any buffered event-triggers
-				store.dispatch(new ApplyActionSet(actionTypeBufferedActions[action.type]));
+	// if timer not started, start it now
+	if (actionTypeBufferedActions[action.type] == null) {
+		setTimeout(() => {
+			// now that wait is over, apply any buffered event-triggers
+			store.dispatch(new ApplyActionSet(actionTypeBufferedActions[action.type]));
 
-				actionTypeLastDispatchTimes[action.type] = Date.now();
-				actionTypeBufferedActions[action.type] = null;
-			}, (actionTypeLastDispatchTimes[action.type] + bufferInfo.time) - Date.now());
-		}
-
-		// add action to buffer, to be run when timer ends
-		actionTypeBufferedActions[action.type] = (actionTypeBufferedActions[action.type] || []).concat(action);
+			actionTypeLastDispatchTimes[action.type] = Date.now();
+			actionTypeBufferedActions[action.type] = null;
+		}, (actionTypeLastDispatchTimes[action.type] + bufferInfo.time) - Date.now());
 	}
-}
+
+	// add action to buffer, to be run when timer ends
+	actionTypeBufferedActions[action.type] = (actionTypeBufferedActions[action.type] || []).concat(action);
+});
 
 let requestedPaths = {} as {[key: string]: boolean};
 /** This only adds paths to a "request list". Connect() is in charge of making the actual db requests. */

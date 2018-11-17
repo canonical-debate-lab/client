@@ -12,6 +12,8 @@ import { Action, IsACTSetFor } from '../Frame/General/Action';
 import { HandleError } from '../Frame/General/Errors';
 import { State_overrideCountAsAccess_value, State_overrideData_path, State_overrideData_value } from '../UI/@Shared/StateOverrides';
 import { MainReducer, MainState } from './main';
+import { NotifyPathsReceiving, NotifyPathsReceived } from 'Frame/Database/DatabaseHelpers';
+import { DoesActionSetFirestoreData } from './firebase';
 
 // State() actually also returns the root-state (if no data-getter is supplied), but we don't reveal that in type-info (as its only to be used in console)
 G({ State });
@@ -169,17 +171,19 @@ export class RootState {
 export function MakeRootReducer(extraReducers?) {
 	const innerReducer = CombineReducers_Advanced({
 		/* preReduce: (state, action) => {
-			if (action.type == '@@reactReduxFirebase/START' || action.type == '@@reactReduxFirebase/SET') {
-				const newFirebaseState = firebaseStateReducer(state.firebase, action);
+			// if (action.type == '@@reactReduxFirebase/START' || action.type == '@@reactReduxFirebase/SET') {
+			if (action.type == '@@reactReduxFirebase/SET_LISTENER' || DoesActionSetFirestoreData(action)) {
+				// const newFirebaseState = firebaseStateReducer(state.firebase, action);
+				const newFirestoreState = firestoreReducer(state.firestore, action);
 
 				// Watch for changes to requesting and requested, and channel those statuses into a custom pathReceiveStatuses map.
 				// This way, when an action only changes these statuses, we can cancel the action dispatch, greatly reducing performance impact.
-				NotifyPathsReceiving(newFirebaseState.requesting.Pairs().filter(a => a.value).map(a => a.key));
-				NotifyPathsReceived(newFirebaseState.requested.Pairs().filter(a => a.value).map(a => a.key));
+				NotifyPathsReceiving(newFirestoreState.status.requesting.Pairs().filter(a => a.value).map(a => a.key));
+				NotifyPathsReceived(newFirestoreState.status.requested.Pairs().filter(a => a.value).map(a => a.key));
 
 				// Here we check if the action changed more than just the statuses. If it didn't, then the action dispatch is canceled. (basically -- the action applies no state change, leading to store subscribers not being notified)
 				const oldData = DeepGet(state.firebase.data, action['path']);
-				const newData = DeepGet(newFirebaseState.data, action['path']);
+				const newData = DeepGet(newFirestoreState.data, action['path']);
 				// if (newData === oldData) {
 				if (newData === oldData || ToJSON(newData) === ToJSON(oldData)) {
 					return state;

@@ -17,6 +17,7 @@ import { Term } from './firebase/terms/@Term';
 import UserExtraInfo from './firebase/userExtras/@UserExtraInfo';
 import { UserMapInfoSet } from './firebase/userMapInfo/@UserMapInfo';
 import { ViewedNodeSet } from './firebase/userViewedNodes/@ViewedNodeSet';
+import { ListenerPathToPath } from 'Frame/Database/DatabaseHelpers';
 
 export interface FirebaseData {
 	forum: ForumData;
@@ -51,4 +52,8 @@ export function IsAuthValid(auth) {
 
 export function DoesActionSetFirestoreData(action: Action<any>) {
 	return action.type == '@@reduxFirestore/LISTENER_RESPONSE' || action.type == '@@reduxFirestore/DOCUMENT_ADDED' || action.type == '@@reduxFirestore/DOCUMENT_MODIFIED';
+}
+export function GetFirestoreDataSetterActionPath(action: Action<any>) {
+	// "subcollections" prop currently bugged in some cases, so just use new "path" prop when available
+	return action['meta'].path || ListenerPathToPath(action['meta']);
 }

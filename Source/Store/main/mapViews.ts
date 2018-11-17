@@ -7,7 +7,7 @@ import { ACTDebateMapSelect_WithData } from './debates';
 import { ACTMapViewMerge, MapViewReducer } from './mapViews/$mapView';
 import { MapNodeView, MapView, MapViews } from './mapViews/@MapViews';
 import { ACTPersonalMapSelect_WithData } from './personal';
-import { DoesActionSetFirestoreData } from 'Store/firebase';
+import { DoesActionSetFirestoreData, GetFirestoreDataSetterActionPath } from 'Store/firebase';
 
 export function MapViewsReducer(state = new MapViews(), action: Action<any>) {
 	/* if (action.Is(ACTOpenMapSet))
@@ -17,9 +17,7 @@ export function MapViewsReducer(state = new MapViews(), action: Action<any>) {
 
 	// if (action.type == '@@reactReduxFirebase/SET' && action['data']) {
 	if (DoesActionSetFirestoreData(action) && action.payload.data) {
-		// "subcollections" prop currently bugged in some cases, so just use new "path" prop when available
-		const path = action['meta'].path || ListenerPathToPath(action['meta']);
-
+		const path = GetFirestoreDataSetterActionPath(action);
 		const match = path.match(`^${DBPath('maps')}/([0-9]+)`);
 		// if map-data was just loaded
 		if (match) {

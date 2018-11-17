@@ -32,6 +32,11 @@ const { reducer: routerReducer, middleware: routerMiddleware, enhancer: routerEn
 
 declare global { var firestoreDB: any; } // set in CreateStore.ts
 
+let dispatchInterceptors = [];
+export function AddDispatchInterceptor(interceptor: Function) {
+	dispatchInterceptors.push(interceptor);
+}
+
 export function CreateStore(initialState = {}, history) {
 	// Window Vars Config
 	// ==========
@@ -54,6 +59,21 @@ export function CreateStore(initialState = {}, history) {
 				PostDispatchAction(action); if (action.type == 'ApplyActionSet') for (const sub of action.actions) PostDispatchAction(sub);
 			});
 			lastAction = action;
+			return returnValue;
+		},
+		store => next => (action) => {
+			const actionStacks_actionTypeIgnorePatterns = [
+				'@@reactReduxFirebase/', // ignore redux actions
+			];
+			if (g.actionStacks || (DEV && !actionStacks_actionTypeIgnorePatterns.Any(a => action.type.startsWith(a)))) {
+				action['stack'] = new Error().stack.split('\n').slice(1); // add stack, so we can inspect in redux-devtools
+			}
+			for (let interceptor of dispatchInterceptors) {
+				let result = interceptor(action);
+				if (result == false) return;
+			}
+			
+			const returnValue = next(action);
 			return returnValue;
 		},
 	];
@@ -117,9 +137,13 @@ export function CreateStore(initialState = {}, history) {
 	// SetUpPostDispatchAction(store);
 	store.reducer = rootReducer;
 
-	function Dispatch_WithStack(action) {
+	/* function Dispatch_WithStack(action) {
 		if (g.actionStacks || (DEV && !actionStacks_actionTypeIgnorePatterns.Any(a => action.type.startsWith(a)))) {
 			action['stack'] = new Error().stack.split('\n').slice(1); // add stack, so we can inspect in redux-devtools
+		}
+		for (let interceptor of dispatchInterceptors) {
+			let result = interceptor(action);
+			if (result == false) return;
 		}
 		store['dispatch_orig'](action);
 	}
@@ -129,7 +153,7 @@ export function CreateStore(initialState = {}, history) {
 	}
 	const actionStacks_actionTypeIgnorePatterns = [
 		'@@reactReduxFirebase/', // ignore redux actions
-	];
+	]; */
 
 	/* let w = watch(()=>State());
 	store.subscribe(w((newVal, oldVal) => {

@@ -309,7 +309,8 @@ export function GetData(...args) {
 	}
 
 	if (result == null && options.useUndefinedForInProgress) {
-		const requestCompleted = State().firestore.status.requested[path];
+		// const requestCompleted = State().firestore.status.requested[path];
+		const requestCompleted = pathReceiveStatuses[path] == 'received';
 		if (!requestCompleted) return undefined; // undefined means, current-data for path is null/non-existent, but we haven't completed the current request yet
 		return null; // null means, we've completed the request, and there is no data at that path
 	}
@@ -431,50 +432,63 @@ export async function GetAsync_Raw<T>(dbGetterFunc: ()=>T, statsLogger?: ({reque
 	return RemoveHelpers(Clone(value));
 }
 
-export function WaitTillPathDataIsReceiving(path: string, timeout: number = null): Promise<any> {
+type ReceiveStatus = 'not started' | 'receiving' | 'received';
+export const pathReceiveStatuses = {} as {[key: string]: ReceiveStatus};
+export const pathReceivingListeners = {} as {[key: string]: Function[]};
+export const pathReceivedListeners = {} as {[key: string]: Function[]};
+export function NotifyPathsReceiving(paths: string[]) {
+	for (const path of paths) {
+		pathReceiveStatuses[path] = 'receiving';
+		if (pathReceivingListeners[path]) {
+			// pathReceivingListeners[path].forEach(listener => listener());
+			for (const listener of pathReceivingListeners[path]) listener();
+		}
+	}
+}
+export function NotifyPathsReceived(paths: string[]) {
+	for (const path of paths) {
+		pathReceiveStatuses[path] = 'received';
+		if (pathReceivedListeners[path]) {
+			for (const listener of pathReceivedListeners[path]) listener();
+		}
+	}
+}
+export function WaitTillPathDataIsReceiving(path: string): Promise<any> {
 	Assert(!path.Contains("/."), "This function can only be supplied with collection/document paths. (not field paths)");
 	return new Promise((resolve, reject) => {
-		let pathDataReceiving = State().firestore.status.requesting[path];
+		let pathDataReceiving = pathReceiveStatuses[path] === 'receiving';
 		// if data already receiving, resolve right away
 		if (pathDataReceiving) resolve();
 
 		// else, add listener, and wait till store is receiving the data (then resolve it)
 		const listener = () => {
-			pathDataReceiving = State().firestore.status.requesting[path];
+			pathDataReceiving = pathReceiveStatuses[path] === 'receiving';
 			if (pathDataReceiving) {
-				if (timer) timer.Stop();
-				unsubscribe();
+				pathReceivingListeners[path].Remove(listener);
 				resolve();
 			}
 		};
-		let unsubscribe = store.subscribe(listener);
-		
-		if (timeout) {
-			var timer = new Timer(timeout, ()=>resolve(false)).Start();
-		}
+		pathReceivingListeners[path] = pathReceivingListeners[path] || [];
+		pathReceivingListeners[path].push(listener);
 	});
 }
-export function WaitTillPathDataIsReceived(path: string, timeout: number = null): Promise<any> {
+export function WaitTillPathDataIsReceived(path: string): Promise<any> {
 	Assert(!path.Contains("/."), "This function can only be supplied with collection/document paths. (not field paths)");
 	return new Promise((resolve, reject) => {
-		let pathDataReceived = State().firestore.status.requested[path];
+		let pathDataReceived = pathReceiveStatuses[path] === 'received';
 		// if data already received, resolve right away
 		if (pathDataReceived) resolve();
 
 		// else, add listener, and wait till store has received the data (then resolve it)
 		const listener = () => {
-			pathDataReceived = State().firestore.status.requested[path];
+			pathDataReceived = pathReceiveStatuses[path] === 'received';
 			if (pathDataReceived) {
-				if (timer) timer.Stop();
-				unsubscribe();
+				pathReceivedListeners[path].Remove(listener);
 				resolve();
 			}
 		};
-		let unsubscribe = store.subscribe(listener);
-
-		if (timeout) {
-			var timer = new Timer(timeout, ()=>resolve(false)).Start();
-		}
+		pathReceivedListeners[path] = pathReceivedListeners[path] || [];
+		pathReceivedListeners[path].push(listener);
 	});
 }
 

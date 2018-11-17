@@ -120,7 +120,7 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 						);
 					});
 				})}
-				{// IsUserBasicOrAnon(userID) && !inList && path.includes("/") && !path.includes("L") && !componentBox &&
+				{/* // IsUserBasicOrAnon(userID) && !inList && path.includes("/") && !path.includes("L") && !componentBox &&
 				// for now, only let mods add layer-subnodes (confusing otherwise)
 					HasModPermissions(userID) && !inList && path.includes('/') && !path.includes('L') && !componentBox
 					&& <VMenuItem text="Add subnode (in layer)" style={styles.vMenuItem}
@@ -128,7 +128,7 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 							if (e.button != 0) return;
 							if (userID == null) return ShowSignInPopup();
 							ShowAddSubnodeDialog(map._id, node, path);
-						}}/>}
+						}}/> */}
 				{IsUserCreatorOrMod(userID, parent) && node.type == MapNodeType.Claim && IsSinglePremiseArgument(parent) && !componentBox
 					&& <VMenuItem text="Convert to multi-premise" style={styles.vMenuItem}
 						onClick={async (e) => {

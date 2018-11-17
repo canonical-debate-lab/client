@@ -5,7 +5,7 @@ import Raven from 'raven-js';
 import ReactGA from 'react-ga';
 import { FindReact } from 'react-vextensions';
 import { LOCATION_CHANGED } from 'redux-little-router';
-import { GetAuth, IsAuthValid, DoesActionSetFirestoreData } from 'Store/firebase';
+import { GetAuth, IsAuthValid, DoesActionSetFirestoreData, GetFirestoreDataSetterActionPath } from 'Store/firebase';
 import { GetNodeChildrenL2, GetNodeID } from 'Store/firebase/nodes';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
@@ -38,9 +38,7 @@ export function PreDispatchAction(action: Action<any>) {
 
 	if (DoesActionSetFirestoreData(action)) {
 		if (action.payload.data) {
-			// "subcollections" prop currently bugged in some cases, so just use new "path" prop when available
-			const path = action['meta'].path || ListenerPathToPath(action['meta']);
-
+			let path = GetFirestoreDataSetterActionPath(action);
 			action.payload.data = ProcessDBData(action.payload.data, true, true, SplitStringBySlash_Cached(path).Last());
 		} /* else {
 			// don't add the property to the store, if it is just null anyway (this makes it consistent with how firebase returns the whole db-state)
