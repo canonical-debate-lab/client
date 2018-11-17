@@ -234,7 +234,8 @@ class AdvancedOptions extends BaseComponent<Props_Enhanced, {}> {
 					<Pre>Access level: </Pre>
 					<Select options={GetEntries(AccessLevel).filter(a => a.value <= GetUserAccessLevel(GetUserID()))} enabled={enabled}
 						value={newRevisionData.accessLevel || AccessLevel.Basic}
-						onChange={val => Change(val == AccessLevel.Basic ? delete newRevisionData.accessLevel : newRevisionData.accessLevel = val)}/>
+						//onChange={val => Change(val == AccessLevel.Basic ? delete newRevisionData.accessLevel : newRevisionData.accessLevel = val)}/>
+						onChange={val => Change(newRevisionData.accessLevel = val)}/>
 				</Row>
 			</Column>
 		);

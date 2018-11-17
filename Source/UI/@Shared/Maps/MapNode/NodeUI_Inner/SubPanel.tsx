@@ -8,7 +8,7 @@ import {Image} from "../../../../../Store/firebase/images/@Image";
 import SourcesUI from "./SourcesUI";
 import VReactMarkdown_Remarkable from "../../../../../Frame/ReactComponents/VReactMarkdown_Remarkable";
 
-export default class SubPanel extends BaseComponent<{node: MapNodeL2}, {}> {
+export class SubPanel extends BaseComponent<{node: MapNodeL2}, {}> {
 	render() {
 		let {node} = this.props;
 		return (

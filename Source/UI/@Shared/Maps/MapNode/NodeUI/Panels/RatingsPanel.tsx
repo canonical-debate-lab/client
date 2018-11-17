@@ -112,7 +112,7 @@ export class RatingsPanel extends BaseComponent<RatingsPanel_Props, {size: Vecto
 					});
 				}}
 				onContextMenu={(e) => {
-					if (myRating == null) return;
+					if (myRating == null || ratingType === 'impact') return;
 					const boxController = ShowMessageBox({
 						title: 'Delete rating', cancelButton: true,
 						message: `Delete your "${ratingType}" rating for ${nodeTypeDisplayName}`,

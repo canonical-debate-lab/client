@@ -40,7 +40,7 @@ import { OthersPanel } from './NodeUI/Panels/OthersPanel';
 import { RatingsPanel } from './NodeUI/Panels/RatingsPanel';
 import SocialPanel from './NodeUI/Panels/SocialPanel';
 import TagsPanel from './NodeUI/Panels/TagsPanel';
-import SubPanel from './NodeUI_Inner/SubPanel';
+import { SubPanel } from './NodeUI_Inner/SubPanel';
 import { TermPlaceholder } from './NodeUI_Inner/TermPlaceholder';
 import { MapNodeUI_LeftBox } from './NodeUI_LeftBox';
 import { NodeUI_Menu, NodeUI_Menu_Stub } from './NodeUI_Menu';
@@ -172,7 +172,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 		const expanded = nodeView && nodeView.expanded;
 
 		return (
-			<ExpandableBox ref={a => connectDragSource(GetDOM(a))}
+			<ExpandableBox
 				{...{ width, widthOverride, outlineColor, expanded }} parent={this}
 				className={classNames('NodeUI_Inner', { root: pathNodeIDs.length == 0 })}
 				style={E(style)}
@@ -219,9 +219,15 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 				].AutoKey()}
 				onTextHolderClick={e => IsDoubleClick(e) && this.titlePanel && GetInnerComp(this.titlePanel).OnDoubleClick()}
 				text={[
-					<TitlePanel ref={c => this.titlePanel = c} {...{ parent: this, map, node, nodeView, path }}/>,
+					/* eslint-disable react/jsx-key */
+					<TitlePanel {...{ parent: this, map, node, nodeView, path }}
+						ref={(comp) => {
+							this.titlePanel = comp;
+							connectDragSource(GetDOM(comp));
+						}}/>,
 					subPanelShow && <SubPanel node={node}/>,
 					<NodeUI_Menu_Stub {...{ map, node, path }}/>,
+					/* eslint-enable react/jsx-key */
 				].AutoKey()}
 				{...{ backgroundFillPercent, backgroundColor, markerPercent }}
 				toggleExpanded={(e) => {
