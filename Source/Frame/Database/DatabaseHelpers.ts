@@ -1,5 +1,5 @@
 import { SplitStringBySlash_Cached } from 'Frame/Database/StringSplitCache';
-import { Assert, CachedTransform, DeepSet, GetStorageForCachedTransform, GetTreeNodesInObjTree, DeepGet } from 'js-vextensions';
+import { Assert, CachedTransform, DeepSet, GetStorageForCachedTransform, GetTreeNodesInObjTree, DeepGet, Timer } from 'js-vextensions';
 import { unWatchEvents, watchEvents } from 'react-redux-firebase/lib/actions/query';
 import { getEventsFromInput } from 'react-redux-firebase/lib/utils';
 import { ShallowChanged } from 'react-vextensions';
@@ -398,6 +398,10 @@ export async function GetAsync<T>(dbGetterFunc: ()=>T, statsLogger?: ({requested
 			// wait till data is received (assuming we don't have a state-override that's just locking the content of firebase.data anyway)
 			if (!dbDataLocked) {
 				await WaitTillPathDataIsReceived(path);
+				/* let success = await WaitTillPathDataIsReceived(path, 10000);
+				if (success == false) {
+					Assert(false, 'Failed to complete GetAsync() call.');
+				} */
 			}
 		}
 
@@ -427,7 +431,8 @@ export async function GetAsync_Raw<T>(dbGetterFunc: ()=>T, statsLogger?: ({reque
 	return RemoveHelpers(Clone(value));
 }
 
-export function WaitTillPathDataIsReceiving(path: string): Promise<any> {
+export function WaitTillPathDataIsReceiving(path: string, timeout: number = null): Promise<any> {
+	Assert(!path.Contains("/."), "This function can only be supplied with collection/document paths. (not field paths)");
 	return new Promise((resolve, reject) => {
 		let pathDataReceiving = State().firestore.status.requesting[path];
 		// if data already receiving, resolve right away
@@ -437,14 +442,20 @@ export function WaitTillPathDataIsReceiving(path: string): Promise<any> {
 		const listener = () => {
 			pathDataReceiving = State().firestore.status.requesting[path];
 			if (pathDataReceiving) {
+				if (timer) timer.Stop();
 				unsubscribe();
 				resolve();
 			}
 		};
 		let unsubscribe = store.subscribe(listener);
+		
+		if (timeout) {
+			var timer = new Timer(timeout, ()=>resolve(false)).Start();
+		}
 	});
 }
-export function WaitTillPathDataIsReceived(path: string): Promise<any> {
+export function WaitTillPathDataIsReceived(path: string, timeout: number = null): Promise<any> {
+	Assert(!path.Contains("/."), "This function can only be supplied with collection/document paths. (not field paths)");
 	return new Promise((resolve, reject) => {
 		let pathDataReceived = State().firestore.status.requested[path];
 		// if data already received, resolve right away
@@ -454,11 +465,16 @@ export function WaitTillPathDataIsReceived(path: string): Promise<any> {
 		const listener = () => {
 			pathDataReceived = State().firestore.status.requested[path];
 			if (pathDataReceived) {
+				if (timer) timer.Stop();
 				unsubscribe();
 				resolve();
 			}
 		};
 		let unsubscribe = store.subscribe(listener);
+
+		if (timeout) {
+			var timer = new Timer(timeout, ()=>resolve(false)).Start();
+		}
 	});
 }
 
@@ -597,7 +613,7 @@ export async function ApplyDBUpdates(rootPath: string, dbUpdates) {
 }
 export function ApplyDBUpdates_Local(dbData: FirebaseData, dbUpdates: Object) {
 	let result = dbData;
-	for (const { name: path, value } of dbUpdates.Props()) {
+	for (const { name: path, value } of Clone(dbUpdates).Props()) {
 		if (value != null) {
 			result = u.updateIn(path.replace(/\//g, '.'), u.constant(value), result);
 		} else {

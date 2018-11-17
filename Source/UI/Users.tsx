@@ -26,7 +26,7 @@ export default class UsersUI extends BaseComponent<{} & Partial<{users: User[], 
 		return (
 			<Column style={ES({width: 960, flex: 1, margin: "50px auto 20px auto", filter: "drop-shadow(rgb(0, 0, 0) 0px 0px 10px)"})}>
 				<Column className="clickThrough" style={{height: 40, background: "rgba(0,0,0,.7)", borderRadius: "10px 10px 0 0"}}>
-					{/*<Row style={{height: 40, padding: 10}}>
+					{/* <Row style={{height: 40, padding: 10}}>
 						<Row width={200} style={{position: "absolute", left: "calc(50% - 100px)"}}>
 							<Button text={<Icon icon="arrow-left" size={15}/>} title="Previous page"
 								enabled={page > 0} onClick={()=> {
@@ -48,7 +48,7 @@ export default class UsersUI extends BaseComponent<{} & Partial<{users: User[], 
 						<Pre>Filter:</Pre>
 						<InfoButton text="Hides nodes without the given text. Regular expressions can be used, ex: /there are [0-9]+ dimensions/"/>
 						<TextInput ml={2} value={filter} onChange={val=>store.dispatch(new ACTMapNodeListFilterSet({mapID: map._id, filter: val}))}/>
-					</Row>*/}
+					</Row> */}
 					<Row style={{height: 40, padding: 10}}>
 						<span style={{flex: columnWidths[0], fontWeight: 500, fontSize: 17}}>Name</span>
 						<span style={{flex: columnWidths[1], fontWeight: 500, fontSize: 17}}>Joined</span>

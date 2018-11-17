@@ -43,7 +43,7 @@ export class DeleteNode extends Command<{mapID?: number, nodeID: number, withCon
 		this.oldData = await GetAsync_Raw(() => GetNodeL2(nodeID));
 		this.oldRevisions = await GetAsync(() => GetNodeRevisions(nodeID));
 
-		this.oldParentChildrenOrders = await Promise.all((this.oldData.parents || {}).VKeys().map(parentID => GetDataAsync('nodes', parentID, 'childrenOrder') as Promise<number[]>));
+		this.oldParentChildrenOrders = await Promise.all((this.oldData.parents || {}).VKeys().map(parentID => GetDataAsync('nodes', parentID, '.childrenOrder') as Promise<number[]>));
 
 		this.viewerIDs_main = await GetAsync(() => GetNodeViewers(nodeID));
 

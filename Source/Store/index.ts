@@ -197,10 +197,10 @@ export function MakeRootReducer(extraReducers?) {
 			feedback: FeedbackReducer, */
 			...extraReducers,
 		},
-		actionSendInclusions: {
+		/* actionSendInclusions: {
 			'@@reactReduxFirebase/START': ['firebase'],
 			'@@reactReduxFirebase/SET': ['firebase'],
-		},
+		}, */
 	});
 
 	const rootReducer = (state: RootState, rootAction) => {

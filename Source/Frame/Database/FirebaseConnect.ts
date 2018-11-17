@@ -71,7 +71,6 @@ export function Connect<T, P>(funcOrFuncGetter) {
 					// store.dispatch({type: "Data changed!" + path});
 					storeDataChanged = true;
 					changedPath = path;
-					if (changedPath.includes('bot_currentNodeID')) debugger;
 					break;
 				}
 			}
@@ -130,18 +129,20 @@ export function Connect<T, P>(funcOrFuncGetter) {
 				// for now, we just never unwatch
 				// unWatchEvents(store.firebase, DispatchDBAction, getEventsFromInput(removedPaths));
 				// store.firestore.unsetListeners(removedPaths.map(path=>GetPathParts(path)[0]));
-				const removedPaths_toDocs = removedPaths.map(path => GetPathParts(path)[0]);
+				/* const removedPaths_toDocs = removedPaths.map(path => GetPathParts(path)[0]);
 				const removedPaths_toDocs_asListenerPaths = removedPaths_toDocs.map(path => PathToListenerPath(path));
 				// store.firestore.unsetListeners(removedPaths_toDocs_asListenerPaths);
-				unsetListeners(firebase['firebase_'] || firebase, DispatchDBAction, removedPaths_toDocs_asListenerPaths);
+				unsetListeners(firebase['firebase_'] || firebase, DispatchDBAction, removedPaths_toDocs_asListenerPaths); */
+				// UnsetListeners(removedPaths);
 
 				const addedPaths = requestedPaths.Except(...oldRequestedPaths);
-				const addedPaths_toDocs = addedPaths.map(path => GetPathParts(path)[0]);
+				/* const addedPaths_toDocs = addedPaths.map(path => GetPathParts(path)[0]);
 				const addedPaths_toDocs_asListenerPaths = addedPaths_toDocs.map(path => PathToListenerPath(path));
 				// watchEvents(store.firebase, DispatchDBAction, getEventsFromInput(addedPaths.map(path=>GetPathParts(path)[0])));
 				// for debugging, you can check currently-watched-paths using: store.firestore._.listeners
 				// store.firestore.setListeners(addedPaths_toDocs_asListenerPaths);
-				setListeners(firebase['firebase_'] || firebase, DispatchDBAction, addedPaths_toDocs_asListenerPaths);
+				setListeners(firebase['firebase_'] || firebase, DispatchDBAction, addedPaths_toDocs_asListenerPaths); */
+				SetListeners(addedPaths);
 				Log(`Requesting paths: ${addedPaths.join(',')}`);
 			});
 			s.lastRequestedPaths = requestedPaths;
@@ -172,7 +173,8 @@ export function Connect<T, P>(funcOrFuncGetter) {
 
 export const pathListenerCounts = {};
 export function SetListeners(paths: string[]) {
-	for (const path of paths) {
+	const paths_toDocs = paths.map(path => GetPathParts(path)[0]);
+	for (const path of paths_toDocs) {
 		const oldListenerCount = pathListenerCounts[path] || 0;
 		pathListenerCounts[path] = oldListenerCount + 1;
 		if (oldListenerCount > 0) continue;
@@ -183,7 +185,8 @@ export function SetListeners(paths: string[]) {
 	}
 }
 export function UnsetListeners(paths: string[]) {
-	for (const path of paths) {
+	const paths_toDocs = paths.map(path => GetPathParts(path)[0]);
+	for (const path of paths_toDocs) {
 		const listenerPath = PathToListenerPath(path);
 		pathListenerCounts[path]--;
 		if (pathListenerCounts[path] == 0) {
@@ -239,7 +242,9 @@ let requestedPaths = {} as {[key: string]: boolean};
 /** This only adds paths to a "request list". Connect() is in charge of making the actual db requests. */
 export function RequestPath(path: string) {
 	MaybeLog(a => a.dbRequests, () => `${_.padEnd(`Requesting db-path (stage 1): ${path}`, 150)}Component:${g.inConnectFuncFor ? g.inConnectFuncFor.name : ''}`);
-	requestedPaths[path] = true;
+	// firestore path-requests are always by-doc, so cut off any field-paths
+	const path_toDoc = GetPathParts(path)[0];
+	requestedPaths[path_toDoc] = true;
 }
 /** This only adds paths to a "request list". Connect() is in charge of making the actual db requests. */
 export function RequestPaths(paths: string[]) {
