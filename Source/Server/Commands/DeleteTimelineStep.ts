@@ -19,7 +19,7 @@ export class DeleteTimelineStep extends Command<{stepID: number}, {}> {
 	GetDBUpdates() {
 		const { stepID } = this.payload;
 		const updates = {};
-		updates[`timelines/${this.oldData.timelineID}/steps`] = this.timeline_oldSteps.Except(stepID);
+		updates[`timelines/${this.oldData.timelineID}/.steps`] = this.timeline_oldSteps.Except(stepID);
 		updates[`timelineSteps/${stepID}`] = null;
 		return updates;
 	}

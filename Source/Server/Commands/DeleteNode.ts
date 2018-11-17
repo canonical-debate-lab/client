@@ -43,7 +43,7 @@ export class DeleteNode extends Command<{mapID?: number, nodeID: number, withCon
 		this.oldData = await GetAsync_Raw(() => GetNodeL2(nodeID));
 		this.oldRevisions = await GetAsync(() => GetNodeRevisions(nodeID));
 
-		this.oldParentChildrenOrders = await Promise.all((this.oldData.parents || {}).VKeys().map((parentID) => GetDataAsync("nodes", parentID, "childrenOrder") as Promise<number[]>));
+		this.oldParentChildrenOrders = await Promise.all((this.oldData.parents || {}).VKeys().map(parentID => GetDataAsync('nodes', parentID, 'childrenOrder') as Promise<number[]>));
 
 		this.viewerIDs_main = await GetAsync(() => GetNodeViewers(nodeID));
 
@@ -58,7 +58,7 @@ export class DeleteNode extends Command<{mapID?: number, nodeID: number, withCon
 	}
 	async Validate() {
 		const { asPartOfMapDelete, childrenBeingDeleted } = this;
-		/*Assert((this.oldData.parents || {}).VKeys(true).length <= 1, "Cannot delete this child, as it has more than one parent. Try unlinking it instead.");
+		/* Assert((this.oldData.parents || {}).VKeys(true).length <= 1, "Cannot delete this child, as it has more than one parent. Try unlinking it instead.");
 		let normalChildCount = (this.oldData.children || {}).VKeys(true).length;
 		Assert(normalChildCount == 0, "Cannot delete this node until all its (non-impact-premise) children have been unlinked or deleted."); */
 		const earlyError = await GetAsync(() => ForDelete_GetError(this.userInfo.id, this.oldData, this.asSubcommand && { asPartOfMapDelete, childrenBeingDeleted }));
@@ -76,24 +76,24 @@ export class DeleteNode extends Command<{mapID?: number, nodeID: number, withCon
 		updates[`nodeRatings/${nodeID}`] = null;
 		updates[`nodeViewers/${nodeID}`] = null;
 		for (const viewerID of this.viewerIDs_main) {
-			updates[`userViewedNodes/${viewerID}/${nodeID}}`] = null;
+			updates[`userViewedNodes/${viewerID}/.${nodeID}}`] = null;
 		}
 
 		// delete links with parents
 		for (const { index, name: parentID } of (this.oldData.parents || {}).Props()) {
-			updates[`nodes/${parentID}/children/${nodeID}`] = null;
+			updates[`nodes/${parentID}/.children/.${nodeID}`] = null;
 			// let parent_childrenOrder = this.oldParentID__childrenOrder[parentID];
 			const parent_childrenOrder = this.oldParentChildrenOrders[index];
 			if (parent_childrenOrder) {
-				updates[`nodes/${parentID}/childrenOrder`] = parent_childrenOrder.Except(nodeID);
+				updates[`nodes/${parentID}/.childrenOrder`] = parent_childrenOrder.Except(nodeID);
 			}
 		}
 
 		// delete placement in layer
 		if (this.oldData.layerPlusAnchorParents) {
-			for (const layerPlusAnchorStr in this.oldData.layerPlusAnchorParents) {
+			for (const layerPlusAnchorStr of this.oldData.layerPlusAnchorParents.VKeys()) {
 				const [layerID, anchorNodeID] = layerPlusAnchorStr.split('_').map(ToInt);
-				updates[`layers/${layerID}/nodeSubnodes/${anchorNodeID}/${nodeID}`] = null;
+				updates[`layers/${layerID}/.nodeSubnodes/.${anchorNodeID}/.${nodeID}`] = null;
 			}
 		}
 
@@ -104,7 +104,7 @@ export class DeleteNode extends Command<{mapID?: number, nodeID: number, withCon
 
 		// delete edit-time entry within each map (if it exists)
 		for (const mapID of this.mapIDs) {
-			updates[`mapNodeEditTimes/${mapID}/${nodeID}`] = null;
+			updates[`maps/${mapID}/nodeEditTimes/${nodeID}`] = null;
 		}
 
 		if (this.sub_deleteContainerArgument) {

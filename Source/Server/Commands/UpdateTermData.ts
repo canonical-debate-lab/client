@@ -30,8 +30,8 @@ export class UpdateTermData extends Command<{termID: number, updates: Partial<Te
 			[`terms/${termID}`]: this.newData,
 		} as any;
 		if (this.newData.name != this.oldData.name) {
-			updates[`termNames/${this.oldData.name.toLowerCase()}/${termID}`] = null;
-			updates[`termNames/${this.newData.name.toLowerCase()}/${termID}`] = true;
+			updates[`termNames/${this.oldData.name.toLowerCase()}/.${termID}`] = null;
+			updates[`termNames/${this.newData.name.toLowerCase()}/.${termID}`] = true;
 		}
 		return updates;
 	}

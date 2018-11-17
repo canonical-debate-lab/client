@@ -26,7 +26,7 @@ export class DeleteTermComponent extends Command<{termComponentID: number}, {}> 
 		};
 		// delete as child of parent-terms
 		for (const parentTermID of this.oldData.parentTerms.VKeys(true)) {
-			updates[`terms/${parentTermID}/components/${termComponentID}`] = null;
+			updates[`terms/${parentTermID}/.components/.${termComponentID}`] = null;
 		}
 		return updates;
 	}

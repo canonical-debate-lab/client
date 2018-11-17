@@ -25,22 +25,22 @@ export function GetUser(userID: string): User {
 	return GetData('users', userID);
 }
 export function GetUsers(): User[] {
-	const userMap = GetData('users');
+	const userMap = GetData({ collection: true }, 'users');
 	return CachedTransform('GetUsers', [], userMap, () => (userMap ? userMap.VValues(true) : []));
 }
 
 export type UserExtraInfoMap = { [key: string]: UserExtraInfo };
 export function GetUserExtraInfoMap(): UserExtraInfoMap {
-	return GetData('userExtras');
+	return GetData({ collection: true }, 'userExtras');
 }
 export function GetUserJoinDate(userID: string): number {
 	if (userID == null) return null;
-	return GetData('userExtras', userID, 'joinDate');
+	return GetData('userExtras', userID, '.joinDate');
 }
 export function GetUserPermissions(userID: string | 'me'): PermissionGroupSet {
 	if (userID === 'me') userID = GetUserID();
 	if (userID == null) return null;
-	return GetData('userExtras', userID, 'permissionGroups');
+	return GetData('userExtras', userID, '.permissionGroups');
 }
 export function GetUserAccessLevel(userID: string | 'me') {
 	if (userID === 'me') userID = GetUserID();

@@ -5,6 +5,7 @@ import { GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeRevision } from '../../Store/firebase/nodes/@MapNodeRevision';
 import { Command } from '../Command';
+import { WrapValue } from 'Server/Server';
 
 @MapEdit
 @UserEdit
@@ -37,9 +38,9 @@ export class AddNodeRevision extends Command<{mapID: number, revision: MapNodeRe
 
 		const updates = {};
 		updates['general/data/.lastNodeRevisionID'] = this.revisionID;
-		updates[`nodes/${revision.node}/currentRevision`] = this.revisionID;
+		updates[`nodes/${revision.node}/.currentRevision`] = this.revisionID;
 		updates[`nodeRevisions/${this.revisionID}`] = revision;
-		updates[`mapNodeEditTimes/${mapID}/${revision.node}`] = revision.createdAt;
+		updates[`maps/${mapID}/nodeEditTimes/${revision.node}`] = WrapValue(revision.createdAt);
 		return updates;
 	}
 }

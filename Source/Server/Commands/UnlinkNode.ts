@@ -29,10 +29,10 @@ export class UnlinkNode extends Command<{mapID: number, parentID: number, childI
 		const { parentID, childID } = this.payload;
 
 		const updates = {};
-		updates[`nodes/${childID}/parents/${parentID}`] = null;
-		updates[`nodes/${parentID}/children/${childID}`] = null;
+		updates[`nodes/${childID}/.parents/.${parentID}`] = null;
+		updates[`nodes/${parentID}/.children/.${childID}`] = null;
 		if (this.parent_oldChildrenOrder) {
-			updates[`nodes/${parentID}/childrenOrder`] = this.parent_oldChildrenOrder.Except(childID);
+			updates[`nodes/${parentID}/.childrenOrder`] = this.parent_oldChildrenOrder.Except(childID);
 		}
 		return updates;
 	}

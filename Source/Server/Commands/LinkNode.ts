@@ -37,15 +37,15 @@ export class LinkNode extends Command<{mapID: number, parentID: number, childID:
 
 		const updates = {};
 		// add parent as parent-of-child
-		updates[`nodes/${childID}/parents/${parentID}`] = { _: true };
+		updates[`nodes/${childID}/.parents/.${parentID}`] = { _: true };
 		// add child as child-of-parent
-		updates[`nodes/${parentID}/children/${childID}`] = E(
+		updates[`nodes/${parentID}/.children/.${childID}`] = E(
 			{ _: true },
 			childForm && { form: childForm },
 			childPolarity && { polarity: childPolarity },
 		);
 		if (this.parent_oldData && this.parent_oldData.type == MapNodeType.Argument) {
-			updates[`nodes/${parentID}/childrenOrder`] = (this.parent_oldData.childrenOrder || []).concat([childID]);
+			updates[`nodes/${parentID}/.childrenOrder`] = (this.parent_oldData.childrenOrder || []).concat([childID]);
 		}
 		return updates;
 	}

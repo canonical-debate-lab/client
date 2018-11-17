@@ -29,7 +29,7 @@ export class SetMapLayerStateForUser extends Command<{userID: string, mapID: num
 	GetDBUpdates() {
 		const { userID, mapID, layerID, state } = this.payload;
 		const updates = {};
-		updates[`userMapInfo/${userID}/${mapID}/layerStates/${layerID}`] = state;
+		updates[`userMapInfo/${userID}/.${mapID}/.layerStates/.${layerID}`] = state;
 		// updates[`layers/${layerID}/usersWhereStateSet/${userID}`] = state;
 		return updates;
 	}

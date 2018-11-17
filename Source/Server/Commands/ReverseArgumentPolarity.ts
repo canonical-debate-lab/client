@@ -45,7 +45,7 @@ export class ReverseArgumentPolarity extends Command<{mapID?: number, nodeID: nu
 		const { nodeID } = this.payload;
 
 		const updates = {};
-		updates[`nodes/${this.parentID}/children/${nodeID}`] = this.newLinkData;
+		updates[`nodes/${this.parentID}/.children/.${nodeID}`] = this.newLinkData;
 		return updates;
 	}
 }

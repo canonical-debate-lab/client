@@ -19,7 +19,7 @@ import { styles } from '../../../../Frame/UI/GlobalStyles';
 import { AddChildNode } from '../../../../Server/Commands/AddChildNode';
 import { DeleteNode } from '../../../../Server/Commands/DeleteNode';
 import { RootState } from '../../../../Store';
-import { GetPathsToNodesChangedSinceX } from '../../../../Store/firebase/mapNodeEditTimes';
+import { GetPathsToNodesChangedSinceX } from '../../../../Store/firebase/maps/nodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { ForCopy_GetError, ForCut_GetError, ForDelete_GetError, ForUnlink_GetError, GetNodeChildrenL3, GetNodeID, GetParentNodeL3, IsNodeSubnode } from '../../../../Store/firebase/nodes';
 import { GetNodeDisplayText, GetNodeL3, GetValidNewChildTypes, IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';

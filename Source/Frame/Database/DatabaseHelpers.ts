@@ -35,12 +35,17 @@ export function FBFieldPathToVFieldPath(vFieldPath: string) {
 }
 
 export function GetPathParts(path: string, asFBPath = false) {
-	let docPath = path.substr(0, path.indexOf('/.').IfN1Then(path.length));
-	let fieldPathInDoc = docPath.length < path.length ? path.substr(docPath.length + 2).replace(/\./g, '') : null;
-	if (asFBPath) {
-		[docPath, fieldPathInDoc] = [VPathToFBPath(docPath), VFieldPathToFBFieldPath(fieldPathInDoc)];
+	let colOrDocPath = path.substr(0, path.indexOf('/.').IfN1Then(path.length));
+	const isDocPath = colOrDocPath.length != path.length; // if length differs, it means field-path is supplied, which means it's a doc-path
+	if (isDocPath) {
+		Assert(SplitStringBySlash_Cached(colOrDocPath).length % 2 == 0, `Segment count in docPath (${colOrDocPath}) must be multiple of 2.`);
 	}
-	return [docPath, fieldPathInDoc];
+
+	let fieldPathInDoc = colOrDocPath.length < path.length ? path.substr(colOrDocPath.length + 2).replace(/\./g, '') : null;
+	if (asFBPath) {
+		[colOrDocPath, fieldPathInDoc] = [VPathToFBPath(colOrDocPath), VFieldPathToFBFieldPath(fieldPathInDoc)];
+	}
+	return [colOrDocPath, fieldPathInDoc];
 }
 
 export function DBPath(path = '', inVersionRoot = true) {
@@ -225,6 +230,7 @@ const pathInfos = {} as {[path: string]: DBPathInfo};
 export class GetData_Options {
 	inVersionRoot? = true;
 	makeRequest? = true;
+	collection? = false;
 	useUndefinedForInProgress? = false;
 	queries?: any;
 }
@@ -234,9 +240,6 @@ G({ GetData });
  *
  * Returns undefined when the current-data for the path is null/non-existent, but a request is in-progress.
  * Returns null when we've completed the request, and there is no data at that path. */
-// export function GetData(pathSegments: (string | number)[], options?: GetData_Options) {
-/* export function GetData(pathSegment1: string | number, pathSegment2: string | number, ...pathSegments: (string | number)[]);
-export function GetData(options: GetData_Options, pathSegment1: string | number, pathSegment2: string | number, ...pathSegments: (string | number)[]); */
 export function GetData(...pathSegments: (string | number)[]);
 export function GetData(options: GetData_Options, ...pathSegments: (string | number)[]);
 export function GetData(...args) {
@@ -249,6 +252,16 @@ export function GetData(...args) {
 	if (DEV) {
 		Assert(pathSegments.every(segment => typeof segment === 'number' || !segment.Contains('/')),
 			`Each string path-segment must be a plain prop-name. (ie. contain no "/" separators) @segments(${pathSegments})`);
+
+		const colOrDocPathSegments = pathSegments.filter(segment => IsNumber(segment) || !segment.startsWith('.'));
+		if (options.collection) {
+			Assert(colOrDocPathSegments.length % 2 !== 0,
+				`Calling GetData() to retrieve a document or doc-field (${pathSegments.join('/')}) is prohibited if you pass {collection:true} as an option.`);
+		} else {
+			Assert(colOrDocPathSegments.length % 2 === 0, () => `
+				Calling GetData() to retrieve a collection (${pathSegments.join('/')}) is only allowed if you pass {collection:true} as an option.
+				Did you forget to add "." in front of field-path segments? (eg: "collection/doc/.field1/.field2")`.AsMultiline(0));
+		}
 	}
 
 	pathSegments = DBPathSegments(pathSegments, options.inVersionRoot);
@@ -487,7 +500,23 @@ export function AssertValidatePath(path: string) {
 	Assert(!path.Contains('//'), 'Path cannot contain a double-slash. (This may mean a path parameter is missing)');
 }
 
+export function ConvertDataToValidDBUpdates(rootPath: string, rootData: any) {
+	const result = {};
+	for (const { key: path, value: data } of rootData.Pairs()) {
+		// if entry`s "path" has odd number of segments (ie. points to collection), extract the children data into separate set-doc updates
+		if (SplitStringBySlash_Cached(path).length % 2 !== 0) {
+			for (const { key, value } of data.Pairs()) {
+				result[`${path}/${key}`] = value;
+			}
+		} else {
+			result[path] = data;
+		}
+	}
+	return result;
+}
+
 export async function ApplyDBUpdates(rootPath: string, dbUpdates) {
+	dbUpdates = Clone(dbUpdates);
 	for (const { name: localPath, value } of dbUpdates.Props()) {
 		dbUpdates[rootPath + localPath] = value;
 		delete dbUpdates[localPath];

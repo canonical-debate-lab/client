@@ -1,4 +1,4 @@
-export type UserMapInfoSet = {[key: string]: UserMapInfo};
+export type UserMapInfoSet = {maps: {[key: string]: UserMapInfo}};
 
 export class UserMapInfo {
 	_key: string;

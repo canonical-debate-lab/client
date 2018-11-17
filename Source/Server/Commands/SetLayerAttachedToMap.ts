@@ -33,8 +33,8 @@ export class SetLayerAttachedToMap extends Command<{mapID: number, layerID: numb
 	GetDBUpdates() {
 		const { mapID, layerID, attached } = this.payload;
 		const updates = {};
-		updates[`maps/${mapID}/layers/${layerID}`] = attached || null;
-		updates[`layers/${layerID}/mapsWhereEnabled/${mapID}`] = attached || null;
+		updates[`maps/${mapID}/.layers/.${layerID}`] = attached || null;
+		updates[`layers/${layerID}/.mapsWhereEnabled/.${mapID}`] = attached || null;
 		return updates;
 	}
 }

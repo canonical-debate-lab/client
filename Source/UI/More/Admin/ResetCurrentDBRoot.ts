@@ -1,4 +1,4 @@
-import { ApplyDBUpdates } from 'Frame/Database/DatabaseHelpers';
+import { ApplyDBUpdates, ConvertDataToValidDBUpdates } from 'Frame/Database/DatabaseHelpers';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ValidateDBData } from 'Server/Command';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
@@ -18,6 +18,7 @@ export async function ResetCurrentDBRoot() {
 	const userKey = GetUserID();
 
 	const data = {} as FirebaseData;
+	data.general = {} as any;
 	data.general.data = {
 		lastTermID: 0,
 		lastTermComponentID: 0,
@@ -50,7 +51,7 @@ export async function ResetCurrentDBRoot() {
 
 	ValidateDBData(data);
 
-	await ApplyDBUpdates(DBPath(), data);
+	await ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates('', data));
 
 	ShowMessageBox({ message: 'Done!' });
 }
@@ -61,14 +62,14 @@ function AddUserExtras(data: FirebaseData, userID: string, extraInfo: UserExtraI
 function AddMap(data: FirebaseData, entry: Map, id?: number) {
 	entry = E(sharedData.creatorInfo, entry);
 
-	data.maps[id || ++data.general.lastMapID] = entry as any;
+	data.maps[id || ++data.general.data.lastMapID] = entry as any;
 }
 function AddNode(data: FirebaseData, node: MapNode, revision: MapNodeRevision, nodeID?: number) {
 	node = E(sharedData.creatorInfo, node);
 	revision = E(sharedData.creatorInfo, revision);
 
-	nodeID = nodeID || ++data.general.lastNodeID;
-	const revisionID = ++data.general.lastNodeRevisionID;
+	nodeID = nodeID || ++data.general.data.lastNodeID;
+	const revisionID = ++data.general.data.lastNodeRevisionID;
 
 	node.currentRevision = revisionID;
 	data.nodes[nodeID] = node as any;

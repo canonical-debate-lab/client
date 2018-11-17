@@ -26,13 +26,13 @@ export class DeleteLayer extends Command<{layerID: number}, {}> {
 		const { layerID } = this.payload;
 		const updates = {};
 		updates[`layers/${layerID}`] = null;
-		for (const mapID in (this.oldData.mapsWhereEnabled || {})) {
-			updates[`maps/${mapID}/layers/${layerID}`] = null;
+		for (const mapID of (this.oldData.mapsWhereEnabled || {}).VKeys()) {
+			updates[`maps/${mapID}/.layers/.${layerID}`] = null;
 		}
 		for (const { name: userID, value: userMapInfoSet } of this.userMapInfoSets.Props(true)) {
 			for (const { name: mapID2, value: userMapInfo } of userMapInfoSet.Props(true)) {
 				if (userMapInfo.layerStates[layerID] != null) {
-					updates[`userMapInfo/${userID}/${mapID2}/layerStates/${layerID}`] = null;
+					updates[`userMapInfo/${userID}/.${mapID2}/.layerStates/.${layerID}`] = null;
 				}
 			}
 		}

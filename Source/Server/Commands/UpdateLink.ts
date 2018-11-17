@@ -37,7 +37,7 @@ export class UpdateLink extends Command<{linkParentID: number, linkChildID: numb
 	GetDBUpdates() {
 		const { linkParentID, linkChildID } = this.payload;
 		const updates = {};
-		updates[`nodes/${linkParentID}/children/${linkChildID}`] = this.newData;
+		updates[`nodes/${linkParentID}/.children/.${linkChildID}`] = this.newData;
 		return updates;
 	}
 }

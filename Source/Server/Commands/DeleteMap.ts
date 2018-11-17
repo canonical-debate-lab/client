@@ -35,12 +35,12 @@ export class DeleteMap extends Command<{mapID: number}, {}> {
 		for (const { name: userID, value: userMapInfoSet } of this.userMapInfoSets.Props(true)) {
 			for (const { name: mapID2, value: userMapInfo } of userMapInfoSet.Props(true)) {
 				if (parseInt(mapID2) == mapID) {
-					newUpdates[`userMapInfo/${userID}/${mapID}`] = null;
+					newUpdates[`userMapInfo/${userID}/.${mapID}`] = null;
 				}
 			}
 		}
-		// delete mapNodeEditTimes
-		newUpdates[`mapNodeEditTimes/${mapID}`] = null;
+		// delete nodeEditTimes // todo: make sure this actually works (I don't think it does)
+		newUpdates[`maps/${mapID}/nodeEditTimes`] = null;
 		updates = MergeDBUpdates(updates, newUpdates);
 
 		return updates;

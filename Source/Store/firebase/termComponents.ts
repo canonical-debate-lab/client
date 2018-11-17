@@ -1,6 +1,6 @@
-import {CachedTransform} from "js-vextensions";
-import {GetData, GetDataAsync} from "../../Frame/Database/DatabaseHelpers";
-import {Term} from "./terms/@Term";
+import { CachedTransform } from 'js-vextensions';
+import { GetData, GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
+import { Term } from './terms/@Term';
 import { TermComponent } from './termComponents/@TermComponent';
 
 export function GetTermComponent(id: number) {

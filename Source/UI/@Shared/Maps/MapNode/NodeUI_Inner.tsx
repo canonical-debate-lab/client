@@ -17,7 +17,7 @@ import { InfoButton } from '../../../../Frame/ReactComponents/InfoButton';
 import VReactMarkdown_Remarkable from '../../../../Frame/ReactComponents/VReactMarkdown_Remarkable';
 import { AddNodeRevision } from '../../../../Server/Commands/AddNodeRevision';
 import { GetImage } from '../../../../Store/firebase/images';
-import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/mapNodeEditTimes';
+import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/maps/nodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatingAverage_AtPath, GetRatings, RatingFilter } from '../../../../Store/firebase/nodeRatings';
 import { RatingType, ratingTypes } from '../../../../Store/firebase/nodeRatings/@RatingType';

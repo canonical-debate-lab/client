@@ -1,21 +1,21 @@
-import {GetData} from "../../Frame/Database/DatabaseHelpers";
-import {Map, MapType} from "./maps/@Map";
-import {CachedTransform} from "js-vextensions";
+import { CachedTransform } from 'js-vextensions';
+import { GetData } from '../../Frame/Database/DatabaseHelpers';
+import { Map, MapType } from './maps/@Map';
 
 export function GetMaps(): Map[] {
-	let mapsMap = GetData("maps");
-	return CachedTransform("GetMaps", [], mapsMap, ()=>mapsMap ? mapsMap.VValues(true) : []);
+	const mapsMap = GetData({ collection: true }, 'maps');
+	return CachedTransform('GetMaps', [], mapsMap, () => (mapsMap ? mapsMap.VValues(true) : []));
 }
 export function GetMapsOfType(type: MapType): Map[] {
-	let mapsMap = GetData("maps");
-	return CachedTransform("GetMaps", [type], mapsMap, ()=>mapsMap ? mapsMap.VValues(true).filter(a=>a.type == type) : []);
+	const mapsMap = GetData({ collection: true }, 'maps');
+	return CachedTransform('GetMaps', [type], mapsMap, () => (mapsMap ? mapsMap.VValues(true).filter(a => a.type == type) : []));
 }
 export function GetMap(id: number): Map {
 	if (id == null) return null;
-	return GetData("maps", id);
+	return GetData('maps', id);
 }
 export function GetRootNodeID(mapID: number): number {
-	let map = GetMap(mapID);
+	const map = GetMap(mapID);
 	if (map == null) return null;
 	return map.rootNode;
 }

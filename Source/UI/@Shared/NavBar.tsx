@@ -4,10 +4,10 @@ import GoogleButton from 'react-google-button';
 import { connect } from 'react-redux';
 import { firebaseConnect, helpers } from 'react-redux-firebase';
 import { BaseComponent, BaseProps, BaseComponentWithConnector } from 'react-vextensions';
-import {E} from "js-vextensions";
-import {Debugger} from "../../Frame/General/Others";
+import { E } from 'js-vextensions';
 import { Button } from 'react-vcomponents';
 import { TextInput } from 'react-vcomponents';
+import {Debugger} from "../../Frame/General/Others";
 import Action from '../../Frame/General/Action';
 import { HandleError } from '../../Frame/General/Errors';
 import UserPanel from './NavBar/UserPanel';
@@ -50,8 +50,7 @@ const connector = (state, {}: {}) => ({
 	topLeftOpenPanel: State(a => a.main.topLeftOpenPanel),
 	topRightOpenPanel: State(a => a.main.topRightOpenPanel),
 	auth: State(a => a.firebase.auth),
-	_: GetData({ useUndefinedForInProgress: true }, 'maps'),
-	dbNeedsInit: GetData({ useUndefinedForInProgress: true }, 'nodeRevisions') === null,
+	dbNeedsInit: GetData({ collection: true, useUndefinedForInProgress: true }, 'nodeRevisions') === null,
 });
 @Connect(connector)
 export class NavBar extends BaseComponentWithConnector(connector, {}) {

@@ -57,9 +57,9 @@ export class AddChildNode extends Command<Payload, {nodeID: number, revisionID: 
 		const newUpdates = {};
 		// add as child of parent
 		if (!asMapRoot) {
-			newUpdates[`nodes/${parentID}/children/${this.sub_addNode.nodeID}`] = link;
+			newUpdates[`nodes/${parentID}/.children/.${this.sub_addNode.nodeID}`] = link;
 			if (this.parent_oldChildrenOrder) {
-				newUpdates[`nodes/${parentID}/childrenOrder`] = this.parent_oldChildrenOrder.concat([this.sub_addNode.nodeID]);
+				newUpdates[`nodes/${parentID}/.childrenOrder`] = this.parent_oldChildrenOrder.concat([this.sub_addNode.nodeID]);
 			}
 		}
 

@@ -26,7 +26,7 @@ export class AddTimeline extends Command<{mapID: number, timeline: Timeline}, nu
 		const updates = {
 			'general/data/.lastTimelineID': this.timelineID,
 			[`timelines/${this.timelineID}`]: timeline,
-			[`maps/${mapID}/timelines/${this.timelineID}`]: true,
+			[`maps/${mapID}/.timelines/.${this.timelineID}`]: true,
 		} as any;
 		return updates;
 	}

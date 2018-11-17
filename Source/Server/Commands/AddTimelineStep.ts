@@ -14,7 +14,7 @@ export class AddTimelineStep extends Command<{timelineID: number, step: Timeline
 		this.stepID = lastStepID + 1;
 		step.timelineID = timelineID;
 
-		this.timeline_oldSteps = await GetDataAsync('timelines', timelineID, 'steps') || [];
+		this.timeline_oldSteps = await GetDataAsync('timelines', timelineID, '.steps') || [];
 	}
 	async Validate() {
 		const { step } = this.payload;
@@ -28,7 +28,7 @@ export class AddTimelineStep extends Command<{timelineID: number, step: Timeline
 			'general/data/.lastTimelineStepID': this.stepID,
 			[`timelineSteps/${this.stepID}`]: step,
 			// add to timeline
-			[`timelines/${timelineID}/steps`]: this.timeline_oldSteps.concat(this.stepID),
+			[`timelines/${timelineID}/.steps`]: this.timeline_oldSteps.concat(this.stepID),
 		} as any;
 		return updates;
 	}

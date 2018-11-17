@@ -59,8 +59,8 @@ export class AddNode extends Command<{mapID: number, node: MapNode, revision: Ma
 		updates[`nodes/${this.nodeID}`] = node;
 
 		// add as parent of (pre-existing) children
-		for (const childID in (node.children || {})) {
-			updates[`nodes/${childID}/parents/${this.nodeID}`] = { _: true };
+		for (const childID of (node.children || {}).VKeys()) {
+			updates[`nodes/${childID}/.parents/.${this.nodeID}`] = { _: true };
 		}
 
 		updates = MergeDBUpdates(updates, this.sub_addRevision.GetDBUpdates());

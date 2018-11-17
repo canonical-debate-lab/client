@@ -28,7 +28,7 @@ export class AddTermComponent extends Command<{termID: number, termComponent: Te
 		const { termID, termComponent } = this.payload;
 		const updates = {
 			'general/data/.lastTermComponentID': this.termComponentID,
-			[`terms/${termID}/components/${this.termComponentID}`]: true,
+			[`terms/${termID}/.components/.${this.termComponentID}`]: true,
 			[`termComponents/${this.termComponentID}`]: termComponent,
 		};
 		return updates;

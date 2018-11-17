@@ -21,7 +21,7 @@ export class DeleteTimeline extends Command<{timelineID: number}, {}> {
 		const { timelineID } = this.payload;
 		const updates = {};
 		updates[`timelines/${timelineID}`] = null;
-		updates[`maps/${this.oldData.mapID}/timelines/${timelineID}`] = null;
+		updates[`maps/${this.oldData.mapID}/.timelines/.${timelineID}`] = null;
 		return updates;
 	}
 }

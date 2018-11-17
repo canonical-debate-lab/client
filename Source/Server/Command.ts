@@ -158,7 +158,8 @@ export function MergeDBUpdates(baseUpdatesMap: Object, updatesToMergeMap: Object
 
 	const finalUpdates = [] as Update[];
 	for (const update of baseUpdates) {
-		const updatesToMergeIntoThisOne: Update[] = updatesToMerge.filter(update2 => update2.path.startsWith(update.path));
+		// find updates-to-merge where a field under this path is updated (collection-updates under this path are left alone since they're supposed to be separate updates)
+		const updatesToMergeIntoThisOne: Update[] = updatesToMerge.filter(update2 => update2.path.startsWith(`${update.path}/.`));
 		for (const updateToMerge of updatesToMergeIntoThisOne) {
 			const updateToMerge_relativePath = updateToMerge.path.substr(`${update.path}/`.length);
 
