@@ -22,7 +22,7 @@ import TagsPanel from "./NodeUI/Panels/TagsPanel";
 import DetailsPanel from "./NodeUI/Panels/DetailsPanel";
 import {OthersPanel} from "./NodeUI/Panels/OthersPanel";
 import DiscussionPanel from "./NodeUI/Panels/DiscussionPanel";
-import RatingsPanel from "./NodeUI/Panels/RatingsPanel";
+import { RatingsPanel } from "./NodeUI/Panels/RatingsPanel";
 import {ScrollView} from "react-vscrollview";
 import {ACTSet} from "Store";
 import {GetOpenMapID} from "../../../../Store/main";

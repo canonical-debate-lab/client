@@ -13,7 +13,7 @@ import {ScrollView} from "react-vscrollview";
 import {NodeUI_Menu} from "../../@Shared/Maps/MapNode/NodeUI_Menu";
 import {RatingType_Info, RatingType, GetRatingTypeInfo, ratingTypes} from "../../../Store/firebase/nodeRatings/@RatingType";
 import {GetRatings, GetNodeRatingsRoot} from "../../../Store/firebase/nodeRatings";
-import RatingsPanel from "../../@Shared/Maps/MapNode/NodeUI/Panels/RatingsPanel";
+import { RatingsPanel } from "../../@Shared/Maps/MapNode/NodeUI/Panels/RatingsPanel";
 import DefinitionsPanel from "../../@Shared/Maps/MapNode/NodeUI/Panels/DefinitionsPanel";
 import DiscussionPanel from "../../@Shared/Maps/MapNode/NodeUI/Panels/DiscussionPanel";
 import SocialPanel from "../../@Shared/Maps/MapNode/NodeUI/Panels/SocialPanel";

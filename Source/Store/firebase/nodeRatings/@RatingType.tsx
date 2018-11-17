@@ -8,12 +8,16 @@ import {SplitStringBySlash_Cached} from "Frame/Database/StringSplitCache";
 import {SlicePath} from "../../../Frame/Database/DatabaseHelpers";
 import { PropNameToTitle } from "Frame/General/Others";
 import { ArgumentType } from "Store/firebase/nodes/@MapNodeRevision";
+import { GetValues_ForSchema } from 'Frame/General/Enums';
 
 //export type RatingType = "significance" | "neutrality" | "probability" | "intensity" | "adjustment" | "strength";
 //export type RatingType = "significance" | "neutrality" | "probability" | "support" | "adjustment" | "strength";
 //export const ratingTypes = ["significance", "neutrality", "probability", "truth", "impact", "strength"];
 export const ratingTypes = ["significance", "neutrality", "truth", "relevance", "impact"];
 export type RatingType = "significance" | "neutrality" | "truth" | "relevance" | "impact";
+AddSchema({
+	oneOf: ratingTypes.map(a=>({const: a})),
+}, "RatingType");
 
 export function GetRatingTypeInfo(ratingType: RatingType, node: MapNodeL2, parent: MapNodeL3, path: string) {
 	let link = GetLinkUnderParent(node._id, parent);

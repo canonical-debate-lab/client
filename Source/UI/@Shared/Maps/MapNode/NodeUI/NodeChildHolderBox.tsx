@@ -20,7 +20,7 @@ import { Squiggle } from '../NodeConnectorBackground';
 import { NodeUI_Menu, NodeUI_Menu_Stub } from '../NodeUI_Menu';
 import { NodeChildCountMarker } from './NodeChildCountMarker';
 import { NodeChildHolder } from './NodeChildHolder';
-import RatingsPanel from './Panels/RatingsPanel';
+import { RatingsPanel } from './Panels/RatingsPanel';
 
 type Props = {
 	map: Map, node: MapNodeL3, path: string, nodeView: MapNodeView, nodeChildren: MapNodeL3[], nodeChildrenToShow: MapNodeL3[],

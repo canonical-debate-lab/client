@@ -15,7 +15,16 @@ import { GetUserID } from './users';
 
 export function GetNodeRatingsRoot(nodeID: number) {
 	// RequestPaths(GetPaths_NodeRatingsRoot(nodeID));
-	return GetData('nodeRatings', nodeID) as RatingsRoot;
+	// return GetData('nodeRatings', nodeID) as RatingsRoot;
+	// temp workaround for GetData() not retrieving list of subcollections for doc-path
+	const result = {};
+	for (const ratingType of ratingTypes) {
+		const data = GetData({collection: true}, 'nodeRatings', nodeID, ratingType);
+		if (data) {
+			result[ratingType] = data;
+		}
+	}
+	return result;
 }
 
 // path is needed if you want

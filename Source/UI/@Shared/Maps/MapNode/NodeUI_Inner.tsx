@@ -37,7 +37,7 @@ import DetailsPanel from './NodeUI/Panels/DetailsPanel';
 import DiscussionPanel from './NodeUI/Panels/DiscussionPanel';
 import { HistoryPanel } from './NodeUI/Panels/HistoryPanel';
 import { OthersPanel } from './NodeUI/Panels/OthersPanel';
-import RatingsPanel from './NodeUI/Panels/RatingsPanel';
+import { RatingsPanel } from './NodeUI/Panels/RatingsPanel';
 import SocialPanel from './NodeUI/Panels/SocialPanel';
 import TagsPanel from './NodeUI/Panels/TagsPanel';
 import SubPanel from './NodeUI_Inner/SubPanel';

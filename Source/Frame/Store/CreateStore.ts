@@ -72,7 +72,7 @@ export function CreateStore(initialState = {}, history) {
 				let result = interceptor(action);
 				if (result == false) return;
 			}
-			
+	
 			const returnValue = next(action);
 			return returnValue;
 		},

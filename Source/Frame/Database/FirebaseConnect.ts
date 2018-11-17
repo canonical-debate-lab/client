@@ -1,5 +1,5 @@
 import { activeStoreAccessCollectors, PathToListenerPath, GetPathParts, NotifyPathsReceiving, NotifyPathsReceived } from 'Frame/Database/DatabaseHelpers';
-import { GetPropsChanged, GetPropsChanged_WithValues, DeepGet, DeepGet } from 'js-vextensions';
+import { GetPropsChanged, GetPropsChanged_WithValues, DeepGet } from 'js-vextensions';
 import _ from 'lodash';
 import Moment from 'moment';
 import { connect } from 'react-redux';
