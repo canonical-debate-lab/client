@@ -3,6 +3,7 @@ import { Layer } from 'Store/firebase/layers/@Layer';
 import { NodeEditTimes } from 'Store/firebase/maps/nodeEditTimes';
 import { MapNodeStats } from 'Store/firebase/nodeStats/@MapNodeStats';
 import { User } from 'Store/firebase/users/@User';
+import { DataWrapper } from 'Server/Server';
 import { GeneralData } from './firebase/general';
 import { Image } from './firebase/images/@Image';
 import { Map } from './firebase/maps/@Map';
@@ -23,7 +24,7 @@ export interface FirebaseData {
 	layers: {[key: number]: Layer};
 	maps: {
 		[key: number]: Map
-			& {nodeEditTimes: {[key: number]: NodeEditTimes}}; // nodeEditTimes -> $nodeID -> $nodeEditTime
+			& {nodeEditTimes: DataWrapper<NodeEditTimes>}; // nodeEditTimes -> $nodeID -> $nodeEditTime
 	};
 	nodes: {[key: number]: MapNode};
 	nodeExtras: {[key: number]: any};

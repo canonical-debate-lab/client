@@ -32,17 +32,17 @@ export function GetSchemaJSON(name: string) {
 	return Clone(schemaJSON[name]);
 }
 
-export type ValueWrapper<T> = {value: T};
-export function ValueWrapper(valueSchema: any) {
+export type DataWrapper<T> = {data: T};
+export function DataWrapper(dataSchema: any) {
 	return {
 		properties: {
-			value: valueSchema,
+			data: dataSchema,
 		},
-		required: ['value'],
+		required: ['data'],
 	};
 }
-export function WrapValue<T>(value: T) {
-	return { value } as ValueWrapper<T>;
+export function WrapData<T>(data: T) {
+	return { data } as DataWrapper<T>;
 }
 
 var schemaAddListeners = {};
@@ -59,7 +59,7 @@ type AJV_Extended = AJV.Ajv & {
 	// AddSchema(schema, name: string): void;
 	FullErrorsText(): string;
 };
-/*AJV.prototype.AddSchema = function(this: AJV_Extended, schema, name: string) {
+/* AJV.prototype.AddSchema = function(this: AJV_Extended, schema, name: string) {
 	return `${this.errorsText()} (${ToJSON(this.errors)})`;
 }; */
 AJV.prototype.FullErrorsText = function (this: AJV_Extended) {

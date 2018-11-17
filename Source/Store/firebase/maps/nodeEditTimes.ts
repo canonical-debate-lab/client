@@ -1,19 +1,19 @@
 import { CachedTransform_WithStore } from 'Frame/Database/DatabaseHelpers';
 import { GetShortestPathFromRootToNode } from 'Frame/Store/PathFinder';
 import { GetNode } from 'Store/firebase/nodes';
-import { ValueWrapper } from 'Server/Server';
-import { GetData } from "../../../Frame/Database/DatabaseHelpers";
-import { emptyArray } from "../../../Frame/Store/ReducerUtils";
+import { DataWrapper } from 'Server/Server';
+import { GetData } from '../../../Frame/Database/DatabaseHelpers';
+import { emptyArray } from '../../../Frame/Store/ReducerUtils';
 import { GetLastAcknowledgementTime } from '../../main';
-import { GetRootNodeID } from "../maps";
+import { GetRootNodeID } from '../maps';
 import { MapNode } from '../nodes/@MapNode';
 
 export class NodeEditTimes {
 	// [key: number]: ChangeInfo;
-	[key: number]: ValueWrapper<number>;
+	[key: number]: number;
 }
 AddSchema({
-	patternProperties: { '^[0-9]+$': ValueWrapper({ type: 'number' }) },
+	patternProperties: { '^[0-9]+$': { type: 'number' } },
 }, 'NodeEditTimes');
 
 export enum ChangeType {
@@ -38,7 +38,7 @@ export function GetChangeTypeOutlineColor(changeType: ChangeType) {
 }
 
 export function GetMapNodeEditTimes(mapID: number) {
-	return GetData({ collection: true }, 'maps', mapID, 'nodeEditTimes') as NodeEditTimes;
+	return GetData('maps', mapID, 'nodeEditTimes', 'data') as NodeEditTimes;
 }
 
 export function GetNodeIDsChangedSinceX(mapID: number, sinceTime: number, includeAcknowledgement = true) {
@@ -50,7 +50,7 @@ export function GetNodeIDsChangedSinceX(mapID: number, sinceTime: number, includ
 		const nodeID = nodeIDStr.ToInt();
 		const lastAcknowledgementTime = includeAcknowledgement ? GetLastAcknowledgementTime(nodeID) : 0;
 		const sinceTimeForNode = sinceTime.KeepAtLeast(lastAcknowledgementTime);
-		if (editTime.value > sinceTimeForNode) {
+		if (editTime > sinceTimeForNode) {
 			result.push(nodeID);
 		}
 	}

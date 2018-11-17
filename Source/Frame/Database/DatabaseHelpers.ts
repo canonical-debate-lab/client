@@ -8,6 +8,7 @@ import { FirebaseData } from 'Store/firebase';
 import { State_overrideData_path } from 'UI/@Shared/StateOverrides';
 import u from 'updeep';
 import firebase from 'firebase';
+import { truncate } from 'fs';
 import { ClearRequestedPaths, GetRequestedPaths, RequestPath } from './FirebaseConnect';
 
 G({ firebase_: firebase }); // doesn't show as R.firebase, fsr
@@ -34,7 +35,11 @@ export function FBFieldPathToVFieldPath(vFieldPath: string) {
 	return vFieldPath != null ? vFieldPath.replace(/\./g, '/') : null;
 }
 
-export function GetPathParts(path: string, asFBPath = false) {
+/**
+ * @param asFBPath If true, returned paths are separated with "."; if false, by "/". Default: false
+ * @returns [colOrDocPath, fieldPathInDoc]
+ * */
+export function GetPathParts(path: string, asFBPath = false): [string, string] {
 	let colOrDocPath = path.substr(0, path.indexOf('/.').IfN1Then(path.length));
 	const isDocPath = colOrDocPath.length != path.length; // if length differs, it means field-path is supplied, which means it's a doc-path
 	if (isDocPath) {
@@ -535,8 +540,11 @@ export async function ApplyDBUpdates(rootPath: string, dbUpdates) {
 		if (fieldPathInDoc) {
 			value = value != null ? value : (firebase as any).firestore.FieldValue.delete();
 
-			// await docRef.set({[fieldPathInDoc]: value}, {merge: true});
-			await docRef.update({ [fieldPathInDoc]: value });
+			// await docRef.update({ [fieldPathInDoc]: value });
+			// set works even if the document doesn't exist yet, so use set instead of update
+			const nestedSetHelper = {};
+			DeepSet(nestedSetHelper, fieldPathInDoc, value, '.', true);
+			await docRef.set(nestedSetHelper, { merge: true });
 		} else if (value) {
 			await docRef.set(value);
 		} else {
@@ -555,10 +563,11 @@ export async function ApplyDBUpdates(rootPath: string, dbUpdates) {
 			if (fieldPathInDoc) {
 				value = value != null ? value : (firebase as any).firestore.FieldValue.delete();
 
-				// docRef.update({[fieldPathInDoc]: value});
-				// docRef.set({[fieldPathInDoc]: value}, {merge: true});
-				// batch.set(docRef, {[fieldPathInDoc]: value}, {merge: true});
-				batch.update(docRef, { [fieldPathInDoc]: value });
+				// batch.update(docRef, { [fieldPathInDoc]: value });
+				// set works even if the document doesn't exist yet, so use set instead of update
+				const nestedSetHelper = {};
+				DeepSet(nestedSetHelper, fieldPathInDoc, value, '.', true);
+				batch.set(docRef, nestedSetHelper, { merge: true });
 			} else if (value) {
 				batch.set(docRef, value);
 			} else {
