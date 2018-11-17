@@ -146,7 +146,6 @@ export function Connect<T, P>(funcOrFuncGetter) {
 				// store.firestore.setListeners(addedPaths_toDocs_asListenerPaths);
 				setListeners(firebase['firebase_'] || firebase, DispatchDBAction, addedPaths_toDocs_asListenerPaths); */
 				SetListeners(addedPaths);
-				Log(`Requesting paths: ${addedPaths.join(',')}`);
 			});
 			s.lastRequestedPaths = requestedPaths;
 		}
@@ -187,12 +186,12 @@ export function SetListeners(paths: string[]) {
 		store.firestore.setListener(listenerPath);
 	}
 }
-export function UnsetListeners(paths: string[]) {
+export function UnsetListeners(paths: string[], forceUnsetActualListener = false) {
 	const paths_toDocs = paths.map(path => GetPathParts(path)[0]);
 	for (const path of paths_toDocs) {
 		const listenerPath = PathToListenerPath(path);
 		pathListenerCounts[path]--;
-		if (pathListenerCounts[path] == 0) {
+		if (pathListenerCounts[path] == 0 || forceUnsetActualListener) {
 			store.firestore.unsetListener(listenerPath);
 		}
 	}

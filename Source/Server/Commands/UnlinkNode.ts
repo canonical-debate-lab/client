@@ -12,7 +12,7 @@ export class UnlinkNode extends Command<{mapID: number, parentID: number, childI
 	parent_oldChildrenOrder: number[];
 	async Prepare() {
 		const { parentID, childID } = this.payload;
-		this.parent_oldChildrenOrder = await GetDataAsync('nodes', parentID, 'childrenOrder') as number[];
+		this.parent_oldChildrenOrder = await GetDataAsync('nodes', parentID, '.childrenOrder') as number[];
 	}
 	async Validate() {
 		/* let {parentID, childID} = this.payload;

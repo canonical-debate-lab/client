@@ -323,7 +323,10 @@ export class GetDataAsync_Options {
 }
 
 G({ GetDataAsync });
-// usually you'll want to use "await GetAsync(()=>GetNode(id))" instead
+/** 
+ * Usually you'll want to use GetAsync() instead. (example: "await GetAsync(()=>GetNode(id))")
+ * Also beware: GetDataAsync() seems to sometimes trigger a LISTENER_RESPONSE action with {data: null}, even if the DB has already sent the actual data for a new path.
+ */
 export async function GetDataAsync(...pathSegments: (string | number)[]);
 export async function GetDataAsync(options: GetDataAsync_Options, ...pathSegments: (string | number)[]);
 export async function GetDataAsync(...args) {
@@ -387,7 +390,8 @@ export async function GetAsync<T>(dbGetterFunc: ()=>T, statsLogger?: ({requested
 			// start watching paths (causes paths to be requested)
 			watchEvents(firebase, store.dispatch, getEventsFromInput(newRequestedPaths)); */
 
-			UnsetListeners(newRequestedPaths); // do this just to trigger re-get
+			// UnsetListeners(newRequestedPaths, true); // do this just to trigger re-get
+			UnsetListeners(newRequestedPaths);
 			// start watching paths (causes paths to be requested)
 			SetListeners(newRequestedPaths);
 
