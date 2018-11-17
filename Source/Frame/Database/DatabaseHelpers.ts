@@ -1,5 +1,5 @@
 import { SplitStringBySlash_Cached } from 'Frame/Database/StringSplitCache';
-import { Assert, CachedTransform, DeepSet, GetStorageForCachedTransform, GetTreeNodesInObjTree } from 'js-vextensions';
+import { Assert, CachedTransform, DeepSet, GetStorageForCachedTransform, GetTreeNodesInObjTree, DeepGet } from 'js-vextensions';
 import { unWatchEvents, watchEvents } from 'react-redux-firebase/lib/actions/query';
 import { getEventsFromInput } from 'react-redux-firebase/lib/utils';
 import { ShallowChanged } from 'react-vextensions';
@@ -7,7 +7,41 @@ import { StartBufferingActions, StopBufferingActions } from 'Store';
 import { FirebaseData } from 'Store/firebase';
 import { State_overrideData_path } from 'UI/@Shared/StateOverrides';
 import u from 'updeep';
+import firebase from 'firebase';
 import { ClearRequestedPaths, GetRequestedPaths, RequestPath } from './FirebaseConnect';
+
+G({ firebase_: firebase }); // doesn't show as R.firebase, fsr
+
+export function IsAuthValid(auth) {
+	return auth && !auth.isEmpty;
+}
+
+// v-path: collection/obj/.prop/.prop2
+// v-field-path: prop/prop2
+// fb-path: collection/obj.prop.prop2
+// fb-field-path: prop.prop2
+
+export function VPathToFBPath(vPath: string) {
+	return vPath != null ? vPath.replace(/\/\./g, '.') : null;
+}
+export function FBPathToVPath(fbPath: string) {
+	return fbPath != null ? fbPath.replace(/\./g, '/.') : null;
+}
+export function VFieldPathToFBFieldPath(vFieldPath: string) {
+	return vFieldPath != null ? vFieldPath.replace(/\//g, '.') : null;
+}
+export function FBFieldPathToVFieldPath(vFieldPath: string) {
+	return vFieldPath != null ? vFieldPath.replace(/\./g, '/') : null;
+}
+
+export function GetPathParts(path: string, asFBPath = false) {
+	let docPath = path.substr(0, path.indexOf('/.').IfN1Then(path.length));
+	let fieldPathInDoc = docPath.length < path.length ? path.substr(docPath.length + 2).replace(/\./g, '') : null;
+	if (asFBPath) {
+		[docPath, fieldPathInDoc] = [VPathToFBPath(docPath), VFieldPathToFBFieldPath(fieldPathInDoc)];
+	}
+	return [docPath, fieldPathInDoc];
+}
 
 export function DBPath(path = '', inVersionRoot = true) {
 	Assert(path != null, 'Path cannot be null.');
@@ -15,16 +49,50 @@ export function DBPath(path = '', inVersionRoot = true) {
 	/* let versionPrefix = path.match(/^v[0-9]+/);
 	if (versionPrefix == null) // if no version prefix already, add one (referencing the current version) */
 	if (inVersionRoot) {
-		path = `v${dbVersion}-${ENV_SHORT}${path ? `/${path}` : ''}`;
+		path = `versions/v${dbVersion}-${ENV_SHORT}/${path}`;
 	}
 	return path;
 }
 export function DBPathSegments(pathSegments: (string | number)[], inVersionRoot = true) {
 	let result = pathSegments;
 	if (inVersionRoot) {
-		result = ([`v${dbVersion}-${ENV_SHORT}`] as any).concat(result);
+		result = (['versions', `v${dbVersion}-${ENV_SHORT}`] as any).concat(result);
 	}
 	return result;
+}
+
+export function PathToListenerPath(path: string) {
+	const pathNodesLeft = path.split('/');
+	function ConvertNextTwoPathNodesIntoListenerPathNode(pathNodes: string[]) {
+		const result = {} as any;
+		const collectionNode = pathNodes.splice(0, 1)[0];
+		Assert(collectionNode.trim().length, `Path node cannot be empty. Path: ${path}`);
+		result.collection = collectionNode;
+		if (pathNodes.length) {
+			result.doc = pathNodes.splice(0, 1)[0];
+		}
+		return result;
+	}
+
+	const root = ConvertNextTwoPathNodesIntoListenerPathNode(pathNodesLeft);
+	if (pathNodesLeft.length) {
+		root.subcollections = [];
+		while (pathNodesLeft.length) {
+			root.subcollections.push(ConvertNextTwoPathNodesIntoListenerPathNode(pathNodesLeft));
+		}
+	}
+	return root;
+}
+export function ListenerPathToPath(listenerPath: any) {
+	const result = [];
+	const pathNodes = [listenerPath].concat((listenerPath.subcollections || []));
+	for (const pathNode of pathNodes) {
+		result.push(pathNode.collection);
+		if (pathNode.doc) {
+			result.push(pathNode.doc);
+		}
+	}
+	return result.join('/');
 }
 
 export function SlicePath(path: string, removeFromEndCount: number, ...itemsToAdd: string[]) {
@@ -69,6 +137,8 @@ type DataSnapshot = any;
 export function ProcessDBData(data, standardizeForm: boolean, addHelpers: boolean, rootKey: string) {
 	const treeNodes = GetTreeNodesInObjTree(data, true);
 	for (const treeNode of treeNodes) {
+		if (treeNode.Value == null) continue;
+
 		// turn the should-not-have-been-array arrays (the ones without a "0" property) into objects
 		if (standardizeForm && treeNode.Value instanceof Array && treeNode.Value[0] === undefined) {
 			// if changing root, we have to actually modify the prototype of the passed-in "data" object
@@ -205,11 +275,11 @@ export function GetData(...args) {
 	}
 
 	// let result = State("firebase", "data", ...SplitStringByForwardSlash_Cached(path)) as any;
-	const result = State('firebase', 'data', ...pathSegments) as any;
+	// const result = State('firebase', 'data', ...pathSegments) as any;
+	const result = State('firestore', 'data', ...pathSegments.map(a => (IsString(a) && a[0] === '.' ? a.substr(1) : a))) as any;
 	// let result = State("firebase", "data", ...pathSegments) as any;
 	if (result == null && options.useUndefinedForInProgress) {
-		// const requestCompleted = State().firebase.requested[path];
-		const requestCompleted = pathReceiveStatuses[path] == 'received';
+		const requestCompleted = State().firestore.status.requested[path];
 		if (!requestCompleted) return undefined; // undefined means, current-data for path is null/non-existent, but we haven't completed the current request yet
 		return null; // null means, we've completed the request, and there is no data at that path
 	}
@@ -223,33 +293,37 @@ export class GetDataAsync_Options {
 
 G({ GetDataAsync });
 // usually you'll want to use "await GetAsync(()=>GetNode(id))" instead
-// export async function GetDataAsync(path: string, inVersionRoot = true, addHelpers = true, firebase: firebase.DatabaseReference = store.firebase.helpers.ref("")) {
-// export async function GetDataAsync(path: string, inVersionRoot = true, addHelpers = true) {
-/* export async function GetDataAsync(pathSegment1: string | number, pathSegment2: string | number, ...pathSegments: (string | number)[]);
-export async function GetDataAsync(options: GetDataAsync_Options, pathSegment1: string | number, pathSegment2: string | number, ...pathSegments: (string | number)[]); */
 export async function GetDataAsync(...pathSegments: (string | number)[]);
 export async function GetDataAsync(options: GetDataAsync_Options, ...pathSegments: (string | number)[]);
 export async function GetDataAsync(...args) {
-	let pathSegments: (string | number)[]; let
-		options: GetDataAsync_Options;
+	let pathSegments: (string | number)[];
+	let options: GetDataAsync_Options;
 	if (typeof args[0] === 'string') pathSegments = args;
 	else [options, ...pathSegments] = args;
 	options = E(new GetDataAsync_Options(), options);
 
-	const firebase = store.firebase.helpers;
-	return await new Promise((resolve, reject) => {
-		// firebase.child(DBPath(path, inVersionRoot)).once("value",
-		const path = pathSegments.join('/');
-		firebase.ref(DBPath(path, options.inVersionRoot)).once('value',
-			(snapshot: DataSnapshot) => {
-				let result = snapshot.val();
-				if (result) { result = ProcessDBData(result, true, options.addHelpers, `${pathSegments.Last()}`); }
-				resolve(result);
-			},
-			(ex: Error) => {
-				reject(ex);
-			});
-	});
+	const path = DBPath(pathSegments.join('/'), options.inVersionRoot);
+	// let path = CombinePathSegments(...pathSegments);
+	const [colOrDocPath, fieldPathInDoc] = GetPathParts(path);
+	const isDoc = colOrDocPath.split('/').length % 2 == 0;
+
+	let result;
+	if (isDoc) {
+		const doc = await firestoreDB.doc(colOrDocPath).get();
+		const docData = doc.exists ? doc.data() : null;
+		result = fieldPathInDoc ? DeepGet(docData, fieldPathInDoc) : docData;
+	} else {
+		const { docs } = await firestoreDB.collection(colOrDocPath).get();
+		result = {};
+		for (const doc of docs) {
+			result[doc.id] = doc.data();
+		}
+	}
+
+	if (result) {
+		result = ProcessDBData(result, true, options.addHelpers, `${pathSegments.Last()}`);
+	}
+	return result;
 }
 
 /**
@@ -321,139 +395,40 @@ export async function GetAsync_Raw<T>(dbGetterFunc: ()=>T, statsLogger?: ({reque
 	return RemoveHelpers(Clone(value));
 }
 
-type ReceiveStatus = 'not started' | 'receiving' | 'received';
-export const pathReceiveStatuses = {} as {[key: string]: ReceiveStatus};
-export const pathReceivingListeners = {} as {[key: string]: Function[]};
-export const pathReceivedListeners = {} as {[key: string]: Function[]};
-export function NotifyPathsReceiving(paths: string[]) {
-	for (const path of paths) {
-		pathReceiveStatuses[path] = 'receiving';
-		if (pathReceivingListeners[path]) {
-			// pathReceivingListeners[path].forEach(listener => listener());
-			for (const listener of pathReceivingListeners[path]) listener();
-		}
-	}
-}
-export function NotifyPathsReceived(paths: string[]) {
-	for (const path of paths) {
-		pathReceiveStatuses[path] = 'received';
-		if (pathReceivedListeners[path]) {
-			for (const listener of pathReceivedListeners[path]) listener();
-		}
-	}
-}
 export function WaitTillPathDataIsReceiving(path: string): Promise<any> {
 	return new Promise((resolve, reject) => {
-		let pathDataReceiving = pathReceiveStatuses[path] === 'receiving';
+		let pathDataReceiving = State().firestore.status.requesting[path];
 		// if data already receiving, resolve right away
 		if (pathDataReceiving) resolve();
 
 		// else, add listener, and wait till store is receiving the data (then resolve it)
 		const listener = () => {
-			pathDataReceiving = pathReceiveStatuses[path] === 'receiving';
+			pathDataReceiving = State().firestore.status.requesting[path];
 			if (pathDataReceiving) {
-				pathReceivingListeners[path].Remove(listener);
+				unsubscribe();
 				resolve();
 			}
 		};
-		pathReceivingListeners[path] = pathReceivingListeners[path] || [];
-		pathReceivingListeners[path].push(listener);
+		let unsubscribe = store.subscribe(listener);
 	});
 }
 export function WaitTillPathDataIsReceived(path: string): Promise<any> {
 	return new Promise((resolve, reject) => {
-		let pathDataReceived = pathReceiveStatuses[path] === 'received';
+		let pathDataReceived = State().firestore.status.requested[path];
 		// if data already received, resolve right away
 		if (pathDataReceived) resolve();
 
 		// else, add listener, and wait till store has received the data (then resolve it)
 		const listener = () => {
-			pathDataReceived = pathReceiveStatuses[path] === 'received';
+			pathDataReceived = State().firestore.status.requested[path];
 			if (pathDataReceived) {
-				pathReceivedListeners[path].Remove(listener);
+				unsubscribe();
 				resolve();
 			}
 		};
-		pathReceivedListeners[path] = pathReceivedListeners[path] || [];
-		pathReceivedListeners[path].push(listener);
+		let unsubscribe = store.subscribe(listener);
 	});
 }
-
-/* ;(function() {
-	var Firebase = require("firebase");
-	var FirebaseRef = Firebase.database.Reference;
-
-	Firebase.ABORT_TRANSACTION_NOW = {};
-
-	var originalTransaction = FirebaseRef.prototype.transaction;
-	FirebaseRef.prototype.transaction = function transaction(updateFunction, onComplete, applyLocally) {
-		var aborted, tries = 0, ref = this, updateError;
-
-		var promise = new Promise(function(resolve, reject) {
-			var wrappedUpdate = function(data) {
-				// Clone data in case updateFunction modifies it before aborting.
-				var originalData = JSON.parse(JSON.stringify(data));
-				aborted = false;
-				try {
-					if (++tries > 100) throw new Error('maxretry');
-					var result = updateFunction.call(this, data);
-					if (result === undefined) {
-						aborted = true;
-						result = originalData;
-					} else if (result === Firebase.ABORT_TRANSACTION_NOW) {
-						aborted = true;
-						result = undefined;
-					}
-					return result;
-				} catch (e) {
-					// Firebase propagates exceptions thrown by the update function to the top level.	So
-					// catch them here instead, reject the promise, and abort the transaction by returning
-					// undefined.
-					updateError = e;
-				}
-			};
-
-			function txn() {
-				try {
-					originalTransaction.call(ref, wrappedUpdate, function(error, committed, snapshot) {
-						error = error || updateError;
-						var result;
-						if (error && (error.message === 'set' || error.message === 'disconnect')) {
-							txn();
-						} else if (error) {
-							result = onComplete ? onComplete(error, false, snapshot) : undefined;
-							reject(error);
-						} else {
-							result = onComplete ? onComplete(error, committed && !aborted, snapshot) : undefined;
-							resolve({committed: committed && !aborted, snapshot: snapshot});
-						}
-						return result;
-					}, applyLocally);
-				} catch (e) {
-					if (onComplete) onComplete(e, false);
-					reject(e);
-				}
-			}
-
-			txn();
-		});
-
-		return promise;
-	};
-})(); */
-
-// export function FirebaseConnect<T>(paths: string[]); // just disallow this atm, since you might as well just use a connect/getter func
-/* export function FirebaseConnect<T>(pathsOrGetterFunc?: string[] | ((props: T)=>string[]));
-export function FirebaseConnect<T>(pathsOrGetterFunc?) {
-	return firebaseConnect(props=> {
-		let paths =
-			pathsOrGetterFunc instanceof Array ? pathsOrGetterFunc :
-			pathsOrGetterFunc instanceof Function ? pathsOrGetterFunc(props) :
-			[];
-		paths = paths.map(a=>DBPath(a)); // add version prefix to paths
-		return paths;
-	});
-} */
 
 export const activeStoreAccessCollectors = [];
 class DBRequestCollector {
@@ -513,14 +488,60 @@ export function AssertValidatePath(path: string) {
 }
 
 export async function ApplyDBUpdates(rootPath: string, dbUpdates) {
-	// already done with DBRef()
-	/* dbUpdates = Clone(dbUpdates);
-	for (let {name: path, value} of dbUpdates.Props()) {
-		dbUpdates[rootPath + path] = value;
-		delete dbUpdates[path];
-	} */
+	for (const { name: localPath, value } of dbUpdates.Props()) {
+		dbUpdates[rootPath + localPath] = value;
+		delete dbUpdates[localPath];
+	}
 
-	await store.firebase.helpers.ref(rootPath).update(dbUpdates);
+	// temp; if only updating one field, just do it directly (for some reason, a batch takes much longer)
+	const updateEntries = (Object as any).entries(dbUpdates);
+	if (updateEntries.length == 1) {
+		let [path, value] = updateEntries[0];
+		const [docPath, fieldPathInDoc] = GetPathParts(path, true);
+		value = Clone(value); // picky firestore library demands "simple JSON objects"
+
+		// [fieldPathInDoc, value] = FixSettingPrimitiveValueDirectly(fieldPathInDoc, value);
+
+		const docRef = firestoreDB.doc(docPath);
+		if (fieldPathInDoc) {
+			value = value != null ? value : (firebase as any).firestore.FieldValue.delete();
+
+			// await docRef.set({[fieldPathInDoc]: value}, {merge: true});
+			await docRef.update({ [fieldPathInDoc]: value });
+		} else if (value) {
+			await docRef.set(value);
+		} else {
+			await docRef.delete();
+		}
+	} else {
+		// await firestoreDB.runTransaction(async batch=> {
+		const batch = firestoreDB.batch();
+		for (let [path, value] of updateEntries) {
+			const [docPath, fieldPathInDoc] = GetPathParts(path, true);
+			value = Clone(value); // picky firestore library demands "simple JSON objects"
+
+			// [fieldPathInDoc, value] = FixSettingPrimitiveValueDirectly(fieldPathInDoc, value);
+
+			const docRef = firestoreDB.doc(docPath);
+			if (fieldPathInDoc) {
+				value = value != null ? value : (firebase as any).firestore.FieldValue.delete();
+
+				// docRef.update({[fieldPathInDoc]: value});
+				// docRef.set({[fieldPathInDoc]: value}, {merge: true});
+				// batch.set(docRef, {[fieldPathInDoc]: value}, {merge: true});
+				batch.update(docRef, { [fieldPathInDoc]: value });
+			} else if (value) {
+				batch.set(docRef, value);
+			} else {
+				batch.delete(docRef);
+			}
+			/* let path_final = DBPath(path);
+			let dbRef_parent = firestoreDB.doc(path_final.split("/").slice(0, -1).join("/"));
+			let value_final = Clone(value); // clone value, since update() rejects values with a prototype/type
+			batch.update(dbRef_parent, {[path_final.split("/").Last()]: value_final}); */
+		}
+		await batch.commit();
+	}
 }
 export function ApplyDBUpdates_Local(dbData: FirebaseData, dbUpdates: Object) {
 	let result = dbData;

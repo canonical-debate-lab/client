@@ -20,7 +20,7 @@ export class AddNodeRevision extends Command<{mapID: number, revision: MapNodeRe
 	async Prepare() {
 		const { revision } = this.payload;
 
-		this.revisionID = (await GetDataAsync('general', 'lastNodeRevisionID')) + this.lastNodeRevisionID_addAmount + 1;
+		this.revisionID = (await GetDataAsync('general', 'data', '.lastNodeRevisionID')) + this.lastNodeRevisionID_addAmount + 1;
 		revision.creator = this.userInfo.id;
 		revision.createdAt = Date.now();
 		this.node_oldData = await GetAsync(() => GetNode(revision.node));
@@ -36,7 +36,7 @@ export class AddNodeRevision extends Command<{mapID: number, revision: MapNodeRe
 		const { mapID, revision } = this.payload;
 
 		const updates = {};
-		updates['general/lastNodeRevisionID'] = this.revisionID;
+		updates['general/data/.lastNodeRevisionID'] = this.revisionID;
 		updates[`nodes/${revision.node}/currentRevision`] = this.revisionID;
 		updates[`nodeRevisions/${this.revisionID}`] = revision;
 		updates[`mapNodeEditTimes/${mapID}/${revision.node}`] = revision.createdAt;

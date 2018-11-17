@@ -7,7 +7,7 @@ import { Command } from '../Command';
 export class AddTerm extends Command<{term: Term}, {}> {
 	termID: number;
 	async Prepare() {
-		const lastTermID = await GetDataAsync('general', 'lastTermID') as number;
+		const lastTermID = await GetDataAsync('general', 'data', '.lastTermID') as number;
 		this.termID = lastTermID + 1;
 		this.payload.term.createdAt = Date.now();
 	}
@@ -19,7 +19,7 @@ export class AddTerm extends Command<{term: Term}, {}> {
 	GetDBUpdates() {
 		const { term } = this.payload;
 		const updates = {
-			'general/lastTermID': this.termID,
+			'general/data/.lastTermID': this.termID,
 			[`terms/${this.termID}`]: term,
 			[`termNames/${term.name.toLowerCase()}/${this.termID}`]: true,
 		};

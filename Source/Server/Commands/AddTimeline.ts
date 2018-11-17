@@ -9,7 +9,7 @@ export class AddTimeline extends Command<{mapID: number, timeline: Timeline}, nu
 	async Prepare() {
 		const { mapID, timeline } = this.payload;
 
-		const lastTimelineID = await GetDataAsync('general', 'lastTimelineID') as number;
+		const lastTimelineID = await GetDataAsync('general', 'data', '.lastTimelineID') as number;
 		this.timelineID = lastTimelineID + 1;
 		timeline.mapID = mapID;
 		timeline.createdAt = Date.now();
@@ -24,7 +24,7 @@ export class AddTimeline extends Command<{mapID: number, timeline: Timeline}, nu
 	GetDBUpdates() {
 		const { mapID, timeline } = this.payload;
 		const updates = {
-			'general/lastTimelineID': this.timelineID,
+			'general/data/.lastTimelineID': this.timelineID,
 			[`timelines/${this.timelineID}`]: timeline,
 			[`maps/${mapID}/timelines/${this.timelineID}`]: true,
 		} as any;

@@ -1,6 +1,4 @@
-import firebase_ from 'firebase';
 import { unstable_batchedUpdates } from 'react-dom';
-import { reactReduxFirebase } from 'react-redux-firebase';
 import { applyMiddleware, compose, createStore, StoreEnhancer } from 'redux';
 // import {version, firebaseConfig} from "../../BakedConfig";
 // var {version, firebaseConfig} = require(PROD ? "../../BakedConfig_Prod" : "../../BakedConfig_Dev");
@@ -12,10 +10,13 @@ import { DBPath } from '../../Frame/Database/DatabaseHelpers';
 import { MakeRootReducer } from '../../Store/index';
 import { MidDispatchAction, PostDispatchAction, PreDispatchAction } from './ActionProcessor';
 
-// import { reduxFirestore, firestoreReducer } from "redux-firestore";
-// import "firebase/firestore";
-
+/* eslint-disable */
+import firebase_ from 'firebase';
+import { reactReduxFirebase, firebaseReducer } from 'react-redux-firebase';
+import { reduxFirestore, firestoreReducer } from 'redux-firestore';
+import 'firebase/firestore';
 const firebase = firebase_ as any;
+/* eslint-enable */
 
 const routes = {
 	'/': {},
@@ -29,28 +30,17 @@ const { reducer: routerReducer, middleware: routerMiddleware, enhancer: routerEn
 	routes,
 });
 
-// export const browserHistory = createBrowserHistory();
-// import {browserHistory} from "react-router";
+declare global { var firestoreDB: any; } // set in CreateStore.ts
 
 export function CreateStore(initialState = {}, history) {
 	// Window Vars Config
 	// ==========
+
 	g.version = version;
 
 	// Middleware Configuration
 	// ==========
 	const middleware = [
-		// thunk.withExtraArgument(getFirebase),
-		// for some reason, this breaks stuff if we have it the last one
-		/* store=>next=>action=> {
-			Log("What!" + action.type);
-			PreDispatchAction(action);
-			const returnValue = next(action);
-			MidDispatchAction(action, returnValue);
-			WaitXThenRun(0, ()=>PostDispatchAction(action));
-			return returnValue;
-		}, */
-		// routerMiddleware(browserHistory),
 		routerMiddleware,
 	];
 	const lateMiddleware = [
@@ -69,48 +59,7 @@ export function CreateStore(initialState = {}, history) {
 	// redux-dev-tools config
 	// ==========
 
-	const reduxDevToolsConfig = {
-		maxAge: 70,
-		/* actionSanitizer: action=> {
-			function Sanitize(action) {
-				if (action.type == "@@reactReduxFirebase/SET" && action.path.startsWith(DBPath("nodes"))) {
-					return {...action, data: "<<IGNORED>>"};
-				}
-				return action;
-			}
-			if (action.type == "ApplyActionSet") {
-				return {...action, actions: action.actions.map(a=>Sanitize(a))};
-			}
-			return Sanitize(action);
-		},
-		stateSanitizer: action=> {
-			function Sanitize(action) {
-				if (action.type == "@@reactReduxFirebase/SET" && action.path.startsWith(DBPath("nodes"))) {
-					return {...action, data: "<<IGNORED>>"};
-				}
-				return action;
-			}
-			if (action.type == "ApplyActionSet") {
-				return {...action, actions: action.actions.map(a=>Sanitize(a))};
-			}
-			return Sanitize(action);
-		}, */
-		/* serialize: {
-			replacer: (key, value)=> {
-				// ignore "nodes" subtree
-				if (value && value.currentRevision) return "<<IGNORED>>";
-				//if (value && value.currentRevision) return {data: "<<IGNORED>>"};
-				return value;
-			},
-			reviver: (key, value)=> {
-				// ignore "nodes" subtree
-				if (value && value.currentRevision) return "<<IGNORED>>";
-				return value;
-			},
-		}, */
-		/* actionsFilter: (action) => (action.places ? Object.assign(action, { places: [] }) : action),
- 		statesFilter: (state) => (state.places ? Object.assign(state, {places: [] }) : state) */
-	};
+	const reduxDevToolsConfig = { maxAge: 70 };
 
 	// Store Instantiation and HMR Setup
 	// ==========
@@ -121,13 +70,14 @@ export function CreateStore(initialState = {}, history) {
 		enableLogging: false, // enable/disable Firebase Database Logging
 		updateProfileOnLogin: false, // enable/disable updating of profile on login
 		// profileDecorator: (userData) => ({ email: userData.email }) // customize format of user profile
-		// useFirestoreForProfile: true, // for now, use firebase
+		useFirestoreForProfile: true,
 		preserveOnLogout: [DBPath()],
 	};
 	if (firebase.apps.length == 0) {
 		firebase.initializeApp(firebaseConfig);
 	}
-	// g.firestoreDB = firebase.firestore(); // can also use store.firebase.firestore()
+	g.firestoreDB = firebase.firestore(); // can also use store.firebase.firestore()
+	firestoreDB.settings({ timestampsInSnapshots: true });
 
 	const extraReducers = {
 		router: routerReducer,
@@ -143,6 +93,7 @@ export function CreateStore(initialState = {}, history) {
 			routerEnhancer,
 			applyMiddleware(...middleware),
 			reactReduxFirebase(firebase, reduxFirebaseConfig),
+			reduxFirestore(firebase, {}),
 			batchedSubscribe(unstable_batchedUpdates),
 			applyMiddleware(...lateMiddleware), // place late-middleware after reduxFirebase, so it can intercept all its dispatched events
 			g.devToolsExtension && g.devToolsExtension(reduxDevToolsConfig),

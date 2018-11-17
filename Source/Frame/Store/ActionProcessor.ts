@@ -1,4 +1,4 @@
-import { GetAsync } from 'Frame/Database/DatabaseHelpers';
+import { GetAsync, ListenerPathToPath } from 'Frame/Database/DatabaseHelpers';
 import { SplitStringBySlash_Cached } from 'Frame/Database/StringSplitCache';
 import { SleepAsync, Vector2i, VURL } from 'js-vextensions';
 import Raven from 'raven-js';
@@ -39,37 +39,26 @@ export function PreDispatchAction(action: Action<any>) {
 	if (action.type == '@@reactReduxFirebase/SET') {
 		if (action['data']) {
 			action['data'] = ProcessDBData(action['data'], true, true, SplitStringBySlash_Cached(action['path']).Last());
-
-			// add special _key or _id prop
-			/* if (typeof action["data"] == "object") {
-				let key = (action["path"] as string).split("/").Last();
-				if (parseInt(key).toString() == key)
-					action["data"]._id = parseInt(key);
-				else
-					action["data"]._key = key;
-			} */
-
-			/* let match = action["path"].match("^" + DBPath("maps") + "/([0-9]+)");
-			// if map-data was just loaded
-			if (match) {
-				let mapID = parseInt(match[1]);
-				// and no map-view exists for it yet, create one (by expanding root-node, and changing focus-node/view-offset)
-				//if (GetMapView(mapID) == null) {
-				if (GetMapView(mapID).rootNodeViews.VKeys().length == 0) {
-					setTimeout(()=> {
-						store.dispatch(new ACTMapNodeExpandedSet({mapID, path: action["data"].rootNode.toString(), expanded: true, recursive: false}));
-						store.dispatch(new ACTViewCenterChange({mapID, focusNode: action["data"].rootNode.toString(), viewOffset: new Vector2i(200, 0)}));
-					});
-				}
-			} */
 		} else {
 			// don't add the property to the store, if it is just null anyway (this makes it consistent with how firebase returns the whole db-state)
 			delete action['data'];
 		}
 	}
 
-	/* if (g.actionStacks) { // || (DEV && !actionStacks_actionTypeIgnorePatterns.Any(a=>action.type.startsWith(a)))) {
-		action['stack'] = new Error().stack.split('\n').slice(1); // add stack, so we can inspect in redux-devtools
+	if (action.type == '@@reduxFirestore/LISTENER_RESPONSE' || action.type == '@@reduxFirestore/DOCUMENT_ADDED' || action.type == '@@reduxFirestore/DOCUMENT_MODIFIED') {
+		if (action.payload.data) {
+			// "subcollections" prop currently bugged in some cases, so just use new "path" prop when available
+			const path = action['meta'].path || ListenerPathToPath(action['meta']);
+
+			action.payload.data = ProcessDBData(action.payload.data, true, true, SplitStringBySlash_Cached(path).Last());
+		} /* else {
+			// don't add the property to the store, if it is just null anyway (this makes it consistent with how firebase returns the whole db-state)
+			delete action.payload.data;
+		} */
+	}
+
+	/* if (g.actionStacks || (DEV && !actionStacks_actionTypeIgnorePatterns.Any(a=>action.type.startsWith(a)))) {
+		action["stack"] = new Error().stack.split("\n").slice(1); // add stack, so we can inspect in redux-devtools
 	} */
 }
 export function MidDispatchAction(action: Action<any>, newState: RootState) {
@@ -246,6 +235,10 @@ export async function PostDispatchAction(action: Action<any>) {
 				permissionGroups: { basic: true, verified: true, mod: false, admin: false },
 				joinDate: Date.now(),
 			});
+			firestoreDB.doc(DBPath(`userExtras/${userID}`)).set({
+				permissionGroups: { basic: true, verified: true, mod: false, admin: false },
+				joinDate: Date.now(),
+			}, { merge: true });
 		}
 
 		// Raven.setUserContext(action["auth"].Including("uid", "displayName", "email"));

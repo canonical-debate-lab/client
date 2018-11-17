@@ -14,7 +14,7 @@ export class AddTermComponent extends Command<{termID: number, termComponent: Te
 		const { termID, termComponent } = this.payload;
 		const firebase = store.firebase.helpers;
 
-		const lastTermComponentID = await GetDataAsync('general', 'lastTermComponentID') as number;
+		const lastTermComponentID = await GetDataAsync('general', 'data', '.lastTermComponentID') as number;
 		this.termComponentID = lastTermComponentID + 1;
 
 		termComponent.parentTerms = { [termID]: true };
@@ -27,7 +27,7 @@ export class AddTermComponent extends Command<{termID: number, termComponent: Te
 	GetDBUpdates() {
 		const { termID, termComponent } = this.payload;
 		const updates = {
-			'general/lastTermComponentID': this.termComponentID,
+			'general/data/.lastTermComponentID': this.termComponentID,
 			[`terms/${termID}/components/${this.termComponentID}`]: true,
 			[`termComponents/${this.termComponentID}`]: termComponent,
 		};

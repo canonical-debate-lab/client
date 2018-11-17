@@ -25,7 +25,7 @@ export class AddNode extends Command<{mapID: number, node: MapNode, revision: Ma
 	async Prepare() {
 		const { mapID, node, revision } = this.payload;
 
-		this.nodeID = (await GetDataAsync('general', 'lastNodeID') as number) + this.lastNodeID_addAmount + 1;
+		this.nodeID = (await GetDataAsync('general', 'data', '.lastNodeID') as number) + this.lastNodeID_addAmount + 1;
 		node.creator = this.userInfo.id;
 		node.createdAt = Date.now();
 
@@ -55,7 +55,7 @@ export class AddNode extends Command<{mapID: number, node: MapNode, revision: Ma
 
 		let updates = {};
 		// add node
-		updates['general/lastNodeID'] = this.nodeID;
+		updates['general/data/.lastNodeID'] = this.nodeID;
 		updates[`nodes/${this.nodeID}`] = node;
 
 		// add as parent of (pre-existing) children

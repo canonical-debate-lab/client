@@ -7,7 +7,7 @@ import { Command } from '../Command';
 export class AddImage extends Command<{image: Image}, {}> {
 	imageID: number;
 	async Prepare() {
-		const lastImageID = await GetDataAsync('general', 'lastImageID') as number;
+		const lastImageID = await GetDataAsync('general', 'data', '.lastImageID') as number;
 		this.imageID = lastImageID + 1;
 		this.payload.image.createdAt = Date.now();
 	}
@@ -19,7 +19,7 @@ export class AddImage extends Command<{image: Image}, {}> {
 	GetDBUpdates() {
 		const { image } = this.payload;
 		const updates = {
-			'general/lastImageID': this.imageID,
+			'general/data/.lastImageID': this.imageID,
 			[`images/${this.imageID}`]: image,
 		};
 		return updates;

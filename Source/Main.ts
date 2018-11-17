@@ -43,7 +43,7 @@ import Raven from "raven-js";
 }
 for (var key in Promise)
 	PromiseWrapper[key] = Promise[key];
-G({React, Promise: PromiseWrapper});*/
+G({React, Promise: PromiseWrapper}); */
 
 // G({ReactPerf});
 
@@ -53,8 +53,8 @@ g.startURL = GetCurrentURL(true);
 // always compile-time
 declare global { var ENV_COMPILE_TIME: string; }
 // only compile-time if compiled for production (otherwise, can be overriden)
-declare global { var ENV_SHORT: string; var ENV: string; var DEV: boolean; var PROD: boolean; var 
-TEST: boolean; }
+declare global { var ENV_SHORT: string; var ENV: string; var DEV: boolean; var PROD: boolean; var
+	TEST: boolean; }
 
 // let {version, ENV, ENV_SHORT, DEV, PROD, TEST} = DEV ? require("./BakedConfig_Dev") : require("./BakedConfig_Prod");
 // if environment at compile time was not "production" (ie. if these globals weren't set/locked), then set them here at runtime
@@ -63,7 +63,7 @@ if (ENV_COMPILE_TIME != 'production') {
 	if (startURL.GetQueryVar('env') && startURL.GetQueryVar('env') != 'null') {
 		g.ENV = startURL.GetQueryVar('env');
 		// alert("Using env: " + g.ENV);
-		console.log('Using env: ' + ENV);
+		console.log(`Using env: ${  ENV}`);
 	}
 
 	g.ENV_SHORT = { development: 'dev', production: 'prod' }[ENV] || ENV;
@@ -81,10 +81,9 @@ const { version, firebaseConfig } = DEV ? require('./BakedConfig_Dev') : require
 let dbVersion = 10;
 if (startURL.GetQueryVar('dbVersion') && startURL.GetQueryVar('dbVersion') != 'null') {
 	dbVersion = parseInt(startURL.GetQueryVar('dbVersion'));
-	console.log('Using dbVersion: ' + dbVersion);
+	console.log(`Using dbVersion: ${  dbVersion}`);
 }
-G({ version, dbVersion, firebaseConfig }); declare global { var version: string; var dbVersion: number; var 
-firebaseConfig; }
+G({ version, dbVersion, firebaseConfig }); declare global { var version: string; var dbVersion: number; var firebaseConfig; }
 
 if (PROD && window.location.hostname != 'localhost') { // if localhost, never enable Raven (even if env-override is set to production)
 	Raven.config('https://40c1e4f57e8b4bbeb1e5b0cf11abf9e9@sentry.io/155432', {
@@ -106,15 +105,15 @@ if (PROD && window.location.hostname != 'localhost') { // if localhost, never en
 			+ `|VReactMarkdown`
 		),
 	});
-}*/
+} */
 
 // hot-reloading
 // ==========
 
-/*declare global { let useHotReloading: boolean; }
+/* declare global { let useHotReloading: boolean; }
 g.useHotReloading = false; */
 /* let hotReloading = false;
-G({hotReloading}); declare global { let hotReloading: boolean; }*/
+G({hotReloading}); declare global { let hotReloading: boolean; } */
 declare global { let hasHotReloaded: boolean; }
 g.hasHotReloaded = false;
 

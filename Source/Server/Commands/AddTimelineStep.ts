@@ -10,7 +10,7 @@ export class AddTimelineStep extends Command<{timelineID: number, step: Timeline
 	async Prepare() {
 		const { timelineID, step } = this.payload;
 
-		const lastStepID = await GetDataAsync('general', 'lastTimelineStepID') as number;
+		const lastStepID = await GetDataAsync('general', 'data', '.lastTimelineStepID') as number;
 		this.stepID = lastStepID + 1;
 		step.timelineID = timelineID;
 
@@ -25,7 +25,7 @@ export class AddTimelineStep extends Command<{timelineID: number, step: Timeline
 		const { timelineID, step } = this.payload;
 		const updates = {
 			// add step
-			'general/lastTimelineStepID': this.stepID,
+			'general/data/.lastTimelineStepID': this.stepID,
 			[`timelineSteps/${this.stepID}`]: step,
 			// add to timeline
 			[`timelines/${timelineID}/steps`]: this.timeline_oldSteps.concat(this.stepID),

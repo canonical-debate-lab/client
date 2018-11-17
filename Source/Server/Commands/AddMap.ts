@@ -14,7 +14,7 @@ export class AddMap extends Command<{map: Map}, {}> {
 	async Prepare() {
 		const { map } = this.payload;
 
-		const lastMapID = await GetDataAsync('general', 'lastMapID') as number;
+		const lastMapID = await GetDataAsync('general', 'data', '.lastMapID') as number;
 		this.mapID = lastMapID + 1;
 		map.createdAt = Date.now();
 		map.editedAt = map.createdAt;
@@ -37,7 +37,7 @@ export class AddMap extends Command<{map: Map}, {}> {
 		const { map } = this.payload;
 
 		let updates = {};
-		updates['general/lastMapID'] = this.mapID;
+		updates['general/data/.lastMapID'] = this.mapID;
 		updates[`maps/${this.mapID}`] = map;
 		updates = MergeDBUpdates(updates, this.sub_addNode.GetDBUpdates());
 

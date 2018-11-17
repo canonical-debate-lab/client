@@ -9,7 +9,7 @@ export class AddLayer extends Command<{layer: Layer}, {}> {
 	async Prepare() {
 		const { layer } = this.payload;
 
-		const lastLayerID = await GetDataAsync('general', 'lastLayerID') as number;
+		const lastLayerID = await GetDataAsync('general', 'data', '.lastLayerID') as number;
 		this.layerID = lastLayerID + 1;
 		layer.createdAt = Date.now();
 	}
@@ -21,7 +21,7 @@ export class AddLayer extends Command<{layer: Layer}, {}> {
 	GetDBUpdates() {
 		const { layer } = this.payload;
 		const updates = {
-			'general/lastLayerID': this.layerID,
+			'general/data/.lastLayerID': this.layerID,
 			[`layers/${this.layerID}`]: layer,
 		} as any;
 		return updates;

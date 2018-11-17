@@ -106,7 +106,7 @@ Manager_Feedback.VSet(sharedData.Extended({
 
 var { store, persister } = CreateStore(g.__InitialState__, {});
 declare global {
-	type ProjectStore = Store<RootState> & {firebase: FirebaseApp, reducer: (state: RootState, action: Action<any>)=>RootState};
+	type ProjectStore = Store<RootState> & {firebase: FirebaseApp, firestore: any, reducer: (state: RootState, action: Action<any>)=>RootState};
 	var store: ProjectStore;
 } G({ store });
 declare global { var persister: Persister; } G({ persister });

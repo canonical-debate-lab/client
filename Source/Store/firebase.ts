@@ -1,24 +1,24 @@
-import {MapNodeStats} from "Store/firebase/nodeStats/@MapNodeStats";
-import UserExtraInfo from "./firebase/userExtras/@UserExtraInfo";
-import {MapNode} from "./firebase/nodes/@MapNode";
-import {RatingsSet, RatingsRoot} from "./firebase/nodeRatings/@RatingsRoot";
-import {Term} from "./firebase/terms/@Term";
-import {Map} from "./firebase/maps/@Map";
-import {TermComponent} from "./firebase/termComponents/@TermComponent";
-import { GeneralData } from "./firebase/general";
-import {ViewerSet} from "./firebase/nodeViewers/@ViewerSet";
-import {Image} from "./firebase/images/@Image";
-import { ViewedNodeSet } from './firebase/userViewedNodes/@ViewedNodeSet';
 import { ForumData } from 'firebase-forum';
 import { Layer } from 'Store/firebase/layers/@Layer';
-import { UserMapInfoSet } from './firebase/userMapInfo/@UserMapInfo';
-import { MapNodeRevision } from './firebase/nodes/@MapNodeRevision';
 import { NodeEditTimes } from 'Store/firebase/mapNodeEditTimes';
+import { MapNodeStats } from 'Store/firebase/nodeStats/@MapNodeStats';
 import { User } from 'Store/firebase/users/@User';
+import { GeneralData } from './firebase/general';
+import { Image } from './firebase/images/@Image';
+import { Map } from './firebase/maps/@Map';
+import { RatingsRoot } from './firebase/nodeRatings/@RatingsRoot';
+import { MapNode } from './firebase/nodes/@MapNode';
+import { MapNodeRevision } from './firebase/nodes/@MapNodeRevision';
+import { ViewerSet } from './firebase/nodeViewers/@ViewerSet';
+import { TermComponent } from './firebase/termComponents/@TermComponent';
+import { Term } from './firebase/terms/@Term';
+import UserExtraInfo from './firebase/userExtras/@UserExtraInfo';
+import { UserMapInfoSet } from './firebase/userMapInfo/@UserMapInfo';
+import { ViewedNodeSet } from './firebase/userViewedNodes/@ViewedNodeSet';
 
 export interface FirebaseData {
 	forum: ForumData;
-	general: GeneralData;
+	general: {data: GeneralData};
 	images: {[key: string]: Image};
 	layers: {[key: number]: Layer};
 	maps: {[key: number]: Map};

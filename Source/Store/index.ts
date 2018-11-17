@@ -2,11 +2,10 @@ import { CombineReducers_Advanced } from 'Frame/Store/ReducerUtils';
 import { LocationDescriptorObject } from 'history';
 import { Assert, DeepGet } from 'js-vextensions';
 import { firebaseStateReducer } from 'react-redux-firebase';
+import { firestoreReducer } from 'redux-firestore';
 import { VMenuReducer, VMenuState } from 'react-vmenu';
-// import {reducer as formReducer} from "redux-form";
 import { MessageBoxReducer, MessageBoxState } from 'react-vmessagebox';
 import u from 'updeep';
-import { pathReceiveStatuses, NotifyPathsReceiving, NotifyPathsReceived } from 'Frame/Database/DatabaseHelpers';
 import { OnAccessPath } from '../Frame/Database/FirebaseConnect';
 import { SplitStringBySlash_Cached } from '../Frame/Database/StringSplitCache';
 import Action, { IsACTSetFor } from '../Frame/General/Action';
@@ -159,6 +158,7 @@ export class RootState {
 	main: MainState;
 	// firebase: FirebaseDatabase;
 	firebase: any;
+	firestore: any;
 	// form: any;
 	router: RouterState;
 	messageBox: MessageBoxState;
@@ -168,7 +168,7 @@ export class RootState {
 }
 export function MakeRootReducer(extraReducers?) {
 	const innerReducer = CombineReducers_Advanced({
-		preReduce: (state, action) => {
+		/* preReduce: (state, action) => {
 			if (action.type == '@@reactReduxFirebase/START' || action.type == '@@reactReduxFirebase/SET') {
 				const newFirebaseState = firebaseStateReducer(state.firebase, action);
 
@@ -185,13 +185,12 @@ export function MakeRootReducer(extraReducers?) {
 					return state;
 				}
 			}
-		},
+		}, */
 		reducers: {
 			main: MainReducer,
 			firebase: firebaseStateReducer,
+			firestore: firestoreReducer,
 			// form: formReducer,
-			// router: routerReducer,
-			// router: RouterReducer,
 			messageBox: MessageBoxReducer,
 			vMenu: VMenuReducer,
 			/* forum: ForumReducer,
@@ -237,13 +236,14 @@ export function MakeRootReducer(extraReducers?) {
 
 		// make-so certain paths are ignored in redux-devtools-extension's Chart panel
 		// temp removed; caused issues with new redux-persist
-		/* let ignorePaths = [
-			`firebase/data/${DBPath("nodes")}`,
-			`firebase/data/${DBPath("nodeRevisions")}`,
+		/* const ignorePaths = [
+			'firestore/data',
+			// `firebase/data/${DBPath("nodes")}`,
+			// `firebase/data/${DBPath("nodeRevisions")}`,
 		];
-		for (let path of ignorePaths) {
+		for (const path of ignorePaths) {
 			if (DeepGet(result, path) != null && DeepGet(state, path) == null) {
-				DeepSet(result, path + "/toJSON", ()=>"[IGNORED]");
+				DeepSet(result, `${path  }/toJSON`, () => '[IGNORED]');
 			}
 		} */
 

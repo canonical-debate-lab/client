@@ -1,12 +1,13 @@
-import { activeStoreAccessCollectors } from 'Frame/Database/DatabaseHelpers';
+import { activeStoreAccessCollectors, PathToListenerPath, GetPathParts } from 'Frame/Database/DatabaseHelpers';
 import { GetPropsChanged, GetPropsChanged_WithValues } from 'js-vextensions';
 import _ from 'lodash';
 import Moment from 'moment';
 import { connect } from 'react-redux';
-import { unWatchEvents, watchEvents } from 'react-redux-firebase/lib/actions/query';
 import { getEventsFromInput } from 'react-redux-firebase/lib/utils';
 import { ShallowChanged } from 'react-vextensions';
 import { GetUserID } from 'Store/firebase/users';
+import { setListeners, unsetListeners } from 'redux-firestore/es/actions/firestore';
+import firebase from 'firebase';
 import { GetUser, GetUserPermissions } from '../../Store/firebase/users';
 import { ApplyActionSet, RootState } from '../../Store/index';
 
@@ -58,9 +59,7 @@ export function Connect<T, P>(funcOrFuncGetter) {
 		ClearRequestedPaths();
 		ClearAccessedPaths();
 		// Assert(GetAccessedPaths().length == 0, "Accessed-path must be empty at start of mapStateToProps call (ie. the code in Connect()).");
-		// let firebase = state.firebase;
-		// let firebase = props["firebase"];
-		const { firebase } = store;
+		const { firestore } = store;
 
 		let changedPath = null;
 		let storeDataChanged = false;
@@ -125,12 +124,25 @@ export function Connect<T, P>(funcOrFuncGetter) {
 		// if (firebase._ && ShallowChanged(requestedPaths, oldRequestedPaths)) {
 		if (ShallowChanged(requestedPaths, oldRequestedPaths)) {
 			setImmediate(() => {
-				s._firebaseEvents = getEventsFromInput(requestedPaths);
+				// s.lastEvents = getEventsFromInput(requestedPaths.map(path=>GetPathParts(path)[0]));
 				const removedPaths = oldRequestedPaths.Except(...requestedPaths);
-				// unWatchEvents(firebase, DispatchDBAction, getEventsFromInput(removedPaths)); // removed for now; had some issues with unwatching when still needed watched
+				// todo: find correct way of unwatching events; the way below seems to sometimes unwatch while still needed watched
+				// for now, we just never unwatch
+				// unWatchEvents(store.firebase, DispatchDBAction, getEventsFromInput(removedPaths));
+				// store.firestore.unsetListeners(removedPaths.map(path=>GetPathParts(path)[0]));
+				const removedPaths_toDocs = removedPaths.map(path => GetPathParts(path)[0]);
+				const removedPaths_toDocs_asListenerPaths = removedPaths_toDocs.map(path => PathToListenerPath(path));
+				// store.firestore.unsetListeners(removedPaths_toDocs_asListenerPaths);
+				unsetListeners(firebase['firebase_'] || firebase, DispatchDBAction, removedPaths_toDocs_asListenerPaths);
+
 				const addedPaths = requestedPaths.Except(...oldRequestedPaths);
-				watchEvents(firebase, DispatchDBAction, getEventsFromInput(addedPaths));
-				// for debugging, you can check currently-watched-paths using: store.firebase._.watchers
+				const addedPaths_toDocs = addedPaths.map(path => GetPathParts(path)[0]);
+				const addedPaths_toDocs_asListenerPaths = addedPaths_toDocs.map(path => PathToListenerPath(path));
+				// watchEvents(store.firebase, DispatchDBAction, getEventsFromInput(addedPaths.map(path=>GetPathParts(path)[0])));
+				// for debugging, you can check currently-watched-paths using: store.firestore._.listeners
+				// store.firestore.setListeners(addedPaths_toDocs_asListenerPaths);
+				setListeners(firebase['firebase_'] || firebase, DispatchDBAction, addedPaths_toDocs_asListenerPaths);
+				Log(`Requesting paths: ${addedPaths.join(',')}`);
 			});
 			s.lastRequestedPaths = requestedPaths;
 		}
@@ -158,6 +170,28 @@ export function Connect<T, P>(funcOrFuncGetter) {
 	}, null, null, { withRef: true });
 }
 
+export const pathListenerCounts = {};
+export function SetListeners(paths: string[]) {
+	for (const path of paths) {
+		const oldListenerCount = pathListenerCounts[path] || 0;
+		pathListenerCounts[path] = oldListenerCount + 1;
+		if (oldListenerCount > 0) continue;
+
+		// for debugging, you can check currently-watched-paths using: store.firestore._.listeners
+		const listenerPath = PathToListenerPath(path);
+		store.firestore.setListener(listenerPath);
+	}
+}
+export function UnsetListeners(paths: string[]) {
+	for (const path of paths) {
+		const listenerPath = PathToListenerPath(path);
+		pathListenerCounts[path]--;
+		if (pathListenerCounts[path] == 0) {
+			store.firestore.unsetListener(listenerPath);
+		}
+	}
+}
+
 // in dev-mode, don't buffer actinos as this makes it harder to debug using Redux dev-tools panel
 const actionTypeBufferInfos = DEV ? {} : {
 	'@@reactReduxFirebase/START': { time: 300 },
@@ -175,7 +209,7 @@ function DispatchDBAction(action) {
 	const bufferInfo = actionTypeBufferInfos[action.type];
 
 	// These are merely informational entries into the redux store. We don't use them, so block these actions from being dispatched.
-	if (action.type === '@@reactReduxFirebase/SET_LISTENER' || action.type === '@@reactReduxFirebase/UNSET_LISTENER') return;
+	if (action.type === '@@reduxFirestore/SET_LISTENER' || action.type === '@@reduxFirestore/UNSET_LISTENER') return;
 
 	// if we're not supposed to buffer this action type, or it's been long enough since last dispatch of this type
 	if (bufferInfo == null || timeSinceLastDispatch >= bufferInfo.time) {

@@ -7,21 +7,10 @@ For more information, visit the website at: <https://canonicaldebate.com>
 ### Workspace setup
 
 1) Clone the repo to disk: <https://github.com/canonical-debate-lab/client.git>
-2) Run `npm install` in the root project folder.
-
-Note that I haven't thoroughly tested the setup process, so if something fails for you, I probably just forgot a step or two, so make an issue describing where you're stuck.
+2) Run `npm install` in the project's root folder.
+3) Run `npm run create-vendors[-quick]` in the project's root folder. 
 
 For recommended setup of your code editor and other tools, see: [Editor setup](#editor-setup)
-
-### Firebase setup + project config
-
-1) Create two Google Firebase projects (assuming you're forking) -- one for development, one for production.
-2) Edit the `.firebaserc` and `Scripts/Build/CreateConfig.js` files, replacing their paths and data with your own.
-3) Add at least one form of authentication to your Firebase projects. (Google sign-in is easiest)
-4) Run the project locally. (see "Running locally" section below)
-5) Sign in, using the panel at the top-right.
-6) Add "?init=true" to the address-bar url, and reload the page.
-7) Press the "Initialize database" button which will appear at the top-left.
 
 ### Running locally
 
@@ -30,6 +19,16 @@ For recommended setup of your code editor and other tools, see: [Editor setup](#
 3) Navigate to `localhost:3005`.
 
 Note that you'll need to run `npm run create-vendors[-quick]` after updating/removing libraries listed in `Scripts/Config/Vendors.js` (else the old versions are included in the Vendor bundle), and after adding new entries. (you should do this for large, infrequently updated modules, to speed up the regular compile process)
+
+### Firebase setup + project config (if forking)
+
+1) Create two Google Firebase projects -- one for development, one for production.
+2) Edit the `.firebaserc` and `Scripts/Build/CreateConfig.js` files, replacing their paths and data with your own.
+3) Add at least one form of authentication to your Firebase projects. (Google sign-in is easiest)
+4) Run the project locally. (see "Running locally" section below)
+5) Sign in, using the panel at the top-right.
+6) Add "?init=true" to the address-bar url, and reload the page.
+7) Press the "Initialize database" button which will appear at the top-left.
 
 ### Deploying to Firebase
 

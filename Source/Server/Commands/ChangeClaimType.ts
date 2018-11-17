@@ -44,11 +44,11 @@ export class ChangeClaimType extends Command<{mapID?: number, nodeID: number, ne
 
 		const { nodeID, newType } = this.payload;
 		// let oldData = await GetDataAsync({addHelpers: false}, "nodes", nodeID) as MapNode;
-		const oldData = await GetAsync_Raw(() => GetNodeL2(nodeID) );
+		const oldData = await GetAsync_Raw(() => GetNodeL2(nodeID));
 		this.oldType = GetClaimType(oldData);
 
 		this.newData = { ...oldData };
-		this.newRevisionID = (await GetDataAsync('general', 'lastNodeRevisionID')) + 1;
+		this.newRevisionID = (await GetDataAsync('general', 'data', '.lastNodeRevisionID')) + 1;
 		this.newRevision = { ...oldData.current };
 
 		if (this.oldType == ClaimType.Normal) {
@@ -74,7 +74,7 @@ export class ChangeClaimType extends Command<{mapID?: number, nodeID: number, ne
 		const { nodeID } = this.payload;
 		const updates = {};
 		updates[`nodes/${nodeID}`] = this.newData;
-		updates['general/lastNodeRevisionID'] = this.newRevisionID;
+		updates['general/data/.lastNodeRevisionID'] = this.newRevisionID;
 		updates[`nodeRevisions/${this.newRevisionID}`] = this.newRevision;
 		return updates;
 	}

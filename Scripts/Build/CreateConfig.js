@@ -18,12 +18,16 @@ function createConfigFile(callback, environment) {
 				apiKey: 'AIzaSyCnMNg4boP90ExfS-it9Eo3Knk4e-tt5g8',
 				authDomain: 'canonical-debate-dev.firebaseapp.com',
 				databaseURL: 'https://canonical-debate-dev.firebaseio.com',
+				projectId: 'canonical-debate-dev',
+				messagingSenderId: '295080303371',
 				storageBucket: 'canonical-debate-dev.appspot.com',
 			}
 			: {
 				apiKey: 'AIzaSyBvdtm4ydCO1FgyEPJX1CeEqwUxoCYGfWw',
 				authDomain: 'canonical-debate-prod.firebaseapp.com',
 				databaseURL: 'https://canonical-debate-prod.firebaseio.com',
+				projectId: 'canonical-debate-prod',
+				messagingSenderId: '265877283157',
 				storageBucket: 'canonical-debate-prod.appspot.com',
 			},
 	};

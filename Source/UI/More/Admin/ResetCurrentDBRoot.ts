@@ -18,7 +18,7 @@ export async function ResetCurrentDBRoot() {
 	const userKey = GetUserID();
 
 	const data = {} as FirebaseData;
-	data.general = {
+	data.general.data = {
 		lastTermID: 0,
 		lastTermComponentID: 0,
 		lastImageID: 0,
