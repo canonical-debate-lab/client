@@ -61,9 +61,9 @@ export class AdminUI extends BaseComponent<{}, {dbUpgrade_entryIndexes: number[]
 				</Row> */}
 				<Row><h4>General</h4></Row>
 				<Row>
-					<Button text={`Reset ${DBPath(`v${dbVersion}-${ENV_SHORT}/`, false).slice(0, -1)}`} onClick={() => {
+					<Button text={`Reset ${DBPath()}`} onClick={() => {
 						ShowMessageBox({
-							title: `Reset ${DBPath(`v${dbVersion}-${ENV_SHORT}/`, false).slice(0, -1)}?`,
+							title: `Reset ${DBPath()}?`,
 							message: 'This will clear all existing data in this root, then replace it with a fresh, initial state.', cancelButton: true,
 							onOK: () => {
 								ResetCurrentDBRoot();

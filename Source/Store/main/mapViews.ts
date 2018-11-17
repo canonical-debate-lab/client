@@ -1,12 +1,13 @@
 import { SplitStringBySlash_Cached } from 'Frame/Database/StringSplitCache';
 import { Assert, CachedTransform, GetTreeNodesInObjTree, IsNumberString, Vector2i } from 'js-vextensions';
 import { ShallowChanged } from 'react-vextensions';
-import { DBPath } from '../../Frame/Database/DatabaseHelpers';
-import Action from '../../Frame/General/Action';
+import { DBPath, ListenerPathToPath } from '../../Frame/Database/DatabaseHelpers';
+import { Action } from '../../Frame/General/Action';
 import { ACTDebateMapSelect_WithData } from './debates';
 import { ACTMapViewMerge, MapViewReducer } from './mapViews/$mapView';
 import { MapNodeView, MapView, MapViews } from './mapViews/@MapViews';
 import { ACTPersonalMapSelect_WithData } from './personal';
+import { DoesActionSetFirestoreData } from 'Store/firebase';
 
 export function MapViewsReducer(state = new MapViews(), action: Action<any>) {
 	/* if (action.Is(ACTOpenMapSet))
@@ -14,8 +15,12 @@ export function MapViewsReducer(state = new MapViews(), action: Action<any>) {
 
 	const newState = { ...state };
 
-	if (action.type == '@@reactReduxFirebase/SET' && action['data']) {
-		const match = action['path'].match(`^${DBPath('maps')}/([0-9]+)`);
+	// if (action.type == '@@reactReduxFirebase/SET' && action['data']) {
+	if (DoesActionSetFirestoreData(action) && action.payload.data) {
+		// "subcollections" prop currently bugged in some cases, so just use new "path" prop when available
+		const path = action['meta'].path || ListenerPathToPath(action['meta']);
+
+		const match = path.match(`^${DBPath('maps')}/([0-9]+)`);
 		// if map-data was just loaded
 		if (match) {
 			const mapID = parseInt(match[1]);
@@ -26,7 +31,7 @@ export function MapViewsReducer(state = new MapViews(), action: Action<any>) {
 				// newState[mapID] = new MapView();
 				newState[mapID] = {
 					rootNodeViews: {
-						[action['data'].rootNode]: new MapNodeView().VSet({ expanded: true, focused: true, viewOffset: new Vector2i(200, 0) }),
+						[action.payload.data.rootNode]: new MapNodeView().VSet({ expanded: true, focused: true, viewOffset: new Vector2i(200, 0) }),
 					},
 				};
 			}

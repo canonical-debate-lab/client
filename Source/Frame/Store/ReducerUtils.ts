@@ -1,6 +1,6 @@
 import { combineReducers, ReducersMapObject } from 'redux';
 import {emptyEntities} from "js-vextensions";
-import Action from "../General/Action";
+import { Action } from "../General/Action";
 
 export function CombineReducers(reducerMap: {[key: string]: (state, action: Action<any>)=>any});
 export function CombineReducers(getInitialState: ()=>any, reducerMap: {[key: string]: (state, action: Action<any>)=>any});

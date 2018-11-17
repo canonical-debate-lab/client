@@ -12,7 +12,7 @@ export function GetMapsOfType(type: MapType): Map[] {
 }
 export function GetMap(id: number): Map {
 	if (id == null) return null;
-	return GetData('maps', id);
+	return GetData({ excludeCollections: ['nodeEditTimes'] }, 'maps', id);
 }
 export function GetRootNodeID(mapID: number): number {
 	const map = GetMap(mapID);

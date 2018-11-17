@@ -290,9 +290,9 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 		const focusNodeBox = this.FindNodeBox(nodePath, true);
 		if (focusNodeBox == null) return;
 		const focusNodeBoxPos = $(GetDOM(focusNodeBox)).GetScreenRect().Center.Minus($(this.mapUI).GetScreenRect().Position);
-		this.ScrollToPosition(focusNodeBoxPos);
+		this.ScrollToPosition_Center(focusNodeBoxPos.Plus(viewOffset_target));
 	}
-	ScrollToPosition(posInContainer: Vector2i) {
+	ScrollToPosition_Center(posInContainer: Vector2i) {
 		const { map, rootNode, withinPage } = this.props;
 
 		const oldScroll = this.scrollView.GetScroll();

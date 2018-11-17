@@ -2,8 +2,10 @@ import { combineReducers } from 'redux';
 import { VURL } from 'js-vextensions';
 import { LOCATION_CHANGED } from 'redux-little-router';
 import { MapInfo } from 'Store/main/maps/@MapInfo';
+import { ShallowChanged } from 'react-vextensions';
+import { MapInfoReducer } from 'Store/main/maps/$map';
 import {MapViews, MapNodeView, MapView} from "./main/mapViews/@MapViews";
-import Action from '../Frame/General/Action';
+import { Action } from '../Frame/General/Action';
 import { MapViewsReducer } from './main/mapViews';
 import { RatingUIReducer, RatingUIState } from './main/ratingUI';
 import { NotificationMessage } from './main/@NotificationMessage';
@@ -13,8 +15,6 @@ import { CombineReducers } from '../Frame/Store/ReducerUtils';
 import { DebatesReducer, Debates, ACTDebateMapSelect } from './main/debates';
 import SubpageReducer from './main/@Shared/$subpage';
 import { globalMapID } from './firebase/nodes/@MapNode';
-import { ShallowChanged } from 'react-vextensions';
-import { MapInfoReducer } from 'Store/main/maps/$map';
 import { Personal } from 'Store/main/personal';
 import { PersonalReducer, ACTPersonalMapSelect } from './main/personal';
 import { Database, DatabaseReducer } from './main/database';
@@ -82,9 +82,6 @@ export class ACTSetPage extends Action<string> {}
 export class ACTSetSubpage extends Action<{page: string, subpage: string}> {}
 export class ACTTopLeftOpenPanelSet extends Action<string> {}
 export class ACTTopRightOpenPanelSet extends Action<string> {}
-@Global
-export class ACTNotificationMessageAdd extends Action<NotificationMessage> {}
-export class ACTNotificationMessageRemove extends Action<number> {}
 // export class ACTOpenMapSet extends Action<number> {}
 export class ACTNodeCopy extends Action<{path: string, asCut: boolean}> {}
 export class ACTSetInitialChildLimit extends Action<{value: number}> {}
@@ -143,12 +140,6 @@ export function MainReducer(state, action) {
 			return state;
 		},
 		ratingUI: RatingUIReducer,
-		notificationMessages: (state: NotificationMessage[] = [], action) => {
-			if (action.Is(ACTNotificationMessageAdd)) { return [...state, action.payload]; }
-			if (action.Is(ACTNotificationMessageRemove)) { return state.filter(a => a.id != action.payload); }
-			NotificationMessage.lastID = Math.max(NotificationMessage.lastID, state.length ? state.map(a => a.id).Max(null, true) : -1);
-			return state;
-		},
 
 		// pages (and nav-bar panels)
 		// ==========

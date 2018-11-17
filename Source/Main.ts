@@ -53,8 +53,7 @@ g.startURL = GetCurrentURL(true);
 // always compile-time
 declare global { var ENV_COMPILE_TIME: string; }
 // only compile-time if compiled for production (otherwise, can be overriden)
-declare global { var ENV_SHORT: string; var ENV: string; var DEV: boolean; var PROD: boolean; var
-	TEST: boolean; }
+declare global { var ENV_SHORT: string; var ENV: string; var DEV: boolean; var PROD: boolean; var TEST: boolean; }
 
 // let {version, ENV, ENV_SHORT, DEV, PROD, TEST} = DEV ? require("./BakedConfig_Dev") : require("./BakedConfig_Prod");
 // if environment at compile time was not "production" (ie. if these globals weren't set/locked), then set them here at runtime

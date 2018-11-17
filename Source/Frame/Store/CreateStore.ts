@@ -43,6 +43,7 @@ export function CreateStore(initialState = {}, history) {
 	const middleware = [
 		routerMiddleware,
 	];
+	let lastAction;
 	const lateMiddleware = [
 		// for some reason, this breaks stuff if we have it the last one
 		store => next => (action) => {
@@ -52,14 +53,28 @@ export function CreateStore(initialState = {}, history) {
 			WaitXThenRun(0, () => {
 				PostDispatchAction(action); if (action.type == 'ApplyActionSet') for (const sub of action.actions) PostDispatchAction(sub);
 			});
+			lastAction = action;
 			return returnValue;
 		},
 	];
+	/* function SetUpPostDispatchAction(store) {
+		store.subscribe(() => {
+			if (g.store == null) return; // store not finished being set up
+			const action = lastAction;
+			PostDispatchAction(action); if (action.type == 'ApplyActionSet') for (const sub of action.actions) PostDispatchAction(sub);
+		});
+	} */
 
 	// redux-dev-tools config
 	// ==========
 
-	const reduxDevToolsConfig = { maxAge: 70 };
+	const reduxDevToolsConfig = {
+		maxAge: 70,
+		// actionsBlacklist: ['ACTNotificationMessageAdd', 'ACTNotificationMessageRemove'],
+		/* predicate: (state, action) => {
+			return !['ACTNotificationMessageAdd', 'ACTNotificationMessageRemove'].Contains(action.type);
+		}, */
+	};
 
 	// Store Instantiation and HMR Setup
 	// ==========
@@ -99,6 +114,7 @@ export function CreateStore(initialState = {}, history) {
 			g.devToolsExtension && g.devToolsExtension(reduxDevToolsConfig),
 		].filter(a => a)) as StoreEnhancer<any>,
 	) as ProjectStore;
+	// SetUpPostDispatchAction(store);
 	store.reducer = rootReducer;
 
 	function Dispatch_WithStack(action) {

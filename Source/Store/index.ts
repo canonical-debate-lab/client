@@ -8,7 +8,7 @@ import { MessageBoxReducer, MessageBoxState } from 'react-vmessagebox';
 import u from 'updeep';
 import { OnAccessPath } from '../Frame/Database/FirebaseConnect';
 import { SplitStringBySlash_Cached } from '../Frame/Database/StringSplitCache';
-import Action, { IsACTSetFor } from '../Frame/General/Action';
+import { Action, IsACTSetFor } from '../Frame/General/Action';
 import { HandleError } from '../Frame/General/Errors';
 import { State_overrideCountAsAccess_value, State_overrideData_path, State_overrideData_value } from '../UI/@Shared/StateOverrides';
 import { MainReducer, MainState } from './main';
@@ -85,7 +85,7 @@ function State<T>(...args) {
 	}
 
 	if (DEV) {
-		Assert(pathSegments.every(segment => segment != null), () => `Path-segment cannot be null. @segments(${pathSegments})`);
+		Assert(pathSegments.every(segment => segment != null && segment !== ''), () => `Path-segment cannot be null or empty. @segments(${pathSegments})`);
 		Assert(pathSegments.every(segment => typeof segment === 'number' || !segment.Contains('/')),
 			() => `Each string path-segment must be a plain prop-name. (ie. contain no "/" separators) @segments(${pathSegments})`);
 	}

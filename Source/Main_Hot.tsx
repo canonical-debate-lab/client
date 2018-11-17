@@ -20,7 +20,7 @@ import { GetUserID, GetUser } from 'Store/firebase/users';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { GetDataAsync, GetAsync, ApplyDBUpdates } from 'Frame/Database/DatabaseHelpers';
 import { Persister } from "redux-persist/src/types";
-import Action from "Frame/General/Action";
+import { Action } from "Frame/General/Action";
 import { Link } from "Frame/ReactComponents/Link";
 import VReactMarkdown_Remarkable from "./Frame/ReactComponents/VReactMarkdown_Remarkable";
 import { GetUserPermissions } from './Store/firebase/users';

@@ -1,5 +1,5 @@
 import {GetNode, GetNodeChildren} from "../../firebase/nodes";
-import Action from "../../../Frame/General/Action";
+import { Action } from "../../../Frame/General/Action";
 import {MapInfo} from "./@MapInfo";
 import {CombineReducers, emptyArray} from "../../../Frame/Store/ReducerUtils";
 import {GetTimeline, GetTimelineStep} from "../../firebase/timelines";

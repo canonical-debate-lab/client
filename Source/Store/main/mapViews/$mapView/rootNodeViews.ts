@@ -1,5 +1,5 @@
 import {MapNodeView, MapView} from "../@MapViews";
-import Action from "../../../../Frame/General/Action";
+import { Action } from "../../../../Frame/General/Action";
 import u from "updeep";
 import {RootNodeViews} from "./rootNodeViews/@RootNodeViews";
 import {GetViewOffsetForNodeBox, GetNodeBoxForPath} from "../../../../UI/@Shared/Maps/MapUI";

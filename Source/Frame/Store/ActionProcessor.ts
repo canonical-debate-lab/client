@@ -5,7 +5,7 @@ import Raven from 'raven-js';
 import ReactGA from 'react-ga';
 import { FindReact } from 'react-vextensions';
 import { LOCATION_CHANGED } from 'redux-little-router';
-import { GetAuth, IsAuthValid } from 'Store/firebase';
+import { GetAuth, IsAuthValid, DoesActionSetFirestoreData } from 'Store/firebase';
 import { GetNodeChildrenL2, GetNodeID } from 'Store/firebase/nodes';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
@@ -16,9 +16,9 @@ import { ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, Ge
 import { GetNodeView } from '../../Store/main/mapViews';
 import { ACTMapNodeExpandedSet } from '../../Store/main/mapViews/$mapView/rootNodeViews';
 import { ACTPersonalMapSelect, ACTPersonalMapSelect_WithData } from '../../Store/main/personal';
-import { MapUI, UpdateFocusNodeAndViewOffset } from '../../UI/@Shared/Maps/MapUI';
+import { MapUI } from '../../UI/@Shared/Maps/MapUI';
 import { DBPath, GetDataAsync, ProcessDBData } from '../Database/DatabaseHelpers';
-import Action from '../General/Action';
+import { Action } from '../General/Action';
 import { GetCurrentURL } from '../General/URLs';
 import { GetCurrentURL_SimplifiedForPageViewTracking, LoadURL } from '../URL/URLManager';
 
@@ -36,16 +36,7 @@ const lastPath = '';
 export function PreDispatchAction(action: Action<any>) {
 	MaybeLog(a => a.actions, () => `Dispatching: ${action.type} JSON:${ToJSON(action)}`);
 
-	if (action.type == '@@reactReduxFirebase/SET') {
-		if (action['data']) {
-			action['data'] = ProcessDBData(action['data'], true, true, SplitStringBySlash_Cached(action['path']).Last());
-		} else {
-			// don't add the property to the store, if it is just null anyway (this makes it consistent with how firebase returns the whole db-state)
-			delete action['data'];
-		}
-	}
-
-	if (action.type == '@@reduxFirestore/LISTENER_RESPONSE' || action.type == '@@reduxFirestore/DOCUMENT_ADDED' || action.type == '@@reduxFirestore/DOCUMENT_MODIFIED') {
+	if (DoesActionSetFirestoreData(action)) {
 		if (action.payload.data) {
 			// "subcollections" prop currently bugged in some cases, so just use new "path" prop when available
 			const path = action['meta'].path || ListenerPathToPath(action['meta']);
@@ -87,14 +78,16 @@ export function DoesURLChangeCountAsPageChange(oldURL: VURL, newURL: VURL, direc
 }
 export function RecordPageView(url: VURL) {
 	// let url = window.location.pathname;
-	ReactGA.set({ page: url.toString({ domain: false }) });
-	ReactGA.pageview(url.toString({ domain: false }) || '/');
+	if (PROD) {
+		ReactGA.set({ page: url.toString({ domain: false }) });
+		ReactGA.pageview(url.toString({ domain: false }) || '/');
+	}
 	MaybeLog(a => a.pageViews, () => `Page-view: ${url}`);
 }
 
 let postInitCalled = false;
-let pageViewTracker_lastURL: VURL;
 export async function PostDispatchAction(action: Action<any>) {
+	let pageViewTracker_lastURL: VURL;
 	if (!postInitCalled) {
 		PostInit();
 		postInitCalled = true;
@@ -263,6 +256,8 @@ export async function PostDispatchAction(action: Action<any>) {
 }
 
 async function ExpandToAndFocusOnNodes(mapID: number, paths: string[]) {
+	const { UpdateFocusNodeAndViewOffset } = require('../../UI/@Shared/Maps/MapUI'); // eslint-disable-line
+
 	for (const path of paths) {
 		const parentPath = path.split('/').slice(0, -1).join('/');
 		store.dispatch(new ACTMapNodeExpandedSet({ mapID, path: parentPath, expanded: true, recursive: false }));
@@ -284,7 +279,7 @@ async function ExpandToAndFocusOnNodes(mapID: number, paths: string[]) {
 	}
 	const nodeBoxPositionAverage = nodeBoxPositionSum.Times(1 / paths.length);
 	// mapUI.ScrollToPosition(new Vector2i((nodeBoxPositionAverage.x - 100).KeepAtLeast(0), nodeBoxPositionAverage.y));
-	mapUI.ScrollToPosition(nodeBoxPositionAverage.Plus(-250, 0));
+	mapUI.ScrollToPosition_Center(nodeBoxPositionAverage.Plus(-250, 0));
 	UpdateFocusNodeAndViewOffset(mapID);
 }
 

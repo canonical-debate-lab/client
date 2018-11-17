@@ -4,6 +4,7 @@ import { NodeEditTimes } from 'Store/firebase/maps/nodeEditTimes';
 import { MapNodeStats } from 'Store/firebase/nodeStats/@MapNodeStats';
 import { User } from 'Store/firebase/users/@User';
 import { DataWrapper } from 'Server/Server';
+import { Action } from 'Frame/General/Action';
 import { GeneralData } from './firebase/general';
 import { Image } from './firebase/images/@Image';
 import { Map } from './firebase/maps/@Map';
@@ -46,4 +47,8 @@ export function GetAuth() {
 }
 export function IsAuthValid(auth) {
 	return auth && !auth.isEmpty;
+}
+
+export function DoesActionSetFirestoreData(action: Action<any>) {
+	return action.type == '@@reduxFirestore/LISTENER_RESPONSE' || action.type == '@@reduxFirestore/DOCUMENT_ADDED' || action.type == '@@reduxFirestore/DOCUMENT_MODIFIED';
 }

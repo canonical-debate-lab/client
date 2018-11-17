@@ -110,8 +110,8 @@ export abstract class Command<Payload, ReturnData> {
 		} */
 
 		// locally-apply db-updates, then validate the result (for now, only works for already-loaded data paths)
-		let newData = RemoveHelpers(Clone(State(`firebase/data/${DBPath()}`)));
-		newData = ApplyDBUpdates_Local(newData, dbUpdates);
+		const oldData = RemoveHelpers(Clone(State(`firestore/data/${DBPath()}`)));
+		const newData = ApplyDBUpdates_Local(oldData, dbUpdates);
 		ValidateDBData(newData);
 	}
 }

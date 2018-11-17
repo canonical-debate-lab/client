@@ -8,7 +8,7 @@ import { E } from 'js-vextensions';
 import { Button } from 'react-vcomponents';
 import { TextInput } from 'react-vcomponents';
 import {Debugger} from "../../Frame/General/Others";
-import Action from '../../Frame/General/Action';
+import { Action } from '../../Frame/General/Action';
 import { HandleError } from '../../Frame/General/Errors';
 import UserPanel from './NavBar/UserPanel';
 import { Connect } from '../../Frame/Database/FirebaseConnect';

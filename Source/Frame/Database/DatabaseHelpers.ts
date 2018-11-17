@@ -9,7 +9,7 @@ import { State_overrideData_path } from 'UI/@Shared/StateOverrides';
 import u from 'updeep';
 import firebase from 'firebase';
 import { truncate } from 'fs';
-import { ClearRequestedPaths, GetRequestedPaths, RequestPath } from './FirebaseConnect';
+import { ClearRequestedPaths, GetRequestedPaths, RequestPath, SetListeners, UnsetListeners } from './FirebaseConnect';
 
 G({ firebase_: firebase }); // doesn't show as R.firebase, fsr
 
@@ -53,13 +53,16 @@ export function GetPathParts(path: string, asFBPath = false): [string, string] {
 	return [colOrDocPath, fieldPathInDoc];
 }
 
+/** ...
+ * @param inVersionRoot `default: true`
+*/
 export function DBPath(path = '', inVersionRoot = true) {
 	Assert(path != null, 'Path cannot be null.');
 	Assert(IsString(path), 'Path must be a string.');
 	/* let versionPrefix = path.match(/^v[0-9]+/);
 	if (versionPrefix == null) // if no version prefix already, add one (referencing the current version) */
 	if (inVersionRoot) {
-		path = `versions/v${dbVersion}-${ENV_SHORT}/${path}`;
+		path = `versions/v${dbVersion}-${ENV_SHORT}${path ? `/${path}` : ''}`;
 	}
 	return path;
 }
@@ -236,6 +239,7 @@ export class GetData_Options {
 	inVersionRoot? = true;
 	makeRequest? = true;
 	collection? = false;
+	excludeCollections?: string[];
 	useUndefinedForInProgress? = false;
 	queries?: any;
 }
@@ -292,10 +296,18 @@ export function GetData(...args) {
 		RequestPath(path + queriesStr);
 	}
 
-	// let result = State("firebase", "data", ...SplitStringByForwardSlash_Cached(path)) as any;
-	// const result = State('firebase', 'data', ...pathSegments) as any;
-	const result = State('firestore', 'data', ...pathSegments.map(a => (IsString(a) && a[0] === '.' ? a.substr(1) : a))) as any;
-	// let result = State("firebase", "data", ...pathSegments) as any;
+	let result = State('firestore', 'data', ...pathSegments.map(a => (IsString(a) && a[0] === '.' ? a.substr(1) : a))) as any;
+
+	// if at this path there's both an object-doc, and subcollections, exclude those subcollections (and if in doing so we find object-doc doesn't exist, set result to null)
+	if (result != null && options.excludeCollections) {
+		for (const key of options.excludeCollections) {
+			delete result[key];
+		}
+		if (result.VKeys(true).length == 0) {
+			result = null;
+		}
+	}
+
 	if (result == null && options.useUndefinedForInProgress) {
 		const requestCompleted = State().firestore.status.requested[path];
 		if (!requestCompleted) return undefined; // undefined means, current-data for path is null/non-existent, but we haven't completed the current request yet
@@ -353,9 +365,8 @@ export async function GetDataAsync(...args) {
 G({ GetAsync });
 export async function GetAsync<T>(dbGetterFunc: ()=>T, statsLogger?: ({requestedPaths: string})=>void): Promise<T> {
 	Assert(g.inConnectFuncFor == null, 'Cannot run GetAsync() from within a Connect() function.');
-	// Assert(!g.inGetAsyncFunc, "Cannot run GetAsync() from within a GetAsync() function.");
 	const firebase = store.firebase;
-	const dbDataLocked = State_overrideData_path == `firebase/data/${DBPath()}`;
+	const dbDataLocked = State_overrideData_path == `firestore/data/${DBPath()}`;
 
 	let result;
 
@@ -370,12 +381,15 @@ export async function GetAsync<T>(dbGetterFunc: ()=>T, statsLogger?: ({requested
 
 		if (!dbDataLocked) {
 			StartBufferingActions();
-			// let oldNodeRenderCount = NodeUI.renderCount;
-			// todo: we may need to call unWatchEvents in a loop until getWatcherCount==0 for each of the paths (or we could try calling some firebase function directly to trigger re-request -- this is probably better)
-			// unWatchEvents(firebase, store.dispatch, getEventsFromInput(newRequestedPaths)); // do this just to trigger re-get // removed for now; had some issues with unwatching when still needed watched
+
+			/* unWatchEvents(firebase, store.dispatch, getEventsFromInput(newRequestedPaths)); // do this just to trigger re-get
 			// start watching paths (causes paths to be requested)
-			watchEvents(firebase, store.dispatch, getEventsFromInput(newRequestedPaths));
-			// Assert(NodeUI.renderCount == oldNodeRenderCount, "NodeUIs rendered during unwatch/watch event!");
+			watchEvents(firebase, store.dispatch, getEventsFromInput(newRequestedPaths)); */
+
+			UnsetListeners(newRequestedPaths); // do this just to trigger re-get
+			// start watching paths (causes paths to be requested)
+			SetListeners(newRequestedPaths);
+
 			StopBufferingActions();
 		}
 
@@ -523,7 +537,7 @@ export function ConvertDataToValidDBUpdates(rootPath: string, rootData: any) {
 export async function ApplyDBUpdates(rootPath: string, dbUpdates) {
 	dbUpdates = Clone(dbUpdates);
 	for (const { name: localPath, value } of dbUpdates.Props()) {
-		dbUpdates[rootPath + localPath] = value;
+		dbUpdates[`${rootPath}/${localPath}`] = value;
 		delete dbUpdates[localPath];
 	}
 
@@ -590,5 +604,16 @@ export function ApplyDBUpdates_Local(dbData: FirebaseData, dbUpdates: Object) {
 			result = u.updateIn(path.split('/').slice(0, -1).join('.'), u.omit(path.split('/').slice(-1)), result);
 		}
 	}
+
+	// firebase deletes becoming-empty collections/documents (and we pre-process-delete becoming-empty fields), so we do the same here
+	const nodes = GetTreeNodesInObjTree(result, true);
+	let emptyNodes;
+	do {
+		emptyNodes = nodes.filter(a => typeof a.Value === 'object' && (a.Value == null || a.Value.VKeys(true).length === 0));
+		for (const node of emptyNodes) {
+			delete node.obj[node.prop];
+		}
+	} while (emptyNodes.length);
+
 	return result;
 }

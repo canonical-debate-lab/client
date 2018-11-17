@@ -1,5 +1,5 @@
 import {RootNodeViewsReducer} from "./$mapView/rootNodeViews";
-import Action from "../../../Frame/General/Action";
+import { Action } from "../../../Frame/General/Action";
 import {MapView} from "./@MapViews";
 import u from "updeep";
 import {DBPath} from "../../../Frame/Database/DatabaseHelpers";

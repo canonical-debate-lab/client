@@ -10,7 +10,7 @@ import {VURL} from "js-vextensions";
 import { StandardCompProps } from "Frame/UI/General";
 import {State_overrideCountAsAccess_value, StopStateCountAsAccessOverride, StartStateCountAsAccessOverride, State_overrideData_path} from "UI/@Shared/StateOverrides";
 import {StartStateDataOverride, StopStateDataOverride} from "../../UI/@Shared/StateOverrides";
-import Action from "Frame/General/Action";
+import { Action } from "Frame/General/Action";
 
 /*@Radium
 export default class Link extends BaseComponent<{to, target?: string, replace?: boolean, style?, onClick?}, {}> {
