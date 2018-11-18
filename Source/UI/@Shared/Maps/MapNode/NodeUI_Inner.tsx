@@ -22,7 +22,7 @@ import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatingAverage_AtPath, GetRatings, RatingFilter } from '../../../../Store/firebase/nodeRatings';
 import { RatingType, ratingTypes } from '../../../../Store/firebase/nodeRatings/@RatingType';
 import { GetParentNode, GetParentNodeL3, IsNodeSubnode, ForCopy_GetError } from '../../../../Store/firebase/nodes';
-import { GetFontSizeForNode, GetMainRatingType, GetNodeDisplayText, GetNodeForm, GetNodeL3, GetPaddingForNode, IsPremiseOfSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
+import { GetFontSizeForNode, GetMainRatingType, GetNodeDisplayText, GetNodeForm, GetNodeL3, GetPaddingForNode, IsPremiseOfSinglePremiseArgument, missingTitleStrings } from '../../../../Store/firebase/nodes/$node';
 import { GetEquationStepNumber } from '../../../../Store/firebase/nodes/$node/equation';
 import { ClaimForm, MapNodeL2, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
 import { MapNodeRevision_titlePattern } from '../../../../Store/firebase/nodes/@MapNodeRevision';
@@ -357,9 +357,10 @@ class TitlePanel extends BaseComponent<TitlePanelProps, {editing: boolean, newTi
 					&& <span style={E(
 						{ position: 'relative', fontSize: GetFontSizeForNode(node, isSubnode), whiteSpace: 'initial' },
 						isSubnode && { margin: '4px 0 1px 0' },
+						missingTitleStrings.Contains(newTitle) && {color: 'rgba(255,255,255,.3)'},
 					)}>
 						{latex && <NodeMathUI text={node.current.equation.text} onTermHover={this.OnTermHover} onTermClick={this.OnTermClick}/>}
-						{!latex && this.RenderNodeDisplayText(GetNodeDisplayText(node, path))}
+						{!latex && this.RenderNodeDisplayText(newTitle)}
 					</span>}
 				{editing
 					&& <Row style={E(

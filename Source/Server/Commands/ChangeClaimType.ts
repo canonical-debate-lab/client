@@ -47,9 +47,10 @@ export class ChangeClaimType extends Command<{mapID?: number, nodeID: number, ne
 		const oldData = await GetAsync_Raw(() => GetNodeL2(nodeID));
 		this.oldType = GetClaimType(oldData);
 
-		this.newData = { ...oldData };
+		this.newData = { ...oldData.Excluding('current') as any };
 		this.newRevisionID = (await GetDataAsync('general', 'data', '.lastNodeRevisionID')) + 1;
 		this.newRevision = { ...oldData.current };
+		this.newData.currentRevision = this.newRevisionID;
 
 		if (this.oldType == ClaimType.Normal) {
 			if (newType == ClaimType.Equation) {

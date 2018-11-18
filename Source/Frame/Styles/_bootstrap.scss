@@ -4243,7 +4243,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   padding-right: 15px;
   padding-left: 15px;
   overflow-x: visible;
-  -webkit-overflow-scrolling: touch;
+  //-webkit-overflow-scrolling: touch;
   border-top: 1px solid transparent;
   -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1);
           box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1);
@@ -5933,7 +5933,7 @@ button.close {
   z-index: 1050;
   display: none;
   overflow: hidden;
-  -webkit-overflow-scrolling: touch;
+  //-webkit-overflow-scrolling: touch;
   outline: 0;
 }
 .modal.fade .modal-dialog {

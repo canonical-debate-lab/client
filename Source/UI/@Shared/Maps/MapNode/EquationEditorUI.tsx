@@ -40,7 +40,7 @@ export default class EquationEditorUI extends BaseComponent<Props, {newData: Equ
 				<Row mt={5} style={{display: "flex", alignItems: "center"}}>
 					<Pre>Step in series: </Pre>
 					<CheckBox enabled={editing} checked={newData.isStep}
-						//onChange={val=>Change(val ? newLinkData.isStep = true : delete newLinkData.isStep)}/>
+						// onChange={val=>Change(val ? newLinkData.isStep = true : delete newLinkData.isStep)}/>
 						onChange={val=>Change(newData.isStep = val || null)}/>
 				</Row>
 				{newData.isStep &&

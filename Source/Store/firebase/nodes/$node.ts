@@ -201,9 +201,9 @@ export function IsNodeTitleValid_GetError(node: MapNode, title: string) {
 /** Gets the main display-text for a node. (doesn't include equation explanation, quote sources, etc.) */
 export function GetNodeDisplayText(node: MapNodeL2, path?: string, form?: ClaimForm): string {
 	form = form || GetNodeForm(node, path);
-	const basicTitle = node.current.titles.base || node.current.titles.yesNoQuestion || node.current.titles.negation || '';
+	const titles = node.current.titles || {};
 
-	if (node.type == MapNodeType.Argument && !node.multiPremiseArgument && !basicTitle) {
+	if (node.type == MapNodeType.Argument && !node.multiPremiseArgument && !titles.base) {
 		const baseClaim = GetNodeL2(node.children && node.children.VKeys(true).length ? node.children.VKeys(true)[0].ToInt() : null);
 		if (baseClaim) return GetNodeDisplayText(baseClaim);
 	}
@@ -246,13 +246,13 @@ export function GetNodeDisplayText(node: MapNodeL2, path?: string, form?: ClaimF
 		}
 
 		if (form) {
-			if (form == ClaimForm.Negation) { return node.current.titles.negation || '[negation title not set]'; }
-			if (form == ClaimForm.YesNoQuestion) { return node.current.titles.yesNoQuestion || '[yes-no-question title not set]'; }
-			return node.current.titles.base || '[base title not set]';
+			if (form == ClaimForm.Negation) return titles.negation || missingTitleStrings[1];
+			if (form == ClaimForm.YesNoQuestion) return titles.yesNoQuestion || missingTitleStrings[2];
 		}
 	}
-	return basicTitle;
+	return titles.base || missingTitleStrings[0];
 }
+export const missingTitleStrings = ['(base title not set)', '(negation title not set)', '(yes-no-question title not set)'];
 
 export function GetValidChildTypes(nodeType: MapNodeType, path: string) {
 	const nodeTypes = GetValues<MapNodeType>(MapNodeType);
