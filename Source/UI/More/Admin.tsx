@@ -153,3 +153,18 @@ The old db-root will not be modified.`,
 		);
 	}
 }
+
+/* export function ImportDBDataIntoCurrentRoot(data) {
+	// ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates(DBPath(), data));
+
+	ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates(DBPath(), {"maps": data.maps}));
+	ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates(DBPath(), {"general/data": data.general.data}));
+	ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates(DBPath(), {"nodes": data.nodeRevisions}));
+	ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates(DBPath(), {"nodeRevisions": data.nodeRevisions}));
+	ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates(DBPath(), {"userExtras": data.userExtras}));
+	ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates(DBPath(), {"users": data.users}));
+
+	// optional
+	ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates(DBPath(), {"nodeViewers": data.nodeViewers}));
+	ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates(DBPath(), {"userViewedNodes": data.userViewedNodes}));
+} */

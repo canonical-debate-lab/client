@@ -30,7 +30,8 @@
     "just-deploy:prod": "firebase deploy -P prod",
     "deploy:dev": "better-npm-run deploy:dev",
     "deploy:prod": "better-npm-run deploy:prod",
-    "deploy:prod-quick": "better-npm-run deploy:prod-quick",
+	 "deploy:prod-quick": "better-npm-run deploy:prod-quick",
+	 "deploy-db-backup-app": "gcloud app deploy Tools/DBBackupApp/app.yaml Tools/DBBackupApp/cron.yaml",
     "@build-stats": "node_modules\\.bin\\webpack --config Scripts/Build/WebpackConfig.js --output-file ForStats/Bundle.js --profile --json > BuildStats.json",
     "build-stats": "node_modules\\.bin\\webpack --config Scripts/Build/WebpackConfig.js --output-file ForStats/Bundle.js --profile --json > dist/ForStats/BuildStats.json",
     "tsc-watch": "./node_modules/.bin/tsc-watch.cmd --onSuccess \"node ./Scripts/Build/OnSuccess.js\""
