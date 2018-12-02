@@ -8,7 +8,7 @@ import { HasAdminPermissions } from 'Store/firebase/userExtras';
 import { Connect } from 'Frame/Database/FirebaseConnect';
 import { Omit } from 'lodash';
 import { SplitStringBySlash_Cached } from 'Frame/Database/StringSplitCache';
-import { DBPath, GetDataAsync, RemoveHelpers, GetData, ConvertDataToValidDBUpdates, ApplyDBUpdates } from '../../Frame/Database/DatabaseHelpers';
+import { DBPath, GetDataAsync, RemoveHelpers, GetData, ConvertDataToValidDBUpdates, ApplyDBUpdates, ApplyDBUpdates_InChunks } from '../../Frame/Database/DatabaseHelpers';
 import { styles } from '../../Frame/UI/GlobalStyles';
 import { FirebaseData } from '../../Store/firebase';
 import { GetUserID, GetUser } from '../../Store/firebase/users';
@@ -154,7 +154,7 @@ The old db-root will not be modified.`,
 						/* const firebase = store.firebase.helpers;
 						await firebase.ref(DBPath(`${newVersionPath}/`, false)).set(newData); */
 
-						ImportVersionRootData(newVersionPath, newData);
+						await ImportVersionRootData(newVersionPath, newData);
 
 						ShowMessageBox({
 							title: `Upgraded: ${oldVersionName}   ->   ${newVersionName}`,
@@ -213,7 +213,7 @@ export async function GetVersionRootDataAsync(versionRootPath: string) {
 	return versionRootData;
 }
 
-export function ImportVersionRootData(versionRootPath: string, versionRootData: any) {
+export async function ImportVersionRootData(versionRootPath: string, versionRootData: any) {
 	AssertVersionRootPath(versionRootPath);
 	// ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates(DBPath(), data));
 
@@ -230,5 +230,5 @@ export function ImportVersionRootData(versionRootPath: string, versionRootData: 
 	}
 
 	Log('Importing db-data into path. Path: ', versionRootPath, ' DBData: ', versionRootData, ' DBUpdates: ', allDBUpdates);
-	ApplyDBUpdates(versionRootPath, allDBUpdates);
+	await ApplyDBUpdates_InChunks(versionRootPath, allDBUpdates);
 }

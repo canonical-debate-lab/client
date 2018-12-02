@@ -571,7 +571,7 @@ export function ConvertDataToValidDBUpdates(rootPath: string, rootData: any, dbU
 	return result;
 }
 
-export async function ApplyDBUpdates(rootPath: string, dbUpdates) {
+export async function ApplyDBUpdates(rootPath: string, dbUpdates: Object) {
 	dbUpdates = Clone(dbUpdates);
 	for (const { name: localPath, value } of dbUpdates.Props()) {
 		dbUpdates[`${rootPath}/${localPath}`] = value;
@@ -632,6 +632,22 @@ export async function ApplyDBUpdates(rootPath: string, dbUpdates) {
 		await batch.commit();
 	}
 }
+export const maxDBUpdatesPerBatch = 500;
+export async function ApplyDBUpdates_InChunks(rootPath: string, dbUpdates: Object) {
+	const dbUpdates_pairs = dbUpdates.Pairs();
+
+	const dbUpdates_pairs_chunks = [];
+	for (let offset = 0; offset < dbUpdates_pairs.length; offset += maxDBUpdatesPerBatch) {
+		const chunk = dbUpdates_pairs.slice(offset, offset + maxDBUpdatesPerBatch);
+		dbUpdates_pairs_chunks.push(chunk);
+	}
+
+	for (const dbUpdates_pairs_chunk of dbUpdates_pairs_chunks) {
+		const dbUpdates_chunk = dbUpdates_pairs_chunk.ToMap(a => a.key, a => a.value);
+		await ApplyDBUpdates(rootPath, dbUpdates_chunk);
+	}
+}
+
 export function ApplyDBUpdates_Local(dbData: FirebaseData, dbUpdates: Object) {
 	let result = dbData;
 	for (const { name: path, value } of Clone(dbUpdates).Props()) {
