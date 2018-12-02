@@ -13,8 +13,8 @@ export function GetSearchTerms(str: string) {
 export function GetSearchTerms_Advanced(str: string, separateTermsWithWildcard = true) {
 	const terms = str.toLowerCase().replace(/[^a-zA-Z0-9*]/g, ' ').replace(/ +/g, ' ').trim().split(' ').filter(a=>a != ""); // eslint-disable-line
 	const wholeTerms = terms.filter(a => (separateTermsWithWildcard ? !a.includes('*') : true)).map(a => a.replace(/\*/g, '')).Distinct();
-	const wildcardTerms = terms.filter(a => (separateTermsWithWildcard ? a.includes('*') : false)).map(a => a.replace(/\*/g, '')).Distinct();
-	return { wholeTerms, wildcardTerms };
+	const partialTerms = terms.filter(a => (separateTermsWithWildcard ? a.includes('*') : false)).map(a => a.replace(/\*/g, '')).Distinct();
+	return { wholeTerms, partialTerms };
 }
 
 @MapEdit
@@ -34,7 +34,7 @@ export class AddNodeRevision extends Command<{mapID: number, revision: MapNodeRe
 		revision.createdAt = Date.now();
 
 		const titles_joined = (revision.titles || {}).VValues(true).join(' ');
-		revision.titles.allTerms = GetSearchTerms(titles_joined);
+		revision.titles.allTerms = GetSearchTerms(titles_joined).ToMap(a => a, () => true);
 
 		this.node_oldData = await GetAsync(() => GetNode(revision.node));
 

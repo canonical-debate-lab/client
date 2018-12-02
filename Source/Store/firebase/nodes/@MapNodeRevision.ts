@@ -10,7 +10,8 @@ export class TitlesMap {
 	negation?: string;
 	yesNoQuestion?: string;
 
-	allTerms?: string[];
+	// allTerms?: string[];
+	allTerms?: {[key: string]: boolean};
 }
 AddSchema({
 	properties: {
@@ -18,7 +19,8 @@ AddSchema({
 		negation: { type: 'string' },
 		yesNoQuestion: { type: 'string' },
 
-		allTerms: { items: { type: 'string' } },
+		// allTerms: { items: { type: 'string' } },
+		allTerms: { type: 'object' },
 	},
 }, 'TitlesMap');
 

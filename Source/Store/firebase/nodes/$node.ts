@@ -10,7 +10,7 @@ import { PermissionGroupSet } from '../userExtras/@UserExtraInfo';
 import { ImageType, GetNiceNameForImageType } from '../images/@Image';
 import { SplitStringBySlash_Cached } from '../../../Frame/Database/StringSplitCache';
 import { SlicePath } from '../../../Frame/Database/DatabaseHelpers';
-import { MapNodeRevision, TitlesMap } from './@MapNodeRevision';
+import { MapNodeRevision, TitlesMap, TitlesMap_baseKeys } from './@MapNodeRevision';
 import { GetNodeRevision } from '../nodeRevisions';
 
 export function PreProcessLatex(text: string) {
@@ -196,6 +196,11 @@ export function GetLinkAtPath(path: string) {
 export function IsNodeTitleValid_GetError(node: MapNode, title: string) {
 	if (title.trim().length == 0) return 'Title cannot be empty.';
 	return null;
+}
+
+export function GetAllNodeRevisionTitles(nodeRevision: MapNodeRevision) {
+	if (nodeRevision == null || nodeRevision.titles == null) return [];
+	return TitlesMap_baseKeys.map(key => nodeRevision.titles[key]).filter(a => a != null);
 }
 
 /** Gets the main display-text for a node. (doesn't include equation explanation, quote sources, etc.) */

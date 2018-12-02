@@ -69,7 +69,7 @@ AddSchema({
 		layerPlusAnchorParents: { $ref: 'LayerPlusAnchorParentSet' },
 	},
 	required: ['type', 'creator', 'createdAt', 'currentRevision'],
-	/*allOf: [
+	/* allOf: [
 		// if an argument, require "childrenOrder" prop
 		{
 			if: {
@@ -82,12 +82,11 @@ AddSchema({
 		}
 	], */
 }, 'MapNode');
-AddAJVExtraCheck('MapNode', (node: MapNode) => 
-	/*if (node.childrenOrder && node.childrenOrder.length != node.children.VKeys(true).length) {
-		return "Children and childrenOrder lengths differ!";
-	}*/
-	 null
-);
+AddAJVExtraCheck('MapNode', (node: MapNode) => {
+	if ((node.childrenOrder ? node.childrenOrder.length : 0) !== (node.children ? node.children.VKeys(true).length : 0)) {
+		return 'Children and childrenOrder lengths differ!';
+	}
+});
 
 // helpers
 // export type MapNodeL2 = MapNode & {finalType: MapNodeType};

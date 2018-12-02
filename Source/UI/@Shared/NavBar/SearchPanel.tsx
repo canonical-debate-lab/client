@@ -5,19 +5,28 @@ import Moment from 'moment';
 import { Button, Column, Row, TextInput } from 'react-vcomponents';
 import { BaseComponentWithConnector } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
-import { GetSearchTerms } from 'Server/Commands/AddNodeRevision';
+import { GetSearchTerms, GetSearchTerms_Advanced } from 'Server/Commands/AddNodeRevision';
 import { ACTSet } from 'Store';
 import { GetNodeRevision } from 'Store/firebase/nodeRevisions';
-import { AsNodeL3, GetNodeDisplayText, GetNodeL2 } from 'Store/firebase/nodes/$node';
+import { AsNodeL3, GetNodeDisplayText, GetNodeL2, GetAllNodeRevisionTitles } from 'Store/firebase/nodes/$node';
 import { GetNodeColor, MapNodeType_Info } from 'Store/firebase/nodes/@MapNodeType';
 import { GetUser } from 'Store/firebase/users';
+import { InfoButton } from 'Frame/ReactComponents/InfoButton';
 import { NodeUI_Menu_Stub } from '../Maps/MapNode/NodeUI_Menu';
 
 const columnWidths = [0.68, 0.2, 0.12];
 
 const connector = (state, {}: {}) => {
-	const searchResultIDs = State(a => a.main.search.searchResultIDs);
-	const results_nodeRevisions = searchResultIDs.map(revisionID => GetNodeRevision(revisionID));
+	const searchResults_partialTerms = State(a => a.main.search.searchResults_partialTerms);
+	const searchResultIDs = State(a => a.main.search.searchResults_nodeIDs);
+
+	let results_nodeRevisions = searchResultIDs.map(revisionID => GetNodeRevision(revisionID));
+	if (searchResults_partialTerms.length) {
+		for (const term of searchResults_partialTerms) {
+			results_nodeRevisions = results_nodeRevisions.filter(a => GetAllNodeRevisionTitles(a).map(a => a.As(String)).find(a => a.includes(term)));
+		}
+	}
+
 	const results_nodeIDs = results_nodeRevisions.map(a => a && a.node).Distinct();
 	return {
 		queryStr: State(a => a.main.search.queryStr),
@@ -34,24 +43,24 @@ export class SearchPanel extends BaseComponentWithConnector(connector, {}) {
 					<TextInput style={{ flex: 1 }} value={queryStr} onChange={(val) => {
 						store.dispatch(new ACTSet(a => a.main.search.queryStr, val));
 					}}/>
+					<InfoButton ml={5} text="Wildcards can be used, but there must be at least one non-wildcard term. Example: climate chang*"/>
 					<Button ml={5} text="Search" onClick={async () => {
-						// const searchTerms = GetSearchTerms_Advanced(queryStr);
-						const searchTerms = GetSearchTerms(queryStr);
-						if (searchTerms.length == 0) {
-							store.dispatch(new ACTSet(a => a.main.search.searchResultIDs, []));
+						const searchTerms = GetSearchTerms_Advanced(queryStr);
+						if (searchTerms.wholeTerms.length == 0) {
+							store.dispatch(new ACTSet(a => a.main.search.searchResults_partialTerms, []));
+							store.dispatch(new ACTSet(a => a.main.search.searchResults_nodeIDs, []));
 							return;
 						}
 
 						let query = firestoreDB.collection(DBPath('nodeRevisions')) as CollectionReference | Query;
-						for (const term of searchTerms) {
-							query = query.where('titles.allTerms', 'array-contains', term);
+						for (const term of searchTerms.wholeTerms) {
+							query = query.where(`titles.allTerms.${term}`, '==', true);
 						}
 
 						const { docs } = await query.get();
 						const docIDs = docs.map(a => a.id);
-						store.dispatch(new ACTSet(a => a.main.search.searchResultIDs, docIDs));
-
-						// todo: do local filtering for wildcard terms
+						store.dispatch(new ACTSet(a => a.main.search.searchResults_partialTerms, searchTerms.partialTerms));
+						store.dispatch(new ACTSet(a => a.main.search.searchResults_nodeIDs, docIDs));
 					}}/>
 				</Row>
 				{/* <Row style={{ fontSize: 18 }}>Search results ({results_nodeIDs.length})</Row> */}

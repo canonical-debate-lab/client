@@ -3,10 +3,12 @@ import { CombineReducers } from '../../Frame/Store/ReducerUtils';
 
 export class SearchStorage {
 	queryStr: string;
-	searchResultIDs: number[];
+	searchResults_partialTerms: string[];
+	searchResults_nodeIDs: number[];
 }
 
 export const SearchReducer = CombineReducers({
 	queryStr: SimpleReducer(a => a.main.search.queryStr),
-	searchResultIDs: SimpleReducer(a => a.main.search.searchResultIDs, []),
+	searchResults_partialTerms: SimpleReducer(a => a.main.search.searchResults_partialTerms, []),
+	searchResults_nodeIDs: SimpleReducer(a => a.main.search.searchResults_nodeIDs, []),
 });
