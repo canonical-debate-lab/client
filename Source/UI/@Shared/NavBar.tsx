@@ -1,37 +1,23 @@
-import { Dispatch } from 'redux';
-import { Component } from 'react';
-import GoogleButton from 'react-google-button';
-import { connect } from 'react-redux';
-import { firebaseConnect, helpers } from 'react-redux-firebase';
-import { BaseComponent, BaseProps, BaseComponentWithConnector } from 'react-vextensions';
-import { E } from 'js-vextensions';
-import { Button } from 'react-vcomponents';
-import { TextInput } from 'react-vcomponents';
-import {Debugger} from "../../Frame/General/Others";
-import { Action } from '../../Frame/General/Action';
-import { HandleError } from '../../Frame/General/Errors';
-import UserPanel from './NavBar/UserPanel';
-import { Connect } from '../../Frame/Database/FirebaseConnect';
-import { ACTTopRightOpenPanelSet, ACTTopLeftOpenPanelSet, ACTSetPage, ACTSetSubpage } from '../../Store/main';
-import ChatPanel from './NavBar/ChatPanel';
-import StreamPanel from './NavBar/StreamPanel';
-import SearchPanel from './NavBar/SearchPanel';
-import { SubNavBarButton } from './SubNavBar';
-import Radium from 'radium';
-import { Link } from '../../Frame/ReactComponents/Link';
-import { NotificationsUI } from './NavBar/NotificationsUI';
-import { Column } from 'react-vcomponents';
-import { Row } from 'react-vcomponents';
-import ReputationPanel from './NavBar/ReputationPanel';
-import GuidePanel from './NavBar/GuidePanel';
-import { VURL, DeepGet } from 'js-vextensions';
-import { Div } from 'react-vcomponents';
 import { GetData } from 'Frame/Database/DatabaseHelpers';
+import { DeepGet, E } from 'js-vextensions';
+import { Button, Div, Row } from 'react-vcomponents';
+import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
-import { ResetCurrentDBRoot } from 'UI/More/Admin/ResetCurrentDBRoot';
-import { ACTPersonalMapSelect } from '../../Store/main/personal';
 import { ACTDebateMapSelect } from 'Store/main/debates';
-import { styles, colors } from '../../Frame/UI/GlobalStyles';
+import { ResetCurrentDBRoot } from 'UI/More/Admin/ResetCurrentDBRoot';
+import { Connect } from '../../Frame/Database/FirebaseConnect';
+import { Action } from '../../Frame/General/Action';
+import { Link } from '../../Frame/ReactComponents/Link';
+import { colors } from '../../Frame/UI/GlobalStyles';
+import { ACTSetPage, ACTSetSubpage, ACTTopLeftOpenPanelSet, ACTTopRightOpenPanelSet } from '../../Store/main';
+import { ACTPersonalMapSelect } from '../../Store/main/personal';
+import ChatPanel from './NavBar/ChatPanel';
+import GuidePanel from './NavBar/GuidePanel';
+import { NotificationsUI } from './NavBar/NotificationsUI';
+import ReputationPanel from './NavBar/ReputationPanel';
+import { SearchPanel } from './NavBar/SearchPanel';
+import StreamPanel from './NavBar/StreamPanel';
+import UserPanel from './NavBar/UserPanel';
 
 // main
 // ==========
@@ -109,8 +95,8 @@ export class NavBar extends BaseComponentWithConnector(connector, {}) {
 					</span>
 
 					<span style={{ position: 'absolute', right: 0, display: 'flex' }}>
-						{/* <NavBarPanelButton text="Search" panel="search" corner="top-right"/>
-						<NavBarPanelButton text="Guide" panel="guide" corner="top-right"/> */}
+						<NavBarPanelButton text="Search" panel="search" corner="top-right"/>
+						{/* <NavBarPanelButton text="Guide" panel="guide" corner="top-right"/> */}
 						<NavBarPanelButton text={DeepGet(auth, 'displayName') ? auth.displayName.match(/(.+?)( |$)/)[1] : 'Sign in'} panel="profile" corner="top-right"/>
 					</span>
 					<div style={{ position: 'absolute', zIndex: 11, right: 0, top: 45,

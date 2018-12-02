@@ -1,11 +1,29 @@
-import {MapNodeType} from "./@MapNodeType";
-import {AccessLevel, ImageAttachment} from "./@MapNode";
-import {Equation} from "./@Equation";
-import {ContentNode} from "../contentNodes/@ContentNode";
-import {GetValues_ForSchema} from "../../../Frame/General/Enums";
+import { MapNodeType } from './@MapNodeType';
+import { AccessLevel, ImageAttachment } from './@MapNode';
+import { Equation } from './@Equation';
+import { ContentNode } from '../contentNodes/@ContentNode';
+import { GetValues_ForSchema } from '../../../Frame/General/Enums';
+
+export const TitlesMap_baseKeys = ['base', 'negation', 'yesNoQuestion'];
+export class TitlesMap {
+	base?: string;
+	negation?: string;
+	yesNoQuestion?: string;
+
+	allTerms?: string[];
+}
+AddSchema({
+	properties: {
+		base: { type: 'string' },
+		negation: { type: 'string' },
+		yesNoQuestion: { type: 'string' },
+
+		allTerms: { items: { type: 'string' } },
+	},
+}, 'TitlesMap');
 
 export class MapNodeRevision {
-	 constructor(initialData: Partial<MapNodeRevision>) {
+	constructor(initialData: Partial<MapNodeRevision>) {
 		this.Extend(initialData);
 	}
 
@@ -14,15 +32,15 @@ export class MapNodeRevision {
 	creator?: string;
 	createdAt: number;
 
-	titles = {base: ""} as {[key: string]: string};
+	titles = {base: ""} as TitlesMap;
 	note: string;
 
-	//updatedAt: number;
-	//approved = false;
+	// updatedAt: number;
+	// approved = false;
 	votingDisabled: boolean;
 	// only applied client-side; would need to be in protected branch of tree (or use a long, random, and unreferenced node-id) to be "actually" inaccessible
 	accessLevel = AccessLevel.Basic;
-	//voteLevel = AccessLevel.Basic;
+	// voteLevel = AccessLevel.Basic;
 
 	fontSizeOverride: number;
 	widthOverride: number;
@@ -33,45 +51,45 @@ export class MapNodeRevision {
 	contentNode: ContentNode;
 	image: ImageAttachment;
 }
-//export const MapNodeRevision_titlePattern = `(^\\S$)|(^\\S.*\\S$)`; // must start and end with non-whitespace
-export const MapNodeRevision_titlePattern = `^\\S.*$`; // must start with non-whitespace
+// export const MapNodeRevision_titlePattern = `(^\\S$)|(^\\S.*\\S$)`; // must start and end with non-whitespace
+export const MapNodeRevision_titlePattern = '^\\S.*$'; // must start with non-whitespace
 AddSchema({
 	properties: {
-		node: {type: "number"},
-		creator: {type: "string"},
-		createdAt: {type: "number"},
-		
+		node: { type: 'number' },
+		creator: { type: 'string' },
+		createdAt: { type: 'number' },
+
 		titles: {
 			properties: {
-				//base: {pattern: MapNodeRevision_titlePattern}, negation: {pattern: MapNodeRevision_titlePattern}, yesNoQuestion: {pattern: MapNodeRevision_titlePattern},
-				base: {type: "string"}, negation: {type: "string"}, yesNoQuestion: {type: "string"},
+				// base: {pattern: MapNodeRevision_titlePattern}, negation: {pattern: MapNodeRevision_titlePattern}, yesNoQuestion: {pattern: MapNodeRevision_titlePattern},
+				base: { type: 'string' }, negation: { type: 'string' }, yesNoQuestion: { type: 'string' },
 			},
-			//required: ["base", "negation", "yesNoQuestion"],
+			// required: ["base", "negation", "yesNoQuestion"],
 		},
-		note: {type: ["null", "string"]}, // add null-type, for later when the payload-validation schema is derived from the main schema
-		approved: {type: "boolean"},
-		votingDisabled: {type: ["null", "boolean"]},
-		accessLevel: {oneOf: GetValues_ForSchema(AccessLevel).concat({const: null})},
-		voteLevel: {oneOf: GetValues_ForSchema(AccessLevel).concat({const: null})}, // not currently used
+		note: { type: ['null', 'string'] }, // add null-type, for later when the payload-validation schema is derived from the main schema
+		approved: { type: 'boolean' },
+		votingDisabled: { type: ['null', 'boolean'] },
+		accessLevel: { oneOf: GetValues_ForSchema(AccessLevel).concat({ const: null }) },
+		voteLevel: { oneOf: GetValues_ForSchema(AccessLevel).concat({ const: null }) }, // not currently used
 
-		relative: {type: "boolean"},
-		fontSizeOverride: {type: ["null", "number"]},
-		widthOverride: {type: ["null", "number"]},
+		relative: { type: 'boolean' },
+		fontSizeOverride: { type: ['null', 'number'] },
+		widthOverride: { type: ['null', 'number'] },
 
-		argumentType: {$ref: "ArgumentType"},
-		equation: {$ref: "Equation"},
-		contentNode: {$ref: "ContentNode"},
-		image: {$ref: "ImageAttachment"},
+		argumentType: { $ref: 'ArgumentType' },
+		equation: { $ref: 'Equation' },
+		contentNode: { $ref: 'ContentNode' },
+		image: { $ref: 'ImageAttachment' },
 	},
-	required: ["node", "creator", "createdAt"],
+	required: ['node', 'creator', 'createdAt'],
 	allOf: [
 		// if not an argument or content-node, require "titles" prop
 		{
-			if: {prohibited: ["argumentType", "equation", "contentNode", "image"]},
-			then: {required: ["titles"]},
+			if: { prohibited: ['argumentType', 'equation', 'contentNode', 'image'] },
+			then: { required: ['titles'] },
 		},
 	],
-}, "MapNodeRevision");
+}, 'MapNodeRevision');
 
 // argument
 // ==========
@@ -81,8 +99,8 @@ export enum ArgumentType {
 	AnyTwo = 15,
 	All = 20,
 }
-AddSchema({oneOf: GetValues_ForSchema(ArgumentType)}, "ArgumentType");
+AddSchema({ oneOf: GetValues_ForSchema(ArgumentType) }, 'ArgumentType');
 
 export function GetArgumentTypeDisplayText(type: ArgumentType) {
-	return {Any: "any", AnyTwo: "any two", All: "all"}[ArgumentType[type]];
+	return { Any: 'any', AnyTwo: 'any two', All: 'all' }[ArgumentType[type]];
 }

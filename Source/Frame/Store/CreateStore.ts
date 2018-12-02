@@ -6,14 +6,15 @@ import { applyMiddleware, compose, createStore, StoreEnhancer } from 'redux';
 import { batchedSubscribe } from 'redux-batched-subscribe';
 import { routerForBrowser } from 'redux-little-router';
 import { persistStore } from 'redux-persist';
-import { DBPath } from '../../Frame/Database/DatabaseHelpers';
 import { MakeRootReducer } from '../../Store/index';
 import { MidDispatchAction, PostDispatchAction, PreDispatchAction } from './ActionProcessor';
+import {FirebaseFirestore} from "@firebase/firestore-types";
 
 /* eslint-disable */
 import firebase_ from 'firebase';
 import { reactReduxFirebase, firebaseReducer } from 'react-redux-firebase';
 import { reduxFirestore, firestoreReducer } from 'redux-firestore';
+import { DBPath } from '../../Frame/Database/DatabaseHelpers';
 import 'firebase/firestore';
 const firebase = firebase_ as any;
 /* eslint-enable */
@@ -30,9 +31,9 @@ const { reducer: routerReducer, middleware: routerMiddleware, enhancer: routerEn
 	routes,
 });
 
-declare global { var firestoreDB: any; } // set in CreateStore.ts
+declare global { var firestoreDB: FirebaseFirestore; } // set in CreateStore.ts
 
-let dispatchInterceptors = [];
+const dispatchInterceptors = [];
 export function AddDispatchInterceptor(interceptor: Function) {
 	dispatchInterceptors.push(interceptor);
 }
@@ -68,11 +69,11 @@ export function CreateStore(initialState = {}, history) {
 			if (g.actionStacks || (DEV && !actionStacks_actionTypeIgnorePatterns.Any(a => action.type.startsWith(a)))) {
 				action['stack'] = new Error().stack.split('\n').slice(1); // add stack, so we can inspect in redux-devtools
 			}
-			for (let interceptor of dispatchInterceptors) {
-				let result = interceptor(action);
+			for (const interceptor of dispatchInterceptors) {
+				const result = interceptor(action);
 				if (result == false) return;
 			}
-	
+
 			const returnValue = next(action);
 			return returnValue;
 		},

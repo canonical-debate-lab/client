@@ -4,6 +4,8 @@ import { LOCATION_CHANGED } from 'redux-little-router';
 import { MapInfo } from 'Store/main/maps/@MapInfo';
 import { ShallowChanged } from 'react-vextensions';
 import { MapInfoReducer } from 'Store/main/maps/$map';
+import { Personal } from 'Store/main/personal';
+import { persistReducer } from 'redux-persist';
 import {MapViews, MapNodeView, MapView} from "./main/mapViews/@MapViews";
 import { Action } from '../Frame/General/Action';
 import { MapViewsReducer } from './main/mapViews';
@@ -15,13 +17,12 @@ import { CombineReducers } from '../Frame/Store/ReducerUtils';
 import { DebatesReducer, Debates, ACTDebateMapSelect } from './main/debates';
 import SubpageReducer from './main/@Shared/$subpage';
 import { globalMapID } from './firebase/nodes/@MapNode';
-import { Personal } from 'Store/main/personal';
 import { PersonalReducer, ACTPersonalMapSelect } from './main/personal';
 import { Database, DatabaseReducer } from './main/database';
 import { GetNodeL3 } from './firebase/nodes/$node';
 import { SimpleReducer } from './index';
-import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
+import { SearchReducer, SearchStorage } from './main/search';
 
 export enum WeightingType {
 	Votes = 10,
@@ -57,7 +58,7 @@ export class MainState {
 	debates: Debates;
 	global: {subpage: string};
 
-	search: {subpage: string};
+	search: SearchStorage;
 	guide: {subpage: string};
 	profile: {subpage: string};
 
@@ -158,7 +159,7 @@ export function MainReducer(state, action) {
 		debates: DebatesReducer,
 		global: CombineReducers({ subpage: SubpageReducer('global') }),
 
-		search: CombineReducers({ subpage: SubpageReducer('search') }),
+		search: SearchReducer,
 		guide: CombineReducers({ subpage: SubpageReducer('guide') }),
 		profile: CombineReducers({ subpage: SubpageReducer('profile') }),
 

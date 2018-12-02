@@ -72,6 +72,7 @@ module.exports = {
 		"sort-imports": "off", // there are a couple places (eg Main_Hot.tsx) where changing the import order will cause errors
 		"arrow-body-style": "off",
 		"no-await-in-loop": "off",
+		"func-names": "off",
 	},
 	globals: {
 		ENV: true,

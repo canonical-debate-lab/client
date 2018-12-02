@@ -6,13 +6,13 @@ import { firestoreReducer } from 'redux-firestore';
 import { VMenuReducer, VMenuState } from 'react-vmenu';
 import { MessageBoxReducer, MessageBoxState } from 'react-vmessagebox';
 import u from 'updeep';
+import { NotifyPathsReceiving, NotifyPathsReceived } from 'Frame/Database/DatabaseHelpers';
 import { OnAccessPath } from '../Frame/Database/FirebaseConnect';
 import { SplitStringBySlash_Cached } from '../Frame/Database/StringSplitCache';
 import { Action, IsACTSetFor } from '../Frame/General/Action';
 import { HandleError } from '../Frame/General/Errors';
 import { State_overrideCountAsAccess_value, State_overrideData_path, State_overrideData_value } from '../UI/@Shared/StateOverrides';
 import { MainReducer, MainState } from './main';
-import { NotifyPathsReceiving, NotifyPathsReceived } from 'Frame/Database/DatabaseHelpers';
 import { DoesActionSetFirestoreData } from './firebase';
 
 // State() actually also returns the root-state (if no data-getter is supplied), but we don't reveal that in type-info (as its only to be used in console)
@@ -201,10 +201,11 @@ export function MakeRootReducer(extraReducers?) {
 			feedback: FeedbackReducer, */
 			...extraReducers,
 		},
-		/* actionSendInclusions: {
-			'@@reactReduxFirebase/START': ['firebase'],
-			'@@reactReduxFirebase/SET': ['firebase'],
-		}, */
+		actionSendInclusions: {
+			/* '@@reactReduxFirebase/START': ['firebase'],
+			'@@reactReduxFirebase/SET': ['firebase'], */
+			'ACTSet_main/search/queryStr': ['main'],
+		},
 	});
 
 	const rootReducer = (state: RootState, rootAction) => {

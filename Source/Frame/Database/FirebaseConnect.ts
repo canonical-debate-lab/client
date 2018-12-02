@@ -1,18 +1,15 @@
-import { activeStoreAccessCollectors, PathToListenerPath, GetPathParts, NotifyPathsReceiving, NotifyPathsReceived } from 'Frame/Database/DatabaseHelpers';
-import { GetPropsChanged, GetPropsChanged_WithValues, DeepGet } from 'js-vextensions';
+import { activeStoreAccessCollectors, GetPathParts, NotifyPathsReceived, NotifyPathsReceiving, PathToListenerPath } from 'Frame/Database/DatabaseHelpers';
+import { AddDispatchInterceptor } from 'Frame/Store/CreateStore';
+import { GetPropsChanged, GetPropsChanged_WithValues } from 'js-vextensions';
 import _ from 'lodash';
 import Moment from 'moment';
 import { connect } from 'react-redux';
-import { getEventsFromInput } from 'react-redux-firebase/lib/utils';
 import { ShallowChanged } from 'react-vextensions';
+import { firestoreReducer } from 'redux-firestore';
+import { DoesActionSetFirestoreData } from 'Store/firebase';
 import { GetUserID } from 'Store/firebase/users';
-import { setListeners, unsetListeners } from 'redux-firestore/es/actions/firestore';
-import firebase from 'firebase';
 import { GetUser, GetUserPermissions } from '../../Store/firebase/users';
 import { ApplyActionSet, RootState } from '../../Store/index';
-import { DoesActionSetFirestoreData, GetFirestoreDataSetterActionPath } from 'Store/firebase';
-import { firestoreReducer } from 'redux-firestore';
-import { AddDispatchInterceptor } from 'Frame/Store/CreateStore';
 
 // Place a selector in Connect() whenever it uses data that:
 // 1) might change during the component's lifetime, and:

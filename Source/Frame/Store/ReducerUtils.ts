@@ -1,12 +1,12 @@
 import { combineReducers, ReducersMapObject } from 'redux';
-import {emptyEntities} from "js-vextensions";
-import { Action } from "../General/Action";
+import { emptyEntities } from 'js-vextensions';
+import { Action } from '../General/Action';
 
 export function CombineReducers(reducerMap: {[key: string]: (state, action: Action<any>)=>any});
 export function CombineReducers(getInitialState: ()=>any, reducerMap: {[key: string]: (state, action: Action<any>)=>any});
 export function CombineReducers(...args) {
-	let getInitialState; let 
-reducerMap;
+	let getInitialState; let
+		reducerMap;
 	if (args.length == 1) [reducerMap] = args;
 	else [getInitialState, reducerMap] = args;
 
@@ -15,7 +15,7 @@ reducerMap;
 		return (state = getInitialState(), action) => {
 		// return (state = getInitialState().VAct(a=>Object.setPrototypeOf(a, Object.getPrototypeOf({}))), action)=> {
 		// return (state, action)=> {
-			/*state = state || getInitialState().VAct(a=>Object.setPrototypeOf(a, Object.getPrototypeOf({})));
+			/* state = state || getInitialState().VAct(a=>Object.setPrototypeOf(a, Object.getPrototypeOf({})));
 			Assert(Object.getPrototypeOf(state) == Object.getPrototypeOf({})); */
 			// combineReducers is picky; it requires it be passed a plain object; thus, we oblige ;-(
 			Object.setPrototypeOf(state, Object.getPrototypeOf({}));

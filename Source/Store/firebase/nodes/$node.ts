@@ -10,7 +10,7 @@ import { PermissionGroupSet } from '../userExtras/@UserExtraInfo';
 import { ImageType, GetNiceNameForImageType } from '../images/@Image';
 import { SplitStringBySlash_Cached } from '../../../Frame/Database/StringSplitCache';
 import { SlicePath } from '../../../Frame/Database/DatabaseHelpers';
-import { MapNodeRevision } from './@MapNodeRevision';
+import { MapNodeRevision, TitlesMap } from './@MapNodeRevision';
 import { GetNodeRevision } from '../nodeRevisions';
 
 export function PreProcessLatex(text: string) {
@@ -201,7 +201,7 @@ export function IsNodeTitleValid_GetError(node: MapNode, title: string) {
 /** Gets the main display-text for a node. (doesn't include equation explanation, quote sources, etc.) */
 export function GetNodeDisplayText(node: MapNodeL2, path?: string, form?: ClaimForm): string {
 	form = form || GetNodeForm(node, path);
-	const titles = node.current.titles || {};
+	const titles = node.current.titles || {} as TitlesMap;
 
 	if (node.type == MapNodeType.Argument && !node.multiPremiseArgument && !titles.base) {
 		const baseClaim = GetNodeL2(node.children && node.children.VKeys(true).length ? node.children.VKeys(true)[0].ToInt() : null);

@@ -4,17 +4,25 @@ import { GetNode } from 'Store/firebase/nodes';
 import { WrapData } from 'Server/Server';
 import { GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
-import { MapNodeRevision } from '../../Store/firebase/nodes/@MapNodeRevision';
+import { MapNodeRevision, TitlesMap, TitlesMap_baseKeys } from '../../Store/firebase/nodes/@MapNodeRevision';
 import { Command } from '../Command';
+
+export function GetSearchTerms(str: string) {
+	return GetSearchTerms_Advanced(str, false).wholeTerms;
+}
+export function GetSearchTerms_Advanced(str: string, separateTermsWithWildcard = true) {
+	const terms = str.toLowerCase().replace(/[^a-zA-Z0-9*]/g, ' ').replace(/ +/g, ' ').trim().split(' ').filter(a=>a != ""); // eslint-disable-line
+	const wholeTerms = terms.filter(a => (separateTermsWithWildcard ? !a.includes('*') : true)).map(a => a.replace(/\*/g, '')).Distinct();
+	const wildcardTerms = terms.filter(a => (separateTermsWithWildcard ? a.includes('*') : false)).map(a => a.replace(/\*/g, '')).Distinct();
+	return { wholeTerms, wildcardTerms };
+}
 
 @MapEdit
 @UserEdit
 export class AddNodeRevision extends Command<{mapID: number, revision: MapNodeRevision}, number> {
 	lastNodeRevisionID_addAmount = 0;
 
-	Validate_Early() {
-		const { revision } = this.payload;
-	}
+	Validate_Early() {}
 
 	revisionID: number;
 	node_oldData: MapNode;
@@ -24,6 +32,10 @@ export class AddNodeRevision extends Command<{mapID: number, revision: MapNodeRe
 		this.revisionID = (await GetDataAsync('general', 'data', '.lastNodeRevisionID')) + this.lastNodeRevisionID_addAmount + 1;
 		revision.creator = this.userInfo.id;
 		revision.createdAt = Date.now();
+
+		const titles_joined = (revision.titles || {}).VValues(true).join(' ');
+		revision.titles.allTerms = GetSearchTerms(titles_joined);
+
 		this.node_oldData = await GetAsync(() => GetNode(revision.node));
 
 		this.returnData = this.revisionID;
