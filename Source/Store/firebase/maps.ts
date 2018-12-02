@@ -12,7 +12,6 @@ export function GetMapsOfType(type: MapType): Map[] {
 }
 export function GetMap(id: number): Map {
 	if (id == null) return null;
-	// return GetData({ excludeCollections: ['nodeEditTimes'] }, 'maps', id);
 	return GetData('maps', id);
 }
 export function GetRootNodeID(mapID: number): number {
