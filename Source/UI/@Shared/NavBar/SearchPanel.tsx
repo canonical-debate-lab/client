@@ -1,29 +1,33 @@
 import { CollectionReference, Query } from '@firebase/firestore-types';
 import { DBPath } from 'Frame/Database/DatabaseHelpers';
 import { Connect } from 'Frame/Database/FirebaseConnect';
+import Moment from 'moment';
 import { Button, Column, Row, TextInput } from 'react-vcomponents';
-import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
+import { BaseComponentWithConnector } from 'react-vextensions';
+import { ScrollView } from 'react-vscrollview';
 import { GetSearchTerms } from 'Server/Commands/AddNodeRevision';
 import { ACTSet } from 'Store';
 import { GetNodeRevision } from 'Store/firebase/nodeRevisions';
-import { GetNodeDisplayText, GetNodeL2 } from 'Store/firebase/nodes/$node';
-import { MapNodeL2 } from 'Store/firebase/nodes/@MapNode';
+import { AsNodeL3, GetNodeDisplayText, GetNodeL2 } from 'Store/firebase/nodes/$node';
+import { GetNodeColor, MapNodeType_Info } from 'Store/firebase/nodes/@MapNodeType';
+import { GetUser } from 'Store/firebase/users';
+import { NodeUI_Menu_Stub } from '../Maps/MapNode/NodeUI_Menu';
+
+const columnWidths = [0.68, 0.2, 0.12];
 
 const connector = (state, {}: {}) => {
 	const searchResultIDs = State(a => a.main.search.searchResultIDs);
 	const results_nodeRevisions = searchResultIDs.map(revisionID => GetNodeRevision(revisionID));
 	const results_nodeIDs = results_nodeRevisions.map(a => a && a.node).Distinct();
-	const results_nodes = results_nodeIDs.map(nodeID => GetNodeL2(nodeID));
 	return {
 		queryStr: State(a => a.main.search.queryStr),
 		results_nodeIDs,
-		results_nodes,
 	};
 };
 @Connect(connector)
 export class SearchPanel extends BaseComponentWithConnector(connector, {}) {
 	render() {
-		const { queryStr, results_nodeIDs, results_nodes } = this.props;
+		const { queryStr, results_nodeIDs } = this.props;
 		return (
 			<Column style={{ width: 750, padding: 5, background: 'rgba(0,0,0,.7)', borderRadius: '0 0 0 5px' }}>
 				<Row>
@@ -50,27 +54,87 @@ export class SearchPanel extends BaseComponentWithConnector(connector, {}) {
 						// todo: do local filtering for wildcard terms
 					}}/>
 				</Row>
-				<Row style={{ fontSize: 18 }}>Search results ({results_nodeIDs.length})</Row>
-				<Row>
+				{/* <Row style={{ fontSize: 18 }}>Search results ({results_nodeIDs.length})</Row> */}
+				<Column mt={5} className="clickThrough" style={{ height: 40, background: 'rgba(0,0,0,.7)', borderRadius: 10 }}>
+					{/* <Row style={{ height: 40, padding: 10 }}>
+						<Pre>Sort by: </Pre>
+						<Select options={GetEntries(SortType, name => EnumNameToDisplayName(name))}
+							value={sortBy} onChange={val => store.dispatch(new ACTMapNodeListSortBySet({ mapID: map._id, sortBy: val }))}/>
+						<Row width={200} style={{ position: 'absolute', left: 'calc(50% - 100px)' }}>
+							<Button text={<Icon icon="arrow-left" size={15}/>} title="Previous page"
+								enabled={page > 0} onClick={() => {
+									// store.dispatch(new ACTMapNodeListPageSet({mapID: map._id, page: page - 1}));
+									store.dispatch(new ACTMapNodeListPageSet({ mapID: map._id, page: page - 1 }));
+								}}/>
+							<Div ml={10} mr={7}>Page: </Div>
+							<TextInput mr={10} pattern="[0-9]+" style={{ width: 30 }} value={page + 1}
+								onChange={(val) => {
+									if (!IsNumberString(val)) return;
+									store.dispatch(new ACTMapNodeListPageSet({ mapID: map._id, page: (parseInt(val) - 1).KeepBetween(0, lastPage) }));
+								}}/>
+							<Button text={<Icon icon="arrow-right" size={15}/>} title="Next page"
+								enabled={page < lastPage} onClick={() => {
+									store.dispatch(new ACTMapNodeListPageSet({ mapID: map._id, page: page + 1 }));
+								}}/>
+							</Row>
+					</Row> */}
+					<Row style={{ height: 40, padding: 10 }}>
+						<span style={{ flex: columnWidths[0], fontWeight: 500, fontSize: 17 }}>Title</span>
+						<span style={{ flex: columnWidths[1], fontWeight: 500, fontSize: 17 }}>Creator</span>
+						<span style={{ flex: columnWidths[2], fontWeight: 500, fontSize: 17 }}>Creation date</span>
+					</Row>
+				</Column>
+				<ScrollView style={ES({ flex: 1 })} contentStyle={{ paddingTop: 10 }} onContextMenu={(e) => {
+					if (e.nativeEvent['passThrough']) return true;
+					e.preventDefault();
+				}}>
+					{results_nodeIDs.filter(a => a).length == 0 && 'No search results.'}
 					{results_nodeIDs.map((nodeID, index) => {
 						return (
-							<SearchResultRow key={nodeID} nodeID={nodeID} node={results_nodes[index]}/>
+							<SearchResultRow key={nodeID} nodeID={nodeID} index={index}/>
 						);
 					})}
-				</Row>
+				</ScrollView>
 			</Column>
 		);
 	}
 }
 
-export class SearchResultRow extends BaseComponent<{nodeID: number, node: MapNodeL2}, {}> {
+const SearchResultRow_connector = (state, { nodeID }: {nodeID: number, index: number}) => {
+	const node = GetNodeL2(nodeID);
+	return {
+		node,
+		creator: node ? GetUser(node.creator) : null,
+	};
+};
+@Connect(SearchResultRow_connector)
+export class SearchResultRow extends BaseComponentWithConnector(SearchResultRow_connector, {}) {
 	render() {
-		const { nodeID, node } = this.props;
-		if (node == null) return <Row>Loading... (#{nodeID})</Row>;
+		const { nodeID, index, node, creator } = this.props;
+		// if (node == null) return <Row>Loading... (#{nodeID})</Row>;
+		if (node == null) return <Row></Row>;
+
+		const nodeL3 = AsNodeL3(node);
+		const path = `${node._id}`;
+
+		const backgroundColor = GetNodeColor(nodeL3).desaturate(0.5).alpha(0.8);
+		const nodeTypeInfo = MapNodeType_Info.for[node.type];
 
 		return (
-			<Row>
-				ID: {node._id} Text: {GetNodeDisplayText(node)}
+			<Row mt={index == 0 ? 0 : 5} className="cursorSet"
+				style={E(
+					{ padding: 5, background: backgroundColor.css(), borderRadius: 5, cursor: 'pointer', border: '1px solid rgba(0,0,0,.5)' },
+					// selected && { background: backgroundColor.brighten(0.3).alpha(1).css() },
+				)}
+				onMouseDown={(e) => {
+					if (e.button != 2) return false;
+					this.SetState({ menuOpened: true });
+				}}>
+				<span style={{ flex: columnWidths[0] }}>{GetNodeDisplayText(node, path)}</span>
+				<span style={{ flex: columnWidths[1] }}>{creator ? creator.displayName : '...'}</span>
+				<span style={{ flex: columnWidths[2] }}>{Moment(node.createdAt).format('YYYY-MM-DD')}</span>
+				{/* <NodeUI_Menu_Helper {...{map, node}}/> */}
+				<NodeUI_Menu_Stub {...{ node: nodeL3, path: `${node._id}`, inList: true }}/>
 			</Row>
 		);
 	}

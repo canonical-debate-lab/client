@@ -99,8 +99,13 @@ export function AddAJVExtraCheck(schemaName: string, extraCheckFunc: (item: any)
 }
 
 G({ AssertValidate }); declare global { function AssertValidate(schemaName: string, data, failureMessage: string, addDataStr?: boolean); }
-function AssertValidate(schemaName: string, data, failureMessageOrGetter: string | ((errorsText: string)=>string), addErrorsText = true, addDataStr = true) {
-	const errorsText = Validate(schemaName, data, false);
+function AssertValidate(schemaName: string, data, failureMessageOrGetter: string | ((errorsText: string)=>string), addErrorsText = true, addDataStr = true, allowOptionalPropsToBeNull = true) {
+	let schema = GetSchemaJSON(schemaName);
+	if (allowOptionalPropsToBeNull) {
+		schema = Schema_WithOptionalPropsAllowedNull(schema);
+	}
+
+	const errorsText = Validate(schema, data, false);
 	let failureMessage = IsString(failureMessageOrGetter) ? failureMessageOrGetter : failureMessageOrGetter(errorsText);
 	if (addErrorsText) {
 		failureMessage += `: ${errorsText}`;
@@ -111,4 +116,15 @@ function AssertValidate(schemaName: string, data, failureMessageOrGetter: string
 	failureMessage += '\n';
 
 	Assert(errorsText == null, failureMessage);
+}
+
+export function Schema_WithOptionalPropsAllowedNull(schema: any) {
+	const result = Clone(schema);
+	for (const { key: propName, value: propSchema } of (result.properties || {}).Pairs()) {
+		const propOptional = result.required == null || !result.required.Contains(propName);
+		if (propOptional && propSchema.type) {
+			propSchema.type = IsString(propSchema.type) ? ['null', propSchema.type] : ['null'].concat(propSchema.type).Distinct();
+		}
+	}
+	return result;
 }
