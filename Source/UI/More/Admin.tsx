@@ -177,8 +177,7 @@ function AssertVersionRootPath(path: string) {
 /* type WithDifferentValueType<T, NewValueType> = { [P in keyof T]-?: NewValueType; };
 type FirebaseData_AnyValues = WithDifferentValueType<FirebaseData, any>; */
 
-// outdated since not an issue anymore: /** Note that this does not capture subcollections! (eg. maps/1/nodeEditTimes) */
-
+/** Note that this does not capture subcollections (eg. maps/1/nodeEditTimes). Currently not an issue since we aren't using subcollections. (ie. collections stored under a document's path) */
 export async function GetVersionRootDataAsync(versionRootPath: string) {
 	AssertVersionRootPath(versionRootPath);
 

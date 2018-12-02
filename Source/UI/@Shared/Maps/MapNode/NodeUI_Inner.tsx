@@ -17,7 +17,7 @@ import { InfoButton } from '../../../../Frame/ReactComponents/InfoButton';
 import VReactMarkdown_Remarkable from '../../../../Frame/ReactComponents/VReactMarkdown_Remarkable';
 import { AddNodeRevision } from '../../../../Server/Commands/AddNodeRevision';
 import { GetImage } from '../../../../Store/firebase/images';
-import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/maps/nodeEditTimes';
+import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatingAverage_AtPath, GetRatings, RatingFilter } from '../../../../Store/firebase/nodeRatings';
 import { RatingType, ratingTypes } from '../../../../Store/firebase/nodeRatings/@RatingType';
@@ -357,7 +357,7 @@ class TitlePanel extends BaseComponent<TitlePanelProps, {editing: boolean, newTi
 					&& <span style={E(
 						{ position: 'relative', fontSize: GetFontSizeForNode(node, isSubnode), whiteSpace: 'initial' },
 						isSubnode && { margin: '4px 0 1px 0' },
-						missingTitleStrings.Contains(newTitle) && {color: 'rgba(255,255,255,.3)'},
+						missingTitleStrings.Contains(newTitle) && { color: 'rgba(255,255,255,.3)' },
 					)}>
 						{latex && <NodeMathUI text={node.current.equation.text} onTermHover={this.OnTermHover} onTermClick={this.OnTermClick}/>}
 						{!latex && this.RenderNodeDisplayText(newTitle)}

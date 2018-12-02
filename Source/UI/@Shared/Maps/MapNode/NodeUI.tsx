@@ -1,4 +1,4 @@
-import { ChangeType } from 'Store/firebase/maps/nodeEditTimes';
+import { ChangeType } from 'Store/firebase/mapNodeEditTimes';
 import { GetNode, HolderType } from 'Store/firebase/nodes';
 import { GetUserID } from 'Store/firebase/users';
 import { GetPlayingTimelineAppliedStepRevealNodes } from 'Store/main/maps/$map';
@@ -12,7 +12,7 @@ import { Connect } from '../../../../Frame/Database/FirebaseConnect';
 import { emptyArray, emptyArray_forLoading } from '../../../../Frame/Store/ReducerUtils';
 import { NotifyNodeViewed } from '../../../../Server/Commands/NotifyNodeViewed';
 import { GetSubnodesInEnabledLayersEnhanced } from '../../../../Store/firebase/layers';
-import { GetNodeChangeType, GetPathsToNodesChangedSinceX } from '../../../../Store/firebase/maps/nodeEditTimes';
+import { GetNodeChangeType, GetPathsToNodesChangedSinceX } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetNodeChildrenL3, GetNodeID, GetParentNodeL2, GetParentNodeL3, IsRootNode } from '../../../../Store/firebase/nodes';
 import { GetNodeForm, IsMultiPremiseArgument, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
