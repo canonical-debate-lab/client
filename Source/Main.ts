@@ -62,7 +62,7 @@ if (ENV_COMPILE_TIME != 'production') {
 	if (startURL.GetQueryVar('env') && startURL.GetQueryVar('env') != 'null') {
 		g.ENV = startURL.GetQueryVar('env');
 		// alert("Using env: " + g.ENV);
-		console.log(`Using env: ${  ENV}`);
+		console.log(`Using env: ${ENV}`);
 	}
 
 	g.ENV_SHORT = { development: 'dev', production: 'prod' }[ENV] || ENV;
@@ -77,10 +77,10 @@ if (ENV_COMPILE_TIME != 'production') {
 // let {version, dbVersion, firebaseConfig} = DEV ? require("./BakedConfig_Dev") : require("./BakedConfig_Prod");
 const { version, firebaseConfig } = DEV ? require('./BakedConfig_Dev') : require('./BakedConfig_Prod');
 
-let dbVersion = 10;
+let dbVersion = 11;
 if (startURL.GetQueryVar('dbVersion') && startURL.GetQueryVar('dbVersion') != 'null') {
 	dbVersion = parseInt(startURL.GetQueryVar('dbVersion'));
-	console.log(`Using dbVersion: ${  dbVersion}`);
+	console.log(`Using dbVersion: ${dbVersion}`);
 }
 G({ version, dbVersion, firebaseConfig }); declare global { var version: string; var dbVersion: number; var firebaseConfig; }
 

@@ -5,6 +5,7 @@ import { MapNodeStats } from 'Store/firebase/nodeStats/@MapNodeStats';
 import { User } from 'Store/firebase/users/@User';
 import { DataWrapper } from 'Server/Server';
 import { Action } from 'Frame/General/Action';
+import { ListenerPathToPath } from 'Frame/Database/DatabaseHelpers';
 import { GeneralData } from './firebase/general';
 import { Image } from './firebase/images/@Image';
 import { Map } from './firebase/maps/@Map';
@@ -17,17 +18,18 @@ import { Term } from './firebase/terms/@Term';
 import UserExtraInfo from './firebase/userExtras/@UserExtraInfo';
 import { UserMapInfoSet } from './firebase/userMapInfo/@UserMapInfo';
 import { ViewedNodeSet } from './firebase/userViewedNodes/@ViewedNodeSet';
-import { ListenerPathToPath } from 'Frame/Database/DatabaseHelpers';
 
 export interface FirebaseData {
 	forum: ForumData;
 	general: {data: GeneralData};
 	images: {[key: string]: Image};
 	layers: {[key: number]: Layer};
-	maps: {
+	/* maps: {
 		[key: number]: Map
 			& {nodeEditTimes: DataWrapper<NodeEditTimes>}; // nodeEditTimes -> $nodeID -> $nodeEditTime
-	};
+	}; */
+	maps: {[key: number]: Map};
+	mapNodeEditTimes: {[key: number]: NodeEditTimes};
 	nodes: {[key: number]: MapNode};
 	nodeExtras: {[key: number]: any};
 	nodeRatings: {[key: number]: RatingsRoot}; // $nodeID (key) -> $ratingType -> $userID -> value -> $value

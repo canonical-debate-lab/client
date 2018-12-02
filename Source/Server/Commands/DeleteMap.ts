@@ -39,8 +39,8 @@ export class DeleteMap extends Command<{mapID: number}, {}> {
 				}
 			}
 		}
-		// delete nodeEditTimes
-		newUpdates[`maps/${mapID}/nodeEditTimes/data`] = null;
+		// delete entry in mapNodeEditTimes
+		newUpdates[`mapNodeEditTimes/${mapID}`] = null;
 		updates = MergeDBUpdates(updates, newUpdates);
 
 		return updates;

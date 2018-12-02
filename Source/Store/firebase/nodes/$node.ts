@@ -198,7 +198,7 @@ export function IsNodeTitleValid_GetError(node: MapNode, title: string) {
 	return null;
 }
 
-export function GetAllNodeRevisionTitles(nodeRevision: MapNodeRevision) {
+export function GetAllNodeRevisionTitles(nodeRevision: MapNodeRevision): string[] {
 	if (nodeRevision == null || nodeRevision.titles == null) return [];
 	return TitlesMap_baseKeys.map(key => nodeRevision.titles[key]).filter(a => a != null);
 }

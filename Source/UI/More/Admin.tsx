@@ -2,13 +2,16 @@ import { ValidateDBData } from 'Server/Command';
 import { StartStateDataOverride, StopStateDataOverride } from 'UI/@Shared/StateOverrides';
 import { E, SleepAsync } from 'js-vextensions';
 import { Button, Column, Row } from 'react-vcomponents';
-import { BaseComponent } from 'react-vextensions';
+import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { HasAdminPermissions } from 'Store/firebase/userExtras';
-import { DBPath, GetDataAsync, RemoveHelpers } from '../../Frame/Database/DatabaseHelpers';
+import { Connect } from 'Frame/Database/FirebaseConnect';
+import { Omit } from 'lodash';
+import { SplitStringBySlash_Cached } from 'Frame/Database/StringSplitCache';
+import { DBPath, GetDataAsync, RemoveHelpers, GetData, ConvertDataToValidDBUpdates, ApplyDBUpdates } from '../../Frame/Database/DatabaseHelpers';
 import { styles } from '../../Frame/UI/GlobalStyles';
 import { FirebaseData } from '../../Store/firebase';
-import { GetUserID } from '../../Store/firebase/users';
+import { GetUserID, GetUser } from '../../Store/firebase/users';
 import { ResetCurrentDBRoot } from './Admin/ResetCurrentDBRoot';
 
 type UpgradeFunc = (oldData: FirebaseData, markProgress: MarkProgressFunc)=>Promise<FirebaseData>;
@@ -27,11 +30,16 @@ export function AddUpgradeFunc(version: number, func: UpgradeFunc) {
 // require("./Admin/DBUpgrades/UpgradeDB_7");
 // require("./Admin/DBUpgrades/UpgradeDB_8");
 // require("./Admin/DBUpgrades/UpgradeDB_9");
-require('./Admin/DBUpgrades/UpgradeDB_10');
+// require('./Admin/DBUpgrades/UpgradeDB_10');
+require('./Admin/DBUpgrades/UpgradeDB_11');
 
-// export default class AdminUI extends BaseComponent<{}, {fb: firebase.FirebaseApplication, env: string}> {
-export class AdminUI extends BaseComponent<{}, {dbUpgrade_entryIndexes: number[], dbUpgrade_entryCounts: number[]}> {
-	static defaultState = {dbUpgrade_entryIndexes: [], dbUpgrade_entryCounts: []};
+const connector = (state, {}: {}) => ({
+	isAdmin: HasAdminPermissions('me')
+		// also check previous version for admin-rights (so we can increment db-version without losing our rights to complete the db-upgrade!)
+		|| (GetUserID() != null && GetData({ inVersionRoot: false }, 'versions', `v${dbVersion - 1}-${ENV_SHORT}`, 'userExtras', GetUserID(), '.permissionGroups', '.admin')),
+});
+@Connect(connector)
+export class AdminUI extends BaseComponentWithConnector(connector, { dbUpgrade_entryIndexes: [] as number[], dbUpgrade_entryCounts: [] as number[] }) {
 	/* constructor(props) {
 		super(props);
 		//this.state = {env: envSuffix};
@@ -48,8 +56,8 @@ export class AdminUI extends BaseComponent<{}, {dbUpgrade_entryIndexes: number[]
 	} */
 
 	render() {
-		const admin = HasAdminPermissions('me');
-		if (!admin) return <Column style={E(styles.page)}>Please sign in.</Column>;
+		const { isAdmin } = this.props;
+		if (!isAdmin) return <Column style={E(styles.page)}>Please sign in.</Column>;
 
 		const { dbUpgrade_entryIndexes, dbUpgrade_entryCounts } = this.state;
 
@@ -114,20 +122,23 @@ export class UpgradeButton extends BaseComponent<{newVersion: number, upgradeFun
 	render() {
 		const { newVersion, upgradeFunc, markProgress } = this.props;
 
-		const oldVersionPath = `v${newVersion - 1}-${ENV_SHORT}`;
-		const newVersionPath = `v${newVersion}-${ENV_SHORT}`;
+		const oldVersionName = `v${newVersion - 1}-${ENV_SHORT}`;
+		const oldVersionPath = `versions/${oldVersionName}`;
+		const newVersionName = `v${newVersion}-${ENV_SHORT}`;
+		const newVersionPath = `versions/${newVersionName}`;
 
 		return (
-			<Button text={`${oldVersionPath}   ->   ${newVersionPath}`} style={{ whiteSpace: 'pre' }} onClick={() => {
+			<Button text={`${oldVersionName}   ->   ${newVersionName}`} style={{ whiteSpace: 'pre' }} onClick={() => {
 				ShowMessageBox({
-					title: `Upgrade ${oldVersionPath}   ->   ${newVersionPath}?`,
+					title: `Upgrade ${oldVersionName}   ->   ${newVersionName}?`,
 					message:
-`The new db-root (${newVersionPath}) will be created as a transformation of the old db-root (${oldVersionPath}).
+`The new db-root (${newVersionName}) will be created as a transformation of the old db-root (${oldVersionName}).
 					
 The old db-root will not be modified.`,
 					cancelButton: true,
 					onOK: async () => {
-						const oldData = await GetDataAsync({ inVersionRoot: false }, ...oldVersionPath.split('/')) as FirebaseData;
+						// const oldData = await GetDataAsync({ inVersionRoot: false }, ...oldVersionPath.split('/')) as FirebaseData;
+						const oldData = await GetVersionRootDataAsync(oldVersionPath);
 						StartStateDataOverride(`firebase/data/${DBPath()}`, oldData);
 						try {
 							var newData = await upgradeFunc(oldData, markProgress);
@@ -140,11 +151,13 @@ The old db-root will not be modified.`,
 							ValidateDBData(newData);
 						}
 
-						const firebase = store.firebase.helpers;
-						await firebase.ref(DBPath(`${newVersionPath}/`, false)).set(newData);
+						/* const firebase = store.firebase.helpers;
+						await firebase.ref(DBPath(`${newVersionPath}/`, false)).set(newData); */
+
+						ImportVersionRootData(newVersionPath, newData);
 
 						ShowMessageBox({
-							title: `Upgraded: ${oldVersionPath}   ->   ${newVersionPath}`,
+							title: `Upgraded: ${oldVersionName}   ->   ${newVersionName}`,
 							message: 'Done!',
 						});
 					},
@@ -154,17 +167,68 @@ The old db-root will not be modified.`,
 	}
 }
 
-/* export function ImportDBDataIntoCurrentRoot(data) {
+function AssertVersionRootPath(path: string) {
+	const parts = SplitStringBySlash_Cached(path);
+	Assert(parts.length == 2, 'Version-root path must have exactly two segments.');
+	Assert(parts[0] == 'versions', 'Version-root path\'s first segment must be "versions".');
+	Assert(parts[1].match('v[0-9]+-(dev|prod)'), 'Version-root path\'s second segment must match "v10-dev" pattern.');
+}
+
+/* type WithDifferentValueType<T, NewValueType> = { [P in keyof T]-?: NewValueType; };
+type FirebaseData_AnyValues = WithDifferentValueType<FirebaseData, any>; */
+
+// outdated since not an issue anymore: /** Note that this does not capture subcollections! (eg. maps/1/nodeEditTimes) */
+
+export async function GetVersionRootDataAsync(versionRootPath: string) {
+	AssertVersionRootPath(versionRootPath);
+
+	async function getData(key: string) {
+		return GetDataAsync({ inVersionRoot: false }, ...SplitStringBySlash_Cached(versionRootPath), key);
+	}
+
+	let versionRootData: FirebaseData;
+	// we put the db-updates into this dataAsUpdates variable, so that we know we're importing data for every key (if not, Typescript throws error about value not matching FirebaseData's shape)
+	versionRootData = {
+		forum: await getData('forum'),
+		general: await getData('general'),
+		images: await getData('images'),
+		layers: await getData('layers'),
+		maps: await getData('maps'),
+		mapNodeEditTimes: await getData('mapNodeEditTimes'),
+		nodes: await getData('nodes'),
+		nodeExtras: await getData('nodeExtras'),
+		nodeRatings: await getData('nodeRatings'),
+		nodeRevisions: await getData('nodeRevisions'),
+		nodeStats: await getData('nodeStats'),
+		nodeViewers: await getData('nodeViewers'),
+		terms: await getData('terms'),
+		termComponents: await getData('termComponents'),
+		termNames: await getData('termNames'),
+		users: await getData('users'),
+		userExtras: await getData('userExtras'),
+		userMapInfo: await getData('userMapInfo'),
+		userViewedNodes: await getData('userViewedNodes'),
+	};
+
+	return versionRootData;
+}
+
+export function ImportVersionRootData(versionRootPath: string, versionRootData: any) {
+	AssertVersionRootPath(versionRootPath);
 	// ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates(DBPath(), data));
 
-	ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates(DBPath(), {"maps": data.maps}));
-	ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates(DBPath(), {"general/data": data.general.data}));
-	ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates(DBPath(), {"nodes": data.nodeRevisions}));
-	ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates(DBPath(), {"nodeRevisions": data.nodeRevisions}));
-	ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates(DBPath(), {"userExtras": data.userExtras}));
-	ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates(DBPath(), {"users": data.users}));
+	/* let dataAsUpdates: FirebaseData_AnyValues;
+	// we put the db-updates into this dataAsUpdates variable, so that we know we're importing data for every key (if not, Typescript throws error about value not matching FirebaseData's shape)
+	dataAsUpdates = {
+		forum: ConvertToDBUpdates('forum'),
+	}; */
 
-	// optional
-	ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates(DBPath(), {"nodeViewers": data.nodeViewers}));
-	ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates(DBPath(), {"userViewedNodes": data.userViewedNodes}));
-} */
+	const allDBUpdates = {}; // relative to root-path
+	for (const key of versionRootData.VKeys(true)) {
+		const dbUpdates = ConvertDataToValidDBUpdates(versionRootPath, { [key]: versionRootData[key] });
+		allDBUpdates.Extend(dbUpdates);
+	}
+
+	Log('Importing db-data into path. Path: ', versionRootPath, ' DBData: ', versionRootData, ' DBUpdates: ', allDBUpdates);
+	ApplyDBUpdates(versionRootPath, allDBUpdates);
+}

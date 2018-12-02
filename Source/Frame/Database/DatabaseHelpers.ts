@@ -323,7 +323,7 @@ export class GetDataAsync_Options {
 }
 
 G({ GetDataAsync });
-/** 
+/**
  * Usually you'll want to use GetAsync() instead. (example: "await GetAsync(()=>GetNode(id))")
  * Also beware: GetDataAsync() seems to sometimes trigger a LISTENER_RESPONSE action with {data: null}, even if the DB has already sent the actual data for a new path.
  */
@@ -458,7 +458,7 @@ export function NotifyPathsReceived(paths: string[]) {
 	}
 }
 export function WaitTillPathDataIsReceiving(path: string): Promise<any> {
-	Assert(!path.Contains("/."), "This function can only be supplied with collection/document paths. (not field paths)");
+	Assert(!path.Contains('/.'), 'This function can only be supplied with collection/document paths. (not field paths)');
 	return new Promise((resolve, reject) => {
 		let pathDataReceiving = pathReceiveStatuses[path] === 'receiving';
 		// if data already receiving, resolve right away
@@ -477,7 +477,7 @@ export function WaitTillPathDataIsReceiving(path: string): Promise<any> {
 	});
 }
 export function WaitTillPathDataIsReceived(path: string): Promise<any> {
-	Assert(!path.Contains("/."), "This function can only be supplied with collection/document paths. (not field paths)");
+	Assert(!path.Contains('/.'), 'This function can only be supplied with collection/document paths. (not field paths)');
 	return new Promise((resolve, reject) => {
 		let pathDataReceived = pathReceiveStatuses[path] === 'received';
 		// if data already received, resolve right away
@@ -553,16 +553,19 @@ export function AssertValidatePath(path: string) {
 	Assert(!path.Contains('//'), 'Path cannot contain a double-slash. (This may mean a path parameter is missing)');
 }
 
-export function ConvertDataToValidDBUpdates(rootPath: string, rootData: any) {
+export function ConvertDataToValidDBUpdates(rootPath: string, rootData: any, dbUpdatesRelativeToRootPath = true) {
 	const result = {};
-	for (const { key: path, value: data } of rootData.Pairs()) {
+	for (const { key: pathFromRoot, value: data } of rootData.Pairs()) {
+		const fullPath = `${rootPath}/${pathFromRoot}`;
+		const pathForDBUpdates = dbUpdatesRelativeToRootPath ? pathFromRoot : fullPath;
+
 		// if entry`s "path" has odd number of segments (ie. points to collection), extract the children data into separate set-doc updates
-		if (SplitStringBySlash_Cached(path).length % 2 !== 0) {
+		if (SplitStringBySlash_Cached(fullPath).length % 2 !== 0) {
 			for (const { key, value } of data.Pairs()) {
-				result[`${path}/${key}`] = value;
+				result[`${pathForDBUpdates}/${key}`] = value;
 			}
 		} else {
-			result[path] = data;
+			result[pathForDBUpdates] = data;
 		}
 	}
 	return result;

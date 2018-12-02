@@ -61,8 +61,10 @@ export class NavBar extends BaseComponentWithConnector(connector, {}) {
 							</Div> as any
 						} panel="reputation" corner="top-left"/> */}
 					</span>
-					<div style={{ position: 'absolute', zIndex: 11, left: 0, top: 45,
-						boxShadow: colors.navBarBoxShadow, clipPath: 'inset(0 -150px -150px 0)', display: 'table' }}>
+					<div style={{
+						position: 'fixed', display: 'flex', zIndex: 11, left: 0, top: 45, maxHeight: 'calc(100% - 45px - 30px)',
+						boxShadow: colors.navBarBoxShadow, clipPath: 'inset(0 -150px -150px 0)', // display: 'table'
+					}}>
 						{topLeftOpenPanel == 'stream' && <StreamPanel/>}
 						{topLeftOpenPanel == 'chat' && <ChatPanel/>}
 						{topLeftOpenPanel == 'reputation' && <ReputationPanel/>}
@@ -99,8 +101,10 @@ export class NavBar extends BaseComponentWithConnector(connector, {}) {
 						{/* <NavBarPanelButton text="Guide" panel="guide" corner="top-right"/> */}
 						<NavBarPanelButton text={DeepGet(auth, 'displayName') ? auth.displayName.match(/(.+?)( |$)/)[1] : 'Sign in'} panel="profile" corner="top-right"/>
 					</span>
-					<div style={{ position: 'absolute', zIndex: 11, right: 0, top: 45,
-						boxShadow: colors.navBarBoxShadow, clipPath: 'inset(0 0 -150px -150px)', display: 'table' }}>
+					<div style={{
+						position: 'fixed', display: 'flex', zIndex: 11, right: 0, top: 45, maxHeight: 'calc(100% - 45px - 30px)',
+						boxShadow: colors.navBarBoxShadow, clipPath: 'inset(0 0 -150px -150px)', // display: 'table',
+					}}>
 						{topRightOpenPanel == 'search' && <SearchPanel/>}
 						{topRightOpenPanel == 'guide' && <GuidePanel/>}
 						{topRightOpenPanel == 'profile' && <UserPanel/>}

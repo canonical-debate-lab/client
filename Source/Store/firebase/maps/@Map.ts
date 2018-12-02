@@ -47,7 +47,7 @@ AddSchema({
 		timelines: { patternProperties: { '^[0-9]+$': { type: 'boolean' } } },
 
 		// collections (added here for Validate_LateHeavy, since schemas can't differentiate object-data under path vs collections under path)
-		nodeEditTimes: DataWrapper({ $ref: 'NodeEditTimes' }),
+		// nodeEditTimes: DataWrapper({ $ref: 'NodeEditTimes' }),
 	},
 	required: ['name', 'type', 'rootNode', 'creator', 'createdAt'],
 }, 'Map');

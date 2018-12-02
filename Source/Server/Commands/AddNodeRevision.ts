@@ -7,9 +7,11 @@ import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeRevision, TitlesMap, TitlesMap_baseKeys } from '../../Store/firebase/nodes/@MapNodeRevision';
 import { Command } from '../Command';
 
+/** Returned terms are all lowercase. */
 export function GetSearchTerms(str: string) {
 	return GetSearchTerms_Advanced(str, false).wholeTerms;
 }
+/** Returned terms are all lowercase. */
 export function GetSearchTerms_Advanced(str: string, separateTermsWithWildcard = true) {
 	const terms = str.toLowerCase().replace(/[^a-zA-Z0-9*]/g, ' ').replace(/ +/g, ' ').trim().split(' ').filter(a=>a != ""); // eslint-disable-line
 	const wholeTerms = terms.filter(a => (separateTermsWithWildcard ? !a.includes('*') : true)).map(a => a.replace(/\*/g, '')).Distinct();
@@ -52,7 +54,8 @@ export class AddNodeRevision extends Command<{mapID: number, revision: MapNodeRe
 		updates['general/data/.lastNodeRevisionID'] = this.revisionID;
 		updates[`nodes/${revision.node}/.currentRevision`] = this.revisionID;
 		updates[`nodeRevisions/${this.revisionID}`] = revision;
-		updates[`maps/${mapID}/nodeEditTimes/data/.${revision.node}`] = revision.createdAt;
+		// updates[`maps/${mapID}/nodeEditTimes/data/.${revision.node}`] = revision.createdAt;
+		updates[`mapNodeEditTimes/${mapID}/.${revision.node}`] = revision.createdAt;
 		return updates;
 	}
 }

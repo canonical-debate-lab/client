@@ -104,7 +104,7 @@ export class DeleteNode extends Command<{mapID?: number, nodeID: number, withCon
 
 		// delete edit-time entry within each map (if it exists)
 		for (const mapID of this.mapIDs) {
-			updates[`maps/${mapID}/nodeEditTimes/data/.${nodeID}`] = null;
+			updates[`mapNodeEditTimes/${mapID}/.${nodeID}`] = null;
 		}
 
 		if (this.sub_deleteContainerArgument) {

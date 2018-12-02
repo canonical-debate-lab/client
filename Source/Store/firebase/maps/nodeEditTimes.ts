@@ -38,7 +38,7 @@ export function GetChangeTypeOutlineColor(changeType: ChangeType) {
 }
 
 export function GetMapNodeEditTimes(mapID: number) {
-	return GetData('maps', mapID, 'nodeEditTimes', 'data') as NodeEditTimes;
+	return GetData('mapNodeEditTimes', mapID) as NodeEditTimes;
 }
 
 export function GetNodeIDsChangedSinceX(mapID: number, sinceTime: number, includeAcknowledgement = true) {

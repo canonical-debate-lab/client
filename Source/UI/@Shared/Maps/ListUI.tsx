@@ -2,14 +2,14 @@ import { BaseComponent, GetInnerComp } from 'react-vextensions';
 import { Row, Div, Pre } from 'react-vcomponents';
 import { GetMap } from 'Store/firebase/maps';
 import { GetNodesL2 } from 'Store/firebase/nodes';
+import { Column } from 'react-vcomponents';
+import { ScrollView } from 'react-vscrollview';
 import {styles} from "../../../Frame/UI/GlobalStyles";
 import {MapNode, MapNodeL2, globalMapID, MapNodeL3, Polarity} from "../../../Store/firebase/nodes/@MapNode";
 import { NodeUI } from '../../@Shared/Maps/MapNode/NodeUI';
 import { Map } from '../../../Store/firebase/maps/@Map';
 import { Connect } from '../../../Frame/Database/FirebaseConnect';
 import { GetNodeDisplayText, GetRatingTypesForNode, GetNodeL3, GetFinalPolarityAtPath, AsNodeL3, GetMainRatingType } from '../../../Store/firebase/nodes/$node';
-import { Column } from 'react-vcomponents';
-import { ScrollView } from 'react-vscrollview';
 import { NodeUI_Menu } from '../../@Shared/Maps/MapNode/NodeUI_Menu';
 import { RatingType_Info, RatingType, GetRatingTypeInfo, ratingTypes } from '../../../Store/firebase/nodeRatings/@RatingType';
 import { GetRatings, GetNodeRatingsRoot } from '../../../Store/firebase/nodeRatings';
@@ -91,7 +91,7 @@ export class ListUI extends BaseComponent<Props, {panelToShow?: string}> {
 				} catch (ex) {}
 			}
 			nodesFiltered = nodesFiltered.filter((node) => {
-				const titles = node.current.titles ? node.current.titles.VValues(true) : [];
+				const titles = node.current.titles ? node.current.titles.Excluding('allTerms').VValues(true) as string[] : [];
 				if (regExp) {
 					return titles.find(a => a.match(regExp) != null);
 				}
