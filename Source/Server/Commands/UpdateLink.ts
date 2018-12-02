@@ -4,7 +4,7 @@ import { GetLinkUnderParent } from '../../Store/firebase/nodes/$node';
 import { ChildEntry } from '../../Store/firebase/nodes/@MapNode';
 import { Command } from '../Command';
 import { UserEdit } from '../CommandMacros';
-import { GetSchemaJSON, WaitTillSchemaAddedThenRun } from '../Server';
+import { GetSchemaJSON, WaitTillSchemaAddedThenRun, AssertValidate } from '../Server';
 
 WaitTillSchemaAddedThenRun('ChildEntry', () => {
 	AddSchema({

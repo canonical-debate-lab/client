@@ -54,7 +54,8 @@ export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: nu
 	sub_deleteOldParent: DeleteNode;
 	sub_unlinkFromOldParent: UnlinkNode;
 	async Prepare() {
-		const { mapID, oldParentID, newParentID, nodeID, newForm, newPolarity, allowCreateWrapperArg, unlinkFromOldParent, deleteOrphanedArgumentWrapper } = this.payload;
+		const { mapID, oldParentID, newParentID, nodeID, newForm, allowCreateWrapperArg, unlinkFromOldParent, deleteOrphanedArgumentWrapper } = this.payload;
+		let { newPolarity } = this.payload;
 		this.returnData = {};
 
 		this.node_data = await GetAsync(() => GetNodeL2(nodeID));
@@ -67,7 +68,8 @@ export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: nu
 		if (canCreateWrapperArg) {
 			const createWrapperArg = canCreateWrapperArg && allowCreateWrapperArg;
 			if (createWrapperArg) {
-				Assert(newPolarity, 'Since this command has to create a wrapper-argument, you must supply the newPolarity property.');
+				// Assert(newPolarity, 'Since this command has to create a wrapper-argument, you must supply the newPolarity property.');
+				newPolarity = newPolarity || Polarity.Supporting; // if new-polarity isn't supplied, just default to Supporting (this can happen if a claim is copied from search-results)
 				const argumentWrapper = new MapNode({ type: MapNodeType.Argument });
 				const argumentWrapperRevision = new MapNodeRevision({});
 

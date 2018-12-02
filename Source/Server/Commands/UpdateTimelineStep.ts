@@ -2,14 +2,14 @@ import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
 import { Command } from '../Command';
 import { UserEdit } from '../CommandMacros';
-import { GetSchemaJSON, WaitTillSchemaAddedThenRun } from '../Server';
+import { GetSchemaJSON, WaitTillSchemaAddedThenRun, AssertValidate } from '../Server';
 
 WaitTillSchemaAddedThenRun('TimelineStep', () => {
 	AddSchema({
 		properties: {
 			stepID: { type: 'number' },
 			stepUpdates: Schema({
-				properties: GetSchemaJSON('TimelineStep').properties.Including('title', 'message', 'nodeReveals'),
+				properties: GetSchemaJSON('TimelineStep')['properties'].Including('title', 'message', 'nodeReveals'),
 			}),
 		},
 		required: ['stepID', 'stepUpdates'],

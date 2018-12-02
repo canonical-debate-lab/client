@@ -2,6 +2,7 @@ import { GetAsync, GetAsync_Raw } from 'Frame/Database/DatabaseHelpers';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { Assert, ToInt } from 'js-vextensions';
+import { AssertValidate } from 'Server/Server';
 import { GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
 import { GetMaps } from '../../Store/firebase/maps';
 import { GetNodeRevisions } from '../../Store/firebase/nodeRevisions';

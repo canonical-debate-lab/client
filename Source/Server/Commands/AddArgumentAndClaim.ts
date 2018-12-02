@@ -27,6 +27,7 @@ export class AddArgumentAndClaim extends Command<Payload, {argumentNodeID: numbe
 		this.sub_addClaim.lastNodeRevisionID_addAmount = 1;
 		this.sub_addClaim.Validate_Early();
 		await this.sub_addClaim.Prepare();
+		this.sub_addClaim.parent_oldData = argumentNode; // we need to do this so add-claim sub knows it's child of argument, and thus updates the children-order prop of the argument
 
 		this.returnData = {
 			argumentNodeID: this.sub_addArgument.sub_addNode.nodeID,

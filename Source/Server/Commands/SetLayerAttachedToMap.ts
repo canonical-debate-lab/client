@@ -1,5 +1,6 @@
 import { MapEdit } from 'Server/CommandMacros';
 import { Assert } from 'js-vextensions';
+import { AssertValidate } from 'Server/Server';
 import { GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
 import { Map } from '../../Store/firebase/maps/@Map';
 import { Command } from '../Command';

@@ -284,7 +284,9 @@ class PasteAsLink_MenuItem extends BaseComponent<SharedProps, {}> {
 		const linkCommand = new LinkNode_HighLevel({
 			mapID: map._id, oldParentID: GetParentNodeID(copiedNodePath), newParentID: node._id, nodeID: copiedNode._id,
 			newForm: copiedNode.type == MapNodeType.Claim ? formForClaimChildren : null,
-			newPolarity: (copiedNode.type == MapNodeType.Argument ? copiedNode.link.polarity : null) || (copiedNode_parent && copiedNode_parent.type == MapNodeType.Argument ? copiedNode_parent.link.polarity : null),
+			newPolarity:
+				(copiedNode.type == MapNodeType.Argument ? copiedNode.link.polarity : null) // if node itself has polarity, use it
+				|| (copiedNode_parent && copiedNode_parent.type == MapNodeType.Argument ? copiedNode_parent.link.polarity : null), // else if our parent has a polarity, use that
 			allowCreateWrapperArg: holderType != null || !node.multiPremiseArgument,
 			unlinkFromOldParent: copiedNode_asCut, deleteOrphanedArgumentWrapper: true,
 		});

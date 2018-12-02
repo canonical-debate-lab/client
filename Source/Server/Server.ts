@@ -28,7 +28,7 @@ export function AddSchema(schema, name: string) {
 	return result;
 }
 
-export function GetSchemaJSON(name: string) {
+export function GetSchemaJSON(name: string): Object {
 	return Clone(schemaJSON[name]);
 }
 
@@ -72,8 +72,25 @@ Details: ${ToJSON(this.errors, null, 3)}
 // validation
 // ==========
 
-G({ Validate }); declare global { function Validate(schemaName: string, data, removeHelpers?: boolean); }
-function Validate(schemaName: string, data, removeHelpers = true) {
+export const ajvExtraChecks = {}; // schemaName -> $index -> $validationFunc
+export function AddAJVExtraCheck(schemaName: string, extraCheckFunc: (item: any)=>string) {
+	ajvExtraChecks[schemaName] = ajvExtraChecks[schemaName] || [];
+	ajvExtraChecks[schemaName].push(extraCheckFunc);
+}
+export function ValidateAJVExtraChecks(schemaName: string, data) {
+	if (ajvExtraChecks[schemaName] == null) return null;
+	for (const extraCheck of ajvExtraChecks[schemaName]) {
+		const errorMessage = extraCheck(data);
+		if (errorMessage) return errorMessage;
+	}
+}
+
+/** Returns null if the supplied data matches the schema. Else, returns error message. */
+export function Validate(schemaName: string, data, removeHelpers = true) {
+	return Validate_Full(GetSchemaJSON(schemaName), schemaName, data, removeHelpers);
+}
+/** Returns null if the supplied data matches the schema. Else, returns error message. */
+export function Validate_Full(schemaObject: Object, schemaName: string, data, removeHelpers = true) {
 	if (removeHelpers) {
 		const { RemoveHelpers } = require('../Frame/Database/DatabaseHelpers');
 		data = RemoveHelpers(Clone(data));
@@ -81,36 +98,36 @@ function Validate(schemaName: string, data, removeHelpers = true) {
 
 	if (data == null) return 'Data is null/undefined!';
 
-	const passed = ajv.validate(schemaName, data);
+	const passed = ajv.validate(schemaObject, data);
 	if (!passed) return ajv.FullErrorsText();
 
 	// additional, non-ajv checks
-	if (ajvExtraChecks[schemaName]) {
-		for (const extraCheck of ajvExtraChecks[schemaName]) {
-			const errorMessage = extraCheck(data);
-			if (errorMessage) return errorMessage;
-		}
+	if (schemaName) {
+		return ValidateAJVExtraChecks(schemaName, data);
 	}
 }
-export let ajvExtraChecks = {}; // schemaName -> $index -> $validationFunc
-export function AddAJVExtraCheck(schemaName: string, extraCheckFunc: (item: any)=>string) {
-	ajvExtraChecks[schemaName] = ajvExtraChecks[schemaName] || [];
-	ajvExtraChecks[schemaName].push(extraCheckFunc);
-}
 
-G({ AssertValidate }); declare global { function AssertValidate(schemaName: string, data, failureMessage: string, addDataStr?: boolean); }
-function AssertValidate(schemaName: string, data, failureMessageOrGetter: string | ((errorsText: string)=>string), addErrorsText = true, addDataStr = true, allowOptionalPropsToBeNull = true) {
-	let schema = GetSchemaJSON(schemaName);
-	if (allowOptionalPropsToBeNull) {
-		schema = Schema_WithOptionalPropsAllowedNull(schema);
+export class AssertValidateOptions {
+	addErrorsText = true;
+	addDataStr = true;
+	allowOptionalPropsToBeNull = true;
+}
+export function AssertValidate(schemaName: string, data, failureMessageOrGetter: string | ((errorsText: string)=>string), options = new AssertValidateOptions()) {
+	return AssertValidate_Full(GetSchemaJSON(schemaName), schemaName, data, failureMessageOrGetter, options);
+}
+export function AssertValidate_Full(schemaObject: Object, schemaName: string, data, failureMessageOrGetter: string | ((errorsText: string)=>string), options?: Partial<AssertValidateOptions>) {
+	options = E(new AssertValidateOptions(), options);
+	if (options.allowOptionalPropsToBeNull) {
+		schemaObject = Schema_WithOptionalPropsAllowedNull(schemaObject);
 	}
 
-	const errorsText = Validate(schema, data, false);
+	const errorsText = Validate_Full(schemaObject, schemaName, data, false);
+
 	let failureMessage = IsString(failureMessageOrGetter) ? failureMessageOrGetter : failureMessageOrGetter(errorsText);
-	if (addErrorsText) {
+	if (options.addErrorsText) {
 		failureMessage += `: ${errorsText}`;
 	}
-	if (addDataStr) {
+	if (options.addDataStr) {
 		failureMessage += `\nData: ${ToJSON(data, null, 3)}`;
 	}
 	failureMessage += '\n';

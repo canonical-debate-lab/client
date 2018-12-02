@@ -1,4 +1,4 @@
-import { WaitTillSchemaAddedThenRun } from 'Server/Server';
+import { WaitTillSchemaAddedThenRun, AssertValidate } from 'Server/Server';
 import { GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
 import { User } from '../../Store/firebase/users/@User';
 import { Command } from '../Command';
@@ -12,7 +12,7 @@ WaitTillSchemaAddedThenRun(MTName, () => {
 		properties: {
 			id: { type: 'string' },
 			updates: Schema({
-				properties: GetSchemaJSON(MTName).properties.Including(
+				properties: GetSchemaJSON(MTName)['properties'].Including(
 					'displayName', 'backgroundID',
 					'backgroundCustom_enabled', 'backgroundCustom_color', 'backgroundCustom_url', 'backgroundCustom_position',
 				),

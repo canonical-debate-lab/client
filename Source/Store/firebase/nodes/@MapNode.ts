@@ -82,11 +82,14 @@ AddSchema({
 		}
 	], */
 }, 'MapNode');
-AddAJVExtraCheck('MapNode', (node: MapNode) => {
-	if ((node.childrenOrder ? node.childrenOrder.length : 0) !== (node.children ? node.children.VKeys(true).length : 0)) {
-		return 'Children and childrenOrder lengths differ!';
+// disabled for now, simply because we haven't finished making all places that manipulate "MapNode.children" reliably update "MapNode.childrenOrder" as well
+/* AddAJVExtraCheck('MapNode', (node: MapNode) => {
+	if (node.type == MapNodeType.Argument) {
+		if ((node.childrenOrder ? node.childrenOrder.length : 0) !== (node.children ? node.children.VKeys(true).length : 0)) {
+			return 'Children and childrenOrder lengths differ!';
+		}
 	}
-});
+}); */
 
 // helpers
 // export type MapNodeL2 = MapNode & {finalType: MapNodeType};

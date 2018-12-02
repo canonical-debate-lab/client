@@ -89,5 +89,7 @@ module.exports = {
 		Assert: true,
 		Log: true,
 		store: true,
+		ToJSON: true,
+		FromJSON: true,
 	},
 };

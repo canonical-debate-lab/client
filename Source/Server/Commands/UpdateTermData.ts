@@ -1,5 +1,6 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { Assert } from 'js-vextensions';
+import { AssertValidate } from 'Server/Server';
 import { GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
 import { Term } from '../../Store/firebase/terms/@Term';
 import { Command } from '../Command';

@@ -1,4 +1,5 @@
 import { UserEdit } from 'Server/CommandMacros';
+import { AssertValidate } from 'Server/Server';
 import { GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
 import { TermComponent } from '../../Store/firebase/termComponents/@TermComponent';
 import { Command } from '../Command';

@@ -6,6 +6,7 @@ import { Row } from 'react-vcomponents';
 import { TextInput } from 'react-vcomponents';
 import { Select } from 'react-vcomponents';
 import { GetErrorMessagesUnderElement } from 'js-vextensions';
+import { Validate } from 'Server/Server';
 import { GetEntries } from '../../../../Frame/General/Enums';
 import { GetSourceNamePlaceholderText, GetSourceAuthorPlaceholderText } from '../../../../Store/firebase/contentNodes/$contentNode';
 
@@ -48,7 +49,7 @@ export default class SourceChainsEditorUI extends BaseComponent<Props, {newData:
 											&& <TextInput enabled={enabled} style={{ width: '90%' }} placeholder={GetSourceAuthorPlaceholderText(source.type)}
 												value={source.author} onChange={val => Change(val ? source.author = val : delete source.author)}/>}
 										{source.type == SourceType.Webpage
-											&& <TextInput ref={`url_${chainIndex }_${sourceIndex}`} enabled={enabled} type="url"
+											&& <TextInput ref={`url_${chainIndex}_${sourceIndex}`} enabled={enabled} type="url"
 												// pattern="^(https?|ftp)://[^\\s/$.?#]+\\.[^\\s]+$" required style={ES({flex: 1})}
 												pattern="^https?://[^\\s/$.?#]+\\.[^\\s]+$" required style={ES({ flex: 1 })}
 												value={source.link} onChange={val => Change((() => {

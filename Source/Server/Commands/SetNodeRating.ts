@@ -1,5 +1,6 @@
 import { Rating } from 'Store/firebase/nodeRatings/@RatingsRoot';
 import { RatingType } from 'Store/firebase/nodeRatings/@RatingType';
+import { AssertValidate } from 'Server/Server';
 import { Command } from '../Command';
 
 AddSchema({

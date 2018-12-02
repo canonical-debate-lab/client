@@ -1,4 +1,5 @@
 import { UserEdit } from 'Server/CommandMacros';
+import { AssertValidate } from 'Server/Server';
 import { GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
 import { Map } from '../../Store/firebase/maps/@Map';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';

@@ -3,7 +3,7 @@ import { Assert } from 'js-vextensions';
 import { GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { Command, MergeDBUpdates } from '../Command';
-import { GetSchemaJSON } from '../Server';
+import { GetSchemaJSON, AssertValidate, AssertValidate_Full } from '../Server';
 import { AddNodeRevision } from './AddNodeRevision';
 
 /** Do not use this from client-side code. This is only to be used internally, by higher-level commands -- usually AddChildNode. */
@@ -41,9 +41,9 @@ export class AddNode extends Command<{mapID: number, node: MapNode, revision: Ma
 		if (this.asSubcommand) {
 			const mapNodeSchema = GetSchemaJSON('MapNode');
 			// if as subcommand, we might be called by AddChildNode for new argument; in that case, ignore the "childrenOrder" prop requirement (gets added by later link-impact-node subcommand)
-			delete mapNodeSchema.allOf;
+			delete mapNodeSchema['allOf'];
 
-			AssertValidate(mapNodeSchema, node, 'Node invalid');
+			AssertValidate_Full(mapNodeSchema, 'MapNode', node, 'Node invalid');
 		} else {
 			AssertValidate('MapNode', node, 'Node invalid');
 		}

@@ -1,5 +1,6 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
+import { AssertValidate } from 'Server/Server';
 import { GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
 import { Command } from '../Command';
 

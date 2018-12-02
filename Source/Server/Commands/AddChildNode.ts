@@ -1,10 +1,13 @@
 import { MapEdit, UserEdit } from 'Server/CommandMacros';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { Assert } from 'js-vextensions';
-import { GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
+import { AssertValidate } from 'Server/Server';
+import { GetNode } from 'Store/firebase/nodes';
+import { GetDataAsync, GetAsync } from '../../Frame/Database/DatabaseHelpers';
 import { ChildEntry, MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { Command, MergeDBUpdates } from '../Command';
 import { AddNode } from './AddNode';
+import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 
 type Payload = {mapID: number, parentID: number, node: MapNode, revision: MapNodeRevision, link?: ChildEntry, asMapRoot?: boolean};
 
@@ -21,7 +24,7 @@ export class AddChildNode extends Command<Payload, {nodeID: number, revisionID: 
 	}
 
 	sub_addNode: AddNode;
-	parent_oldChildrenOrder: number[];
+	parent_oldData: MapNode;
 	async Prepare() {
 		const { mapID, parentID, node, revision, link, asMapRoot } = this.payload;
 
@@ -34,7 +37,8 @@ export class AddChildNode extends Command<Payload, {nodeID: number, revisionID: 
 		this.payload.link = link || { _: true };
 
 		if (!asMapRoot) {
-			this.parent_oldChildrenOrder = await GetDataAsync('nodes', parentID, '.childrenOrder') as number[];
+			// this.parent_oldChildrenOrder = await GetDataAsync('nodes', parentID, '.childrenOrder') as number[];
+			this.parent_oldData = await GetAsync(() => GetNode(parentID));
 		}
 
 		this.returnData = {
@@ -58,8 +62,9 @@ export class AddChildNode extends Command<Payload, {nodeID: number, revisionID: 
 		// add as child of parent
 		if (!asMapRoot) {
 			newUpdates[`nodes/${parentID}/.children/.${this.sub_addNode.nodeID}`] = link;
-			if (this.parent_oldChildrenOrder) {
-				newUpdates[`nodes/${parentID}/.childrenOrder`] = this.parent_oldChildrenOrder.concat([this.sub_addNode.nodeID]);
+			// if this node is being placed as a child of an argument, update the argument's children-order property
+			if (this.parent_oldData && this.parent_oldData.type == MapNodeType.Argument) {
+				newUpdates[`nodes/${parentID}/.childrenOrder`] = (this.parent_oldData.childrenOrder || []).concat([this.sub_addNode.nodeID]);
 			}
 		}
 

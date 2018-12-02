@@ -2,6 +2,7 @@ import { FirebaseData } from 'Store/firebase';
 import { GetUserID } from 'Store/firebase/users';
 import u from 'updeep';
 import { ApplyDBUpdates, ApplyDBUpdates_Local, DBPath, RemoveHelpers } from '../Frame/Database/DatabaseHelpers';
+import { AssertValidate } from './Server';
 
 export class CommandUserInfo {
 	id: string;
