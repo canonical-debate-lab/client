@@ -38,6 +38,7 @@ import MouseBackend from 'react-dnd-mouse-backend';
 import keycode from 'keycode';
 // import HTML5Backend from "react-dnd-html5-backend";
 // import TouchBackend from "react-dnd-touch-backend";
+const asAny = { Provider } as any;
 
 // temp fix for "isOver({shallow: true})"
 // var DragDropMonitor = require("dnd-core/lib/DragDropMonitor").default;
@@ -74,13 +75,13 @@ export class RootUIWrapper extends BaseComponent<{store}, {}> {
 		// if (!g.storeRehydrated) return <div/>;
 
 		return (
-			<Provider store={store}>
+			<asAny.Provider store={store}>
 				<PersistGate loading={null} persistor={persister}>
 					<RouterProvider store={store}>
 						<RootUI/>
 					</RouterProvider>
 				</PersistGate>
-			</Provider>
+			</asAny.Provider>
 		);
 	}
 
@@ -171,7 +172,7 @@ class RootUI extends BaseComponentWithConnector(connector, {}) {
 					<Route path='/forum'><ForumUI/></Route>
 					<Route path='/feedback'><FeedbackUI/></Route>
 					<Route path='/more'><MoreUI/></Route>
-					<Route withConditions={url => NormalizeURL(VURL.FromState(url)).pathNodes[0] == 'home'}><HomeUI/></Route>
+					<Route withConditions={url => NormalizeURL(VURL.FromLocationObject(url)).pathNodes[0] == 'home'}><HomeUI/></Route>
 					<Route path='/social'><SocialUI/></Route>
 					<Route path='/personal'><PersonalUI/></Route>
 					<Route path='/debates'><DebatesUI/></Route>

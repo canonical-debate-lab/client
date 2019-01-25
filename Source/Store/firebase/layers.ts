@@ -1,12 +1,10 @@
-import { CachedTransform } from 'js-vextensions';
+import { CachedTransform, emptyArray } from 'js-vextensions';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { GetNode } from 'Store/firebase/nodes';
-import {Map} from "./maps/@Map";
-import {GetData} from "../../Frame/Database/DatabaseHelpers";
-import {MapNode} from "./nodes/@MapNode";
-import { GetNodeL3, AsNodeL3, GetNodeL2 } from './nodes/$node';
+import { GetData } from '../../Frame/Database/DatabaseHelpers';
+import { Map } from './maps/@Map';
+import { AsNodeL3, GetNodeL2 } from './nodes/$node';
 import { GetUserLayerStatesForMap } from './userMapInfo';
-import { emptyArray } from '../../Frame/Store/ReducerUtils';
 
 export function GetLayers(): Layer[] {
 	const layersMap = GetData({ collection: true }, 'layers');

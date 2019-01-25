@@ -93,7 +93,7 @@ export async function PostDispatchAction(action: Action<any>) {
 
 	const url = GetCurrentURL();
 	// let oldURL = URL.Current();
-	// let url = VURL.FromState(action.payload);
+	// let url = VURL.FromLocationObject(action.payload);
 	const simpleURL = GetCurrentURL_SimplifiedForPageViewTracking();
 	if (DoesURLChangeCountAsPageChange(pageViewTracker_lastURL, simpleURL, true)) {
 		pageViewTracker_lastURL = simpleURL;
@@ -115,7 +115,7 @@ export async function PostDispatchAction(action: Action<any>) {
 			// ReactGA.initialize("UA-21256330-33", {debug: true});
 			ReactGA.initialize('UA-21256330-33');
 
-			/* let url = VURL.FromState(State().router).toString(false);
+			/* let url = VURL.FromLocationObject(State().router).toString(false);
 			ReactGA.set({page: url});
 			ReactGA.pageview(url || "/"); */
 		}

@@ -1,8 +1,7 @@
 import { CachedTransform_WithStore } from 'Frame/Database/DatabaseHelpers';
-import { Lerp } from 'js-vextensions';
+import { Lerp, emptyObj } from 'js-vextensions';
 import { GetData } from '../../Frame/Database/DatabaseHelpers';
 import { GetArgumentImpactPseudoRatingSet } from '../../Frame/Store/RatingProcessor';
-import { emptyObj } from '../../Frame/Store/ReducerUtils';
 import { RatingType, ratingTypes } from '../../Store/firebase/nodeRatings/@RatingType';
 import { WeightingType } from '../main';
 import { Rating, RatingsRoot } from './nodeRatings/@RatingsRoot';
@@ -19,7 +18,7 @@ export function GetNodeRatingsRoot(nodeID: number) {
 	// temp workaround for GetData() not retrieving list of subcollections for doc-path
 	const result = {};
 	for (const ratingType of ratingTypes) {
-		const data = GetData({collection: true}, 'nodeRatings', nodeID, ratingType);
+		const data = GetData({ collection: true }, 'nodeRatings', nodeID, ratingType);
 		if (data) {
 			result[ratingType] = data;
 		}

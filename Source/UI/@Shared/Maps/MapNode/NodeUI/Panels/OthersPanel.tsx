@@ -40,13 +40,13 @@ export class OthersPanel extends BaseComponentWithConnector(connector, { convert
 		const parentCreatorOrMod = IsUserCreatorOrMod(GetUserID(), parent);
 
 		const nodeArgOrParentSPArg_controlled = (node.type == MapNodeType.Argument && creatorOrMod ? node : null)
-			|| (parent && parent.type == MapNodeType.Argument && parentCreatorOrMod ? parent : null);
-		const nodeArgOrParentSPArg_controlled_path = nodeArgOrParentSPArg_controlled && (nodeArgOrParentSPArg_controlled == node ? path : parentPath);
+			|| (parent && parent.type === MapNodeType.Argument && parentCreatorOrMod ? parent : null);
+		const nodeArgOrParentSPArg_controlled_path = nodeArgOrParentSPArg_controlled && (nodeArgOrParentSPArg_controlled === node ? path : parentPath);
 
 		const convertToTypes = GetEntries(ClaimType).filter(pair => CanConvertFromClaimTypeXToY(GetClaimType(node), pair.value));
 		convertToType = convertToType || convertToTypes.map(a => a.value).FirstOrX();
 
-		const isArgument_any = node.current.argumentType == ArgumentType.Any;
+		const isArgument_any = node.current.argumentType === ArgumentType.Any;
 
 		return (
 			<Column sel style={{ position: 'relative' }}>
@@ -75,7 +75,7 @@ export class OthersPanel extends BaseComponentWithConnector(connector, { convert
 							new ChangeClaimType(E({ mapID }, { nodeID: node._id, newType: convertToType })).Run();
 						}}/>
 					</Row>}
-				{node.type == MapNodeType.Argument && node.childrenOrder && !isArgument_any
+				{node.type === MapNodeType.Argument && node.multiPremiseArgument && !isArgument_any
 					&& <ChildrenOrder mapID={mapID} node={node}/>}
 				<AtThisLocation node={node} path={path}/>
 			</Column>
@@ -106,12 +106,14 @@ class InfoTable extends BaseComponent<{node: MapNodeL3, creator: User}, {}> {
 class AtThisLocation extends BaseComponent<{node: MapNodeL3, path: string}, {}> {
 	render() {
 		const { node, path } = this.props;
-		if (path.split('/').length == 0) return <div/>; // if the root of a map, or subnode
+		if (path.split('/').length === 0) return <div/>; // if the root of a map, or subnode
 
+		let canSetAsNegation;
+		let canSetAsSeriesAnchor;
 		if (node.type == MapNodeType.Claim) {
 			const claimType = GetClaimType(node);
-			var canSetAsNegation = claimType == ClaimType.Normal && node.link.form != ClaimForm.YesNoQuestion;
-			var canSetAsSeriesAnchor = claimType == ClaimType.Equation && !node.current.equation.isStep; // && !creating;
+			canSetAsNegation = claimType === ClaimType.Normal && node.link.form !== ClaimForm.YesNoQuestion;
+			canSetAsSeriesAnchor = claimType === ClaimType.Equation && !node.current.equation.isStep; // && !creating;
 		}
 
 		return (
@@ -149,10 +151,12 @@ class AtThisLocation extends BaseComponent<{node: MapNodeL3, path: string}, {}> 
 class ChildrenOrder extends BaseComponent<{mapID: number, node: MapNodeL3}, {}> {
 	render() {
 		const { mapID, node } = this.props;
+		const oldChildrenOrder = node.childrenOrder || [];
+		const oldChildrenOrderValid = oldChildrenOrder.length == node.children.VKeys(true).length && oldChildrenOrder.every(id => node.children[id] != null);
 		return (
 			<Column mt={5}>
 				<Row style={{ fontWeight: 'bold' }}>Children order:</Row>
-				{node.childrenOrder.map((childID, index) => {
+				{oldChildrenOrder.map((childID, index) => {
 					const childPath = (node._id ? `${node._id}/` : '') + childID;
 					const child = GetNodeL3(childPath);
 					const childTitle = child ? GetNodeDisplayText(child, childPath, GetNodeForm(child, node)) : '...';
@@ -166,14 +170,14 @@ class ChildrenOrder extends BaseComponent<{mapID: number, node: MapNodeL3}, {}> 
 							/> */}
 							<Button text={<Icon size={16} icon="arrow-up"/> as any} m={2} ml={5} style={{ padding: 3 }} enabled={index > 0}
 								onClick={() => {
-									const newOrder = node.childrenOrder.slice(0);
+									const newOrder = oldChildrenOrder.slice(0);
 									newOrder.RemoveAt(index);
 									newOrder.Insert(index - 1, childID);
 									new UpdateNodeChildrenOrder({ mapID, nodeID: node._id, childrenOrder: newOrder }).Run();
 								}}/>
-							<Button text={<Icon size={16} icon="arrow-down"/> as any} m={2} ml={5} style={{ padding: 3 }} enabled={index < node.childrenOrder.length - 1}
+							<Button text={<Icon size={16} icon="arrow-down"/> as any} m={2} ml={5} style={{ padding: 3 }} enabled={index < oldChildrenOrder.length - 1}
 								onClick={() => {
-									const newOrder = node.childrenOrder.slice(0);
+									const newOrder = oldChildrenOrder.slice(0);
 									newOrder.RemoveAt(index);
 									newOrder.Insert(index + 1, childID);
 									new UpdateNodeChildrenOrder({ mapID, nodeID: node._id, childrenOrder: newOrder }).Run();
@@ -181,6 +185,12 @@ class ChildrenOrder extends BaseComponent<{mapID: number, node: MapNodeL3}, {}> 
 						</Row>
 					);
 				})}
+				{!oldChildrenOrderValid
+					&& <Button mr="auto" text="Fix children-order" onClick={() => {
+						const existingValidIDs = oldChildrenOrder.filter(id => node.children[id] != null);
+						const missingChildIDs = node.children.Pairs(true).filter(pair => !oldChildrenOrder.Contains(pair.keyNum)).map(pair => pair.keyNum);
+						new UpdateNodeChildrenOrder({ mapID, nodeID: node._id, childrenOrder: existingValidIDs.concat(missingChildIDs) }).Run();
+					}}/>}
 			</Column>
 		);
 	}

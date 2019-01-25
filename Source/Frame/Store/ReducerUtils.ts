@@ -1,5 +1,5 @@
 import { combineReducers, ReducersMapObject } from 'redux';
-import { emptyEntities } from 'js-vextensions';
+import { emptyArray_forLoading, emptyArray } from 'js-vextensions';
 import { Action } from '../General/Action';
 
 export function CombineReducers(reducerMap: {[key: string]: (state, action: Action<any>)=>any});
@@ -80,11 +80,6 @@ export function CombineReducers_Advanced(options: Options) {
 }
 
 // use a singleton for empty-obj and empty-array (that way VCache and other shallow-compare systems work with them)
-export const emptyObj = {};
-export const emptyArray = [];
-export const emptyArray_forLoading = []; // this one causes the "..." to show for node-children which are loading
 export function IsSpecialEmptyArray<T>(array: Array<T>) {
 	return array == emptyArray || array == emptyArray_forLoading;
 }
-// use the same empty-entities in js-vextensions
-emptyEntities.VSet({ emptyObj, emptyArray, emptyArray_forLoading });

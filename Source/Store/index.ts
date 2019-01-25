@@ -262,7 +262,7 @@ export function MakeRootReducer(extraReducers?) {
 }
 
 /* function RouterReducer(state = {location: null}, action) {
-	let oldURL = VURL.FromState(state.location);
+	let oldURL = VURL.FromLocationObject(state.location);
 	let newURL = oldURL.Clone();
 	if (action.Is(ACTDebateMapSelect) && action.payload.id == null) {
 		newURL.pathNodes.length = 1;

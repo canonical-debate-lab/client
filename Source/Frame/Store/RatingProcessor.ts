@@ -1,47 +1,45 @@
-import {MapNodeType} from "../../Store/firebase/nodes/@MapNodeType";
-import {MapNode, ClaimForm, MapNodeL2} from "../../Store/firebase/nodes/@MapNode";
-import {GetRating, GetRatings, GetRatingValue, GetRatingSet, GetRatingAverage} from "../../Store/firebase/nodeRatings";
-import {Rating, RatingsSet} from "../../Store/firebase/nodeRatings/@RatingsRoot";
-import {GetRatingTypesForNode, GetNodeForm, GetMainRatingType} from "../../Store/firebase/nodes/$node";
-import {CachedTransform} from "js-vextensions";
-import {emptyObj} from "./ReducerUtils";
-import { ArgumentType } from "Store/firebase/nodes/@MapNodeRevision";
-import { CachedTransform_WithStore } from "Frame/Database/DatabaseHelpers";
+import { CachedTransform_WithStore } from 'Frame/Database/DatabaseHelpers';
+import { ArgumentType } from 'Store/firebase/nodes/@MapNodeRevision';
+import { emptyObj } from 'js-vextensions';
+import { GetRatingAverage, GetRatingSet, GetRatingValue } from '../../Store/firebase/nodeRatings';
+import { Rating, RatingsSet } from '../../Store/firebase/nodeRatings/@RatingsRoot';
+import { GetMainRatingType, GetNodeForm, GetRatingTypesForNode } from '../../Store/firebase/nodes/$node';
+import { ClaimForm, MapNodeL2 } from '../../Store/firebase/nodes/@MapNode';
 
 export function GetArgumentImpactPseudoRating(argument: MapNodeL2, premises: MapNodeL2[], userID: string): Rating {
-	if (premises.Any(a=>a == null)) return null; // must still be loading
+	if (premises.Any(a => a == null)) return null; // must still be loading
 	if (premises.length == 0) return null;
 
-	let premiseProbabilities = premises.map(premise=> {
-		let ratingType = GetRatingTypesForNode(premise)[0].type;
+	const premiseProbabilities = premises.map((premise) => {
+		const ratingType = GetRatingTypesForNode(premise)[0].type;
 		let ratingValue = GetRatingValue(premise._id, ratingType, userID, null);
 		// if user didn't rate this premise, just use the average rating
 		if (ratingValue == null) {
 			ratingValue = GetRatingAverage(premise._id, ratingType, null, 0);
 		}
-		
-		let form = GetNodeForm(premise, argument);
-		let probability = form == ClaimForm.Negation ? 1 - (ratingValue / 100) : (ratingValue / 100);
+
+		const form = GetNodeForm(premise, argument);
+		const probability = form == ClaimForm.Negation ? 1 - (ratingValue / 100) : (ratingValue / 100);
 		return probability;
 	});
 	let combinedTruthOfPremises;
 	if (argument.current.argumentType == ArgumentType.All) {
-		combinedTruthOfPremises = premiseProbabilities.reduce((total, current)=>total * current, 1);
+		combinedTruthOfPremises = premiseProbabilities.reduce((total, current) => total * current, 1);
 	} else if (argument.current.argumentType == ArgumentType.AnyTwo) {
-		let strongest = premiseProbabilities.Max(null, true);
-		let secondStrongest = premiseProbabilities.length > 1 ? premiseProbabilities.Except(strongest).Max(null, true) : 0;
+		const strongest = premiseProbabilities.Max(null, true);
+		const secondStrongest = premiseProbabilities.length > 1 ? premiseProbabilities.Except(strongest).Max(null, true) : 0;
 		combinedTruthOfPremises = strongest * secondStrongest;
 	} else {
 		combinedTruthOfPremises = premiseProbabilities.Max(null, true);
 	}
-	
-	let relevance = GetRatingValue(argument._id, "relevance", userID, null);
+
+	let relevance = GetRatingValue(argument._id, 'relevance', userID, null);
 	// if user didn't rate the relevance, just use the average rating
 	if (relevance == null) {
-		relevance = GetRatingAverage(argument._id, "relevance", null, 0);
+		relevance = GetRatingAverage(argument._id, 'relevance', null, 0);
 	}
-	//let strengthForType = adjustment.Distance(50) / 50;
-	var result = combinedTruthOfPremises * (relevance / 100);
+	// let strengthForType = adjustment.Distance(50) / 50;
+	const result = combinedTruthOfPremises * (relevance / 100);
 
 	return {
 		_key: userID,
@@ -49,8 +47,8 @@ export function GetArgumentImpactPseudoRating(argument: MapNodeL2, premises: Map
 		value: (result * 100).RoundTo(1),
 	};
 }
-//export function GetArgumentStrengthEntries(nodeChildren: MapNode[], users: string[]) {
-/*export function GetArgumentStrengthPseudoRatings(nodeChildren: MapNode[]): Rating[] {
+// export function GetArgumentStrengthEntries(nodeChildren: MapNode[], users: string[]) {
+/* export function GetArgumentStrengthPseudoRatings(nodeChildren: MapNode[]): Rating[] {
 	if (nodeChildren.Any(a=>a == null)) return []; // must still be loading
 	let impactPremise = nodeChildren.First(a=>a.impactPremise != null);
 	let premises = nodeChildren.Except(impactPremise);
@@ -59,40 +57,40 @@ export function GetArgumentImpactPseudoRating(argument: MapNodeL2, premises: Map
 	let usersWhoRated = nodeChildren.SelectMany(child=>GetRatings(child._id, MapNode.GetMainRatingTypes(child)[0]).map(a=>a._key)).Distinct();
 	let result = usersWhoRated.map(userID=>GetArgumentStrengthPseudoRating(nodeChildren, userID));
 	return result;
-}*/
+} */
 
-//export function GetArgumentImpactPseudoRatingSet(argument: MapNodeL2, premises: MapNodeL2[]): {[key: string]: Rating} {
+// export function GetArgumentImpactPseudoRatingSet(argument: MapNodeL2, premises: MapNodeL2[]): {[key: string]: Rating} {
 export function GetArgumentImpactPseudoRatingSet(argument: MapNodeL2, premises: MapNodeL2[]): RatingsSet {
-	if (premises.Any(a=>a == null)) return emptyObj; // must still be loading
+	if (premises.Any(a => a == null)) return emptyObj; // must still be loading
 	if (premises.length == 0) return emptyObj;
 
-	let childForms_map = premises.ToMap((child, index)=>`childForm_${index}`, child=> {
+	const childForms_map = premises.ToMap((child, index) => `childForm_${index}`, (child) => {
 		return GetNodeForm(child, argument);
 	});
-	//let dataUsedInCalculation = {...childRatingSets, ...childForms_map};
-	let dataUsedInCalculation = {...childForms_map};
+	// let dataUsedInCalculation = {...childRatingSets, ...childForms_map};
+	const dataUsedInCalculation = { ...childForms_map };
 	dataUsedInCalculation.argumentType = argument.current.argumentType;
 
-	//let result = CachedTransform("GetArgumentImpactPseudoRatingSet", [argument._id], dataUsedInCalculation, ()=> {
-	let result = CachedTransform_WithStore("GetArgumentImpactPseudoRatingSet", [argument._id], dataUsedInCalculation, ()=> {
-		let argRatingSet = GetRatingSet(argument._id, GetMainRatingType(argument)) || emptyObj;
-		let premiseRatingSets = premises.map(child=> {
+	// let result = CachedTransform("GetArgumentImpactPseudoRatingSet", [argument._id], dataUsedInCalculation, ()=> {
+	const result = CachedTransform_WithStore('GetArgumentImpactPseudoRatingSet', [argument._id], dataUsedInCalculation, () => {
+		const argRatingSet = GetRatingSet(argument._id, GetMainRatingType(argument)) || emptyObj;
+		const premiseRatingSets = premises.map((child) => {
 			return GetRatingSet(child._id, GetMainRatingType(child)) || emptyObj;
 		});
 
-		let usersWhoRatedArgOrPremise = {};
-		for (let userID of argRatingSet.VKeys(true)) {
+		const usersWhoRatedArgOrPremise = {};
+		for (const userID of argRatingSet.VKeys(true)) {
 			usersWhoRatedArgOrPremise[userID] = true;
 		}
-		for (let [index, child] of premises.entries()) {
-			let childRatingSet = premiseRatingSets[index];
-			for (let userID of childRatingSet.VKeys(true)) {
+		for (const [index, child] of premises.entries()) {
+			const childRatingSet = premiseRatingSets[index];
+			for (const userID of childRatingSet.VKeys(true)) {
 				usersWhoRatedArgOrPremise[userID] = true;
 			}
 		}
 
-		let result = {} as RatingsSet;
-		for (let userID in usersWhoRatedArgOrPremise) {
+		const result = {} as RatingsSet;
+		for (const userID in usersWhoRatedArgOrPremise) {
 			result[userID] = GetArgumentImpactPseudoRating(argument, premises, userID);
 		}
 		return result;
@@ -100,7 +98,7 @@ export function GetArgumentImpactPseudoRatingSet(argument: MapNodeL2, premises: 
 	return result;
 }
 
-/*export function CalculateArgumentStrength(nodeChildren: MapNode[]) {
+/* export function CalculateArgumentStrength(nodeChildren: MapNode[]) {
 	if (nodeChildren.Any(a=>a == null)) return 0; // must still be loading
 	let impactPremise = nodeChildren.First(a=>a.impactPremise != null);
 	let premises = nodeChildren.Except(impactPremise);
@@ -111,7 +109,7 @@ export function GetArgumentImpactPseudoRatingSet(argument: MapNodeL2, premises: 
 	let combinedProbabilityOfPremises = all
 		? premiseProbabilities.reduce((total, current)=>total * current, 1)
 		: premiseProbabilities.Max(null, true);
-	
+
 	if (impactPremise.impactPremise.thenType == ImpactPremise_ThenType.StrengthenParent || impactPremise.impactPremise.thenType == ImpactPremise_ThenType.WeakenParent) {
 		let averageAdjustment = GetRatingAverage(impactPremise._id, "adjustment", 50);
 		let strengthForType = averageAdjustment.Distance(50) / 50;
@@ -120,4 +118,4 @@ export function GetArgumentImpactPseudoRatingSet(argument: MapNodeL2, premises: 
 		var result = combinedProbabilityOfPremises * (GetRatingAverage(impactPremise._id, "probability", 0) / 100);
 	}
 	return (result * 100).RoundTo(1);
-}*/
+} */

@@ -45,7 +45,7 @@ export function MapViewsReducer(state = new MapViews(), action: Action<any>) {
 			};
 		}
 	}
-	/* if (action.type == LOCATION_CHANGED && VURL.FromState(action.payload).pathNodes[0] == "global") {
+	/* if (action.type == LOCATION_CHANGED && VURL.FromLocationObject(action.payload).pathNodes[0] == "global") {
 		let mapID = 1, rootNode = 1;
 		// if no map-view exists for it yet, create one (by expanding root-node, and changing focus-node/view-offset)
 		if (newState[mapID] == null) {
