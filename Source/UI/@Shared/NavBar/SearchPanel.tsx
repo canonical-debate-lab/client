@@ -167,7 +167,12 @@ export class SearchResultRow extends BaseComponentWithConnector(SearchResultRow_
 			for (const upPath of upPathAttempts) {
 				const nodeID = upPath.split('/').Last().ToInt();
 				const node = await GetAsync(() => GetNodeL2(nodeID));
-				for (const parentID of node.parents.Pairs(true).map(a => a.keyNum)) {
+				if (node == null) {
+					LogWarning(`Could not find node #${nodeID}, as parent of #${upPath.split('/').XFromLast(1)}.`);
+					continue;
+				}
+
+				for (const parentID of (node.parents || {}).Pairs(true).map(a => a.keyNum)) {
 					const newUpPath = `${upPath}/${parentID}`;
 					if (parentID === rootNodeX) {
 						upPathCompletions.push(newUpPath.split('/').Reversed().join('/'));
@@ -185,8 +190,8 @@ export class SearchResultRow extends BaseComponentWithConnector(SearchResultRow_
 			));
 
 			await SleepAsync(100);
-			// if comp gets unmounted, start stopping search
-			if (this.mounted === false) this.StopSearch();
+			// if we have no more up-path-attempts to follow, or comp gets unmounted, start stopping search
+			if (upPathAttempts.length == 0 || this.mounted === false) this.StopSearch();
 			// if search is marked as "starting to stop", actually stop search here by breaking the loop
 			if (State(a => a.main.search.findNode_state) === 'inactive') break;
 		}
