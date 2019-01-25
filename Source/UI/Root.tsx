@@ -36,6 +36,7 @@ import { VDragLayer } from './@Shared/VDragLayer';
 import { DragDropContext } from 'react-dnd';
 import MouseBackend from 'react-dnd-mouse-backend';
 import keycode from 'keycode';
+import { State } from 'Frame/Store/StoreHelpers';
 // import HTML5Backend from "react-dnd-html5-backend";
 // import TouchBackend from "react-dnd-touch-backend";
 const asAny = { Provider } as any;

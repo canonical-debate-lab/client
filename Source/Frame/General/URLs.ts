@@ -1,4 +1,5 @@
 import { VURL, GetCurrentURLString } from 'js-vextensions';
+import { State } from 'Frame/Store/StoreHelpers';
 
 export const rootPages = [
 	'stream', 'chat', 'reputation',

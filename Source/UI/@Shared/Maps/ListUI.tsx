@@ -6,6 +6,7 @@ import { BaseComponent } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { GetNodesL2 } from 'Store/firebase/nodes';
 import { User } from 'Store/firebase/users/@User';
+import { State } from 'Frame/Store/StoreHelpers';
 import { Connect } from '../../../Frame/Database/FirebaseConnect';
 import { GetEntries } from '../../../Frame/General/Enums';
 import Icon from '../../../Frame/ReactComponents/Icon';

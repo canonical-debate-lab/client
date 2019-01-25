@@ -1,26 +1,25 @@
-import {DeleteNode} from "Server/Commands/DeleteNode";
-import {ApplyDBUpdates_Local} from "../../../../Frame/Database/DatabaseHelpers";
-import {FirebaseData} from "../../../../Store/firebase";
-import {MapNodeType} from "../../../../Store/firebase/nodes/@MapNodeType";
-import {AddUpgradeFunc} from "../../Admin";
-import {StopStateDataOverride, UpdateStateDataOverride} from "UI/@Shared/StateOverrides";
-import {State_overrideData_value} from "../../../@Shared/StateOverrides";
+import { DeleteNode } from 'Server/Commands/DeleteNode';
+import { UpdateStateDataOverride } from 'UI/@Shared/StateOverrides';
+import { ApplyDBUpdates_Local, DBPath } from '../../../../Frame/Database/DatabaseHelpers';
+import { FirebaseData } from '../../../../Store/firebase';
+import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
+import { AddUpgradeFunc } from '../../Admin';
 
-let newVersion = 9;
-AddUpgradeFunc(newVersion, async (oldData, markProgress)=> {
+const newVersion = 9;
+AddUpgradeFunc(newVersion, async (oldData, markProgress) => {
 	let data = Clone(oldData) as FirebaseData;
 
 	// [clean up some invalid data in prod db]
 	// ==========
 
 	markProgress(0, -1, 3);
-	for (let {index, value: node} of data.nodes.Props(true)) {
+	for (const { index, value: node } of data.nodes.Props(true)) {
 		await markProgress(1, index, oldData.nodes.Props(true).length);
-		let revision = data.nodeRevisions[node.currentRevision];
+		const revision = data.nodeRevisions[node.currentRevision];
 
 		if (node.type != MapNodeType.Category && node.parents == null && node.children == null) {
 			// delete node
-			let deleteNode = new DeleteNode({nodeID: node._id});
+			const deleteNode = new DeleteNode({ nodeID: node._id });
 			await deleteNode.PreRun();
 			data = ApplyDBUpdates_Local(data, deleteNode.GetDBUpdates());
 		}
@@ -30,28 +29,28 @@ AddUpgradeFunc(newVersion, async (oldData, markProgress)=> {
 	// ==========
 
 	markProgress(0, 0, 3);
-	for (let {index, value: node} of data.nodes.Props(true)) {
+	for (const { index, value: node } of data.nodes.Props(true)) {
 		await markProgress(1, index, oldData.nodes.Props(true).length);
-		let revision = data.nodeRevisions[node.currentRevision];
-		if (revision["impactPremise"]) {
+		const revision = data.nodeRevisions[node.currentRevision];
+		if (revision['impactPremise']) {
 			// move impact-premise children to children of argument (as relevance arguments now)
-			let parentArg = data.nodes[node.parents.VKeys(true)[0]];
-			for (let childID of (node.children || {}).VKeys(true)) {
-				let child = data.nodes[childID];
+			const parentArg = data.nodes[node.parents.VKeys(true)[0]];
+			for (const childID of (node.children || {}).VKeys(true)) {
+				const child = data.nodes[childID];
 				parentArg.children[childID] = node.children[childID];
 				delete node.children[childID];
-				child.parents[parentArg._id] = {_: true};
+				child.parents[parentArg._id] = { _: true };
 				delete child.parents[node._id];
 			}
 
 			// set argument-type to impact-premise's if-type
-			let parentArgRevision = data.nodeRevisions[parentArg.currentRevision];
-			parentArgRevision.argumentType = revision["impactPremise"].ifType;
+			const parentArgRevision = data.nodeRevisions[parentArg.currentRevision];
+			parentArgRevision.argumentType = revision['impactPremise'].ifType;
 
-			UpdateStateDataOverride({[`nodes/${node._id}/children`]: null});
+			UpdateStateDataOverride({ [`firebase/data/${DBPath()}/nodes/${node._id}/children`]: null });
 
 			// delete impact-premise node
-			let deleteNode = new DeleteNode({nodeID: node._id});
+			const deleteNode = new DeleteNode({ nodeID: node._id });
 			await deleteNode.PreRun();
 			data = ApplyDBUpdates_Local(data, deleteNode.GetDBUpdates());
 		}
@@ -61,10 +60,10 @@ AddUpgradeFunc(newVersion, async (oldData, markProgress)=> {
 	// ==========
 
 	markProgress(0, 1);
-	for (let {index, value: revision} of data.nodeRevisions.Props(true)) {
+	for (const { index, value: revision } of data.nodeRevisions.Props(true)) {
 		await markProgress(1, index, oldData.nodeRevisions.Props(true).length);
 		if (revision.titles == null) {
-			revision.titles = {base: ""};
+			revision.titles = { base: '' };
 		}
 	}
 
@@ -72,11 +71,11 @@ AddUpgradeFunc(newVersion, async (oldData, markProgress)=> {
 	// ==========
 
 	markProgress(0, 2);
-	for (let {index, value: node} of data.nodes.Props(true)) {
+	for (const { index, value: node } of data.nodes.Props(true)) {
 		await markProgress(1, index, oldData.nodes.Props(true).length);
 		if (node.type == MapNodeType.Argument) {
-			let children = (node.children || {}).VKeys(true).map(id=>data.nodes[id]);
-			let childClaims = children.filter(a=>a.type == MapNodeType.Claim);
+			const children = (node.children || {}).VKeys(true).map(id => data.nodes[id]);
+			const childClaims = children.filter(a => a.type == MapNodeType.Claim);
 			if (childClaims.length > 1) {
 				node.multiPremiseArgument = true;
 			}

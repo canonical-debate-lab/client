@@ -1,9 +1,9 @@
 import { GetValues } from 'Frame/General/Enums';
-import { SimpleReducer } from 'Store';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { ShowChangesSinceType } from 'Store/main/maps/@MapInfo';
 import { emptyArray } from 'js-vextensions';
+import { SimpleReducer, State } from 'Frame/Store/StoreHelpers';
 import { Action } from '../../../Frame/General/Action';
 import { CombineReducers } from '../../../Frame/Store/ReducerUtils';
 import { GetMap } from '../../firebase/maps';

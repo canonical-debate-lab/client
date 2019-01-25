@@ -1,14 +1,10 @@
-import { SplitStringBySlash_Cached } from 'Frame/Database/StringSplitCache';
-import { Assert, CachedTransform, DeepSet, GetStorageForCachedTransform, GetTreeNodesInObjTree, DeepGet, Timer } from 'js-vextensions';
-import { unWatchEvents, watchEvents } from 'react-redux-firebase/lib/actions/query';
-import { getEventsFromInput } from 'react-redux-firebase/lib/utils';
-import { ShallowChanged } from 'react-vextensions';
-import { StartBufferingActions, StopBufferingActions } from 'Store';
-import { FirebaseData } from 'Store/firebase';
-import { State_overrideData_path } from 'UI/@Shared/StateOverrides';
-import u from 'updeep';
 import firebase from 'firebase';
-import { truncate } from 'fs';
+import { SplitStringBySlash_Cached } from 'Frame/Database/StringSplitCache';
+import { Assert, CachedTransform, DeepGet, DeepSet, GetStorageForCachedTransform, GetTreeNodesInObjTree } from 'js-vextensions';
+import { ShallowChanged } from 'react-vextensions';
+import { FirebaseData } from 'Store/firebase';
+import u from 'updeep';
+import { State, StartBufferingActions, StopBufferingActions } from 'Frame/Store/StoreHelpers';
 import { ClearRequestedPaths, GetRequestedPaths, RequestPath, SetListeners, UnsetListeners } from './FirebaseConnect';
 
 G({ firebase_: firebase }); // doesn't show as R.firebase, fsr
@@ -370,7 +366,6 @@ G({ GetAsync });
 export async function GetAsync<T>(dbGetterFunc: ()=>T, statsLogger?: ({requestedPaths: string})=>void): Promise<T> {
 	Assert(g.inConnectFuncFor == null, 'Cannot run GetAsync() from within a Connect() function.');
 	const firebase = store.firebase;
-	const dbDataLocked = State_overrideData_path == `firestore/data/${DBPath()}`;
 
 	let result;
 
@@ -383,38 +378,33 @@ export async function GetAsync<T>(dbGetterFunc: ()=>T, statsLogger?: ({requested
 		result = dbGetterFunc();
 		const newRequestedPaths = GetRequestedPaths().Except(requestedPathsSoFar.VKeys());
 
-		if (!dbDataLocked) {
-			StartBufferingActions();
+		StartBufferingActions();
 
-			/* unWatchEvents(firebase, store.dispatch, getEventsFromInput(newRequestedPaths)); // do this just to trigger re-get
-			// start watching paths (causes paths to be requested)
-			watchEvents(firebase, store.dispatch, getEventsFromInput(newRequestedPaths)); */
+		/* unWatchEvents(firebase, store.dispatch, getEventsFromInput(newRequestedPaths)); // do this just to trigger re-get
+		// start watching paths (causes paths to be requested)
+		watchEvents(firebase, store.dispatch, getEventsFromInput(newRequestedPaths)); */
 
-			// UnsetListeners(newRequestedPaths, true); // do this just to trigger re-get
-			UnsetListeners(newRequestedPaths);
-			// start watching paths (causes paths to be requested)
-			SetListeners(newRequestedPaths);
+		UnsetListeners(newRequestedPaths); // do this just to trigger re-get
+		// start watching paths (causes paths to be requested)
+		SetListeners(newRequestedPaths);
 
-			StopBufferingActions();
-		}
+		StopBufferingActions();
 
 		for (const path of newRequestedPaths) {
 			requestedPathsSoFar[path] = true;
-			// wait till data is received (assuming we don't have a state-override that's just locking the content of firebase.data anyway)
-			if (!dbDataLocked) {
-				await WaitTillPathDataIsReceived(path);
-				/* let success = await WaitTillPathDataIsReceived(path, 10000);
-				if (success == false) {
-					Assert(false, 'Failed to complete GetAsync() call.');
-				} */
-			}
+			// wait till data is received
+			await WaitTillPathDataIsReceived(path);
+			/* let success = await WaitTillPathDataIsReceived(path, 10000);
+			if (success == false) {
+				Assert(false, 'Failed to complete GetAsync() call.');
+			} */
 		}
 
 		// stop watching paths (since we already got their data)
 		// todo: find correct way of unwatching events; the way below seems to sometimes unwatch while still needed watched
 		// for now, we just never unwatch
 		// unWatchEvents(firebase, store.dispatch, getEventsFromInput(newRequestedPaths));
-	} while (ShallowChanged(requestedPathsSoFar, requestedPathsSoFar_last) && !dbDataLocked);
+	} while (ShallowChanged(requestedPathsSoFar, requestedPathsSoFar_last));
 
 	/* let paths_final = requestedPathsSoFar.VKeys();
 	let paths_data = await Promise.all(paths_final.map(path=>GetDataAsync(path)));

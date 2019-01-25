@@ -1,5 +1,4 @@
 import { ValidateDBData } from 'Server/Command';
-import { StartStateDataOverride, StopStateDataOverride } from 'UI/@Shared/StateOverrides';
 import { E, SleepAsync } from 'js-vextensions';
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
@@ -8,6 +7,8 @@ import { HasAdminPermissions } from 'Store/firebase/userExtras';
 import { Connect } from 'Frame/Database/FirebaseConnect';
 import { Omit } from 'lodash';
 import { SplitStringBySlash_Cached } from 'Frame/Database/StringSplitCache';
+import { StopStateDataOverride, StartStateDataOverride, UpdateStateDataOverride } from 'UI/@Shared/StateOverrides';
+import { State } from 'Frame/Store/StoreHelpers';
 import { DBPath, GetDataAsync, RemoveHelpers, GetData, ConvertDataToValidDBUpdates, ApplyDBUpdates, ApplyDBUpdates_InChunks } from '../../Frame/Database/DatabaseHelpers';
 import { styles } from '../../Frame/UI/GlobalStyles';
 import { FirebaseData } from '../../Store/firebase';
@@ -139,7 +140,10 @@ The old db-root will not be modified.`,
 					onOK: async () => {
 						// const oldData = await GetDataAsync({ inVersionRoot: false }, ...oldVersionPath.split('/')) as FirebaseData;
 						const oldData = await GetVersionRootDataAsync(oldVersionPath);
-						StartStateDataOverride(`firebase/data/${DBPath()}`, oldData);
+
+						// maybe temp; use firebase-data overriding system, so upgrade-funcs can use GetData() and such -- but accessing a local data-store (which can be updated) instead of the "real" remote data
+						StartStateDataOverride(State());
+						UpdateStateDataOverride({ [`firebase/data/${DBPath()}`]: oldData });
 						try {
 							var newData = await upgradeFunc(oldData, markProgress);
 						} finally {

@@ -5,9 +5,11 @@ import { MapInfo } from 'Store/main/maps/@MapInfo';
 import { ShallowChanged } from 'react-vextensions';
 import { MapInfoReducer } from 'Store/main/maps/$map';
 import { Personal } from 'Store/main/personal';
-import { persistReducer } from 'redux-persist';
+import { persistReducer, createTransform } from 'redux-persist';
+import { State, SimpleReducer } from 'Frame/Store/StoreHelpers';
 import storage from 'redux-persist/lib/storage';
-import {MapViews, MapNodeView, MapView} from "./main/mapViews/@MapViews";
+import { omit } from 'lodash';
+import { MapViews, MapNodeView, MapView } from './main/mapViews/@MapViews';
 import { Action } from '../Frame/General/Action';
 import { MapViewsReducer } from './main/mapViews';
 import { RatingUIReducer, RatingUIState } from './main/ratingUI';
@@ -21,7 +23,6 @@ import { globalMapID } from './firebase/nodes/@MapNode';
 import { PersonalReducer, ACTPersonalMapSelect } from './main/personal';
 import { Database, DatabaseReducer } from './main/database';
 import { GetNodeL3 } from './firebase/nodes/$node';
-import { SimpleReducer } from './index';
 import { SearchReducer, SearchStorage } from './main/search';
 
 export enum WeightingType {
@@ -89,9 +90,8 @@ export class ACTSetInitialChildLimit extends Action<{value: number}> {}
 export class ACTSetLastAcknowledgementTime extends Action<{nodeID: number, time: number}> {}
 // export class ACTSetCurrentNodeBeingAdded extends Action<{path: string}> {}
 
-let MainReducer_Real;
-export function MainReducer(state, action) {
-	MainReducer_Real = MainReducer_Real || persistReducer({ key: 'main_key', storage, blacklist: ['notificationMessages', 'currentNodeBeingAdded_path'] }, CombineReducers({
+function CreateMainReducer_Real() {
+	const regularReducer = CombineReducers({
 		page: (state = null, action) => {
 			if (action.Is(ACTSetPage)) return action.payload;
 			return state;
@@ -210,7 +210,28 @@ export function MainReducer(state, action) {
 		initialChildLimit: SimpleReducer(a => a.main.initialChildLimit, 5),
 		showReasonScoreValues: SimpleReducer(a => a.main.showReasonScoreValues, false),
 		weighting: SimpleReducer(a => a.main.weighting, WeightingType.Votes),
-	}));
+	});
+
+	const blacklistPaths = ['notificationMessages', 'currentNodeBeingAdded_path', 'search.findNode_state'];
+	const persistConfig = {
+		key: 'main_key',
+		storage,
+		// blacklist: ["notificationMessages", "currentNodeBeingAdded_path"],
+		transforms: [
+			// use a custom blacklist transform, so that we can blacklist nested paths
+			createTransform((inboundState, key) => {
+				if (blacklistPaths.Contains(key)) return undefined;
+				const blacklistPaths_forKey = blacklistPaths.filter(path => path.startsWith(`${key}.`)).map(path => path.substr(key.length + 1));
+				return blacklistPaths_forKey.length ? omit(inboundState, ...blacklistPaths_forKey) : inboundState;
+			}, null),
+		],
+	};
+	return persistReducer(persistConfig, regularReducer);
+}
+
+let MainReducer_Real;
+export function MainReducer(state, action) {
+	MainReducer_Real = MainReducer_Real || CreateMainReducer_Real();
 	return MainReducer_Real(state, action);
 }
 

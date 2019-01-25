@@ -2,6 +2,7 @@ import { Column, Switch } from 'react-vcomponents';
 import { BaseComponentWithConnector } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { HasAdminPermissions } from 'Store/firebase/userExtras';
+import { State } from 'Frame/Store/StoreHelpers';
 import { Connect } from '../Frame/Database/FirebaseConnect';
 import { GetUserID, GetUserPermissions, GetUsers } from '../Store/firebase/users';
 import SubNavBar, { SubNavBarButton } from './@Shared/SubNavBar';

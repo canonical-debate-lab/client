@@ -6,6 +6,7 @@ import { VMenuStub } from 'react-vmenu';
 import { VMenuItem } from 'react-vmenu/dist/VMenu';
 import { ScrollView } from 'react-vscrollview';
 import { TimelinePlayerUI } from 'UI/@Shared/Maps/MapUI/TimelinePlayerUI';
+import { State } from 'Frame/Store/StoreHelpers';
 import { Connect } from '../../../Frame/Database/FirebaseConnect';
 import { GetDistanceBetweenRectAndPoint } from '../../../Frame/General/Geometry';
 import { inFirefox } from '../../../Frame/General/Others';
@@ -188,6 +189,11 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 		for (let i = 0; i < 30 && this.props.map == null; i++) await SleepAsync(100);
 		const { map } = this.props;
 		if (map == null) return;
+
+		this.StartLoadingScroll();
+	}
+	StartLoadingScroll() {
+		const { map } = this.props;
 
 		/* let playingTimeline = await GetAsync(()=>GetPlayingTimeline(map._id));
 		if (!playingTimeline) { */ // only load-scroll if not playing timeline; timeline gets priority, to focus on its latest-revealed nodes

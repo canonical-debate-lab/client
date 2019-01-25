@@ -8,8 +8,9 @@ import { ShallowChanged } from 'react-vextensions';
 import { firestoreReducer } from 'redux-firestore';
 import { DoesActionSetFirestoreData } from 'Store/firebase';
 import { GetUserID } from 'Store/firebase/users';
+import { State, ActionSet } from 'Frame/Store/StoreHelpers';
 import { GetUser, GetUserPermissions } from '../../Store/firebase/users';
-import { ApplyActionSet, RootState } from '../../Store/index';
+import { RootState } from '../../Store/index';
 
 // Place a selector in Connect() whenever it uses data that:
 // 1) might change during the component's lifetime, and:
@@ -247,7 +248,7 @@ AddDispatchInterceptor((action) => {
 	if (actionTypeBufferedActions[action.type] == null) {
 		setTimeout(() => {
 			// now that wait is over, apply any buffered event-triggers
-			store.dispatch(new ApplyActionSet(actionTypeBufferedActions[action.type]));
+			store.dispatch(new ActionSet(...actionTypeBufferedActions[action.type]));
 
 			actionTypeLastDispatchTimes[action.type] = Date.now();
 			actionTypeBufferedActions[action.type] = null;

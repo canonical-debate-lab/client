@@ -10,7 +10,7 @@ import { GetNodeChildrenL2, GetNodeID } from 'Store/firebase/nodes';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { Map } from '../../Store/firebase/maps/@Map';
-import { ApplyActionSet, RootState } from '../../Store/index';
+import { RootState } from '../../Store/index';
 import { ACTDebateMapSelect, ACTDebateMapSelect_WithData } from '../../Store/main/debates';
 import { ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimelineCurrentStepRevealNodes } from '../../Store/main/maps/$map';
 import { GetNodeView } from '../../Store/main/mapViews';
@@ -21,6 +21,7 @@ import { DBPath, GetDataAsync, ProcessDBData } from '../Database/DatabaseHelpers
 import { Action } from '../General/Action';
 import { GetCurrentURL } from '../General/URLs';
 import { GetCurrentURL_SimplifiedForPageViewTracking, LoadURL } from '../URL/URLManager';
+import { State, ActionSet } from './StoreHelpers';
 
 // use this to intercept dispatches (for debugging)
 /* let oldDispatch = store.dispatch;
@@ -38,7 +39,7 @@ export function PreDispatchAction(action: Action<any>) {
 
 	if (DoesActionSetFirestoreData(action)) {
 		if (action.payload.data) {
-			let path = GetFirestoreDataSetterActionPath(action);
+			const path = GetFirestoreDataSetterActionPath(action);
 			action.payload.data = ProcessDBData(action.payload.data, true, true, SplitStringBySlash_Cached(path).Last());
 		} /* else {
 			// don't add the property to the store, if it is just null anyway (this makes it consistent with how firebase returns the whole db-state)
@@ -186,7 +187,7 @@ export async function PostDispatchAction(action: Action<any>) {
 					actions.push(new ACTMapNodeExpandedSet({ mapID: action.payload.mapID, path: childPath, expanded: true, recursive: false }));
 				}
 			}
-			store.dispatch(new ApplyActionSet(actions));
+			store.dispatch(new ActionSet(...actions));
 		}
 		// if we're expanding an argument-node, make sure any untouched relevance-arguments start expanded
 		/* else if (node.type == MapNodeType.Argument) {

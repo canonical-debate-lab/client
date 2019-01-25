@@ -18,11 +18,7 @@ import "./Frame/UI/CodeMirrorConfig";
 import "./Frame/General/Profiling";
 
 import ReactDOM from "react-dom";
-import {Store} from "redux";
-import {RootState} from "./Store/index";
-import {FirebaseApp} from "./Frame/Database/DatabaseHelpers";
-import {GetCurrentURL} from "./Frame/General/URLs";
-import {VURL} from "js-vextensions";
+import {VURL, GetCurrentURLString} from "js-vextensions";
 import Raven from "raven-js";
 //import Promise from "bluebird";
 
@@ -48,7 +44,8 @@ G({React, Promise: PromiseWrapper}); */
 // G({ReactPerf});
 
 declare global { export var startURL: VURL; }
-g.startURL = GetCurrentURL(true);
+// g.startURL = GetCurrentURL(true);
+g.startURL = VURL.Parse(GetCurrentURLString());
 
 // always compile-time
 declare global { var ENV_COMPILE_TIME: string; }

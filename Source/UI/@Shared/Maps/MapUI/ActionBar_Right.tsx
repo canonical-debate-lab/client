@@ -1,13 +1,12 @@
 import { Connect } from 'Frame/Database/FirebaseConnect';
 import { Pre, Row, Select } from 'react-vcomponents';
 import { BaseComponentWithConnector } from 'react-vextensions';
-import { ACTSet } from 'Store';
 import { ShowChangesSinceType } from 'Store/main/maps/@MapInfo';
 import { ShareDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Right/ShareDropDown';
+import { State, ACTSet, ActionSet } from 'Frame/Store/StoreHelpers';
 import { GetEntries } from '../../../../Frame/General/Enums';
 import { colors } from '../../../../Frame/UI/GlobalStyles';
 import { Map } from '../../../../Store/firebase/maps/@Map';
-import { ApplyActionSet } from '../../../../Store/index';
 import { WeightingType } from '../../../../Store/main';
 import { LayoutDropDown } from './ActionBar_Right/LayoutDropDown';
 
@@ -42,10 +41,10 @@ export class ActionBar_Right extends BaseComponentWithConnector(connector, {}) {
 						<Pre>Show changes since: </Pre>
 						<Select options={changesSince_options} value={`${showChangesSince_type}_${showChangesSince_visitOffset}`} onChange={(val) => {
 							const parts = val.split('_');
-							store.dispatch(new ApplyActionSet([
+							store.dispatch(new ActionSet(
 								new ACTSet(`main/maps/${map._id}/showChangesSince_type`, parseInt(parts[0])),
 								new ACTSet(`main/maps/${map._id}/showChangesSince_visitOffset`, FromJSON(parts[1])),
-							]));
+							));
 						}}/>
 						<Pre ml={5}>Weighting: </Pre>
 						<Select options={GetEntries(WeightingType, name => ({ ReasonScore: 'Reason score' })[name] || name)} value={weighting} onChange={(val) => {

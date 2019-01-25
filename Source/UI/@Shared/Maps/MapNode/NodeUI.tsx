@@ -7,6 +7,7 @@ import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHold
 import { CachedTransform, E, Timer, emptyArray_forLoading, emptyArray } from 'js-vextensions';
 import { Column } from 'react-vcomponents';
 import { BaseComponentWithConnector, GetInnerComp, RenderSource, ShallowChanged, ShallowEquals } from 'react-vextensions';
+import { State } from 'Frame/Store/StoreHelpers';
 import { SlicePath } from '../../../../Frame/Database/DatabaseHelpers';
 import { Connect } from '../../../../Frame/Database/FirebaseConnect';
 import { NotifyNodeViewed } from '../../../../Server/Commands/NotifyNodeViewed';

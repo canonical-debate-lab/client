@@ -1,7 +1,7 @@
 import { Connect } from 'Frame/Database/FirebaseConnect';
 import { Button, CheckBox, Column, DropDown, DropDownContent, DropDownTrigger, Pre, RowLR, Spinner } from 'react-vcomponents';
 import { BaseComponentWithConnector } from 'react-vextensions';
-import { ACTSet } from '../../../../../Store/index';
+import { State, ACTSet } from 'Frame/Store/StoreHelpers';
 import { ACTSetInitialChildLimit } from '../../../../../Store/main';
 
 const connector = (state, {}: {}) => ({

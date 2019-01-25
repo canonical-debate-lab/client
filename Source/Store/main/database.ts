@@ -1,4 +1,5 @@
 import { Vector2i } from 'js-vextensions';
+import { State } from 'Frame/Store/StoreHelpers';
 import { GetImages } from '../firebase/images';
 import { GetTerms } from '../firebase/terms';
 import { Action } from '../../Frame/General/Action';

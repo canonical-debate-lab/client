@@ -1,19 +1,26 @@
 import { CollectionReference, Query } from '@firebase/firestore-types';
-import { DBPath } from 'Frame/Database/DatabaseHelpers';
+import { DBPath, GetAsync } from 'Frame/Database/DatabaseHelpers';
 import { Connect } from 'Frame/Database/FirebaseConnect';
 import Moment from 'moment';
-import { Button, Column, Row, TextInput } from 'react-vcomponents';
-import { BaseComponentWithConnector } from 'react-vextensions';
+import { Button, Column, Row, TextInput, Pre } from 'react-vcomponents';
+import { BaseComponentWithConnector, FindReact } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { GetSearchTerms, GetSearchTerms_Advanced } from 'Server/Commands/AddNodeRevision';
-import { ACTSet } from 'Store';
 import { GetNodeRevision } from 'Store/firebase/nodeRevisions';
 import { AsNodeL3, GetNodeDisplayText, GetNodeL2, GetAllNodeRevisionTitles } from 'Store/firebase/nodes/$node';
 import { GetNodeColor, MapNodeType_Info } from 'Store/firebase/nodes/@MapNodeType';
 import { GetUser } from 'Store/firebase/users';
 import { InfoButton } from 'Frame/ReactComponents/InfoButton';
 import keycode from 'keycode';
+import { State, ACTSet, ActionSet } from 'Frame/Store/StoreHelpers';
+import { SleepAsync, Vector2i } from 'js-vextensions';
+import { ACTMapViewMerge } from 'Store/main/mapViews/$mapView';
+import { GetOpenMapID } from 'Store/main';
+import { MapView, MapNodeView } from 'Store/main/mapViews/@MapViews';
+import { RootNodeViews } from 'Store/main/mapViews/$mapView/rootNodeViews/@RootNodeViews';
+import { GetRootNodeID } from 'Store/firebase/maps';
 import { NodeUI_Menu_Stub } from '../Maps/MapNode/NodeUI_Menu';
+import { UpdateFocusNodeAndViewOffset, MapUI } from '../Maps/MapUI';
 
 const columnWidths = [0.68, 0.2, 0.12];
 
@@ -129,12 +136,69 @@ const SearchResultRow_connector = (state, { nodeID }: {nodeID: number, index: nu
 	return {
 		node,
 		creator: node ? GetUser(node.creator) : null,
+
+		mapID: GetOpenMapID(),
+		rootNodeID: GetRootNodeID(GetOpenMapID()),
+
+		findNode_state: State(a => a.main.search.findNode_state),
+		findNode_node: State(a => a.main.search.findNode_node),
+		findNode_resultPaths: State(a => a.main.search.findNode_resultPaths),
+		findNode_currentSearchDepth: State(a => a.main.search.findNode_currentSearchDepth),
 	};
 };
 @Connect(SearchResultRow_connector)
 export class SearchResultRow extends BaseComponentWithConnector(SearchResultRow_connector, {}) {
+	ComponentWillReceiveProps(props) {
+		const { nodeID, rootNodeID, findNode_state, findNode_node } = props;
+		if (findNode_node === nodeID) {
+			if (findNode_state === 'activating') {
+				store.dispatch(new ACTSet(a => a.main.search.findNode_state, 'active'));
+				this.StartFindingPathsFromXToY(rootNodeID, nodeID);
+			}
+		}
+	}
+	async StartFindingPathsFromXToY(rootNodeX: number, targetNodeY: number) {
+		const searchDepth = 100;
+
+		const upPathCompletions = [];
+		let upPathAttempts = [`${targetNodeY}`];
+		for (let depth = 0; depth < searchDepth; depth++) {
+			const newUpPathAttempts = [];
+			for (const upPath of upPathAttempts) {
+				const nodeID = upPath.split('/').Last().ToInt();
+				const node = await GetAsync(() => GetNodeL2(nodeID));
+				for (const parentID of node.parents.Pairs(true).map(a => a.keyNum)) {
+					const newUpPath = `${upPath}/${parentID}`;
+					if (parentID === rootNodeX) {
+						upPathCompletions.push(newUpPath.split('/').Reversed().join('/'));
+					} else {
+						newUpPathAttempts.push(newUpPath);
+					}
+				}
+			}
+			upPathAttempts = newUpPathAttempts;
+
+			// if (depth === 0 || upPathCompletions.length !== State(a => a.main.search.findNode_resultPaths).length) {
+			store.dispatch(new ActionSet(
+				new ACTSet(a => a.main.search.findNode_resultPaths, upPathCompletions.slice()),
+				new ACTSet(a => a.main.search.findNode_currentSearchDepth, depth + 1),
+			));
+
+			await SleepAsync(100);
+			// if comp gets unmounted, start stopping search
+			if (this.mounted === false) this.StopSearch();
+			// if search is marked as "starting to stop", actually stop search here by breaking the loop
+			if (State(a => a.main.search.findNode_state) === 'inactive') break;
+		}
+
+		this.StopSearch();
+	}
+	StopSearch() {
+		store.dispatch(new ACTSet(a => a.main.search.findNode_state, 'inactive'));
+	}
+
 	render() {
-		const { nodeID, index, node, creator } = this.props;
+		const { nodeID, index, node, creator, mapID, findNode_state, findNode_node, findNode_resultPaths, findNode_currentSearchDepth } = this.props;
 		// if (node == null) return <Row>Loading... (#{nodeID})</Row>;
 		if (node == null) return <Row></Row>;
 
@@ -145,21 +209,73 @@ export class SearchResultRow extends BaseComponentWithConnector(SearchResultRow_
 		const nodeTypeInfo = MapNodeType_Info.for[node.type];
 
 		return (
-			<Row mt={index == 0 ? 0 : 5} className="cursorSet"
-				style={E(
-					{ padding: 5, background: backgroundColor.css(), borderRadius: 5, cursor: 'pointer', border: '1px solid rgba(0,0,0,.5)' },
-					// selected && { background: backgroundColor.brighten(0.3).alpha(1).css() },
-				)}
-				onMouseDown={(e) => {
-					if (e.button != 2) return false;
-					this.SetState({ menuOpened: true });
-				}}>
-				<span style={{ flex: columnWidths[0] }}>{GetNodeDisplayText(node, path)}</span>
-				<span style={{ flex: columnWidths[1] }}>{creator ? creator.displayName : '...'}</span>
-				<span style={{ flex: columnWidths[2] }}>{Moment(node.createdAt).format('YYYY-MM-DD')}</span>
-				{/* <NodeUI_Menu_Helper {...{map, node}}/> */}
-				<NodeUI_Menu_Stub {...{ node: nodeL3, path: `${node._id}`, inList: true }}/>
-			</Row>
+			<Column>
+				<Row mt={index === 0 ? 0 : 5} className="cursorSet"
+					style={E(
+						{ padding: 5, background: backgroundColor.css(), borderRadius: 5, cursor: 'pointer', border: '1px solid rgba(0,0,0,.5)' },
+						// selected && { background: backgroundColor.brighten(0.3).alpha(1).css() },
+					)}
+					onMouseDown={(e) => {
+						if (e.button !== 2) return false;
+						this.SetState({ menuOpened: true });
+					}}>
+					<span style={{ flex: columnWidths[0] }}>{GetNodeDisplayText(node, path)}</span>
+					<span style={{ flex: columnWidths[1] }}>{creator ? creator.displayName : '...'}</span>
+					<span style={{ flex: columnWidths[2] }}>{Moment(node.createdAt).format('YYYY-MM-DD')}</span>
+					{/* <NodeUI_Menu_Helper {...{map, node}}/> */}
+					<NodeUI_Menu_Stub {...{ node: nodeL3, path: `${node._id}`, inList: true }}/>
+				</Row>
+				{findNode_node === nodeID
+					&& <Row>
+						{findNode_state === 'active' && <Pre>Finding in map... (depth: {findNode_currentSearchDepth})</Pre>}
+						{findNode_state === 'inactive' && <Pre>Locations found in map: (depth: {findNode_currentSearchDepth})</Pre>}
+						<Button ml={5} text="Stop" enabled={findNode_state === 'active'} onClick={() => this.StopSearch()}/>
+						<Button ml={5} text="Close" onClick={() => {
+							store.dispatch(new ActionSet(
+								new ACTSet(a => a.main.search.findNode_state, 'inactive'),
+								new ACTSet(a => a.main.search.findNode_node, null),
+								new ACTSet(a => a.main.search.findNode_resultPaths, []),
+								new ACTSet(a => a.main.search.findNode_currentSearchDepth, 0),
+							));
+						}}/>
+					</Row>}
+				{findNode_node === nodeID && findNode_resultPaths.length > 0
+					&& findNode_resultPaths.map((resultPath) => {
+						return (
+							<Row key={resultPath}>
+								<Button mr="auto" text={`Jump to ${resultPath}`} onClick={() => {
+									JumpToNode(mapID, resultPath);
+								}}/>
+							</Row>
+						);
+					})}
+			</Column>
 		);
+	}
+}
+
+export function JumpToNode(mapID: number, path: string) {
+	const pathNodeIDs = path.split('/').map(ToInt);
+
+	const mapView = new MapView();
+	const rootNodeView = new MapNodeView();
+	mapView.rootNodeViews[pathNodeIDs[0]] = rootNodeView;
+
+	let currentParentView = rootNodeView;
+	for (const childID of pathNodeIDs.Skip(1)) {
+		currentParentView.expanded = true;
+
+		const childView = new MapNodeView();
+		currentParentView.children[childID] = childView;
+		currentParentView = childView;
+	}
+	currentParentView.focused = true;
+	currentParentView.viewOffset = new Vector2i(0, 0);
+
+	store.dispatch(new ACTMapViewMerge({ mapID, mapView }).VSet({ fromURL: true }));
+
+	const mapUI = FindReact(document.querySelector('.MapUI')) as MapUI;
+	if (mapUI) {
+		mapUI.StartLoadingScroll();
 	}
 }

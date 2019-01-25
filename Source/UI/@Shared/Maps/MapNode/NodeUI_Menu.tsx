@@ -7,8 +7,9 @@ import { LinkNode_HighLevel, LinkNode_HighLevel_GetCommandError } from 'Server/C
 import { SetNodeIsMultiPremiseArgument } from 'Server/Commands/SetNodeIsMultiPremiseArgument';
 import { UnlinkNode } from 'Server/Commands/UnlinkNode';
 import { GetParentNodeID, HolderType } from 'Store/firebase/nodes';
-import { ACTSetLastAcknowledgementTime, GetCopiedNodePath } from 'Store/main';
+import { ACTSetLastAcknowledgementTime, GetCopiedNodePath, GetOpenMapID } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
+import { State, ACTSet, ActionSet } from 'Frame/Store/StoreHelpers';
 import { SlicePath } from '../../../../Frame/Database/DatabaseHelpers';
 import { Connect } from '../../../../Frame/Database/FirebaseConnect';
 import { styles } from '../../../../Frame/UI/GlobalStyles';
@@ -154,7 +155,7 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 					&& nodeChildren.every(a => a != null) && nodeChildren.filter(a => a.type == MapNodeType.Claim).length == 1 && !componentBox
 					&& <VMenuItem text="Convert to single-premise" style={styles.vMenuItem}
 						onClick={async (e) => {
-							if (e.button != 0) return;
+							if (e.button !== 0) return;
 
 							await new SetNodeIsMultiPremiseArgument({ nodeID: node._id, multiPremiseArgument: false }).Run();
 						}}/>}
@@ -166,6 +167,15 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 								store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: GetNodeID(path), time: Date.now() }));
 							}
 						}}/>}
+				{inList && GetOpenMapID() != null
+					&& <VMenuItem text="Find in map" style={styles.vMenuItem}
+						onClick={(e) => {
+							store.dispatch(new ActionSet(
+								new ACTSet(a => a.main.search.findNode_state, 'activating'),
+								new ACTSet(a => a.main.search.findNode_node, node._id),
+								new ACTSet(a => a.main.search.findNode_resultPaths, []),
+							));
+						}}/>}
 				{!inList && !componentBox
 					&& <VMenuItem text={copiedNode ? <span>Cut <span style={{ fontSize: 10, opacity: 0.7 }}>(right-click to clear)</span></span> as any : 'Cut'}
 						enabled={ForCut_GetError(userID, node) == null} title={ForCut_GetError(userID, node)}
@@ -173,7 +183,8 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 						onClick={(e) => {
 							e.persist();
 							if (e.button == 2) {
-								return void store.dispatch(new ACTNodeCopy({ path: null, asCut: true }));
+								store.dispatch(new ACTNodeCopy({ path: null, asCut: true }));
+								return;
 							}
 
 							/* let pathToCut = path;
