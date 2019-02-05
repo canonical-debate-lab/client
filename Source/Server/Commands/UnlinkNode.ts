@@ -9,6 +9,8 @@ import { MapEdit, UserEdit } from '../CommandMacros';
 @MapEdit
 @UserEdit
 export class UnlinkNode extends Command<{mapID: number, parentID: number, childID: number}, {}> {
+	allowOrphaning = false; // could also be named "asPartOfCut", to be consistent with ForUnlink_GetError parameter
+
 	parent_oldChildrenOrder: number[];
 	async Prepare() {
 		const { parentID, childID } = this.payload;
@@ -21,7 +23,7 @@ export class UnlinkNode extends Command<{mapID: number, parentID: number, childI
 		Assert(parentNodes.length > 1, "Cannot unlink this child, as doing so would orphan it. Try deleting it instead."); */
 		const { mapID, childID } = this.payload;
 		const oldData = await GetAsync(() => GetNodeL2(childID));
-		const earlyError = await GetAsync(() => ForUnlink_GetError(this.userInfo.id, oldData));
+		const earlyError = await GetAsync(() => ForUnlink_GetError(this.userInfo.id, oldData, this.allowOrphaning));
 		Assert(earlyError == null, earlyError);
 	}
 
@@ -32,7 +34,7 @@ export class UnlinkNode extends Command<{mapID: number, parentID: number, childI
 		updates[`nodes/${childID}/.parents/.${parentID}`] = null;
 		updates[`nodes/${parentID}/.children/.${childID}`] = null;
 		if (this.parent_oldChildrenOrder) {
-			updates[`nodes/${parentID}/.childrenOrder`] = this.parent_oldChildrenOrder.Except(childID);
+			updates[`nodes/${parentID}/.childrenOrder`] = this.parent_oldChildrenOrder.Except(childID).IfEmptyThen(null);
 		}
 		return updates;
 	}

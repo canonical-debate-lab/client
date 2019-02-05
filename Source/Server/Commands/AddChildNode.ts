@@ -3,11 +3,11 @@ import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { Assert } from 'js-vextensions';
 import { AssertValidate } from 'Server/Server';
 import { GetNode } from 'Store/firebase/nodes';
+import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { GetDataAsync, GetAsync } from '../../Frame/Database/DatabaseHelpers';
 import { ChildEntry, MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { Command, MergeDBUpdates } from '../Command';
 import { AddNode } from './AddNode';
-import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 
 type Payload = {mapID: number, parentID: number, node: MapNode, revision: MapNodeRevision, link?: ChildEntry, asMapRoot?: boolean};
 
@@ -28,7 +28,7 @@ export class AddChildNode extends Command<Payload, {nodeID: number, revisionID: 
 	async Prepare() {
 		const { mapID, parentID, node, revision, link, asMapRoot } = this.payload;
 
-		const node_withParents = node.Extended(parentID ? { parents: { [parentID]: true } } : {});
+		const node_withParents = node.Extended(parentID ? { parents: { [parentID]: { _: true } } } : {});
 		this.sub_addNode = new AddNode({ mapID, node: node_withParents, revision }).MarkAsSubcommand();
 		this.sub_addNode.VSet({ lastNodeID_addAmount: this.lastNodeID_addAmount, lastNodeRevisionID_addAmount: this.lastNodeRevisionID_addAmount });
 		this.sub_addNode.Validate_Early();

@@ -86,7 +86,7 @@ export class DeleteNode extends Command<{mapID?: number, nodeID: number, withCon
 			// let parent_childrenOrder = this.oldParentID__childrenOrder[parentID];
 			const parent_childrenOrder = this.oldParentChildrenOrders[index];
 			if (parent_childrenOrder) {
-				updates[`nodes/${parentID}/.childrenOrder`] = parent_childrenOrder.Except(nodeID);
+				updates[`nodes/${parentID}/.childrenOrder`] = parent_childrenOrder.Except(nodeID).IfEmptyThen(null);
 			}
 		}
 

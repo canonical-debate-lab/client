@@ -102,6 +102,7 @@ export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: nu
 				await this.sub_deleteOldParent.Prepare();
 			} else {
 				this.sub_unlinkFromOldParent = new UnlinkNode({ mapID, parentID: oldParentID, childID: nodeID }).MarkAsSubcommand();
+				this.sub_unlinkFromOldParent.allowOrphaning = true; // allow "orphaning" of nodeID, since we're going to reparent it simultaneously -- using the sub_linkToNewParent subcommand
 				this.sub_unlinkFromOldParent.Validate_Early();
 				await this.sub_unlinkFromOldParent.Prepare();
 			}
