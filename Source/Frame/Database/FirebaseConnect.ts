@@ -35,6 +35,21 @@ import { RootState } from '../../Store/index';
 	}
 } */
 
+// This is used, for now, when you want to use a number of GetAsync() calls in a row, but don't want this slowing down the UI by having all UI components run their selectors every time.
+// Calling freeze before the set of calls, and unfreeze afterward, should usually be fine, since any data those Connect() functions wanted would already have been retrieved.
+// (only edge-case is when a ui-triggered retrieval was already in progress, but only finished while our focused call-set was running)
+export let connectCompsFrozen = false;
+export function FreezeConnectComps() {
+	connectCompsFrozen = true;
+}
+export function UnfreezeConnectComps(triggerStoreChange = true) {
+	connectCompsFrozen = false;
+	// trigger store-change, so that frozen-comps that would have updated based on changes while frozen, can now do so
+	if (triggerStoreChange) {
+		store.dispatch({ type: 'UnfreezeConnectComps' });
+	}
+}
+
 G({ FirebaseConnect: Connect }); // make global, for firebase-forum
 // if you're sending in a connect-func rather than a connect-func-wrapper, then you need to make it have at least one argument (to mark it as such)
 export function Connect<T, P>(innerMapStateToPropsFunc: (state: RootState, props: P)=>any);
@@ -48,6 +63,9 @@ export function Connect<T, P>(funcOrFuncGetter) {
 
 	function mapStateToProps_wrapper(state: RootState, props: P) {
 		const s = this;
+		if (connectCompsFrozen && s.lastResult) {
+			return s.lastResult;
+		}
 		g.inConnectFuncFor = s.WrappedComponent;
 
 		// if (ShouldLog(a=>a.check_callStackDepths)) {

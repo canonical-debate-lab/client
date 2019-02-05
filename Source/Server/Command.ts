@@ -2,6 +2,7 @@ import { FirebaseData } from 'Store/firebase';
 import { GetUserID } from 'Store/firebase/users';
 import u from 'updeep';
 import { State } from 'Frame/Store/StoreHelpers';
+import { FreezeConnectComps, UnfreezeConnectComps } from 'Frame/Database/FirebaseConnect';
 import { ApplyDBUpdates, ApplyDBUpdates_Local, DBPath, RemoveHelpers } from '../Frame/Database/DatabaseHelpers';
 import { AssertValidate } from './Server';
 
@@ -15,7 +16,7 @@ async function WaitTillCurrentCommandFinishes() {
 		currentCommandRun_listeners.push({ resolve, reject });
 	});
 }
-function OnCurrentCommandFinished() {
+function NotifyListenersThatCurrentCommandFinished() {
 	const currentCommandRun_listeners_copy = currentCommandRun_listeners;
 	currentCommandRun_listeners = null;
 	for (const listener of currentCommandRun_listeners_copy) {
@@ -73,6 +74,7 @@ export abstract class Command<Payload, ReturnData> {
 		MaybeLog(a => a.commands, l => l('Running command. @type:', this.constructor.name, ' @payload(', this.payload, ')'));
 
 		try {
+			FreezeConnectComps();
 			await this.PreRun();
 
 			const dbUpdates = this.GetDBUpdates();
@@ -84,7 +86,11 @@ export abstract class Command<Payload, ReturnData> {
 			// MaybeLog(a=>a.commands, ()=>`Finishing command. @type:${this.constructor.name} @payload(${ToJSON(this.payload)}) @dbUpdates(${ToJSON(dbUpdates)})`);
 			MaybeLog(a => a.commands, l => l('Finishing command. @type:', this.constructor.name, ' @command(', this, ') @dbUpdates(', dbUpdates, ')'));
 		} finally {
-			OnCurrentCommandFinished();
+			const areOtherCommandsBuffered = currentCommandRun_listeners.length > 0;
+			NotifyListenersThatCurrentCommandFinished();
+			if (!areOtherCommandsBuffered) {
+				UnfreezeConnectComps();
+			}
 		}
 
 		// later on (once set up on server), this will send the data back to the client, rather than return it

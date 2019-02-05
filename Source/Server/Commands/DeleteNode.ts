@@ -3,6 +3,7 @@ import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { Assert, ToInt } from 'js-vextensions';
 import { AssertValidate } from 'Server/Server';
+import { FreezeConnectComps, UnfreezeConnectComps } from 'Frame/Database/FirebaseConnect';
 import { GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
 import { GetMaps } from '../../Store/firebase/maps';
 import { GetNodeRevisions } from '../../Store/firebase/nodeRevisions';
@@ -30,7 +31,7 @@ export class DeleteNode extends Command<{mapID?: number, nodeID: number, withCon
 
 	// as subcommand
 	asPartOfMapDelete = false;
-	childrenBeingDeleted = [] as number[];
+	childrenToIgnore = [] as number[];
 
 	sub_deleteContainerArgument: DeleteNode;
 
@@ -41,6 +42,7 @@ export class DeleteNode extends Command<{mapID?: number, nodeID: number, withCon
 	mapIDs: number[];
 	async Prepare() {
 		const { mapID, nodeID, withContainerArgument } = this.payload;
+
 		this.oldData = await GetAsync_Raw(() => GetNodeL2(nodeID));
 		this.oldRevisions = await GetAsync(() => GetNodeRevisions(nodeID));
 
@@ -52,17 +54,17 @@ export class DeleteNode extends Command<{mapID?: number, nodeID: number, withCon
 
 		if (withContainerArgument) {
 			this.sub_deleteContainerArgument = new DeleteNode({ mapID, nodeID: withContainerArgument }).MarkAsSubcommand();
-			this.sub_deleteContainerArgument.childrenBeingDeleted = [nodeID];
+			this.sub_deleteContainerArgument.childrenToIgnore = [nodeID];
 			this.sub_deleteContainerArgument.Validate_Early();
 			await this.sub_deleteContainerArgument.Prepare();
 		}
 	}
 	async Validate() {
-		const { asPartOfMapDelete, childrenBeingDeleted } = this;
+		const { asPartOfMapDelete, childrenToIgnore } = this;
 		/* Assert((this.oldData.parents || {}).VKeys(true).length <= 1, "Cannot delete this child, as it has more than one parent. Try unlinking it instead.");
 		let normalChildCount = (this.oldData.children || {}).VKeys(true).length;
 		Assert(normalChildCount == 0, "Cannot delete this node until all its (non-impact-premise) children have been unlinked or deleted."); */
-		const earlyError = await GetAsync(() => ForDelete_GetError(this.userInfo.id, this.oldData, this.asSubcommand && { asPartOfMapDelete, childrenBeingDeleted }));
+		const earlyError = await GetAsync(() => ForDelete_GetError(this.userInfo.id, this.oldData, this.asSubcommand && { asPartOfMapDelete, childrenToIgnore }));
 		Assert(earlyError == null, earlyError);
 		if (this.sub_deleteContainerArgument) await this.sub_deleteContainerArgument.Validate();
 	}

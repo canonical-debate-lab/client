@@ -140,3 +140,15 @@ export function StopBufferingActions() {
 	bufferedActions = null;
 	store.dispatch(new ActionSet(...oldBufferedActions));
 }
+
+/* export let uiConnectRefreshCalls: ((targetThis, rootState, props)=>any)[];
+export function StartBufferingUIConnectRefreshes() {
+	uiConnectRefreshCalls = [];
+}
+export function StopBufferingUIConnectRefreshes() {
+	const oldUIConnectRefreshCalls = uiConnectRefreshCalls;
+	uiConnectRefreshCalls = null;
+	for (let refreshCall of oldUIConnectRefreshCalls) {
+		// todo
+	}
+} */

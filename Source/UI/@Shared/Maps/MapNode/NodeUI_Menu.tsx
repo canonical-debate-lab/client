@@ -380,7 +380,7 @@ class DeleteContainerArgument_MenuItem extends BaseComponent<SharedProps, {}> {
 		const argumentPath = SlicePath(path, 1);
 		const argument = GetNodeL3(argumentPath);
 		const argumentText = GetNodeDisplayText(argument, argumentPath);
-		const forDelete_error = ForDelete_GetError(GetUserID(), argument, { childrenBeingDeleted: [node._id] });
+		const forDelete_error = ForDelete_GetError(GetUserID(), argument, { childrenToIgnore: [node._id] });
 		if (!IsUserCreatorOrMod('me', argument)) return <div/>;
 
 		const canDeleteBaseClaim = IsUserCreatorOrMod(GetUserID(), node);
