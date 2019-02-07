@@ -36,8 +36,7 @@ import { RootState } from '../../Store/index';
 } */
 
 // This is used, for now, when you want to use a number of GetAsync() calls in a row, but don't want this slowing down the UI by having all UI components run their selectors every time.
-// Calling freeze before the set of calls, and unfreeze afterward, should usually be fine, since any data those Connect() functions wanted would already have been retrieved.
-// (only edge-case is when a ui-triggered retrieval was already in progress, but only finished while our focused call-set was running)
+// Calling freeze before the set of calls will delay the connect/ui updates until unfreeze is called. (used primarily for the more-efficient running of Command instances locally)
 export let connectCompsFrozen = false;
 export function FreezeConnectComps() {
 	connectCompsFrozen = true;
