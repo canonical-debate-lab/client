@@ -29,6 +29,7 @@ export class Map {
 	timelines: {[key: number]: boolean};
 }
 export const Map_namePattern = '^[a-zA-Z0-9 ,\'"%:.?\\-()\\/]+$';
+// export const Map_namePattern = '^\\S.*$'; // must start with non-whitespace // todo: probably switch to a more lax pattern like this, eg. so works for other languages
 AddSchema({
 	properties: {
 		name: { type: 'string', pattern: Map_namePattern },

@@ -89,7 +89,7 @@ function MaybeLog(shouldLogFunc: (logTypes: LogTypes)=>boolean, loggerFunc: any)
 // export type LogFunc = LogFunc_Full | LogFunc_Min;
 export type LogFunc_Full = (options: LogOptions, ...messageSegments: any[])=>any;
 export type LogFunc_Min = (...messageSegments: any[])=>any;
-export var onLogFuncs = [] as LogFunc_Full[];
+export const onLogFuncs = [] as LogFunc_Full[];
 
 type LogOptions = {appendStackTrace?: boolean, logLater?: boolean};
 declare global {
