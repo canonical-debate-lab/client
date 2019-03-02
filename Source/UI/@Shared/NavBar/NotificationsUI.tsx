@@ -1,4 +1,3 @@
-import { Global } from 'Frame/General/Others';
 import { Button, Column, Div } from 'react-vcomponents';
 import { AddGlobalStyle, BaseComponent } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';

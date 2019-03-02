@@ -1,6 +1,6 @@
-import { GetUserPermissions, GetUserID } from '../users';
+import { GetUserPermissionGroups, GetUserID } from '../users';
 
-export default class UserExtraInfo {
+export class UserExtraInfo {
 	constructor(initialData: Partial<UserExtraInfo>) {
 		this.Extend(initialData);
 	}

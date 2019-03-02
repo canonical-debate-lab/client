@@ -1,5 +1,4 @@
-import { SimpleReducer } from 'Frame/Store/StoreHelpers';
-import { CombineReducers } from '../../Frame/Store/ReducerUtils';
+import { CombineReducers, SimpleReducer } from 'Utils/FrameworkOverrides';
 
 export class SearchStorage {
 	queryStr: string;

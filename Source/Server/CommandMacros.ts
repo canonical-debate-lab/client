@@ -1,4 +1,4 @@
-import { GetDataAsync } from 'Frame/Database/DatabaseHelpers';
+import {GetDataAsync} from 'Utils/FrameworkOverrides';
 import { MergeDBUpdates } from './Command';
 
 export function MapEdit(target: Function) {

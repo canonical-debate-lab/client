@@ -1,15 +1,14 @@
 import katex from 'katex';
 import { VURL, CachedTransform } from 'js-vextensions';
+import { SplitStringBySlash_Cached, SlicePath } from 'Utils/FrameworkOverrides';
+import { GetValues } from 'js-vextensions';
 import { GetImage } from '../images';
 import { MapNode, MapNodeL2, ClaimForm, ChildEntry, ClaimType, MapNodeL3, Polarity } from './@MapNode';
 import { RatingType } from '../nodeRatings/@RatingType';
 import { MapNodeType } from './@MapNodeType';
 import { GetParentNode, IsNodeSubnode, GetNode, GetParentNodeL2, GetNodeChildrenL2, GetNodeChildren, GetNodeID, HolderType, ForNewLink_GetError, ForLink_GetError } from '../nodes';
-import { GetValues } from '../../../Frame/General/Enums';
 import { PermissionGroupSet } from '../userExtras/@UserExtraInfo';
 import { ImageType, GetNiceNameForImageType } from '../images/@Image';
-import { SplitStringBySlash_Cached } from '../../../Frame/Database/StringSplitCache';
-import { SlicePath } from '../../../Frame/Database/DatabaseHelpers';
 import { MapNodeRevision, TitlesMap, TitlesMap_baseKeys } from './@MapNodeRevision';
 import { GetNodeRevision } from '../nodeRevisions';
 

@@ -5,8 +5,8 @@ import { MapNodeL2, MapNodeL3 } from 'Store/firebase/nodes/@MapNode';
 import { GetNodeColor } from 'Store/firebase/nodes/@MapNodeType';
 import { GetNodeDisplayText, IsPremiseOfSinglePremiseArgument } from 'Store/firebase/nodes/$node';
 import { Row } from 'react-vcomponents';
-import { Connect } from 'Frame/Database/FirebaseConnect';
 import { GetParentNode, GetParentNodeL3 } from 'Store/firebase/nodes';
+import { Connect } from 'Utils/FrameworkOverrides';
 
 type DragLayerProps = {
 	// intrinsic

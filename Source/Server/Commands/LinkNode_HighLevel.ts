@@ -1,10 +1,9 @@
-import { GetAsync } from 'Frame/Database/DatabaseHelpers';
-import { MapEdit } from 'Server/CommandMacros';
 import { GetNode, GetHolderType, ForNewLink_GetError } from 'Store/firebase/nodes';
 import { Assert, E } from 'js-vextensions';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
-import { GetUserPermissions, GetUserID } from 'Store/firebase/users';
+import { GetUserPermissionGroups, GetUserID } from 'Store/firebase/users';
+import {GetAsync} from 'Utils/FrameworkOverrides';
 import { ClaimForm, MapNode, Polarity } from './../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from './../../Store/firebase/nodes/@MapNodeType';
 import { Command, MergeDBUpdates } from './../Command';
@@ -22,7 +21,7 @@ type Payload = {
 
 export function LinkNode_HighLevel_GetCommandError(command: LinkNode_HighLevel) {
 	const { mapID, newParentID, nodeID, newForm, newPolarity } = command.payload;
-	const permissions = GetUserPermissions('me');
+	const permissions = GetUserPermissionGroups('me');
 	const node = GetNode(nodeID);
 	if (node == null) return 'Node data not found.';
 	const newParent = GetNode(newParentID);

@@ -1,10 +1,10 @@
 import { CachedTransform } from 'js-vextensions';
 import { User } from 'Store/firebase/users/@User';
-import { presetBackgrounds } from 'Frame/UI/PresetBackgrounds';
-import { GetData } from '../../Frame/Database/DatabaseHelpers';
+import { presetBackgrounds } from 'Utils/UI/PresetBackgrounds';
+import { GetData } from 'Utils/FrameworkOverrides';
 import { GetAuth, IsAuthValid } from '../firebase';
 import { AccessLevel } from './nodes/@MapNode';
-import UserExtraInfo, { PermissionGroupSet } from './userExtras/@UserExtraInfo';
+import { UserExtraInfo, PermissionGroupSet } from './userExtras/@UserExtraInfo';
 
 /* export function GetAuth(state: RootState) {
 	return state.firebase.auth;
@@ -37,14 +37,14 @@ export function GetUserJoinDate(userID: string): number {
 	if (userID == null) return null;
 	return GetData('userExtras', userID, '.joinDate');
 }
-export function GetUserPermissions(userID: string | 'me'): PermissionGroupSet {
+export function GetUserPermissionGroups(userID: string | 'me'): PermissionGroupSet {
 	if (userID === 'me') userID = GetUserID();
 	if (userID == null) return null;
 	return GetData('userExtras', userID, '.permissionGroups');
 }
 export function GetUserAccessLevel(userID: string | 'me') {
 	if (userID === 'me') userID = GetUserID();
-	const groups = GetUserPermissions(userID);
+	const groups = GetUserPermissionGroups(userID);
 	if (groups == null) return AccessLevel.Basic;
 
 	if (groups.admin) return AccessLevel.Admin;

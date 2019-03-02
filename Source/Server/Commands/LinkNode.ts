@@ -1,7 +1,7 @@
-import { GetAsync } from 'Frame/Database/DatabaseHelpers';
 import { MapEdit } from 'Server/CommandMacros';
 import { GetNode } from 'Store/firebase/nodes';
 import { Assert, E } from 'js-vextensions';
+import {GetAsync} from 'Utils/FrameworkOverrides';
 import { ClaimForm, MapNode, Polarity } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
 import { Command } from '../Command';

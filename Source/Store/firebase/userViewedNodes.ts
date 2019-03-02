@@ -1,4 +1,4 @@
-import { GetData, GetData_Options } from '../../Frame/Database/DatabaseHelpers';
+import {GetData, GetData_Options} from 'Utils/FrameworkOverrides';
 import { ViewedNodeSet } from './userViewedNodes/@ViewedNodeSet';
 
 export function GetUserViewedNodes(userID: string, options?: GetData_Options) {

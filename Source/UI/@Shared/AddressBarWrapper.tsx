@@ -1,11 +1,9 @@
-import { DoesURLChangeCountAsPageChange } from 'Frame/Store/ActionProcessor';
-import { GetNewURL } from 'Frame/URL/URLManager';
+import { GetNewURL } from 'Utils/URL/URLs';
 import { VURL } from 'js-vextensions';
 import { BaseComponent } from 'react-vextensions';
 import { push, replace } from 'redux-little-router';
-import { Connect } from '../../Frame/Database/FirebaseConnect';
-import { GetCurrentURL } from '../../Frame/General/URLs';
-import { loadingURL } from '../../Frame/URL/URLManager';
+import {Connect, DoesURLChangeCountAsPageChange, GetCurrentURL, MaybeLog} from 'Utils/FrameworkOverrides';
+import { loadingURL } from '../../Utils/URL/URLs';
 
 let lastURL: VURL;
 

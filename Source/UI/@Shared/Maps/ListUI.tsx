@@ -1,16 +1,11 @@
-import { EnumNameToDisplayName } from 'Frame/General/Others';
-import { IsNumberString, emptyArray } from 'js-vextensions';
+import { IsNumberString, emptyArray, GetEntries } from 'js-vextensions';
 import Moment from 'moment';
 import { Button, Column, Div, Pre, Row, Select, TextInput } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { GetNodesL2 } from 'Store/firebase/nodes';
 import { User } from 'Store/firebase/users/@User';
-import { State } from 'Frame/Store/StoreHelpers';
-import { Connect } from '../../../Frame/Database/FirebaseConnect';
-import { GetEntries } from '../../../Frame/General/Enums';
-import Icon from '../../../Frame/ReactComponents/Icon';
-import { InfoButton } from '../../../Frame/ReactComponents/InfoButton';
+import {Connect, State, Icon, InfoButton} from 'Utils/FrameworkOverrides';
 import { Map } from '../../../Store/firebase/maps/@Map';
 import { GetNodeRatingsRoot, GetRatings } from '../../../Store/firebase/nodeRatings';
 import { RatingsRoot } from '../../../Store/firebase/nodeRatings/@RatingsRoot';
@@ -31,6 +26,7 @@ import TagsPanel from '../../@Shared/Maps/MapNode/NodeUI/Panels/TagsPanel';
 import { NodeUI_Menu } from '../../@Shared/Maps/MapNode/NodeUI_Menu';
 import { HistoryPanel } from './MapNode/NodeUI/Panels/HistoryPanel';
 import { MapNodeUI_LeftBox } from './MapNode/NodeUI_LeftBox';
+import { EnumNameToDisplayName } from 'Utils/General/Others';
 
 const columnWidths = [0.68, 0.2, 0.12];
 

@@ -1,7 +1,6 @@
-import { GetAsync } from 'Frame/Database/DatabaseHelpers';
 import { UserEdit } from 'Server/CommandMacros';
 import { Assert } from 'js-vextensions';
-import { GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
+import {GetAsync, GetDataAsync} from 'Utils/FrameworkOverrides';
 import { ForDeleteLayer_GetError } from '../../Store/firebase/layers';
 import { Layer } from '../../Store/firebase/layers/@Layer';
 import { UserMapInfoSet } from '../../Store/firebase/userMapInfo/@UserMapInfo';

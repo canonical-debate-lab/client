@@ -1,23 +1,21 @@
 import { Spinner } from 'react-vcomponents';
-import { Assert } from 'js-vextensions';
+import { Assert, GetEntries } from 'js-vextensions';
 import { BaseComponent } from 'react-vextensions';
-import {Column} from "react-vcomponents";
-import {TextInput} from "react-vcomponents";
-import Moment from "moment";
-import {GetUser} from "../../../Store/firebase/users";
-import {User} from "Store/firebase/users/@User";
-import {Connect} from "../../../Frame/Database/FirebaseConnect";
-import {GetEntries} from "../../../Frame/General/Enums";
-import {Select} from "react-vcomponents";
-import {CheckBox} from "react-vcomponents";
-import {ScrollView} from "react-vscrollview";
-import {Button} from "react-vcomponents";
-import {InfoButton} from "../../../Frame/ReactComponents/InfoButton";
+import { Column } from 'react-vcomponents';
+import { TextInput } from 'react-vcomponents';
+import Moment from 'moment';
+import { User } from 'Store/firebase/users/@User';
+import { Select } from 'react-vcomponents';
+import { CheckBox } from 'react-vcomponents';
+import { ScrollView } from 'react-vscrollview';
+import { Button } from 'react-vcomponents';
+import { Div, Span, Pre, Row, RowLR } from 'react-vcomponents';
+import { GetErrorMessagesUnderElement } from 'js-vextensions';
 import {Image, Image_namePattern, Image_urlPattern, ImageType, GetNiceNameForImageType} from "../../../Store/firebase/images/@Image";
 import SourceChainsEditorUI from "../../@Shared/Maps/MapNode/SourceChainsEditorUI";
-import {Div, Span, Pre, Row, RowLR} from "react-vcomponents";
- import {GetErrorMessagesUnderElement} from "js-vextensions";
-import {Term, TermType, Term_nameFormat, Term_disambiguationFormat} from "../../../Store/firebase/terms/@Term";
+import { GetUser } from '../../../Store/firebase/users';
+import { Term, TermType, Term_nameFormat, Term_disambiguationFormat } from '../../../Store/firebase/terms/@Term';
+import { Connect } from 'Utils/FrameworkOverrides';
 
 type Props = {baseData: Image, creating: boolean, editing: boolean, style?, onChange?: (newData: Image, error: string)=>void}
 	& Partial<{creator: User, variantNumber: number}>;
@@ -44,12 +42,12 @@ export default class ImageDetailsUI extends BaseComponent<Props, {newData: Image
 		const { newData, dataError } = this.state;
 		const Change = _ => this.OnChange();
 
-		const splitAt = 170; let 
-width = 600;
+		const splitAt = 170; const
+			width = 600;
 		return (
 			<Column style={style}>
 				{!creating
-					&& <table className="selectableAC" style={{/* borderCollapse: "separate", borderSpacing: "10px 0"*/}}>
+					&& <table className="selectableAC" style={{/* borderCollapse: "separate", borderSpacing: "10px 0" */}}>
 						<thead>
 							<tr><th>ID</th><th>Creator</th><th>Created at</th></tr>
 						</thead>

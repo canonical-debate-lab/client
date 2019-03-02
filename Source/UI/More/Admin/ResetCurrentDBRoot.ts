@@ -1,14 +1,13 @@
-import { ApplyDBUpdates, ConvertDataToValidDBUpdates } from 'Frame/Database/DatabaseHelpers';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ValidateDBData } from 'Server/Command';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { GetUserID } from 'Store/firebase/users';
-import { DBPath } from '../../../Frame/Database/DatabaseHelpers';
+import { ApplyDBUpdates, DBPath, ConvertDataToValidDBUpdates } from 'Utils/FrameworkOverrides';
 import { FirebaseData } from '../../../Store/firebase';
 import { Map, MapType } from '../../../Store/firebase/maps/@Map';
 import { MapNode } from '../../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../../Store/firebase/nodes/@MapNodeType';
-import UserExtraInfo from '../../../Store/firebase/userExtras/@UserExtraInfo';
+import { UserExtraInfo } from '../../../Store/firebase/userExtras/@UserExtraInfo';
 
 // Note: This is currently not used, and probably doesn`t even work atm.
 

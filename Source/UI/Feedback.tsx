@@ -1,8 +1,7 @@
 import { ProposalsUI } from 'UI/Feedback/ProposalsUI';
 import { Switch } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
-import { State } from 'Frame/Store/StoreHelpers';
-import { Connect } from '../Frame/Database/FirebaseConnect';
+import {State, Connect} from 'Utils/FrameworkOverrides';
 import SubNavBar, { SubNavBarButton } from './@Shared/SubNavBar';
 
 type Props = {} & Partial<{currentSubpage: string}>;

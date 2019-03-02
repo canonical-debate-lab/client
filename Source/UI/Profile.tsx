@@ -1,12 +1,12 @@
 import { BaseComponent } from 'react-vextensions';
 import { Column, Row, Pre, Button, TextInput, Div, CheckBox, Select, ColorPickerBox } from 'react-vcomponents';
-import { Connect } from 'Frame/Database/FirebaseConnect';
 import { GetUser, GetUserID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
 import { UpdateProfile } from 'Server/Commands/UpdateProfile';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
-import { presetBackgrounds } from 'Frame/UI/PresetBackgrounds';
-import { styles } from '../Frame/UI/GlobalStyles';
+import { presetBackgrounds } from 'Utils/UI/PresetBackgrounds';
+import {Connect} from 'Utils/FrameworkOverrides';
+import { styles } from '../Utils/UI/GlobalStyles';
 import { ACTTopRightOpenPanelSet } from '../Store/main';
 
 type Props = {} & Partial<{user: User}>;
@@ -95,7 +95,7 @@ Some of the things this won't clear:
 
 This is usually only done if an error is occuring because of outdated or invalid data.`,
 						onOK: () => {
-							const { ClearLocalData } = require('Frame/Store/CreateStore');
+							const { ClearLocalData } = require('Utils/Store/CreateStore');
 							ClearLocalData(persister);
 							window.location.reload();
 						},

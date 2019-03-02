@@ -1,12 +1,10 @@
-import { CombineReducers_Advanced } from 'Frame/Store/ReducerUtils';
-import { bufferedActions } from 'Frame/Store/StoreHelpers';
 import { LocationDescriptorObject } from 'history';
 import { firebaseStateReducer } from 'react-redux-firebase';
 import { VMenuReducer, VMenuState } from 'react-vmenu';
 import { MessageBoxReducer, MessageBoxState } from 'react-vmessagebox';
 import { firestoreReducer } from 'redux-firestore';
 import { DeepGet, DeepSet } from 'js-vextensions';
-import { HandleError } from '../Frame/General/Errors';
+import { CombineReducers_Advanced, bufferedActions, HandleError } from 'Utils/FrameworkOverrides';
 import { MainReducer, MainState } from './main';
 
 export function InjectReducer(store, { key, reducer }) {

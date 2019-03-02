@@ -1,12 +1,11 @@
-import { Connect } from 'Frame/Database/FirebaseConnect';
-import { E, GetErrorMessagesUnderElement } from 'js-vextensions';
+import { E, GetErrorMessagesUnderElement, GetEntries } from 'js-vextensions';
 import { Column, Pre, Row, Select } from 'react-vcomponents';
 import { BaseComponent, GetInnerComp } from 'react-vextensions';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { HasModPermissions } from 'Store/firebase/userExtras';
 import { GetUserID } from 'Store/firebase/users';
-import { GetEntries } from '../../../../../Frame/General/Enums';
+import {Connect} from 'Utils/FrameworkOverrides';
 import { AddSubnode } from '../../../../../Server/Commands/AddSubnode';
 import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
 import { GetLayers } from '../../../../../Store/firebase/layers';

@@ -66,6 +66,7 @@ module.exports = {
 		"no-restricted-syntax": [0, "ForOfStatement"], // allow for-of loops for now
 		"no-continue": "off",
 		"import/no-useless-path-segments": "off", // disabled because vs-code's auto-import tool doesn't always write paths matching eslint's "fewest segments" criteria
+		"react/display-name": "off", // doesn't handle inline react-render-functions well
 		"class-methods-use-this": "off", // class-methods do not need to "use this" to be valid/useful -- for example: React's componentDidMount
 		"object-property-newline": "off",
 		"no-use-before-define": ["error", { "functions": false, "classes": false }],
@@ -73,6 +74,7 @@ module.exports = {
 		"arrow-body-style": "off",
 		"no-await-in-loop": "off",
 		"func-names": "off",
+		"eqeqeq": "off", // disabled because it's one of the few rules which aren't autofixed, thus clashes with code from vwebapp-framework (which is the base for this project) reappear every time code is copied between them
 	},
 	globals: {
 		ENV: true,

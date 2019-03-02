@@ -1,7 +1,7 @@
 import { Subforum, Post, Thread } from 'firebase-forum';
 import { PermissionGroupSet } from './userExtras/@UserExtraInfo';
 import { MapNode } from './nodes/@MapNode';
-import { GetUserPermissions, GetUserID } from './users';
+import { GetUserPermissionGroups, GetUserID } from './users';
 import { Term } from './terms/@Term';
 import { Image } from './images/@Image';
 import { Map } from './maps/@Map';
@@ -22,11 +22,11 @@ export function HasBasicPermissions(userIDOrPermissions: string | 'me' | Permiss
 	return permissions ? permissions.basic : false; */
 }
 export function HasModPermissions(userIDOrPermissions: string | 'me' | PermissionGroupSet) {
-	const permissions = IsString(userIDOrPermissions) ? GetUserPermissions(userIDOrPermissions) : userIDOrPermissions;
+	const permissions = IsString(userIDOrPermissions) ? GetUserPermissionGroups(userIDOrPermissions) : userIDOrPermissions;
 	return permissions ? permissions.mod : false;
 }
 export function HasAdminPermissions(userIDOrPermissions: string | 'me' | PermissionGroupSet) {
-	const permissions = IsString(userIDOrPermissions) ? GetUserPermissions(userIDOrPermissions) : userIDOrPermissions;
+	const permissions = IsString(userIDOrPermissions) ? GetUserPermissionGroups(userIDOrPermissions) : userIDOrPermissions;
 	return permissions ? permissions.admin : false;
 }
 /** If user is the creator, also requires that they (still) have basic permissions. */

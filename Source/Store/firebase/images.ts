@@ -1,6 +1,5 @@
 import { CachedTransform } from 'js-vextensions';
-import { GetData, GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
-import { Term } from './terms/@Term';
+import {GetData} from 'Utils/FrameworkOverrides';
 import { Image } from './images/@Image';
 
 export function GetImage(id: number) {

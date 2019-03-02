@@ -1,8 +1,8 @@
-import { BaseComponent, SimpleShouldUpdate } from "react-vextensions";
-import VReactMarkdown_Remarkable from "../../Frame/ReactComponents/VReactMarkdown_Remarkable";
-import { styles } from "../../Frame/UI/GlobalStyles";
+import { BaseComponent, SimpleShouldUpdate } from 'react-vextensions';
+import {VReactMarkdown_Remarkable} from 'Utils/FrameworkOverrides';
+import { styles } from '../../Utils/UI/GlobalStyles';
 
-let pageText = `
+const pageText = `
 ### Social media
 
 * Blog: [https://medium.com/canonical-debate-lab](https://medium.com/canonical-debate-lab)
@@ -18,10 +18,10 @@ let pageText = `
 @SimpleShouldUpdate
 export class LinksUI extends BaseComponent<{}, {}> {
 	render() {
-		let {page, match} = this.props;
+		const { page, match } = this.props;
 		return (
 			<article className="selectableAC" style={styles.page}>
-				{/*<VReactMarkdown className="selectable" source={pageText} containerProps={{style: styles.page}}/>*/}
+				{/* <VReactMarkdown className="selectable" source={pageText} containerProps={{style: styles.page}}/> */}
 				<VReactMarkdown_Remarkable source={pageText}/>
 			</article>
 		);

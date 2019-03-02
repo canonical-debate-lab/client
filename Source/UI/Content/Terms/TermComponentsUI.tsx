@@ -2,7 +2,7 @@ import { CachedTransform } from 'js-vextensions';
 import { Button, Column, Div, Pre, Row, TextInput } from 'react-vcomponents';
 import { BaseComponent, RenderSource } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
-import { Connect } from '../../../Frame/Database/FirebaseConnect';
+import {Connect} from 'Utils/FrameworkOverrides';
 import { DeleteTermComponent } from '../../../Server/Commands/DeleteTermComponent';
 import { UpdateTermComponentData } from '../../../Server/Commands/UpdateTermComponentData';
 import { GetTermComponents } from '../../../Store/firebase/termComponents';

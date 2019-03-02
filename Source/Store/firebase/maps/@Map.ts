@@ -1,5 +1,4 @@
-import { DataWrapper } from 'Server/Server';
-import { GetValues_ForSchema } from '../../../Frame/General/Enums';
+import { GetValues_ForSchema } from 'js-vextensions';
 
 export enum MapType {
 	Personal = 10,

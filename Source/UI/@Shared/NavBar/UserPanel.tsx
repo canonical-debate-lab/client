@@ -1,17 +1,14 @@
 import { ApplyBasicStyles, BaseComponent, BasicStyles, SimpleShouldUpdate } from 'react-vextensions';
 import { firebaseConnect, helpers } from 'react-redux-firebase';
 import { Button, Div, Row } from 'react-vcomponents';
-import SocialButton from "react-social-button";
-import {Column} from "react-vcomponents";
-import {E} from "js-vextensions";
-import {ShowMessageBox, BoxController} from "react-vmessagebox";
-import {Link} from "../../../Frame/ReactComponents/Link";
+import SocialButton from 'react-social-button';
+import { Column } from 'react-vcomponents';
+import { E } from 'js-vextensions';
+import { ShowMessageBox, BoxController } from 'react-vmessagebox';
+import { IsAuthValid } from 'Store/firebase';
+import {Connect, State, Link, HandleError} from 'Utils/FrameworkOverrides';
 import {ACTSetPage, ACTTopRightOpenPanelSet} from "../../../Store/main";
-import {IsAuthValid} from "Store/firebase";
-import { State } from 'Frame/Store/StoreHelpers';
-import {GetUserID} from "../../../Store/firebase/users";
-import { HandleError } from '../../../Frame/General/Errors';
-import { Connect } from '../../../Frame/Database/FirebaseConnect';
+import { GetUserID } from '../../../Store/firebase/users';
 
 @Connect(state=>({
 	// authError: pathToJS(state.firebase, "authError"),

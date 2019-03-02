@@ -2,8 +2,7 @@ import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { SetNodeUILocked } from 'UI/@Shared/Maps/MapNode/NodeUI';
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponent, GetInnerComp } from 'react-vextensions';
-import { DBPath, GetUpdates, RemoveHelpers, WaitTillPathDataIsReceived, WaitTillPathDataIsReceiving } from '../../../../../../Frame/Database/DatabaseHelpers';
-import { Connect } from '../../../../../../Frame/Database/FirebaseConnect';
+import {GetUpdates, RemoveHelpers, WaitTillPathDataIsReceived, DBPath, Connect} from 'Utils/FrameworkOverrides';
 import { AddNodeRevision } from '../../../../../../Server/Commands/AddNodeRevision';
 import { UpdateLink } from '../../../../../../Server/Commands/UpdateLink';
 import { Map } from '../../../../../../Store/firebase/maps/@Map';
@@ -11,13 +10,13 @@ import { GetParentNode, GetParentNodeID, GetParentNodeL3, IsNodeSubnode } from '
 import { GetLinkUnderParent } from '../../../../../../Store/firebase/nodes/$node';
 import { MapNodeL3 } from '../../../../../../Store/firebase/nodes/@MapNode';
 import { IsUserCreatorOrMod } from '../../../../../../Store/firebase/userExtras';
-import { GetUser, GetUserID, GetUserPermissions } from '../../../../../../Store/firebase/users';
+import { GetUser, GetUserID, GetUserPermissionGroups } from '../../../../../../Store/firebase/users';
 import { User } from '../../../../../../Store/firebase/users/@User';
 import { NodeDetailsUI } from '../../NodeDetailsUI';
 
 type DetailsPanel_Props = {map?: Map, node: MapNodeL3, path: string} & Partial<{creator: User}>;
 @Connect((state, {node, path}: DetailsPanel_Props)=>({
-	_: GetUserPermissions(GetUserID()),
+	_: GetUserPermissionGroups(GetUserID()),
 	_link: GetLinkUnderParent(node._id, GetParentNode(path)),
 	creator: GetUser(node.creator),
 	}))

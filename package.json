@@ -30,8 +30,8 @@
     "just-deploy:prod": "firebase deploy -P prod",
     "deploy:dev": "better-npm-run deploy:dev",
     "deploy:prod": "better-npm-run deploy:prod",
-	 "deploy:prod-quick": "better-npm-run deploy:prod-quick",
-	 "deploy-db-backup-app": "gcloud app deploy Tools/DBBackupApp/app.yaml Tools/DBBackupApp/cron.yaml",
+    "deploy:prod-quick": "better-npm-run deploy:prod-quick",
+    "deploy-db-backup-app": "gcloud app deploy Tools/DBBackupApp/app.yaml Tools/DBBackupApp/cron.yaml",
     "@build-stats": "node_modules\\.bin\\webpack --config Scripts/Build/WebpackConfig.js --output-file ForStats/Bundle.js --profile --json > BuildStats.json",
     "build-stats": "node_modules\\.bin\\webpack --config Scripts/Build/WebpackConfig.js --output-file ForStats/Bundle.js --profile --json > dist/ForStats/BuildStats.json",
     "tsc-watch": "./node_modules/.bin/tsc-watch.cmd --onSuccess \"node ./Scripts/Build/OnSuccess.js\""
@@ -155,7 +155,7 @@
     "fastdom": "^1.0.6",
     "firebase": "5.5.8",
     "firebase-feedback": "0.0.3",
-	 "firebase-forum": "0.0.3",
+    "firebase-forum": "0.0.3",
     "js-vextensions": "0.0.8",
     "katex": "^0.9.0",
     "keycode": "^2.1.8",
@@ -207,12 +207,12 @@
     "tracekit": "^0.4.4",
     "ua-parser-js": "^0.7.12",
     "updeep": "^1.0.0",
-    "webpack-runtime-require": "^0.3.1"
+    "webpack-runtime-require": "^0.3.1",
+    "vwebapp-framework": "^0.0.1"
   },
   "devDependencies": {
     "@types/chroma-js": "^1.3.3",
-    "@types/firebase": "^2.4.31",
-    "@types/history": "^3.2.2",
+    "@types/history": "4.7.2",
     "@types/jquery": "^2.0.40",
     "@types/react": "^15.0.14",
     "@types/react-ga": "^1.4.7",

@@ -1,5 +1,4 @@
-import { State } from 'Frame/Store/StoreHelpers';
-import { Action } from '../../Frame/General/Action';
+import { Action, State } from 'Utils/FrameworkOverrides';
 
 export class RatingUIState {
 	smoothing = 5;

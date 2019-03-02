@@ -1,7 +1,6 @@
 import { Switch } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
-import { State } from 'Frame/Store/StoreHelpers';
-import { Connect } from '../Frame/Database/FirebaseConnect';
+import {Connect, State} from 'Utils/FrameworkOverrides';
 import SubNavBar, { SubNavBarButton } from './@Shared/SubNavBar';
 import ImagesUI from './Content/ImagesUI';
 import { TermsUI } from './Content/TermsUI';

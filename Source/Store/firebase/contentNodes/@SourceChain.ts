@@ -1,4 +1,5 @@
-import { GetValues_ForSchema } from '../../../Frame/General/Enums';
+import { GetValues_ForSchema } from 'js-vextensions';
+
 // export type SourceChain = { [key: number]: Source; };
 // export type SourceChainI = {[key: number]: Source;};
 // export class SourceChain /*implements SourceChainI*/ {

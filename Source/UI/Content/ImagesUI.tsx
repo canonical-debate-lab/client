@@ -2,15 +2,14 @@ import { Button, Column, Div, Pre, Row, Span } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
-import { RemoveHelpers } from '../../Frame/Database/DatabaseHelpers';
-import { Connect } from '../../Frame/Database/FirebaseConnect';
+import {Connect, RemoveHelpers} from 'Utils/FrameworkOverrides';
 import { DeleteImage } from '../../Server/Commands/DeleteImage';
 import { UpdateImageData, UpdateImageData_allowedPropUpdates } from '../../Server/Commands/UpdateImageData';
 import { GetImages } from '../../Store/firebase/images';
 import { GetNiceNameForImageType, Image } from '../../Store/firebase/images/@Image';
 import { IsUserCreatorOrMod, CanGetBasicPermissions } from '../../Store/firebase/userExtras';
 import { PermissionGroupSet } from '../../Store/firebase/userExtras/@UserExtraInfo';
-import { GetUserID, GetUserPermissions } from '../../Store/firebase/users';
+import { GetUserID, GetUserPermissionGroups } from '../../Store/firebase/users';
 import { ACTImageSelect, GetSelectedImage } from '../../Store/main/database';
 import { ShowSignInPopup } from '../@Shared/NavBar/UserPanel';
 import { ShowAddImageDialog } from './Images/AddImageDialog';
@@ -19,7 +18,7 @@ import ImageDetailsUI from './Images/ImageDetailsUI';
 @Connect(state=> ({
 	images: GetImages(),
 	selectedImage: GetSelectedImage(),
-	permissions: GetUserPermissions(GetUserID()),
+	permissions: GetUserPermissionGroups(GetUserID()),
 	}))
 export default class ImagesUI extends BaseComponent
 		<{} & Partial<{images: Image[], selectedImage: Image, permissions: PermissionGroupSet}>,

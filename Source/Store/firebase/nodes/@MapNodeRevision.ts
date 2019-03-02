@@ -1,8 +1,7 @@
-import { MapNodeType } from './@MapNodeType';
+import { GetValues_ForSchema } from 'js-vextensions';
 import { AccessLevel, ImageAttachment } from './@MapNode';
 import { Equation } from './@Equation';
 import { ContentNode } from '../contentNodes/@ContentNode';
-import { GetValues_ForSchema } from '../../../Frame/General/Enums';
 
 export const TitlesMap_baseKeys = ['base', 'negation', 'yesNoQuestion'];
 export class TitlesMap {

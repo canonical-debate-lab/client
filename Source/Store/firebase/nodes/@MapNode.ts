@@ -1,4 +1,4 @@
-import { GetValues_ForSchema } from '../../../Frame/General/Enums';
+import { GetValues_ForSchema } from 'js-vextensions';
 import { AddAJVExtraCheck, AddSchema } from '../../../Server/Server';
 import { MapNodeRevision } from './@MapNodeRevision';
 import { MapNodeType } from './@MapNodeType';

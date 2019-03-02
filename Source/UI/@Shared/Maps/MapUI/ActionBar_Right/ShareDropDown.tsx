@@ -1,10 +1,8 @@
-import { Connect } from 'Frame/Database/FirebaseConnect';
-import { CopyText } from 'Frame/General/Others';
-import { GetNewURL } from 'Frame/URL/URLManager';
-import { VURL, WaitXThenRun } from 'js-vextensions';
+import { GetNewURL, GetCurrentURL } from 'Utils/URL/URLs';
+import { VURL, WaitXThenRun, CopyText } from 'js-vextensions';
 import { Button, Column, DropDown, DropDownContent, DropDownTrigger, Pre, Row, RowLR, Select, TextInput } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
-import { GetCurrentURL } from '../../../../../Frame/General/URLs';
+import {Connect} from 'Utils/FrameworkOverrides';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { GetMapTimelines } from '../../../../../Store/firebase/timelines';
 import { Timeline } from '../../../../../Store/firebase/timelines/@Timeline';

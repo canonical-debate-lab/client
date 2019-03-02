@@ -1,5 +1,5 @@
 import { WaitTillSchemaAddedThenRun, AssertValidate } from 'Server/Server';
-import { GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
+import {GetDataAsync} from 'Utils/FrameworkOverrides';
 import { User } from '../../Store/firebase/users/@User';
 import { Command } from '../Command';
 import { GetSchemaJSON } from '../Server';

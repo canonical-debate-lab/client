@@ -1,4 +1,3 @@
-import { Connect } from 'Frame/Database/FirebaseConnect';
 import { Row } from 'react-vcomponents';
 import { BaseComponentWithConnector, GetInnerComp } from 'react-vextensions';
 import { GetMarkerPercent_AtPath, GetRatings } from 'Store/firebase/nodeRatings';
@@ -11,6 +10,7 @@ import { ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView/rootNodeView
 import { MapNodeView } from 'Store/main/mapViews/@MapViews';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { emptyArray_forLoading, emptyArray } from 'js-vextensions';
+import {Connect} from 'Utils/FrameworkOverrides';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath } from '../../../../../Store/firebase/nodeRatings';
 import { IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument } from '../../../../../Store/firebase/nodes/$node';

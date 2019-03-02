@@ -1,28 +1,23 @@
-import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
-import { Button } from 'react-vcomponents';
-import { Row } from 'react-vcomponents';
-import {styles} from "../Frame/UI/GlobalStyles";
-import { Column } from 'react-vcomponents';
-import { Connect } from '../Frame/Database/FirebaseConnect';
-import { MapType, Map } from '../Store/firebase/maps/@Map';
-import { GetMaps } from 'Store/firebase/maps';
-import { MapEntryUI } from './@Shared/Maps/MapEntryUI';
-import { GetUserPermissions, GetUserID } from 'Store/firebase/users';
-import { PermissionGroupSet } from '../Store/firebase/userExtras/@UserExtraInfo';
-import { ShowSignInPopup } from './@Shared/NavBar/UserPanel';
-import { ShowAddMapDialog } from './@Shared/Maps/AddMapDialog';
+import { Button, Column, Row } from 'react-vcomponents';
+import { BaseComponentWithConnector } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
-import { GetSelectedDebateMapID, GetSelectedDebateMap } from '../Store/main/debates';
-import { MapUI } from './@Shared/Maps/MapUI';
+import { GetMaps } from 'Store/firebase/maps';
+import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
+import { GetUserID, GetUserPermissionGroups } from 'Store/firebase/users';
 import { GetSelectedPersonalMap } from 'Store/main/personal';
 import { columnWidths } from 'UI/Debates';
-import { Div } from 'react-vcomponents';
-import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
+import {Connect} from 'Utils/FrameworkOverrides';
+import {Map, MapType} from '../Store/firebase/maps/@Map';
+import {PermissionGroupSet} from '../Store/firebase/userExtras/@UserExtraInfo';
+import {ShowAddMapDialog} from './@Shared/Maps/AddMapDialog';
+import {MapEntryUI} from './@Shared/Maps/MapEntryUI';
+import {MapUI} from './@Shared/Maps/MapUI';
+import {ShowSignInPopup} from './@Shared/NavBar/UserPanel';
 
 type Props = {} & Partial<{permissions: PermissionGroupSet, maps: Map[], selectedMap: Map}>;
 
 const connector = (state, {}: {}) => ({
-	permissions: GetUserPermissions(GetUserID()),
+	permissions: GetUserPermissionGroups(GetUserID()),
 	maps: GetMaps().filter(a => a && a.type == MapType.Personal),
 	selectedMap: GetSelectedPersonalMap(),
 });

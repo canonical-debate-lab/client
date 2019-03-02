@@ -1,8 +1,8 @@
-import { BaseComponent, SimpleShouldUpdate } from "react-vextensions";
-import VReactMarkdown from "../../Frame/ReactComponents/VReactMarkdown";
-import { styles } from "../../Frame/UI/GlobalStyles";
+import { BaseComponent, SimpleShouldUpdate } from 'react-vextensions';
+import {VReactMarkdown} from 'Utils/FrameworkOverrides';
+import { styles } from '../../Utils/UI/GlobalStyles';
 
-let pageText = `
+const pageText = `
 A proposal to fix the current state of online discourse through the promotion of fact-based reasoning,
 	and the accumulation of human knowledge, brought to you by the Canonical Debate Lab, a community project of the Democracy Earth Foundation.
 
@@ -18,21 +18,21 @@ We believe that with this tool, we can finally fulfill the promise that was give
 @SimpleShouldUpdate
 export class AboutUI extends BaseComponent<{}, {}> {
 	render() {
-		let {page, match} = this.props;
+		const { page, match } = this.props;
 		return (
 			<article>
 				<VReactMarkdown className="selectable" style={styles.page} source={pageText}
-					/*markdownOptions={{breaks: false}} rendererOptions={{breaks: false}}
+					/* markdownOptions={{breaks: false}} rendererOptions={{breaks: false}}
 					rendererOptions={{
 						components: {
 							br: ()=><span> </span>
 						}
-					}}*/
-					/*renderers={{
+					}} */
+					/* renderers={{
 						Text: props=> {
 							return <span style={{color: "rgba(255,255,255,.7)"}}>{props.literal}</span>;
 						}
-					}}*/
+					}} */
 				/>
 			</article>
 		);

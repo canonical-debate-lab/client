@@ -1,12 +1,11 @@
 import { AsNodeL1, GetFinalPolarity } from 'Store/firebase/nodes/$node';
 import { GetUserAccessLevel, GetUserID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
-import { GetErrorMessagesUnderElement } from 'js-vextensions';
+import { GetErrorMessagesUnderElement, GetEntries } from 'js-vextensions';
 import { CheckBox, Column, Div, Pre, Row, Select, Spinner, TextArea, TextInput } from 'react-vcomponents';
 import { BaseComponent, RenderSource } from 'react-vextensions';
 import { HasAdminPermissions } from 'Store/firebase/userExtras';
-import { Connect } from '../../../../Frame/Database/FirebaseConnect';
-import { GetEntries } from '../../../../Frame/General/Enums';
+import { Connect } from 'Utils/FrameworkOverrides';
 import { AsNodeL2, GetClaimType } from '../../../../Store/firebase/nodes/$node';
 import { AccessLevel, ChildEntry, ClaimForm, ClaimType, MapNode, MapNodeL2, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
 import { ArgumentType, GetArgumentTypeDisplayText, MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../Store/firebase/nodes/@MapNodeRevision';
@@ -234,7 +233,7 @@ class AdvancedOptions extends BaseComponent<Props_Enhanced, {}> {
 					<Pre>Access level: </Pre>
 					<Select options={GetEntries(AccessLevel).filter(a => a.value <= GetUserAccessLevel(GetUserID()))} enabled={enabled}
 						value={newRevisionData.accessLevel || AccessLevel.Basic}
-						//onChange={val => Change(val == AccessLevel.Basic ? delete newRevisionData.accessLevel : newRevisionData.accessLevel = val)}/>
+						// onChange={val => Change(val == AccessLevel.Basic ? delete newRevisionData.accessLevel : newRevisionData.accessLevel = val)}/>
 						onChange={val => Change(newRevisionData.accessLevel = val)}/>
 				</Row>
 			</Column>

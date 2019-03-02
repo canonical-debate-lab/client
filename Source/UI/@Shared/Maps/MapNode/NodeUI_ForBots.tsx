@@ -1,9 +1,7 @@
-import { ACTSet } from 'Frame/Store/StoreHelpers';
 import { Pre, Row } from 'react-vcomponents';
 import { BaseComponent, GetInnerComp } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
-import { Connect } from '../../../../Frame/Database/FirebaseConnect';
-import { Link } from '../../../../Frame/ReactComponents/Link';
+import {Link, ACTSet, Connect} from 'Utils/FrameworkOverrides';
 import { RootState } from '../../../../Store';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetRatings } from '../../../../Store/firebase/nodeRatings';

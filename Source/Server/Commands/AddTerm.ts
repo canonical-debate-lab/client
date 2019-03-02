@@ -1,6 +1,6 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { AssertValidate } from 'Server/Server';
-import { GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
+import {GetDataAsync} from 'Utils/FrameworkOverrides';
 import { Term } from '../../Store/firebase/terms/@Term';
 import { Command } from '../Command';
 

@@ -9,10 +9,8 @@ import { UnlinkNode } from 'Server/Commands/UnlinkNode';
 import { GetParentNodeID, HolderType } from 'Store/firebase/nodes';
 import { ACTSetLastAcknowledgementTime, GetCopiedNodePath, GetOpenMapID } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
-import { State, ACTSet, ActionSet } from 'Frame/Store/StoreHelpers';
-import { SlicePath } from '../../../../Frame/Database/DatabaseHelpers';
-import { Connect } from '../../../../Frame/Database/FirebaseConnect';
-import { styles } from '../../../../Frame/UI/GlobalStyles';
+import { State, Connect, ActionSet, ACTSet, SlicePath } from 'Utils/FrameworkOverrides';
+import { styles } from '../../../../Utils/UI/GlobalStyles';
 import { DeleteNode } from '../../../../Server/Commands/DeleteNode';
 import { RootState } from '../../../../Store';
 import { Map } from '../../../../Store/firebase/maps/@Map';
@@ -22,7 +20,7 @@ import { GetNodeDisplayText, GetNodeL3, GetValidNewChildTypes, IsMultiPremiseArg
 import { ClaimForm, MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
 import { GetMapNodeTypeDisplayName, MapNodeType, MapNodeType_Info } from '../../../../Store/firebase/nodes/@MapNodeType';
 import { CanGetBasicPermissions, IsUserCreatorOrMod } from '../../../../Store/firebase/userExtras';
-import { GetUserID, GetUserPermissions } from '../../../../Store/firebase/users';
+import { GetUserID, GetUserPermissionGroups } from '../../../../Store/firebase/users';
 import { ACTNodeCopy, GetCopiedNode } from '../../../../Store/main';
 import { ShowSignInPopup } from '../../NavBar/UserPanel';
 import { ShowAddChildDialog } from './NodeUI_Menu/AddChildDialog';
@@ -68,7 +66,7 @@ const connector = (_: RootState, { map, node, path, holderType }: Props) => {
 	return {
 		_: (ForUnlink_GetError(GetUserID(), node), ForDelete_GetError(GetUserID(), node)),
 		// userID: GetUserID(), // not needed in Connect(), since permissions already watches its data
-		permissions: GetUserPermissions(GetUserID()),
+		permissions: GetUserPermissionGroups(GetUserID()),
 		parent,
 		// nodeChildren: GetNodeChildrenL3(node, path),
 		nodeChildren: GetNodeChildrenL3(node, path),

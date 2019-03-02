@@ -1,7 +1,7 @@
 import { E } from 'js-vextensions';
 import { BaseComponent } from 'react-vextensions';
-import VReactMarkdown from '../../Frame/ReactComponents/VReactMarkdown';
-import { styles } from '../../Frame/UI/GlobalStyles';
+import {VReactMarkdown} from 'Utils/FrameworkOverrides';
+import { styles } from '../../Utils/UI/GlobalStyles';
 
 const pageText = `
 Welcome to the Canonical Debate website.

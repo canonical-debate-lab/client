@@ -1,5 +1,3 @@
-import { GetAsync, GetUpdates } from 'Frame/Database/DatabaseHelpers';
-import { Connect } from 'Frame/Database/FirebaseConnect';
 import { Button, CheckBox, Column, DropDown, DropDownContent, DropDownTrigger, Row } from 'react-vcomponents';
 import { BaseComponent, GetInnerComp } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
@@ -11,7 +9,8 @@ import { GetUser, GetUserID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
 import { TimelineDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Left/Timeline';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
-import { colors } from '../../../../Frame/UI/GlobalStyles';
+import {GetUpdates, GetAsync, Connect} from 'Utils/FrameworkOverrides';
+import { colors } from '../../../../Utils/UI/GlobalStyles';
 import { DeleteLayer } from '../../../../Server/Commands/DeleteLayer';
 import { DeleteMap } from '../../../../Server/Commands/DeleteMap';
 import { SetLayerAttachedToMap } from '../../../../Server/Commands/SetLayerAttachedToMap';

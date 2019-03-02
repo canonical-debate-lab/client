@@ -1,4 +1,4 @@
-import { Global } from '../../Frame/General/Others';
+import { Global } from 'js-vextensions';
 
 @Global
 export class NotificationMessage {

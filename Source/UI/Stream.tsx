@@ -1,8 +1,8 @@
-import {BaseComponent} from "react-vextensions";
-import {styles} from "../Frame/UI/GlobalStyles";
+import { BaseComponent } from 'react-vextensions';
 import {Div} from "react-vcomponents";
+import {styles} from "../Utils/UI/GlobalStyles";
 
-export default class StreamUI extends BaseComponent<{}, {}> {
+export class StreamUI extends BaseComponent<{}, {}> {
 	render() {
 		return (
 			<Div style={styles.page}>

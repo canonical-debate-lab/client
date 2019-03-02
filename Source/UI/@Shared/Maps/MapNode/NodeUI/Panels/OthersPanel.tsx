@@ -1,15 +1,12 @@
-import { SlicePath } from 'Frame/Database/DatabaseHelpers';
-import Icon from 'Frame/ReactComponents/Icon';
 import Moment from 'moment';
 import { Button, CheckBox, Column, Div, Pre, Row, Select } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { GetParentNodeID, GetParentNodeL3 } from 'Store/firebase/nodes';
 import { GetNodeViewers } from 'Store/firebase/nodeViewers';
-import { GetUser, GetUserID, GetUserPermissions } from 'Store/firebase/users';
-import { Connect } from '../../../../../../Frame/Database/FirebaseConnect';
-import { GetEntries } from '../../../../../../Frame/General/Enums';
-import { InfoButton } from '../../../../../../Frame/ReactComponents/InfoButton';
+import { GetUser, GetUserID, GetUserPermissionGroups } from 'Store/firebase/users';
+import { Icon, InfoButton, SlicePath, Connect } from 'Utils/FrameworkOverrides';
+import { GetEntries } from 'js-vextensions';
 import { CanConvertFromClaimTypeXToY, ChangeClaimType } from '../../../../../../Server/Commands/ChangeClaimType';
 import { ReverseArgumentPolarity } from '../../../../../../Server/Commands/ReverseArgumentPolarity';
 import { UpdateLink } from '../../../../../../Server/Commands/UpdateLink';
@@ -23,7 +20,7 @@ import { IsUserCreatorOrMod } from '../../../../../../Store/firebase/userExtras'
 import { User } from '../../../../../../Store/firebase/users/@User';
 
 const connector = (state, { node }: {map?: Map, node: MapNodeL3, path: string}) => ({
-	_: GetUserPermissions(GetUserID()),
+	_: GetUserPermissionGroups(GetUserID()),
 	creator: GetUser(node.creator),
 	viewers: GetNodeViewers(node._id),
 });

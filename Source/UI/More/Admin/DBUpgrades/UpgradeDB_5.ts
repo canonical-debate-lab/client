@@ -1,10 +1,9 @@
-import {GetDataAsync} from "../../../../Frame/Database/DatabaseHelpers";
-import {AddUpgradeFunc} from "../../Admin";
-import {ContentNode} from "../../../../Store/firebase/contentNodes/@ContentNode";
-import {SourceType, SourceChain, Source} from "Store/firebase/contentNodes/@SourceChain";
-import {FirebaseData} from "../../../../Store/firebase";
+import { SourceType, SourceChain, Source } from 'Store/firebase/contentNodes/@SourceChain';
+import { AddUpgradeFunc } from '../../Admin';
+import { ContentNode } from '../../../../Store/firebase/contentNodes/@ContentNode';
+import { FirebaseData } from '../../../../Store/firebase';
 
-/*let newVersion = 5;
+/* let newVersion = 5;
 AddUpgradeFunc(newVersion, (oldData: FirebaseData)=> {
 	let data = FromJSON(ToJSON(oldData)) as FirebaseData;
 
@@ -34,4 +33,4 @@ AddUpgradeFunc(newVersion, (oldData: FirebaseData)=> {
 	}
 
 	return data;
-});*/
+}); */

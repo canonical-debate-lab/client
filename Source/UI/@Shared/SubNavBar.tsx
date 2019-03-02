@@ -1,13 +1,9 @@
-import { BaseComponent, BaseProps } from 'react-vextensions';
 import { E } from 'js-vextensions';
-import Radium from 'radium';
-import {VURL} from "js-vextensions";
-import {Link} from "../../Frame/ReactComponents/Link";
-import { Connect } from '../../Frame/Database/FirebaseConnect';
-import { ACTSetSubpage } from '../../Store/main';
-import { rootPageDefaultChilds } from 'Frame/General/URLs';
-import { State } from 'Frame/Store/StoreHelpers';
-import { colors } from '../../Frame/UI/GlobalStyles';
+import { BaseComponent } from 'react-vextensions';
+import {Connect, State, Link} from 'Utils/FrameworkOverrides';
+import {ACTSetSubpage} from '../../Store/main';
+import {colors} from '../../Utils/UI/GlobalStyles';
+import { rootPageDefaultChilds } from 'Utils/URL/URLs';
 
 export default class SubNavBar extends BaseComponent<{fullWidth?: boolean}, {}> {
 	render() {

@@ -1,8 +1,7 @@
 import { GetTreeNodesInObjTree } from 'js-vextensions';
 import { ShallowChanged } from 'react-vextensions';
 import u from 'updeep';
-import { SimpleReducer } from 'Frame/Store/StoreHelpers';
-import { Action } from '../../../Frame/General/Action';
+import { Action, SimpleReducer } from 'Utils/FrameworkOverrides';
 import { RootNodeViewsReducer } from './$mapView/rootNodeViews';
 import { MapView } from './@MapViews';
 

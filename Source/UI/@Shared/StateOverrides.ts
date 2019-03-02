@@ -1,6 +1,5 @@
 import u from 'updeep';
-import { State } from 'Frame/Store/StoreHelpers';
-import { RootState } from '../../Store/index';
+import { RootState } from 'Store';
 
 export const State_overrides = {
 	state: null as RootState,

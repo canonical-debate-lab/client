@@ -92,7 +92,7 @@ export function Validate(schemaName: string, data, removeHelpers = true) {
 /** Returns null if the supplied data matches the schema. Else, returns error message. */
 export function Validate_Full(schemaObject: Object, schemaName: string, data, removeHelpers = true) {
 	if (removeHelpers) {
-		const { RemoveHelpers } = require('../Frame/Database/DatabaseHelpers');
+		const { RemoveHelpers } = require('../Utils/Database/DatabaseHelpers');
 		data = RemoveHelpers(Clone(data));
 	}
 

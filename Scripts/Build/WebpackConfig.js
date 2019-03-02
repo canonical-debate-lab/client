@@ -180,6 +180,9 @@ if (USE_TSLOADER) {
 	]})
 }); */
 
+/* const {GetExportSwapperRule} = require("vwebapp-framework/Scripts/ExportSwapperRule");
+webpackConfig.module.rules.push(GetExportSwapperRule()); */
+
 // css loaders
 // ==========
 

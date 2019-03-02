@@ -4,7 +4,7 @@ import { Column, Pre, RowLR, TextInput } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { User } from 'Store/firebase/users/@User';
-import { Connect } from '../../../Frame/Database/FirebaseConnect';
+import {Connect} from 'Utils/FrameworkOverrides';
 import { GetUser } from '../../../Store/firebase/users';
 
 type Props = {baseData: Timeline, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: Timeline, ui: TimelineDetailsUI)=>void}
@@ -28,12 +28,12 @@ export default class TimelineDetailsUI extends BaseComponent<Props, {newData: Ti
 			this.Update();
 		};
 
-		const splitAt = 170; let 
-width = 600;
+		const splitAt = 170; const
+			width = 600;
 		return (
 			<Column style={style}>
 				{!forNew
-					&& <table className="selectableAC" style={{/*borderCollapse: "separate", borderSpacing: "10px 0" */}}>
+					&& <table className="selectableAC" style={{/* borderCollapse: "separate", borderSpacing: "10px 0" */}}>
 						<thead>
 							<tr><th>ID</th><th>Creator</th><th>Created at</th></tr>
 						</thead>

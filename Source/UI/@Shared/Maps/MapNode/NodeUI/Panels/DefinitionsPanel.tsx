@@ -1,10 +1,8 @@
 import { CachedTransform } from 'js-vextensions';
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
-import { Connect } from '../../../../../../Frame/Database/FirebaseConnect';
-import { ParseSegmentsForPatterns } from '../../../../../../Frame/General/RegexHelpers';
-import { GetCurrentURL } from '../../../../../../Frame/General/URLs';
-import { Link } from '../../../../../../Frame/ReactComponents/Link';
+import {GetCurrentURL, Link, Connect} from 'Utils/FrameworkOverrides';
+import { ParseSegmentsForPatterns } from '../../../../../../Utils/General/RegexHelpers';
 import { GetNodeDisplayText } from '../../../../../../Store/firebase/nodes/$node';
 import { MapNode } from '../../../../../../Store/firebase/nodes/@MapNode';
 import { GetTerm, GetTermVariantNumber } from '../../../../../../Store/firebase/terms';
@@ -32,7 +30,7 @@ const termsPlaceholder = [];
 export default class DefinitionsPanel extends BaseComponent
 		<{node: MapNode, path: string, hoverTermID?: number, openTermID?: number, onHoverTerm?: (termID: number)=>void, onClickTerm?: (termID: number)=>void}
 			& Partial<{terms: Term[], terms_variantNumbers: number[], hoverTerm: Term, clickTerm: Term}>,
-		{/* localHoverTerm: Term, localClickTerm: Term*/}> {
+		{/* localHoverTerm: Term, localClickTerm: Term */}> {
 	render() {
 		const { node, path, terms, terms_variantNumbers, hoverTerm, clickTerm, onHoverTerm, onClickTerm } = this.props;
 		// let {localHoverTerm, localClickTerm} = this.state;
@@ -43,9 +41,9 @@ export default class DefinitionsPanel extends BaseComponent
 			<Column style={{ position: 'relative' }}>
 				{/* <div style={{fontSize: 12, whiteSpace: "initial"}}>
 					Proponents of the claim can submit and upvote their definitions of the terms. (thus clarifying their meaning)
-				</div>*/}
-				{/*<Div style={{fontSize: 12, color: "rgba(255, 255, 255, 0.5)"}}>Definitions panel is under development.</Div> */}
-				{/*<Row>
+				</div> */}
+				{/* <Div style={{fontSize: 12, color: "rgba(255, 255, 255, 0.5)"}}>Definitions panel is under development.</Div> */}
+				{/* <Row>
 					<Pre>Terms: </Pre>
 					{terms.map((term, index)=> {
 						return (
@@ -71,7 +69,7 @@ export default class DefinitionsPanel extends BaseComponent
 }
 
 class TermDefinitionPanel extends BaseComponent<{term: Term, termVariantNumber: number}, {}> {
-	/*static contextTypes = {
+	/* static contextTypes = {
 		router: PropTypes.shape({
 			history: PropTypes.shape({
 				push: PropTypes.func.isRequired,
@@ -96,11 +94,11 @@ class TermDefinitionPanel extends BaseComponent<{term: Term, termVariantNumber: 
 					<Row mt={5}>Components:</Row>,
 					<TermComponentsUI term={term} editing={false} inMap={true} style={{ padding: '5px 0' }}/>,
 				].AutoKey()}
-				{/*<Row>Details:</Row>
+				{/* <Row>Details:</Row>
 				<TermDetailsUI baseData={term} creating={false} enabled={/*creatorOrMod*#/ false} style={{padding: 10}}
 					onChange={data=>this.SetState({selectedTerm_newData: data})}/> */}
 				<Link to={showDetailsURL.toString({ domain: false })} onContextMenu={e => e.nativeEvent['passThrough'] = true}>
-					<Button mt={5} text="Show details" /*onClick={e=> {
+					<Button mt={5} text="Show details" /* onClick={e=> {
 						store.dispatch(push());
 						//store.dispatch(new ACTTermSelect({id: term._id}));
 					}} *//>

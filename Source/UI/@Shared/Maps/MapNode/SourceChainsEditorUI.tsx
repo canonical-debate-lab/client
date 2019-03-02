@@ -5,9 +5,8 @@ import { Column } from 'react-vcomponents';
 import { Row } from 'react-vcomponents';
 import { TextInput } from 'react-vcomponents';
 import { Select } from 'react-vcomponents';
-import { GetErrorMessagesUnderElement } from 'js-vextensions';
+import { GetErrorMessagesUnderElement, GetEntries } from 'js-vextensions';
 import { Validate } from 'Server/Server';
-import { GetEntries } from '../../../../Frame/General/Enums';
 import { GetSourceNamePlaceholderText, GetSourceAuthorPlaceholderText } from '../../../../Store/firebase/contentNodes/$contentNode';
 
 type Props = {baseData: SourceChain[], enabled?: boolean, style?, onChange?: (newData: SourceChain[])=>void};

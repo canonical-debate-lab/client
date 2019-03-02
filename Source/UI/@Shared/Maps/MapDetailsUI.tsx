@@ -2,7 +2,7 @@ import { GetErrorMessagesUnderElement } from 'js-vextensions';
 import Moment from 'moment';
 import { CheckBox, Column, Pre, RowLR, Spinner, TextInput } from 'react-vcomponents';
 import { BaseComponentWithConnector } from 'react-vextensions';
-import { Connect } from '../../../Frame/Database/FirebaseConnect';
+import {Connect} from 'Utils/FrameworkOverrides';
 import { Map, Map_namePattern } from '../../../Store/firebase/maps/@Map';
 import { GetUser } from '../../../Store/firebase/users';
 

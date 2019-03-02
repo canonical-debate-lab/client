@@ -1,5 +1,5 @@
 import { UserEdit } from 'Server/CommandMacros';
-import { GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
+import {GetDataAsync} from 'Utils/FrameworkOverrides';
 import { Term } from '../../Store/firebase/terms/@Term';
 import { Command } from '../Command';
 

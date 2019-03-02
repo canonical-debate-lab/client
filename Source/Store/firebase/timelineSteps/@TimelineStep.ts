@@ -1,5 +1,3 @@
-import {GetValues_ForSchema} from "../../../Frame/General/Enums";
-
 export class TimelineStep {
 	constructor(initialData: Partial<TimelineStep>) {
 		this.Extend(initialData);
@@ -13,13 +11,13 @@ export class TimelineStep {
 }
 AddSchema({
 	properties: {
-		timelineID: {type: "number"},
-		title: {type: "string"},
-		message: {type: "string"},
-		nodeReveals: {$ref: "NodeReveal"},
+		timelineID: { type: 'number' },
+		title: { type: 'string' },
+		message: { type: 'string' },
+		nodeReveals: { $ref: 'NodeReveal' },
 	},
-	required: ["timelineID"],
-}, "TimelineStep");
+	required: ['timelineID'],
+}, 'TimelineStep');
 
 export class NodeReveal {
 	path: string;
@@ -27,8 +25,8 @@ export class NodeReveal {
 }
 AddSchema({
 	properties: {
-		path: {type: "string"},
-		revealDepth: {type: "number"},
+		path: { type: 'string' },
+		revealDepth: { type: 'number' },
 	},
-	required: ["path", "revealDepth"],
-}, "NodeReveal");
+	required: ['path', 'revealDepth'],
+}, 'NodeReveal');

@@ -1,8 +1,7 @@
-import { GetAsync } from 'Frame/Database/DatabaseHelpers';
 import { MapEdit, UserEdit } from 'Server/CommandMacros';
 import { GetNode } from 'Store/firebase/nodes';
 import { WrapData, AssertValidate } from 'Server/Server';
-import { GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
+import {GetAsync, GetDataAsync} from 'Utils/FrameworkOverrides';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeRevision, TitlesMap, TitlesMap_baseKeys } from '../../Store/firebase/nodes/@MapNodeRevision';
 import { Command } from '../Command';

@@ -1,24 +1,18 @@
-import {firebaseConnect, helpers} from "react-redux-firebase";
-import {BaseComponent, SimpleShouldUpdate} from "react-vextensions";
-import {DBPath, GetData} from "../../Frame/Database/DatabaseHelpers";
-import {connect} from "react-redux";
-import {MapUI} from "../@Shared/Maps/MapUI";
-import {Debugger, Debugger_Wrap} from "../../Frame/General/Others";
-import {ScrollView} from "react-vscrollview";
-import {RootState} from "../../Store/index";
-import {Map} from "../../Store/firebase/maps/@Map";
-import {Connect} from "../../Frame/Database/FirebaseConnect";
-import {GetMap} from "../../Store/firebase/maps";
+import { BaseComponent } from 'react-vextensions';
+import {Connect} from 'Utils/FrameworkOverrides';
+import {GetMap} from '../../Store/firebase/maps';
+import {Map} from '../../Store/firebase/maps/@Map';
+import {MapUI} from '../@Shared/Maps/MapUI';
 
 type Props = {} & Partial<{map: Map}>;
 @Connect(state=> ({
 	map: GetMap(1),
-}))
+	}))
 export class GlobalMapUI extends BaseComponent<Props, {}> {
 	render() {
-		let {map} = this.props;
+		const { map } = this.props;
 		return (
-			<MapUI map={map} subNavBarWidth={/*104*/ 54}/>
+			<MapUI map={map} subNavBarWidth={/* 104 */ 54}/>
 		);
 	}
 }

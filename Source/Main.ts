@@ -1,51 +1,33 @@
-/* eslint-disable */
-// don't change the order of these imports, as a few rely on other modules being loaded first
-
 // "static" imports
-import "./Frame/General/Start_0";
-import "babel-polyfill";
-import "webpack-runtime-require";
-//import {Require} from "webpack-runtime-require";
-//import "js-vextensions/dist/ClassExtensions";
-import "js-vextensions";
-import "./Frame/General/ClassExtensions/CE_General";
-import "./Frame/General/Start_1";
-import "./Server/Server";
-import "codemirror";
-import "codemirror/addon/scroll/simplescrollbars";
-import "./Frame/UI/CodeMirrorConfig";
-//import ReactPerf from "react-addons-perf";
-import "./Frame/General/Profiling";
+import './Utils/PreRunners/Start_0';
+import 'babel-polyfill';
+import 'webpack-runtime-require';
+// import {Require} from "webpack-runtime-require";
+import 'js-vextensions';
+import './Utils/ClassExtensions/CE_General';
+import './Utils/PreRunners/Start_1';
+import 'codemirror';
+import 'codemirror/addon/scroll/simplescrollbars';
+import './Utils/UI/CodeMirrorConfig';
 
-import ReactDOM from "react-dom";
-import {VURL, GetCurrentURLString} from "js-vextensions";
-import Raven from "raven-js";
-//import Promise from "bluebird";
-
-/* eslint-enable */
+import ReactDOM from 'react-dom';
+// import Promise from "bluebird";
+import { VURL } from 'js-vextensions';
 
 // startup (non-hot)
 // ==========
 
-// G({Promise});
-/* function PromiseWrapper(...args) {
-	//let promise = Promise.apply(this, ...args);
-	let promise = new Promise(...args);
+export const JustBeforeInitLibs_listeners = [];
+export function JustBeforeInitLibs(listener: ()=>any) { JustBeforeInitLibs_listeners.push(listener); }
 
-	//promise._setAsyncGuaranteed(false);
-    //this._bitField = this._bitField | 134217728;
-    promise._bitField = promise._bitField & (~134217728);
-	return promise;
-}
-for (var key in Promise)
-	PromiseWrapper[key] = Promise[key];
-G({React, Promise: PromiseWrapper}); */
+export const JustBeforeUI_listeners = [];
+export function JustBeforeUI(listener: ()=>any) { JustBeforeUI_listeners.push(listener); }
 
-// G({ReactPerf});
+declare const __webpack_require__;
+g.webpackData = __webpack_require__;
 
-declare global { export var startURL: VURL; }
-// g.startURL = GetCurrentURL(true);
-g.startURL = VURL.Parse(GetCurrentURLString());
+const startURL = VURL.Parse(window.location.href);
+declare global { export const startURL: VURL; } G({ startURL });
 
 // always compile-time
 declare global { var ENV_COMPILE_TIME: string; }
@@ -79,49 +61,33 @@ if (startURL.GetQueryVar('dbVersion') && startURL.GetQueryVar('dbVersion') != 'n
 	dbVersion = parseInt(startURL.GetQueryVar('dbVersion'));
 	console.log(`Using dbVersion: ${dbVersion}`);
 }
-G({ version, dbVersion, firebaseConfig }); declare global { var version: string; var dbVersion: number; var firebaseConfig; }
-
-if (PROD && window.location.hostname != 'localhost') { // if localhost, never enable Raven (even if env-override is set to production)
-	Raven.config('https://40c1e4f57e8b4bbeb1e5b0cf11abf9e9@sentry.io/155432', {
-		release: version,
-		environment: ENV,
-	}).install();
-}
-
-// You know what? It's better to just disable this until you specifically want to use it... (causes too many seemingly-false-positives otherwise)
-/* if (devEnv) {
-	// this logs warning if a component doesn't have any props or state change, yet is re-rendered
-	const {whyDidYouUpdate} = require("why-did-you-update");
-	whyDidYouUpdate(React, {
-		exclude: new RegExp(
-			`connect|Connect|Link`
-			+ `|Animate|Animation|Dot|ComposedDataDecorator|Chart|Curve|Route|ReferenceLine|Text` // from recharts
-			+ `|Div` // from ScrollView (probably temp)
-			+ `|Button` // from react-social-button>react-bootstrap
-			+ `|VReactMarkdown`
-		),
-	});
-} */
+export { version, dbVersion, firebaseConfig };
+// G({version, dbVersion, firebaseConfig}); declare global { var version: string, dbVersion: number, firebaseConfig; }
 
 // hot-reloading
 // ==========
 
-/* declare global { let useHotReloading: boolean; }
-g.useHotReloading = false; */
 /* let hotReloading = false;
 G({hotReloading}); declare global { let hotReloading: boolean; } */
-declare global { let hasHotReloaded: boolean; }
-g.hasHotReloaded = false;
+export let hasHotReloaded = false;
 
+// this code is excluded from production bundle
 if (DEV) {
-	if (module.hot) {
+	/* if (window.devToolsExtension)
+		window.devToolsExtension.open(); */
+	if (module['hot']) {
 		// setup hot module replacement
-		module.hot.accept('./Main_Hot', () => {
+		module['hot'].accept('./Main_Hot', () => {
 			hasHotReloaded = true;
 			setTimeout(() => {
 				ReactDOM.unmountComponentAtNode(document.getElementById('root'));
 				LoadHotModules();
 			});
+		});
+		module['hot'].accept('./Store', () => {
+			const { MakeRootReducer } = require('./Store');
+			store.reducer = MakeRootReducer();
+			store.replaceReducer(store.reducer);
 		});
 	}
 }

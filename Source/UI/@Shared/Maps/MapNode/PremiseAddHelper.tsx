@@ -3,7 +3,7 @@ import { Button, Row, TextArea } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { SetNodeUILocked } from 'UI/@Shared/Maps/MapNode/NodeUI';
-import { WaitTillPathDataIsReceived, WaitTillPathDataIsReceiving } from '../../../../Frame/Database/DatabaseHelpers';
+import {WaitTillPathDataIsReceived} from 'Utils/FrameworkOverrides';
 import { AddChildNode } from '../../../../Server/Commands/AddChildNode';
 import { ChildEntry, ClaimForm, MapNode, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
 import { MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../Store/firebase/nodes/@MapNodeRevision';

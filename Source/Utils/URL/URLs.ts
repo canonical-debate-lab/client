@@ -1,11 +1,10 @@
-import { GetAsync } from 'Frame/Database/DatabaseHelpers';
-import { GetShortestPathFromRootToNode } from 'Frame/Store/PathFinder';
-import { ToInt, Vector2i, VURL } from 'js-vextensions';
+import { GetShortestPathFromRootToNode } from 'Utils/Store/PathFinder';
+import { ToInt, Vector2i, VURL, GetCurrentURLString } from 'js-vextensions';
 import { FindReact } from 'react-vextensions';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { ACTMap_PlayingTimelineSet, ACTMap_PlayingTimelineStepSet } from 'Store/main/maps/$map';
 import { AddNotificationMessage } from 'UI/@Shared/NavBar/NotificationsUI';
-import { State, ACTSet } from 'Frame/Store/StoreHelpers';
+import { State, ACTSet, MaybeLog, GetAsync } from 'Utils/FrameworkOverrides';
 import { GetMap } from '../../Store/firebase/maps';
 import { GetNodeDisplayText } from '../../Store/firebase/nodes/$node';
 import { globalMapID, MapNodeL2 } from '../../Store/firebase/nodes/@MapNode';
@@ -19,8 +18,37 @@ import { ACTMapViewMerge } from '../../Store/main/mapViews/$mapView';
 import { MapNodeView, MapView } from '../../Store/main/mapViews/@MapViews';
 import { ACTPersonalMapSelect } from '../../Store/main/personal';
 import { MapUI } from '../../UI/@Shared/Maps/MapUI';
-import { NormalizeURL, rootPageDefaultChilds } from '../General/URLs';
 import { CreateMapViewForPath } from '../Store/PathFinder';
+
+export const rootPages = [
+	'stream', 'chat', 'reputation',
+	'database', 'feedback', 'forum', 'more',
+	'home',
+	'social', 'personal', 'debates', 'global',
+	'search', 'guide', 'profile',
+];
+// a default-child is only used (ie. removed from url) if there are no path-nodes after it
+export const rootPageDefaultChilds = {
+	database: 'users',
+	feedback: 'proposals',
+	more: 'links',
+	home: 'home',
+	global: 'map',
+};
+
+export function GetCurrentURL(fromAddressBar = false) {
+	return fromAddressBar ? VURL.Parse(GetCurrentURLString()) : VURL.FromLocationObject(State('router'));
+}
+export function NormalizeURL(url: VURL) {
+	const result = url.Clone();
+	if (!rootPages.Contains(result.pathNodes[0])) {
+		result.pathNodes.Insert(0, 'home');
+	}
+	if (result.pathNodes[1] == null && rootPageDefaultChilds[result.pathNodes[0]]) {
+		result.pathNodes.Insert(1, rootPageDefaultChilds[result.pathNodes[0]]);
+	}
+	return result;
+}
 
 export function GetCrawlerURLStrForMap(mapID: number) {
 	const map = GetMap(mapID);

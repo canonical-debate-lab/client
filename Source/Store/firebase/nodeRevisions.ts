@@ -1,5 +1,5 @@
-import {CachedTransform} from "js-vextensions";
-import {GetData} from "../../Frame/Database/DatabaseHelpers";
+import { CachedTransform } from 'js-vextensions';
+import {GetData} from 'Utils/FrameworkOverrides';
 import {MapNodeRevision} from "./nodes/@MapNodeRevision";
 
 export function GetNodeRevision(id: number) {
@@ -9,5 +9,5 @@ export function GetNodeRevision(id: number) {
 // todo: make this use an actual query, to improve performance
 export function GetNodeRevisions(nodeID: number): MapNodeRevision[] {
 	const entryMap = GetData({ collection: true }, 'nodeRevisions');
-	return CachedTransform('GetNodeRevisions', [nodeID], entryMap, () => (entryMap ? entryMap.VValues(true).filter(a=>a && a.node == nodeID) : []));
+	return CachedTransform('GetNodeRevisions', [nodeID], entryMap, () => (entryMap ? entryMap.VValues(true).filter(a => a && a.node == nodeID) : []));
 }

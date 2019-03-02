@@ -1,9 +1,6 @@
-import { Vector2i } from 'js-vextensions';
-import { State } from 'Frame/Store/StoreHelpers';
+import {Action, CombineReducers, State} from 'Utils/FrameworkOverrides';
 import { GetImages } from '../firebase/images';
 import { GetTerms } from '../firebase/terms';
-import { Action } from '../../Frame/General/Action';
-import { CombineReducers } from '../../Frame/Store/ReducerUtils';
 import SubpageReducer from './@Shared/$subpage';
 
 export class ACTTermSelect extends Action<{id: number}> {}

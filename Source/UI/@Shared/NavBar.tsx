@@ -1,15 +1,11 @@
-import { GetData } from 'Frame/Database/DatabaseHelpers';
 import { DeepGet, E } from 'js-vextensions';
 import { Button, Div, Row } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ACTDebateMapSelect } from 'Store/main/debates';
 import { ResetCurrentDBRoot } from 'UI/More/Admin/ResetCurrentDBRoot';
-import { State } from 'Frame/Store/StoreHelpers';
-import { Connect } from '../../Frame/Database/FirebaseConnect';
-import { Action } from '../../Frame/General/Action';
-import { Link } from '../../Frame/ReactComponents/Link';
-import { colors } from '../../Frame/UI/GlobalStyles';
+import {dbVersion} from 'Main';
+import { colors } from '../../Utils/UI/GlobalStyles';
 import { ACTSetPage, ACTSetSubpage, ACTTopLeftOpenPanelSet, ACTTopRightOpenPanelSet } from '../../Store/main';
 import { ACTPersonalMapSelect } from '../../Store/main/personal';
 import ChatPanel from './NavBar/ChatPanel';
@@ -19,6 +15,7 @@ import ReputationPanel from './NavBar/ReputationPanel';
 import { SearchPanel } from './NavBar/SearchPanel';
 import StreamPanel from './NavBar/StreamPanel';
 import UserPanel from './NavBar/UserPanel';
+import { Connect, State, Action, Link, GetData } from 'Utils/FrameworkOverrides';
 
 // main
 // ==========

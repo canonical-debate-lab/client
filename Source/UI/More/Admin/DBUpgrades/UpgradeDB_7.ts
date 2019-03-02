@@ -1,12 +1,11 @@
-import {GetDataAsync} from "../../../../Frame/Database/DatabaseHelpers";
+import {SourceType, SourceChain, Source} from "Store/firebase/contentNodes/@SourceChain";
 import {AddUpgradeFunc} from "../../Admin";
 import {ContentNode} from "../../../../Store/firebase/contentNodes/@ContentNode";
-import {SourceType, SourceChain, Source} from "Store/firebase/contentNodes/@SourceChain";
-import {FirebaseData} from "../../../../Store/firebase";
-import {MapNodeRevision} from "../../../../Store/firebase/nodes/@MapNodeRevision";
-import {MapNode, ChildEntry, Polarity} from "../../../../Store/firebase/nodes/@MapNode";
-import {MapNodeType} from "../../../../Store/firebase/nodes/@MapNodeType";
-import {GetTreeNodesInObjTree} from "js-vextensions";
+import { FirebaseData } from '../../../../Store/firebase';
+import { MapNodeRevision } from '../../../../Store/firebase/nodes/@MapNodeRevision';
+import { MapNode, ChildEntry, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
+import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
+import { GetTreeNodesInObjTree } from 'js-vextensions';
 
 /*let newVersion = 7;
 AddUpgradeFunc(newVersion, (oldData: FirebaseData)=> {
@@ -105,4 +104,4 @@ AddUpgradeFunc(newVersion, (oldData: FirebaseData)=> {
 	}
 
 	return data;
-});*/
+}); */

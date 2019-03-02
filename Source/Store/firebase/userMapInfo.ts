@@ -1,4 +1,4 @@
-import { GetData } from '../../Frame/Database/DatabaseHelpers';
+import {GetData} from 'Utils/FrameworkOverrides';
 import { UserMapInfo, LayerStatesMap } from './userMapInfo/@UserMapInfo';
 
 export function GetUserMapInfo(userID: string, mapID: number) {

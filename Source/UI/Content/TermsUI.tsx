@@ -3,15 +3,14 @@ import { Button, Column, Div, Pre, Row, Span } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
-import { RemoveHelpers } from '../../Frame/Database/DatabaseHelpers';
-import { Connect } from '../../Frame/Database/FirebaseConnect';
+import {RemoveHelpers, Connect} from 'Utils/FrameworkOverrides';
 import { DeleteTerm } from '../../Server/Commands/DeleteTerm';
 import { UpdateTermData } from '../../Server/Commands/UpdateTermData';
 import { GetFullNameP, GetTermVariantNumber, GetTerms } from '../../Store/firebase/terms';
 import { Term, TermType } from '../../Store/firebase/terms/@Term';
 import { IsUserCreatorOrMod, CanGetBasicPermissions } from '../../Store/firebase/userExtras';
 import { PermissionGroupSet } from '../../Store/firebase/userExtras/@UserExtraInfo';
-import { GetUserID, GetUserPermissions } from '../../Store/firebase/users';
+import { GetUserID, GetUserPermissionGroups } from '../../Store/firebase/users';
 import { ACTTermSelect, GetSelectedTerm } from '../../Store/main/database';
 import { TermComponentsUI } from '../../UI/Content/Terms/TermComponentsUI';
 import { ShowSignInPopup } from '../@Shared/NavBar/UserPanel';
@@ -22,7 +21,7 @@ type Props = {} & Partial<{terms: Term[], selectedTerm: Term, permissions: Permi
 @Connect(state=> ({
 	terms: GetTerms(),
 	selectedTerm: GetSelectedTerm(),
-	permissions: GetUserPermissions(GetUserID()),
+	permissions: GetUserPermissionGroups(GetUserID()),
 	}))
 export class TermsUI extends BaseComponent<Props, {selectedTerm_newData: Term, selectedTerm_newDataError: string}> {
 	ComponentWillReceiveProps(props) {

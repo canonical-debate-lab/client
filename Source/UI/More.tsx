@@ -2,15 +2,14 @@ import { Column, Switch } from 'react-vcomponents';
 import { BaseComponentWithConnector } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { HasAdminPermissions } from 'Store/firebase/userExtras';
-import { State } from 'Frame/Store/StoreHelpers';
-import { Connect } from '../Frame/Database/FirebaseConnect';
-import { GetUserID, GetUserPermissions, GetUsers } from '../Store/firebase/users';
+import {Connect, State} from 'Utils/FrameworkOverrides';
+import { GetUserID, GetUserPermissionGroups, GetUsers } from '../Store/firebase/users';
 import SubNavBar, { SubNavBarButton } from './@Shared/SubNavBar';
 import { AdminUI } from './More/Admin';
 import { LinksUI } from './More/Links';
 
 const connector = state => ({
-	_: GetUserPermissions(GetUserID()), // just to make sure we've retrieved this data (and re-render when it changes)
+	_: GetUserPermissionGroups(GetUserID()), // just to make sure we've retrieved this data (and re-render when it changes)
 	userCount: (GetUsers() || []).length,
 	currentSubpage: State(a => a.main.more.subpage),
 });

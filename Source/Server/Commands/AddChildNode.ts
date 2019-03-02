@@ -4,7 +4,7 @@ import { Assert } from 'js-vextensions';
 import { AssertValidate } from 'Server/Server';
 import { GetNode } from 'Store/firebase/nodes';
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
-import { GetDataAsync, GetAsync } from '../../Frame/Database/DatabaseHelpers';
+import {GetAsync} from 'Utils/FrameworkOverrides';
 import { ChildEntry, MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { Command, MergeDBUpdates } from '../Command';
 import { AddNode } from './AddNode';

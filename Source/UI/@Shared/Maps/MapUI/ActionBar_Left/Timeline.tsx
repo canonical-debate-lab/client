@@ -1,4 +1,3 @@
-import { Connect } from 'Frame/Database/FirebaseConnect';
 import { BaseComponent } from 'react-vextensions';
 import { GetUserID } from 'Store/firebase/users';
 import { DropDown, DropDownTrigger, DropDownContent, Pre } from 'react-vcomponents';
@@ -10,21 +9,19 @@ import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { ACTMap_SelectedTimelineSet } from 'Store/main/maps/$map';
 import { AddTimelineStep } from 'Server/Commands/AddTimelineStep';
 import { Select } from 'react-vcomponents';
+import { DeleteTimelineStep } from 'Server/Commands/DeleteTimelineStep';
+import { TextInput } from 'react-vcomponents';
 import {TimelineStep} from "../../../../../Store/firebase/timelineSteps/@TimelineStep";
 import {GetMapTimelines, GetTimeline, GetTimelineSteps} from "../../../../../Store/firebase/timelines";
 import {Timeline} from "../../../../../Store/firebase/timelines/@Timeline";
 import {ShowAddTimelineDialog} from "../../../Timelines/AddTimelineDialog";
 import { UpdateTimelineStep } from '../../../../../Server/Commands/UpdateTimelineStep';
-import { GetEntries } from '../../../../../Frame/General/Enums';
-import { RemoveHelpers } from '../../../../../Frame/Database/DatabaseHelpers';
-import { DeleteTimelineStep } from 'Server/Commands/DeleteTimelineStep';
 import { DeleteTimeline } from '../../../../../Server/Commands/DeleteTimeline';
-import { TextInput } from 'react-vcomponents';
 import { IsUserCreatorOrMod, HasModPermissions } from '../../../../../Store/firebase/userExtras';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { ShowEditTimelineStepDialog } from '../../../Timelines/Steps/TimelineStepDetailsUI';
 import { ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, ACTMap_PlayingTimelineSet } from '../../../../../Store/main/maps/$map';
-import { State } from 'Frame/Store/StoreHelpers';
+import { Connect, State } from 'Utils/FrameworkOverrides';
 
 type TimelineDropDownProps = {map: Map} & Partial<{timelines: Timeline[], selectedTimeline: Timeline, selectedTimelineSteps: TimelineStep[]}>;
 @Connect((state, {map}: TimelineDropDownProps)=> {

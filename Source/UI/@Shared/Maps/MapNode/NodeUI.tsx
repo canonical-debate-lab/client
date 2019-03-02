@@ -7,9 +7,8 @@ import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHold
 import { CachedTransform, E, Timer, emptyArray_forLoading, emptyArray } from 'js-vextensions';
 import { Column } from 'react-vcomponents';
 import { BaseComponentWithConnector, GetInnerComp, RenderSource, ShallowChanged, ShallowEquals } from 'react-vextensions';
-import { State } from 'Frame/Store/StoreHelpers';
-import { SlicePath } from '../../../../Frame/Database/DatabaseHelpers';
-import { Connect } from '../../../../Frame/Database/FirebaseConnect';
+import { Connect, State, SlicePath, ShouldLog, MaybeLog } from 'Utils/FrameworkOverrides';
+import { logTypes } from 'Utils/General/Logging';
 import { NotifyNodeViewed } from '../../../../Server/Commands/NotifyNodeViewed';
 import { GetSubnodesInEnabledLayersEnhanced } from '../../../../Store/firebase/layers';
 import { GetNodeChangeType, GetPathsToNodesChangedSinceX } from '../../../../Store/firebase/mapNodeEditTimes';

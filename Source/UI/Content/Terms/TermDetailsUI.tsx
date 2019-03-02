@@ -1,13 +1,11 @@
 import { GetUserID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
-import { GetErrorMessagesUnderElement } from 'js-vextensions';
+import { GetErrorMessagesUnderElement, GetEntries } from 'js-vextensions';
 import Moment from 'moment';
 import { CheckBox, Column, Pre, Row, RowLR, Select, TextInput } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
-import { Connect } from '../../../Frame/Database/FirebaseConnect';
-import { GetEntries } from '../../../Frame/General/Enums';
-import { InfoButton } from '../../../Frame/ReactComponents/InfoButton';
+import { InfoButton, Connect } from 'Utils/FrameworkOverrides';
 import { AddTerm } from '../../../Server/Commands/AddTerm';
 import { TermComponent } from '../../../Store/firebase/termComponents/@TermComponent';
 import { GetTermVariantNumber } from '../../../Store/firebase/terms';

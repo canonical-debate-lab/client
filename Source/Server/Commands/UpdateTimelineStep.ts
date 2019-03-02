@@ -1,5 +1,5 @@
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
-import { GetDataAsync } from '../../Frame/Database/DatabaseHelpers';
+import {GetDataAsync} from 'Utils/FrameworkOverrides';
 import { Command } from '../Command';
 import { UserEdit } from '../CommandMacros';
 import { GetSchemaJSON, WaitTillSchemaAddedThenRun, AssertValidate } from '../Server';

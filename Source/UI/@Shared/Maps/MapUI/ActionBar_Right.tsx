@@ -1,14 +1,13 @@
-import { Connect } from 'Frame/Database/FirebaseConnect';
 import { Pre, Row, Select } from 'react-vcomponents';
 import { BaseComponentWithConnector } from 'react-vextensions';
 import { ShowChangesSinceType } from 'Store/main/maps/@MapInfo';
 import { ShareDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Right/ShareDropDown';
-import { State, ACTSet, ActionSet } from 'Frame/Store/StoreHelpers';
-import { GetEntries } from '../../../../Frame/General/Enums';
-import { colors } from '../../../../Frame/UI/GlobalStyles';
+import {State, Connect, ActionSet, ACTSet} from 'Utils/FrameworkOverrides';
+import { colors } from '../../../../Utils/UI/GlobalStyles';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { WeightingType } from '../../../../Store/main';
 import { LayoutDropDown } from './ActionBar_Right/LayoutDropDown';
+import { GetEntries } from 'js-vextensions';
 
 const changesSince_options = [];
 changesSince_options.push({ name: 'None', value: `${ShowChangesSinceType.None}_null` });

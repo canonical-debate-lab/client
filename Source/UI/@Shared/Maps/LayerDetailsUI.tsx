@@ -4,7 +4,7 @@ import { Column, Pre, RowLR, TextInput } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { User } from 'Store/firebase/users/@User';
-import { Connect } from '../../../Frame/Database/FirebaseConnect';
+import {Connect} from 'Utils/FrameworkOverrides';
 import { GetUser } from '../../../Store/firebase/users';
 
 type Props = {baseData: Layer, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: Layer, ui: LayerDetailsUI)=>void}
