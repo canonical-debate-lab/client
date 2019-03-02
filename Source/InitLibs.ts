@@ -5,17 +5,16 @@ import Moment from 'moment';
 import { GetUserID, GetUser, GetUserPermissionGroups } from 'Store/firebase/users';
 import { manager as manager_forum } from 'firebase-forum';
 import { manager as manager_feedback } from 'firebase-feedback';
-import { replace, push } from 'redux-little-router';
+import { replace, push } from 'connected-react-router';
 import Raven from 'raven-js';
 import { version, dbVersion, hasHotReloaded, firebaseConfig } from 'Main';
-import { Link, GetData, GetDataAsync, GetAsync, ApplyDBUpdates, VReactMarkdown_Remarkable, Connect, State, DBPath, ExposeModuleExports } from 'Utils/FrameworkOverrides';
+import { Link, GetData, GetDataAsync, GetAsync, ApplyDBUpdates, VReactMarkdown_Remarkable, Connect, State, DBPath, ExposeModuleExports, manager as manager_framework } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
-import { manager as manager_framework } from 'vwebapp-framework/Source/Manager';
 import { GetSyncLoadActionsForURL, GetNewURL } from 'Utils/URL/URLs';
 import { MakeRootReducer } from 'Store';
 import { GetAuth } from 'Store/firebase';
-import {NotificationMessage} from 'Store/main/@NotificationMessage';
-import {AddNotificationMessage} from 'UI/@Shared/NavBar/NotificationsUI';
+import { NotificationMessage } from 'Store/main/@NotificationMessage';
+import { AddNotificationMessage } from 'UI/@Shared/NavBar/NotificationsUI';
 import { ShowSignInPopup } from './UI/@Shared/NavBar/UserPanel';
 
 const context = (require as any).context('../Resources/SVGs/', true, /\.svg$/);
@@ -143,7 +142,7 @@ export function InitLibs() {
 				`connect|Connect|Link`
 				+ `|Animate|Animation|Dot|ComposedDataDecorator|Chart|Curve|Route|ReferenceLine|Text` // from recharts
 				+ `|Div` // from ScrollView (probably temp)
-				+ `|Button` // from react-social-button>react-bootstrap
+				//+ `|Button` // from react-social-button>react-bootstrap
 				+ `|VReactMarkdown`
 			),
 		});

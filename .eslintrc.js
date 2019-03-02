@@ -75,6 +75,7 @@ module.exports = {
 		"no-await-in-loop": "off",
 		"func-names": "off",
 		"eqeqeq": "off", // disabled because it's one of the few rules which aren't autofixed, thus clashes with code from vwebapp-framework (which is the base for this project) reappear every time code is copied between them
+		"no-debugger": "off", // sometimes adding a debugger call is useful
 	},
 	globals: {
 		ENV: true,

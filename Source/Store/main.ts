@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import { VURL } from 'js-vextensions';
-import { LOCATION_CHANGED } from 'redux-little-router';
+import { LOCATION_CHANGE } from 'connected-react-router';
 import { MapInfo } from 'Store/main/maps/@MapInfo';
 import { ShallowChanged } from 'react-vextensions';
 import { MapInfoReducer } from 'Store/main/maps/$map';
@@ -9,7 +9,7 @@ import { persistReducer, createTransform } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import { omit } from 'lodash';
 import { Action, CombineReducers, SimpleReducer, State } from 'Utils/FrameworkOverrides';
-import {rootPageDefaultChilds} from 'Utils/URL/URLs';
+import { rootPageDefaultChilds } from 'Utils/URL/URLs';
 import { MapViews, MapNodeView, MapView } from './main/mapViews/@MapViews';
 import { MapViewsReducer } from './main/mapViews';
 import { RatingUIReducer, RatingUIState } from './main/ratingUI';
@@ -102,7 +102,7 @@ function CreateMainReducer_Real() {
 		urlExtraStr: (state = null, action) => {
 			// if ((action.type == "@@INIT" || action.type == "persist/REHYDRATE") && startURL.GetQueryVar("env"))
 			// if ((action.type == "PostRehydrate") && startURL.GetQueryVar("env"))
-			if (action.type == LOCATION_CHANGED && VURL.FromLocationObject(action.payload).GetQueryVar('extra')) {
+			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload).GetQueryVar('extra')) {
 				let newVal = VURL.FromLocationObject(action.payload).GetQueryVar('extra');
 				if (newVal == 'null') newVal = null;
 				return newVal;
@@ -110,7 +110,7 @@ function CreateMainReducer_Real() {
 			return state;
 		},
 		envOverride: (state = null, action) => {
-			if (action.type == LOCATION_CHANGED && VURL.FromLocationObject(action.payload).GetQueryVar('env')) {
+			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload).GetQueryVar('env')) {
 				let newVal = VURL.FromLocationObject(action.payload).GetQueryVar('env');
 				if (newVal == 'null') newVal = null;
 				return newVal;
@@ -118,15 +118,15 @@ function CreateMainReducer_Real() {
 			return state;
 		},
 		dbVersionOverride: (state = null, action) => {
-			if (action.type == LOCATION_CHANGED && VURL.FromLocationObject(action.payload).GetQueryVar('dbVersion')) {
+			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload).GetQueryVar('dbVersion')) {
 				const str = VURL.FromLocationObject(action.payload).GetQueryVar('dbVersion');
 				return str == 'null' ? null : parseInt(str);
 			}
 			return state;
 		},
 		analyticsEnabled: (state = true, action) => {
-			if (action.type == LOCATION_CHANGED && VURL.FromLocationObject(action.payload).GetQueryVar('analytics') == 'false') { return false; }
-			if (action.type == LOCATION_CHANGED && VURL.FromLocationObject(action.payload).GetQueryVar('analytics') == 'true') { return true; }
+			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload).GetQueryVar('analytics') == 'false') { return false; }
+			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload).GetQueryVar('analytics') == 'true') { return true; }
 			return state;
 		},
 		topLeftOpenPanel: (state = null, action) => {

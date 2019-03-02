@@ -6,7 +6,7 @@ import { NodeChildHolder } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolder'
 import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolderBox';
 import { CachedTransform, E, Timer, emptyArray_forLoading, emptyArray } from 'js-vextensions';
 import { Column } from 'react-vcomponents';
-import { BaseComponentWithConnector, GetInnerComp, RenderSource, ShallowChanged, ShallowEquals } from 'react-vextensions';
+import { BaseComponentWithConnector, GetInnerComp, RenderSource, ShallowChanged, ShallowEquals, GetDOM } from 'react-vextensions';
 import { Connect, State, SlicePath, ShouldLog, MaybeLog } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
 import { NotifyNodeViewed } from '../../../../Server/Commands/NotifyNodeViewed';

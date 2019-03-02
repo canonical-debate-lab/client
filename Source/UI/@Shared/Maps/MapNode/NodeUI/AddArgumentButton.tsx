@@ -1,7 +1,7 @@
 import { GetUserID } from 'Store/firebase/users';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { Button } from 'react-vcomponents';
-import { BaseComponent } from 'react-vextensions';
+import { BaseComponent, GetDOM } from 'react-vextensions';
 import { DropTarget } from 'react-dnd';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { ForNewLink_GetError, GetParentNodeID, GetParentNodeL3, GetHolderType } from 'Store/firebase/nodes';

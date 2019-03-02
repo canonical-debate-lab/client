@@ -1,5 +1,5 @@
 import { InlineMath } from 'react-katex';
-import { BaseComponent } from 'react-vextensions';
+import { BaseComponent, GetDOM } from 'react-vextensions';
 import ReactDOM from 'react-dom';
 import { PreProcessLatex } from 'Store/firebase/nodes/$node';
 import { TermPlaceholder } from './NodeUI_Inner/TermPlaceholder';

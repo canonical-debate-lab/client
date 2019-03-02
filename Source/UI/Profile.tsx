@@ -5,7 +5,7 @@ import { User } from 'Store/firebase/users/@User';
 import { UpdateProfile } from 'Server/Commands/UpdateProfile';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { presetBackgrounds } from 'Utils/UI/PresetBackgrounds';
-import {Connect} from 'Utils/FrameworkOverrides';
+import { Connect, ClearLocalData } from 'Utils/FrameworkOverrides';
 import { styles } from '../Utils/UI/GlobalStyles';
 import { ACTTopRightOpenPanelSet } from '../Store/main';
 
@@ -95,7 +95,6 @@ Some of the things this won't clear:
 
 This is usually only done if an error is occuring because of outdated or invalid data.`,
 						onOK: () => {
-							const { ClearLocalData } = require('Utils/Store/CreateStore');
 							ClearLocalData(persister);
 							window.location.reload();
 						},

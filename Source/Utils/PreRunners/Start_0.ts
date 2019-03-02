@@ -40,8 +40,8 @@ if (location.href.indexOf('bot-test-1') != -1) {
 // g.addEventListener("load", ()=>document.getElementById("botLog").innerText += "Test1" + "\n");
 
 // browser-check
-let GetBrowser = require('./UserAgent').GetBrowser;
-let supportedBrowsers = require('./UserAgent').supportedBrowsers;
+let GetBrowser = require('../General/UserAgent').GetBrowser;
+let supportedBrowsers = require('../General/UserAgent').supportedBrowsers;
 
 let browser = GetBrowser().name || navigator.userAgent;
 if (supportedBrowsers.indexOf(browser) == -1 && !isBot) {
@@ -79,4 +79,4 @@ function G(...globalHolders) {
 	for (let globalHolder of globalHolders) {
 		G(globalHolder);
 	}
-}*/
+} */

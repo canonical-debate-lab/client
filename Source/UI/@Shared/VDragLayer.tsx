@@ -18,22 +18,21 @@ type DragLayerProps = {
 	canDrop?: boolean;
 };
 
-const dragLayer = DragLayer((monitor) => {
+@(DragLayer((monitor) => {
 	return {
-		item: monitor.getItem(),
-		itemType: monitor.getItemType(),
-		currentOffset: monitor.getSourceClientOffset(),
-		isDragging: monitor.isDragging(),
-		// canDrop: monitor.canDrop(),
-		// canDrop: monitor.getItem() ? Log(monitor.getItem().piece.canDrop) !== false : null, // old; custom
-		/* canDrop: (()=> {
+	item: monitor.getItem(),
+	itemType: monitor.getItemType(),
+	currentOffset: monitor.getSourceClientOffset(),
+	isDragging: monitor.isDragging(),
+// canDrop: monitor.canDrop(),
+// canDrop: monitor.getItem() ? Log(monitor.getItem().piece.canDrop) !== false : null, // old; custom
+/* canDrop: (()=> {
 			const targetIds = monitor.isDragging() ? monitor.getTargetIds() : [];
 			return targetIds.some(a=>monitor.isOverTarget(a) && monitor.canDropOnTarget(a));
 			})(),
 		}) */
 	};
-});
-@dragLayer
+	}) as any)
 export class VDragLayer extends BaseComponent<Partial<DragLayerProps>, {}> {
 	render() {
 		const { currentOffset, item, itemType, isDragging, canDrop } = this.props;

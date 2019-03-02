@@ -1,6 +1,6 @@
 import { GetErrorMessagesUnderElement } from 'js-vextensions';
 import { Column, Pre, RowLR, Spinner } from 'react-vcomponents';
-import { BaseComponent } from 'react-vextensions';
+import { BaseComponent, GetDOM } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { ImageAttachment } from '../../../../Store/firebase/nodes/@MapNode';
 

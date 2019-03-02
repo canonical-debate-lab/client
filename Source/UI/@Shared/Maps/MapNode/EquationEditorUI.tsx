@@ -1,6 +1,6 @@
 import { GetErrorMessagesUnderElement } from 'js-vextensions';
 import { CheckBox, Column, Pre, Row, RowLR, TextArea, TextInput } from 'react-vcomponents';
-import { BaseComponent } from 'react-vextensions';
+import { BaseComponent, GetDOM } from 'react-vextensions';
 import { Equation } from '../../../../Store/firebase/nodes/@Equation';
 
 type Props = {baseData: Equation, creating: boolean, editing?: boolean, style?, onChange?: (newData: Equation)=>void};

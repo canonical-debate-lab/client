@@ -1,5 +1,5 @@
 import { SourceType, SourceChain, Source } from 'Store/firebase/contentNodes/@SourceChain';
-import { BaseComponent } from 'react-vextensions';
+import { BaseComponent, GetDOM } from 'react-vextensions';
 import { Button } from 'react-vcomponents';
 import { Column } from 'react-vcomponents';
 import { Row } from 'react-vcomponents';

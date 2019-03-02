@@ -1,6 +1,6 @@
 import { CachedTransform, Vector2i, emptyObj } from 'js-vextensions';
 import { Button, Column, Div, Row } from 'react-vcomponents';
-import { BaseComponentWithConnector, GetInnerComp, RenderSource } from 'react-vextensions';
+import { BaseComponentWithConnector, GetInnerComp, RenderSource, GetDOM } from 'react-vextensions';
 import { GetFillPercent_AtPath } from 'Store/firebase/nodeRatings';
 import { GetNodeChildrenL3, HolderType } from 'Store/firebase/nodes';
 import { MapNodeL3 } from 'Store/firebase/nodes/@MapNode';
@@ -10,7 +10,7 @@ import { ACTMapNodeChildLimitSet } from 'Store/main/mapViews/$mapView/rootNodeVi
 import { MapNodeView } from 'Store/main/mapViews/@MapViews';
 import NodeConnectorBackground from 'UI/@Shared/Maps/MapNode/NodeConnectorBackground';
 import { NodeUI } from 'UI/@Shared/Maps/MapNode/NodeUI';
-import {IsSpecialEmptyArray, State, Connect, MaybeLog, Icon} from 'Utils/FrameworkOverrides';
+import { IsSpecialEmptyArray, State, Connect, MaybeLog, Icon } from 'Utils/FrameworkOverrides';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { IsMultiPremiseArgument } from '../../../../../Store/firebase/nodes/$node';
 import { Polarity } from '../../../../../Store/firebase/nodes/@MapNode';

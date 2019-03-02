@@ -1,5 +1,6 @@
 import AJV from 'ajv';
 import AJVKeywords from 'ajv-keywords';
+import { RemoveHelpers } from 'Utils/FrameworkOverrides';
 
 export const ajv = AJVKeywords(new AJV()) as AJV_Extended;
 G({ ajv }); declare global { const ajv: AJV_Extended; }
@@ -92,7 +93,6 @@ export function Validate(schemaName: string, data, removeHelpers = true) {
 /** Returns null if the supplied data matches the schema. Else, returns error message. */
 export function Validate_Full(schemaObject: Object, schemaName: string, data, removeHelpers = true) {
 	if (removeHelpers) {
-		const { RemoveHelpers } = require('../Utils/Database/DatabaseHelpers');
 		data = RemoveHelpers(Clone(data));
 	}
 

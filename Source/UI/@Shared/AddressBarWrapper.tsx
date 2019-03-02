@@ -1,8 +1,8 @@
 import { GetNewURL } from 'Utils/URL/URLs';
 import { VURL } from 'js-vextensions';
 import { BaseComponent } from 'react-vextensions';
-import { push, replace } from 'redux-little-router';
-import {Connect, DoesURLChangeCountAsPageChange, GetCurrentURL, MaybeLog} from 'Utils/FrameworkOverrides';
+import { push, replace } from 'connected-react-router';
+import { Connect, DoesURLChangeCountAsPageChange, GetCurrentURL, MaybeLog } from 'Utils/FrameworkOverrides';
 import { loadingURL } from '../../Utils/URL/URLs';
 
 let lastURL: VURL;
@@ -34,7 +34,9 @@ export class AddressBarWrapper extends BaseComponent<Props, {}> {
 
 		// action.byUser = false;
 		// g.justChangedURLFromCode = true;
-		action.payload.byCode = true;
+		// action.payload.byCode = true;
+		// extend the "state" argument for the to-be-created history-entry
+		action.payload.args[1] = E(action.payload.args[1], { byCode: true });
 		store.dispatch(action);
 	}
 	render() {

@@ -73,7 +73,11 @@ Object.assign(config, {
 			// ["babel-plugin-transform-runtime", {"regenerator": false}],
 			'babel-plugin-lodash',
 			'babel-plugin-transform-decorators-legacy',
-		].filter(a => a),
+		].filter(a => a).map((nameOrArray) => {
+			// the require.resolve is needed since we want babel to apply to the sym-linked "vwebapp-framework" module
+			if (typeof nameOrArray == 'string') return require.resolve(nameOrArray);
+			return [require.resolve(nameOrArray[0]), ...nameOrArray.slice(1)];
+		}),
 	},
 	// list of types: https://webpack.js.org/configuration/devtool
 	// *: All "eval" ones don't work anymore with new tsc setup -- they don't show original files

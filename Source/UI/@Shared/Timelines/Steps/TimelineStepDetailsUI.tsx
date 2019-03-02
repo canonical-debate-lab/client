@@ -1,10 +1,10 @@
 import { GetErrorMessagesUnderElement } from 'js-vextensions';
 import { Button, Column, Pre, Row, RowLR, Spinner, TextInput, TextArea } from 'react-vcomponents';
-import { BaseComponent } from 'react-vextensions';
+import { BaseComponent, GetDOM } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
-import {RemoveHelpers, GetUpdates} from 'Utils/FrameworkOverrides';
-import { UpdateTimelineStep } from "../../../../Server/Commands/UpdateTimelineStep";
-import { NodeReveal, TimelineStep } from "../../../../Store/firebase/timelineSteps/@TimelineStep";
+import { RemoveHelpers, GetUpdates } from 'Utils/FrameworkOverrides';
+import { UpdateTimelineStep } from '../../../../Server/Commands/UpdateTimelineStep';
+import { NodeReveal, TimelineStep } from '../../../../Store/firebase/timelineSteps/@TimelineStep';
 
 type Props = {baseData: TimelineStep, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: TimelineStep, ui: TimelineStepDetailsUI)=>void};
 export default class TimelineStepDetailsUI extends BaseComponent<Props, {newData: TimelineStep}> {
@@ -23,8 +23,8 @@ export default class TimelineStepDetailsUI extends BaseComponent<Props, {newData
 			this.Update();
 		};
 
-		const splitAt = 170; let 
-width = 600;
+		const splitAt = 170; const
+			width = 600;
 		return (
 			<Column style={style}>
 				<RowLR mt={5} splitAt={splitAt} style={{ width }}>

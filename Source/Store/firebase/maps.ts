@@ -1,5 +1,5 @@
 import { CachedTransform } from 'js-vextensions';
-import {GetData} from 'vwebapp-framework/Source';
+import {GetData} from 'Utils/FrameworkOverrides';
 import { Map, MapType } from './maps/@Map';
 
 export function GetMaps(): Map[] {

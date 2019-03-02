@@ -4,13 +4,8 @@ import { VMenuReducer, VMenuState } from 'react-vmenu';
 import { MessageBoxReducer, MessageBoxState } from 'react-vmessagebox';
 import { firestoreReducer } from 'redux-firestore';
 import { DeepGet, DeepSet } from 'js-vextensions';
-import { CombineReducers_Advanced, bufferedActions, HandleError } from 'Utils/FrameworkOverrides';
+import { CombineReducers_Advanced, bufferedActions, HandleError, manager } from 'Utils/FrameworkOverrides';
 import { MainReducer, MainState } from './main';
-
-export function InjectReducer(store, { key, reducer }) {
-	store.asyncReducers[key] = reducer;
-	store.replaceReducer(MakeRootReducer(store.asyncReducers));
-}
 
 // class is used only for initialization
 export class RootState {
@@ -19,13 +14,16 @@ export class RootState {
 	firebase: any;
 	firestore: any;
 	// form: any;
-	router: RouterState;
+	// router: RouterState;
+	router: any;
 	messageBox: MessageBoxState;
 	vMenu: VMenuState;
 	/* forum: ForumData;
 	feedback: FeedbackData; */
 }
-export function MakeRootReducer(extraReducers?) {
+export function MakeRootReducer() {
+	const extraReducers = manager.GetExtraReducers();
+
 	const innerReducer = CombineReducers_Advanced({
 		/* preReduce: (state, action) => {
 			// if (action.type == '@@reactReduxFirebase/START' || action.type == '@@reactReduxFirebase/SET') {
@@ -119,8 +117,3 @@ export function MakeRootReducer(extraReducers?) {
 
 	return routerReducer(state, action);
 } */
-
-interface RouterState {
-	location: LocationDescriptorObject & {hash: string}; // typing must be outdated, as lacks hash prop
-	history: any;
-}

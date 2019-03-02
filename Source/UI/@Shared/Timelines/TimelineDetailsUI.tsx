@@ -1,10 +1,10 @@
 import { GetErrorMessagesUnderElement } from 'js-vextensions';
 import Moment from 'moment';
 import { Column, Pre, RowLR, TextInput } from 'react-vcomponents';
-import { BaseComponent } from 'react-vextensions';
+import { BaseComponent, GetDOM } from 'react-vextensions';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { User } from 'Store/firebase/users/@User';
-import {Connect} from 'Utils/FrameworkOverrides';
+import { Connect } from 'Utils/FrameworkOverrides';
 import { GetUser } from '../../../Store/firebase/users';
 
 type Props = {baseData: Timeline, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: Timeline, ui: TimelineDetailsUI)=>void}

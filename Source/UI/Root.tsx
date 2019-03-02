@@ -6,7 +6,6 @@ import { ColorPickerBox, Column } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector, ShallowChanged } from 'react-vextensions';
 import { VMenuLayer } from 'react-vmenu';
 import { MessageBoxUI } from 'react-vmessagebox';
-import { RouterProvider } from 'redux-little-router';
 import { PersistGate as PersistGate_ } from 'redux-persist/integration/react';
 import { GetUserID } from 'Store/firebase/users';
 import { AddressBarWrapper } from 'UI/@Shared/AddressBarWrapper';
@@ -16,8 +15,9 @@ import '../Utils/UI/JQueryExtensions';
 import { DragDropContext } from 'react-dnd';
 import MouseBackend from 'react-dnd-mouse-backend';
 import keycode from 'keycode';
-import { State, Connect, Route } from 'Utils/FrameworkOverrides';
+import { State, Connect, Route, browserHistory } from 'Utils/FrameworkOverrides';
 import { NormalizeURL } from 'Utils/URL/URLs';
+import { ConnectedRouter } from 'connected-react-router';
 import { GetUserBackground } from '../Store/firebase/users';
 import { NavBar } from '../UI/@Shared/NavBar';
 import { GlobalUI } from '../UI/Global';
@@ -37,7 +37,8 @@ import { StreamUI } from './Stream';
 import { VDragLayer } from './@Shared/VDragLayer';
 // import HTML5Backend from "react-dnd-html5-backend";
 // import TouchBackend from "react-dnd-touch-backend";
-const asAny = { Provider } as any;
+
+const aa = { Provider, ConnectedRouter } as any;
 
 // temp fix for "isOver({shallow: true})"
 // var DragDropMonitor = require("dnd-core/lib/DragDropMonitor").default;
@@ -74,23 +75,23 @@ export class RootUIWrapper extends BaseComponent<{store}, {}> {
 		// if (!g.storeRehydrated) return <div/>;
 
 		return (
-			<asAny.Provider store={store}>
+			<aa.Provider store={store}>
 				<PersistGate loading={null} persistor={persister}>
-					<RouterProvider store={store}>
+					<aa.ConnectedRouter history={browserHistory}>
 						<RootUI/>
-					</RouterProvider>
+					</aa.ConnectedRouter>
 				</PersistGate>
-			</asAny.Provider>
+			</aa.Provider>
 		);
 	}
 
 	ComponentDidMount() {
-		if (DEV) {
+		/* if (DEV) {
 			setTimeout(() => {
 				G({ Perf: React.addons.Perf });
 				React.addons.Perf.start();
 			}, 100);
-		}
+		} */
 
 		// $(document).on('mousemove', '*', function(event, ui) {
 		document.addEventListener('mousemove', (event) => {

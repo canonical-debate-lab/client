@@ -3,7 +3,7 @@ import { GetUserAccessLevel, GetUserID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
 import { GetErrorMessagesUnderElement, GetEntries } from 'js-vextensions';
 import { CheckBox, Column, Div, Pre, Row, Select, Spinner, TextArea, TextInput } from 'react-vcomponents';
-import { BaseComponent, RenderSource } from 'react-vextensions';
+import { BaseComponent, RenderSource, GetDOM } from 'react-vextensions';
 import { HasAdminPermissions } from 'Store/firebase/userExtras';
 import { Connect } from 'Utils/FrameworkOverrides';
 import { AsNodeL2, GetClaimType } from '../../../../Store/firebase/nodes/$node';

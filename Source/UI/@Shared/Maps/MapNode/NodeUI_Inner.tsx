@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import keycode from 'keycode';
 import { DragSource } from 'react-dnd';
 import { Button, Pre, Row, TextArea } from 'react-vcomponents';
-import { BaseComponent, BaseComponentWithConnector, GetInnerComp } from 'react-vextensions';
+import { BaseComponent, BaseComponentWithConnector, GetInnerComp, GetDOM } from 'react-vextensions';
 import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthScoreComposite, RS_GetAllValues } from 'Store/firebase/nodeRatings/ReasonScore';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';

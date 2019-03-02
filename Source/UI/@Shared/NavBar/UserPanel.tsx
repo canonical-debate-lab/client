@@ -1,13 +1,13 @@
 import { ApplyBasicStyles, BaseComponent, BasicStyles, SimpleShouldUpdate } from 'react-vextensions';
 import { firebaseConnect, helpers } from 'react-redux-firebase';
 import { Button, Div, Row } from 'react-vcomponents';
-import SocialButton from 'react-social-button';
+// import SocialButton from 'react-social-button';
 import { Column } from 'react-vcomponents';
 import { E } from 'js-vextensions';
 import { ShowMessageBox, BoxController } from 'react-vmessagebox';
 import { IsAuthValid } from 'Store/firebase';
-import {Connect, State, Link, HandleError} from 'Utils/FrameworkOverrides';
-import {ACTSetPage, ACTTopRightOpenPanelSet} from "../../../Store/main";
+import { Connect, State, Link, HandleError } from 'Utils/FrameworkOverrides';
+import { ACTSetPage, ACTTopRightOpenPanelSet } from '../../../Store/main';
 import { GetUserID } from '../../../Store/firebase/users';
 
 @Connect(state=>({
@@ -75,9 +75,9 @@ export class SignInPanel extends BaseComponent<{style?, onSignIn?: ()=>void}, {}
 		return (
 			<Column style={style}>
 				<SignInButton provider="google" text="Sign in with Google" onSignIn={onSignIn}/>
-				<SignInButton provider="facebook" text="Sign in with Facebook" mt={10} onSignIn={onSignIn}/>
+				{/* <SignInButton provider="facebook" text="Sign in with Facebook" mt={10} onSignIn={onSignIn}/>
 				<SignInButton provider="twitter" text="Sign in with Twitter" mt={10} onSignIn={onSignIn}/>
-				<SignInButton provider="github" text="Sign in with GitHub" mt={10} onSignIn={onSignIn}/>
+				<SignInButton provider="github" text="Sign in with GitHub" mt={10} onSignIn={onSignIn}/> */}
 			</Column>
 		);
 	}
@@ -91,21 +91,21 @@ class SignInButton extends BaseComponent<{provider: 'google' | 'facebook' | 'twi
 		const firebase = store.firebase.helpers;
 		const { loading } = this.state;
 		return (
-			<SocialButton social={provider} text={text} loading={loading} btnProps={{
-				style: E({ outline: 'none' }, BasicStyles(this.props), style),
-				onClick: async () => {
-					this.SetState({ loading: true });
-					try {
-						const account = await firebase.login({ provider, type: 'popup' });
-						if (this.mounted == false) return;
-						this.SetState({ loading: false });
-						if (onSignIn) onSignIn();
-					} catch (ex) {
-						this.SetState({ loading: false });
-						if (ex.message == 'This operation has been cancelled due to another conflicting popup being opened.') return;
-						HandleError(ex);
-					}
-				},
+			// <SocialButton social={provider} text={text} loading={loading} btnProps={{
+			//	style: E({outline: "none"}, BasicStyles(this.props), style),
+			//	onClick: async ()=> {
+			<Button text={text} style={E({ outline: 'none' }, BasicStyles(this.props), style)} onClick={async () => {
+				this.SetState({ loading: true });
+				try {
+					const account = await firebase.login({ provider, type: 'popup' });
+					if (this.mounted == false) return;
+					this.SetState({ loading: false });
+					if (onSignIn) onSignIn();
+				} catch (ex) {
+					this.SetState({ loading: false });
+					if (ex.message == 'This operation has been cancelled due to another conflicting popup being opened.') return;
+					HandleError(ex);
+				}
 			}}/>
 		);
 	}
