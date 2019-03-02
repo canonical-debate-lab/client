@@ -37,7 +37,7 @@ export const rootPageDefaultChilds = {
 };
 
 export function GetCurrentURL(fromAddressBar = false) {
-	return fromAddressBar ? VURL.Parse(GetCurrentURLString()) : VURL.FromLocationObject(State('router'));
+	return fromAddressBar ? VURL.Parse(GetCurrentURLString()) : VURL.FromLocationObject(State('router', 'location'));
 }
 export function NormalizeURL(url: VURL) {
 	const result = url.Clone();
@@ -205,6 +205,7 @@ const pagesWithSimpleSubpages = ['database', 'feedback', 'more', 'home', 'global
 export function GetSyncLoadActionsForURL(url: VURL, directURLChange: boolean) {
 	const result = [];
 
+	url = NormalizeURL(url);
 	const page = url.pathNodes[0];
 	result.push(new ACTSetPage(page).VSet({ fromURL: true }));
 	const subpage = url.pathNodes[1];
