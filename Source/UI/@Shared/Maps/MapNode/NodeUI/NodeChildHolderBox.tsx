@@ -199,7 +199,7 @@ export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { 
 		this.lastLineHolderHeight = lineHolderHeight;
 
 		const height = $(GetDOM(this)).outerHeight();
-		const dividePoint = this.childHolder && this.Expanded ? GetInnerComp(this.childHolder).GetDividePoint() : 0;
+		const dividePoint = this.childHolder && this.Expanded ? this.childHolder.GetDividePoint() : 0;
 		if (height != this.lastHeight || dividePoint != this.lastDividePoint) {
 			/* if (height != this.lastHeight) {
 				this.OnHeightChange();

@@ -4,7 +4,7 @@ import { FindReact } from 'react-vextensions';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { ACTMap_PlayingTimelineSet, ACTMap_PlayingTimelineStepSet } from 'Store/main/maps/$map';
 import { AddNotificationMessage } from 'UI/@Shared/NavBar/NotificationsUI';
-import { State, ACTSet, MaybeLog, GetAsync } from 'Utils/FrameworkOverrides';
+import { State, ACTSet, MaybeLog, GetAsync, Action } from 'Utils/FrameworkOverrides';
 import { GetMap } from '../../Store/firebase/maps';
 import { GetNodeDisplayText } from '../../Store/firebase/nodes/$node';
 import { globalMapID, MapNodeL2 } from '../../Store/firebase/nodes/@MapNode';
@@ -36,9 +36,6 @@ export const rootPageDefaultChilds = {
 	global: 'map',
 };
 
-export function GetCurrentURL(fromAddressBar = false) {
-	return fromAddressBar ? VURL.Parse(GetCurrentURLString()) : VURL.FromLocationObject(State('router', 'location'));
-}
 export function NormalizeURL(url: VURL) {
 	const result = url.Clone();
 	if (!rootPages.Contains(result.pathNodes[0])) {
@@ -202,7 +199,7 @@ function ParseNodeView(viewStr: string): [number, MapNodeView] {
 }
 
 const pagesWithSimpleSubpages = ['database', 'feedback', 'more', 'home', 'global'].ToMap(page => page, () => null);
-export function GetSyncLoadActionsForURL(url: VURL, directURLChange: boolean) {
+export function GetLoadActionsForURL(url: VURL) {
 	const result = [];
 
 	url = NormalizeURL(url);
@@ -267,7 +264,7 @@ export function GetSyncLoadActionsForURL(url: VURL, directURLChange: boolean) {
 				if (crawlerURLMatch) {
 					const nodeID = parseInt(crawlerURLMatch[1]);
 					result.push(new ACTSet(`main/mapViews/${1}/bot_currentNodeID`, nodeID));
-				} else if (directURLChange) {
+				} else { // if (directURLChange) {
 					result.push(new ACTSet(`main/mapViews/${1}/bot_currentNodeID`, null));
 				}
 			}
@@ -295,37 +292,14 @@ export function GetSyncLoadActionsForURL(url: VURL, directURLChange: boolean) {
 		result.push(new ACTMap_PlayingTimelineAppliedStepSet({ mapID, step: parseInt(url.GetQueryVar('appliedStep')) - 1 }));
 	}
 
-	return result;
-}
-
-// maybe temp; easier than using the "fromURL" prop, since AddressBarWrapper class currently doesn't have access to the triggering action itself
-export var loadingURL = false;
-export async function LoadURL(urlStr: string) {
-	MaybeLog(a => a.urlLoads, () => `Loading url: ${urlStr}`);
-	loadingURL = true;
-
-	// if (!GetPath(GetUrlPath(url)).startsWith("global/map")) return;
-	const url = NormalizeURL(VURL.Parse(urlStr));
-
-	const syncActions = GetSyncLoadActionsForURL(url, true);
-	for (const action of syncActions) {
-		store.dispatch(action);
-	}
-
-	const loadingMapView = syncActions.Any(a => a.Is(ACTMapViewMerge));
-	if (loadingMapView) {
-		const mapUI = FindReact($('.MapUI')[0]) as MapUI;
-		if (mapUI) {
-			mapUI.LoadScroll();
-		}
-	}
-
 	// If user followed search-result link (eg. "debatemap.live/global/156"), we only know the node-id.
 	// Search for the shortest path from the map's root to this node, and update the view and url to that path.
 	// if (url.pathNodes[0] == "global" && url.pathNodes[1] != null && url.pathNodes[1].match(/^[0-9]+$/) && !isBot) {
-	const match = url.toString({ domain: false }).match(/^\/global\/map\/[a-z-]*\.?([0-9]+)$/);
+	/* const match = url.toString({ domain: false }).match(/^\/global\/map\/[a-z-]*\.?([0-9]+)$/);
 	if (match && !isBot) {
 		const nodeID = parseInt(match[1]);
+		result.push(new ACTSearchForNode({nodeID}));
+
 		const node = await GetAsync(() => GetNodeL2(nodeID));
 		if (node) {
 			const shortestPathToNode = await GetAsync(() => GetShortestPathFromRootToNode(1, node));
@@ -342,10 +316,26 @@ export async function LoadURL(urlStr: string) {
 
 		/* let newURL = url.Clone();
 		//newURL.pathNodes.RemoveAt(2);
-		store.dispatch(replace(newURL.toString({domain: false}))); */
-	}
+		store.dispatch(replace(newURL.toString({domain: false}))); *#/
+	} */
 
-	loadingURL = false;
+	/* if (url.toString({ domain: false }).startsWith('/global/map')) {
+		if (isBot) {
+			/* let newURL = url.Clone();
+			let node = await GetNodeAsync(nodeID);
+			let node = await GetNodeAsync(nodeID);
+			newURL.pathNodes[1] = "";
+			store.dispatch(replace(newURL.toString(false))); *#/
+		} else {
+			// we don't yet have a good way of knowing when loading is fully done; so just do a timeout
+			/* WaitXThenRun(0, UpdateURL, 200);
+			WaitXThenRun(0, UpdateURL, 400);
+			WaitXThenRun(0, UpdateURL, 800);
+			WaitXThenRun(0, UpdateURL, 1600); *#/
+		}
+	} */
+
+	return result;
 }
 
 // saving

@@ -49,11 +49,3 @@ export function GetAuth() {
 export function IsAuthValid(auth) {
 	return auth && !auth.isEmpty;
 }
-
-export function DoesActionSetFirestoreData(action: Action<any>) {
-	return action.type == '@@reduxFirestore/LISTENER_RESPONSE' || action.type == '@@reduxFirestore/DOCUMENT_ADDED' || action.type == '@@reduxFirestore/DOCUMENT_MODIFIED';
-}
-export function GetFirestoreDataSetterActionPath(action: Action<any>) {
-	// "subcollections" prop currently bugged in some cases, so just use new "path" prop when available
-	return action['meta'].path || ListenerPathToPath(action['meta']);
-}

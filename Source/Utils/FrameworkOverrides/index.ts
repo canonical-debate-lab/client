@@ -11,7 +11,7 @@ Then create the corresponding file, with contents like this:
 For short-term substitutions (like adding a log line to debug something), you can also just place the override code at the bottom of this file.
 */
 
-import { VWAF_OverrideExport, accessedStorePaths, activeStoreAccessCollectors } from 'vwebapp-framework/Source';
+// import { VWAF_OverrideExport, accessedStorePaths, activeStoreAccessCollectors } from 'vwebapp-framework/Source';
 
 export * from 'vwebapp-framework/Source/index';
 export * from './TypedReExports';

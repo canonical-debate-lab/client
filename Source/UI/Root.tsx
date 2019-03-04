@@ -8,14 +8,13 @@ import { VMenuLayer } from 'react-vmenu';
 import { MessageBoxUI } from 'react-vmessagebox';
 import { PersistGate as PersistGate_ } from 'redux-persist/integration/react';
 import { GetUserID } from 'Store/firebase/users';
-import { AddressBarWrapper } from 'UI/@Shared/AddressBarWrapper';
 import { GuideUI } from 'UI/Guide';
 import '../../Source/Utils/Styles/Main.scss'; // keep absolute-ish, since scss file not copied to Source_JS folder
 import '../Utils/UI/JQueryExtensions';
 import { DragDropContext } from 'react-dnd';
 import MouseBackend from 'react-dnd-mouse-backend';
 import keycode from 'keycode';
-import { State, Connect, Route, browserHistory } from 'Utils/FrameworkOverrides';
+import { State, Connect, Route, browserHistory, AddressBarWrapper } from 'Utils/FrameworkOverrides';
 import { NormalizeURL } from 'Utils/URL/URLs';
 import { ConnectedRouter } from 'connected-react-router';
 import { GetUserBackground } from '../Store/firebase/users';

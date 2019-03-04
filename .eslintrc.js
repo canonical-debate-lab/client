@@ -4,7 +4,7 @@ module.exports = {
 		"plugin:react/recommended",
 		//"plugin:jsx-a11y/recommended",
 	],
-	parser: "typescript-eslint-parser",
+	parser: "@typescript-eslint/parser",
 	parserOptions: {
 		ecmaVersion: 8,
 		sourceType: "module",
@@ -35,18 +35,16 @@ module.exports = {
 				  ".tsx",
 				]
 			 }
-		}
+		},
+		"react": {
+			"version": "detect", // to avoid warning
+		},
 	},
 	env: {
 		"browser": true,
 		"commonjs": true,
 		"es6": true,
 		"node": true
-	},
-	globals : {
-		/*"DEV": false,
-		"PROD": false,
-		"TEST": false,*/
 	},
 	rules: {
 		"indent": ["error", "tab"],
@@ -76,6 +74,7 @@ module.exports = {
 		"func-names": "off",
 		"eqeqeq": "off", // disabled because it's one of the few rules which aren't autofixed, thus clashes with code from vwebapp-framework (which is the base for this project) reappear every time code is copied between them
 		"no-debugger": "off", // sometimes adding a debugger call is useful
+		"no-return-assign": "off",
 	},
 	globals: {
 		ENV: true,

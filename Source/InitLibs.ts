@@ -10,11 +10,12 @@ import Raven from 'raven-js';
 import { version, dbVersion, hasHotReloaded, firebaseConfig } from 'Main';
 import { Link, GetData, GetDataAsync, GetAsync, ApplyDBUpdates, VReactMarkdown_Remarkable, Connect, State, DBPath, ExposeModuleExports, manager as manager_framework } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
-import { GetSyncLoadActionsForURL, GetNewURL } from 'Utils/URL/URLs';
+import { GetLoadActionsForURL, GetNewURL } from 'Utils/URL/URLs';
 import { MakeRootReducer } from 'Store';
 import { GetAuth } from 'Store/firebase';
 import { NotificationMessage } from 'Store/main/@NotificationMessage';
 import { AddNotificationMessage } from 'UI/@Shared/NavBar/NotificationsUI';
+import { PreDispatchAction, MidDispatchAction, PostDispatchAction, DoesURLChangeCountAsPageChange } from 'Utils/Store/ActionProcessor';
 import { ShowSignInPopup } from './UI/@Shared/NavBar/UserPanel';
 
 const context = (require as any).context('../Resources/SVGs/', true, /\.svg$/);
@@ -38,13 +39,16 @@ export function InitLibs() {
 
 		startURL,
 		routerLocationPathInStore: ['router', 'location'],
-		GetSyncLoadActionsForURL,
+		GetLoadActionsForURL,
 		GetNewURL,
-
+		DoesURLChangeCountAsPageChange,
 
 		GetStore: () => store,
 		firebaseConfig,
 		MakeRootReducer,
+		PreDispatchAction,
+		MidDispatchAction,
+		PostDispatchAction,
 
 		globalConnectorPropGetters: {
 			// also access some other paths here, so that when they change, they trigger ui updates for everything
