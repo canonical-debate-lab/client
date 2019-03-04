@@ -2,7 +2,7 @@ import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { SetNodeUILocked } from 'UI/@Shared/Maps/MapNode/NodeUI';
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponent, GetInnerComp } from 'react-vextensions';
-import {GetUpdates, RemoveHelpers, WaitTillPathDataIsReceived, DBPath, Connect} from 'Utils/FrameworkOverrides';
+import { GetUpdates, RemoveHelpers, WaitTillPathDataIsReceived, DBPath, Connect } from 'Utils/FrameworkOverrides';
 import { AddNodeRevision } from '../../../../../../Server/Commands/AddNodeRevision';
 import { UpdateLink } from '../../../../../../Server/Commands/UpdateLink';
 import { Map } from '../../../../../../Store/firebase/maps/@Map';
@@ -15,11 +15,11 @@ import { User } from '../../../../../../Store/firebase/users/@User';
 import { NodeDetailsUI } from '../../NodeDetailsUI';
 
 type DetailsPanel_Props = {map?: Map, node: MapNodeL3, path: string} & Partial<{creator: User}>;
-@Connect((state, {node, path}: DetailsPanel_Props)=>({
+@Connect((state, { node, path }: DetailsPanel_Props) => ({
 	_: GetUserPermissionGroups(GetUserID()),
 	_link: GetLinkUnderParent(node._id, GetParentNode(path)),
 	creator: GetUser(node.creator),
-	}))
+}))
 // export default class DetailsPanel extends BaseComponent<DetailsPanel_Props, {error: Error}> {
 export default class DetailsPanel extends BaseComponent<DetailsPanel_Props, {dataError: string}> {
 	detailsUI: NodeDetailsUI;
@@ -39,7 +39,7 @@ export default class DetailsPanel extends BaseComponent<DetailsPanel_Props, {dat
 		const creatorOrMod = IsUserCreatorOrMod(GetUserID(), node);
 		return (
 			<Column style={{ position: 'relative' }}>
-				<NodeDetailsUI ref={c => this.detailsUI = GetInnerComp(c) as any}
+				<NodeDetailsUI ref={c => this.detailsUI = c}
 					baseData={node} baseRevisionData={node.current} baseLinkData={link} parent={parentNode}
 					forNew={false} enabled={creatorOrMod}
 					onChange={(newData, newLinkData) => {

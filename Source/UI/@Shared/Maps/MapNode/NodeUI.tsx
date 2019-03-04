@@ -208,7 +208,7 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 			}
 
 			return (
-				<NodeUI ref={c => this.proxyDisplayedNodeUI = GetInnerComp(c)} {...this.props} key={premise._id} map={map} node={premise} path={`${path}/${premise._id}`}>
+				<NodeUI ref={c => this.proxyDisplayedNodeUI = c} {...this.props} key={premise._id} map={map} node={premise} path={`${path}/${premise._id}`}>
 					{children}
 				</NodeUI>
 			);
@@ -265,7 +265,10 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 								<span style={{ margin: 'auto 0' }}>{AccessLevel[node.current.accessLevel][0].toUpperCase()}</span>
 							</div>}
 						{nodeChildHolderBox_truth}
-						<NodeUI_Inner ref={c => this.innerUI = GetInnerComp(c)} {...{ map, node, nodeView, path, width, widthOverride }}
+						<NodeUI_Inner
+							ref={c => this.innerUI = GetInnerComp(c)}
+							// ref={c => this.innerUI = c ? c['getDecoratedComponentInstance']() : null}
+							{...{ map, node, nodeView, path, width, widthOverride }}
 							style={E(
 								playingTimeline_currentStepRevealNodes.Contains(path) && { boxShadow: 'rgba(255,255,0,1) 0px 0px 7px, rgb(0, 0, 0) 0px 0px 2px' },
 							)}/>

@@ -67,7 +67,7 @@ const connector = (state, { node, path, nodeChildrenToShow }: Props) => {
 };
 @Connect(connector)
 export class NodeChildHolder extends BaseComponentWithConnector(connector, initialState) {
-	static defaultProps = {minWidth: 0};
+	static defaultProps = { minWidth: 0 };
 	/* static ValidateProps(props) {
 		let {node, path} = props;
 		//Assert(SplitStringBySlash_Cached(path).Distinct().length == SplitStringBySlash_Cached(path).length, `Node path contains a circular link! (${path})`);
@@ -116,7 +116,7 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 
 			const childLimit = direction == 'down' ? childLimit_down : childLimit_up;
 			return (
-				<NodeUI key={child._id} ref={c => this.childBoxes[child._id] = GetInnerComp(c)} map={map} node={child}
+				<NodeUI key={child._id} ref={c => this.childBoxes[child._id] = c} map={map} node={child}
 					path={`${path}/${child._id}`} widthOverride={childrenWidthOverride} onHeightOrPosChange={this.OnChildHeightOrPosChange}>
 					{index == (direction == 'down' ? childLimit - 1 : 0) && !showAll && (collection.length > childLimit || childLimit != initialChildLimit)
 						&& <ChildLimitBar {...{ map, path, childrenWidthOverride, childLimit }} direction={direction} childCount={collection.length}/>}

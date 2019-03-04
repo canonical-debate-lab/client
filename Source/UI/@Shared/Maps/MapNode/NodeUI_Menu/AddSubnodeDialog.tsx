@@ -20,15 +20,15 @@ export function ShowAddSubnodeDialog(mapID: number, anchorNode: MapNodeL2, ancho
 	let dialog: AddSubnodeDialog;
 	const boxController: BoxController = ShowMessageBox({
 		title: 'Add subnode (to layer)', cancelButton: true,
-		message: () => <AddSubnodeDialog ref={c => dialog = GetInnerComp(c)} {...{ mapID, anchorNode, anchorNodePath, boxController }}/>,
+		message: () => <AddSubnodeDialog ref={c => dialog = c} {...{ mapID, anchorNode, anchorNodePath, boxController }}/>,
 		onOK: () => dialog.OnOK(),
 	});
 }
 
 type Props = {mapID: number, anchorNode: MapNode, anchorNodePath: string, boxController: BoxController} & Partial<{layers: Layer[]}>;
-@Connect((state, {}: Props)=> ({
+@Connect((state, {}: Props) => ({
 	layers: GetLayers(),
-	}))
+}))
 class AddSubnodeDialog extends BaseComponent<Props, {layer: Layer, newNode: MapNode, newRevision: MapNodeRevision, newLink: ChildEntry, validationError: string}> {
 	constructor(props) {
 		super(props);
@@ -88,7 +88,7 @@ class AddSubnodeDialog extends BaseComponent<Props, {layer: Layer, newNode: MapN
 								this.Update();
 							}}/>
 					</Row>}
-					<NodeDetailsUI ref={c => this.nodeEditorUI = GetInnerComp(c) as any} parent={null}
+					<NodeDetailsUI ref={c => this.nodeEditorUI = c} parent={null}
 						baseData={AsNodeL3(AsNodeL2(newNode, newRevision))} baseRevisionData={newRevision} baseLinkData={newLink} forNew={true}
 						onChange={(newNodeData, newRevisionData, newLinkData, comp) => {
 							this.SetState({ newNode: newNodeData, newRevision: newRevisionData, newLink: newLinkData });

@@ -54,6 +54,7 @@ export function InitLibs() {
 			// also access some other paths here, so that when they change, they trigger ui updates for everything
 			_user: () => GetUser(GetUserID()),
 			_permissions: () => GetUserPermissionGroups(GetUserID()),
+			// _extraInfo: function() { return this.extraInfo; }, // special debug info from within FirebaseConnect function
 		},
 
 		PostHandleError: (error, errorStr) => {

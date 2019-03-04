@@ -36,6 +36,8 @@
 		//"maxNodeModuleJsDepth": 1,
 		"jsx": "react",
 		"noImplicitAny": false,
+		"alwaysStrict": true, // alternative: "@babel/plugin-transform-strict-mode"; went with this since doesn't require another npm package
+
 		"experimentalDecorators": true,
 		"allowSyntheticDefaultImports": true
 	},

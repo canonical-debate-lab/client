@@ -116,7 +116,7 @@ const connector = (state, { map, node, path }: Props) => {
 @Connect(connector)
 export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 	{ hovered: false, hoverPanel: null as string, hoverTermID: null as number, /* local_selected: boolean, */ local_openPanel: null as string }) {
-	static defaultProps = {panelPosition: "left"};
+	static defaultProps = { panelPosition: 'left' };
 	titlePanel: TitlePanel;
 	render() {
 		const { map, node, nodeView, path, width, widthOverride,
@@ -213,7 +213,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 					// fixes click-gap
 					leftPanelShow && panelPosition == 'left' && <div style={{ position: 'absolute', right: '100%', width: 1, top: 0, bottom: 0 }}/>,
 				].AutoKey()}
-				onTextHolderClick={e => IsDoubleClick(e) && this.titlePanel && GetInnerComp(this.titlePanel).OnDoubleClick()}
+				onTextHolderClick={e => IsDoubleClick(e) && this.titlePanel && this.titlePanel.OnDoubleClick()}
 				text={[
 					/* eslint-disable react/jsx-key */
 					<TitlePanel {...{ parent: this, map, node, nodeView, path }}
@@ -322,11 +322,11 @@ class ReasonScoreValueMarkers extends BaseComponent<{node: MapNodeL3, reasonScor
 }
 
 type TitlePanelProps = {parent: NodeUI_Inner, map: Map, node: MapNodeL2, nodeView: MapNodeView, path: string} & Partial<{equationNumber: number}>;
-@Connect((state, {node, path}: TitlePanelProps)=> ({
+@Connect((state, { node, path }: TitlePanelProps) => ({
 	_: GetNodeDisplayText(node, path),
 	$1: node.current.image && GetImage(node.current.image.id),
 	equationNumber: node.current.equation ? GetEquationStepNumber(path) : null,
-	}))
+}))
 class TitlePanel extends BaseComponent<TitlePanelProps, {editing: boolean, newTitle: string, applyingEdit: boolean}> {
 	OnDoubleClick() {
 		const { node } = this.props;

@@ -1,7 +1,7 @@
 import { Pre, Row } from 'react-vcomponents';
 import { BaseComponent, GetInnerComp } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
-import {Link, ACTSet, Connect} from 'Utils/FrameworkOverrides';
+import { Link, ACTSet, Connect } from 'Utils/FrameworkOverrides';
 import { RootState } from '../../../../Store';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetRatings } from '../../../../Store/firebase/nodeRatings';
@@ -19,10 +19,10 @@ import { NodeUI_Inner } from './NodeUI_Inner';
 
 type Props = {map: Map, node: MapNodeL2}
 	& Partial<{nodeParents: MapNodeL2[], nodeChildren: MapNodeL2[]}>;
-@Connect((state: RootState, {node}: Props)=> ({
+@Connect((state: RootState, { node }: Props) => ({
 	nodeParents: GetNodeParentsL2(node),
 	nodeChildren: GetNodeChildrenL2(node),
-	}))
+}))
 export default class NodeUI_ForBots extends BaseComponent<Props, {}> {
 	innerUI: NodeUI_Inner;
 	render() {
@@ -65,7 +65,10 @@ export default class NodeUI_ForBots extends BaseComponent<Props, {}> {
 					{/* <Row>ID: {node._id}</Row>
 					<Row>Title: {GetNodeDisplayText(node)}</Row> */}
 					Main box:
-					<NodeUI_Inner ref={c => this.innerUI = GetInnerComp(c)} map={map} node={nodeL3} nodeView={{}} path={path} width={null} widthOverride={null}/>
+					<NodeUI_Inner
+						ref={c => this.innerUI = GetInnerComp(c)}
+						// ref={c => this.innerUI = c ? c['getDecoratedComponentInstance']() : null}
+						map={map} node={nodeL3} nodeView={{}} path={path} width={null} widthOverride={null}/>
 					Panels:
 					{GetRatingTypesForNode(nodeL3).map((ratingInfo, index) => {
 						const ratings = GetRatings(node._id, ratingInfo.type);

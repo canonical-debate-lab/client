@@ -9,7 +9,7 @@ import { GetUser, GetUserID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
 import { TimelineDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Left/Timeline';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
-import {GetUpdates, GetAsync, Connect} from 'Utils/FrameworkOverrides';
+import { GetUpdates, GetAsync, Connect } from 'Utils/FrameworkOverrides';
 import { colors } from '../../../../Utils/UI/GlobalStyles';
 import { DeleteLayer } from '../../../../Server/Commands/DeleteLayer';
 import { DeleteMap } from '../../../../Server/Commands/DeleteMap';
@@ -27,9 +27,9 @@ import { ShowAddLayerDialog } from '../Layers/AddLayerDialog';
 import { MapDetailsUI } from '../MapDetailsUI';
 
 type ActionBar_LeftProps = {map: Map, subNavBarWidth: number};
-@Connect((state, {map}: ActionBar_LeftProps)=> ({
+@Connect((state, { map }: ActionBar_LeftProps) => ({
 	_: IsUserCreatorOrMod(GetUserID(), map),
-	}))
+}))
 export class ActionBar_Left extends BaseComponent<ActionBar_LeftProps, {}> {
 	render() {
 		const { map, subNavBarWidth } = this.props;
@@ -66,7 +66,7 @@ class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: string}> {
 			<DropDown>
 				<DropDownTrigger><Button ml={5} text="Details"/></DropDownTrigger>
 				<DropDownContent style={{ left: 0 }}><Column>
-					<MapDetailsUI ref={c => this.detailsUI = GetInnerComp(c) as any} baseData={map}
+					<MapDetailsUI ref={c => this.detailsUI = c} baseData={map}
 						forNew={false} enabled={creatorOrMod}
 						onChange={(newData) => {
 							this.SetState({ dataError: this.detailsUI.GetValidationError() });
@@ -109,10 +109,10 @@ class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: string}> {
 export const columnWidths = [0.5, 0.3, 0.1, 0.1];
 
 type LayersDropDownProps = {map: Map} & Partial<{layers: Layer[]}>;
-@Connect((state, {map}: LayersDropDownProps)=> ({
+@Connect((state, { map }: LayersDropDownProps) => ({
 	// layers: GetLayersForMap(map),
 	layers: GetLayers(),
-	}))
+}))
 class LayersDropDown extends BaseComponent<LayersDropDownProps, {}> {
 	render() {
 		const { map, layers } = this.props;
@@ -176,10 +176,10 @@ class LayersDropDown extends BaseComponent<LayersDropDownProps, {}> {
 }
 
 type LayerUIProps = {index: number, last: boolean, map: Map, layer: Layer} & Partial<{creator: User, userLayerState: boolean}>;
-@Connect((state, {map, layer}: LayerUIProps)=> ({
+@Connect((state, { map, layer }: LayerUIProps) => ({
 	creator: layer && GetUser(layer.creator),
 	userLayerState: GetUserLayerStateForMap(GetUserID(), map._id, layer._id),
-	}))
+}))
 class LayerUI extends BaseComponent<LayerUIProps, {}> {
 	render() {
 		const { index, last, map, layer, creator, userLayerState } = this.props;

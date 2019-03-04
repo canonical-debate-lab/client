@@ -75,6 +75,7 @@ module.exports = {
 		"eqeqeq": "off", // disabled because it's one of the few rules which aren't autofixed, thus clashes with code from vwebapp-framework (which is the base for this project) reappear every time code is copied between them
 		"no-debugger": "off", // sometimes adding a debugger call is useful
 		"no-return-assign": "off",
+		"no-plusplus": "off", // this is a very common pattern in a for-loop
 	},
 	globals: {
 		ENV: true,

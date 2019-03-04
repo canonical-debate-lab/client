@@ -10,7 +10,7 @@ import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { MaybeLog, ProcessDBData, SplitStringBySlash_Cached, Action, GetCurrentURL, LoadURL, State, GetDataAsync, GetAsync, ActionSet, DBPath } from 'Utils/FrameworkOverrides';
 import { GetCurrentURL_SimplifiedForPageViewTracking } from 'Utils/URL/URLs';
 import { hasHotReloaded } from 'Main';
-import {ACTMapViewMerge} from 'Store/main/mapViews/$mapView';
+import { ACTMapViewMerge } from 'Store/main/mapViews/$mapView';
 import { Map } from '../../Store/firebase/maps/@Map';
 import { RootState } from '../../Store/index';
 import { ACTDebateMapSelect, ACTDebateMapSelect_WithData } from '../../Store/main/debates';
@@ -122,7 +122,7 @@ export async function PostDispatchAction(action: Action<any>) {
 		}
 	}
 	if (action.Is(ACTMapNodeExpandedSet)) {
-		const path = action.payload.path;
+		const { path } = action.payload;
 		const nodeID = GetNodeID(path);
 		const node = GetNodeL2(nodeID) || await GetAsync(() => GetNodeL2(nodeID));
 		const expandKey = ['expanded', 'expanded_truth', 'expanded_relevance'].find(key => action.payload[key] != null);
@@ -221,12 +221,12 @@ async function ExpandToAndFocusOnNodes(mapID: number, paths: string[]) {
 		store.dispatch(new ACTMapNodeExpandedSet({ mapID, path: parentPath, expanded: true, recursive: false }));
 	}
 
-	for (var i = 0; i < 30 && $('.MapUI').length == 0; i++) { await SleepAsync(100); }
+	for (let i = 0; i < 30 && $('.MapUI').length == 0; i++) { await SleepAsync(100); }
 	const mapUIEl = $('.MapUI');
 	if (mapUIEl.length == 0) return;
 	const mapUI = FindReact(mapUIEl[0]) as MapUI;
 
-	for (var i = 0; i < 30 && paths.map(path => mapUI.FindNodeBox(path)).Any(a => a == null); i++) { await SleepAsync(100); }
+	for (let i = 0; i < 30 && paths.map(path => mapUI.FindNodeBox(path)).Any(a => a == null); i++) { await SleepAsync(100); }
 	const nodeBoxes = paths.map(path => mapUI.FindNodeBox(path)).filter(a => a != null);
 	if (nodeBoxes.length == 0) return;
 
