@@ -2,33 +2,34 @@ import { CachedTransform } from 'js-vextensions';
 import { Button, Column, Div, Pre, Row, TextInput } from 'react-vcomponents';
 import { BaseComponent, RenderSource } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
-import {Connect} from 'Utils/FrameworkOverrides';
+import { Connect } from 'Utils/FrameworkOverrides';
+import { ES } from 'Utils/UI/GlobalStyles';
 import { DeleteTermComponent } from '../../../Server/Commands/DeleteTermComponent';
 import { UpdateTermComponentData } from '../../../Server/Commands/UpdateTermComponentData';
 import { GetTermComponents } from '../../../Store/firebase/termComponents';
 import { TermComponent } from '../../../Store/firebase/termComponents/@TermComponent';
 import { Term } from '../../../Store/firebase/terms/@Term';
 import { IsUserCreatorOrMod } from '../../../Store/firebase/userExtras';
-import { GetUserID } from '../../../Store/firebase/users';
+import { MeID } from '../../../Store/firebase/users';
 import { RootState } from '../../../Store/index';
 
 const componentsPlaceholder = [];
 
 type Props = {term: Term, editing: boolean, inMap?: boolean, style?} & Partial<{components: TermComponent[]}>;
-@Connect((state: RootState, {term}: Props)=> {
-	let termComponents = GetTermComponents(term);
+@Connect((state: RootState, { term }: Props) => {
+	const termComponents = GetTermComponents(term);
 	return {
-// components: GetTermComponents(props.term),
-// only pass components when all are loaded
-	components: CachedTransform("components_transform1", [term._id], termComponents, ()=>termComponents.every(a=>a != null) ? termComponents : componentsPlaceholder),
-// selectedTermComponent: GetSelectedTermComponent(),
+		// components: GetTermComponents(props.term),
+		// only pass components when all are loaded
+		components: CachedTransform('components_transform1', [term._id], termComponents, () => (termComponents.every(a => a != null) ? termComponents : componentsPlaceholder)),
+		// selectedTermComponent: GetSelectedTermComponent(),
 	};
-	})
+})
 export class TermComponentsUI extends BaseComponent<Props, {}> {
 	render() {
 		const { term, editing, inMap, style, components } = this.props;
 
-		const creatorOrMod = IsUserCreatorOrMod(GetUserID(), term);
+		const creatorOrMod = IsUserCreatorOrMod(MeID(), term);
 
 		return (
 			<Column style={{ padding: 10 }}>

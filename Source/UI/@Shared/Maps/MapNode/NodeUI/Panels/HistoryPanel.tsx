@@ -5,15 +5,16 @@ import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
-import {Connect} from 'Utils/FrameworkOverrides';
-import {Map} from "../../../../../../Store/firebase/maps/@Map";
-import {GetParentNodeL3} from "../../../../../../Store/firebase/nodes";
-import {GetLinkUnderParent} from "../../../../../../Store/firebase/nodes/$node";
-import {ChildEntry, MapNodeL3} from "../../../../../../Store/firebase/nodes/@MapNode";
-import {MapNodeRevision} from "../../../../../../Store/firebase/nodes/@MapNodeRevision";
-import {IsUserCreatorOrMod} from "../../../../../../Store/firebase/userExtras";
-import {GetUser, GetUserID} from "../../../../../../Store/firebase/users";
-import {NodeDetailsUI} from "../../NodeDetailsUI";
+import { Connect } from 'Utils/FrameworkOverrides';
+import {ES} from 'Utils/UI/GlobalStyles';
+import { Map } from '../../../../../../Store/firebase/maps/@Map';
+import { GetParentNodeL3 } from '../../../../../../Store/firebase/nodes';
+import { GetLinkUnderParent } from '../../../../../../Store/firebase/nodes/$node';
+import { ChildEntry, MapNodeL3 } from '../../../../../../Store/firebase/nodes/@MapNode';
+import { MapNodeRevision } from '../../../../../../Store/firebase/nodes/@MapNodeRevision';
+import { IsUserCreatorOrMod } from '../../../../../../Store/firebase/userExtras';
+import { GetUser, MeID } from '../../../../../../Store/firebase/users';
+import { NodeDetailsUI } from '../../NodeDetailsUI';
 
 export const columnWidths = [0.15, 0.3, 0.35, 0.2];
 
@@ -32,7 +33,7 @@ export class HistoryPanel extends BaseComponentWithConnector(connector, {}) {
 		// we want the newest ones listed first
 		revisions = revisions.OrderByDescending(a => a._id);
 
-		const creatorOrMod = IsUserCreatorOrMod(GetUserID(), node);
+		const creatorOrMod = IsUserCreatorOrMod(MeID(), node);
 		return (
 			<Column style={{ position: 'relative', maxHeight: 300 }}>
 				<Column className="clickThrough" style={{ background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' }}>
@@ -55,14 +56,14 @@ export class HistoryPanel extends BaseComponentWithConnector(connector, {}) {
 
 type RevisionEntryUI_Props = {index: number, last: boolean, revision: MapNodeRevision, node: MapNodeL3, path: string}
 	& Partial<{creator: User, link: ChildEntry, parent: MapNodeL3}>;
-@Connect((state, {revision, node, path}: RevisionEntryUI_Props)=> {
-	let parent = GetParentNodeL3(path);
+@Connect((state, { revision, node, path }: RevisionEntryUI_Props) => {
+	const parent = GetParentNodeL3(path);
 	return ({
 		creator: GetUser(revision.creator),
 		link: GetLinkUnderParent(node._id, parent),
 		parent,
-		});
-	})
+	});
+})
 class RevisionEntryUI extends BaseComponent<RevisionEntryUI_Props, {}> {
 	render() {
 		const { index, last, revision, node, path, creator, link, parent } = this.props;
@@ -77,7 +78,7 @@ class RevisionEntryUI extends BaseComponent<RevisionEntryUI_Props, {}> {
 				<span style={{ flex: columnWidths[3] }}>
 					<Button text="V" title="View details" style={{ margin: '-2px 0', padding: '1px 3px' }} onClick={() => {
 						const boxController: BoxController = ShowMessageBox({
-							title: 'Details for revision #' + revision._id, cancelOnOverlayClick: true,
+							title: `Details for revision #${revision._id}`, cancelOnOverlayClick: true,
 							message: () => {
 								return (
 									<div style={{ minWidth: 500 }}>

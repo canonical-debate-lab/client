@@ -95,7 +95,7 @@
         "NODE_ENV": "development",
         "QUICK": "true"
       }
-    },
+	 },
     "dev": {
       "@command": "npm run create-config && nodemon Scripts/Server --watch Scripts",
       "command": "npm run create-config && nodemon Scripts/Server --watch Scripts --max_old_space_size=4096",

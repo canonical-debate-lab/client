@@ -9,7 +9,7 @@ import { GetNodeChildrenL2, HolderType } from './nodes';
 import { GetMainRatingType, GetNodeL2 } from './nodes/$node';
 import { ClaimForm, MapNodeL3 } from './nodes/@MapNode';
 import { MapNodeType } from './nodes/@MapNodeType';
-import { GetUserID } from './users';
+import { MeID } from './users';
 
 export function GetNodeRatingsRoot(nodeID: number) {
 	// RequestPaths(GetPaths_NodeRatingsRoot(nodeID));
@@ -117,7 +117,7 @@ export function GetFillPercent_AtPath(node: MapNodeL3, path: string, boxType?: H
 export function GetMarkerPercent_AtPath(node: MapNodeL3, path: string, boxType?: HolderType, ratingType?: RatingType) {
 	ratingType = ratingType || { [HolderType.Truth]: 'truth', [HolderType.Relevance]: 'relevance' }[boxType] as any || GetMainRatingType(node);
 	if (State(a => a.main.weighting) == WeightingType.Votes || !rsCompatibleNodeTypes.Contains(node.type)) {
-		return GetRatingAverage_AtPath(node, ratingType, new RatingFilter({ includeUser: GetUserID() }));
+		return GetRatingAverage_AtPath(node, ratingType, new RatingFilter({ includeUser: MeID() }));
 	}
 }
 

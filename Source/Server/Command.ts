@@ -1,5 +1,5 @@
 import { FirebaseData } from 'Store/firebase';
-import { GetUserID } from 'Store/firebase/users';
+import { MeID } from 'Store/firebase/users';
 import u from 'updeep';
 import { RemoveHelpers, MaybeLog, FreezeConnectComps, ApplyDBUpdates, DBPath, UnfreezeConnectComps, State, ApplyDBUpdates_Local } from 'Utils/FrameworkOverrides';
 import { AssertValidate } from './Server';
@@ -25,7 +25,7 @@ function NotifyListenersThatCurrentCommandFinished() {
 export abstract class Command<Payload, ReturnData> {
 	static defaultPayload = {};
 	constructor(payload: Payload) {
-		this.userInfo = { id: GetUserID() }; // temp
+		this.userInfo = { id: MeID() }; // temp
 		this.type = this.constructor.name;
 		this.payload = E(this.constructor['defaultPayload'], payload);
 		// this.Extend(payload);

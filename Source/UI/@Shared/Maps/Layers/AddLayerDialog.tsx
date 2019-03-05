@@ -1,23 +1,23 @@
-import {BoxController, ShowMessageBox} from "react-vmessagebox";
-import {Column} from "react-vcomponents";
-import {Row} from "react-vcomponents";
-import {TextInput} from "react-vcomponents";
-import {GetInnerComp} from "react-vextensions";
-import {Pre} from "react-vcomponents";
+import { BoxController, ShowMessageBox } from 'react-vmessagebox';
+import { Column } from 'react-vcomponents';
+import { Row } from 'react-vcomponents';
+import { TextInput } from 'react-vcomponents';
+import { GetInnerComp } from 'react-vextensions';
+import { Pre } from 'react-vcomponents';
+import {Layer} from "Store/firebase/layers/@Layer";
 import {Term, TermType} from "../../../../Store/firebase/terms/@Term";
 import {AddTerm} from "../../../../Server/Commands/AddTerm";
 import {Map, MapType} from "../../../../Store/firebase/maps/@Map";
 import {AddMap} from "../../../../Server/Commands/AddMap";
 import {MapDetailsUI} from "./../MapDetailsUI";
-import {Layer} from "Store/firebase/layers/@Layer";
-import {GetUser, GetUserID} from "../../../../Store/firebase/users";
+import { GetUser, MeID } from '../../../../Store/firebase/users';
 import { LayerDetailsUI } from '../LayerDetailsUI';
 import { AddLayer } from '../../../../Server/Commands/AddLayer';
 
 export function ShowAddLayerDialog(userID: string) {
 	let newLayer = new Layer({
 		name: '',
-		creator: GetUserID(),
+		creator: MeID(),
 	});
 
 	let error = null;

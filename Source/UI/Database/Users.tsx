@@ -1,23 +1,31 @@
-import { BaseComponent } from 'react-vextensions';
+import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
 import { User } from 'Store/firebase/users/@User';
-import { Row } from 'react-vcomponents';
+import { Row, Column } from 'react-vcomponents';
 import Moment from 'moment';
 import { ScrollView } from 'react-vscrollview';
-import { Column } from 'react-vcomponents';
-import { Connect } from 'Utils/FrameworkOverrides';
-import { UserExtraInfo } from '../Store/firebase/userExtras/@UserExtraInfo';
-import { GetUsers, GetUserExtraInfoMap, UserExtraInfoMap } from '../Store/firebase/users';
+import { Connect, Link, ACTSet, State } from 'Utils/FrameworkOverrides';
+import { GetSelectedUser, ACTUserSelect } from 'Store/main/database';
+import { ES } from 'Utils/UI/GlobalStyles';
+import { UserExtraInfo } from '../../Store/firebase/userExtras/@UserExtraInfo';
+import { GetUsers, GetUserExtraInfoMap, UserExtraInfoMap } from '../../Store/firebase/users';
+import { UserProfileUI } from './Users/UserProfile';
 
 export const columnWidths = [0.35, 0.15, 0.1, 0.15, 0.25];
 
-@Connect(state=> ({
+const connector = () => ({
 	users: GetUsers(),
 	userExtraInfoMap: GetUserExtraInfoMap(),
-	}))
-export default class UsersUI extends BaseComponent<{} & Partial<{users: User[], userExtraInfoMap: UserExtraInfoMap}>, {}> {
+	selectedUser: GetSelectedUser(),
+});
+@Connect(connector)
+export class UsersUI extends BaseComponentWithConnector(connector, {}) {
 	render() {
-		let { users, userExtraInfoMap } = this.props;
+		let { users, userExtraInfoMap, selectedUser } = this.props;
 		if (userExtraInfoMap == null) return <div/>;
+
+		if (selectedUser) {
+			return <UserProfileUI profileUser={selectedUser}/>;
+		}
 
 		users = users.OrderBy(a => (userExtraInfoMap[a._key] ? userExtraInfoMap[a._key].joinDate : Number.MAX_SAFE_INTEGER));
 		users = users.OrderByDescending(a => (userExtraInfoMap[a._key] ? (userExtraInfoMap[a._key].edits | 0) : Number.MIN_SAFE_INTEGER));
@@ -73,7 +81,7 @@ class UserRow extends BaseComponent<{index: number, last: boolean, user: User, u
 		const { index, last, user, userExtraInfo } = this.props;
 		if (userExtraInfo == null) return <div/>;
 
-		let displayName = user.displayName;
+		let { displayName } = user;
 		if (displayName.includes('@')) displayName = displayName.split('@')[0];
 		return (
 			<Column p="7px 10px" style={E(
@@ -83,11 +91,8 @@ class UserRow extends BaseComponent<{index: number, last: boolean, user: User, u
 				{userExtraInfo == null && <div style={{ textAlign: 'center' }}>Loading...</div>}
 				{userExtraInfo
 					&& <Row>
-						{/* <Link text={map.name} to={toURL.toString({domain: false})} style={{fontSize: 18, flex: columnWidths[0]}} onClick={e=> {
-							e.preventDefault();
-							store.dispatch(new ACTDebateMapSelect({id: map._id}));
-						}}/> */}
-						<span style={{ flex: columnWidths[0] }}>{displayName}</span>
+						<Link text={displayName} actions={[new ACTUserSelect({ id: user._key })]} style={{ flex: columnWidths[0], fontSize: 17 }}/>
+						{/* <span style={{ flex: columnWidths[0] }}>{displayName}</span> */}
 						<span style={{ flex: columnWidths[1] }}>{Moment(userExtraInfo.joinDate).format('YYYY-MM-DD')}</span>
 						<span style={{ flex: columnWidths[2] }}>{userExtraInfo.edits || 0}</span>
 						<span style={{ flex: columnWidths[3] }}>{userExtraInfo.lastEditAt ? Moment(userExtraInfo.lastEditAt).format('YYYY-MM-DD') : 'n/a'}</span>

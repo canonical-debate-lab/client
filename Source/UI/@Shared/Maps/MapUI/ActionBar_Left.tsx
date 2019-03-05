@@ -5,12 +5,12 @@ import { ScrollView } from 'react-vscrollview';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { GetChildCount } from 'Store/firebase/nodes';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
-import { GetUser, GetUserID } from 'Store/firebase/users';
+import { GetUser, MeID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
 import { TimelineDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Left/Timeline';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { GetUpdates, GetAsync, Connect } from 'Utils/FrameworkOverrides';
-import { colors } from '../../../../Utils/UI/GlobalStyles';
+import { colors, ES } from '../../../../Utils/UI/GlobalStyles';
 import { DeleteLayer } from '../../../../Server/Commands/DeleteLayer';
 import { DeleteMap } from '../../../../Server/Commands/DeleteMap';
 import { SetLayerAttachedToMap } from '../../../../Server/Commands/SetLayerAttachedToMap';
@@ -28,7 +28,7 @@ import { MapDetailsUI } from '../MapDetailsUI';
 
 type ActionBar_LeftProps = {map: Map, subNavBarWidth: number};
 @Connect((state, { map }: ActionBar_LeftProps) => ({
-	_: IsUserCreatorOrMod(GetUserID(), map),
+	_: IsUserCreatorOrMod(MeID(), map),
 }))
 export class ActionBar_Left extends BaseComponent<ActionBar_LeftProps, {}> {
 	render() {
@@ -42,8 +42,8 @@ export class ActionBar_Left extends BaseComponent<ActionBar_LeftProps, {}> {
 					justifyContent: 'flex-start', background: 'rgba(0,0,0,.7)', boxShadow: colors.navBarBoxShadow,
 					width: '100%', height: 30, borderRadius: '0 0 10px 0',
 				}}>
-					{IsUserMap(map)
-						&& <Button text="Back" onClick={() => {
+					{IsUserMap(map) &&
+						<Button text="Back" onClick={() => {
 							store.dispatch(new (map.type == MapType.Personal ? ACTPersonalMapSelect : ACTDebateMapSelect)({ id: null }));
 						}}/>}
 					{IsUserMap(map) && <DetailsDropDown map={map}/>}
@@ -61,7 +61,7 @@ class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: string}> {
 	render() {
 		const { map } = this.props;
 		const { dataError } = this.state;
-		const creatorOrMod = IsUserCreatorOrMod(GetUserID(), map);
+		const creatorOrMod = IsUserCreatorOrMod(MeID(), map);
 		return (
 			<DropDown>
 				<DropDownTrigger><Button ml={5} text="Details"/></DropDownTrigger>
@@ -116,7 +116,7 @@ type LayersDropDownProps = {map: Map} & Partial<{layers: Layer[]}>;
 class LayersDropDown extends BaseComponent<LayersDropDownProps, {}> {
 	render() {
 		const { map, layers } = this.props;
-		const userID = GetUserID();
+		const userID = MeID();
 		const creatorOrMod = IsUserCreatorOrMod(userID, map);
 		return (
 			<DropDown>
@@ -178,13 +178,13 @@ class LayersDropDown extends BaseComponent<LayersDropDownProps, {}> {
 type LayerUIProps = {index: number, last: boolean, map: Map, layer: Layer} & Partial<{creator: User, userLayerState: boolean}>;
 @Connect((state, { map, layer }: LayerUIProps) => ({
 	creator: layer && GetUser(layer.creator),
-	userLayerState: GetUserLayerStateForMap(GetUserID(), map._id, layer._id),
+	userLayerState: GetUserLayerStateForMap(MeID(), map._id, layer._id),
 }))
 class LayerUI extends BaseComponent<LayerUIProps, {}> {
 	render() {
 		const { index, last, map, layer, creator, userLayerState } = this.props;
-		const creatorOrMod = IsUserCreatorOrMod(GetUserID(), map);
-		const deleteLayerError = ForDeleteLayer_GetError(GetUserID(), layer);
+		const creatorOrMod = IsUserCreatorOrMod(MeID(), map);
+		const deleteLayerError = ForDeleteLayer_GetError(MeID(), layer);
 		return (
 			<Column p="7px 10px" style={E(
 				{ background: index % 2 == 0 ? 'rgba(30,30,30,.7)' : 'rgba(0,0,0,.7)' },
@@ -193,7 +193,7 @@ class LayerUI extends BaseComponent<LayerUIProps, {}> {
 				<Row>
 					<span style={{ flex: columnWidths[0] }}>
 						{layer.name}
-						{creator && creator._key == GetUserID()
+						{creator && creator._key == MeID()
 							&& <Button text="X" ml={5} style={{ padding: '3px 5px' }} enabled={deleteLayerError == null} title={deleteLayerError}
 								onClick={() => {
 									ShowMessageBox({
@@ -213,11 +213,11 @@ class LayerUI extends BaseComponent<LayerUIProps, {}> {
 					</span>
 					<span style={{ flex: columnWidths[3] }}>
 						<CheckBox checked={userLayerState} indeterminate={userLayerState == null} onChange={(val) => {
-							if (GetUserID() == null) return ShowSignInPopup();
+							if (MeID() == null) return ShowSignInPopup();
 							const newState =								userLayerState == null ? true
 								: userLayerState == true ? false
 									: null;
-							new SetMapLayerStateForUser({ userID: GetUserID(), mapID: map._id, layerID: layer._id, state: newState }).Run();
+							new SetMapLayerStateForUser({ userID: MeID(), mapID: map._id, layerID: layer._id, state: newState }).Run();
 						}}/>
 					</span>
 				</Row>

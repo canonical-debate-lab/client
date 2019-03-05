@@ -10,7 +10,7 @@ type Props = {
 	shouldUpdate: boolean
 };
 @SimpleShouldUpdate_Overridable
-export default class NodeConnectorBackground extends BaseComponent<Props, {}> {
+export class NodeConnectorBackground extends BaseComponent<Props, {}> {
 	render() {
 		var {node, linkSpawnPoint, straightLines, nodeChildren, childBoxOffsets} = this.props;
 

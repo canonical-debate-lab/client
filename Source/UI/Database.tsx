@@ -1,15 +1,17 @@
 import { Switch } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
-import {Connect, State} from 'Utils/FrameworkOverrides';
-import SubNavBar, { SubNavBarButton } from './@Shared/SubNavBar';
-import ImagesUI from './Content/ImagesUI';
-import { TermsUI } from './Content/TermsUI';
-import UsersUI from './Users';
+import { Connect, State } from 'Utils/FrameworkOverrides';
+import { ES } from 'Utils/UI/GlobalStyles';
+import { ACTUserSelect, ACTTermSelect, ACTImageSelect } from 'Store/main/database';
+import { SubNavBar, SubNavBarButton } from './@Shared/SubNavBar';
+import { ImagesUI } from './Database/ImagesUI';
+import { TermsUI } from './Database/TermsUI';
+import { UsersUI } from './Database/Users';
 
 type Props = {} & Partial<{currentSubpage: string}>;
-@Connect(state=> ({
-	currentSubpage: State(a=>a.main.database.subpage),
-	}))
+@Connect(state => ({
+	currentSubpage: State(a => a.main.database.subpage),
+}))
 export class DatabaseUI extends BaseComponent<Props, {}> {
 	render() {
 		const { currentSubpage } = this.props;
@@ -17,9 +19,9 @@ export class DatabaseUI extends BaseComponent<Props, {}> {
 		return (
 			<div style={ES({ flex: 1, display: 'flex', flexDirection: 'column' })}>
 				<SubNavBar>
-					<SubNavBarButton {...{ page }} subpage="users" text="Users"/>
-					<SubNavBarButton {...{ page }} subpage="terms" text="Terms"/>
-					<SubNavBarButton {...{ page }} subpage="images" text="Images"/>
+					<SubNavBarButton page={page} subpage="users" text="Users" actionIfAlreadyActive={() => new ACTUserSelect({ id: null })}/>
+					<SubNavBarButton page={page} subpage="terms" text="Terms" /* actionIfAlreadyActive={() => new ACTTermSelect({ id: null })} *//>
+					<SubNavBarButton page={page} subpage="images" text="Images" /* actionIfAlreadyActive={() => new ACTImageSelect({ id: null })} *//>
 				</SubNavBar>
 				<Switch>
 					<UsersUI/>

@@ -8,15 +8,15 @@ import { ShowMessageBox, BoxController } from 'react-vmessagebox';
 import { IsAuthValid } from 'Store/firebase';
 import { Connect, State, Link, HandleError } from 'Utils/FrameworkOverrides';
 import { ACTSetPage, ACTTopRightOpenPanelSet } from '../../../Store/main';
-import { GetUserID } from '../../../Store/firebase/users';
+import { MeID } from '../../../Store/firebase/users';
 
-@Connect(state=>({
+@Connect(state => ({
 	// authError: pathToJS(state.firebase, "authError"),
 	// auth: helpers.pathToJS(state.firebase, "auth"),
-	auth: State(a=>a.firebase.auth),
+	auth: State(a => a.firebase.auth),
 	// account: helpers.pathToJS(state.firebase, "profile")
-	}))
-export default class UserPanel extends BaseComponent<{auth?}, {}> {
+}))
+export class UserPanel extends BaseComponent<{auth?}, {}> {
 	render() {
 		const { auth } = this.props;
 		const firebase = store.firebase.helpers;
@@ -33,19 +33,19 @@ export default class UserPanel extends BaseComponent<{auth?}, {}> {
 			<Column style={{ padding: 5, background: 'rgba(0,0,0,.7)', borderRadius: '0 0 0 5px' }}>
 				<Column sel>
 					<div>Name: {auth.displayName}</div>
-					<div>ID: {GetUserID()}</div>
+					<div>ID: {MeID()}</div>
 				</Column>
 				{/* DEV &&
 					<Row>
 						<CheckBox value={State().main.
 					</Row> */}
 				<Row mt={5}>
-					<Link ml="auto" mr={5} actions={d => d(new ACTSetPage('profile'))} onContextMenu={e => e.nativeEvent['passThrough'] = true}>
+					<Link ml="auto" mr={5} actions={[new ACTSetPage('profile')]} onContextMenu={e => e.nativeEvent['passThrough'] = true}>
 						<Button text="Edit profile" style={{ width: 100 }} onClick={() => {
 							store.dispatch(new ACTTopRightOpenPanelSet(null));
 						}}/>
 					</Link>
-					<Button text="Sign out" style={{ width: 100 }} onClick={() => {
+					<Button ml={5} text="Sign out" style={{ width: 100 }} onClick={() => {
 						firebase.logout();
 					}}/>
 				</Row>

@@ -8,13 +8,13 @@ import { GetRatings } from '../../../../Store/firebase/nodeRatings';
 import { GetNodeChildrenL2, GetNodeParentsL2, GetParentNodeL2 } from '../../../../Store/firebase/nodes';
 import { AsNodeL3, GetNodeDisplayText, GetRatingTypesForNode } from '../../../../Store/firebase/nodes/$node';
 import { MapNodeL2 } from '../../../../Store/firebase/nodes/@MapNode';
-import DefinitionsPanel from './NodeUI/Panels/DefinitionsPanel';
-import DetailsPanel from './NodeUI/Panels/DetailsPanel';
-import DiscussionPanel from './NodeUI/Panels/DiscussionPanel';
+import { DefinitionsPanel } from './NodeUI/Panels/DefinitionsPanel';
+import { DetailsPanel } from './NodeUI/Panels/DetailsPanel';
+import { DiscussionPanel } from './NodeUI/Panels/DiscussionPanel';
 import { OthersPanel } from './NodeUI/Panels/OthersPanel';
 import { RatingsPanel } from './NodeUI/Panels/RatingsPanel';
-import SocialPanel from './NodeUI/Panels/SocialPanel';
-import TagsPanel from './NodeUI/Panels/TagsPanel';
+import { SocialPanel } from './NodeUI/Panels/SocialPanel';
+import { TagsPanel } from './NodeUI/Panels/TagsPanel';
 import { NodeUI_Inner } from './NodeUI_Inner';
 
 type Props = {map: Map, node: MapNodeL2}
@@ -23,7 +23,7 @@ type Props = {map: Map, node: MapNodeL2}
 	nodeParents: GetNodeParentsL2(node),
 	nodeChildren: GetNodeChildrenL2(node),
 }))
-export default class NodeUI_ForBots extends BaseComponent<Props, {}> {
+export class NodeUI_ForBots extends BaseComponent<Props, {}> {
 	innerUI: NodeUI_Inner;
 	render() {
 		const { map, node, nodeParents, nodeChildren } = this.props;
@@ -42,7 +42,7 @@ export default class NodeUI_ForBots extends BaseComponent<Props, {}> {
 						return (
 							<span key={index}>
 								{index > 0 ? ', ' : ''}
-								<Link actions={d => d(new ACTSet(`main/mapViews/${1}/bot_currentNodeID`, parent._id))}>
+								<Link actions={[new ACTSet(`main/mapViews/${1}/bot_currentNodeID`, parent._id)]}>
 									{GetNodeDisplayText(parent)} ({parent._id})
 								</Link>
 							</span>
@@ -54,7 +54,7 @@ export default class NodeUI_ForBots extends BaseComponent<Props, {}> {
 						return (
 							<span key={index}>
 								{index > 0 ? ', ' : ''}
-								<Link actions={d => d(new ACTSet(`main/mapViews/${1}/bot_currentNodeID`, child._id))}>
+								<Link actions={[new ACTSet(`main/mapViews/${1}/bot_currentNodeID`, child._id)]}>
 									{GetNodeDisplayText(child)} ({child._id})
 								</Link>
 							</span>

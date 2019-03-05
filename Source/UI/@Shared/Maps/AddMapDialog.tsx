@@ -2,14 +2,14 @@ import { Column, Row } from 'react-vcomponents';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { AddMap } from '../../../Server/Commands/AddMap';
 import { Map, MapType } from '../../../Store/firebase/maps/@Map';
-import { GetUserID } from '../../../Store/firebase/users';
+import { MeID } from '../../../Store/firebase/users';
 import { MapDetailsUI } from './MapDetailsUI';
 
 export function ShowAddMapDialog(userID: string, type: MapType) {
 	let newMap = new Map({
 		name: '',
 		type,
-		creator: GetUserID(),
+		creator: MeID(),
 	});
 
 	let error = null;

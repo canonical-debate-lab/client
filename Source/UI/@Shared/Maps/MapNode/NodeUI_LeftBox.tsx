@@ -3,8 +3,8 @@ import { E } from 'js-vextensions';
 import { Button, Span } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
-import { GetUserID } from 'Store/firebase/users';
-import {Connect, SlicePath} from 'Utils/FrameworkOverrides';
+import { MeID } from 'Store/firebase/users';
+import { Connect, SlicePath } from 'Utils/FrameworkOverrides';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetRatingAverage_AtPath, GetRatings } from '../../../../Store/firebase/nodeRatings';
 import { RatingsRoot } from '../../../../Store/firebase/nodeRatings/@RatingsRoot';
@@ -48,7 +48,7 @@ const connector = (state, { node, path }: Props) => {
 };
 @Connect(connector)
 export class MapNodeUI_LeftBox extends BaseComponentWithConnector(connector, {}) {
-	static defaultProps = {panelPosition: "left"};
+	static defaultProps = { panelPosition: 'left' };
 	render() {
 		const {
 			map, path, node, nodeView, ratingsRoot,
@@ -125,7 +125,7 @@ export class MapNodeUI_LeftBox extends BaseComponentWithConnector(connector, {})
 					{/* <PanelButton {...{onPanelButtonHover, onPanelButtonClick, map, path, openPanel}} panel="social" text="Social"/>
 					<PanelButton {...{onPanelButtonHover, onPanelButtonClick, map, path, openPanel}} panel="tags" text="Tags"/> */}
 					<PanelButton {...{ onPanelButtonHover, onPanelButtonClick, map, path, openPanel }} panel="details"
-						text={`Details${IsUserCreatorOrMod(GetUserID(), node) ? ' (edit)' : ''}`}/>
+						text={`Details${IsUserCreatorOrMod(MeID(), node) ? ' (edit)' : ''}`}/>
 					<PanelButton {...{ onPanelButtonHover, onPanelButtonClick, map, path, openPanel }} panel="history" text="History"/>
 					<PanelButton {...{ onPanelButtonHover, onPanelButtonClick, map, path, openPanel }} panel="others" text="Others"/>
 					<Button text="..."

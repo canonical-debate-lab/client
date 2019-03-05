@@ -1,24 +1,18 @@
-import { GetShortestPathFromRootToNode } from 'Utils/Store/PathFinder';
-import { ToInt, Vector2i, VURL, GetCurrentURLString } from 'js-vextensions';
-import { FindReact } from 'react-vextensions';
+import { ToInt, Vector2i, VURL } from 'js-vextensions';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { ACTMap_PlayingTimelineSet, ACTMap_PlayingTimelineStepSet } from 'Store/main/maps/$map';
-import { AddNotificationMessage } from 'UI/@Shared/NavBar/NotificationsUI';
-import { State, ACTSet, MaybeLog, GetAsync, Action } from 'Utils/FrameworkOverrides';
+import { ACTSet, State } from 'Utils/FrameworkOverrides';
 import { GetMap } from '../../Store/firebase/maps';
 import { GetNodeDisplayText } from '../../Store/firebase/nodes/$node';
 import { globalMapID, MapNodeL2 } from '../../Store/firebase/nodes/@MapNode';
 import { ACTSetPage, ACTSetSubpage, GetOpenMapID, GetPage, GetSubpage } from '../../Store/main';
-import { NotificationMessage } from '../../Store/main/@NotificationMessage';
-import { ACTImageSelect, ACTTermSelect } from '../../Store/main/database';
+import { ACTImageSelect, ACTTermSelect, ACTUserSelect, GetSelectedImageID, GetSelectedTermID, GetSelectedUserID } from '../../Store/main/database';
 import { ACTDebateMapSelect } from '../../Store/main/debates';
 import { ACTMap_PlayingTimelineAppliedStepSet } from '../../Store/main/maps/$map';
 import { GetFocusedNodeID, GetNodeView } from '../../Store/main/mapViews';
 import { ACTMapViewMerge } from '../../Store/main/mapViews/$mapView';
 import { MapNodeView, MapView } from '../../Store/main/mapViews/@MapViews';
 import { ACTPersonalMapSelect } from '../../Store/main/personal';
-import { MapUI } from '../../UI/@Shared/Maps/MapUI';
-import { CreateMapViewForPath } from '../Store/PathFinder';
 
 export const rootPages = [
 	'stream', 'chat', 'reputation',
@@ -204,10 +198,10 @@ export function GetLoadActionsForURL(url: VURL) {
 
 	url = NormalizeURL(url);
 	const page = url.pathNodes[0];
-	result.push(new ACTSetPage(page).VSet({ fromURL: true }));
+	result.push(new ACTSetPage(page));
 	const subpage = url.pathNodes[1];
 	if (url.pathNodes[1] && page in pagesWithSimpleSubpages) {
-		result.push(new ACTSetSubpage({ page, subpage }).VSet({ fromURL: true }));
+		result.push(new ACTSetSubpage({ page, subpage }));
 	}
 
 	/* if (url.pathNodes[0] == 'forum') {
@@ -233,39 +227,41 @@ export function GetLoadActionsForURL(url: VURL) {
 		}
 	} */
 
-	if (page == 'database') {
-		if (subpage == 'terms' && url.pathNodes[2]) {
-			result.push(new ACTTermSelect({ id: url.pathNodes[2].ToInt() }).VSet({ fromURL: true }));
-		} else if (subpage == 'images' && url.pathNodes[2]) {
-			result.push(new ACTImageSelect({ id: url.pathNodes[2].ToInt() }).VSet({ fromURL: true }));
-		}
-	}
-
 	let mapID: number;
-	if (url.pathNodes[0] == 'personal') {
+	if (page == 'database') {
+		const subpageInURL = url.pathNodes[1] != null;
+		const entryIDStr = url.pathNodes[2] || null;
+		if (subpage == 'users' && subpageInURL) {
+			result.push(new ACTUserSelect({ id: entryIDStr }));
+		} else if (subpage == 'terms' && subpageInURL) {
+			result.push(new ACTTermSelect({ id: entryIDStr ? entryIDStr.ToInt() : null }));
+		} else if (subpage == 'images' && subpageInURL) {
+			result.push(new ACTImageSelect({ id: entryIDStr ? entryIDStr.ToInt() : null }));
+		}
+	} else if (page == 'personal' || page == 'debates') {
 		const urlStr = url.pathNodes[1];
 		const match = urlStr && urlStr.match(/([0-9]+)$/);
 		mapID = match ? match[1].ToInt() : null;
-		result.push(new ACTPersonalMapSelect({ id: mapID }).VSet({ fromURL: true }));
-	}
-	if (url.pathNodes[0] == 'debates') { // && IsNumberString(url.pathNodes[1])) {
-		const urlStr = url.pathNodes[1];
-		const match = urlStr && urlStr.match(/([0-9]+)$/);
-		mapID = match ? match[1].ToInt() : null;
-		result.push(new ACTDebateMapSelect({ id: mapID }).VSet({ fromURL: true }));
-	}
-	if (url.pathNodes[0] == 'global' && url.pathNodes[0] == 'map') {
-		mapID = globalMapID;
-		if (isBot) {
-			// example: /global/map/some-node.123
-			const lastPathNode = url.pathNodes.LastOrX();
-			const crawlerURLMatch = lastPathNode && lastPathNode.match(/([0-9]+)$/);
+
+		if (page == 'personal') {
+			result.push(new ACTPersonalMapSelect({ id: mapID }));
+		} else {
+			result.push(new ACTDebateMapSelect({ id: mapID }));
+		}
+	} else if (page == 'global') {
+		if (subpage == 'map') {
+			mapID = globalMapID;
 			if (isBot) {
-				if (crawlerURLMatch) {
-					const nodeID = parseInt(crawlerURLMatch[1]);
-					result.push(new ACTSet(`main/mapViews/${1}/bot_currentNodeID`, nodeID));
-				} else { // if (directURLChange) {
-					result.push(new ACTSet(`main/mapViews/${1}/bot_currentNodeID`, null));
+				// example: /global/map/some-node.123
+				const lastPathNode = url.pathNodes.LastOrX();
+				const crawlerURLMatch = lastPathNode && lastPathNode.match(/([0-9]+)$/);
+				if (isBot) {
+					if (crawlerURLMatch) {
+						const nodeID = parseInt(crawlerURLMatch[1]);
+						result.push(new ACTSet(`main/mapViews/${1}/bot_currentNodeID`, nodeID));
+					} else { // if (directURLChange) {
+						result.push(new ACTSet(`main/mapViews/${1}/bot_currentNodeID`, null));
+					}
 				}
 			}
 		}
@@ -278,18 +274,18 @@ export function GetLoadActionsForURL(url: VURL) {
 			const mapView = ParseMapView(mapViewStr);
 
 			// Log("Loading map-view:" + ToJSON(mapView));
-			result.push(new ACTMapViewMerge({ mapID, mapView }).VSet({ fromURL: true }));
+			result.push(new ACTMapViewMerge({ mapID, mapView }));
 		}
 	}
 
 	if (url.GetQueryVar('timeline')) {
-		result.push(new ACTMap_PlayingTimelineSet({ mapID, timelineID: parseInt(url.GetQueryVar('timeline')) }));
+		result.push(new ACTMap_PlayingTimelineSet({ mapID, timelineID: ToInt(url.GetQueryVar('timeline')) }));
 	}
 	if (url.GetQueryVar('step')) {
-		result.push(new ACTMap_PlayingTimelineStepSet({ mapID, step: parseInt(url.GetQueryVar('step')) - 1 }));
+		result.push(new ACTMap_PlayingTimelineStepSet({ mapID, step: ToInt(url.GetQueryVar('step')) - 1 }));
 	}
 	if (url.GetQueryVar('appliedStep')) {
-		result.push(new ACTMap_PlayingTimelineAppliedStepSet({ mapID, step: parseInt(url.GetQueryVar('appliedStep')) - 1 }));
+		result.push(new ACTMap_PlayingTimelineAppliedStepSet({ mapID, step: ToInt(url.GetQueryVar('appliedStep')) - 1 }));
 	}
 
 	// If user followed search-result link (eg. "debatemap.live/global/156"), we only know the node-id.
@@ -371,10 +367,12 @@ export function GetNewURL(includeMapViewStr = true) {
 	} */
 
 	if (page == 'database') {
-		if (subpage == 'terms' && State(a => a.main.database.selectedTermID)) {
-			newURL.pathNodes.push(`${State(a => a.main.database.selectedTermID)}`);
-		} else if (subpage == 'images' && State(a => a.main.database.selectedImageID)) {
-			newURL.pathNodes.push(`${State(a => a.main.database.selectedImageID)}`);
+		if (subpage == 'users' && GetSelectedUserID()) {
+			newURL.pathNodes.push(`${GetSelectedUserID()}`);
+		} else if (subpage == 'terms' && GetSelectedTermID()) {
+			newURL.pathNodes.push(`${GetSelectedTermID()}`);
+		} else if (subpage == 'images' && GetSelectedImageID()) {
+			newURL.pathNodes.push(`${GetSelectedImageID()}`);
 		}
 	}
 

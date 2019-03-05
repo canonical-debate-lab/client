@@ -9,7 +9,7 @@ import { UserExtraInfo, PermissionGroupSet } from './userExtras/@UserExtraInfo';
 /* export function GetAuth(state: RootState) {
 	return state.firebase.auth;
 } */
-export function GetUserID(): string {
+export function MeID(): string {
 	// return state.firebase.data.auth ? state.firebase.data.auth.uid : null;
 	// return GetData(state.firebase, "auth");
 	/* var result = helpers.pathToJS(firebase, "auth").uid;
@@ -18,6 +18,9 @@ export function GetUserID(): string {
 	return firebaseSet.toJS().auth.uid; */
 	// return State(a=>a.firebase.auth) ? State(a=>a.firebase.auth.uid) : null;
 	return IsAuthValid(GetAuth()) ? GetAuth().uid : null;
+}
+export function Me() {
+	return GetUser(MeID());
 }
 
 export function GetUser(userID: string): User {
@@ -37,13 +40,11 @@ export function GetUserJoinDate(userID: string): number {
 	if (userID == null) return null;
 	return GetData('userExtras', userID, '.joinDate');
 }
-export function GetUserPermissionGroups(userID: string | 'me'): PermissionGroupSet {
-	if (userID === 'me') userID = GetUserID();
+export function GetUserPermissionGroups(userID: string): PermissionGroupSet {
 	if (userID == null) return null;
 	return GetData('userExtras', userID, '.permissionGroups');
 }
-export function GetUserAccessLevel(userID: string | 'me') {
-	if (userID === 'me') userID = GetUserID();
+export function GetUserAccessLevel(userID: string) {
 	const groups = GetUserPermissionGroups(userID);
 	if (groups == null) return AccessLevel.Basic;
 

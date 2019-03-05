@@ -20,7 +20,7 @@ import { GetNodeDisplayText, GetNodeL3, GetValidNewChildTypes, IsMultiPremiseArg
 import { ClaimForm, MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
 import { GetMapNodeTypeDisplayName, MapNodeType, MapNodeType_Info } from '../../../../Store/firebase/nodes/@MapNodeType';
 import { CanGetBasicPermissions, IsUserCreatorOrMod } from '../../../../Store/firebase/userExtras';
-import { GetUserID, GetUserPermissionGroups } from '../../../../Store/firebase/users';
+import { MeID, GetUserPermissionGroups } from '../../../../Store/firebase/users';
 import { ACTNodeCopy, GetCopiedNode } from '../../../../Store/main';
 import { ShowSignInPopup } from '../../NavBar/UserPanel';
 import { ShowAddChildDialog } from './NodeUI_Menu/AddChildDialog';
@@ -64,9 +64,9 @@ const connector = (_: RootState, { map, node, path, holderType }: Props) => {
 	} */
 
 	return {
-		_: (ForUnlink_GetError(GetUserID(), node), ForDelete_GetError(GetUserID(), node)),
-		// userID: GetUserID(), // not needed in Connect(), since permissions already watches its data
-		permissions: GetUserPermissionGroups(GetUserID()),
+		_: (ForUnlink_GetError(MeID(), node), ForDelete_GetError(MeID(), node)),
+		// userID: MeID(), // not needed in Connect(), since permissions already watches its data
+		permissions: GetUserPermissionGroups(MeID()),
 		parent,
 		// nodeChildren: GetNodeChildrenL3(node, path),
 		nodeChildren: GetNodeChildrenL3(node, path),
@@ -83,7 +83,7 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 		const { map, node, path, inList, holderType,
 			permissions, parent, nodeChildren, combinedWithParentArg, copiedNode, copiedNodePath, copiedNode_asCut, pathsToChangedInSubtree } = this.props;
 		const mapID = map ? map._id : null;
-		const userID = GetUserID();
+		const userID = MeID();
 		// let validChildTypes = MapNodeType_Info.for[node.type].childTypes;
 		let validChildTypes = GetValidNewChildTypes(node, holderType, permissions);
 		const componentBox = holderType != null;
@@ -276,7 +276,7 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 
 /* let PasteAsLink_MenuItem_connector = (state, {}: SharedProps)=> {
 	let moveOpPayload = {};
-	let valid = IsUserBasicOrAnon(GetUserID()) && copiedNode != null && IsMoveNodeOpValid(moveOpPayload);
+	let valid = IsUserBasicOrAnon(MeID()) && copiedNode != null && IsMoveNodeOpValid(moveOpPayload);
 	return {valid};
 };
 @Connect(connector)
@@ -306,7 +306,7 @@ class PasteAsLink_MenuItem extends BaseComponent<SharedProps, {}> {
 				enabled={error == null} title={error}
 				style={styles.vMenuItem} onClick={(e) => {
 					if (e.button != 0) return;
-					if (GetUserID() == null) return ShowSignInPopup();
+					if (MeID() == null) return ShowSignInPopup();
 
 					if (copiedNode.type == MapNodeType.Argument && !copiedNode_asCut) {
 						// eslint-disable-next-line
@@ -344,7 +344,7 @@ class UnlinkContainerArgument_MenuItem extends BaseComponent<SharedProps, {}> {
 		const argumentPath = SlicePath(path, 1);
 		const argument = GetNodeL3(argumentPath);
 		const argumentText = GetNodeDisplayText(argument, argumentPath);
-		const forUnlink_error = ForUnlink_GetError(GetUserID(), argument);
+		const forUnlink_error = ForUnlink_GetError(MeID(), argument);
 		if (!IsUserCreatorOrMod('me', argument)) return <div/>;
 
 		const argumentParentPath = SlicePath(argumentPath, 1);
@@ -378,12 +378,12 @@ class DeleteContainerArgument_MenuItem extends BaseComponent<SharedProps, {}> {
 		const argumentPath = SlicePath(path, 1);
 		const argument = GetNodeL3(argumentPath);
 		const argumentText = GetNodeDisplayText(argument, argumentPath);
-		const forDelete_error = ForDelete_GetError(GetUserID(), argument, { childrenToIgnore: [node._id] });
+		const forDelete_error = ForDelete_GetError(MeID(), argument, { childrenToIgnore: [node._id] });
 		if (!IsUserCreatorOrMod('me', argument)) return <div/>;
 
-		const canDeleteBaseClaim = IsUserCreatorOrMod(GetUserID(), node);
+		const canDeleteBaseClaim = IsUserCreatorOrMod(MeID(), node);
 		const baseClaim_action = node.parents.VKeys(true).length > 1 || !canDeleteBaseClaim ? 'unlink' : 'delete';
-		const forBaseClaimAction_error = baseClaim_action == 'unlink' ? ForUnlink_GetError(GetUserID(), node) : ForDelete_GetError(GetUserID(), node);
+		const forBaseClaimAction_error = baseClaim_action == 'unlink' ? ForUnlink_GetError(MeID(), node) : ForDelete_GetError(MeID(), node);
 
 		return (
 			<VMenuItem text="Delete argument" enabled={forDelete_error == null && forBaseClaimAction_error == null} title={forDelete_error || baseClaim_action}

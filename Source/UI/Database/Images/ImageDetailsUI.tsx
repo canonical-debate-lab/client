@@ -1,28 +1,21 @@
-import { Spinner } from 'react-vcomponents';
-import { Assert, GetEntries } from 'js-vextensions';
-import { BaseComponent, GetDOM } from 'react-vextensions';
-import { Column } from 'react-vcomponents';
-import { TextInput } from 'react-vcomponents';
+import { GetEntries, GetErrorMessagesUnderElement } from 'js-vextensions';
 import Moment from 'moment';
-import { User } from 'Store/firebase/users/@User';
-import { Select } from 'react-vcomponents';
-import { CheckBox } from 'react-vcomponents';
+import { Column, Div, Pre, Row, RowLR, Select, Spinner, TextInput } from 'react-vcomponents';
+import { BaseComponent, GetDOM } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
-import { Button } from 'react-vcomponents';
-import { Div, Span, Pre, Row, RowLR } from 'react-vcomponents';
-import { GetErrorMessagesUnderElement } from 'js-vextensions';
+import { User } from 'Store/firebase/users/@User';
 import { Connect } from 'Utils/FrameworkOverrides';
-import {Image, Image_namePattern, Image_urlPattern, ImageType, GetNiceNameForImageType} from "../../../Store/firebase/images/@Image";
-import SourceChainsEditorUI from "../../@Shared/Maps/MapNode/SourceChainsEditorUI";
+import { ES } from 'Utils/UI/GlobalStyles';
+import { GetNiceNameForImageType, Image, ImageType, Image_namePattern, Image_urlPattern } from '../../../Store/firebase/images/@Image';
 import { GetUser } from '../../../Store/firebase/users';
-import { Term, TermType, Term_nameFormat, Term_disambiguationFormat } from '../../../Store/firebase/terms/@Term';
+import { SourceChainsEditorUI } from '../../@Shared/Maps/MapNode/SourceChainsEditorUI';
 
 type Props = {baseData: Image, creating: boolean, editing: boolean, style?, onChange?: (newData: Image, error: string)=>void}
 	& Partial<{creator: User, variantNumber: number}>;
-@Connect((state, {baseData, creating}: Props)=>({
+@Connect((state, { baseData, creating }: Props) => ({
 	creator: !creating && GetUser(baseData.creator),
-	}))
-export default class ImageDetailsUI extends BaseComponent<Props, {newData: Image, dataError: string}> {
+}))
+export class ImageDetailsUI extends BaseComponent<Props, {newData: Image, dataError: string}> {
 	ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.baseData != this.props.baseData) { // if base-data changed
 			this.SetState({ newData: Clone(props.baseData) });

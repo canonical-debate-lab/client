@@ -10,18 +10,18 @@ import { GetParentNode, GetParentNodeID, GetParentNodeL3, IsNodeSubnode } from '
 import { GetLinkUnderParent } from '../../../../../../Store/firebase/nodes/$node';
 import { MapNodeL3 } from '../../../../../../Store/firebase/nodes/@MapNode';
 import { IsUserCreatorOrMod } from '../../../../../../Store/firebase/userExtras';
-import { GetUser, GetUserID, GetUserPermissionGroups } from '../../../../../../Store/firebase/users';
+import { GetUser, MeID, GetUserPermissionGroups } from '../../../../../../Store/firebase/users';
 import { User } from '../../../../../../Store/firebase/users/@User';
 import { NodeDetailsUI } from '../../NodeDetailsUI';
 
 type DetailsPanel_Props = {map?: Map, node: MapNodeL3, path: string} & Partial<{creator: User}>;
 @Connect((state, { node, path }: DetailsPanel_Props) => ({
-	_: GetUserPermissionGroups(GetUserID()),
+	_: GetUserPermissionGroups(MeID()),
 	_link: GetLinkUnderParent(node._id, GetParentNode(path)),
 	creator: GetUser(node.creator),
 }))
-// export default class DetailsPanel extends BaseComponent<DetailsPanel_Props, {error: Error}> {
-export default class DetailsPanel extends BaseComponent<DetailsPanel_Props, {dataError: string}> {
+// export class DetailsPanel extends BaseComponent<DetailsPanel_Props, {error: Error}> {
+export class DetailsPanel extends BaseComponent<DetailsPanel_Props, {dataError: string}> {
 	detailsUI: NodeDetailsUI;
 	render() {
 		const { map, node, path, creator } = this.props;
@@ -36,7 +36,7 @@ export default class DetailsPanel extends BaseComponent<DetailsPanel_Props, {dat
 
 		const link = GetLinkUnderParent(node._id, parentNode);
 
-		const creatorOrMod = IsUserCreatorOrMod(GetUserID(), node);
+		const creatorOrMod = IsUserCreatorOrMod(MeID(), node);
 		return (
 			<Column style={{ position: 'relative' }}>
 				<NodeDetailsUI ref={c => this.detailsUI = c}

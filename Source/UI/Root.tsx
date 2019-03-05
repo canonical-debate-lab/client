@@ -7,7 +7,7 @@ import { BaseComponent, BaseComponentWithConnector, ShallowChanged } from 'react
 import { VMenuLayer } from 'react-vmenu';
 import { MessageBoxUI } from 'react-vmessagebox';
 import { PersistGate as PersistGate_ } from 'redux-persist/integration/react';
-import { GetUserID } from 'Store/firebase/users';
+import { MeID, Me } from 'Store/firebase/users';
 import { GuideUI } from 'UI/Guide';
 import '../../Source/Utils/Styles/Main.scss'; // keep absolute-ish, since scss file not copied to Source_JS folder
 import '../Utils/UI/JQueryExtensions';
@@ -17,6 +17,7 @@ import keycode from 'keycode';
 import { State, Connect, Route, browserHistory, AddressBarWrapper } from 'Utils/FrameworkOverrides';
 import { NormalizeURL } from 'Utils/URL/URLs';
 import { ConnectedRouter } from 'connected-react-router';
+import { ES } from 'Utils/UI/GlobalStyles';
 import { GetUserBackground } from '../Store/firebase/users';
 import { NavBar } from '../UI/@Shared/NavBar';
 import { GlobalUI } from '../UI/Global';
@@ -28,7 +29,7 @@ import { DebatesUI } from './Debates';
 import { FeedbackUI } from './Feedback';
 import { ForumUI } from './Forum';
 import { PersonalUI } from './Personal';
-import { ProfileUI } from './Profile';
+import { UserProfileUI } from './Database/Users/UserProfile';
 import { ReputationUI } from './Reputation';
 import { SearchUI } from './Search';
 import { SocialUI } from './Social';
@@ -139,7 +140,7 @@ class RootUI extends BaseComponentWithConnector(connector, {}) {
 	}
 	render() {
 		// let {currentPage} = this.props;
-		const background = GetUserBackground(GetUserID());
+		const background = GetUserBackground(MeID());
 		return (
 			<Column className='background'/* 'unselectable' */ style={{ height: '100%' }}>
 				{/* <div className='background' style={{
@@ -179,7 +180,7 @@ class RootUI extends BaseComponentWithConnector(connector, {}) {
 
 					<Route path='/search'><SearchUI/></Route>
 					<Route path='/guide'><GuideUI/></Route>
-					<Route path='/profile'><ProfileUI/></Route>
+					<Route path='/profile'><UserProfileUI profileUser={Me()}/></Route>
 				</main>
 			</Column>
 		);

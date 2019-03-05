@@ -4,9 +4,10 @@ import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { GetParentNodeID, GetParentNodeL3 } from 'Store/firebase/nodes';
 import { GetNodeViewers } from 'Store/firebase/nodeViewers';
-import { GetUser, GetUserID, GetUserPermissionGroups } from 'Store/firebase/users';
+import { GetUser, MeID, GetUserPermissionGroups } from 'Store/firebase/users';
 import { Icon, InfoButton, SlicePath, Connect } from 'Utils/FrameworkOverrides';
 import { GetEntries } from 'js-vextensions';
+import {ES} from 'Utils/UI/GlobalStyles';
 import { CanConvertFromClaimTypeXToY, ChangeClaimType } from '../../../../../../Server/Commands/ChangeClaimType';
 import { ReverseArgumentPolarity } from '../../../../../../Server/Commands/ReverseArgumentPolarity';
 import { UpdateLink } from '../../../../../../Server/Commands/UpdateLink';
@@ -20,7 +21,7 @@ import { IsUserCreatorOrMod } from '../../../../../../Store/firebase/userExtras'
 import { User } from '../../../../../../Store/firebase/users/@User';
 
 const connector = (state, { node }: {map?: Map, node: MapNodeL3, path: string}) => ({
-	_: GetUserPermissionGroups(GetUserID()),
+	_: GetUserPermissionGroups(MeID()),
 	creator: GetUser(node.creator),
 	viewers: GetNodeViewers(node._id),
 });
@@ -30,11 +31,11 @@ export class OthersPanel extends BaseComponentWithConnector(connector, { convert
 		const { map, node, path, creator, viewers } = this.props;
 		const mapID = map ? map._id : null;
 		let { convertToType } = this.state;
-		const creatorOrMod = IsUserCreatorOrMod(GetUserID(), node);
+		const creatorOrMod = IsUserCreatorOrMod(MeID(), node);
 
 		const parent = GetParentNodeL3(path);
 		const parentPath = SlicePath(path, 1);
-		const parentCreatorOrMod = IsUserCreatorOrMod(GetUserID(), parent);
+		const parentCreatorOrMod = IsUserCreatorOrMod(MeID(), parent);
 
 		const nodeArgOrParentSPArg_controlled = (node.type == MapNodeType.Argument && creatorOrMod ? node : null)
 			|| (parent && parent.type === MapNodeType.Argument && parentCreatorOrMod ? parent : null);

@@ -7,24 +7,24 @@ import { GetNodeDisplayText } from '../../../../Store/firebase/nodes/$node';
 import { ClaimForm } from '../../../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
 import { SubPanel_Quote } from './NodeUI_Inner/SubPanel';
-import SourceChainsEditorUI, { CleanUpdatedSourceChains } from './SourceChainsEditorUI';
+import { SourceChainsEditorUI, CleanUpdatedSourceChains } from './SourceChainsEditorUI';
 
 // @ApplyBasicStyles
-export default class QuoteInfoEditorUI extends BaseComponent
+export class QuoteInfoEditorUI extends BaseComponent
 		<{
 			creating?: boolean, editing?: boolean, baseData: ContentNode, showPreview: boolean, justShowed: boolean, onChange?: (newData: ContentNode)=>void,
 		},
 		{newData: ContentNode}> {
 	ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.baseData != this.props.baseData) // if base-data changed
-			{this.SetState({newData: Clone(props.baseData)});}
+		{ this.SetState({ newData: Clone(props.baseData) }); }
 	}
 
 	render() {
 		const { creating, editing, showPreview, justShowed, onChange } = this.props;
 		const { newData } = this.state;
 		const Change = (_) => {
-			if (onChange) {onChange(this.GetNewData());}
+			if (onChange) { onChange(this.GetNewData()); }
 			this.Update();
 		};
 
@@ -41,7 +41,7 @@ export default class QuoteInfoEditorUI extends BaseComponent
 				]}
 				<Column mt={showPreview ? 5 : 0}>
 					<Pre>Quote text: </Pre>
-					{/*<TextInput style={ES({flex: 1})}
+					{/* <TextInput style={ES({flex: 1})}
 						value={info.text} onChange={val=>Change(info.text = val)}/> */}
 					{(creating || editing) && <MarkdownToolbar editor={() => this.refs.editor} excludeCommands={['h1', 'h2', 'h3', 'h4', 'italic', 'quote']}/>}
 					<MarkdownEditor ref="editor" toolbar={false} value={newData.content} onChange={val => Change(newData.content = val)} options={{

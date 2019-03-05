@@ -4,7 +4,7 @@ import { BaseComponent, RenderSource } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { Area, AreaChart, CartesianGrid, ReferenceLine, Tooltip, XAxis, YAxis } from 'recharts';
 import { SetNodeRating } from 'Server/Commands/SetNodeRating';
-import {SlicePath, Connect} from 'Utils/FrameworkOverrides';
+import { SlicePath, Connect } from 'Utils/FrameworkOverrides';
 import { ShouldRatingTypeBeReversed, TransformRatingForContext } from '../../../../../../Store/firebase/nodeRatings';
 import { GetRatingTypeInfo, RatingType } from '../../../../../../Store/firebase/nodeRatings/@RatingType';
 import { Rating } from '../../../../../../Store/firebase/nodeRatings/@RatingsRoot';
@@ -12,7 +12,7 @@ import { GetNodeChildren } from '../../../../../../Store/firebase/nodes';
 import { GetNodeForm, GetNodeL3 } from '../../../../../../Store/firebase/nodes/$node';
 import { ClaimForm, MapNode, MapNodeL3 } from '../../../../../../Store/firebase/nodes/@MapNode';
 import { GetMapNodeTypeDisplayName } from '../../../../../../Store/firebase/nodes/@MapNodeType';
-import { GetUserID } from '../../../../../../Store/firebase/users';
+import { MeID } from '../../../../../../Store/firebase/users';
 import { RootState } from '../../../../../../Store/index';
 import { ACTRatingUISmoothnessSet, GetRatingUISmoothing } from '../../../../../../Store/main/ratingUI';
 import { ShowSignInPopup } from '../../../../NavBar/UserPanel';
@@ -27,12 +27,12 @@ import { ShowSignInPopup } from '../../../../NavBar/UserPanel';
 
 type RatingsPanel_Props = {node: MapNodeL3, path: string, ratingType: RatingType, ratings: Rating[]}
 	& Partial<{userID: string, /* myRating: number, */ form: ClaimForm, nodeChildren: MapNode[], smoothing: number}>;
-@Connect((state: RootState, {node, path, ratingType}: RatingsPanel_Props)=>({
-	userID: GetUserID(),
+@Connect((state: RootState, { node, path, ratingType }: RatingsPanel_Props) => ({
+	userID: MeID(),
 	form: GetNodeForm(node, path),
 	nodeChildren: GetNodeChildren(node),
 	smoothing: GetRatingUISmoothing(),
-	}))
+}))
 export class RatingsPanel extends BaseComponent<RatingsPanel_Props, {size: Vector2i}> {
 	render() {
 		let { node, path, ratingType, ratings, userID, form, nodeChildren, smoothing } = this.props;

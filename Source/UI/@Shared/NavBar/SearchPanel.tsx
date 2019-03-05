@@ -14,9 +14,10 @@ import { GetUser } from 'Store/firebase/users';
 import { GetOpenMapID } from 'Store/main';
 import { ACTMapViewMerge } from 'Store/main/mapViews/$mapView';
 import { MapNodeView, MapView } from 'Store/main/mapViews/@MapViews';
-import {State, Connect, ACTSet, DBPath, GetAsync, ActionSet, InfoButton} from 'Utils/FrameworkOverrides';
-import {NodeUI_Menu_Stub} from '../Maps/MapNode/NodeUI_Menu';
-import {MapUI} from '../Maps/MapUI';
+import { State, Connect, ACTSet, DBPath, GetAsync, ActionSet, InfoButton } from 'Utils/FrameworkOverrides';
+import { ES } from 'Utils/UI/GlobalStyles';
+import { NodeUI_Menu_Stub } from '../Maps/MapNode/NodeUI_Menu';
+import { MapUI } from '../Maps/MapUI';
 
 const columnWidths = [0.68, 0.2, 0.12];
 
@@ -273,7 +274,7 @@ export function JumpToNode(mapID: number, path: string) {
 	currentParentView.focused = true;
 	currentParentView.viewOffset = new Vector2i(0, 0);
 
-	store.dispatch(new ACTMapViewMerge({ mapID, mapView }).VSet({ fromURL: true }));
+	store.dispatch(new ACTMapViewMerge({ mapID, mapView }));
 
 	const mapUI = FindReact(document.querySelector('.MapUI')) as MapUI;
 	if (mapUI) {

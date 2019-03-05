@@ -4,8 +4,8 @@ import { AddTimelineStep } from 'Server/Commands/AddTimelineStep';
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { AddTimeline } from '../../../Server/Commands/AddTimeline';
 import { Timeline } from '../../../Store/firebase/timelines/@Timeline';
-import { GetUserID } from '../../../Store/firebase/users';
-import TimelineDetailsUI from './TimelineDetailsUI';
+import { MeID } from '../../../Store/firebase/users';
+import { TimelineDetailsUI } from './TimelineDetailsUI';
 
 const defaultIntroMessage = `
 Welcome to the Debate Map platform.
@@ -20,7 +20,7 @@ Continue to the next step to begin displaying the comments made by those involve
 export function ShowAddTimelineDialog(userID: string, mapID: number) {
 	let newTimeline = new Timeline({
 		name: '',
-		creator: GetUserID(),
+		creator: MeID(),
 	});
 
 	let error = null;

@@ -1,7 +1,7 @@
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ValidateDBData } from 'Server/Command';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
-import { GetUserID } from 'Store/firebase/users';
+import { MeID } from 'Store/firebase/users';
 import { ApplyDBUpdates, DBPath, ConvertDataToValidDBUpdates } from 'Utils/FrameworkOverrides';
 import { FirebaseData } from '../../../Store/firebase';
 import { Map, MapType } from '../../../Store/firebase/maps/@Map';
@@ -14,7 +14,7 @@ import { UserExtraInfo } from '../../../Store/firebase/userExtras/@UserExtraInfo
 // export default async function ResetCurrentDBRoot(database: firebase.Database) {
 const sharedData = {} as {creatorInfo: any};
 export async function ResetCurrentDBRoot() {
-	const userKey = GetUserID();
+	const userKey = MeID();
 
 	const data = {} as FirebaseData;
 	data.general = {} as any;

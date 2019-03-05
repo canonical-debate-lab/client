@@ -7,7 +7,7 @@ import { UpdateTimelineStep } from '../../../../Server/Commands/UpdateTimelineSt
 import { NodeReveal, TimelineStep } from '../../../../Store/firebase/timelineSteps/@TimelineStep';
 
 type Props = {baseData: TimelineStep, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: TimelineStep, ui: TimelineStepDetailsUI)=>void};
-export default class TimelineStepDetailsUI extends BaseComponent<Props, {newData: TimelineStep}> {
+export class TimelineStepDetailsUI extends BaseComponent<Props, {newData: TimelineStep}> {
 	static defaultProps = {enabled: true};
 	ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.baseData != this.props.baseData) { // if base-data changed

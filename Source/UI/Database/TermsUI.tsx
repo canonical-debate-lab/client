@@ -3,26 +3,27 @@ import { Button, Column, Div, Pre, Row, Span } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
-import {RemoveHelpers, Connect} from 'Utils/FrameworkOverrides';
+import { RemoveHelpers, Connect } from 'Utils/FrameworkOverrides';
+import { ES } from 'Utils/UI/GlobalStyles';
 import { DeleteTerm } from '../../Server/Commands/DeleteTerm';
 import { UpdateTermData } from '../../Server/Commands/UpdateTermData';
 import { GetFullNameP, GetTermVariantNumber, GetTerms } from '../../Store/firebase/terms';
 import { Term, TermType } from '../../Store/firebase/terms/@Term';
 import { IsUserCreatorOrMod, CanGetBasicPermissions } from '../../Store/firebase/userExtras';
 import { PermissionGroupSet } from '../../Store/firebase/userExtras/@UserExtraInfo';
-import { GetUserID, GetUserPermissionGroups } from '../../Store/firebase/users';
+import { MeID, GetUserPermissionGroups } from '../../Store/firebase/users';
 import { ACTTermSelect, GetSelectedTerm } from '../../Store/main/database';
-import { TermComponentsUI } from '../../UI/Content/Terms/TermComponentsUI';
 import { ShowSignInPopup } from '../@Shared/NavBar/UserPanel';
+import { ShowAddTermDialog, TermDetailsUI } from './Terms/TermDetailsUI';
 import { ShowAddTermComponentDialog } from './Terms/AddTermComponentDialog';
-import { TermDetailsUI, ShowAddTermDialog } from './Terms/TermDetailsUI';
+import { TermComponentsUI } from './Terms/TermComponentsUI';
 
 type Props = {} & Partial<{terms: Term[], selectedTerm: Term, permissions: PermissionGroupSet}>;
-@Connect(state=> ({
+@Connect(state => ({
 	terms: GetTerms(),
 	selectedTerm: GetSelectedTerm(),
-	permissions: GetUserPermissionGroups(GetUserID()),
-	}))
+	permissions: GetUserPermissionGroups(MeID()),
+}))
 export class TermsUI extends BaseComponent<Props, {selectedTerm_newData: Term, selectedTerm_newDataError: string}> {
 	ComponentWillReceiveProps(props) {
 		if (props.selectedTerm != this.props.selectedTerm) {
@@ -33,7 +34,7 @@ export class TermsUI extends BaseComponent<Props, {selectedTerm_newData: Term, s
 	render() {
 		const { terms, selectedTerm, permissions } = this.props;
 		if (terms == null) return <div>Loading terms...</div>;
-		const userID = GetUserID();
+		const userID = MeID();
 		const { selectedTerm_newData, selectedTerm_newDataError } = this.state;
 
 		const creatorOrMod = selectedTerm != null && IsUserCreatorOrMod(userID, selectedTerm);
@@ -138,9 +139,9 @@ function GetHelperTextForTermType(term: Term) {
 }
 
 type TermUI_Props = {term: Term, first: boolean, selected: boolean} & Partial<{variantNumber: number}>;
-@Connect((state, props: TermUI_Props)=>({
+@Connect((state, props: TermUI_Props) => ({
 	variantNumber: GetTermVariantNumber(props.term),
-	}))
+}))
 export class TermUI extends BaseComponent<TermUI_Props, {}> {
 	render() {
 		const { term, first, selected, variantNumber } = this.props;

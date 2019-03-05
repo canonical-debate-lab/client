@@ -4,18 +4,19 @@ import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ACTDebateMapSelect } from 'Store/main/debates';
 import { ResetCurrentDBRoot } from 'UI/More/Admin/ResetCurrentDBRoot';
-import {dbVersion} from 'Main';
+import { dbVersion } from 'Main';
+import { Connect, State, Action, Link, GetData } from 'Utils/FrameworkOverrides';
+import { ACTUserSelect } from 'Store/main/database';
 import { colors } from '../../Utils/UI/GlobalStyles';
 import { ACTSetPage, ACTSetSubpage, ACTTopLeftOpenPanelSet, ACTTopRightOpenPanelSet } from '../../Store/main';
 import { ACTPersonalMapSelect } from '../../Store/main/personal';
-import ChatPanel from './NavBar/ChatPanel';
-import GuidePanel from './NavBar/GuidePanel';
+import { ChatPanel } from './NavBar/ChatPanel';
+import { GuidePanel } from './NavBar/GuidePanel';
 import { NotificationsUI } from './NavBar/NotificationsUI';
-import ReputationPanel from './NavBar/ReputationPanel';
+import { ReputationPanel } from './NavBar/ReputationPanel';
 import { SearchPanel } from './NavBar/SearchPanel';
-import StreamPanel from './NavBar/StreamPanel';
-import UserPanel from './NavBar/UserPanel';
-import { Connect, State, Action, Link, GetData } from 'Utils/FrameworkOverrides';
+import { StreamPanel } from './NavBar/StreamPanel';
+import { UserPanel } from './NavBar/UserPanel';
 
 // main
 // ==========
@@ -84,14 +85,14 @@ export class NavBar extends BaseComponentWithConnector(connector, {}) {
 					</Div>
 
 					<span style={{ margin: '0 auto', paddingLeft: 78 }}>
-						<NavBarButton page="database" text="Database"/>
+						<NavBarPageButton page="database" text="Database"/>
 						{/* <NavBarButton page="feedback" text="Feedback"/>
 						<NavBarButton page="forum" text="Forum"/> */}
-						<NavBarButton page="more" text="More"/>
-						<NavBarButton page="home" text="Canonical Debate" style={{ margin: '0 auto', textAlign: 'center', fontSize: 23 }}/>
-						<NavBarButton page="personal" text="Personal"/>
-						<NavBarButton page="debates" text="Debates"/>
-						<NavBarButton page="global" text="Global"/>
+						<NavBarPageButton page="more" text="More"/>
+						<NavBarPageButton page="home" text="Canonical Debate" style={{ margin: '0 auto', textAlign: 'center', fontSize: 23 }}/>
+						<NavBarPageButton page="personal" text="Personal"/>
+						<NavBarPageButton page="debates" text="Debates"/>
+						<NavBarPageButton page="global" text="Global"/>
 					</span>
 
 					<span style={{ position: 'absolute', right: 0, display: 'flex' }}>
@@ -114,10 +115,10 @@ export class NavBar extends BaseComponentWithConnector(connector, {}) {
 }
 
 // @Radium
-@Connect(state=> ({
-	currentPage: State(a=>a.main.page),
-	}))
-export class NavBarButton extends BaseComponent
+@Connect(state => ({
+	currentPage: State(a => a.main.page),
+}))
+export class NavBarPageButton extends BaseComponent
 		<{page?: string, text: string, panel?: boolean, active?: boolean, style?, onClick?: (e)=>void} & Partial<{currentPage: string}>,
 		{hovered: boolean}> {
 	render() {
@@ -135,41 +136,48 @@ export class NavBarButton extends BaseComponent
 			style,
 		);
 
-		let actions = [] as Action<any>[];
+		const actions = [] as Action<any>[];
 		if (page) {
 			if (page != currentPage) {
-				actions = [new ACTSetPage(page)];
-			} else if (page == 'personal') {
-				actions = [new ACTPersonalMapSelect({ id: null })];
-			} else if (page == 'debates') {
-				actions = [new ACTDebateMapSelect({ id: null })];
+				actions.push(new ACTSetPage(page));
 			} else {
-				actions = [new ACTSetSubpage({ page, subpage: null })];
+				// go to the page root-contents, if clicking on page in nav-bar we're already on
+				actions.push(new ACTSetSubpage({ page, subpage: null }));
+				if (page == 'database') {
+					// if our default subpage is already active, then perform that subpage's action-if-already-active
+					if ([null, 'users'].Contains(State(a => a.main.database.subpage))) {
+						actions.push(new ACTUserSelect({ id: null }));
+					}
+				} else if (page == 'personal') {
+					actions.push(new ACTPersonalMapSelect({ id: null }));
+				} else if (page == 'debates') {
+					actions.push(new ACTDebateMapSelect({ id: null }));
+				}
 			}
 		}
 
 		const hoverOrActive = hovered || active;
 		return (
-			<Link actions={d => d(...actions)} style={finalStyle} onMouseEnter={() => this.SetState({ hovered: true })} onMouseLeave={() => this.SetState({ hovered: false })} onClick={onClick}>
+			<Link actions={actions} style={finalStyle} onMouseEnter={() => this.SetState({ hovered: true })} onMouseLeave={() => this.SetState({ hovered: false })} onClick={onClick}>
 				{text}
-				{hoverOrActive
-					&& <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 2, background: 'rgba(100,255,100,1)' }}/>}
+				{hoverOrActive &&
+					<div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 2, background: 'rgba(100,255,100,1)' }}/>}
 			</Link>
 		);
 	}
 }
 
 type NavBarPanelButton_Props = {text: string, panel: string, corner: 'top-left' | 'top-right'} & Partial<{topLeftOpenPanel, topRightOpenPanel}>;
-@Connect(_=> ({
-	topLeftOpenPanel: State(a=>a.main.topLeftOpenPanel),
-	topRightOpenPanel: State(a=>a.main.topRightOpenPanel),
-	}))
+@Connect(_ => ({
+	topLeftOpenPanel: State(a => a.main.topLeftOpenPanel),
+	topRightOpenPanel: State(a => a.main.topRightOpenPanel),
+}))
 export class NavBarPanelButton extends BaseComponent<NavBarPanelButton_Props, {}> {
 	render() {
 		const { text, panel, corner, topLeftOpenPanel, topRightOpenPanel } = this.props;
 		const active = (corner == 'top-left' ? topLeftOpenPanel : topRightOpenPanel) == panel;
 		return (
-			<NavBarButton page={panel} text={text} panel={true} active={active} onClick={(e) => {
+			<NavBarPageButton page={panel} text={text} panel={true} active={active} onClick={(e) => {
 				e.preventDefault();
 				if (corner == 'top-left') { store.dispatch(new ACTTopLeftOpenPanelSet(active ? null : panel)); } else { store.dispatch(new ACTTopRightOpenPanelSet(active ? null : panel)); }
 			}}/>

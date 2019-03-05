@@ -2,25 +2,26 @@ import { Button, Column, Div, Pre, Row, Span } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
-import {Connect, RemoveHelpers} from 'Utils/FrameworkOverrides';
+import { Connect, RemoveHelpers } from 'Utils/FrameworkOverrides';
+import { ES } from 'Utils/UI/GlobalStyles';
 import { DeleteImage } from '../../Server/Commands/DeleteImage';
 import { UpdateImageData, UpdateImageData_allowedPropUpdates } from '../../Server/Commands/UpdateImageData';
 import { GetImages } from '../../Store/firebase/images';
 import { GetNiceNameForImageType, Image } from '../../Store/firebase/images/@Image';
 import { IsUserCreatorOrMod, CanGetBasicPermissions } from '../../Store/firebase/userExtras';
 import { PermissionGroupSet } from '../../Store/firebase/userExtras/@UserExtraInfo';
-import { GetUserID, GetUserPermissionGroups } from '../../Store/firebase/users';
+import { MeID, GetUserPermissionGroups } from '../../Store/firebase/users';
 import { ACTImageSelect, GetSelectedImage } from '../../Store/main/database';
 import { ShowSignInPopup } from '../@Shared/NavBar/UserPanel';
 import { ShowAddImageDialog } from './Images/AddImageDialog';
-import ImageDetailsUI from './Images/ImageDetailsUI';
+import { ImageDetailsUI } from './Images/ImageDetailsUI';
 
-@Connect(state=> ({
+@Connect(() => ({
 	images: GetImages(),
 	selectedImage: GetSelectedImage(),
-	permissions: GetUserPermissionGroups(GetUserID()),
-	}))
-export default class ImagesUI extends BaseComponent
+	permissions: GetUserPermissionGroups(MeID()),
+}))
+export class ImagesUI extends BaseComponent
 		<{} & Partial<{images: Image[], selectedImage: Image, permissions: PermissionGroupSet}>,
 		{selectedImage_newData: Image, selectedImage_newDataError: string}> {
 	ComponentWillReceiveProps(props) {
@@ -33,7 +34,7 @@ export default class ImagesUI extends BaseComponent
 	render() {
 		const { images, selectedImage, permissions } = this.props;
 		if (images == null) return <div>Loading images...</div>;
-		const userID = GetUserID();
+		const userID = MeID();
 		const { selectedImage_newData, selectedImage_newDataError } = this.state;
 
 		const creatorOrMod = selectedImage != null && IsUserCreatorOrMod(userID, selectedImage);
@@ -42,7 +43,7 @@ export default class ImagesUI extends BaseComponent
 			<Row plr={7} style={{ height: '100%', alignItems: 'flex-start' }}>
 				<Column mtb={10} style={{
 					// position: "relative", flex: .4, height: "calc(100% - 20px)",
-					position: 'absolute', left: 0, right: '40%', height: 'calc(100% - 20px)', // fix for safari
+					position: 'absolute', left: 10, right: '40%', height: 'calc(100% - 20px)', // fix for safari
 					background: 'rgba(0,0,0,.5)', borderRadius: 10,
 				}}>
 					<Row style={{ height: 40, justifyContent: 'center', background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' }}>
@@ -64,7 +65,7 @@ export default class ImagesUI extends BaseComponent
 					</ScrollView>
 				</Column>
 				<ScrollView ref={c => this.scrollView = c} style={{
-					marginLeft: 10,
+					// marginLeft: 10,
 					// flex: .6,
 					position: 'absolute', left: '60%', right: 0, height: '100%', // fix for safari
 				}} contentStyle={ES({ flex: 1, padding: 10 })}>

@@ -2,8 +2,8 @@ import { GetNode, GetHolderType, ForNewLink_GetError } from 'Store/firebase/node
 import { Assert, E } from 'js-vextensions';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
-import { GetUserPermissionGroups, GetUserID } from 'Store/firebase/users';
-import {GetAsync} from 'Utils/FrameworkOverrides';
+import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
+import { GetAsync } from 'Utils/FrameworkOverrides';
 import { ClaimForm, MapNode, Polarity } from './../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from './../../Store/firebase/nodes/@MapNodeType';
 import { Command, MergeDBUpdates } from './../Command';
@@ -39,7 +39,7 @@ export function LinkNode_HighLevel_GetCommandError(command: LinkNode_HighLevel) 
 }
 
 export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: number}> {
-	static defaultPayload = {allowCreateWrapperArg: true};
+	static defaultPayload = { allowCreateWrapperArg: true };
 	Validate_Early() {
 		const { oldParentID, nodeID } = this.payload;
 		Assert(oldParentID !== nodeID, 'Parent-id and child-id cannot be the same!');

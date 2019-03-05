@@ -9,7 +9,7 @@ type Props = {baseData: Equation, creating: boolean, editing?: boolean, style?, 
 	creator: !creating && GetUser(baseData.creator),
 	variantNumber: !creating && GetTermVariantNumber(baseData),
 })) */
-export default class EquationEditorUI extends BaseComponent<Props, {newData: Equation}> {
+export class EquationEditorUI extends BaseComponent<Props, {newData: Equation}> {
 	ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.baseData != this.props.baseData) { // if base-data changed
 			this.SetState({ newData: Clone(props.baseData) });

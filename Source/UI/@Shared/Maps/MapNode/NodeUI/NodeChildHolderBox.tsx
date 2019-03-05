@@ -40,7 +40,7 @@ const connector = (state, { node, path, type, nodeChildren }: Props) => {
 	if (mainRating_average != -1) {
 		mainRating_average = TransformRatingForContext(mainRating_average, ShouldRatingTypeBeReversed(node, ratingType));
 	}
-	let mainRating_mine = GetRatingAverage_AtPath(node, ratingType, new RatingFilter({includeUser: GetUserID()}));
+	let mainRating_mine = GetRatingAverage_AtPath(node, ratingType, new RatingFilter({includeUser: MeID()}));
 	//let mainRating_fillPercent = average;
 
 	let weightingType = State(a=>a.main.weighting);

@@ -1,5 +1,3 @@
-import { GetUserPermissionGroups, GetUserID } from '../users';
-
 export class UserExtraInfo {
 	constructor(initialData: Partial<UserExtraInfo>) {
 		this.Extend(initialData);
@@ -12,6 +10,9 @@ export class UserExtraInfo {
 }
 AddSchema({
 	properties: {
+		joinDate: { type: 'number' },
+		permissionGroups: { $ref: 'PermissionGroupSet' },
+
 		edits: { type: 'number' },
 		lastEditAt: { type: 'number' },
 	},
@@ -23,3 +24,11 @@ export class PermissionGroupSet {
 	mod: boolean;
 	admin: boolean;
 }
+AddSchema({
+	properties: {
+		basic: { type: 'boolean' },
+		verified: { type: 'boolean' },
+		mod: { type: 'boolean' },
+		admin: { type: 'boolean' },
+	},
+}, 'PermissionGroupSet');

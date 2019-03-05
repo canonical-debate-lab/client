@@ -6,12 +6,12 @@ import { ShowMessageBox } from 'react-vmessagebox';
 import { HasAdminPermissions } from 'Store/firebase/userExtras';
 import { Omit } from 'lodash';
 import { StopStateDataOverride, StartStateDataOverride, UpdateStateDataOverride } from 'UI/@Shared/StateOverrides';
-import {Connect, GetData, DBPath, State, RemoveHelpers, SplitStringBySlash_Cached, GetDataAsync, ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks} from 'Utils/FrameworkOverrides';
+import { Connect, GetData, DBPath, State, RemoveHelpers, SplitStringBySlash_Cached, GetDataAsync, ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks } from 'Utils/FrameworkOverrides';
+import { dbVersion } from 'Main';
 import { styles } from '../../Utils/UI/GlobalStyles';
 import { FirebaseData } from '../../Store/firebase';
-import { GetUserID, GetUser } from '../../Store/firebase/users';
+import { MeID, GetUser } from '../../Store/firebase/users';
 import { ResetCurrentDBRoot } from './Admin/ResetCurrentDBRoot';
-import { dbVersion } from 'Main';
 
 type UpgradeFunc = (oldData: FirebaseData, markProgress: MarkProgressFunc)=>Promise<FirebaseData>;
 type MarkProgressFunc = (depth: number, entryIndex: number, entryCount?: number)=>void;
@@ -35,7 +35,7 @@ require('./Admin/DBUpgrades/UpgradeDB_11');
 const connector = (state, {}: {}) => ({
 	isAdmin: HasAdminPermissions('me')
 		// also check previous version for admin-rights (so we can increment db-version without losing our rights to complete the db-upgrade!)
-		|| (GetUserID() != null && GetData({ inVersionRoot: false }, 'versions', `v${dbVersion - 1}-${ENV_SHORT}`, 'userExtras', GetUserID(), '.permissionGroups', '.admin')),
+		|| (MeID() != null && GetData({ inVersionRoot: false }, 'versions', `v${dbVersion - 1}-${ENV_SHORT}`, 'userExtras', MeID(), '.permissionGroups', '.admin')),
 });
 @Connect(connector)
 export class AdminUI extends BaseComponentWithConnector(connector, { dbUpgrade_entryIndexes: [] as number[], dbUpgrade_entryCounts: [] as number[] }) {

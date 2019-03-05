@@ -5,7 +5,7 @@ import { ScrollView } from 'react-vscrollview';
 import { ImageAttachment } from '../../../../Store/firebase/nodes/@MapNode';
 
 type Props = {baseData: ImageAttachment, creating: boolean, editing?: boolean, style?, onChange?: (newData: ImageAttachment)=>void};
-export default class ImageAttachmentEditorUI extends BaseComponent<Props, {newData: ImageAttachment}> {
+export class ImageAttachmentEditorUI extends BaseComponent<Props, {newData: ImageAttachment}> {
 	ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.baseData != this.props.baseData) // if base-data changed
 		{ this.SetState({ newData: Clone(props.baseData) }); }

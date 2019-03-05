@@ -48,7 +48,7 @@ module.exports = {
 	},
 	rules: {
 		"indent": ["error", "tab"],
-		"no-tabs": 0,
+		"no-tabs": "off",
 		"import/no-extraneous-dependencies": ["error", {"devDependencies": true}],
 		"max-len": "off",
 		"padded-blocks": "off", // disabled since it incorrectly perceives a commented first-line as being an empty line
@@ -61,7 +61,7 @@ module.exports = {
 		"no-underscore-dangle": ["error", {"allow": ["__webpack_require__", "_key", "_id"]}], // lets us access some special variables/properties
 		"no-console": "off", // lets us use console.log, etc.
 		"object-curly-newline": "off", // fixes that eslint would complain about vscode's import reformatting, when more than 3 variables were imported from a single file
-		"no-restricted-syntax": [0, "ForOfStatement"], // allow for-of loops for now
+		"no-restricted-syntax": ["off", "ForOfStatement"], // allow for-of loops for now
 		"no-continue": "off",
 		"import/no-useless-path-segments": "off", // disabled because vs-code's auto-import tool doesn't always write paths matching eslint's "fewest segments" criteria
 		"react/display-name": "off", // doesn't handle inline react-render-functions well
@@ -76,6 +76,9 @@ module.exports = {
 		"no-debugger": "off", // sometimes adding a debugger call is useful
 		"no-return-assign": "off",
 		"no-plusplus": "off", // this is a very common pattern in a for-loop
+		"operator-linebreak": "off", // messes up alignment of jsx tags otherwise
+		"no-empty-pattern": "off", // breaks comp-prop-types definition for BaseComponentWithConnector, when connect-func does not itself use the props
+		"no-lonely-if": "off",
 	},
 	globals: {
 		ENV: true,

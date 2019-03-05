@@ -5,7 +5,7 @@ import { Column } from 'react-vcomponents';
 import { VURL } from 'js-vextensions';
 import { Link } from 'Utils/FrameworkOverrides';
 
-export default class SourcesUI extends BaseComponent<{sourceChains: SourceChain[]}, {}> {
+export class SourcesUI extends BaseComponent<{sourceChains: SourceChain[]}, {}> {
 	render() {
 		const { sourceChains } = this.props;
 		return (

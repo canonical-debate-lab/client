@@ -1,5 +1,5 @@
 import { AsNodeL1, GetFinalPolarity } from 'Store/firebase/nodes/$node';
-import { GetUserAccessLevel, GetUserID } from 'Store/firebase/users';
+import { GetUserAccessLevel, MeID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
 import { GetErrorMessagesUnderElement, GetEntries } from 'js-vextensions';
 import { CheckBox, Column, Div, Pre, Row, Select, Spinner, TextArea, TextInput } from 'react-vcomponents';
@@ -11,9 +11,10 @@ import { AccessLevel, ChildEntry, ClaimForm, ClaimType, MapNode, MapNodeL2, MapN
 import { ArgumentType, GetArgumentTypeDisplayText, MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../Store/firebase/nodes/@MapNodeRevision';
 import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
 import { GetUser } from '../../../../Store/firebase/users';
-import EquationEditorUI from './EquationEditorUI';
-import ImageAttachmentEditorUI from './ImageAttachmentEditorUI';
-import QuoteInfoEditorUI from './QuoteInfoEditorUI';
+import {EquationEditorUI} from './EquationEditorUI';
+import {ImageAttachmentEditorUI} from './ImageAttachmentEditorUI';
+import {QuoteInfoEditorUI} from './QuoteInfoEditorUI';
+import {ES} from 'Utils/UI/GlobalStyles';
 
 type Props = {
 	baseData: MapNode,
@@ -26,11 +27,11 @@ type Props = {
 type Props_Enhanced = Props & State & {newDataAsL2, Change};
 type State = {newData: MapNode, newRevisionData: MapNodeRevision, newLinkData: ChildEntry};
 
-@Connect((state, {baseData, baseRevisionData, forNew}: Props)=>({
+@Connect((state, { baseData, baseRevisionData, forNew }: Props) => ({
 	creator: !forNew && GetUser(baseData.creator),
-	}))
+}))
 export class NodeDetailsUI extends BaseComponent<Props, State> {
-	static defaultProps = {enabled: true};
+	static defaultProps = { enabled: true };
 
 	ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.baseData != this.props.baseData) // if base-data changed
@@ -231,7 +232,7 @@ class AdvancedOptions extends BaseComponent<Props_Enhanced, {}> {
 				</Row>
 				<Row mt={5} style={{ display: 'flex', alignItems: 'center' }}>
 					<Pre>Access level: </Pre>
-					<Select options={GetEntries(AccessLevel).filter(a => a.value <= GetUserAccessLevel(GetUserID()))} enabled={enabled}
+					<Select options={GetEntries(AccessLevel).filter(a => a.value <= GetUserAccessLevel(MeID()))} enabled={enabled}
 						value={newRevisionData.accessLevel || AccessLevel.Basic}
 						// onChange={val => Change(val == AccessLevel.Basic ? delete newRevisionData.accessLevel : newRevisionData.accessLevel = val)}/>
 						onChange={val => Change(newRevisionData.accessLevel = val)}/>

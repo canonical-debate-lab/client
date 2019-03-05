@@ -181,11 +181,12 @@ export async function PostDispatchAction(action: Action<any>) {
 		const userID = action['auth'].uid;
 		const joinDate = await GetDataAsync('userExtras', userID, 'joinDate');
 		if (joinDate == null) {
-			const firebase = store.firebase.helpers;
+			// todo: improve this; perhaps create an InitUser command, with the server doing the actual permission setting and such
+			/* const firebase = store.firebase.helpers;
 			firebase.ref(DBPath(`userExtras/${userID}`)).update({
 				permissionGroups: { basic: true, verified: true, mod: false, admin: false },
 				joinDate: Date.now(),
-			});
+			}); */
 			firestoreDB.doc(DBPath(`userExtras/${userID}`)).set({
 				permissionGroups: { basic: true, verified: true, mod: false, admin: false },
 				joinDate: Date.now(),

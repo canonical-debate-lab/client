@@ -12,7 +12,7 @@ type Props = {baseData: Timeline, forNew: boolean, enabled?: boolean, style?, on
 @Connect((state, {baseData, forNew}: Props)=>({
 	creator: !forNew && GetUser(baseData.creator),
 	}))
-export default class TimelineDetailsUI extends BaseComponent<Props, {newData: Timeline}> {
+export class TimelineDetailsUI extends BaseComponent<Props, {newData: Timeline}> {
 	static defaultProps = {enabled: true};
 	ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.baseData != this.props.baseData) { // if base-data changed

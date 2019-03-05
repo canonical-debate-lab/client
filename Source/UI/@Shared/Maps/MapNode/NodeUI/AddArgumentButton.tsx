@@ -1,4 +1,4 @@
-import { GetUserID } from 'Store/firebase/users';
+import { MeID } from 'Store/firebase/users';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { Button } from 'react-vcomponents';
 import { BaseComponent, GetDOM } from 'react-vextensions';
@@ -107,9 +107,9 @@ export class AddArgumentButton extends BaseComponent<Props, {}> {
 				)}
 				onClick={(e) => {
 					if (e.button != 0) return;
-					if (GetUserID() == null) return ShowSignInPopup();
+					if (MeID() == null) return ShowSignInPopup();
 
-					ShowAddChildDialog(node, path, MapNodeType.Argument, polarity, GetUserID(), map._id);
+					ShowAddChildDialog(node, path, MapNodeType.Argument, polarity, MeID(), map._id);
 				}}/>
 		);
 	}

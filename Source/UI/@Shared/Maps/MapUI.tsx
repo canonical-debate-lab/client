@@ -7,7 +7,7 @@ import { VMenuItem } from 'react-vmenu/dist/VMenu';
 import { ScrollView } from 'react-vscrollview';
 import { TimelinePlayerUI } from 'UI/@Shared/Maps/MapUI/TimelinePlayerUI';
 import { State, Connect, GetDistanceBetweenRectAndPoint, inFirefox } from 'Utils/FrameworkOverrides';
-import { styles } from '../../../Utils/UI/GlobalStyles';
+import { styles, ES } from '../../../Utils/UI/GlobalStyles';
 import { Map } from '../../../Store/firebase/maps/@Map';
 import { GetNodeL3, IsNodeL2, IsNodeL3 } from '../../../Store/firebase/nodes/$node';
 import { MapNodeL3 } from '../../../Store/firebase/nodes/@MapNode';
@@ -16,7 +16,7 @@ import { GetOpenMapID } from '../../../Store/main';
 import { GetFocusedNodePath, GetMapView, GetNodeView, GetSelectedNodePath, GetViewOffset } from '../../../Store/main/mapViews';
 import { ACTMapNodeSelect, ACTViewCenterChange } from '../../../Store/main/mapViews/$mapView/rootNodeViews';
 import { NodeUI } from './MapNode/NodeUI';
-import NodeUI_ForBots from './MapNode/NodeUI_ForBots';
+import { NodeUI_ForBots } from './MapNode/NodeUI_ForBots';
 import { NodeUI_Inner } from './MapNode/NodeUI_Inner';
 import { ActionBar_Left } from './MapUI/ActionBar_Left';
 import { ActionBar_Right } from './MapUI/ActionBar_Right';
@@ -81,7 +81,7 @@ const connector = (state: RootState, { map, rootNode }: Props) => {
 export class MapUI extends BaseComponentWithConnector(connector, {}) {
 	// static defaultProps = {padding: {left: 2000, right: 2000, top: 1000, bottom: 1000}};
 	static defaultProps = {
-		padding: {left: screen.availWidth, right: screen.availWidth, top: screen.availHeight, bottom: screen.availHeight},
+		padding: { left: screen.availWidth, right: screen.availWidth, top: screen.availHeight, bottom: screen.availHeight },
 		subNavBarWidth: 0,
 	};
 	static ValidateProps(props) {
@@ -111,12 +111,12 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 
 		return (
 			<Column style={ES({ flex: 1 })}>
-				{!withinPage
-					&& <ActionBar_Left map={map} subNavBarWidth={subNavBarWidth}/>}
-				{!withinPage
-					&& <ActionBar_Right map={map} subNavBarWidth={subNavBarWidth}/>}
-				{!withinPage
-					&& <TimelinePlayerUI map={map}/>}
+				{!withinPage &&
+					<ActionBar_Left map={map} subNavBarWidth={subNavBarWidth}/>}
+				{!withinPage &&
+					<ActionBar_Right map={map} subNavBarWidth={subNavBarWidth}/>}
+				{!withinPage &&
+					<TimelinePlayerUI map={map}/>}
 				{/*! withinPage &&
 					<TimelineOverlayUI map={map}/> */}
 				<ScrollView {...rest.Excluding(...StandardCompProps())} ref={c => this.scrollView = c}

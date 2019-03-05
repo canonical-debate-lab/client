@@ -3,21 +3,22 @@ import { BaseComponentWithConnector } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { GetMaps } from 'Store/firebase/maps';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
-import { GetUserID, GetUserPermissionGroups } from 'Store/firebase/users';
+import { MeID, GetUserPermissionGroups } from 'Store/firebase/users';
 import { GetSelectedPersonalMap } from 'Store/main/personal';
 import { columnWidths } from 'UI/Debates';
-import {Connect} from 'Utils/FrameworkOverrides';
-import {Map, MapType} from '../Store/firebase/maps/@Map';
-import {PermissionGroupSet} from '../Store/firebase/userExtras/@UserExtraInfo';
-import {ShowAddMapDialog} from './@Shared/Maps/AddMapDialog';
-import {MapEntryUI} from './@Shared/Maps/MapEntryUI';
-import {MapUI} from './@Shared/Maps/MapUI';
-import {ShowSignInPopup} from './@Shared/NavBar/UserPanel';
+import { Connect } from 'Utils/FrameworkOverrides';
+import { ES } from 'Utils/UI/GlobalStyles';
+import { Map, MapType } from '../Store/firebase/maps/@Map';
+import { PermissionGroupSet } from '../Store/firebase/userExtras/@UserExtraInfo';
+import { ShowAddMapDialog } from './@Shared/Maps/AddMapDialog';
+import { MapEntryUI } from './@Shared/Maps/MapEntryUI';
+import { MapUI } from './@Shared/Maps/MapUI';
+import { ShowSignInPopup } from './@Shared/NavBar/UserPanel';
 
 type Props = {} & Partial<{permissions: PermissionGroupSet, maps: Map[], selectedMap: Map}>;
 
 const connector = (state, {}: {}) => ({
-	permissions: GetUserPermissionGroups(GetUserID()),
+	permissions: GetUserPermissionGroups(MeID()),
 	maps: GetMaps().filter(a => a && a.type == MapType.Personal),
 	selectedMap: GetSelectedPersonalMap(),
 });
@@ -25,7 +26,7 @@ const connector = (state, {}: {}) => ({
 export class PersonalUI extends BaseComponentWithConnector(connector, {}) {
 	render() {
 		let { permissions, maps, selectedMap } = this.props;
-		const userID = GetUserID();
+		const userID = MeID();
 
 		if (selectedMap) {
 			return <MapUI map={selectedMap}/>;

@@ -1,4 +1,4 @@
-import { GetUserID } from 'Store/firebase/users';
+import { MeID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
 import { GetErrorMessagesUnderElement, GetEntries } from 'js-vextensions';
 import Moment from 'moment';
@@ -6,19 +6,20 @@ import { CheckBox, Column, Pre, Row, RowLR, Select, TextInput } from 'react-vcom
 import { BaseComponent, GetDOM } from 'react-vextensions';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { InfoButton, Connect } from 'Utils/FrameworkOverrides';
+import { ES } from 'Utils/UI/GlobalStyles';
 import { AddTerm } from '../../../Server/Commands/AddTerm';
 import { TermComponent } from '../../../Store/firebase/termComponents/@TermComponent';
 import { GetTermVariantNumber } from '../../../Store/firebase/terms';
 import { Term, TermType, Term_disambiguationFormat, Term_nameFormat } from '../../../Store/firebase/terms/@Term';
 import { GetUser } from '../../../Store/firebase/users';
-import { GetNiceNameForTermType } from '../../../UI/Content/TermsUI';
+import { GetNiceNameForTermType } from '../../Database/TermsUI';
 
 type Props = {baseData: Term, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: Term, error: string)=>void}
 	& Partial<{creator: User, variantNumber: number}>;
-@Connect((state, {baseData, forNew}: Props)=>({
+@Connect((state, { baseData, forNew }: Props) => ({
 	creator: !forNew && GetUser(baseData.creator),
 	variantNumber: !forNew && GetTermVariantNumber(baseData),
-	}))
+}))
 export class TermDetailsUI extends BaseComponent<Props, {newData: Term, dataError: string, selectedTermComponent: TermComponent}> {
 	ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.baseData != this.props.baseData) // if base-data changed
@@ -115,7 +116,7 @@ export function ShowAddTermDialog(userID: string) {
 		name: '',
 		type: TermType.SpecificEntity,
 		shortDescription_current: '',
-		creator: GetUserID(),
+		creator: MeID(),
 	});
 
 	let valid = false;

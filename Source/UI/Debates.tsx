@@ -3,14 +3,14 @@ import { Button } from 'react-vcomponents';
 import { Row } from 'react-vcomponents';
 import { Column } from 'react-vcomponents';
 import { GetMaps } from 'Store/firebase/maps';
-import {styles} from "../Utils/UI/GlobalStyles";
+import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
+import { ScrollView } from 'react-vscrollview';
+import {styles, ES} from "../Utils/UI/GlobalStyles";
 import { MapType, Map } from '../Store/firebase/maps/@Map';
 import { MapEntryUI } from './@Shared/Maps/MapEntryUI';
-import { GetUserPermissionGroups, GetUserID } from 'Store/firebase/users';
 import { PermissionGroupSet } from '../Store/firebase/userExtras/@UserExtraInfo';
 import { ShowSignInPopup } from './@Shared/NavBar/UserPanel';
 import { ShowAddMapDialog } from './@Shared/Maps/AddMapDialog';
-import { ScrollView } from 'react-vscrollview';
 import { GetSelectedDebateMapID, GetSelectedDebateMap } from '../Store/main/debates';
 import { MapUI } from './@Shared/Maps/MapUI';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
@@ -19,7 +19,7 @@ import { Connect } from 'Utils/FrameworkOverrides';
 export const columnWidths = [0.64, 0.06, 0.12, 0.18];
 
 const connector = (state, {}: {}) => ({
-	permissions: GetUserPermissionGroups(GetUserID()),
+	permissions: GetUserPermissionGroups(MeID()),
 	maps: GetMaps().filter(a => a && a.type == MapType.Debate),
 	selectedMap: GetSelectedDebateMap(),
 });
@@ -27,7 +27,7 @@ const connector = (state, {}: {}) => ({
 export class DebatesUI extends BaseComponentWithConnector(connector, {}) {
 	render() {
 		let { permissions, maps, selectedMap } = this.props;
-		const userID = GetUserID();
+		const userID = MeID();
 
 		if (selectedMap) {
 			return <MapUI map={selectedMap}/>;

@@ -16,17 +16,18 @@ import { GetNodeColor, MapNodeType_Info } from '../../../Store/firebase/nodes/@M
 import { GetUser } from '../../../Store/firebase/users';
 import { ACTMapNodeListFilterSet, ACTMapNodeListPageSet, ACTMapNodeListSortBySet, ACTMap_List_SelectedNode_OpenPanelSet, ACTSelectedNode_InListSet, GetMap_List_SelectedNode_OpenPanel, GetSelectedNode_InList, SortType } from '../../../Store/main/maps/$map';
 import { MapNodeView } from '../../../Store/main/mapViews/@MapViews';
-import DefinitionsPanel from '../../@Shared/Maps/MapNode/NodeUI/Panels/DefinitionsPanel';
-import DetailsPanel from '../../@Shared/Maps/MapNode/NodeUI/Panels/DetailsPanel';
-import DiscussionPanel from '../../@Shared/Maps/MapNode/NodeUI/Panels/DiscussionPanel';
+import {DefinitionsPanel} from '../../@Shared/Maps/MapNode/NodeUI/Panels/DefinitionsPanel';
+import {DetailsPanel} from '../../@Shared/Maps/MapNode/NodeUI/Panels/DetailsPanel';
+import {DiscussionPanel} from '../../@Shared/Maps/MapNode/NodeUI/Panels/DiscussionPanel';
 import { OthersPanel } from '../../@Shared/Maps/MapNode/NodeUI/Panels/OthersPanel';
 import { RatingsPanel } from '../../@Shared/Maps/MapNode/NodeUI/Panels/RatingsPanel';
-import SocialPanel from '../../@Shared/Maps/MapNode/NodeUI/Panels/SocialPanel';
-import TagsPanel from '../../@Shared/Maps/MapNode/NodeUI/Panels/TagsPanel';
+import {SocialPanel} from '../../@Shared/Maps/MapNode/NodeUI/Panels/SocialPanel';
+import {TagsPanel} from '../../@Shared/Maps/MapNode/NodeUI/Panels/TagsPanel';
 import { NodeUI_Menu } from '../../@Shared/Maps/MapNode/NodeUI_Menu';
 import { HistoryPanel } from './MapNode/NodeUI/Panels/HistoryPanel';
 import { MapNodeUI_LeftBox } from './MapNode/NodeUI_LeftBox';
 import { EnumNameToDisplayName } from 'Utils/General/Others';
+import {ES} from 'Utils/UI/GlobalStyles';
 
 const columnWidths = [0.68, 0.2, 0.12];
 

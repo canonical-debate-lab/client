@@ -25,36 +25,5 @@
 				"isDefault": true
 			},
 		},
-		{
-			"label": "ts-loader (like tsc+webpack, but slower)",
-			"type": "npm",
-			"script": "dev-ts-loader",
-			"problemMatcher": {
-				"owner": "typescript",
-				"source": "ts", // exactly match entries expected from typescript-language-features, thus preventing duplicate entries
-				"severity": "error",
-				"fileLocation": "absolute",
-				"background": {
-					"activeOnStart": true,
-					"beginsPattern": "webpack: Compiled ",
-					"endsPattern": "Version: typescript "
-			  	},
-				"pattern": [
-					{
-						"regexp": "ERROR in (.+?)\\((\\d+),(\\d+)\\):",	
-						"file" : 1,
-						"line": 2,
-						"column": 3
-					},
-					{
-						"regexp": "TS(\\d+): (.*)",	
-						"code": 1,
-						"message": 2
-					}
-				],
-			},
-			"isBackground": true,
-			"group": "build",
-		},
 	]
 }

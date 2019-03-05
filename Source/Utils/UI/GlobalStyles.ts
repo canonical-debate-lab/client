@@ -21,9 +21,9 @@ AddGlobalStyle(`
 
 /* declare global {	function ES<E1,E2,E3,E4,E5,E6,E7,E8>(e1?:E1,e2?:E2,e3?:E3,e4?:E4,e5?:E5,e6?:E6,e7?:E7,e8?:E8):E1&E2&E3&E4&E5&E6&E7&E8; } G({ES});
 function ES<E1,E2,E3,E4,E5,E6,E7,E8>(e1?:E1,e2?:E2,e3?:E3,e4?:E4,e5?:E5,e6?:E6,e7?:E7,e8?:E8):E1&E2&E3&E4&E5&E6&E7&E8 { */
-declare global { function ES(...styles): any; } G({ ES });
+// declare global { function ES(...styles): any; } G({ ES });
 // same as E(...), except applies extra things for style-objects
-function ES(...styles) {
+export function ES(...styles) {
 	const result = E(...styles);
 
 	// for firefox; prevents {flex: 1} from setting {minWidth: "auto"}

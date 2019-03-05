@@ -5,7 +5,7 @@ import { MapNode, MapNodeL2, MapNodeL3, globalRootNodeID } from './nodes/@MapNod
 import { MapNodeType, MapNodeType_Info } from './nodes/@MapNodeType';
 import { IsUserCreatorOrMod, CanGetBasicPermissions, HasAdminPermissions } from './userExtras';
 import { PermissionGroupSet } from './userExtras/@UserExtraInfo';
-import { GetUserAccessLevel, GetUserID } from './users';
+import { GetUserAccessLevel, MeID } from './users';
 
 export enum HolderType {
 	Truth = 10,
@@ -126,9 +126,9 @@ export function GetNodeChildrenL3(node: MapNode, path?: string, filterForPath = 
 				// if null, keep (so receiver knows there's an entry here, but it's still loading)
 				if (child == null) return true;
 				// filter out any nodes whose access-level is higher than our own
-				if (child.current.accessLevel > GetUserAccessLevel(GetUserID())) return false;
+				if (child.current.accessLevel > GetUserAccessLevel(MeID())) return false;
 				// hide nodes that don't have the required premise-count
-				// if (!IsNodeVisibleToNonModNonCreators(child, GetNodeChildren(child)) && !IsUserCreatorOrMod(GetUserID(), child)) return false;
+				// if (!IsNodeVisibleToNonModNonCreators(child, GetNodeChildren(child)) && !IsUserCreatorOrMod(MeID(), child)) return false;
 				return true;
 			});
 		}
@@ -155,7 +155,7 @@ export function ForNewLink_GetError(parentID: number, newChild: Pick<MapNode, '_
 	// if (map.name == "Global" && parentPathIDs.length == 1) return false; // if parent is l1(root), don't accept new children
 	if (parent._id == globalRootNodeID && !HasAdminPermissions(permissions)) return 'Only admins can add children to the global-root.';
 	// if in global map, parent is l2, and user is not a mod (and not node creator), don't accept new children
-	// if (parentPathIDs[0] == globalRootNodeID && parentPathIDs.length == 2 && !HasModPermissions(permissions) && parent.creator != GetUserID()) return false;
+	// if (parentPathIDs[0] == globalRootNodeID && parentPathIDs.length == 2 && !HasModPermissions(permissions) && parent.creator != MeID()) return false;
 	if (parent._id == newChild._id) return 'Cannot link node as its own child.';
 
 	const isAlreadyChild = (parent.children || {}).VKeys(true).Contains(`${newChild._id}`);

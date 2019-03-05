@@ -2,7 +2,7 @@ import { ColorPickerBox } from 'react-vcomponents';
 import * as react_color from 'react-color';
 import * as chroma_js from 'chroma-js';
 import Moment from 'moment';
-import { GetUserID, GetUser, GetUserPermissionGroups } from 'Store/firebase/users';
+import { MeID, GetUser, GetUserPermissionGroups, Me } from 'Store/firebase/users';
 import { manager as manager_forum } from 'firebase-forum';
 import { manager as manager_feedback } from 'firebase-feedback';
 import { replace, push } from 'connected-react-router';
@@ -52,8 +52,8 @@ export function InitLibs() {
 
 		globalConnectorPropGetters: {
 			// also access some other paths here, so that when they change, they trigger ui updates for everything
-			_user: () => GetUser(GetUserID()),
-			_permissions: () => GetUserPermissionGroups(GetUserID()),
+			_user: () => Me(),
+			_permissions: () => GetUserPermissionGroups(MeID()),
 			// _extraInfo: function() { return this.extraInfo; }, // special debug info from within FirebaseConnect function
 		},
 
@@ -65,7 +65,7 @@ export function InitLibs() {
 		},
 
 		GetAuth,
-		GetUserID,
+		GetUserID: MeID,
 	});
 
 	// g.FirebaseConnect = Connect;
@@ -104,7 +104,7 @@ export function InitLibs() {
 		GetDataAsync: (options, ...pathSegments) => GetDataAsync(E(options, { inVersionRoot: false }), ...pathSegments),
 		GetAsync,
 		ShowSignInPopup,
-		GetUserID,
+		GetUserID: MeID,
 		GetUser,
 		GetUserPermissionGroups,
 

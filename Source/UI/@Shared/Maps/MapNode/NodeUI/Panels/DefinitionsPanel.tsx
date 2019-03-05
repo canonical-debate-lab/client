@@ -1,33 +1,34 @@
 import { CachedTransform } from 'js-vextensions';
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
-import {GetCurrentURL, Link, Connect} from 'Utils/FrameworkOverrides';
+import { GetCurrentURL, Link, Connect } from 'Utils/FrameworkOverrides';
+import { TermComponentsUI } from 'UI/Database/Terms/TermComponentsUI';
+import {Fragment} from 'react';
 import { ParseSegmentsForPatterns } from '../../../../../../Utils/General/RegexHelpers';
 import { GetNodeDisplayText } from '../../../../../../Store/firebase/nodes/$node';
 import { MapNode } from '../../../../../../Store/firebase/nodes/@MapNode';
 import { GetTerm, GetTermVariantNumber } from '../../../../../../Store/firebase/terms';
 import { Term } from '../../../../../../Store/firebase/terms/@Term';
-import { TermComponentsUI } from '../../../../../Content/Terms/TermComponentsUI';
 
 const termsPlaceholder = [];
 
-@Connect((state, {node, path, hoverTermID, openTermID})=> {
-	let displayText = GetNodeDisplayText(node, path);
+@Connect((state, { node, path, hoverTermID, openTermID }) => {
+	const displayText = GetNodeDisplayText(node, path);
 	// let segments = ParseSegmentsFromNodeDisplayText(displayText);
-	let segments = ParseSegmentsForPatterns(displayText, [
-		{name: "term", regex: /{(.+?)\}\[(.+?)\]/}
-		]);
-	let terms = segments.filter(a=>a.patternMatched == "term").map(a=>GetTerm(a.textParts[2].ToInt()));
-	let terms_variantNumbers = terms.map(a=>a ? GetTermVariantNumber(a) : 1);
+	const segments = ParseSegmentsForPatterns(displayText, [
+		{ name: 'term', regex: /{(.+?)\}\[(.+?)\]/ },
+	]);
+	const terms = segments.filter(a => a.patternMatched == 'term').map(a => GetTerm(a.textParts[2].ToInt()));
+	const terms_variantNumbers = terms.map(a => (a ? GetTermVariantNumber(a) : 1));
 	return {
-// only pass terms when all are loaded
-	terms: CachedTransform("terms_transform1", [path], terms, ()=>terms.every(a=>a != null) ? terms : termsPlaceholder),
-	terms_variantNumbers: CachedTransform("terms_variantNumbers_transform1", [path], terms_variantNumbers, ()=>terms_variantNumbers),
-	hoverTerm: hoverTermID ? GetTerm(hoverTermID) : null,
-	clickTerm: openTermID ? GetTerm(openTermID) : null,
+		// only pass terms when all are loaded
+		terms: CachedTransform('terms_transform1', [path], terms, () => (terms.every(a => a != null) ? terms : termsPlaceholder)),
+		terms_variantNumbers: CachedTransform('terms_variantNumbers_transform1', [path], terms_variantNumbers, () => terms_variantNumbers),
+		hoverTerm: hoverTermID ? GetTerm(hoverTermID) : null,
+		clickTerm: openTermID ? GetTerm(openTermID) : null,
 	};
-	})
-export default class DefinitionsPanel extends BaseComponent
+})
+export class DefinitionsPanel extends BaseComponent
 		<{node: MapNode, path: string, hoverTermID?: number, openTermID?: number, onHoverTerm?: (termID: number)=>void, onClickTerm?: (termID: number)=>void}
 			& Partial<{terms: Term[], terms_variantNumbers: number[], hoverTerm: Term, clickTerm: Term}>,
 		{/* localHoverTerm: Term, localClickTerm: Term */}> {
@@ -81,7 +82,7 @@ class TermDefinitionPanel extends BaseComponent<{term: Term, termVariantNumber: 
 	render() {
 		const { term, termVariantNumber } = this.props;
 
-		// let creatorOrMod = term != null && IsUserCreatorOrMod(GetUserID(), term);
+		// let creatorOrMod = term != null && IsUserCreatorOrMod(MeID(), term);
 		const showDetailsURL = GetCurrentURL(true).Clone();
 		showDetailsURL.pathNodes = ['database', 'terms', `${term._id}`];
 		showDetailsURL.queryVars = [];
@@ -90,10 +91,11 @@ class TermDefinitionPanel extends BaseComponent<{term: Term, termVariantNumber: 
 			<Column sel mt={5} style={{ whiteSpace: 'normal' }}>
 				<Row>Term: {term.name}{term.disambiguation ? ` (${term.disambiguation})` : ''} (variant #{termVariantNumber}) (id: {term._id})</Row>
 				<Row mt={5}>Short description: {term.shortDescription_current}</Row>
-				{term.components && term.components.VKeys(true).length && [
-					<Row mt={5}>Components:</Row>,
-					<TermComponentsUI term={term} editing={false} inMap={true} style={{ padding: '5px 0' }}/>,
-				].AutoKey()}
+				{term.components && term.components.VKeys(true).length &&
+					<Fragment>
+						<Row mt={5}>Components:</Row>
+						<TermComponentsUI term={term} editing={false} inMap={true} style={{ padding: '5px 0' }}/>
+					</Fragment>}
 				{/* <Row>Details:</Row>
 				<TermDetailsUI baseData={term} creating={false} enabled={/*creatorOrMod*#/ false} style={{padding: 10}}
 					onChange={data=>this.SetState({selectedTerm_newData: data})}/> */}

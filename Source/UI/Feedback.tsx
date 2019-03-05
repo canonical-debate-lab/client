@@ -1,13 +1,14 @@
 import { ProposalsUI } from 'UI/Feedback/ProposalsUI';
 import { Switch } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
-import {State, Connect} from 'Utils/FrameworkOverrides';
-import SubNavBar, { SubNavBarButton } from './@Shared/SubNavBar';
+import { State, Connect } from 'Utils/FrameworkOverrides';
+import { ES } from 'Utils/UI/GlobalStyles';
+import { SubNavBar, SubNavBarButton } from './@Shared/SubNavBar';
 
 type Props = {} & Partial<{currentSubpage: string}>;
-@Connect(state=> ({
-	currentSubpage: State(a=>a.main.feedback.subpage),
-	}))
+@Connect(state => ({
+	currentSubpage: State(a => a.main.feedback.subpage),
+}))
 export class FeedbackUI extends BaseComponent<Props, {}> {
 	render() {
 		const { currentSubpage } = this.props;
@@ -15,9 +16,9 @@ export class FeedbackUI extends BaseComponent<Props, {}> {
 		return (
 			<div style={ES({ flex: 1, display: 'flex', flexDirection: 'column' })}>
 				<SubNavBar>
-					<SubNavBarButton {...{ page }} subpage="proposals" text="Proposals"/>
-					{/* <SubNavBarButton {...{page}} subpage="roadmap" text="Roadmap"/>
-					<SubNavBarButton {...{page}} subpage="neutrality" text="Neutrality"/> */}
+					<SubNavBarButton page={page} subpage="proposals" text="Proposals"/>
+					{/* <SubNavBarButton page={page} subpage="roadmap" text="Roadmap"/>
+					<SubNavBarButton page={page} subpage="neutrality" text="Neutrality"/> */}
 				</SubNavBar>
 				<Switch>
 					<ProposalsUI/>

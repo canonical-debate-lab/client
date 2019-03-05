@@ -5,7 +5,7 @@ import { GetFontSizeForNode } from '../../../../../Store/firebase/nodes/$node';
 import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
 import { GetImage } from '../../../../../Store/firebase/images';
 import { Image } from '../../../../../Store/firebase/images/@Image';
-import SourcesUI from './SourcesUI';
+import { SourcesUI } from './SourcesUI';
 
 export class SubPanel extends BaseComponent<{node: MapNodeL2}, {}> {
 	render() {
@@ -15,10 +15,10 @@ export class SubPanel extends BaseComponent<{node: MapNodeL2}, {}> {
 				// border: "solid rgba(0,0,0,.5)", borderWidth: "1px 0 0 0"
 				background: 'rgba(0,0,0,.5)', borderRadius: '0 0 0 5px',
 			}}>
-				{node.current.contentNode
-					&& <SubPanel_Quote contentNode={node.current.contentNode} fontSize={GetFontSizeForNode(node)}/>}
-				{node.current.image
-					&& <SubPanel_Image imageAttachment={node.current.image}/>}
+				{node.current.contentNode &&
+					<SubPanel_Quote contentNode={node.current.contentNode} fontSize={GetFontSizeForNode(node)}/>}
+				{node.current.image &&
+					<SubPanel_Image imageAttachment={node.current.image}/>}
 			</div>
 		);
 	}
@@ -49,9 +49,9 @@ export class SubPanel_Quote extends BaseComponent<{contentNode: ContentNode, fon
 	}
 }
 type SubPanel_ImageProps = {imageAttachment: ImageAttachment} & Partial<{image: Image}>;
-@Connect((state, {imageAttachment}: SubPanel_ImageProps)=> ({
+@Connect((state, { imageAttachment }: SubPanel_ImageProps) => ({
 	image: GetImage(imageAttachment.id),
-	}))
+}))
 export class SubPanel_Image extends BaseComponent<SubPanel_ImageProps, {}> {
 	render() {
 		const { image } = this.props;

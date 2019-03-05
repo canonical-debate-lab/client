@@ -4,7 +4,7 @@ import { BaseComponent, GetInnerComp, GetDOM } from 'react-vextensions';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { HasModPermissions } from 'Store/firebase/userExtras';
-import { GetUserID } from 'Store/firebase/users';
+import { MeID } from 'Store/firebase/users';
 import { Connect } from 'Utils/FrameworkOverrides';
 import { AddSubnode } from '../../../../../Server/Commands/AddSubnode';
 import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
@@ -60,7 +60,7 @@ class AddSubnodeDialog extends BaseComponent<Props, {layer: Layer, newNode: MapN
 			claimTypes.Remove(claimTypes.find(a => a.value == ClaimType.Image));
 		}
 
-		const layersWeCanAddTo = layers.filter(a => a.creator == GetUserID());
+		const layersWeCanAddTo = layers.filter(a => a.creator == MeID());
 		const layerOptions = [{ name: '', value: null }].concat(layersWeCanAddTo.map(a => ({ name: a.name, value: a })));
 
 		return (

@@ -23,30 +23,31 @@ import { GetEquationStepNumber } from '../../../../Store/firebase/nodes/$node/eq
 import { ClaimForm, MapNodeL2, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
 import { MapNodeRevision_titlePattern } from '../../../../Store/firebase/nodes/@MapNodeRevision';
 import { GetNodeColor, MapNodeType, MapNodeType_Info } from '../../../../Store/firebase/nodes/@MapNodeType';
-import { GetUserID } from '../../../../Store/firebase/users';
+import { MeID } from '../../../../Store/firebase/users';
 import { GetLastAcknowledgementTime, WeightingType } from '../../../../Store/main';
 import { ACTMapNodeExpandedSet, ACTMapNodePanelOpen, ACTMapNodeSelect, ACTMapNodeTermOpen } from '../../../../Store/main/mapViews/$mapView/rootNodeViews';
 import { MapNodeView } from '../../../../Store/main/mapViews/@MapViews';
 import { ExpandableBox } from './ExpandableBox';
-import DefinitionsPanel from './NodeUI/Panels/DefinitionsPanel';
-import DetailsPanel from './NodeUI/Panels/DetailsPanel';
-import DiscussionPanel from './NodeUI/Panels/DiscussionPanel';
+import {DefinitionsPanel} from './NodeUI/Panels/DefinitionsPanel';
+import {DetailsPanel} from './NodeUI/Panels/DetailsPanel';
+import {DiscussionPanel} from './NodeUI/Panels/DiscussionPanel';
 import { HistoryPanel } from './NodeUI/Panels/HistoryPanel';
 import { OthersPanel } from './NodeUI/Panels/OthersPanel';
 import { RatingsPanel } from './NodeUI/Panels/RatingsPanel';
-import SocialPanel from './NodeUI/Panels/SocialPanel';
-import TagsPanel from './NodeUI/Panels/TagsPanel';
+import {SocialPanel} from './NodeUI/Panels/SocialPanel';
+import {TagsPanel} from './NodeUI/Panels/TagsPanel';
 import { SubPanel } from './NodeUI_Inner/SubPanel';
 import { TermPlaceholder } from './NodeUI_Inner/TermPlaceholder';
 import { MapNodeUI_LeftBox } from './NodeUI_LeftBox';
 import { NodeUI_Menu, NodeUI_Menu_Stub } from './NodeUI_Menu';
+import {ES} from 'Utils/UI/GlobalStyles';
 
 // drag and drop
 // ==========
 
 const dragSourceDecorator = DragSource('node',
 	{
-		canDrag: ({ map, node, path }) => ForCopy_GetError(GetUserID(), node) == null,
+		canDrag: ({ map, node, path }) => ForCopy_GetError(MeID(), node) == null,
 		beginDrag: ({ map, node, path }) => ({ map, node, path }),
 	},
 	(connect, monitor) => ({
@@ -89,8 +90,8 @@ const connector = (state, { map, node, path }: Props) => {
 		ratingNodePath = SlicePath(path, 1);
 	}
 	const mainRating_average = GetRatingAverage_AtPath(ratingNode, mainRatingType);
-	// let mainRating_mine = GetRatingValue(ratingNode._id, mainRatingType, GetUserID());
-	const mainRating_mine = GetRatingAverage_AtPath(ratingNode, mainRatingType, new RatingFilter({ includeUser: GetUserID() }));
+	// let mainRating_mine = GetRatingValue(ratingNode._id, mainRatingType, MeID());
+	const mainRating_mine = GetRatingAverage_AtPath(ratingNode, mainRatingType, new RatingFilter({ includeUser: MeID() }));
 
 	const useReasonScoreValuesForThisNode = State(a => a.main.weighting) == WeightingType.ReasonScore && (node.type == MapNodeType.Argument || node.type == MapNodeType.Claim);
 	if (useReasonScoreValuesForThisNode) {
@@ -330,7 +331,7 @@ type TitlePanelProps = {parent: NodeUI_Inner, map: Map, node: MapNodeL2, nodeVie
 class TitlePanel extends BaseComponent<TitlePanelProps, {editing: boolean, newTitle: string, applyingEdit: boolean}> {
 	OnDoubleClick() {
 		const { node } = this.props;
-		const creatorOrMod = IsUserCreatorOrMod(GetUserID(), node);
+		const creatorOrMod = IsUserCreatorOrMod(MeID(), node);
 		if (creatorOrMod && node.current.equation == null) {
 			this.SetState({ editing: true });
 		}

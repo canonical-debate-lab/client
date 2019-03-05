@@ -1,6 +1,6 @@
 import { ChangeType } from 'Store/firebase/mapNodeEditTimes';
 import { GetNode, HolderType } from 'Store/firebase/nodes';
-import { GetUserID } from 'Store/firebase/users';
+import { MeID } from 'Store/firebase/users';
 import { GetPlayingTimelineAppliedStepRevealNodes } from 'Store/main/maps/$map';
 import { NodeChildHolder } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolder';
 import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolderBox';
@@ -46,7 +46,7 @@ const connector = (state, { node, path, map }: Props) => {
 		return GetFinalNodeTypeAtPath(child, path + "/" + child._id);
 	}); */
 
-	let subnodes = GetSubnodesInEnabledLayersEnhanced(GetUserID(), map, node._id);
+	let subnodes = GetSubnodesInEnabledLayersEnhanced(MeID(), map, node._id);
 	subnodes = subnodes.Any(a => a == null) ? emptyArray : subnodes; // only pass subnodes when all are loaded
 
 	const sinceTime = GetTimeFromWhichToShowChangedNodes(map._id);
@@ -79,7 +79,7 @@ const connector = (state, { node, path, map }: Props) => {
 		isSinglePremiseArgument: IsSinglePremiseArgument(node),
 		isMultiPremiseArgument: IsMultiPremiseArgument(node),
 
-		userViewedNodes: GetUserViewedNodes(GetUserID(), { useUndefinedForInProgress: true }),
+		userViewedNodes: GetUserViewedNodes(MeID(), { useUndefinedForInProgress: true }),
 		playingTimeline: GetPlayingTimeline(map._id),
 		playingTimeline_currentStepIndex: GetPlayingTimelineStepIndex(map._id),
 		playingTimelineShowableNodes: GetPlayingTimelineRevealNodes(map._id),
@@ -148,7 +148,7 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 		NodeUI.renderCount++;
 		NodeUI.lastRenderTime = Date.now();
 
-		/* if (node.type == MapNodeType.Argument && nodeChildren.length == 1 && GetUserID() == node.creator) {
+		/* if (node.type == MapNodeType.Argument && nodeChildren.length == 1 && MeID() == node.creator) {
 			let fakeChild = AsNodeL3(AsNodeL2(new MapNode({type: MapNodeType.Claim}), new MapNodeRevision({})));
 			fakeChild.premiseAddHelper = true;
 			nodeChildren = [...nodeChildren, fakeChild];
@@ -323,7 +323,7 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 
 	ComponentDidMount() {
 		const { node, userViewedNodes } = this.props;
-		if (GetUserID() == null) return;
+		if (MeID() == null) return;
 
 		const userViewedNodes_doneLoading = userViewedNodes !== undefined;
 		if (userViewedNodes_doneLoading && !(userViewedNodes || {}).VKeys(true).map(ToInt).Contains(node._id)) {

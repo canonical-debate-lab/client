@@ -5,6 +5,7 @@ import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { HasModPermissions } from 'Store/firebase/userExtras';
 import { AddArgumentAndClaim } from 'Server/Commands/AddArgumentAndClaim';
 import { Link, ACTSet } from 'Utils/FrameworkOverrides';
+import {ES} from 'Utils/UI/GlobalStyles';
 import { AddChildNode } from '../../../../../Server/Commands/AddChildNode';
 import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
 import { AsNodeL2, AsNodeL3, GetClaimType, GetNodeForm } from '../../../../../Store/firebase/nodes/$node';

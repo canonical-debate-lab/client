@@ -7,6 +7,7 @@ import { TextInput } from 'react-vcomponents';
 import { Select } from 'react-vcomponents';
 import { GetErrorMessagesUnderElement, GetEntries } from 'js-vextensions';
 import { Validate } from 'Server/Server';
+import {ES} from 'Utils/UI/GlobalStyles';
 import { GetSourceNamePlaceholderText, GetSourceAuthorPlaceholderText } from '../../../../Store/firebase/contentNodes/$contentNode';
 
 type Props = {baseData: SourceChain[], enabled?: boolean, style?, onChange?: (newData: SourceChain[])=>void};
@@ -15,8 +16,8 @@ type Props = {baseData: SourceChain[], enabled?: boolean, style?, onChange?: (ne
 	creator: !creating && GetUser(baseData.creator),
 	variantNumber: !creating && GetTermVariantNumber(baseData),
 })) */
-export default class SourceChainsEditorUI extends BaseComponent<Props, {newData: SourceChain[]}> {
-	static defaultProps = {enabled: true};
+export class SourceChainsEditorUI extends BaseComponent<Props, {newData: SourceChain[]}> {
+	static defaultProps = { enabled: true };
 	ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.baseData != this.props.baseData) // if base-data changed
 		{ this.SetState({ newData: Clone(props.baseData) }); }

@@ -1,11 +1,11 @@
 import { E } from 'js-vextensions';
 import { BaseComponent } from 'react-vextensions';
-import {Connect, State, Link} from 'Utils/FrameworkOverrides';
-import {ACTSetSubpage} from '../../Store/main';
-import {colors} from '../../Utils/UI/GlobalStyles';
+import { Connect, State, Link, Action } from 'Utils/FrameworkOverrides';
 import { rootPageDefaultChilds } from 'Utils/URL/URLs';
+import { ACTSetSubpage } from '../../Store/main';
+import { colors } from '../../Utils/UI/GlobalStyles';
 
-export default class SubNavBar extends BaseComponent<{fullWidth?: boolean}, {}> {
+export class SubNavBar extends BaseComponent<{fullWidth?: boolean}, {}> {
 	render() {
 		const { fullWidth, children } = this.props;
 		return (
@@ -25,26 +25,31 @@ export default class SubNavBar extends BaseComponent<{fullWidth?: boolean}, {}> 
 	}
 }
 
-type SubNavBarButtonProps = {page: string, subpage: string, text: string} & Partial<{currentSubpage: string}>;
-@Connect((state, {page})=> ({
-	currentSubpage: State("main", page, "subpage") || rootPageDefaultChilds[page],
-	}))
+type SubNavBarButtonProps = {page: string, subpage: string, text: string, actionIfAlreadyActive?: ()=>Action<any>} & Partial<{currentSubpage: string}>;
+@Connect((state, { page }) => ({
+	currentSubpage: State('main', page, 'subpage') || rootPageDefaultChilds[page],
+}))
 export class SubNavBarButton extends BaseComponent<SubNavBarButtonProps, {}> {
 	render() {
-		const { page, subpage, text, currentSubpage } = this.props;
+		const { page, subpage, text, actionIfAlreadyActive, currentSubpage } = this.props;
 		const active = subpage == currentSubpage;
+
+		const actions = [];
+		if (!active) {
+			actions.push(new ACTSetSubpage({ page, subpage }));
+		} else if (actionIfAlreadyActive) {
+			actions.push(actionIfAlreadyActive());
+		}
+
 		return (
-			<Link text={text} to={`/${page}/${subpage}`} style={E(
+			<Link actions={actions} text={text} style={E(
 				{
 					display: 'inline-block', cursor: 'pointer', verticalAlign: 'middle',
 					lineHeight: '30px', color: '#FFF', padding: '0 15px', fontSize: 12, textDecoration: 'none', opacity: 0.9,
 					':hover': { color: 'rgba(100,255,100,1)' },
 				},
 				active && { color: 'rgba(100,255,100,1)' },
-			)} onClick={(e) => {
-				e.preventDefault();
-				store.dispatch(new ACTSetSubpage({ page, subpage }));
-			}}/>
+			)}/>
 		);
 	}
 }

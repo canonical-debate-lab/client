@@ -1,5 +1,5 @@
 import { BaseComponent } from 'react-vextensions';
-import { GetUserID } from 'Store/firebase/users';
+import { MeID } from 'Store/firebase/users';
 import { DropDown, DropDownTrigger, DropDownContent, Pre } from 'react-vcomponents';
 import { Button } from 'react-vcomponents';
 import { Row } from 'react-vcomponents';
@@ -11,6 +11,8 @@ import { AddTimelineStep } from 'Server/Commands/AddTimelineStep';
 import { Select } from 'react-vcomponents';
 import { DeleteTimelineStep } from 'Server/Commands/DeleteTimelineStep';
 import { TextInput } from 'react-vcomponents';
+import { Connect, State } from 'Utils/FrameworkOverrides';
+import {ES} from 'Utils/UI/GlobalStyles';
 import {TimelineStep} from "../../../../../Store/firebase/timelineSteps/@TimelineStep";
 import {GetMapTimelines, GetTimeline, GetTimelineSteps} from "../../../../../Store/firebase/timelines";
 import {Timeline} from "../../../../../Store/firebase/timelines/@Timeline";
@@ -21,24 +23,23 @@ import { IsUserCreatorOrMod, HasModPermissions } from '../../../../../Store/fire
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { ShowEditTimelineStepDialog } from '../../../Timelines/Steps/TimelineStepDetailsUI';
 import { ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, ACTMap_PlayingTimelineSet } from '../../../../../Store/main/maps/$map';
-import { Connect, State } from 'Utils/FrameworkOverrides';
 
 type TimelineDropDownProps = {map: Map} & Partial<{timelines: Timeline[], selectedTimeline: Timeline, selectedTimelineSteps: TimelineStep[]}>;
-@Connect((state, {map}: TimelineDropDownProps)=> {
-	let selectedTimelineID = State("main", "maps", map._id, "selectedTimeline");
-	let timeline = GetTimeline(selectedTimelineID);
+@Connect((state, { map }: TimelineDropDownProps) => {
+	const selectedTimelineID = State('main', 'maps', map._id, 'selectedTimeline');
+	const timeline = GetTimeline(selectedTimelineID);
 	return {
-	timelines: GetMapTimelines(map),
-	selectedTimeline: timeline,
-	selectedTimelineSteps: timeline && GetTimelineSteps(timeline),
+		timelines: GetMapTimelines(map),
+		selectedTimeline: timeline,
+		selectedTimelineSteps: timeline && GetTimelineSteps(timeline),
 	};
-	})
+})
 export class TimelineDropDown extends BaseComponent<TimelineDropDownProps, {}> {
 	rootDropdown: DropDown;
 	timelineSelect: DropDown;
 	render() {
 		const { map, timelines, selectedTimeline, selectedTimelineSteps } = this.props;
-		const userID = GetUserID();
+		const userID = MeID();
 		const creatorOrMod = IsUserCreatorOrMod(userID, map);
 		return (
 			<DropDown ref={c => this.rootDropdown = c}>
@@ -109,12 +110,12 @@ export class TimelineDropDown extends BaseComponent<TimelineDropDownProps, {}> {
 }
 
 type StepUIProps = {index: number, last: boolean, map: Map, step: TimelineStep} & Partial<{}>;
-@Connect((state, {map, step}: StepUIProps)=> ({
-	}))
+@Connect((state, { map, step }: StepUIProps) => ({
+}))
 class StepUI extends BaseComponent<StepUIProps, {}> {
 	render() {
 		const { index, last, map, step } = this.props;
-		const creatorOrMod = IsUserCreatorOrMod(GetUserID(), map);
+		const creatorOrMod = IsUserCreatorOrMod(MeID(), map);
 		return (
 			<Column p="7px 10px" style={E(
 				{
@@ -128,7 +129,7 @@ class StepUI extends BaseComponent<StepUIProps, {}> {
 					<Row style={{ flexShrink: 0 }}>Step {index + 1}:</Row>
 					<Row ml={5}>{step.message}</Row>
 					<Button ml={5} text="Edit" title="Edit this step" style={{ flexShrink: 0 }} onClick={() => {
-						ShowEditTimelineStepDialog(GetUserID(), step);
+						ShowEditTimelineStepDialog(MeID(), step);
 					}}/>
 					<Button ml={5} text="X" onClick={() => {
 						new DeleteTimelineStep({ stepID: step._id }).Run();

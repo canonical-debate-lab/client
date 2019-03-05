@@ -1,7 +1,7 @@
 import { ScrollView } from 'react-vscrollview';
 import { BaseComponent } from 'react-vextensions';
-import {VReactMarkdown_Remarkable} from 'Utils/FrameworkOverrides';
-import { styles } from '../Utils/UI/GlobalStyles';
+import { VReactMarkdown_Remarkable } from 'Utils/FrameworkOverrides';
+import { styles, ES } from '../Utils/UI/GlobalStyles';
 
 const pageText = `
 The Social page is under development.

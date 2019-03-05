@@ -2,7 +2,7 @@ import { Column } from 'react-vcomponents';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { AddTermComponent } from '../../../Server/Commands/AddTermComponent';
 import { TermComponent } from '../../../Store/firebase/termComponents/@TermComponent';
-import { TermComponentUI } from '../../../UI/Content/Terms/TermComponentsUI';
+import { TermComponentUI } from './TermComponentsUI';
 
 export function ShowAddTermComponentDialog(userID: string, termID: number) {
 	const firebase = store.firebase.helpers;
@@ -24,7 +24,7 @@ export function ShowAddTermComponentDialog(userID: string, termID: number) {
 		onOK: () => {
 			const newTermComponent = new TermComponent({
 				text: info.text,
-				// creator: GetUserID(),
+				// creator: MeID(),
 			});
 
 			new AddTermComponent({ termID, termComponent: newTermComponent }).Run();

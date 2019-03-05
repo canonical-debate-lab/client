@@ -2,8 +2,8 @@ import { Column } from 'react-vcomponents';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { AddImage } from '../../../Server/Commands/AddImage';
 import { Image, ImageType } from '../../../Store/firebase/images/@Image';
-import { GetUserID } from '../../../Store/firebase/users';
-import ImageDetailsUI from './ImageDetailsUI';
+import { MeID } from '../../../Store/firebase/users';
+import { ImageDetailsUI } from './ImageDetailsUI';
 
 export function ShowAddImageDialog(userID: string) {
 	const firebase = store.firebase.helpers;
@@ -12,7 +12,7 @@ export function ShowAddImageDialog(userID: string) {
 		name: '',
 		type: ImageType.Photo,
 		description: '',
-		creator: GetUserID(),
+		creator: MeID(),
 	});
 
 	let valid = false;
