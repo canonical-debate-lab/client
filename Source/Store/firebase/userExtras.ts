@@ -10,16 +10,16 @@ import { Map } from './maps/@Map';
 // ==========
 
 export function CanGetBasicPermissions(userIDOrPermissions: string | PermissionGroupSet) {
-	if (true) return HasModPermissions(userIDOrPermissions); // temp; will be removed once GAD is over
+	// if (true) return HasModPermissions(userIDOrPermissions); // temp; will be removed once GAD is over
 
-	/* const permissions = IsString(userIDOrPermissions) ? GetUserPermissions(userIDOrPermissions) : userIDOrPermissions;
-	return permissions == null || permissions.basic; // if anon/not-logged-in, assume user can get basic permissions once logged in */
+	const permissions = IsString(userIDOrPermissions) ? GetUserPermissionGroups(userIDOrPermissions) : userIDOrPermissions;
+	return permissions == null || permissions.basic; // if anon/not-logged-in, assume user can get basic permissions once logged in
 }
 export function HasBasicPermissions(userIDOrPermissions: string | PermissionGroupSet) {
-	if (true) return HasModPermissions(userIDOrPermissions); // temp; will be removed once GAD is over
+	// if (true) return HasModPermissions(userIDOrPermissions); // temp; will be removed once GAD is over
 
-	/* const permissions = IsString(userIDOrPermissions) ? GetUserPermissions(userIDOrPermissions) : userIDOrPermissions;
-	return permissions ? permissions.basic : false; */
+	const permissions = IsString(userIDOrPermissions) ? GetUserPermissionGroups(userIDOrPermissions) : userIDOrPermissions;
+	return permissions ? permissions.basic : false;
 }
 export function HasModPermissions(userIDOrPermissions: string | PermissionGroupSet) {
 	const permissions = IsString(userIDOrPermissions) ? GetUserPermissionGroups(userIDOrPermissions) : userIDOrPermissions;

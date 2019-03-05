@@ -7,8 +7,6 @@ const pageText = `
 Welcome to the Canonical Debate website.
 
 Description text will be added here later.
-
-Note that currently, only mods/admins are able to add/edit content. This will be changed later on.
 `;
 
 export class HomeUI2 extends BaseComponent<{}, {}> {
