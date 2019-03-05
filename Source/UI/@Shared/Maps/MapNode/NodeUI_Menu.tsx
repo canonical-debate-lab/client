@@ -284,7 +284,7 @@ class PasteAsLink_MenuItem extends BaseComponentWithConnector(PasteAsLink_MenuIt
 class PasteAsLink_MenuItem extends BaseComponent<SharedProps, {}> {
 	render() {
 		const { map, node, path, holderType, copiedNode, copiedNodePath, copiedNode_asCut, combinedWithParentArg, inList } = this.props;
-		if (!CanGetBasicPermissions('me')) return <div/>;
+		if (!CanGetBasicPermissions(MeID())) return <div/>;
 		if (copiedNode == null) return <div/>;
 		if (inList) return <div/>;
 		const copiedNode_parent = GetParentNodeL3(copiedNodePath);
@@ -345,7 +345,7 @@ class UnlinkContainerArgument_MenuItem extends BaseComponent<SharedProps, {}> {
 		const argument = GetNodeL3(argumentPath);
 		const argumentText = GetNodeDisplayText(argument, argumentPath);
 		const forUnlink_error = ForUnlink_GetError(MeID(), argument);
-		if (!IsUserCreatorOrMod('me', argument)) return <div/>;
+		if (!IsUserCreatorOrMod(MeID(), argument)) return <div/>;
 
 		const argumentParentPath = SlicePath(argumentPath, 1);
 		const argumentParent = GetNodeL3(argumentParentPath);
@@ -379,7 +379,7 @@ class DeleteContainerArgument_MenuItem extends BaseComponent<SharedProps, {}> {
 		const argument = GetNodeL3(argumentPath);
 		const argumentText = GetNodeDisplayText(argument, argumentPath);
 		const forDelete_error = ForDelete_GetError(MeID(), argument, { childrenToIgnore: [node._id] });
-		if (!IsUserCreatorOrMod('me', argument)) return <div/>;
+		if (!IsUserCreatorOrMod(MeID(), argument)) return <div/>;
 
 		const canDeleteBaseClaim = IsUserCreatorOrMod(MeID(), node);
 		const baseClaim_action = node.parents.VKeys(true).length > 1 || !canDeleteBaseClaim ? 'unlink' : 'delete';

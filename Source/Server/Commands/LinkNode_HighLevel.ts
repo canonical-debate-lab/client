@@ -21,7 +21,7 @@ type Payload = {
 
 export function LinkNode_HighLevel_GetCommandError(command: LinkNode_HighLevel) {
 	const { mapID, newParentID, nodeID, newForm, newPolarity } = command.payload;
-	const permissions = GetUserPermissionGroups('me');
+	const permissions = GetUserPermissionGroups(MeID());
 	const node = GetNode(nodeID);
 	if (node == null) return 'Node data not found.';
 	const newParent = GetNode(newParentID);

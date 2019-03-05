@@ -88,7 +88,7 @@ export class AddArgumentButton extends BaseComponent<Props, {}> {
 		return (
 			<Button ref={a => connectDropTarget(GetDOM(a))}
 				text={`Add ${polarity == Polarity.Supporting ? 'pro' : 'con'}`} title={`Add ${Polarity[polarity].toLowerCase()} argument`}
-				enabled={CanGetBasicPermissions('me')}
+				enabled={CanGetBasicPermissions(MeID())}
 				// text={`Add ${Polarity[polarity].toLowerCase()} argument`}
 				style={E(
 					{

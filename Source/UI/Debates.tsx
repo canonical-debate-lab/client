@@ -60,7 +60,7 @@ export class DebatesUI extends BaseComponentWithConnector(connector, {}) {
 						<Pre>Filter:</Pre>
 						<InfoButton text="Hides nodes without the given text. Regular expressions can be used, ex: /there are [0-9]+ dimensions/"/>
 						<TextInput ml={2} value={filter} onChange={val=>store.dispatch(new ACTMapNodeListFilterSet({mapID: map._id, filter: val}))}/> */}
-						<Button text="Add debate" ml="auto" enabled={CanGetBasicPermissions('me')} onClick={() => {
+						<Button text="Add debate" ml="auto" enabled={CanGetBasicPermissions(MeID())} onClick={() => {
 							if (userID == null) return ShowSignInPopup();
 							ShowAddMapDialog(userID, MapType.Debate);
 						}}/>

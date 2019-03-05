@@ -19,7 +19,7 @@ export class MoreUI extends BaseComponentWithConnector(connector, {}) {
 	render() {
 		const { userCount, currentSubpage, children } = this.props;
 		const page = 'more';
-		const admin = HasAdminPermissions('me');
+		const admin = HasAdminPermissions(MeID());
 		return (
 			<Column style={ES({ flex: 1 })}>
 				<SubNavBar>

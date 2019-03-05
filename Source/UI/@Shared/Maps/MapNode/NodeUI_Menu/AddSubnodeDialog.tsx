@@ -56,7 +56,7 @@ class AddSubnodeDialog extends BaseComponent<Props, {layer: Layer, newNode: MapN
 		const { layer, newNode, newRevision, newLink, validationError } = this.state;
 
 		const claimTypes = GetEntries(ClaimType);
-		if (!HasModPermissions('me')) {
+		if (!HasModPermissions(MeID())) {
 			claimTypes.Remove(claimTypes.find(a => a.value == ClaimType.Image));
 		}
 

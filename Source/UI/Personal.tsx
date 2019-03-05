@@ -38,7 +38,7 @@ export class PersonalUI extends BaseComponentWithConnector(connector, {}) {
 			<Column style={ES({ width: 960, flex: 1, margin: '20px auto 20px auto', filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)' })}>
 				<Column className="clickThrough" style={{ height: 80, background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' }}>
 					<Row style={{ height: 40, padding: 10 }}>
-						<Button text="Add map" ml="auto" enabled={CanGetBasicPermissions('me')} onClick={() => {
+						<Button text="Add map" ml="auto" enabled={CanGetBasicPermissions(MeID())} onClick={() => {
 							if (userID == null) return ShowSignInPopup();
 							ShowAddMapDialog(userID, MapType.Personal);
 						}}/>

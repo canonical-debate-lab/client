@@ -31,6 +31,5 @@ export function HasAdminPermissions(userIDOrPermissions: string | PermissionGrou
 }
 /** If user is the creator, also requires that they (still) have basic permissions. */
 export function IsUserCreatorOrMod(userID: string, entity: Term | Image | Map | MapNode | Post | Thread) {
-	if (userID === 'me') userID = MeID();
 	return (entity && entity.creator === userID && HasBasicPermissions(userID)) || HasModPermissions(userID);
 }

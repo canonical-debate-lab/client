@@ -214,12 +214,12 @@ class AdvancedOptions extends BaseComponent<Props_Enhanced, {}> {
 		return (
 			<Column mt={10}>
 				<Row style={{ fontWeight: 'bold' }}>Advanced:</Row>
-				{HasAdminPermissions('me')
+				{HasAdminPermissions(MeID())
 					&& <Row style={{ display: 'flex', alignItems: 'center' }}>
 						<Pre>Voting enabled: </Pre>
 						<CheckBox enabled={enabled} checked={!newRevisionData.votingDisabled} onChange={val => Change(newRevisionData.votingDisabled = val ? null : true)}/>
 					</Row>}
-				{HasAdminPermissions('me')
+				{HasAdminPermissions(MeID())
 					&& <Row style={{ display: 'flex', alignItems: 'center' }}>
 						<Pre>Font-size override: </Pre>
 						<Spinner max={25} enabled={enabled} value={newRevisionData.fontSizeOverride | 0} onChange={val => Change(newRevisionData.fontSizeOverride = val != 0 ? val : null)}/>

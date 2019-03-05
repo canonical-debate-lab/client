@@ -48,7 +48,7 @@ export class TermsUI extends BaseComponent<Props, {selectedTerm_newData: Term, s
 				}}>
 					<Row style={{ height: 40, justifyContent: 'center', background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' }}>
 						<Div p={7} style={{ position: 'absolute', left: 0 }}>
-							<Button text="Add term" enabled={CanGetBasicPermissions('me')} onClick={(e) => {
+							<Button text="Add term" enabled={CanGetBasicPermissions(MeID())} onClick={(e) => {
 								if (userID == null) return ShowSignInPopup();
 								ShowAddTermDialog(userID);
 							}}/>
@@ -109,7 +109,7 @@ export class TermsUI extends BaseComponent<Props, {selectedTerm_newData: Term, s
 							</Div>
 							<Div p={7} style={{ position: 'absolute', right: 0 }}>
 								{creatorOrMod
-									&& <Button ml="auto" text="Add component" enabled={selectedTerm != null && CanGetBasicPermissions('me')} onClick={async (e) => {
+									&& <Button ml="auto" text="Add component" enabled={selectedTerm != null && CanGetBasicPermissions(MeID())} onClick={async (e) => {
 										// if (userID == null) return ShowSignInPopup();
 										ShowAddTermComponentDialog(userID, selectedTerm._id);
 									}}/>}

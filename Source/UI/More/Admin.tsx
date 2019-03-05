@@ -33,7 +33,7 @@ export function AddUpgradeFunc(version: number, func: UpgradeFunc) {
 require('./Admin/DBUpgrades/UpgradeDB_11');
 
 const connector = (state, {}: {}) => ({
-	isAdmin: HasAdminPermissions('me')
+	isAdmin: HasAdminPermissions(MeID())
 		// also check previous version for admin-rights (so we can increment db-version without losing our rights to complete the db-upgrade!)
 		|| (MeID() != null && GetData({ inVersionRoot: false }, 'versions', `v${dbVersion - 1}-${ENV_SHORT}`, 'userExtras', MeID(), '.permissionGroups', '.admin')),
 });

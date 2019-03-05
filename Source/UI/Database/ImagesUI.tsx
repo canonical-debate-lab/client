@@ -48,7 +48,7 @@ export class ImagesUI extends BaseComponent
 				}}>
 					<Row style={{ height: 40, justifyContent: 'center', background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' }}>
 						<Div p={7} style={{ position: 'absolute', left: 0 }}>
-							<Button text="Add image" enabled={CanGetBasicPermissions('me')} onClick={(e) => {
+							<Button text="Add image" enabled={CanGetBasicPermissions(MeID())} onClick={(e) => {
 								if (userID == null) return ShowSignInPopup();
 								ShowAddImageDialog(userID);
 							}}/>
@@ -77,14 +77,14 @@ export class ImagesUI extends BaseComponent
 								</Div>}
 							<Div p={7} style={{ position: 'absolute', right: 0 }}>
 								{creatorOrMod
-									&& <Button ml="auto" text="Save details" enabled={selectedImage_newData != null && selectedImage_newDataError == null && CanGetBasicPermissions('me')}
+									&& <Button ml="auto" text="Save details" enabled={selectedImage_newData != null && selectedImage_newDataError == null && CanGetBasicPermissions(MeID())}
 										onClick={async (e) => {
 											const updates = RemoveHelpers(selectedImage_newData.Including(...UpdateImageData_allowedPropUpdates));
 											await new UpdateImageData({ id: selectedImage._id, updates }).Run();
 											// this.SetState({selectedImage_newData: null});
 										}}/>}
 								{creatorOrMod
-									&& <Button text="Delete image" ml={10} enabled={selectedImage != null && CanGetBasicPermissions('me')} onClick={async (e) => {
+									&& <Button text="Delete image" ml={10} enabled={selectedImage != null && CanGetBasicPermissions(MeID())} onClick={async (e) => {
 										ShowMessageBox({
 											title: `Delete "${selectedImage.name}"`, cancelButton: true,
 											message: `Delete the image "${selectedImage.name}"?`,
