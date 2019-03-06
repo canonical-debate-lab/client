@@ -10,6 +10,7 @@ import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
 import { NodeMathUI } from 'UI/@Shared/Maps/MapNode/NodeMathUI';
 import { SetNodeUILocked } from 'UI/@Shared/Maps/MapNode/NodeUI';
 import { SlicePath, State, Connect, IsDoubleClick, InfoButton, RemoveHelpers, DBPath, WaitTillPathDataIsReceived, VReactMarkdown_Remarkable } from 'Utils/FrameworkOverrides';
+import {ES} from 'Utils/UI/GlobalStyles';
 import { ParseSegmentsForPatterns } from '../../../../Utils/General/RegexHelpers';
 import { AddNodeRevision } from '../../../../Server/Commands/AddNodeRevision';
 import { GetImage } from '../../../../Store/firebase/images';
@@ -40,7 +41,7 @@ import { SubPanel } from './NodeUI_Inner/SubPanel';
 import { TermPlaceholder } from './NodeUI_Inner/TermPlaceholder';
 import { MapNodeUI_LeftBox } from './NodeUI_LeftBox';
 import { NodeUI_Menu, NodeUI_Menu_Stub } from './NodeUI_Menu';
-import {ES} from 'Utils/UI/GlobalStyles';
+import { PhrasingsPanel } from './NodeUI/Panels/PhrasingsPanel';
 
 // drag and drop
 // ==========
@@ -290,6 +291,7 @@ class NodeUI_BottomPanel extends BaseComponent
 						openTermID={nodeView.openTermID}
 						onHoverTerm={termID => onTermHover(termID)}
 						onClickTerm={termID => store.dispatch(new ACTMapNodeTermOpen({ mapID: map._id, path, termID }))}/>}
+				{panelToShow == 'phrasings' && <PhrasingsPanel node={node} path={path}/>}
 				{panelToShow == 'discussion' && <DiscussionPanel/>}
 				{panelToShow == 'social' && <SocialPanel/>}
 				{panelToShow == 'tags' && <TagsPanel/>}

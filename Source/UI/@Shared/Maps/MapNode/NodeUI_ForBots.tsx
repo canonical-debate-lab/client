@@ -16,6 +16,7 @@ import { RatingsPanel } from './NodeUI/Panels/RatingsPanel';
 import { SocialPanel } from './NodeUI/Panels/SocialPanel';
 import { TagsPanel } from './NodeUI/Panels/TagsPanel';
 import { NodeUI_Inner } from './NodeUI_Inner';
+import {PhrasingsPanel} from './NodeUI/Panels/PhrasingsPanel';
 
 type Props = {map: Map, node: MapNodeL2}
 	& Partial<{nodeParents: MapNodeL2[], nodeChildren: MapNodeL2[]}>;
@@ -74,6 +75,7 @@ export class NodeUI_ForBots extends BaseComponent<Props, {}> {
 						const ratings = GetRatings(node._id, ratingInfo.type);
 						return <RatingsPanel key={index} node={nodeL3} path={path} ratingType={ratingInfo.type} ratings={ratings}/>;
 					})}
+					<PhrasingsPanel node={node} path={path}/>
 					<DefinitionsPanel node={node} path={path}/>
 					<DiscussionPanel/>
 					<SocialPanel/>
