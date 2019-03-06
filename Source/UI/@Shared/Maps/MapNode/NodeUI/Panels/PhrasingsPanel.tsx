@@ -63,10 +63,25 @@ export class PhrasingRow extends BaseComponentWithConnector(PhrasingRow_connecto
 		const { phrasing } = this.props;
 		return (
 			<Row>
+				{/* <CheckBox checked={true} onChange={(val) => {
+					// todo: have this change which phrasing is selected to be used (in your client), for viewing/setting ratings in the ratings panels // nvm, having shared ratings -- for now at least
+				}}/> */}
 				<Pre>{phrasing.text}</Pre>
-				<Pre title="Conciseness">C: 50%</Pre>
-				<Pre title="Neutrality">N: 50%</Pre>
+				<Pre title="Quality">Q: 50%</Pre>
 			</Row>
 		);
 	}
 }
+
+/*
+todo:
+1) clean up UI
+2) ms you can add/edit/delete phrasings, with natural phrasings having extra "description" field
+	[later on we will disable editing/deleting once a certain number of people have voted on it]
+3) ms you can vote on the quality of phrasings
+4) ms mods can mark phrasings as "spam"/"not spam"
+	[Later on, people will have way of contesting this, forcing their phrasing to stay visible. Super-mods/admins can override this though -- though this also sends it to neutrality portal.]
+5) ms mods can mark phrasings as "superseded by..."/"not superseded" (its votes are then considered votes for the new version as well -- this allows fixing of typos and such)
+	[Later on, people will have way of contesting this, forcing their phrasing to stay a distinct entry. Super-mods/admins can override this though -- though this also sends it to neutrality portal.]
+6) ms highest-rated phrasing (that's evaluated as not-spam and not-superseded based on mod markings) is used as node text
+*/
