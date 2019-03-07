@@ -1,12 +1,12 @@
 import { MapEdit } from 'Server/CommandMacros';
 import { Assert, GetValues_ForSchema } from 'js-vextensions';
-import { AssertValidate } from 'Server/Server';
+import { AssertValidate, AddSchema } from 'Utils/FrameworkOverrides';
 import { GetAsync_Raw, GetDataAsync } from 'Utils/FrameworkOverrides';
 import { GetClaimType, GetNodeL2 } from './../../Store/firebase/nodes/$node';
 import { Equation } from './../../Store/firebase/nodes/@Equation';
 import { ClaimType, MapNodeL2 } from './../../Store/firebase/nodes/@MapNode';
 import { MapNodeRevision } from './../../Store/firebase/nodes/@MapNodeRevision';
-import { Command } from './../Command';
+import { Command } from 'Utils/FrameworkOverrides';
 import { UserEdit } from './../CommandMacros';
 
 export const conversionTypes = [

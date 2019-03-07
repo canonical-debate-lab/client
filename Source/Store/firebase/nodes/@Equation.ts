@@ -1,6 +1,8 @@
+import { AddSchema } from 'Utils/FrameworkOverrides';
+
 export class Equation {
 	latex: boolean;
-	text = "";
+	text = '';
 	isStep? = true;
 	explanation = null as string;
 }

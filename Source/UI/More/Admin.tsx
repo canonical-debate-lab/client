@@ -1,4 +1,3 @@
-import { ValidateDBData } from 'Server/Command';
 import { E, SleepAsync } from 'js-vextensions';
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
@@ -8,6 +7,7 @@ import { Omit } from 'lodash';
 import { StopStateDataOverride, StartStateDataOverride, UpdateStateDataOverride } from 'UI/@Shared/StateOverrides';
 import { Connect, GetData, DBPath, State, RemoveHelpers, SplitStringBySlash_Cached, GetDataAsync, ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks } from 'Utils/FrameworkOverrides';
 import { dbVersion } from 'Main';
+import {ValidateDBData} from 'Utils/Store/DBDataValidator';
 import { styles } from '../../Utils/UI/GlobalStyles';
 import { FirebaseData } from '../../Store/firebase';
 import { MeID, GetUser } from '../../Store/firebase/users';

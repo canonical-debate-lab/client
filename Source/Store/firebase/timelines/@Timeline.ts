@@ -1,3 +1,5 @@
+import { AddSchema } from 'Utils/FrameworkOverrides';
+
 export class Timeline {
 	constructor(initialData: {name: string, creator: string} & Partial<Timeline>) {
 		this.Extend(initialData);
@@ -13,12 +15,12 @@ export class Timeline {
 }
 AddSchema({
 	properties: {
-		mapID: {type: "number"},
-		name: {type: "string"},
-		creator: {type: "string"},
-		createdAt: {type: "number"},
+		mapID: { type: 'number' },
+		name: { type: 'string' },
+		creator: { type: 'string' },
+		createdAt: { type: 'number' },
 
-		steps: {items: {type: "number"}},
+		steps: { items: { type: 'number' } },
 	},
-	required: ["mapID", "name", "creator", "createdAt"],
-}, "Timeline");
+	required: ['mapID', 'name', 'creator', 'createdAt'],
+}, 'Timeline');

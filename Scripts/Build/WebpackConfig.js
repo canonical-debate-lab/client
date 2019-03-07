@@ -153,7 +153,12 @@ webpackConfig.module.rules = [
 		// include: [paths.client(), paths.base("node_modules", "vwebapp-framework")],
 		include: [paths.client(), fs.realpathSync(paths.base('node_modules', 'vwebapp-framework'))],
 		loader: 'babel-loader',
-		options: config.compiler_babel,
+		query: {
+			presets: [
+				['@babel/env', { loose: true }],
+				'@babel/react',
+			],
+		},
 	},
 ];
 

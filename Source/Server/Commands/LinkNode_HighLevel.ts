@@ -6,7 +6,7 @@ import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
 import { GetAsync } from 'Utils/FrameworkOverrides';
 import { ClaimForm, MapNode, Polarity } from './../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from './../../Store/firebase/nodes/@MapNodeType';
-import { Command, MergeDBUpdates } from './../Command';
+import { Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
 import { UserEdit } from './../CommandMacros';
 import { LinkNode } from './LinkNode';
 import { UnlinkNode } from './UnlinkNode';

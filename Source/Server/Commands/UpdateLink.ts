@@ -1,10 +1,8 @@
 import { GetNode } from 'Store/firebase/nodes';
-import {GetAsync_Raw} from 'Utils/FrameworkOverrides';
+import { AddSchema, AssertValidate, Command, GetAsync_Raw, GetSchemaJSON, WaitTillSchemaAddedThenRun } from 'Utils/FrameworkOverrides';
 import { GetLinkUnderParent } from '../../Store/firebase/nodes/$node';
 import { ChildEntry } from '../../Store/firebase/nodes/@MapNode';
-import { Command } from '../Command';
 import { UserEdit } from '../CommandMacros';
-import { GetSchemaJSON, WaitTillSchemaAddedThenRun, AssertValidate } from '../Server';
 
 WaitTillSchemaAddedThenRun('ChildEntry', () => {
 	AddSchema({

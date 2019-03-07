@@ -4,7 +4,7 @@ import {GetAsync, GetDataAsync} from 'Utils/FrameworkOverrides';
 import { ForDeleteLayer_GetError } from '../../Store/firebase/layers';
 import { Layer } from '../../Store/firebase/layers/@Layer';
 import { UserMapInfoSet } from '../../Store/firebase/userMapInfo/@UserMapInfo';
-import { Command } from '../Command';
+import { Command } from 'Utils/FrameworkOverrides';
 
 @UserEdit
 export class DeleteLayer extends Command<{layerID: number}, {}> {

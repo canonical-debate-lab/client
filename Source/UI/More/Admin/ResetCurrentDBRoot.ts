@@ -1,8 +1,8 @@
 import { ShowMessageBox } from 'react-vmessagebox';
-import { ValidateDBData } from 'Server/Command';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { MeID } from 'Store/firebase/users';
 import { ApplyDBUpdates, DBPath, ConvertDataToValidDBUpdates } from 'Utils/FrameworkOverrides';
+import {ValidateDBData} from 'Utils/Store/DBDataValidator';
 import { FirebaseData } from '../../../Store/firebase';
 import { Map, MapType } from '../../../Store/firebase/maps/@Map';
 import { MapNode } from '../../../Store/firebase/nodes/@MapNode';

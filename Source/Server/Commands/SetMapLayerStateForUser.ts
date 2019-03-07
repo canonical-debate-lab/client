@@ -1,7 +1,6 @@
-import { MapEdit } from 'Server/CommandMacros';
 import { Assert } from 'js-vextensions';
-import { AssertValidate } from 'Server/Server';
-import { Command } from '../Command';
+import { MapEdit } from 'Server/CommandMacros';
+import { AddSchema, AssertValidate, Command } from 'Utils/FrameworkOverrides';
 import { UserEdit } from '../CommandMacros';
 
 AddSchema({

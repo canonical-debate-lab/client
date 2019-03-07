@@ -1,15 +1,13 @@
-import { MapEdit, UserEdit } from 'Server/CommandMacros';
-import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
-import { Assert } from 'js-vextensions';
-import { AssertValidate } from 'Server/Server';
-import { GetNode } from 'Store/firebase/nodes';
-import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
-import {GetAsync} from 'Utils/FrameworkOverrides';
-import { ChildEntry, MapNode } from '../../Store/firebase/nodes/@MapNode';
-import { Command, MergeDBUpdates } from '../Command';
-import { AddNode } from './AddNode';
+import {Assert} from 'js-vextensions';
+import {MapEdit, UserEdit} from 'Server/CommandMacros';
+import {GetNode} from 'Store/firebase/nodes';
+import {MapNodeRevision} from 'Store/firebase/nodes/@MapNodeRevision';
+import {MapNodeType} from 'Store/firebase/nodes/@MapNodeType';
+import {AssertValidate, Command, GetAsync, MergeDBUpdates} from 'Utils/FrameworkOverrides';
+import {ChildEntry, MapNode} from '../../Store/firebase/nodes/@MapNode';
+import {AddNode} from './AddNode'; 
 
-type Payload = {mapID: number, parentID: number, node: MapNode, revision: MapNodeRevision, link?: ChildEntry, asMapRoot?: boolean};
+type Payload = {mapID: number, parentID: number, node: MapNode, revision: MapNodeRevision, link?: ChildEntry, asMapRoot?: boolean}; 
 
 @MapEdit
 @UserEdit

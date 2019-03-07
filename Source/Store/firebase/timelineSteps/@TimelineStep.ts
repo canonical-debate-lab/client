@@ -1,3 +1,5 @@
+import { AddSchema } from 'Utils/FrameworkOverrides';
+
 export class TimelineStep {
 	constructor(initialData: Partial<TimelineStep>) {
 		this.Extend(initialData);

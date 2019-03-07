@@ -1,7 +1,7 @@
 import { GetShortestPathFromRootToNode } from 'Utils/Store/PathFinder';
 import { GetNode } from 'Store/firebase/nodes';
 import { emptyArray } from 'js-vextensions';
-import {GetData, CachedTransform_WithStore} from 'Utils/FrameworkOverrides';
+import { GetData, CachedTransform_WithStore, AddSchema } from 'Utils/FrameworkOverrides';
 import { GetLastAcknowledgementTime } from '../main';
 import { GetRootNodeID } from './maps';
 import { MapNode } from './nodes/@MapNode';

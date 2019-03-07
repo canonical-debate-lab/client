@@ -1,8 +1,6 @@
 import { MapEdit, UserEdit } from 'Server/CommandMacros';
-import { AssertValidate } from 'Server/Server';
-import {GetDataAsync} from 'Utils/FrameworkOverrides';
+import { AddSchema, AssertValidate, Command, GetDataAsync } from 'Utils/FrameworkOverrides';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
-import { Command } from '../Command';
 
 AddSchema({
 	properties: {

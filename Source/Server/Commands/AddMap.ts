@@ -1,11 +1,11 @@
 import { UserEdit } from 'Server/CommandMacros';
-import { AssertValidate } from 'Server/Server';
+import { AssertValidate } from 'Utils/FrameworkOverrides';
 import {GetDataAsync} from 'Utils/FrameworkOverrides';
 import { Map } from '../../Store/firebase/maps/@Map';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeRevision } from '../../Store/firebase/nodes/@MapNodeRevision';
 import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
-import { Command, MergeDBUpdates } from '../Command';
+import { Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
 import { AddChildNode } from './AddChildNode';
 
 @UserEdit

@@ -1,15 +1,15 @@
 import { CachedTransform } from 'js-vextensions';
-import {GetData} from 'Utils/FrameworkOverrides';
+import { GetData } from 'Utils/FrameworkOverrides';
 import { Map, MapType } from './maps/@Map';
 
 export function GetMaps(): Map[] {
 	const mapsMap = GetData({ collection: true }, 'maps');
 	return CachedTransform('GetMaps', [], mapsMap, () => (mapsMap ? mapsMap.VValues(true) : []));
 }
-export function GetMapsOfType(type: MapType): Map[] {
+/* export function GetMapsOfType(type: MapType): Map[] {
 	const mapsMap = GetData({ collection: true }, 'maps');
-	return CachedTransform('GetMaps', [type], mapsMap, () => (mapsMap ? mapsMap.VValues(true).filter(a => a.type == type) : []));
-}
+	return CachedTransform('GetMaps', [type], mapsMap, () => (mapsMap ? mapsMap.VValues(true).filter(a => a && a.type == type) : []));
+} */
 export function GetMap(id: number): Map {
 	if (id == null) return null;
 	return GetData('maps', id);

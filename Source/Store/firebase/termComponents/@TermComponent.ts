@@ -1,3 +1,5 @@
+import { AddSchema } from 'Utils/FrameworkOverrides';
+
 export class TermComponent {
 	constructor(initialData: {text: string} & Partial<TermComponent>) {
 		this.Extend(initialData);
@@ -17,7 +19,7 @@ AddSchema({
 	required: ['text', 'parentTerms'],
 }, 'TermComponent');
 
-/*export type ParentTermSet = {[key: number]: ParentTerm};
+/* export type ParentTermSet = {[key: number]: ParentTerm};
 AddSchema({patternProperties: {"^[0-9]+$": {$ref: "ParentTerm"}}}, "ParentTermSet");
 export type ParentTerm = boolean;
 AddSchema({type: "boolean"}, "ParentTerm"); */

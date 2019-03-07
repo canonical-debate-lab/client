@@ -1,8 +1,8 @@
 import { UserEdit } from 'Server/CommandMacros';
-import { AssertValidate } from 'Server/Server';
+import { AssertValidate } from 'Utils/FrameworkOverrides';
 import {GetDataAsync} from 'Utils/FrameworkOverrides';
 import { TimelineStep } from '../../Store/firebase/timelineSteps/@TimelineStep';
-import { Command } from '../Command';
+import { Command } from 'Utils/FrameworkOverrides';
 
 @UserEdit
 export class AddTimelineStep extends Command<{timelineID: number, step: TimelineStep}, {}> {

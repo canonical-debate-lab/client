@@ -16,6 +16,7 @@ import { GetAuth } from 'Store/firebase';
 import { NotificationMessage } from 'Store/main/@NotificationMessage';
 import { AddNotificationMessage } from 'UI/@Shared/NavBar/NotificationsUI';
 import { PreDispatchAction, MidDispatchAction, PostDispatchAction, DoesURLChangeCountAsPageChange } from 'Utils/Store/ActionProcessor';
+import {ValidateDBData} from 'Utils/Store/DBDataValidator';
 import { ShowSignInPopup } from './UI/@Shared/NavBar/UserPanel';
 
 const context = (require as any).context('../Resources/SVGs/', true, /\.svg$/);
@@ -66,6 +67,8 @@ export function InitLibs() {
 
 		GetAuth,
 		GetUserID: MeID,
+
+		ValidateDBData,
 	});
 
 	// g.FirebaseConnect = Connect;

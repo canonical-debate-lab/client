@@ -4,7 +4,7 @@ import { GetMap } from 'Store/firebase/maps';
 import {GetAsync_Raw, GetDataAsync} from 'Utils/FrameworkOverrides';
 import { Map } from '../../Store/firebase/maps/@Map';
 import { UserMapInfoSet } from '../../Store/firebase/userMapInfo/@UserMapInfo';
-import { Command, MergeDBUpdates } from '../Command';
+import { Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
 
 @UserEdit
 export class DeleteMap extends Command<{mapID: number}, {}> {

@@ -32,7 +32,7 @@ Object.assign(config, {
 	// compiler configuration
 	// ----------
 	// remember that if you change the compiler settings, you'll need to clear the happypack cache
-	compiler_babel: {
+	/* compiler_babel: {
 		// cacheDirectory: true,
 		presets: [
 			// "babel-preset-es2015",
@@ -69,7 +69,9 @@ Object.assign(config, {
 			'babel-plugin-transform-object-rest-spread',
 			'babel-plugin-transform-class-properties',
 
-			PROD && 'babel-plugin-transform-runtime', // for "async" transpilation; had been disabled, but found still needed for googlebot
+			// for "async" transpilation; had been disabled, but found still needed for googlebot
+			PROD && ['babel-plugin-transform-runtime', { polyfill: false }], // polyfill:false is to fix webpack#3974
+
 			// ["babel-plugin-transform-runtime", {"regenerator": false}],
 			'babel-plugin-lodash',
 			'babel-plugin-transform-decorators-legacy',
@@ -78,7 +80,8 @@ Object.assign(config, {
 			if (typeof nameOrArray == 'string') return require.resolve(nameOrArray);
 			return [require.resolve(nameOrArray[0]), ...nameOrArray.slice(1)];
 		}),
-	},
+	}, */
+
 	// list of types: https://webpack.js.org/configuration/devtool
 	// *: All "eval" ones don't work anymore with new tsc setup -- they don't show original files
 	// compiler_devtool: "source-map", // shows: original (in error.stack, shows bundle line) [6s/rebuild]

@@ -1,3 +1,5 @@
+import { AddSchema } from 'Utils/FrameworkOverrides';
+
 // temp replaced
 // import {UserInfo} from "firebase";
 type UserInfo = any;

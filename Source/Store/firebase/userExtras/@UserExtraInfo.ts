@@ -1,3 +1,5 @@
+import { AddSchema } from 'Utils/FrameworkOverrides';
+
 export class UserExtraInfo {
 	constructor(initialData: Partial<UserExtraInfo>) {
 		this.Extend(initialData);

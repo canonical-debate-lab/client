@@ -1,4 +1,5 @@
 import { Source } from 'Store/firebase/contentNodes/@SourceChain';
+import {AddSchema} from 'Utils/FrameworkOverrides';
 import { SourceChain } from './@SourceChain';
 
 // todo: probably rename to "Quote"
@@ -8,7 +9,7 @@ export class ContentNode {
 			{ sources: [new Source()] },
 		];
 	}
-	content = "";
+	content = '';
 	sourceChains: SourceChain[];
 }
 AddSchema({

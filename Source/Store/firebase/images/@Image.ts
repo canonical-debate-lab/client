@@ -1,5 +1,6 @@
 import { SourceChain, Source } from 'Store/firebase/contentNodes/@SourceChain';
 import { GetValues_ForSchema } from 'js-vextensions';
+import { AddSchema } from 'Utils/FrameworkOverrides';
 
 export enum ImageType {
 	Photo = 10,
@@ -24,7 +25,7 @@ export class Image {
 
 	name: string;
 	type: ImageType;
-	url = "";
+	url = '';
 	description: string;
 	previewWidth: number;
 

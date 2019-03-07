@@ -2,7 +2,7 @@ import { Assert } from 'js-vextensions';
 import {GetDataAsync, GetAsync} from 'Utils/FrameworkOverrides';
 import { ForUnlink_GetError } from '../../Store/firebase/nodes';
 import { GetNodeL2 } from '../../Store/firebase/nodes/$node';
-import { Command } from '../Command';
+import { Command } from 'Utils/FrameworkOverrides';
 import { MapEdit, UserEdit } from '../CommandMacros';
 
 @MapEdit

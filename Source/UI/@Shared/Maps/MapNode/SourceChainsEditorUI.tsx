@@ -6,7 +6,7 @@ import { Row } from 'react-vcomponents';
 import { TextInput } from 'react-vcomponents';
 import { Select } from 'react-vcomponents';
 import { GetErrorMessagesUnderElement, GetEntries } from 'js-vextensions';
-import { Validate } from 'Server/Server';
+import { Validate } from 'Utils/FrameworkOverrides';
 import {ES} from 'Utils/UI/GlobalStyles';
 import { GetSourceNamePlaceholderText, GetSourceAuthorPlaceholderText } from '../../../../Store/firebase/contentNodes/$contentNode';
 

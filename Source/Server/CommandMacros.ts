@@ -1,5 +1,4 @@
-import {GetDataAsync} from 'Utils/FrameworkOverrides';
-import { MergeDBUpdates } from './Command';
+import { GetDataAsync, MergeDBUpdates } from 'Utils/FrameworkOverrides';
 
 export function MapEdit(target: Function) {
 	const oldPrepare = target.prototype.Prepare;

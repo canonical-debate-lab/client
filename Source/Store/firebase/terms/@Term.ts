@@ -1,4 +1,5 @@
 import { GetValues_ForSchema } from 'js-vextensions';
+import { AddSchema } from 'Utils/FrameworkOverrides';
 
 export class Term {
 	constructor(initialData: {name: string, type: TermType, creator: string} & Partial<Term>) {

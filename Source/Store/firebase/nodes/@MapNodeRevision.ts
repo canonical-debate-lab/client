@@ -1,4 +1,5 @@
 import { GetValues_ForSchema } from 'js-vextensions';
+import {AddSchema} from 'Utils/FrameworkOverrides';
 import { AccessLevel, ImageAttachment } from './@MapNode';
 import { Equation } from './@Equation';
 import { ContentNode } from '../contentNodes/@ContentNode';
@@ -33,7 +34,7 @@ export class MapNodeRevision {
 	creator?: string;
 	createdAt: number;
 
-	titles = {base: ""} as TitlesMap;
+	titles = { base: '' } as TitlesMap;
 	note: string;
 
 	// updatedAt: number;

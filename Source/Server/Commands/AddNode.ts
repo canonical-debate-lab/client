@@ -2,8 +2,8 @@ import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { Assert } from 'js-vextensions';
 import {GetDataAsync} from 'Utils/FrameworkOverrides';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
-import { Command, MergeDBUpdates } from '../Command';
-import { GetSchemaJSON, AssertValidate, AssertValidate_Full } from '../Server';
+import { Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
+import { GetSchemaJSON, AssertValidate, AssertValidate_Full } from 'Utils/FrameworkOverrides';
 import { AddNodeRevision } from './AddNodeRevision';
 
 /** Do not use this from client-side code. This is only to be used internally, by higher-level commands -- usually AddChildNode. */

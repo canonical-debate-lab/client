@@ -4,7 +4,7 @@ import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import {GetAsync_Raw} from 'Utils/FrameworkOverrides';
 import { GetLayer } from '../../Store/firebase/layers';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
-import { Command, MergeDBUpdates } from '../Command';
+import { Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
 import { AddNode } from './AddNode';
 
 @UserEdit

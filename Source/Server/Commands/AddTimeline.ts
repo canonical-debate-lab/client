@@ -1,8 +1,8 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
-import { AssertValidate } from 'Server/Server';
+import { AssertValidate } from 'Utils/FrameworkOverrides';
 import {GetDataAsync} from 'Utils/FrameworkOverrides';
-import { Command } from '../Command';
+import { Command } from 'Utils/FrameworkOverrides';
 
 @UserEdit
 export class AddTimeline extends Command<{mapID: number, timeline: Timeline}, number> {

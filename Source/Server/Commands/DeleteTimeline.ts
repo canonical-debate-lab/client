@@ -2,7 +2,7 @@ import { UserEdit } from 'Server/CommandMacros';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import {GetAsync} from 'Utils/FrameworkOverrides';
 import { GetTimeline } from '../../Store/firebase/timelines';
-import { Command } from '../Command';
+import { Command } from 'Utils/FrameworkOverrides';
 
 @UserEdit
 export class DeleteTimeline extends Command<{timelineID: number}, {}> {

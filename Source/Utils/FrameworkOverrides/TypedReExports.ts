@@ -1,6 +1,17 @@
 import { RootState } from 'Store';
-import { LogTypes } from 'Utils/General/Logging';
-import { CreateState, CreateACTSet, CreateSimpleReducer, CreateShouldLog, CreateMaybeLog } from '.';
+import { CreateState, CreateACTSet, CreateSimpleReducer, CreateShouldLog, CreateMaybeLog, LogTypes_Base } from '.';
+
+export class LogTypes extends LogTypes_Base {
+	actions = false;
+	nodeRenders = false;
+	nodeRenders_for = null as number;
+	nodeRenderDetails = false;
+	nodeRenderDetails_for = null as number;
+	dbRequests = false;
+
+	// doesn't actually log; rather, causes data to be stored in component.props.extraInfo.renderTriggers
+	renderTriggers = false;
+}
 
 export const State = CreateState<RootState>();
 // State() actually also returns the root-state (if no data-getter is supplied), but we don't reveal that in type-info (as its only to be used in console)
