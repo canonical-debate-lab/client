@@ -1,10 +1,10 @@
 import { MapEdit } from 'Server/CommandMacros';
 import { GetNode } from 'Store/firebase/nodes';
 import { Assert, E } from 'js-vextensions';
-import {GetAsync} from 'Utils/FrameworkOverrides';
+import { GetAsync } from 'Utils/FrameworkOverrides';
+import { Command } from 'Utils/FrameworkOverrides';
 import { ClaimForm, MapNode, Polarity } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
-import { Command } from 'Utils/FrameworkOverrides';
 import { UserEdit } from '../CommandMacros';
 
 @MapEdit
@@ -18,7 +18,7 @@ export class LinkNode extends Command<{mapID: number, parentID: number, childID:
 	parent_oldData: MapNode;
 	/* async Prepare(parent_oldChildrenOrder_override?: number[]) {
 		let {parentID, childID, childForm} = this.payload;
-		this.parent_oldChildrenOrder = parent_oldChildrenOrder_override || await GetDataAsync(`nodes/${parentID}/childrenOrder`) as number[];
+		this.parent_oldChildrenOrder = parent_oldChildrenOrder_override || await GetDataAsync(`nodes/${parentID}/.childrenOrder`) as number[];
 	} */
 	async Prepare() {
 		const { parentID, childID } = this.payload;

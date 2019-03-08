@@ -74,7 +74,7 @@ export async function PostDispatchAction(action: Action<any>) {
 
 	const url = GetCurrentURL();
 	// let oldURL = URL.Current();
-	// let url = VURL.FromLocationObject(action.payload);
+	// let url = VURL.FromLocationObject(action.payload.location);
 	const simpleURL = GetCurrentURL_SimplifiedForPageViewTracking();
 	if (DoesURLChangeCountAsPageChange(pageViewTracker_lastURL, simpleURL)) {
 		pageViewTracker_lastURL = simpleURL;
@@ -178,7 +178,7 @@ export async function PostDispatchAction(action: Action<any>) {
 
 	if (action.type == '@@reactReduxFirebase/LOGIN') {
 		const userID = action['auth'].uid;
-		const joinDate = await GetDataAsync('userExtras', userID, 'joinDate');
+		const joinDate = await GetDataAsync('userExtras', userID, '.joinDate');
 		if (joinDate == null) {
 			// todo: improve this; perhaps create an InitUser command, with the server doing the actual permission setting and such
 			/* const firebase = store.firebase.helpers;

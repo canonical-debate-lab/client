@@ -82,10 +82,11 @@ module.exports = {
 	},
 	globals: {
 		ENV: true,
-		ENV_SHORT: true,
 		DEV: true,
 		PROD: true,
 		TEST: true,
+		DB: true,
+		DB_SHORT: true,
 
 		window: true,
 		document: true,

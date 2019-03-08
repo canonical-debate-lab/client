@@ -7,7 +7,7 @@ import { Omit } from 'lodash';
 import { StopStateDataOverride, StartStateDataOverride, UpdateStateDataOverride } from 'UI/@Shared/StateOverrides';
 import { Connect, GetData, DBPath, State, RemoveHelpers, SplitStringBySlash_Cached, GetDataAsync, ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks } from 'Utils/FrameworkOverrides';
 import { dbVersion } from 'Main';
-import {ValidateDBData} from 'Utils/Store/DBDataValidator';
+import { ValidateDBData } from 'Utils/Store/DBDataValidator';
 import { styles } from '../../Utils/UI/GlobalStyles';
 import { FirebaseData } from '../../Store/firebase';
 import { MeID, GetUser } from '../../Store/firebase/users';
@@ -35,7 +35,7 @@ require('./Admin/DBUpgrades/UpgradeDB_11');
 const connector = (state, {}: {}) => ({
 	isAdmin: HasAdminPermissions(MeID())
 		// also check previous version for admin-rights (so we can increment db-version without losing our rights to complete the db-upgrade!)
-		|| (MeID() != null && GetData({ inVersionRoot: false }, 'versions', `v${dbVersion - 1}-${ENV_SHORT}`, 'userExtras', MeID(), '.permissionGroups', '.admin')),
+		|| (MeID() != null && GetData({ inVersionRoot: false }, 'versions', `v${dbVersion - 1}-${DB_SHORT}`, 'userExtras', MeID(), '.permissionGroups', '.admin')),
 });
 @Connect(connector)
 export class AdminUI extends BaseComponentWithConnector(connector, { dbUpgrade_entryIndexes: [] as number[], dbUpgrade_entryCounts: [] as number[] }) {
@@ -45,7 +45,7 @@ export class AdminUI extends BaseComponentWithConnector(connector, { dbUpgrade_e
 		this.SetEnvironment(envSuffix);
 	}
 	SetEnvironment(env: string) {
-		var {version, firebaseConfig} = require(env == "prod" ? "../../BakedConfig_Prod" : "../../BakedConfig_Dev");
+		var {version, firebaseConfig} = require(env == "production" ? "../../BakedConfig_Prod" : "../../BakedConfig_Dev");
 		try {
 			Firebase.initializeApp(firebaseConfig);
 		} catch (err) {} // silence reinitialize warning (hot-reloading)
@@ -121,9 +121,9 @@ export class UpgradeButton extends BaseComponent<{newVersion: number, upgradeFun
 	render() {
 		const { newVersion, upgradeFunc, markProgress } = this.props;
 
-		const oldVersionName = `v${newVersion - 1}-${ENV_SHORT}`;
+		const oldVersionName = `v${newVersion - 1}-${DB_SHORT}`;
 		const oldVersionPath = `versions/${oldVersionName}`;
-		const newVersionName = `v${newVersion}-${ENV_SHORT}`;
+		const newVersionName = `v${newVersion}-${DB_SHORT}`;
 		const newVersionPath = `versions/${newVersionName}`;
 
 		return (

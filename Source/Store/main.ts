@@ -13,9 +13,9 @@ import { rootPageDefaultChilds } from 'Utils/URL/URLs';
 import { MapViews, MapNodeView, MapView } from './main/mapViews/@MapViews';
 import { MapViewsReducer } from './main/mapViews';
 import { RatingUIReducer, RatingUIState } from './main/ratingUI';
-import { NotificationMessage } from './main/@NotificationMessage'; 
+import { NotificationMessage } from './main/@NotificationMessage';
 import { DebatesReducer, Debates, ACTDebateMapSelect } from './main/debates';
-import {SubpageReducer} from './main/@Shared/$subpage';
+import { SubpageReducer } from './main/@Shared/$subpage';
 import { globalMapID } from './firebase/nodes/@MapNode';
 import { PersonalReducer, ACTPersonalMapSelect } from './main/personal';
 import { Database, DatabaseReducer } from './main/database';
@@ -32,6 +32,7 @@ export class MainState {
 	page: string;
 	urlExtraStr: string;
 	envOverride: string;
+	dbOverride: string;
 	dbVersionOverride: string;
 	analyticsEnabled: boolean;
 	topLeftOpenPanel: string;
@@ -102,31 +103,39 @@ function CreateMainReducer_Real() {
 		urlExtraStr: (state = null, action) => {
 			// if ((action.type == "@@INIT" || action.type == "persist/REHYDRATE") && startURL.GetQueryVar("env"))
 			// if ((action.type == "PostRehydrate") && startURL.GetQueryVar("env"))
-			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload).GetQueryVar('extra')) {
-				let newVal = VURL.FromLocationObject(action.payload).GetQueryVar('extra');
+			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload.location).GetQueryVar('extra')) {
+				let newVal = VURL.FromLocationObject(action.payload.location).GetQueryVar('extra');
 				if (newVal == 'null') newVal = null;
 				return newVal;
 			}
 			return state;
 		},
 		envOverride: (state = null, action) => {
-			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload).GetQueryVar('env')) {
-				let newVal = VURL.FromLocationObject(action.payload).GetQueryVar('env');
+			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload.location).GetQueryVar('env')) {
+				let newVal = VURL.FromLocationObject(action.payload.location).GetQueryVar('env');
+				if (newVal == 'null') newVal = null;
+				return newVal;
+			}
+			return state;
+		},
+		dbOverride: (state = null, action) => {
+			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload.location).GetQueryVar('db')) {
+				let newVal = VURL.FromLocationObject(action.payload.location).GetQueryVar('db');
 				if (newVal == 'null') newVal = null;
 				return newVal;
 			}
 			return state;
 		},
 		dbVersionOverride: (state = null, action) => {
-			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload).GetQueryVar('dbVersion')) {
-				const str = VURL.FromLocationObject(action.payload).GetQueryVar('dbVersion');
+			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload.location).GetQueryVar('dbVersion')) {
+				const str = VURL.FromLocationObject(action.payload.location).GetQueryVar('dbVersion');
 				return str == 'null' ? null : parseInt(str);
 			}
 			return state;
 		},
 		analyticsEnabled: (state = true, action) => {
-			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload).GetQueryVar('analytics') == 'false') { return false; }
-			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload).GetQueryVar('analytics') == 'true') { return true; }
+			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload.location).GetQueryVar('analytics') == 'false') { return false; }
+			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload.location).GetQueryVar('analytics') == 'true') { return true; }
 			return state;
 		},
 		topLeftOpenPanel: (state = null, action) => {

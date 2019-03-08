@@ -16,7 +16,7 @@ export const DebatesReducer = CombineReducers({
 		// if (action.Is(ACTDebateMapSelect)) return action.payload.id;
 		if (action.Is(ACTDebateMapSelect_WithData) && (action.payload.map == null || action.payload.map.type == MapType.Debate)) return action.payload.id;
 		/* if (action.type == LOCATION_CHANGED) {
-			let id = parseInt(VURL.FromLocationObject(action.payload).pathNodes[1]);
+			let id = parseInt(VURL.FromLocationObject(action.payload.location).pathNodes[1]);
 			if (IsNumber(id)) return id;
 		} */
 		return state;

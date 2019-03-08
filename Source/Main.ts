@@ -32,29 +32,39 @@ declare global { export const startURL: VURL; } G({ startURL });
 // always compile-time
 declare global { var ENV_COMPILE_TIME: string; }
 // only compile-time if compiled for production (otherwise, can be overriden)
-declare global { var ENV_SHORT: string; var ENV: string; var DEV: boolean; var PROD: boolean; var TEST: boolean; }
+declare global { var ENV: string; var DEV: boolean; var PROD: boolean; var TEST: boolean; }
 
-// let {version, ENV, ENV_SHORT, DEV, PROD, TEST} = DEV ? require("./BakedConfig_Dev") : require("./BakedConfig_Prod");
 // if environment at compile time was not "production" (ie. if these globals weren't set/locked), then set them here at runtime
 if (ENV_COMPILE_TIME != 'production') {
 	g.ENV = ENV_COMPILE_TIME;
 	if (startURL.GetQueryVar('env') && startURL.GetQueryVar('env') != 'null') {
-		g.ENV = startURL.GetQueryVar('env');
+		const envStr = startURL.GetQueryVar('env');
+		g.ENV = { dev: 'development', prod: 'production' }[envStr] || envStr;
 		// alert("Using env: " + g.ENV);
 		console.log(`Using env: ${ENV}`);
 	}
 
-	g.ENV_SHORT = { development: 'dev', production: 'prod' }[ENV] || ENV;
 	g.DEV = ENV == 'development';
 	g.PROD = ENV == 'production';
 	g.TEST = ENV == 'test';
 }
 
+// only compile-time if compiled for production (otherwise, can be overriden)
+declare global { var DB: string; var DB_SHORT: string; }
+
+g.DB = g.ENV;
+if (startURL.GetQueryVar('db') && startURL.GetQueryVar('db') != 'null') {
+	const dbStr = startURL.GetQueryVar('db');
+	g.DB = { dev: 'development', prod: 'production' }[dbStr] || dbStr;
+	console.log(`Using db: ${DB}`);
+}
+g.DB_SHORT = { development: 'dev', production: 'prod' }[DB] || DB;
+
 // let {version} = require("../../../package.json");
 // Note: Use two BakedConfig files, so that dev-server can continue running, with its own baked-config data, even while prod-deploy occurs.
 // Note: Don't reference the BakedConfig files from anywhere but here (in runtime code) -- because we want to be able to override it, below.
 // let {version, dbVersion, firebaseConfig} = DEV ? require("./BakedConfig_Dev") : require("./BakedConfig_Prod");
-const { version, firebaseConfig } = DEV ? require('./BakedConfig_Dev') : require('./BakedConfig_Prod');
+const { version, firebaseConfig } = DB == 'development' ? require('./BakedConfig_Dev') : require('./BakedConfig_Prod');
 
 let dbVersion = 11;
 if (startURL.GetQueryVar('dbVersion') && startURL.GetQueryVar('dbVersion') != 'null') {

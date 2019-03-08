@@ -436,6 +436,9 @@ export function GetNewURL(includeMapViewStr = true) {
 	if (State(a => a.main.envOverride)) {
 		newURL.SetQueryVar('env', State(a => a.main.envOverride));
 	}
+	if (State(a => a.main.dbOverride)) {
+		newURL.SetQueryVar('db', State(a => a.main.dbOverride));
+	}
 	if (State(a => a.main.dbVersionOverride)) {
 		newURL.SetQueryVar('dbVersion', State(a => a.main.dbVersionOverride));
 	}

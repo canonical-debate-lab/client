@@ -7,7 +7,6 @@ const { NODE_ENV, PORT, USE_TSLOADER, BASENAME } = process.env;
 
 // make these variables global throughout the compile-time scripts
 global.ENV = NODE_ENV;
-global.ENV_SHORT = { development: 'dev', production: 'prod' }[ENV] || ENV;
 global.DEV = ENV == 'development';
 global.PROD = ENV == 'production';
 global.TEST = ENV == 'test';
@@ -122,7 +121,7 @@ config.globals = {
 
 if (PROD) {
 	// If building for production, lock all the env-variables as compile-time defines. (meaning eg. `if (DEV)` blocks are compiled out)
-	Object.assign(config.globals, { ENV_SHORT: S(ENV_SHORT), ENV: S(ENV), DEV: S(DEV), PROD: S(PROD), TEST: S(TEST) });
+	Object.assign(config.globals, { ENV: S(ENV), DEV: S(DEV), PROD: S(PROD), TEST: S(TEST) });
 }
 
 // DON'T EVER USE THESE; we only include them in case libraries use them (such as redux)

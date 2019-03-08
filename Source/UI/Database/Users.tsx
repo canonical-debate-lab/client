@@ -97,7 +97,7 @@ class UserRow extends BaseComponent<{index: number, last: boolean, user: User, u
 						<span style={{ flex: columnWidths[2] }}>{userExtraInfo.edits || 0}</span>
 						<span style={{ flex: columnWidths[3] }}>{userExtraInfo.lastEditAt ? Moment(userExtraInfo.lastEditAt).format('YYYY-MM-DD') : 'n/a'}</span>
 						<span style={{ flex: columnWidths[4] }}>
-							{['basic', 'verified', 'mod', 'admin'].filter(a => userExtraInfo.permissionGroups[a]).map(a => a.replace(/^./, a => a.toUpperCase())).join(', ')}
+							{['basic', 'verified', 'mod', 'admin'].filter(a => (userExtraInfo.permissionGroups || {})[a]).map(a => a.replace(/^./, a => a.toUpperCase())).join(', ')}
 						</span>
 					</Row>}
 			</Column>
