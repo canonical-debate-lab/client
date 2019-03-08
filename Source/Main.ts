@@ -47,6 +47,9 @@ if (ENV_COMPILE_TIME != 'production') {
 	g.DEV = ENV == 'development';
 	g.PROD = ENV == 'production';
 	g.TEST = ENV == 'test';
+} else {
+	// else, turn the compile-time replacements into true globals
+	Object.assign(g, { ENV, DEV, PROD, TEST });
 }
 
 // only compile-time if compiled for production (otherwise, can be overriden)

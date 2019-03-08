@@ -155,7 +155,13 @@ webpackConfig.module.rules = [
 		loader: 'babel-loader',
 		query: {
 			presets: [
-				['@babel/env', { loose: true }],
+				[
+					'@babel/env',
+					{
+						loose: true,
+						exclude: DEV ? ['babel-plugin-transform-async-to-generator', 'babel-plugin-transform-regenerator'] : [],
+					},
+				],
 				'@babel/react',
 			],
 		},

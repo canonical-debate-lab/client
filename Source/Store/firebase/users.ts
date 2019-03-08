@@ -40,9 +40,10 @@ export function GetUserJoinDate(userID: string): number {
 	if (userID == null) return null;
 	return GetData('userExtras', userID, '.joinDate');
 }
+const defaultPermissions = { basic: true, verified: true, mod: false, admin: false } as PermissionGroupSet; // temp
 export function GetUserPermissionGroups(userID: string): PermissionGroupSet {
 	if (userID == null) return null;
-	return GetData('userExtras', userID, '.permissionGroups');
+	return GetData('userExtras', userID, '.permissionGroups') || defaultPermissions;
 }
 export function GetUserAccessLevel(userID: string) {
 	const groups = GetUserPermissionGroups(userID);

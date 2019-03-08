@@ -33,7 +33,7 @@ export class UserProfileUI extends BaseComponentWithConnector(connector, {}) {
 				<Row mt={3}>
 					<Pre>Permissions: </Pre>
 					{['basic', 'verified', 'mod', 'admin'].map((group, index) => {
-						const admin = MeID() && GetUserPermissionGroups(MeID());
+						const admin = MeID() && GetUserPermissionGroups(MeID()).admin;
 						const changingOwnAdminState = currentUser && profileUser._key == currentUser._key && group == 'admin';
 						return (
 							<CheckBox key={index} mr={index < 3 ? 5 : 0} text={PropNameToTitle(group)} checked={(profileUserPermissionGroups || {})[group]} enabled={admin && !changingOwnAdminState} onChange={(val) => {
