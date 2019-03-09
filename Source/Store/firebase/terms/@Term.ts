@@ -2,7 +2,7 @@ import { GetValues_ForSchema } from 'js-vextensions';
 import { AddSchema } from 'Utils/FrameworkOverrides';
 
 export class Term {
-	constructor(initialData: {name: string, type: TermType, creator: string} & Partial<Term>) {
+	constructor(initialData: {name: string, type: TermType} & Partial<Term>) {
 		this.Extend(initialData);
 		// this.createdAt = Date.now();
 	}

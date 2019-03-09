@@ -36,8 +36,8 @@ export class MapEntryUI extends BaseComponentWithConnector(connector, {}) {
 							e.preventDefault();
 							store.dispatch(new (map.type == MapType.Personal ? ACTPersonalMapSelect : ACTDebateMapSelect)({ id: map._id }));
 						}}/>
-						{map.note
-							&& <Div style={E(
+						{map.note &&
+							<Div style={E(
 								{ fontSize: 11, color: 'rgba(255,255,255,.5)', marginRight: 10, marginTop: 4 },
 								map.noteInline && { marginLeft: 15, float: 'right' },
 							)}>

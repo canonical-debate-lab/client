@@ -1,7 +1,6 @@
 import { UserEdit } from 'Server/CommandMacros';
-import {GetDataAsync} from 'Utils/FrameworkOverrides';
+import { Command, GetDataAsync } from 'Utils/FrameworkOverrides';
 import { Term } from '../../Store/firebase/terms/@Term';
-import { Command } from 'Utils/FrameworkOverrides';
 
 @UserEdit
 export class DeleteTerm extends Command<{termID: number}, {}> {
@@ -10,8 +9,7 @@ export class DeleteTerm extends Command<{termID: number}, {}> {
 		const { termID } = this.payload;
 		this.oldData = await GetDataAsync({ addHelpers: false }, 'terms', termID) as Term;
 	}
-	async Validate() {
-	}
+	async Validate() {}
 
 	GetDBUpdates() {
 		const { termID } = this.payload;

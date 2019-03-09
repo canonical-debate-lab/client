@@ -1,3 +1,4 @@
+import {Clone} from 'js-vextensions';
 import { FirebaseData } from '../../../../Store/firebase';
 import { AddUpgradeFunc } from '../../Admin';
 

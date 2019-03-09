@@ -1,4 +1,4 @@
-import { ForumData } from 'firebase-forum';
+// import { ForumData } from 'firebase-forum';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { NodeEditTimes } from 'Store/firebase/mapNodeEditTimes';
 import { MapNodeStats } from 'Store/firebase/nodeStats/@MapNodeStats';
@@ -16,9 +16,10 @@ import { Term } from './firebase/terms/@Term';
 import { UserExtraInfo } from './firebase/userExtras/@UserExtraInfo';
 import { UserMapInfoSet } from './firebase/userMapInfo/@UserMapInfo';
 import { ViewedNodeSet } from './firebase/userViewedNodes/@ViewedNodeSet';
+import { MapNodePhrasings } from './firebase/nodePhrasings/@MapNodePhrasing';
 
 export interface FirebaseData {
-	forum: ForumData;
+	// forum: ForumData;
 	general: {data: GeneralData};
 	images: {[key: string]: Image};
 	layers: {[key: number]: Layer};
@@ -34,6 +35,7 @@ export interface FirebaseData {
 	nodeRevisions: {[key: number]: MapNodeRevision};
 	nodeStats: {[key: number]: MapNodeStats};
 	nodeViewers: {[key: number]: ViewerSet};
+	nodePhrasings: {[key: number]: MapNodePhrasings};
 	terms: {[key: number]: Term};
 	termComponents: {[key: number]: TermComponent};
 	termNames: {[key: string]: any};

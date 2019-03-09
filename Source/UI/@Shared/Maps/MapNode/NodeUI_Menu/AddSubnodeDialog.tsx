@@ -70,8 +70,8 @@ class AddSubnodeDialog extends BaseComponent<Props, {layer: Layer, newNode: MapN
 						<Pre>Layer: </Pre>
 						<Select options={layerOptions} value={layer} onChange={val => this.SetState({ layer: val })}/>
 					</Row>
-					{newNode.type == MapNodeType.Claim
-					&& <Row mt={5}>
+					{newNode.type == MapNodeType.Claim &&
+					<Row mt={5}>
 						<Pre>Type: </Pre>
 						<Select displayType="button bar" options={claimTypes} style={{ display: 'inline-block' }}
 							value={GetClaimType(AsNodeL2(newNode, newRevision))}

@@ -1,8 +1,8 @@
-import { GetErrorMessagesUnderElement } from 'js-vextensions';
+import { GetErrorMessagesUnderElement, Clone } from 'js-vextensions';
 import Moment from 'moment';
 import { CheckBox, Column, Pre, RowLR, Spinner, TextInput } from 'react-vcomponents';
 import { BaseComponentWithConnector } from 'react-vextensions';
-import {Connect} from 'Utils/FrameworkOverrides';
+import { Connect } from 'Utils/FrameworkOverrides';
 import { Map, Map_namePattern } from '../../../Store/firebase/maps/@Map';
 import { GetUser } from '../../../Store/firebase/users';
 
@@ -12,7 +12,7 @@ const connector = (state, { baseData, forNew }: Props) => ({
 });
 @Connect(connector)
 export class MapDetailsUI extends BaseComponentWithConnector(connector, { newData: null as Map }) {
-	static defaultProps = {enabled: true};
+	static defaultProps = { enabled: true };
 	ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.baseData != this.props.baseData) { // if base-data changed
 			this.SetState({ newData: Clone(props.baseData) });
@@ -31,8 +31,8 @@ export class MapDetailsUI extends BaseComponentWithConnector(connector, { newDat
 			width = 600;
 		return (
 			<Column style={style}>
-				{!forNew
-					&& <table className="selectableAC" style={{/* borderCollapse: "separate", borderSpacing: "10px 0" */}}>
+				{!forNew &&
+					<table className="selectableAC" style={{/* borderCollapse: "separate", borderSpacing: "10px 0" */}}>
 						<thead>
 							<tr><th>ID</th><th>Creator</th><th>Created at</th></tr>
 						</thead>

@@ -1,4 +1,3 @@
-import { LocationDescriptorObject } from 'history';
 import { firebaseStateReducer } from 'react-redux-firebase';
 import { VMenuReducer, VMenuState } from 'react-vmenu';
 import { MessageBoxReducer, MessageBoxState } from 'react-vmessagebox';
@@ -16,7 +15,6 @@ export class RootState {
 	// form: any;
 	// router: RouterState;
 	router: any;
-	messageBox: MessageBoxState;
 	vMenu: VMenuState;
 	/* forum: ForumData;
 	feedback: FeedbackData; */
@@ -50,7 +48,6 @@ export function MakeRootReducer() {
 			firebase: firebaseStateReducer,
 			firestore: firestoreReducer,
 			// form: formReducer,
-			messageBox: MessageBoxReducer,
 			vMenu: VMenuReducer,
 			/* forum: ForumReducer,
 			feedback: FeedbackReducer, */

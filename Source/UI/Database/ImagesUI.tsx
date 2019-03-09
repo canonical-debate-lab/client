@@ -76,15 +76,15 @@ export class ImagesUI extends BaseComponent
 									{selectedImage.name}
 								</Div>}
 							<Div p={7} style={{ position: 'absolute', right: 0 }}>
-								{creatorOrMod
-									&& <Button ml="auto" text="Save details" enabled={selectedImage_newData != null && selectedImage_newDataError == null && CanGetBasicPermissions(MeID())}
+								{creatorOrMod &&
+									<Button ml="auto" text="Save details" enabled={selectedImage_newData != null && selectedImage_newDataError == null}
 										onClick={async (e) => {
 											const updates = RemoveHelpers(selectedImage_newData.Including(...UpdateImageData_allowedPropUpdates));
 											await new UpdateImageData({ id: selectedImage._id, updates }).Run();
 											// this.SetState({selectedImage_newData: null});
 										}}/>}
-								{creatorOrMod
-									&& <Button text="Delete image" ml={10} enabled={selectedImage != null && CanGetBasicPermissions(MeID())} onClick={async (e) => {
+								{creatorOrMod &&
+									<Button text="Delete image" ml={10} enabled={selectedImage != null} onClick={async (e) => {
 										ShowMessageBox({
 											title: `Delete "${selectedImage.name}"`, cancelButton: true,
 											message: `Delete the image "${selectedImage.name}"?`,

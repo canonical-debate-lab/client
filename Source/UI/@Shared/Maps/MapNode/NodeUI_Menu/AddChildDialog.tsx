@@ -61,8 +61,8 @@ export function ShowAddChildDialog(parentNode: MapNodeL3, parentPath: string, ch
 			const newNodeAsL2 = AsNodeL2(newNode, newRevision);
 			return (
 				<Column ref={c => root = c} style={{ width: 600 }}>
-					{childType == MapNodeType.Claim
-						&& <Row>
+					{childType == MapNodeType.Claim &&
+						<Row>
 							<Pre>Type: </Pre>
 							<Select displayType="button bar" options={claimTypes} style={{ display: 'inline-block' }}
 								value={GetClaimType(newNodeAsL2)}
@@ -87,8 +87,8 @@ export function ShowAddChildDialog(parentNode: MapNodeL3, parentPath: string, ch
 									});
 								}}/>
 						</Row>}
-					{childType != MapNodeType.Argument
-						&& <NodeDetailsUI ref={c => nodeEditorUI = c} style={{ padding: childType == MapNodeType.Claim ? '5px 0 0 0' : 0 }}
+					{childType != MapNodeType.Argument &&
+						<NodeDetailsUI ref={c => nodeEditorUI = c} style={{ padding: childType == MapNodeType.Claim ? '5px 0 0 0' : 0 }}
 							baseData={AsNodeL3(newNodeAsL2, Polarity.Supporting, null)}
 							baseRevisionData={newRevision}
 							baseLinkData={newLink} forNew={true}
@@ -100,8 +100,8 @@ export function ShowAddChildDialog(parentNode: MapNodeL3, parentPath: string, ch
 								validationError = comp.GetValidationError();
 								Change();
 							}}/>}
-					{childType == MapNodeType.Argument
-						&& <Column>
+					{childType == MapNodeType.Argument &&
+						<Column>
 							{/* <Row style={{display: "flex", alignItems: "center"}}>
 								<Pre>Title: </Pre>
 								<InfoButton text={`

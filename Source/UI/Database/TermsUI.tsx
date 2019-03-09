@@ -50,7 +50,7 @@ export class TermsUI extends BaseComponent<Props, {selectedTerm_newData: Term, s
 						<Div p={7} style={{ position: 'absolute', left: 0 }}>
 							<Button text="Add term" enabled={CanGetBasicPermissions(MeID())} onClick={(e) => {
 								if (userID == null) return ShowSignInPopup();
-								ShowAddTermDialog(userID);
+								ShowAddTermDialog();
 							}}/>
 						</Div>
 						<Div style={{ fontSize: 17, fontWeight: 500 }}>
@@ -71,20 +71,20 @@ export class TermsUI extends BaseComponent<Props, {selectedTerm_newData: Term, s
 				}} contentStyle={ES({ flex: 1, padding: 10 })}>
 					<Column style={{ position: 'relative', background: 'rgba(0,0,0,.5)', borderRadius: 10 }}>
 						<Row style={{ height: 40, justifyContent: 'center', background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' }}>
-							{selectedTerm
-								&& <Div style={{ fontSize: 17, fontWeight: 500 }}>
+							{selectedTerm &&
+								<Div style={{ fontSize: 17, fontWeight: 500 }}>
 									{GetFullNameP(selectedTerm)}
 								</Div>}
 							<Div p={7} style={{ position: 'absolute', right: 0 }}>
-								{creatorOrMod
-									&& <Button ml="auto" text="Save details" enabled={selectedTerm_newData != null && selectedTerm_newDataError == null}
+								{creatorOrMod &&
+									<Button ml="auto" text="Save details" enabled={selectedTerm_newData != null && selectedTerm_newDataError == null}
 										onClick={async (e) => {
 											const updates = RemoveHelpers(selectedTerm_newData.Including('name', 'disambiguation', 'type', 'person', 'shortDescription_current'));
 											await new UpdateTermData({ termID: selectedTerm._id, updates }).Run();
 											// this.SetState({selectedTerm_newData: null});
 										}}/>}
-								{creatorOrMod
-									&& <Button text="Delete term" ml={10} enabled={selectedTerm != null}
+								{creatorOrMod &&
+									<Button text="Delete term" ml={10} enabled={selectedTerm != null}
 										onClick={async (e) => {
 											ShowMessageBox({
 												title: `Delete "${GetFullNameP(selectedTerm)}"`, cancelButton: true,

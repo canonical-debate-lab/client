@@ -134,8 +134,8 @@ export class RatingsPanel extends BaseComponent<RatingsPanel_Props, {size: Vecto
 					{/* Smoothing: <Spinner value={smoothing} onChange={val=>store.dispatch(new ACTRatingUISmoothnessSet(val))}/> */}
 					<Pre>Smoothing: </Pre><Select options={smoothingOptions} value={smoothing} onChange={val => store.dispatch(new ACTRatingUISmoothnessSet(val))}/>
 				</div>
-				{this.lastRender_source == RenderSource.SetState
-					&& <AreaChart ref="chart" width={size.x} height={250} data={dataFinal}
+				{this.lastRender_source == RenderSource.SetState &&
+					<AreaChart ref="chart" width={size.x} height={250} data={dataFinal}
 						margin={{ top: 20, right: 10, bottom: 0, left: 10 }} /* viewBox={{x: 0, y: 250 - height, width: size.x, height: 250}} */>
 						<XAxis dataKey="label" type="number" /* label={<XAxisLabel ratingType={ratingType}/>} */ ticks={Range(minLabel, maxLabel, ratingTypeInfo.tickInterval)}
 							tick={ratingTypeInfo.tickRender}

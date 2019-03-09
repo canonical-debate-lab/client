@@ -1,8 +1,8 @@
 import { UserEdit } from 'Server/CommandMacros';
-import { Assert } from 'js-vextensions';
-import {GetDataAsync} from 'Utils/FrameworkOverrides';
-import { TermComponent } from '../../Store/firebase/termComponents/@TermComponent';
+import { Assert, IsNumber } from 'js-vextensions';
+import { GetDataAsync } from 'Utils/FrameworkOverrides';
 import { Command } from 'Utils/FrameworkOverrides';
+import { TermComponent } from '../../Store/firebase/termComponents/@TermComponent';
 
 @UserEdit
 export class DeleteTermComponent extends Command<{termComponentID: number}, {}> {

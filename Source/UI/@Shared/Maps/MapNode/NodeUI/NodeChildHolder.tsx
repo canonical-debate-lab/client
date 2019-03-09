@@ -1,4 +1,4 @@
-import { CachedTransform, Vector2i, emptyObj } from 'js-vextensions';
+import { CachedTransform, Vector2i, emptyObj, nl, Assert } from 'js-vextensions';
 import { Button, Column, Div, Row } from 'react-vcomponents';
 import { BaseComponentWithConnector, GetInnerComp, RenderSource, GetDOM } from 'react-vextensions';
 import { GetFillPercent_AtPath } from 'Store/firebase/nodeRatings';
@@ -11,7 +11,7 @@ import { MapNodeView } from 'Store/main/mapViews/@MapViews';
 import { NodeConnectorBackground } from 'UI/@Shared/Maps/MapNode/NodeConnectorBackground';
 import { NodeUI } from 'UI/@Shared/Maps/MapNode/NodeUI';
 import { IsSpecialEmptyArray, State, Connect, MaybeLog, Icon } from 'Utils/FrameworkOverrides';
-import {ES} from 'Utils/UI/GlobalStyles';
+import { ES } from 'Utils/UI/GlobalStyles';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { IsMultiPremiseArgument } from '../../../../../Store/firebase/nodes/$node';
 import { Polarity } from '../../../../../Store/firebase/nodes/@MapNode';
@@ -119,8 +119,8 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 			return (
 				<NodeUI key={child._id} ref={c => this.childBoxes[child._id] = c} map={map} node={child}
 					path={`${path}/${child._id}`} widthOverride={childrenWidthOverride} onHeightOrPosChange={this.OnChildHeightOrPosChange}>
-					{index == (direction == 'down' ? childLimit - 1 : 0) && !showAll && (collection.length > childLimit || childLimit != initialChildLimit)
-						&& <ChildLimitBar {...{ map, path, childrenWidthOverride, childLimit }} direction={direction} childCount={collection.length}/>}
+					{index == (direction == 'down' ? childLimit - 1 : 0) && !showAll && (collection.length > childLimit || childLimit != initialChildLimit) &&
+						<ChildLimitBar {...{ map, path, childrenWidthOverride, childLimit }} direction={direction} childCount={collection.length}/>}
 				</NodeUI>
 			);
 		};
@@ -136,31 +136,31 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 				// if we don't know our child offsets yet, render still (so we can measure ourself), but make self invisible
 				oldChildBoxOffsets == null && { opacity: 0, pointerEvents: 'none' },
 			)}>
-				{linkSpawnPoint && oldChildBoxOffsets
+				{linkSpawnPoint && oldChildBoxOffsets &&
 					// <NodeConnectorBackground node={node} linkSpawnPoint={vertical ? Vector2iCache.Get(0, linkSpawnPoint) : Vector2iCache.Get(-30, linkSpawnPoint)}
-					&& <NodeConnectorBackground node={node} linkSpawnPoint={vertical ? new Vector2i(-10, 0) : new Vector2i(-30, linkSpawnPoint)} straightLines={vertical}
+					<NodeConnectorBackground node={node} linkSpawnPoint={vertical ? new Vector2i(-10, 0) : new Vector2i(-30, linkSpawnPoint)} straightLines={vertical}
 						shouldUpdate={true} // this.lastRender_source == RenderSource.SetState}
 						nodeChildren={nodeChildrenToShowHere} childBoxOffsets={oldChildBoxOffsets}/>}
 
 				{/* if we're for multi-premise arg, and this comp is not already showing relevance-args, show them in a "Taken together, are these claims relevant?" box */}
-				{IsMultiPremiseArgument(node) && type != HolderType.Relevance
-					&& <NodeChildHolderBox {...{ map, node, path, nodeView }} type={HolderType.Relevance} widthOverride={childrenWidthOverride}
+				{IsMultiPremiseArgument(node) && type != HolderType.Relevance &&
+					<NodeChildHolderBox {...{ map, node, path, nodeView }} type={HolderType.Relevance} widthOverride={childrenWidthOverride}
 						widthOfNode={childrenWidthOverride}
 						nodeChildren={GetNodeChildrenL3(node, path)} nodeChildrenToShow={nodeChildrenToShowInRelevanceBox}
 						onHeightOrDividePointChange={dividePoint => this.CheckForChanges()}/>}
 				{!separateChildren && nodeChildrenToShowHere.slice(0, childLimit_down).map((pack, index) => {
 					return RenderChild(pack, index, nodeChildrenToShowHere);
 				})}
-				{separateChildren
-					&& <Column ref={c => this.upChildHolder = c} ct className="upChildHolder">
+				{separateChildren &&
+					<Column ref={c => this.upChildHolder = c} ct className="upChildHolder">
 						{upChildren.slice(-childLimit_up).map((child, index) => {
 							return RenderChild(child, index, upChildren, 'up');
 						})}
 					</Column>}
-				{showArgumentsControlBar
-					&& <ArgumentsControlBar ref={c => this.argumentsControlBar = c} map={map} node={node} path={path} childBeingAdded={currentNodeBeingAdded_path == `${path}/?`}/>}
-				{separateChildren
-					&& <Column ref={c => this.downChildHolder = c} ct>
+				{showArgumentsControlBar &&
+					<ArgumentsControlBar ref={c => this.argumentsControlBar = c} map={map} node={node} path={path} childBeingAdded={currentNodeBeingAdded_path == `${path}/?`}/>}
+				{separateChildren &&
+					<Column ref={c => this.downChildHolder = c} ct>
 						{downChildren.slice(0, childLimit_down).map((child, index) => {
 							return RenderChild(child, index, downChildren, 'down');
 						})}

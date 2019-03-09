@@ -1,5 +1,5 @@
 import { StandardCompProps } from 'Utils/UI/General';
-import { DeepGet, E, SleepAsync, Timer, Vector2i } from 'js-vextensions';
+import { DeepGet, E, SleepAsync, Timer, Vector2i, FindDOMAll, Assert, FromJSON, ToJSON } from 'js-vextensions';
 import { Column } from 'react-vcomponents';
 import { BaseComponentWithConnector, FindReact, GetDOM } from 'react-vextensions';
 import { VMenuStub } from 'react-vmenu';
@@ -164,7 +164,7 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 							if (e.nativeEvent['passThrough']) return true;
 							e.preventDefault();
 						}}>
-						<NodeUI map={map} node={rootNode} path={Assert(rootNode._id != null) || rootNode._id.toString()}/>
+						<NodeUI map={map} node={rootNode} path={(Assert(rootNode._id != null), rootNode._id.toString())}/>
 						{/* <ReactResizeDetector handleWidth handleHeight onResize={()=> { */}
 						{/* <ResizeSensor ref="resizeSensor" onResize={()=> {
 							this.LoadScroll();

@@ -4,7 +4,7 @@ import { MeID } from 'Store/firebase/users';
 import { GetPlayingTimelineAppliedStepRevealNodes } from 'Store/main/maps/$map';
 import { NodeChildHolder } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolder';
 import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolderBox';
-import { CachedTransform, E, Timer, emptyArray_forLoading, emptyArray } from 'js-vextensions';
+import { CachedTransform, E, Timer, emptyArray_forLoading, emptyArray, Assert, IsNaN, nl, ToInt } from 'js-vextensions';
 import { Column } from 'react-vcomponents';
 import { BaseComponentWithConnector, GetInnerComp, RenderSource, ShallowChanged, ShallowEquals, GetDOM } from 'react-vextensions';
 import { Connect, State, SlicePath, ShouldLog, MaybeLog } from 'Utils/FrameworkOverrides';
@@ -214,8 +214,8 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 			);
 		}
 
-		const nodeChildHolder_direct = !isPremiseOfSinglePremiseArg && nodeView.expanded
-			&& <NodeChildHolder {...{ map, node, path, nodeView, nodeChildren, nodeChildrenToShow, separateChildren, showArgumentsControlBar }}
+		const nodeChildHolder_direct = !isPremiseOfSinglePremiseArg && nodeView.expanded &&
+			<NodeChildHolder {...{ map, node, path, nodeView, nodeChildren, nodeChildrenToShow, separateChildren, showArgumentsControlBar }}
 				// type={node.type == MapNodeType.Claim && node._id != demoRootNodeID ? HolderType.Truth : null}
 				type={null}
 				// linkSpawnPoint={innerBoxOffset + expectedHeight / 2}
@@ -230,13 +230,13 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 					}
 					this.SetState({ dividePoint });
 				}}/>;
-		const nodeChildHolderBox_truth = isPremiseOfSinglePremiseArg && nodeView.expanded
-			&& <NodeChildHolderBox {...{ map, node, path, nodeView }} type={HolderType.Truth}
+		const nodeChildHolderBox_truth = isPremiseOfSinglePremiseArg && nodeView.expanded &&
+			<NodeChildHolderBox {...{ map, node, path, nodeView }} type={HolderType.Truth}
 				widthOfNode={widthOverride || width}
 				nodeChildren={nodeChildren} nodeChildrenToShow={nodeChildrenToShow}
 				onHeightOrDividePointChange={dividePoint => this.CheckForChanges()}/>;
-		const nodeChildHolderBox_relevance = isPremiseOfSinglePremiseArg && nodeView.expanded
-			&& <NodeChildHolderBox {...{ map, node: parent, path: parentPath, nodeView: parentNodeView }} type={HolderType.Relevance}
+		const nodeChildHolderBox_relevance = isPremiseOfSinglePremiseArg && nodeView.expanded &&
+			<NodeChildHolderBox {...{ map, node: parent, path: parentPath, nodeView: parentNodeView }} type={HolderType.Relevance}
 				widthOfNode={widthOverride || width}
 				nodeChildren={GetNodeChildrenL3(parent, parentPath)} nodeChildrenToShow={relevanceArguments}
 				onHeightOrDividePointChange={dividePoint => this.CheckForChanges()}/>;
@@ -257,11 +257,11 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 					{ marginTop: nodeView.expanded && !isMultiPremiseArgument ? (dividePoint - (selfHeight / 2)).NaNTo(0).KeepAtLeast(0) : 0 },
 				)}>
 					{limitBar_above && children}
-					{asSubnode
-						&& <div style={{ position: 'absolute', left: 2, right: 2, top: -3, height: 3, borderRadius: '3px 3px 0 0', background: 'rgba(255,255,0,.7)' }}/>}
+					{asSubnode &&
+						<div style={{ position: 'absolute', left: 2, right: 2, top: -3, height: 3, borderRadius: '3px 3px 0 0', background: 'rgba(255,255,0,.7)' }}/>}
 					<Column ref="innerBoxHolder" className="innerBoxHolder clickThrough" style={{ position: 'relative' }}>
-						{node.current.accessLevel != AccessLevel.Basic
-							&& <div style={{ position: 'absolute', right: 'calc(100% + 5px)', top: 0, bottom: 0, display: 'flex', fontSize: 10 }}>
+						{node.current.accessLevel != AccessLevel.Basic &&
+							<div style={{ position: 'absolute', right: 'calc(100% + 5px)', top: 0, bottom: 0, display: 'flex', fontSize: 10 }}>
 								<span style={{ margin: 'auto 0' }}>{AccessLevel[node.current.accessLevel][0].toUpperCase()}</span>
 							</div>}
 						{nodeChildHolderBox_truth}
@@ -285,14 +285,14 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 					{!limitBar_above && !hasExtraWrapper && children}
 				</div>
 
-				{nodeChildrenToShow == emptyArray_forLoading
-					&& <div style={{ margin: 'auto 0 auto 10px' }}>...</div>}
-				{IsRootNode(node) && nodeChildrenToShow != emptyArray_forLoading && nodeChildrenToShow.length == 0
-					&& <div style={{ margin: 'auto 0 auto 10px', background: 'rgba(0,0,0,.7)', padding: 5, borderRadius: 5 }}>To add a node, right click on the root node.</div>}
-				{!nodeView.expanded
-					&& <NodeChildCountMarker {...{ limitBarPos }} childCount={nodeChildrenToShow.length + (relevanceArguments ? relevanceArguments.length : 0)}/>}
-				{!nodeView.expanded && (addedDescendants > 0 || editedDescendants > 0)
-					&& <NodeChangesMarker {...{ addedDescendants, editedDescendants, limitBarPos }}/>}
+				{nodeChildrenToShow == emptyArray_forLoading &&
+					<div style={{ margin: 'auto 0 auto 10px' }}>...</div>}
+				{IsRootNode(node) && nodeChildrenToShow != emptyArray_forLoading && nodeChildrenToShow.length == 0 &&
+					<div style={{ margin: 'auto 0 auto 10px', background: 'rgba(0,0,0,.7)', padding: 5, borderRadius: 5 }}>To add a node, right click on the root node.</div>}
+				{!nodeView.expanded &&
+					<NodeChildCountMarker {...{ limitBarPos }} childCount={nodeChildrenToShow.length + (relevanceArguments ? relevanceArguments.length : 0)}/>}
+				{!nodeView.expanded && (addedDescendants > 0 || editedDescendants > 0) &&
+					<NodeChangesMarker {...{ addedDescendants, editedDescendants, limitBarPos }}/>}
 				{!isMultiPremiseArgument
 					&& nodeChildHolder_direct}
 			</div>

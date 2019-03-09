@@ -9,7 +9,7 @@ import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView/rootNodeViews';
 import { MapNodeView } from 'Store/main/mapViews/@MapViews';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
-import { emptyArray_forLoading, emptyArray } from 'js-vextensions';
+import { emptyArray_forLoading, emptyArray, AssertWarn } from 'js-vextensions';
 import { Connect } from 'Utils/FrameworkOverrides';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath } from '../../../../../Store/firebase/nodeRatings';
@@ -111,14 +111,14 @@ export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { 
 					{/* position: "relative", /* removal fixes */ alignItems: 'flex-start', /* marginLeft: `calc(100% - ${width}px)`, */ width },
 				)}>
 					<div ref={c => this.lineHolder = c} className="clickThroughChain" style={{ position: 'absolute', width: '100%', height: '100%' }}>
-						{type == HolderType.Truth
-							&& <Squiggle start={[0, lineHolderHeight + 2]} startControl_offset={[0, -lineOffset]}
+						{type == HolderType.Truth &&
+							<Squiggle start={[0, lineHolderHeight + 2]} startControl_offset={[0, -lineOffset]}
 								end={[(width / 2) - 2, innerBoxOffset + height - 2]} endControl_offset={[0, lineOffset]} color={lineColor}/>}
-						{type == HolderType.Relevance && !isMultiPremiseArgument
-							&& <Squiggle start={[0, -2]} startControl_offset={[0, lineOffset]}
+						{type == HolderType.Relevance && !isMultiPremiseArgument &&
+							<Squiggle start={[0, -2]} startControl_offset={[0, lineOffset]}
 								end={[(width / 2) - 2, innerBoxOffset + 2]} endControl_offset={[0, -lineOffset]} color={lineColor}/>}
-						{type == HolderType.Relevance && isMultiPremiseArgument
-							&& <div style={{ position: 'absolute', right: '100%', width: 10, top: innerBoxOffset + (height / 2) - 2, height: 3, backgroundColor: lineColor.css() }}/>}
+						{type == HolderType.Relevance && isMultiPremiseArgument &&
+							<div style={{ position: 'absolute', right: '100%', width: 10, top: innerBoxOffset + (height / 2) - 2, height: 3, backgroundColor: lineColor.css() }}/>}
 					</div>
 					<ExpandableBox {...{ width, widthOverride, expanded }} innerWidth={width}
 						ref={c => this.expandableBox = c}
@@ -138,8 +138,8 @@ export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { 
 							}
 						}}
 						afterChildren={[
-							ratingPanelShow
-								&& <div ref={c => this.ratingPanelHolder = c} style={{
+							ratingPanelShow &&
+								<div ref={c => this.ratingPanelHolder = c} style={{
 									position: 'absolute', left: 0, top: 'calc(100% + 1px)',
 									width, minWidth: (widthOverride | 0).KeepAtLeast(550), zIndex: hovered_main ? 6 : 5,
 									padding: 5, background: backgroundColor.css(), borderRadius: 5, boxShadow: 'rgba(0,0,0,1) 0px 0px 2px',
@@ -152,13 +152,13 @@ export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { 
 							<NodeUI_Menu_Stub {...{ map, node, path }} holderType={type}/>,
 						].AutoKey()}
 					/>
-					{nodeChildrenToShow != emptyArray && !expanded && nodeChildrenToShow.length != 0
-						&& <NodeChildCountMarker childCount={nodeChildrenToShow.length}/>}
+					{nodeChildrenToShow != emptyArray && !expanded && nodeChildrenToShow.length != 0 &&
+						<NodeChildCountMarker childCount={nodeChildrenToShow.length}/>}
 					{/*! nodeView.expanded && (addedDescendants > 0 || editedDescendants > 0) &&
 						<NodeChangesMarker {...{addedDescendants, editedDescendants, textOutline, limitBarPos}}/> */}
 				</Row>
-				{nodeView[expandKey]
-					&& <NodeChildHolder ref={c => this.childHolder = c}
+				{nodeView[expandKey] &&
+					<NodeChildHolder ref={c => this.childHolder = c}
 						{...{ map, node, path, nodeView, nodeChildrenToShow, type, separateChildren, showArgumentsControlBar }}
 						linkSpawnPoint={innerBoxOffset + (height / 2)}
 						onHeightOrDividePointChange={() => this.CheckForChanges()}/>}

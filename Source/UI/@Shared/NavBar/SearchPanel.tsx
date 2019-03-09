@@ -1,5 +1,5 @@
 import { CollectionReference, Query } from '@firebase/firestore-types';
-import { SleepAsync, Vector2i } from 'js-vextensions';
+import { SleepAsync, Vector2i, ToInt } from 'js-vextensions';
 import keycode from 'keycode';
 import Moment from 'moment';
 import { Button, Column, Pre, Row, TextInput } from 'react-vcomponents';
@@ -227,8 +227,8 @@ export class SearchResultRow extends BaseComponentWithConnector(SearchResultRow_
 					{/* <NodeUI_Menu_Helper {...{map, node}}/> */}
 					<NodeUI_Menu_Stub {...{ node: nodeL3, path: `${node._id}`, inList: true }}/>
 				</Row>
-				{findNode_node === nodeID
-					&& <Row>
+				{findNode_node === nodeID &&
+					<Row>
 						{findNode_state === 'active' && <Pre>Finding in map... (depth: {findNode_currentSearchDepth})</Pre>}
 						{findNode_state === 'inactive' && <Pre>Locations found in map: (depth: {findNode_currentSearchDepth})</Pre>}
 						<Button ml={5} text="Stop" enabled={findNode_state === 'active'} onClick={() => this.StopSearch()}/>

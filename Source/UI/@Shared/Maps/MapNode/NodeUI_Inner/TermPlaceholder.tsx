@@ -31,8 +31,8 @@ export class TermPlaceholder extends BaseComponent
 				}}>
 				{/* term.name */}
 				{refText}
-				{showVariantNumber
-					&& <sup>{termVariantNumber || '?'}</sup>}
+				{showVariantNumber &&
+					<sup>{termVariantNumber || '?'}</sup>}
 				{/* <sub>{termVariantNumber}</sub>} */}
 			</a>
 		);

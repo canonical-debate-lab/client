@@ -1,5 +1,5 @@
 import katex from 'katex';
-import { VURL, CachedTransform } from 'js-vextensions';
+import { VURL, CachedTransform, Assert, IsNumber, IsString } from 'js-vextensions';
 import { SplitStringBySlash_Cached, SlicePath } from 'Utils/FrameworkOverrides';
 import { GetValues } from 'js-vextensions';
 import { GetImage } from '../images';

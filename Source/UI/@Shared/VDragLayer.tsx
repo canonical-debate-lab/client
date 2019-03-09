@@ -47,8 +47,8 @@ export class VDragLayer extends BaseComponent<Partial<DragLayerProps>, {}> {
 					},
 					!currentOffset && { display: 'none' },
 				)}>
-					{itemType == 'node'
-						&& <NodeUI_Preview node={item.node} path={item.path}/>}
+					{itemType == 'node' &&
+						<NodeUI_Preview node={item.node} path={item.path}/>}
 				</div>
 			</div>
 		);

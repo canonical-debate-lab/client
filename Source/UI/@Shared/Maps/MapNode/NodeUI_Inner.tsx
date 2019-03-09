@@ -10,7 +10,8 @@ import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
 import { NodeMathUI } from 'UI/@Shared/Maps/MapNode/NodeMathUI';
 import { SetNodeUILocked } from 'UI/@Shared/Maps/MapNode/NodeUI';
 import { SlicePath, State, Connect, IsDoubleClick, InfoButton, RemoveHelpers, DBPath, WaitTillPathDataIsReceived, VReactMarkdown_Remarkable } from 'Utils/FrameworkOverrides';
-import {ES} from 'Utils/UI/GlobalStyles';
+import { ES } from 'Utils/UI/GlobalStyles';
+import { Clone, Assert } from 'js-vextensions';
 import { ParseSegmentsForPatterns } from '../../../../Utils/General/RegexHelpers';
 import { AddNodeRevision } from '../../../../Server/Commands/AddNodeRevision';
 import { GetImage } from '../../../../Store/firebase/images';
@@ -29,14 +30,14 @@ import { GetLastAcknowledgementTime, WeightingType } from '../../../../Store/mai
 import { ACTMapNodeExpandedSet, ACTMapNodePanelOpen, ACTMapNodeSelect, ACTMapNodeTermOpen } from '../../../../Store/main/mapViews/$mapView/rootNodeViews';
 import { MapNodeView } from '../../../../Store/main/mapViews/@MapViews';
 import { ExpandableBox } from './ExpandableBox';
-import {DefinitionsPanel} from './NodeUI/Panels/DefinitionsPanel';
-import {DetailsPanel} from './NodeUI/Panels/DetailsPanel';
-import {DiscussionPanel} from './NodeUI/Panels/DiscussionPanel';
+import { DefinitionsPanel } from './NodeUI/Panels/DefinitionsPanel';
+import { DetailsPanel } from './NodeUI/Panels/DetailsPanel';
+import { DiscussionPanel } from './NodeUI/Panels/DiscussionPanel';
 import { HistoryPanel } from './NodeUI/Panels/HistoryPanel';
 import { OthersPanel } from './NodeUI/Panels/OthersPanel';
 import { RatingsPanel } from './NodeUI/Panels/RatingsPanel';
-import {SocialPanel} from './NodeUI/Panels/SocialPanel';
-import {TagsPanel} from './NodeUI/Panels/TagsPanel';
+import { SocialPanel } from './NodeUI/Panels/SocialPanel';
+import { TagsPanel } from './NodeUI/Panels/TagsPanel';
 import { SubPanel } from './NodeUI_Inner/SubPanel';
 import { TermPlaceholder } from './NodeUI_Inner/TermPlaceholder';
 import { MapNodeUI_LeftBox } from './NodeUI_LeftBox';
@@ -286,8 +287,8 @@ class NodeUI_BottomPanel extends BaseComponent
 					const ratings = GetRatings(node._id, panelToShow as RatingType);
 					return <RatingsPanel node={node} path={path} ratingType={panelToShow as RatingType} ratings={ratings}/>;
 				})()}
-				{panelToShow == 'definitions'
-					&& <DefinitionsPanel ref={c => this.definitionsPanel = c} {...{ node, path, hoverTermID }}
+				{panelToShow == 'definitions' &&
+					<DefinitionsPanel ref={c => this.definitionsPanel = c} {...{ node, path, hoverTermID }}
 						openTermID={nodeView.openTermID}
 						onHoverTerm={termID => onTermHover(termID)}
 						onClickTerm={termID => store.dispatch(new ACTMapNodeTermOpen({ mapID: map._id, path, termID }))}/>}
@@ -350,10 +351,10 @@ class TitlePanel extends BaseComponent<TitlePanelProps, {editing: boolean, newTi
 		return (
 			// <Row style={{position: "relative"}}>
 			<div style={{ position: 'relative' }} onClick={e => IsDoubleClick(e) && this.OnDoubleClick()}>
-				{equationNumber != null
-					&& <Pre>{equationNumber}) </Pre>}
-				{!editing
-					&& <span style={E(
+				{equationNumber != null &&
+					<Pre>{equationNumber}) </Pre>}
+				{!editing &&
+					<span style={E(
 						{ position: 'relative', fontSize: GetFontSizeForNode(node, isSubnode), whiteSpace: 'initial' },
 						isSubnode && { margin: '4px 0 1px 0' },
 						missingTitleStrings.Contains(newTitle) && { color: 'rgba(255,255,255,.3)' },
@@ -361,13 +362,13 @@ class TitlePanel extends BaseComponent<TitlePanelProps, {editing: boolean, newTi
 						{latex && <NodeMathUI text={node.current.equation.text} onTermHover={this.OnTermHover} onTermClick={this.OnTermClick}/>}
 						{!latex && this.RenderNodeDisplayText(newTitle)}
 					</span>}
-				{editing
-					&& <Row style={E(
+				{editing &&
+					<Row style={E(
 						{ position: 'relative', fontSize: GetFontSizeForNode(node, isSubnode), whiteSpace: 'initial', alignItems: 'stretch' },
 						isSubnode && { margin: '4px 0 1px 0' },
 					)}>
-						{!applyingEdit
-							&& <TextArea required={true} pattern={MapNodeRevision_titlePattern} allowLineBreaks={false} autoSize={true} style={ES({ flex: 1 })}
+						{!applyingEdit &&
+							<TextArea required={true} pattern={MapNodeRevision_titlePattern} allowLineBreaks={false} autoSize={true} style={ES({ flex: 1 })}
 								ref={a => a && a.DOM.focus()}
 								onKeyDown={(e) => {
 									if (e.keyCode == keycode.codes.esc) {
@@ -377,21 +378,21 @@ class TitlePanel extends BaseComponent<TitlePanelProps, {editing: boolean, newTi
 									}
 								}}
 								value={newTitle} onChange={val => this.SetState({ newTitle: val })}/>}
-						{!applyingEdit
-							&& <Button enabled={newTitle.match(MapNodeRevision_titlePattern) != null} text="✔️" p="0 3px" style={{ borderRadius: '0 5px 5px 0' }}
+						{!applyingEdit &&
+							<Button enabled={newTitle.match(MapNodeRevision_titlePattern) != null} text="✔️" p="0 3px" style={{ borderRadius: '0 5px 5px 0' }}
 								onClick={() => this.ApplyEdit()}/>}
 						{applyingEdit && <Row>Applying edit...</Row>}
 					</Row>}
-				{noteText
-					&& <Pre style={{
+				{noteText &&
+					<Pre style={{
 						fontSize: 11, color: 'rgba(255,255,255,.5)',
 						// marginLeft: "auto",
 						marginLeft: 15, marginTop: 3, float: 'right',
 					}}>
 						{noteText}
 					</Pre>}
-				{node.type == MapNodeType.Claim && node.current.contentNode
-					&& <InfoButton text="Allowed exceptions are: bold and [...] (collapsed segments)"/>}
+				{node.type == MapNodeType.Claim && node.current.contentNode &&
+					<InfoButton text="Allowed exceptions are: bold and [...] (collapsed segments)"/>}
 			</div>
 		);
 	}

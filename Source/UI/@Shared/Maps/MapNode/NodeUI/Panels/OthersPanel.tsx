@@ -52,8 +52,8 @@ export class OthersPanel extends BaseComponentWithConnector(connector, { convert
 				<Row>Parents: {node.parents == null ? 'none' : node.parents.VKeys(true).join(', ')}</Row>
 				<Row>Children: {node.children == null ? 'none' : node.children.VKeys(true).join(', ')}</Row>
 				<Row>Viewers: {viewers.length || '...'} <InfoButton text="The number of registered users who have had this node displayed in-map at some point."/></Row>
-				{nodeArgOrParentSPArg_controlled
-					&& <Row>
+				{nodeArgOrParentSPArg_controlled &&
+					<Row>
 						<Button mt={3} text="Reverse argument polarity" onLeftClick={() => {
 							ShowMessageBox({
 								title: 'Reverse argument polarity?', cancelButton: true,
@@ -65,16 +65,16 @@ export class OthersPanel extends BaseComponentWithConnector(connector, { convert
 							});
 						}}/>
 					</Row>}
-				{node.type == MapNodeType.Claim && convertToTypes.length > 0
-					&& <Row>
+				{node.type == MapNodeType.Claim && convertToTypes.length > 0 &&
+					<Row>
 						<Pre>Convert to: </Pre>
 						<Select options={convertToTypes} value={convertToType} onChange={val => this.SetState({ convertToType: val })}/>
 						<Button ml={5} text="Convert" onClick={() => {
 							new ChangeClaimType(E({ mapID }, { nodeID: node._id, newType: convertToType })).Run();
 						}}/>
 					</Row>}
-				{node.type === MapNodeType.Argument && node.multiPremiseArgument && !isArgument_any
-					&& <ChildrenOrder mapID={mapID} node={node}/>}
+				{node.type === MapNodeType.Argument && node.multiPremiseArgument && !isArgument_any &&
+					<ChildrenOrder mapID={mapID} node={node}/>}
 				<AtThisLocation node={node} path={path}/>
 			</Column>
 		);
@@ -118,8 +118,8 @@ class AtThisLocation extends BaseComponent<{node: MapNodeL3, path: string}, {}> 
 			<Column mt={10}>
 				<Row style={{ fontWeight: 'bold' }}>At this location:</Row>
 				<Row>Path: {path}</Row>
-				{canSetAsNegation
-					&& <Row style={{ display: 'flex', alignItems: 'center' }}>
+				{canSetAsNegation &&
+					<Row style={{ display: 'flex', alignItems: 'center' }}>
 						<Pre>Show as negation: </Pre>
 						<CheckBox checked={node.link.form == ClaimForm.Negation}
 							onChange={(val) => {
@@ -129,8 +129,8 @@ class AtThisLocation extends BaseComponent<{node: MapNodeL3, path: string}, {}> 
 								}).Run();
 							}}/>
 					</Row>}
-				{canSetAsSeriesAnchor
-					&& <Row style={{ display: 'flex', alignItems: 'center' }}>
+				{canSetAsSeriesAnchor &&
+					<Row style={{ display: 'flex', alignItems: 'center' }}>
 						<Pre>Show as series anchor: </Pre>
 						<CheckBox checked={node.link.seriesAnchor}
 							// onChange={val=>Change(val ? newLinkData.isStep = true : delete newLinkData.isStep)}/>
@@ -183,8 +183,8 @@ class ChildrenOrder extends BaseComponent<{mapID: number, node: MapNodeL3}, {}> 
 						</Row>
 					);
 				})}
-				{!oldChildrenOrderValid
-					&& <Button mr="auto" text="Fix children-order" onClick={() => {
+				{!oldChildrenOrderValid &&
+					<Button mr="auto" text="Fix children-order" onClick={() => {
 						const existingValidIDs = oldChildrenOrder.filter(id => node.children[id] != null);
 						const missingChildIDs = node.children.Pairs(true).filter(pair => !oldChildrenOrder.Contains(pair.keyNum)).map(pair => pair.keyNum);
 						new UpdateNodeChildrenOrder({ mapID, nodeID: node._id, childrenOrder: existingValidIDs.concat(missingChildIDs) }).Run();

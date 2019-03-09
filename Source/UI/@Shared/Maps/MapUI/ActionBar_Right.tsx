@@ -2,12 +2,12 @@ import { Pre, Row, Select } from 'react-vcomponents';
 import { BaseComponentWithConnector } from 'react-vextensions';
 import { ShowChangesSinceType } from 'Store/main/maps/@MapInfo';
 import { ShareDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Right/ShareDropDown';
-import {State, Connect, ActionSet, ACTSet} from 'Utils/FrameworkOverrides';
+import { State, Connect, ActionSet, ACTSet } from 'Utils/FrameworkOverrides';
+import { GetEntries, FromJSON } from 'js-vextensions';
 import { colors } from '../../../../Utils/UI/GlobalStyles';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { WeightingType } from '../../../../Store/main';
 import { LayoutDropDown } from './ActionBar_Right/LayoutDropDown';
-import { GetEntries } from 'js-vextensions';
 
 const changesSince_options = [];
 changesSince_options.push({ name: 'None', value: `${ShowChangesSinceType.None}_null` });
@@ -50,7 +50,7 @@ export class ActionBar_Right extends BaseComponentWithConnector(connector, {}) {
 							store.dispatch(new ACTSet(a => a.main.weighting, val));
 						}}/>
 					</Row>
-					<ShareDropDown map={map}/>
+					{/* <ShareDropDown map={map}/> // disabled for now, till we re-implement shareable map-views using json-based approach */}
 					<LayoutDropDown/>
 				</Row>
 			</nav>

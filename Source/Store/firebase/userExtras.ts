@@ -1,10 +1,12 @@
-import { Subforum, Post, Thread } from 'firebase-forum';
+// import { Subforum, Post, Thread } from 'firebase-forum';
+import { IsString } from 'js-vextensions';
 import { PermissionGroupSet } from './userExtras/@UserExtraInfo';
 import { MapNode } from './nodes/@MapNode';
 import { GetUserPermissionGroups, MeID } from './users';
 import { Term } from './terms/@Term';
 import { Image } from './images/@Image';
 import { Map } from './maps/@Map';
+import { MapNodePhrasing } from './nodePhrasings/@MapNodePhrasing';
 
 // selectors
 // ==========
@@ -30,6 +32,6 @@ export function HasAdminPermissions(userIDOrPermissions: string | PermissionGrou
 	return permissions ? permissions.admin : false;
 }
 /** If user is the creator, also requires that they (still) have basic permissions. */
-export function IsUserCreatorOrMod(userID: string, entity: Term | Image | Map | MapNode | Post | Thread) {
+export function IsUserCreatorOrMod(userID: string, entity: Term | Image | Map | MapNode | MapNodePhrasing /* | Post | Thread */) {
 	return (entity && entity.creator === userID && HasBasicPermissions(userID)) || HasModPermissions(userID);
 }

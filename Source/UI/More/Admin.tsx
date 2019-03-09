@@ -1,4 +1,4 @@
-import { E, SleepAsync } from 'js-vextensions';
+import { E, SleepAsync, Assert } from 'js-vextensions';
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
@@ -82,8 +82,8 @@ export class AdminUI extends BaseComponentWithConnector(connector, { dbUpgrade_e
 				<Column style={{ alignItems: 'flex-start' }}>
 					{upgradeFuncs.Props().map(pair => <UpgradeButton key={pair.name} newVersion={parseInt(pair.name)} upgradeFunc={pair.value} markProgress={this.MarkProgress.bind(this)}/>)}
 				</Column>
-				{dbUpgrade_entryIndexes.length > 0
-					&& <Row>
+				{dbUpgrade_entryIndexes.length > 0 &&
+					<Row>
 						<span>Progress: </span>
 						{dbUpgrade_entryIndexes.map((entryIndex, depth) => <span key={depth}>{depth > 0 ? ' -> ' : ''}{entryIndex + 1}/{dbUpgrade_entryCounts[depth]}</span>)}
 					</Row>}
@@ -190,7 +190,7 @@ export async function GetVersionRootDataAsync(versionRootPath: string) {
 	let versionRootData: FirebaseData;
 	// we put the db-updates into this dataAsUpdates variable, so that we know we're importing data for every key (if not, Typescript throws error about value not matching FirebaseData's shape)
 	versionRootData = {
-		forum: await getData('forum'),
+		// forum: await getData('forum'),
 		general: await getData('general'),
 		images: await getData('images'),
 		layers: await getData('layers'),
@@ -198,6 +198,7 @@ export async function GetVersionRootDataAsync(versionRootPath: string) {
 		mapNodeEditTimes: await getData('mapNodeEditTimes'),
 		nodes: await getData('nodes'),
 		nodeExtras: await getData('nodeExtras'),
+		nodePhrasings: await getData('nodePhrasings'),
 		nodeRatings: await getData('nodeRatings'),
 		nodeRevisions: await getData('nodeRevisions'),
 		nodeStats: await getData('nodeStats'),

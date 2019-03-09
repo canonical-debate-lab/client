@@ -1,5 +1,6 @@
 import { Button, Row } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
+import { Assert } from 'js-vextensions';
 
 type Props = {
 	parent?,
@@ -46,8 +47,8 @@ export class ExpandableBox extends BaseComponent<Props, {}> {
 							position: 'absolute', right: 0, top: 0, bottom: 0,
 							width: `${100 - backgroundFillPercent}%`, background: 'rgba(0,0,0,.7)', borderRadius: backgroundFillPercent <= 0 ? '5px 0 0 5px' : 0,
 						}}/>
-						{markerPercent != null
-							&& <div style={{
+						{markerPercent != null &&
+							<div style={{
 								position: 'absolute', left: `${markerPercent}%`, top: 0, bottom: 0,
 								width: 2, background: 'rgba(0,255,0,.5)',
 							}}/>}

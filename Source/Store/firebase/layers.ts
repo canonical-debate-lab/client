@@ -1,7 +1,7 @@
-import { CachedTransform, emptyArray } from 'js-vextensions';
+import { CachedTransform, emptyArray, ToInt } from 'js-vextensions';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { GetNode } from 'Store/firebase/nodes';
-import {GetData} from 'Utils/FrameworkOverrides';
+import { GetData } from 'Utils/FrameworkOverrides';
 import { Map } from './maps/@Map';
 import { AsNodeL3, GetNodeL2 } from './nodes/$node';
 import { GetUserLayerStatesForMap } from './userMapInfo';

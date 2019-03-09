@@ -33,8 +33,8 @@ export class ArgumentsControlBar extends BaseComponent<{map: Map, node: MapNodeL
 					<AddArgumentButton map={map} node={node} path={parentPath} polarity={Polarity.Supporting}/>
 					<AddArgumentButton map={map} node={node} path={parentPath} polarity={Polarity.Opposing} style={{marginLeft: 3}}/>
 				</Row> */}
-				{childBeingAdded
-					&& <div style={{ marginLeft: 15 }}>
+				{childBeingAdded &&
+					<div style={{ marginLeft: 15 }}>
 						Adding new entry...
 					</div>}
 			</Row>

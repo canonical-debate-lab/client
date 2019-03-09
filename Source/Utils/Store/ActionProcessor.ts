@@ -1,4 +1,4 @@
-import { SleepAsync, Vector2i, VURL } from 'js-vextensions';
+import { SleepAsync, Vector2i, VURL, ToJSON } from 'js-vextensions';
 import { hasHotReloaded } from 'Main';
 import Raven from 'raven-js';
 import ReactGA from 'react-ga';

@@ -71,15 +71,15 @@ class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: string}> {
 						onChange={(newData) => {
 							this.SetState({ dataError: this.detailsUI.GetValidationError() });
 						}}/>
-					{creatorOrMod
-						&& <Row>
+					{creatorOrMod &&
+						<Row>
 							<Button mt={5} text="Save" enabled={dataError == null} onLeftClick={async () => {
 								const mapUpdates = GetUpdates(map, this.detailsUI.GetNewData()).Excluding('layers', 'timelines');
 								await new UpdateMapDetails({ mapID: map._id, mapUpdates }).Run();
 							}}/>
 						</Row>}
-					{creatorOrMod
-						&& <Column mt={10}>
+					{creatorOrMod &&
+						<Column mt={10}>
 							<Row style={{ fontWeight: 'bold' }}>Advanced:</Row>
 							<Row>
 								<Button mt={5} text="Delete" onLeftClick={async () => {
@@ -165,8 +165,8 @@ class LayersDropDown extends BaseComponent<LayersDropDownProps, {}> {
 								{layers.map((layer, index) => <LayerUI key={layer._id} index={index} last={index == layers.length - 1} map={map} layer={layer}/>)}
 							</ScrollView>
 						</Column>
-						{false
-							&& <Column style={{ width: 400 }}>
+						{false &&
+							<Column style={{ width: 400 }}>
 							</Column>}
 					</Row>
 				</DropDownContent>
@@ -193,8 +193,8 @@ class LayerUI extends BaseComponent<LayerUIProps, {}> {
 				<Row>
 					<span style={{ flex: columnWidths[0] }}>
 						{layer.name}
-						{creator && creator._key == MeID()
-							&& <Button text="X" ml={5} style={{ padding: '3px 5px' }} enabled={deleteLayerError == null} title={deleteLayerError}
+						{creator && creator._key == MeID() &&
+							<Button text="X" ml={5} style={{ padding: '3px 5px' }} enabled={deleteLayerError == null} title={deleteLayerError}
 								onClick={() => {
 									ShowMessageBox({
 										title: `Delete "${layer.name}"`, cancelButton: true,

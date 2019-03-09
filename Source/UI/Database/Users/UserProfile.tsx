@@ -25,8 +25,8 @@ export class UserProfileUI extends BaseComponentWithConnector(connector, {}) {
 			<Column style={E(styles.page, { flex: '0 0 auto' })}>
 				<Row>
 					<Pre>Username: {profileUser.displayName}</Pre>
-					{profileUser == currentUser
-						&& <Button ml={5} text="Change" onClick={() => {
+					{profileUser == currentUser &&
+						<Button ml={5} text="Change" onClick={() => {
 							ShowChangeDisplayNameDialog(currentUser._key, currentUser.displayName);
 						}}/>}
 				</Row>

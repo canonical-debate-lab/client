@@ -1,4 +1,4 @@
-import { GetErrorMessagesUnderElement } from 'js-vextensions';
+import { GetErrorMessagesUnderElement, Clone } from 'js-vextensions';
 import { CheckBox, Column, Pre, Row, RowLR, TextArea, TextInput } from 'react-vcomponents';
 import { BaseComponent, GetDOM } from 'react-vextensions';
 import { Equation } from '../../../../Store/firebase/nodes/@Equation';
@@ -43,8 +43,8 @@ export class EquationEditorUI extends BaseComponent<Props, {newData: Equation}> 
 						// onChange={val=>Change(val ? newLinkData.isStep = true : delete newLinkData.isStep)}/>
 						onChange={val => Change(newData.isStep = val || null)}/>
 				</Row>
-				{newData.isStep
-					&& <RowLR mt={5} splitAt={splitAt}>
+				{newData.isStep &&
+					<RowLR mt={5} splitAt={splitAt}>
 						<Pre>Explanation: </Pre>
 						<TextInput enabled={creating || editing} style={{ width: '100%' }}
 							value={newData.explanation} onChange={val => Change(newData.explanation = val)}/>

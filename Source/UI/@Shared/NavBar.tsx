@@ -69,8 +69,8 @@ export class NavBar extends BaseComponentWithConnector(connector, {}) {
 						{topLeftOpenPanel == 'reputation' && <ReputationPanel/>}
 					</div>
 					<Div ct style={{ position: 'fixed', left: 0, width: '30%', top: 45, bottom: 0 }}>
-						{dbNeedsInit && startURL.GetQueryVar('init')
-							&& <Row>
+						{dbNeedsInit && startURL.GetQueryVar('init') &&
+							<Row>
 								<Button text="Initialize database" onClick={() => {
 									const boxController = ShowMessageBox({
 										title: 'Initialize database?', cancelButton: true,

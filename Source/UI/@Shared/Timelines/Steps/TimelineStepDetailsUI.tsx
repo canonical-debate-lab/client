@@ -1,4 +1,4 @@
-import { GetErrorMessagesUnderElement } from 'js-vextensions';
+import { GetErrorMessagesUnderElement, Clone } from 'js-vextensions';
 import { Button, Column, Pre, Row, RowLR, Spinner, TextInput, TextArea } from 'react-vcomponents';
 import { BaseComponent, GetDOM } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
@@ -8,7 +8,7 @@ import { NodeReveal, TimelineStep } from '../../../../Store/firebase/timelineSte
 
 type Props = {baseData: TimelineStep, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: TimelineStep, ui: TimelineStepDetailsUI)=>void};
 export class TimelineStepDetailsUI extends BaseComponent<Props, {newData: TimelineStep}> {
-	static defaultProps = {enabled: true};
+	static defaultProps = { enabled: true };
 	ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.baseData != this.props.baseData) { // if base-data changed
 			this.SetState({ newData: Clone(props.baseData) });

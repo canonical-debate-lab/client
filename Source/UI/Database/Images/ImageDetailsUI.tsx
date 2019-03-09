@@ -1,4 +1,4 @@
-import { GetEntries, GetErrorMessagesUnderElement } from 'js-vextensions';
+import { GetEntries, GetErrorMessagesUnderElement, Clone } from 'js-vextensions';
 import Moment from 'moment';
 import { Column, Div, Pre, Row, RowLR, Select, Spinner, TextInput } from 'react-vcomponents';
 import { BaseComponent, GetDOM } from 'react-vextensions';
@@ -23,10 +23,10 @@ export class ImageDetailsUI extends BaseComponent<Props, {newData: Image, dataEr
 	}
 	OnChange() {
 		const { onChange } = this.props;
+		const newData = this.GetNewData();
 		const error = this.GetValidationError();
-		if (onChange) onChange(this.GetNewData(), error);
-		// this.Update();
-		this.SetState({ dataError: error });
+		if (onChange) onChange(newData, error);
+		this.SetState({ newData, dataError: error });
 	}
 
 	scrollView: ScrollView;
@@ -39,8 +39,8 @@ export class ImageDetailsUI extends BaseComponent<Props, {newData: Image, dataEr
 			width = 600;
 		return (
 			<Column style={style}>
-				{!creating
-					&& <table className="selectableAC" style={{/* borderCollapse: "separate", borderSpacing: "10px 0" */}}>
+				{!creating &&
+					<table className="selectableAC" style={{/* borderCollapse: "separate", borderSpacing: "10px 0" */}}>
 						<thead>
 							<tr><th>ID</th><th>Creator</th><th>Created at</th></tr>
 						</thead>

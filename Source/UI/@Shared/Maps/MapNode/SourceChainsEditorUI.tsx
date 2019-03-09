@@ -5,9 +5,9 @@ import { Column } from 'react-vcomponents';
 import { Row } from 'react-vcomponents';
 import { TextInput } from 'react-vcomponents';
 import { Select } from 'react-vcomponents';
-import { GetErrorMessagesUnderElement, GetEntries } from 'js-vextensions';
+import { GetErrorMessagesUnderElement, GetEntries, Clone } from 'js-vextensions';
 import { Validate } from 'Utils/FrameworkOverrides';
-import {ES} from 'Utils/UI/GlobalStyles';
+import { ES } from 'Utils/UI/GlobalStyles';
 import { GetSourceNamePlaceholderText, GetSourceAuthorPlaceholderText } from '../../../../Store/firebase/contentNodes/$contentNode';
 
 type Props = {baseData: SourceChain[], enabled?: boolean, style?, onChange?: (newData: SourceChain[])=>void};
@@ -42,14 +42,14 @@ export class SourceChainsEditorUI extends BaseComponent<Props, {newData: SourceC
 									<Row key={sourceIndex}>
 										<Select enabled={enabled} options={GetEntries(SourceType)}
 											value={source.type} onChange={val => Change(source.type = val)}/>
-										{source.type != SourceType.Webpage
-											&& <TextInput enabled={enabled} style={{ width: '90%' }} placeholder={GetSourceNamePlaceholderText(source.type)}
+										{source.type != SourceType.Webpage &&
+											<TextInput enabled={enabled} style={{ width: '90%' }} placeholder={GetSourceNamePlaceholderText(source.type)}
 												value={source.name} onChange={val => Change(val ? source.name = val : delete source.name)}/>}
-										{source.type != SourceType.Webpage
-											&& <TextInput enabled={enabled} style={{ width: '90%' }} placeholder={GetSourceAuthorPlaceholderText(source.type)}
+										{source.type != SourceType.Webpage &&
+											<TextInput enabled={enabled} style={{ width: '90%' }} placeholder={GetSourceAuthorPlaceholderText(source.type)}
 												value={source.author} onChange={val => Change(val ? source.author = val : delete source.author)}/>}
-										{source.type == SourceType.Webpage
-											&& <TextInput ref={`url_${chainIndex}_${sourceIndex}`} enabled={enabled} type="url"
+										{source.type == SourceType.Webpage &&
+											<TextInput ref={`url_${chainIndex}_${sourceIndex}`} enabled={enabled} type="url"
 												// pattern="^(https?|ftp)://[^\\s/$.?#]+\\.[^\\s]+$" required style={ES({flex: 1})}
 												pattern="^https?://[^\\s/$.?#]+\\.[^\\s]+$" required style={ES({ flex: 1 })}
 												value={source.link} onChange={val => Change((() => {
@@ -69,8 +69,8 @@ export class SourceChainsEditorUI extends BaseComponent<Props, {newData: SourceC
 									</Row>
 								);
 							})}
-							{enabled
-								&& <Row>
+							{enabled &&
+								<Row>
 									<Button text="Add source to this chain" mt={5} onClick={() => Change(chain.sources.push(new Source()))}/>
 									{chainIndex > 0 && <Button text="Remove this source chain" ml={5} mt={5} onClick={() => Change(newData.RemoveAt(chainIndex))}/>}
 								</Row>}

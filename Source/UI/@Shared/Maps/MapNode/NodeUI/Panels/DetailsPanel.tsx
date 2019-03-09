@@ -1,7 +1,7 @@
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { SetNodeUILocked } from 'UI/@Shared/Maps/MapNode/NodeUI';
 import { Button, Column, Row } from 'react-vcomponents';
-import { BaseComponent, GetInnerComp } from 'react-vextensions';
+import { BaseComponent, GetInnerComp, BaseComponentWithConnector } from 'react-vextensions';
 import { GetUpdates, RemoveHelpers, WaitTillPathDataIsReceived, DBPath, Connect } from 'Utils/FrameworkOverrides';
 import { AddNodeRevision } from '../../../../../../Server/Commands/AddNodeRevision';
 import { UpdateLink } from '../../../../../../Server/Commands/UpdateLink';
@@ -14,18 +14,15 @@ import { GetUser, MeID, GetUserPermissionGroups } from '../../../../../../Store/
 import { User } from '../../../../../../Store/firebase/users/@User';
 import { NodeDetailsUI } from '../../NodeDetailsUI';
 
-type DetailsPanel_Props = {map?: Map, node: MapNodeL3, path: string} & Partial<{creator: User}>;
-@Connect((state, { node, path }: DetailsPanel_Props) => ({
-	_: GetUserPermissionGroups(MeID()),
-	_link: GetLinkUnderParent(node._id, GetParentNode(path)),
+const connector = (state, { node, path }: {map?: Map, node: MapNodeL3, path: string}) => ({
+	link: GetLinkUnderParent(node._id, GetParentNode(path)),
 	creator: GetUser(node.creator),
-}))
-// export class DetailsPanel extends BaseComponent<DetailsPanel_Props, {error: Error}> {
-export class DetailsPanel extends BaseComponent<DetailsPanel_Props, {dataError: string}> {
+});
+@Connect(connector)
+export class DetailsPanel extends BaseComponentWithConnector(connector, { dataError: null as string }) {
 	detailsUI: NodeDetailsUI;
 	render() {
-		const { map, node, path, creator } = this.props;
-		const mapID = map ? map._id : null;
+		const { map, node, path, link, creator } = this.props;
 		const { dataError } = this.state;
 
 		const isSubnode = IsNodeSubnode(node);
@@ -33,8 +30,6 @@ export class DetailsPanel extends BaseComponent<DetailsPanel_Props, {dataError: 
 		const parentNode = GetParentNodeL3(path);
 		// if parent-node not loaded yet, don't render yet
 		if (!isSubnode && path.includes('/') && parentNode == null) return null;
-
-		const link = GetLinkUnderParent(node._id, parentNode);
 
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), node);
 		return (
@@ -45,8 +40,8 @@ export class DetailsPanel extends BaseComponent<DetailsPanel_Props, {dataError: 
 					onChange={(newData, newLinkData) => {
 						this.SetState({ dataError: this.detailsUI.GetValidationError() });
 					}}/>
-				{creatorOrMod
-					&& <Row>
+				{creatorOrMod &&
+					<Row>
 						<Button text="Save" enabled={dataError == null} onLeftClick={async () => {
 							// let nodeUpdates = GetUpdates(node, this.detailsUI.GetNewData()).Excluding("parents", "children", "layerPlusAnchorParents", "finalType", "link");
 							if (link) {

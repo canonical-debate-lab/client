@@ -1,4 +1,4 @@
-import { GetErrorMessagesUnderElement } from 'js-vextensions';
+import { GetErrorMessagesUnderElement, Clone } from 'js-vextensions';
 import Moment from 'moment';
 import { Column, Pre, RowLR, TextInput } from 'react-vcomponents';
 import { BaseComponent, GetDOM } from 'react-vextensions';
@@ -9,11 +9,11 @@ import { GetUser } from '../../../Store/firebase/users';
 
 type Props = {baseData: Timeline, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: Timeline, ui: TimelineDetailsUI)=>void}
 	& Partial<{creator: User}>;
-@Connect((state, {baseData, forNew}: Props)=>({
+@Connect((state, { baseData, forNew }: Props) => ({
 	creator: !forNew && GetUser(baseData.creator),
-	}))
+}))
 export class TimelineDetailsUI extends BaseComponent<Props, {newData: Timeline}> {
-	static defaultProps = {enabled: true};
+	static defaultProps = { enabled: true };
 	ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.baseData != this.props.baseData) { // if base-data changed
 			this.SetState({ newData: Clone(props.baseData) });
@@ -32,8 +32,8 @@ export class TimelineDetailsUI extends BaseComponent<Props, {newData: Timeline}>
 			width = 600;
 		return (
 			<Column style={style}>
-				{!forNew
-					&& <table className="selectableAC" style={{/* borderCollapse: "separate", borderSpacing: "10px 0" */}}>
+				{!forNew &&
+					<table className="selectableAC" style={{/* borderCollapse: "separate", borderSpacing: "10px 0" */}}>
 						<thead>
 							<tr><th>ID</th><th>Creator</th><th>Created at</th></tr>
 						</thead>

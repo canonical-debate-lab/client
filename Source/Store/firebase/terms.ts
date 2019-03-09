@@ -1,5 +1,5 @@
-import { CachedTransform } from 'js-vextensions';
-import {GetData, GetDataAsync} from 'Utils/FrameworkOverrides';
+import { CachedTransform, IsNaN } from 'js-vextensions';
+import { GetData, GetDataAsync } from 'Utils/FrameworkOverrides';
 import { Term } from './terms/@Term';
 
 export function GetTerm(id: number) {

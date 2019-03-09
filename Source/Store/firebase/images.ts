@@ -1,5 +1,5 @@
-import { CachedTransform } from 'js-vextensions';
-import {GetData} from 'Utils/FrameworkOverrides';
+import { CachedTransform, IsNaN } from 'js-vextensions';
+import { GetData } from 'Utils/FrameworkOverrides';
 import { Image } from './images/@Image';
 
 export function GetImage(id: number) {
@@ -11,7 +11,7 @@ export function GetImage(id: number) {
 } */
 
 export function GetImages(): Image[] {
-	const imagesMap = GetData({ collection: true }, 'images');
-	return CachedTransform('GetImages', [], imagesMap, () => (imagesMap ? imagesMap.VValues(true) : []));
+	const entryMap = GetData({ collection: true }, 'images');
+	return CachedTransform('GetImages', [], entryMap, () => (entryMap ? entryMap.VValues(true) : []));
 	// return CachedTransform("GetImages", {}, imagesMap, ()=>imagesMap ? imagesMap.VKeys(true).map(id=>GetImage(parseInt(id))) : []);
 }

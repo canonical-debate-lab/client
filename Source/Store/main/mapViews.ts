@@ -1,4 +1,4 @@
-import { Assert, CachedTransform, GetTreeNodesInObjTree, IsNumberString, Vector2i } from 'js-vextensions';
+import { Assert, CachedTransform, GetTreeNodesInObjTree, IsNumberString, Vector2i, IsNumber } from 'js-vextensions';
 import { ShallowChanged } from 'react-vextensions';
 import { Action, DBPath, SplitStringBySlash_Cached, State, DoesActionSetFirestoreData, GetFirestoreDataSetterActionPath } from 'Utils/FrameworkOverrides';
 import { ACTDebateMapSelect_WithData } from './debates';

@@ -119,15 +119,15 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 				})}
 				{/* // IsUserBasicOrAnon(userID) && !inList && path.includes("/") && !path.includes("L") && !componentBox &&
 				// for now, only let mods add layer-subnodes (confusing otherwise)
-					HasModPermissions(userID) && !inList && path.includes('/') && !path.includes('L') && !componentBox
-					&& <VMenuItem text="Add subnode (in layer)" style={styles.vMenuItem}
+					HasModPermissions(userID) && !inList && path.includes('/') && !path.includes('L') && !componentBox &&
+					<VMenuItem text="Add subnode (in layer)" style={styles.vMenuItem}
 						onClick={(e) => {
 							if (e.button != 0) return;
 							if (userID == null) return ShowSignInPopup();
 							ShowAddSubnodeDialog(mapID, node, path);
 						}}/> */}
-				{IsUserCreatorOrMod(userID, parent) && node.type == MapNodeType.Claim && IsSinglePremiseArgument(parent) && !componentBox
-					&& <VMenuItem text="Convert to multi-premise" style={styles.vMenuItem}
+				{IsUserCreatorOrMod(userID, parent) && node.type == MapNodeType.Claim && IsSinglePremiseArgument(parent) && !componentBox &&
+					<VMenuItem text="Convert to multi-premise" style={styles.vMenuItem}
 						onClick={async (e) => {
 							if (e.button != 0) return;
 
@@ -150,23 +150,23 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 							await new SetNodeIsMultiPremiseArgument({ nodeID: parent._id, multiPremiseArgument: true }).Run();
 						}}/>}
 				{IsUserCreatorOrMod(userID, node) && IsMultiPremiseArgument(node)
-					&& nodeChildren.every(a => a != null) && nodeChildren.filter(a => a.type == MapNodeType.Claim).length == 1 && !componentBox
-					&& <VMenuItem text="Convert to single-premise" style={styles.vMenuItem}
+					&& nodeChildren.every(a => a != null) && nodeChildren.filter(a => a.type == MapNodeType.Claim).length == 1 && !componentBox &&
+					<VMenuItem text="Convert to single-premise" style={styles.vMenuItem}
 						onClick={async (e) => {
 							if (e.button !== 0) return;
 
 							await new SetNodeIsMultiPremiseArgument({ nodeID: node._id, multiPremiseArgument: false }).Run();
 						}}/>}
-				{pathsToChangedInSubtree && pathsToChangedInSubtree.length > 0 && !componentBox
-					&& <VMenuItem text="Mark subtree as viewed" style={styles.vMenuItem}
+				{pathsToChangedInSubtree && pathsToChangedInSubtree.length > 0 && !componentBox &&
+					<VMenuItem text="Mark subtree as viewed" style={styles.vMenuItem}
 						onClick={(e) => {
 							if (e.button != 0) return;
 							for (const path of pathsToChangedInSubtree) {
 								store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: GetNodeID(path), time: Date.now() }));
 							}
 						}}/>}
-				{inList && GetOpenMapID() != null
-					&& <VMenuItem text="Find in map" style={styles.vMenuItem}
+				{inList && GetOpenMapID() != null &&
+					<VMenuItem text="Find in map" style={styles.vMenuItem}
 						onClick={(e) => {
 							store.dispatch(new ActionSet(
 								new ACTSet(a => a.main.search.findNode_state, 'activating'),
@@ -174,8 +174,8 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 								new ACTSet(a => a.main.search.findNode_resultPaths, []),
 							));
 						}}/>}
-				{!inList && !componentBox
-					&& <VMenuItem text={copiedNode ? <span>Cut <span style={{ fontSize: 10, opacity: 0.7 }}>(right-click to clear)</span></span> as any : 'Cut'}
+				{!inList && !componentBox &&
+					<VMenuItem text={copiedNode ? <span>Cut <span style={{ fontSize: 10, opacity: 0.7 }}>(right-click to clear)</span></span> as any : 'Cut'}
 						enabled={ForCut_GetError(userID, node) == null} title={ForCut_GetError(userID, node)}
 						style={styles.vMenuItem}
 						onClick={(e) => {
@@ -192,8 +192,8 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 
 							store.dispatch(new ACTNodeCopy({ path, asCut: true }));
 						}}/>}
-				{!componentBox
-					&& <VMenuItem text={copiedNode ? <span>Copy <span style={{ fontSize: 10, opacity: 0.7 }}>(right-click to clear)</span></span> as any : 'Copy'} style={styles.vMenuItem}
+				{!componentBox &&
+					<VMenuItem text={copiedNode ? <span>Copy <span style={{ fontSize: 10, opacity: 0.7 }}>(right-click to clear)</span></span> as any : 'Copy'} style={styles.vMenuItem}
 						enabled={ForCopy_GetError(userID, node) == null} title={ForCopy_GetError(userID, node)}
 						onClick={(e) => {
 							e.persist();
@@ -210,8 +210,8 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 						}}/>}
 				<PasteAsLink_MenuItem {...sharedProps}/>
 				{/* // disabled for now, since I need to create a new command to wrap the logic. One route: create a CloneNode_HighLevel command, modeled after LinkNode_HighLevel (or containing it as a sub)
-					IsUserBasicOrAnon(userID) && copiedNode && IsNewLinkValid(GetParentNodeID(path), copiedNode.Extended({ _id: -1 }), permissions, holderType) && !copiedNode_asCut
-					&& <VMenuItem text={`Paste as clone: "${GetNodeDisplayText(copiedNode, null, formForClaimChildren).KeepAtMost(50)}"`} style={styles.vMenuItem} onClick={async (e) => {
+					IsUserBasicOrAnon(userID) && copiedNode && IsNewLinkValid(GetParentNodeID(path), copiedNode.Extended({ _id: -1 }), permissions, holderType) && !copiedNode_asCut &&
+					<VMenuItem text={`Paste as clone: "${GetNodeDisplayText(copiedNode, null, formForClaimChildren).KeepAtMost(50)}"`} style={styles.vMenuItem} onClick={async (e) => {
 						if (e.button != 0) return;
 						if (userID == null) return ShowSignInPopup();
 
@@ -226,8 +226,8 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 						}
 					}}/> */}
 				<UnlinkContainerArgument_MenuItem {...sharedProps}/>
-				{IsUserCreatorOrMod(userID, node) && !inList && !componentBox
-					&& <VMenuItem text={`Unlink${combinedWithParentArg ? ' claim' : ''}`}
+				{IsUserCreatorOrMod(userID, node) && !inList && !componentBox &&
+					<VMenuItem text={`Unlink${combinedWithParentArg ? ' claim' : ''}`}
 						enabled={ForUnlink_GetError(userID, node) == null} title={ForUnlink_GetError(userID, node)}
 						style={styles.vMenuItem} onClick={async (e) => {
 							if (e.button != 0) return;
@@ -253,8 +253,8 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 							});
 						}}/>}
 				<DeleteContainerArgument_MenuItem {...sharedProps}/>
-				{IsUserCreatorOrMod(userID, node) && !componentBox
-					&& <VMenuItem text={`Delete${combinedWithParentArg ? ' claim' : ''}`}
+				{IsUserCreatorOrMod(userID, node) && !componentBox &&
+					<VMenuItem text={`Delete${combinedWithParentArg ? ' claim' : ''}`}
 						enabled={ForDelete_GetError(userID, node) == null} title={ForDelete_GetError(userID, node)}
 						style={styles.vMenuItem} onClick={(e) => {
 							if (e.button != 0) return;

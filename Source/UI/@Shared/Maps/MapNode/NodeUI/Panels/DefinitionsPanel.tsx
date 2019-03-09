@@ -60,10 +60,10 @@ export class DefinitionsPanel extends BaseComponent
 					})}
 				</Row> */}
 				{term && <TermDefinitionPanel term={term} termVariantNumber={terms_variantNumbers[terms.indexOf(term)]}/>}
-				{!term && !!terms.length
-					&& <div style={{ fontSize: 12, whiteSpace: 'initial' }}>Select a highlighted term above to see the definition for it here.</div>}
-				{!term && terms.length == 0
-					&& <div style={{ fontSize: 12, whiteSpace: 'initial' }}>This node does not currently have any term definitions attached.</div>}
+				{!term && !!terms.length &&
+					<div style={{ fontSize: 12, whiteSpace: 'initial' }}>Select a highlighted term above to see the definition for it here.</div>}
+				{!term && terms.length == 0 &&
+					<div style={{ fontSize: 12, whiteSpace: 'initial' }}>This node does not currently have any term definitions attached.</div>}
 			</Column>
 		);
 	}

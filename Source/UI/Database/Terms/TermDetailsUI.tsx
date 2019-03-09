@@ -1,6 +1,6 @@
 import { MeID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
-import { GetErrorMessagesUnderElement, GetEntries } from 'js-vextensions';
+import { GetErrorMessagesUnderElement, GetEntries, Clone } from 'js-vextensions';
 import Moment from 'moment';
 import { CheckBox, Column, Pre, Row, RowLR, Select, TextInput } from 'react-vcomponents';
 import { BaseComponent, GetDOM } from 'react-vextensions';
@@ -22,14 +22,16 @@ type Props = {baseData: Term, forNew: boolean, enabled?: boolean, style?, onChan
 }))
 export class TermDetailsUI extends BaseComponent<Props, {newData: Term, dataError: string, selectedTermComponent: TermComponent}> {
 	ComponentWillMountOrReceiveProps(props, forMount) {
-		if (forMount || props.baseData != this.props.baseData) // if base-data changed
-		{ this.SetState({ newData: Clone(props.baseData) }); }
+		if (forMount || props.baseData != this.props.baseData) { // if base-data changed
+			this.SetState({ newData: Clone(props.baseData) });
+		}
 	}
 	OnChange() {
 		const { onChange } = this.props;
+		const newData = this.GetNewData();
 		const error = this.GetValidationError();
-		if (onChange) onChange(this.GetNewData(), error);
-		this.SetState({ dataError: error });
+		if (onChange) onChange(newData, error);
+		this.SetState({ newData, dataError: error });
 	}
 
 	render() {
@@ -41,8 +43,8 @@ export class TermDetailsUI extends BaseComponent<Props, {newData: Term, dataErro
 			width = 600;
 		return (
 			<Column style={style}>
-				{!forNew
-					&& <table className="selectableAC" style={{/* borderCollapse: "separate", borderSpacing: "10px 0" */}}>
+				{!forNew &&
+					<table className="selectableAC" style={{/* borderCollapse: "separate", borderSpacing: "10px 0" */}}>
 						<thead>
 							<tr><th>ID</th><th>Creator</th><th>Created at</th></tr>
 						</thead>
@@ -61,8 +63,8 @@ export class TermDetailsUI extends BaseComponent<Props, {newData: Term, dataErro
 						enabled={enabled} style={{ width: '100%' }}
 						value={newData.name} onChange={val => Change(newData.name = val)}/>
 				</RowLR>
-				{!forNew
-					&& <RowLR mt={5} splitAt={splitAt} style={{ width }}>
+				{!forNew &&
+					<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 						<Pre>Variant #: </Pre>
 						<Pre>{variantNumber}</Pre>
 					</RowLR>}
@@ -80,8 +82,8 @@ export class TermDetailsUI extends BaseComponent<Props, {newData: Term, dataErro
 					<Select options={GetEntries(TermType, name => GetNiceNameForTermType(TermType[name]))} enabled={enabled} style={ES({ flex: 1 })}
 						value={newData.type} onChange={val => Change(newData.type = val)}/>
 				</RowLR>
-				{(newData.type == TermType.SpecificEntity || newData.type == TermType.EntityType)
-					&& <RowLR mt={5} splitAt={splitAt} style={{ width }}>
+				{(newData.type == TermType.SpecificEntity || newData.type == TermType.EntityType) &&
+					<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 						<Pre>Person: </Pre>
 						<CheckBox enabled={enabled} checked={newData.person} onChange={val => Change(newData.person = val)}/>
 					</RowLR>}
@@ -109,14 +111,11 @@ export class TermDetailsUI extends BaseComponent<Props, {newData: Term, dataErro
 	}
 }
 
-export function ShowAddTermDialog(userID: string) {
-	const firebase = store.firebase.helpers;
-
+export function ShowAddTermDialog() {
 	let newTerm = new Term({
 		name: '',
 		type: TermType.SpecificEntity,
 		shortDescription_current: '',
-		creator: MeID(),
 	});
 
 	let valid = false;

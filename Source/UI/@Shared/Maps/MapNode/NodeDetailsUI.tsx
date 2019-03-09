@@ -1,20 +1,20 @@
 import { AsNodeL1, GetFinalPolarity } from 'Store/firebase/nodes/$node';
 import { GetUserAccessLevel, MeID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
-import { GetErrorMessagesUnderElement, GetEntries } from 'js-vextensions';
+import { GetErrorMessagesUnderElement, GetEntries, Clone, WaitXThenRun } from 'js-vextensions';
 import { CheckBox, Column, Div, Pre, Row, Select, Spinner, TextArea, TextInput } from 'react-vcomponents';
 import { BaseComponent, RenderSource, GetDOM } from 'react-vextensions';
 import { HasAdminPermissions } from 'Store/firebase/userExtras';
 import { Connect } from 'Utils/FrameworkOverrides';
+import { ES } from 'Utils/UI/GlobalStyles';
 import { AsNodeL2, GetClaimType } from '../../../../Store/firebase/nodes/$node';
 import { AccessLevel, ChildEntry, ClaimForm, ClaimType, MapNode, MapNodeL2, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
 import { ArgumentType, GetArgumentTypeDisplayText, MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../Store/firebase/nodes/@MapNodeRevision';
 import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
 import { GetUser } from '../../../../Store/firebase/users';
-import {EquationEditorUI} from './EquationEditorUI';
-import {ImageAttachmentEditorUI} from './ImageAttachmentEditorUI';
-import {QuoteInfoEditorUI} from './QuoteInfoEditorUI';
-import {ES} from 'Utils/UI/GlobalStyles';
+import { EquationEditorUI } from './EquationEditorUI';
+import { ImageAttachmentEditorUI } from './ImageAttachmentEditorUI';
+import { QuoteInfoEditorUI } from './QuoteInfoEditorUI';
 
 type Props = {
 	baseData: MapNode,
@@ -65,29 +65,29 @@ export class NodeDetailsUI extends BaseComponent<Props, State> {
 				{/* <Div style={{fontSize: 12}}>ID: {node._id}</Div>
 				<Div mt={3} style={{fontSize: 12}}>Created at: {Moment(node.createdAt).format(`YYYY-MM-DD HH:mm:ss`)
 					} (by: {creator ? creator.displayName : `n/a`})</Div> */}
-				{(newData.type != MapNodeType.Claim || claimType == ClaimType.Normal)
-					&& <Title_Base {...propsEnhanced}/>}
-				{newData.type == MapNodeType.Claim && claimType == ClaimType.Normal
-					&& <OtherTitles {...propsEnhanced}/>}
-				{newData.type == MapNodeType.Claim && claimType == ClaimType.Equation
-					&& <EquationEditorUI key={0} creating={forNew} editing={enabled}
+				{(newData.type != MapNodeType.Claim || claimType == ClaimType.Normal) &&
+					<Title_Base {...propsEnhanced}/>}
+				{newData.type == MapNodeType.Claim && claimType == ClaimType.Normal &&
+					<OtherTitles {...propsEnhanced}/>}
+				{newData.type == MapNodeType.Claim && claimType == ClaimType.Equation &&
+					<EquationEditorUI key={0} creating={forNew} editing={enabled}
 						baseData={newRevisionData.equation} onChange={val => Change(newRevisionData.equation = val)}/>}
-				{newData.type == MapNodeType.Claim && claimType == ClaimType.Quote
-					&& <QuoteInfoEditorUI ref={c => this.quoteEditor = c} key={1} creating={forNew} editing={enabled}
+				{newData.type == MapNodeType.Claim && claimType == ClaimType.Quote &&
+					<QuoteInfoEditorUI ref={c => this.quoteEditor = c} key={1} creating={forNew} editing={enabled}
 						baseData={newRevisionData.contentNode} onChange={val => Change(newRevisionData.contentNode = val)}
 						showPreview={false} justShowed={false}/>}
-				{newData.type == MapNodeType.Claim && claimType == ClaimType.Image
-					&& <ImageAttachmentEditorUI key={1} creating={forNew} editing={enabled}
+				{newData.type == MapNodeType.Claim && claimType == ClaimType.Image &&
+					<ImageAttachmentEditorUI key={1} creating={forNew} editing={enabled}
 						baseData={newRevisionData.image} onChange={val => Change(newRevisionData.image = val)}/>}
-				{newData.type == MapNodeType.Argument
-					&& <ArgumentInfo {...propsEnhanced}/>}
+				{newData.type == MapNodeType.Argument &&
+					<ArgumentInfo {...propsEnhanced}/>}
 				<Row mt={5}>
 					<Pre>Note: </Pre>
 					<TextInput enabled={enabled} style={{ width: '100%' }}
 						value={newRevisionData.note} onChange={val => Change(newRevisionData.note = val)}/>
 				</Row>
-				{!forNew
-					&& <AdvancedOptions {...propsEnhanced}/>}
+				{!forNew &&
+					<AdvancedOptions {...propsEnhanced}/>}
 			</Column>
 		);
 	}
@@ -138,8 +138,8 @@ class Title_Base extends BaseComponent<Props_Enhanced, {}> {
 						ref={a => a && forNew && this.lastRender_source == RenderSource.Mount && WaitXThenRun(0, () => a.DOM && a.DOM.focus())}
 						value={newRevisionData.titles['base']} onChange={val => Change(newRevisionData.titles['base'] = val)}/>
 				</Row>
-				{forNew && newData.type == MapNodeType.Argument
-					&& <Row mt={5} style={{ background: 'rgba(255,255,255,.1)', padding: 5, borderRadius: 5 }}>
+				{forNew && newData.type == MapNodeType.Argument &&
+					<Row mt={5} style={{ background: 'rgba(255,255,255,.1)', padding: 5, borderRadius: 5 }}>
 						<Pre allowWrap={true}>{`
 An argument title should be a short "key phrase" that gives the gist of the argument, for easy remembering/scanning.
 
@@ -180,8 +180,8 @@ class OtherTitles extends BaseComponent<Props_Enhanced, {}> {
 					<TextArea enabled={enabled} allowLineBreaks={false} style={ES({ flex: 1 })} pattern={MapNodeRevision_titlePattern} autoSize={true}
 						value={newRevisionData.titles['yesNoQuestion']} onChange={val => Change(newRevisionData.titles['yesNoQuestion'] = val)}/>
 				</Row>
-				{willUseQuestionTitleHere && forNew
-					&& <Row mt={5} style={{ background: 'rgba(255,255,255,.1)', padding: 5, borderRadius: 5 }}>
+				{willUseQuestionTitleHere && forNew &&
+					<Row mt={5} style={{ background: 'rgba(255,255,255,.1)', padding: 5, borderRadius: 5 }}>
 						<Pre allowWrap={true}>At this location (under a category node), the node will be displayed with the (yes or no) question title.</Pre>
 					</Row>}
 			</Div>
@@ -214,13 +214,13 @@ class AdvancedOptions extends BaseComponent<Props_Enhanced, {}> {
 		return (
 			<Column mt={10}>
 				<Row style={{ fontWeight: 'bold' }}>Advanced:</Row>
-				{HasAdminPermissions(MeID())
-					&& <Row style={{ display: 'flex', alignItems: 'center' }}>
+				{HasAdminPermissions(MeID()) &&
+					<Row style={{ display: 'flex', alignItems: 'center' }}>
 						<Pre>Voting enabled: </Pre>
 						<CheckBox enabled={enabled} checked={!newRevisionData.votingDisabled} onChange={val => Change(newRevisionData.votingDisabled = val ? null : true)}/>
 					</Row>}
-				{HasAdminPermissions(MeID())
-					&& <Row style={{ display: 'flex', alignItems: 'center' }}>
+				{HasAdminPermissions(MeID()) &&
+					<Row style={{ display: 'flex', alignItems: 'center' }}>
 						<Pre>Font-size override: </Pre>
 						<Spinner max={25} enabled={enabled} value={newRevisionData.fontSizeOverride | 0} onChange={val => Change(newRevisionData.fontSizeOverride = val != 0 ? val : null)}/>
 						<Pre> px (0 for auto)</Pre>

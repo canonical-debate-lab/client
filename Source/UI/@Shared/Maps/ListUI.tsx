@@ -254,15 +254,15 @@ class NodeColumn extends BaseComponent<NodeColumn_Props, {width: number, hoverPa
 					asHover={false} inList={true} style={{ marginTop: 25 }}/>
 				<ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1 })}>
 					<Column ml={10} style={ES({ flex: 1 })}>
-						{panelToShow
-							&& <div style={{ position: 'relative', padding: 5, background: 'rgba(0,0,0,.7)', borderRadius: 5, boxShadow: 'rgba(0,0,0,1) 0px 0px 2px' }}>
+						{panelToShow &&
+							<div style={{ position: 'relative', padding: 5, background: 'rgba(0,0,0,.7)', borderRadius: 5, boxShadow: 'rgba(0,0,0,1) 0px 0px 2px' }}>
 								<div style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, borderRadius: 5, background: backgroundColor.css() }}/>
 								{ratingTypes.Contains(panelToShow) && (() => {
 									const ratings = GetRatings(node._id, panelToShow as RatingType);
 									return <RatingsPanel ref="ratingsPanel" node={nodeL3} path={path} ratingType={panelToShow as RatingType} ratings={ratings}/>;
 								})()}
-								{panelToShow == 'definitions'
-									&& <DefinitionsPanel {...{ node, path, hoverTermID: null }} openTermID={null}
+								{panelToShow == 'definitions' &&
+									<DefinitionsPanel {...{ node, path, hoverTermID: null }} openTermID={null}
 										/* onHoverTerm={termID=>this.SetState({hoverTermID: termID})} onClickTerm={termID=>this.SetState({clickTermID: termID})} *//>}
 								{panelToShow == 'discussion' && <DiscussionPanel/>}
 								{panelToShow == 'social' && <SocialPanel/>}
