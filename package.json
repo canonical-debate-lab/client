@@ -165,6 +165,7 @@
     "rc-tooltip": "^3.4.7",
     "react": "16.8.3",
     "react-autobind": "^1.0.6",
+    "react-beautiful-dnd": "10.0.4",
     "react-color": "^2.14.1",
     "react-dnd": "7.0.2",
     "react-dnd-mouse-backend": "^1.0.0-rc.1",

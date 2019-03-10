@@ -177,25 +177,38 @@ webpackConfig.module.rules.push({ test: /\.tsx?$/, loader: 'ts-loader' });
 // file text-replacements
 // ==========
 
-webpackConfig.module.rules.push({
-	test: /\.jsx?$/,
-	loader: StringReplacePlugin.replace({ replacements: [
-		// optimization; replace `State(a=>a.some.thing)` with `State("some/thing")`
-		{
-			pattern: /State\(a ?=> ?a\.([a-zA-Z_.]+)\)/g,
-			replacement(match, sub1, offset, string) {
-				return `State("${sub1.replace(/\./g, '/')}")`;
+webpackConfig.module.rules.push(
+	{
+		test: /\.jsx?$/,
+		loader: StringReplacePlugin.replace({ replacements: [
+			// optimization; replace `State(a=>a.some.thing)` with `State("some/thing")`
+			{
+				pattern: /State\(a ?=> ?a\.([a-zA-Z_.]+)\)/g,
+				replacement(match, sub1, offset, string) {
+					return `State("${sub1.replace(/\./g, '/')}")`;
+				},
 			},
-		},
-		/* {
-			pattern: /State\(function \(a\) {\s+return a.([a-zA-Z_.]+);\s+}\)/g,
-			replacement: function(match, sub1, offset, string) {
-				Log("Replacing...");
-				return `State("${sub1.replace(/\./g, "/")}")`;
-			}
-		}, */
-	] }),
-});
+			/* {
+				pattern: /State\(function \(a\) {\s+return a.([a-zA-Z_.]+);\s+}\)/g,
+				replacement: function(match, sub1, offset, string) {
+					Log("Replacing...");
+					return `State("${sub1.replace(/\./g, "/")}")`;
+				}
+			}, */
+		] }),
+	},
+	{
+		// test: /connected-(draggable|droppable).js$/,
+		test: /react-beautiful-dnd.esm.js$/,
+		loader: StringReplacePlugin.replace({ replacements: [
+			// make react-beautiful-dnd import react-redux using a relative path, so it uses its local v5 instead of the project's v6
+			{
+				pattern: /from 'react-redux';/g,
+				replacement: (match, offset, str) => "from '../node_modules/react-redux';",
+			},
+		] }),
+	},
+);
 
 // make all Object.defineProperty calls leave the property configurable (probably better to just wrap the Object.defineProperty function)
 /* webpackConfig.module.rules.push({
