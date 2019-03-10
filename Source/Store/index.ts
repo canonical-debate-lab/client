@@ -4,6 +4,7 @@ import { MessageBoxReducer, MessageBoxState } from 'react-vmessagebox';
 import { firestoreReducer } from 'redux-firestore';
 import { DeepGet, DeepSet } from 'js-vextensions';
 import { CombineReducers_Advanced, bufferedActions, HandleError, manager } from 'Utils/FrameworkOverrides';
+import { FeedbackReducer } from 'firebase-feedback';
 import { MainReducer, MainState } from './main';
 
 // class is used only for initialization
@@ -49,8 +50,8 @@ export function MakeRootReducer() {
 			firestore: firestoreReducer,
 			// form: formReducer,
 			vMenu: VMenuReducer,
-			/* forum: ForumReducer,
-			feedback: FeedbackReducer, */
+			// forum: ForumReducer,
+			feedback: FeedbackReducer,
 			...extraReducers,
 		},
 		actionSendInclusions: {

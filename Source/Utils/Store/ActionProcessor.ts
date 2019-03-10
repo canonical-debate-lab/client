@@ -58,6 +58,7 @@ export function DoesURLChangeCountAsPageChange(oldURL: VURL, newURL: VURL) {
 export function RecordPageView(url: VURL) {
 	// let url = window.location.pathname;
 	if (PROD) {
+		// todo: ms if react-ga is not initialized yet, we buffer up these commands, then run them once it is initialized
 		ReactGA.set({ page: url.toString({ domain: false }) });
 		ReactGA.pageview(url.toString({ domain: false }) || '/');
 	}

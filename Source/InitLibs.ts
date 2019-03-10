@@ -3,8 +3,8 @@ import * as react_color from 'react-color';
 import * as chroma_js from 'chroma-js';
 import Moment from 'moment';
 import { MeID, GetUser, GetUserPermissionGroups, Me } from 'Store/firebase/users';
-/* import { manager as manager_forum } from 'firebase-forum';
-import { manager as manager_feedback } from 'firebase-feedback'; */
+/* import { manager as manager_forum } from 'firebase-forum'; */
+import { manager as manager_feedback } from 'firebase-feedback';
 import { replace, push } from 'connected-react-router';
 import Raven from 'raven-js';
 import { version, dbVersion, hasHotReloaded, firebaseConfig } from 'Main';
@@ -116,11 +116,11 @@ export function InitLibs() {
 		MarkdownRenderer: VReactMarkdown_Remarkable,
 	};
 
-	/* manager_feedback.Populate(sharedData.Extended({
+	manager_feedback.Populate(sharedData.Extended({
 		storePath_mainData: 'feedback',
 		storePath_dbData: DBPath('modules/feedback'),
 	}));
-	manager_forum.Populate(sharedData.Extended({
+	/* manager_forum.Populate(sharedData.Extended({
 		storePath_mainData: 'forum',
 		storePath_dbData: DBPath('modules/forum'),
 	})); */

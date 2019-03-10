@@ -156,8 +156,8 @@ function CreateMainReducer_Real() {
 		reputation: CombineReducers({ subpage: SubpageReducer('reputation') }),
 
 		database: DatabaseReducer,
-		feedback: CombineReducers({ subpage: SubpageReducer('feedback') }),
 		// forum: ForumReducer,
+		feedback: CombineReducers({ subpage: SubpageReducer('feedback') }),
 		more: CombineReducers({ subpage: SubpageReducer('more') }),
 		home: CombineReducers({ subpage: SubpageReducer('home') }),
 		social: CombineReducers({ subpage: SubpageReducer('social') }),

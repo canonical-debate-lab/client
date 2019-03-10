@@ -2,6 +2,7 @@ import { ToInt, Vector2i, VURL, Assert, IsNumber } from 'js-vextensions';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { ACTMap_PlayingTimelineSet, ACTMap_PlayingTimelineStepSet } from 'Store/main/maps/$map';
 import { ACTSet, State } from 'Utils/FrameworkOverrides';
+import { ACTProposalSelect, GetSelectedProposalID } from 'firebase-feedback';
 import { GetMap } from '../../Store/firebase/maps';
 import { GetNodeDisplayText } from '../../Store/firebase/nodes/$node';
 import { globalMapID, MapNodeL2 } from '../../Store/firebase/nodes/@MapNode';
@@ -216,16 +217,16 @@ export function GetLoadActionsForURL(url: VURL) {
 		const threadIDMatch = threadStr && threadStr.match(/([0-9]+)$/);
 		const threadID = threadIDMatch ? threadIDMatch[1].ToInt() : null;
 		result.push(new ACTThreadSelect({ id: threadID }));
-	}
+	} */
 
-	if (url.pathNodes[0] == 'feedback') {
-		if (url.pathNodes[1] == 'proposals') {
+	if (page == 'feedback') {
+		if (subpage == 'proposals') {
 			const idStr = url.pathNodes[2];
 			const idStrMatch = idStr && idStr.match(/([0-9]+)$/);
 			const proposalID = idStrMatch ? idStrMatch[1].ToInt() : null;
 			result.push(new ACTProposalSelect({ id: proposalID }));
 		}
-	} */
+	}
 
 	let mapID: number;
 	if (page == 'database') {
@@ -359,12 +360,12 @@ export function GetNewURL(includeMapViewStr = true) {
 		else if (threadID) newURL.pathNodes.push('*');
 
 		if (threadID) newURL.pathNodes.push(`${threadID}`);
-	}
+	} */
 
 	if (page == 'feedback') {
 		const proposalID = GetSelectedProposalID();
 		if (proposalID) newURL.pathNodes.push(`${proposalID}`);
-	} */
+	}
 
 	if (page == 'database') {
 		if (subpage == 'users' && GetSelectedUserID()) {

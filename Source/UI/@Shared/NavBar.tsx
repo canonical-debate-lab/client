@@ -86,8 +86,8 @@ export class NavBar extends BaseComponentWithConnector(connector, {}) {
 
 					<span style={{ margin: '0 auto', paddingLeft: 78 }}>
 						<NavBarPageButton page="database" text="Database"/>
-						{/* <NavBarButton page="feedback" text="Feedback"/>
-						<NavBarButton page="forum" text="Forum"/> */}
+						<NavBarPageButton page="feedback" text="Feedback"/>
+						{/* <NavBarButton page="forum" text="Forum"/> */}
 						<NavBarPageButton page="more" text="More"/>
 						<NavBarPageButton page="home" text="Canonical Debate" style={{ margin: '0 auto', textAlign: 'center', fontSize: 23 }}/>
 						<NavBarPageButton page="personal" text="Personal"/>
