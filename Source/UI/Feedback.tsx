@@ -1,8 +1,8 @@
-import { ProposalsUI } from 'UI/Feedback/ProposalsUI';
-import { Switch, Column } from 'react-vcomponents';
+import { ACTProposalSelect } from 'firebase-feedback';
+import { Column, Switch } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
-import { State, Connect } from 'Utils/FrameworkOverrides';
-import { ES } from 'Utils/UI/GlobalStyles';
+import { ProposalsUI } from 'UI/Feedback/ProposalsUI';
+import { Connect, State } from 'Utils/FrameworkOverrides';
 import { SubNavBar, SubNavBarButton } from './@Shared/SubNavBar';
 
 type Props = {} & Partial<{currentSubpage: string}>;
@@ -16,7 +16,7 @@ export class FeedbackUI extends BaseComponent<Props, {}> {
 		return (
 			<Column style={{ flex: 1 }}>
 				<SubNavBar>
-					<SubNavBarButton page={page} subpage="proposals" text="Proposals"/>
+					<SubNavBarButton page={page} subpage="proposals" text="Proposals" actionIfAlreadyActive={() => new ACTProposalSelect({ id: null }) as any}/>
 					{/* <SubNavBarButton page={page} subpage="roadmap" text="Roadmap"/>
 					<SubNavBarButton page={page} subpage="neutrality" text="Neutrality"/> */}
 				</SubNavBar>

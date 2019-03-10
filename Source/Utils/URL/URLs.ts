@@ -222,8 +222,8 @@ export function GetLoadActionsForURL(url: VURL) {
 	if (page == 'feedback') {
 		if (subpage == 'proposals') {
 			const idStr = url.pathNodes[2];
-			const idStrMatch = idStr && idStr.match(/([0-9]+)$/);
-			const proposalID = idStrMatch ? idStrMatch[1].ToInt() : null;
+			const idStrMatch = idStr && idStr.match(/([0-9a-f-]+)$/);
+			const proposalID = idStrMatch ? idStrMatch[1] : null;
 			result.push(new ACTProposalSelect({ id: proposalID }));
 		}
 	}

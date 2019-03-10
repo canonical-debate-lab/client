@@ -7,6 +7,7 @@ import { ResetCurrentDBRoot } from 'UI/More/Admin/ResetCurrentDBRoot';
 import { dbVersion } from 'Main';
 import { Connect, State, Action, Link, GetData } from 'Utils/FrameworkOverrides';
 import { ACTUserSelect } from 'Store/main/database';
+import {ACTProposalSelect} from 'firebase-feedback';
 import { colors } from '../../Utils/UI/GlobalStyles';
 import { ACTSetPage, ACTSetSubpage, ACTTopLeftOpenPanelSet, ACTTopRightOpenPanelSet } from '../../Store/main';
 import { ACTPersonalMapSelect } from '../../Store/main/personal';
@@ -84,7 +85,7 @@ export class NavBar extends BaseComponentWithConnector(connector, {}) {
 						<NotificationsUI/>
 					</Div>
 
-					<span style={{ margin: '0 auto', paddingLeft: 78 }}>
+					<span style={{ margin: '0 auto', paddingRight: 5 }}>
 						<NavBarPageButton page="database" text="Database"/>
 						<NavBarPageButton page="feedback" text="Feedback"/>
 						{/* <NavBarButton page="forum" text="Forum"/> */}
@@ -148,6 +149,8 @@ export class NavBarPageButton extends BaseComponent
 					if ([null, 'users'].Contains(State(a => a.main.database.subpage))) {
 						actions.push(new ACTUserSelect({ id: null }));
 					}
+				} else if (page == 'feedback') {
+					actions.push(new ACTProposalSelect({ id: null }) as any);
 				} else if (page == 'personal') {
 					actions.push(new ACTPersonalMapSelect({ id: null }));
 				} else if (page == 'debates') {
