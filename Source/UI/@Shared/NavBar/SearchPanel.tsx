@@ -16,7 +16,7 @@ import { ACTMapViewMerge } from 'Store/main/mapViews/$mapView';
 import { MapNodeView, MapView } from 'Store/main/mapViews/@MapViews';
 import { State, Connect, ACTSet, DBPath, GetAsync, ActionSet, InfoButton } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
-import {UUID} from 'Utils/General/KeyGenerator';
+import { UUID } from 'Utils/General/KeyGenerator';
 import { NodeUI_Menu_Stub } from '../Maps/MapNode/NodeUI_Menu';
 import { MapUI } from '../Maps/MapUI';
 
@@ -277,7 +277,8 @@ export function JumpToNode(mapID: string, path: string) {
 
 	store.dispatch(new ACTMapViewMerge({ mapID, mapView }));
 
-	const mapUI = FindReact(document.querySelector('.MapUI')) as MapUI;
+	// const mapUI = FindReact(document.querySelector('.MapUI')) as MapUI;
+	const mapUI = MapUI.CurrentMapUI;
 	if (mapUI) {
 		mapUI.StartLoadingScroll();
 	}

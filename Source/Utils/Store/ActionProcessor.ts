@@ -153,7 +153,8 @@ export async function PostDispatchAction(action: Action<any>) {
 
 	const loadingMapView = action.Is(ACTMapViewMerge);
 	if (loadingMapView) {
-		const mapUI = FindReact($('.MapUI')[0]) as MapUI;
+		// const mapUI = FindReact($('.MapUI')[0]) as MapUI;
+		const mapUI = MapUI.CurrentMapUI;
 		if (mapUI) {
 			mapUI.LoadScroll();
 		}
@@ -229,9 +230,11 @@ async function ExpandToAndFocusOnNodes(mapID: string, paths: string[]) {
 	}
 
 	for (let i = 0; i < 30 && $('.MapUI').length == 0; i++) { await SleepAsync(100); }
-	const mapUIEl = $('.MapUI');
+	/* const mapUIEl = $('.MapUI');
 	if (mapUIEl.length == 0) return;
-	const mapUI = FindReact(mapUIEl[0]) as MapUI;
+	const mapUI = FindReact(mapUIEl[0]) as MapUI; */
+	const mapUI = MapUI.CurrentMapUI;
+	if (mapUI == null) return;
 
 	for (let i = 0; i < 30 && paths.map(path => mapUI.FindNodeBox(path)).Any(a => a == null); i++) { await SleepAsync(100); }
 	const nodeBoxes = paths.map(path => mapUI.FindNodeBox(path)).filter(a => a != null);
@@ -239,7 +242,7 @@ async function ExpandToAndFocusOnNodes(mapID: string, paths: string[]) {
 
 	let nodeBoxPositionSum = new Vector2i(0, 0);
 	for (const box of nodeBoxes) {
-		const boxPos = $(GetDOM(box)).GetScreenRect().Center.Minus(mapUIEl.GetScreenRect().Position);
+		const boxPos = $(GetDOM(box)).GetScreenRect().Center.Minus($(mapUI.DOM).GetScreenRect().Position);
 		nodeBoxPositionSum = nodeBoxPositionSum.Plus(boxPos);
 	}
 	const nodeBoxPositionAverage = nodeBoxPositionSum.Times(1 / paths.length);

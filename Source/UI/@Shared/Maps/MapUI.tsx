@@ -79,6 +79,9 @@ const connector = (state: RootState, { map, rootNode }: Props) => {
 };
 @Connect(connector)
 export class MapUI extends BaseComponentWithConnector(connector, {}) {
+	static currentMapUI: MapUI;
+	static get CurrentMapUI { return MapUI.currentMapUI && MapUI.currentMapUI.mounted ? MapUI.currentMapUI : null }
+
 	// static defaultProps = {padding: {left: 2000, right: 2000, top: 1000, bottom: 1000}};
 	static defaultProps = {
 		padding: { left: screen.availWidth, right: screen.availWidth, top: screen.availHeight, bottom: screen.availHeight },
@@ -179,6 +182,9 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 	}
 
 	async ComponentDidMount() {
+		MapUI.currentMapUI = this;
+
+
 		NodeUI.renderCount = 0;
 		/* NodeUI.lastRenderTime = Date.now();
 		let lastRenderCount = 0; */
@@ -189,6 +195,10 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 
 		this.StartLoadingScroll();
 	}
+	ComponentWillUnmount() {
+		MapUI.currentMapUI = null;
+	}
+
 	StartLoadingScroll() {
 		const { map } = this.props;
 
