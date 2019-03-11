@@ -16,6 +16,7 @@ import { ACTMapViewMerge } from 'Store/main/mapViews/$mapView';
 import { MapNodeView, MapView } from 'Store/main/mapViews/@MapViews';
 import { State, Connect, ACTSet, DBPath, GetAsync, ActionSet, InfoButton } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
+import {UUID} from 'Utils/General/KeyGenerator';
 import { NodeUI_Menu_Stub } from '../Maps/MapNode/NodeUI_Menu';
 import { MapUI } from '../Maps/MapUI';
 
@@ -154,7 +155,7 @@ export class SearchResultRow extends BaseComponentWithConnector(SearchResultRow_
 			}
 		}
 	}
-	async StartFindingPathsFromXToY(rootNodeX: number, targetNodeY: number) {
+	async StartFindingPathsFromXToY(rootNodeX: UUID, targetNodeY: UUID) {
 		const searchDepth = 100;
 
 		const upPathCompletions = [];
@@ -169,7 +170,7 @@ export class SearchResultRow extends BaseComponentWithConnector(SearchResultRow_
 					continue;
 				}
 
-				for (const parentID of (node.parents || {}).Pairs(true).map(a => a.keyNum)) {
+				for (const parentID of (node.parents || {}).Pairs(true).map(a => a.key)) {
 					const newUpPath = `${upPath}/${parentID}`;
 					if (parentID === rootNodeX) {
 						upPathCompletions.push(newUpPath.split('/').Reversed().join('/'));
