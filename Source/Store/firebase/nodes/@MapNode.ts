@@ -1,11 +1,12 @@
 import { GetValues_ForSchema } from 'js-vextensions';
 import { AddAJVExtraCheck, AddSchema } from 'Utils/FrameworkOverrides';
+import { UUID_regex, UUID, UUID_regex_partial } from 'Utils/General/KeyGenerator';
 import { MapNodeRevision } from './@MapNodeRevision';
 import { MapNodeType } from './@MapNodeType';
 
 // these are 22-chars, matching 22-char uuids/slug-ids
-export const globalMapID = "GLOBAL_MAP_00000000001";
-export const globalRootNodeID = "GLOBAL_ROOT_0000000001";
+export const globalMapID = 'GLOBAL_MAP_00000000001';
+export const globalRootNodeID = 'GLOBAL_ROOT_0000000001';
 
 export enum AccessLevel {
 	Basic = 10,
@@ -41,17 +42,20 @@ export class MapNode {
 
 	parents: ParentSet;
 	children: ChildSet;
-	childrenOrder: string[];
+	childrenOrder: UUID[];
 	// talkRoot: number;
 	multiPremiseArgument?: boolean;
 
+	// if subnode
 	layerPlusAnchorParents: LayerPlusAnchorParentSet;
+	/* layerOwner: UUID;
+	layerAnchorNode: UUID; */
 
 	// local-only
 	informalArgumentsHolder?: boolean;
 	premiseAddHelper?: boolean;
 }
-// export const MapNode_id = '^[A-Za-z0-9_-]+$';
+// export const MapNode_id = UUID_regex;
 // export const MapNode_chainAfterFormat = "^(\\[start\\]|[0-9]+)$";
 AddSchema({
 	properties: {
@@ -63,11 +67,12 @@ AddSchema({
 
 		parents: { $ref: 'ParentSet' },
 		children: { $ref: 'ChildSet' },
-		childrenOrder: { items: { type: 'string' } },
+		childrenOrder: { items: { $ref: 'UUID' } },
 		// talkRoot: {type: "number"},
 		multiPremiseArgument: { type: 'boolean' },
 
 		layerPlusAnchorParents: { $ref: 'LayerPlusAnchorParentSet' },
+		// layerOwner: { $ref: 'UUID' },
 	},
 	required: ['type', 'creator', 'createdAt', 'currentRevision'],
 	/* allOf: [
@@ -112,7 +117,7 @@ export enum Polarity {
 // ==========
 
 export type ParentSet = { [key: string]: ParentEntry; };
-AddSchema({ patternProperties: { '^[A-Za-z0-9_-]+$': { $ref: 'ParentEntry' } } }, 'ParentSet');
+AddSchema({ patternProperties: { [UUID_regex]: { $ref: 'ParentEntry' } } }, 'ParentSet');
 export type ParentEntry = { _: boolean; };
 AddSchema({
 	properties: { _: { type: 'boolean' } },
@@ -120,7 +125,7 @@ AddSchema({
 }, 'ParentEntry');
 
 export type ChildSet = { [key: string]: ChildEntry; };
-AddSchema({ patternProperties: { '^[A-Za-z0-9_-]+$': { $ref: 'ChildEntry' } } }, 'ChildSet');
+AddSchema({ patternProperties: { [UUID_regex]: { $ref: 'ChildEntry' } } }, 'ChildSet');
 export type ChildEntry = {
 	_: boolean;
 	form?: ClaimForm;
@@ -137,11 +142,11 @@ AddSchema({
 	required: ['_'],
 }, 'ChildEntry');
 
-// layer+anchor parents
+// layer+anchor parents (for if subnode)
 // ==========
 
 export type LayerPlusAnchorParentSet = { [key: string]: boolean; };
-AddSchema({ patternProperties: { '^[0-9_]+$': { type: 'boolean' } } }, 'LayerPlusAnchorParentSet');
+AddSchema({ patternProperties: { [`${UUID_regex_partial}\\+${UUID_regex_partial}`]: { type: 'boolean' } } }, 'LayerPlusAnchorParentSet');
 
 // others
 // ==========

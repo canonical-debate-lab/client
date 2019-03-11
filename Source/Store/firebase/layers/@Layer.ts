@@ -1,4 +1,5 @@
 import { AddSchema } from 'Utils/FrameworkOverrides';
+import { UUID_regex } from 'Utils/General/KeyGenerator';
 
 export class Layer {
 	constructor(initialData: {name: string, creator: string} & Partial<Layer>) {
@@ -10,8 +11,8 @@ export class Layer {
 	creator: string;
 	createdAt: number;
 
-	mapsWhereEnabled: {[key: number]: boolean};
-	nodeSubnodes: {[key: number]: LayerNodeSubnodes}; // key: node-id
+	mapsWhereEnabled: {[key: string]: boolean};
+	nodeSubnodes: {[key: string]: LayerNodeSubnodes}; // key: node-id
 }
 AddSchema({
 	properties: {
@@ -19,11 +20,11 @@ AddSchema({
 		creator: { type: 'string' },
 		createdAt: { type: 'number' },
 
-		mapsWhereEnabled: { patternProperties: { '^[A-Za-z0-9_-]+$': { type: 'boolean' } } },
-		nodeSubnodes: { patternProperties: { '^[A-Za-z0-9_-]+$': { $ref: 'LayerNodeSubnodes' } } },
+		mapsWhereEnabled: { patternProperties: { [UUID_regex]: { type: 'boolean' } } },
+		nodeSubnodes: { patternProperties: { [UUID_regex]: { $ref: 'LayerNodeSubnodes' } } },
 	},
 	required: ['name', 'creator', 'createdAt'],
 }, 'Layer');
 
-export type LayerNodeSubnodes = {[key: number]: boolean}; // key: subnode-id
-AddSchema({ patternProperties: { '^[A-Za-z0-9_-]+$': { type: 'boolean' } } }, 'LayerNodeSubnodes');
+export type LayerNodeSubnodes = {[key: string]: boolean}; // key: subnode-id
+AddSchema({ patternProperties: { [UUID_regex]: { type: 'boolean' } } }, 'LayerNodeSubnodes');

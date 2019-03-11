@@ -30,7 +30,8 @@ export function AddUpgradeFunc(version: number, func: UpgradeFunc) {
 // require("./Admin/DBUpgrades/UpgradeDB_8");
 // require("./Admin/DBUpgrades/UpgradeDB_9");
 // require('./Admin/DBUpgrades/UpgradeDB_10');
-require('./Admin/DBUpgrades/UpgradeDB_11');
+// require('./Admin/DBUpgrades/UpgradeDB_11');
+require('./Admin/DBUpgrades/UpgradeDB_12');
 
 const connector = (state, {}: {}) => ({
 	isAdmin: HasAdminPermissions(MeID())
@@ -184,7 +185,7 @@ export async function GetCollectionsDataAsync(versionRootPath: string) {
 	AssertVersionRootPath(versionRootPath);
 
 	async function getData(...collectionSubpath: string[]) {
-		return GetDataAsync({ inVersionRoot: false }, ...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath);
+		return GetDataAsync({ inVersionRoot: false, collection: true }, ...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath);
 	}
 
 	let versionCollectionsData: FirebaseData;
@@ -201,19 +202,21 @@ export async function GetCollectionsDataAsync(versionRootPath: string) {
 		maps: await getData('maps'),
 		mapNodeEditTimes: await getData('mapNodeEditTimes'),
 		nodes: await getData('nodes'),
-		nodeExtras: await getData('nodeExtras'),
+		// nodeExtras: await getData('nodeExtras'),
 		nodePhrasings: await getData('nodePhrasings'),
 		nodeRatings: await getData('nodeRatings'),
 		nodeRevisions: await getData('nodeRevisions'),
-		nodeStats: await getData('nodeStats'),
-		nodeViewers: await getData('nodeViewers'),
+		// nodeStats: await getData('nodeStats'),
+		// nodeViewers: await getData('nodeViewers'),
 		terms: await getData('terms'),
 		termComponents: await getData('termComponents'),
 		termNames: await getData('termNames'),
+		timelines: await getData('timelines'),
+		timelineSteps: await getData('timelineSteps'),
 		users: await getData('users'),
 		userExtras: await getData('userExtras'),
 		userMapInfo: await getData('userMapInfo'),
-		userViewedNodes: await getData('userViewedNodes'),
+		// userViewedNodes: await getData('userViewedNodes'),
 	};
 
 	return versionCollectionsData;

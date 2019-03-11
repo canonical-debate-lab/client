@@ -9,7 +9,6 @@ import { Column } from 'react-vcomponents';
 import { BaseComponentWithConnector, GetInnerComp, RenderSource, ShallowChanged, ShallowEquals, GetDOM } from 'react-vextensions';
 import { Connect, State, SlicePath, ShouldLog, MaybeLog } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
-import { NotifyNodeViewed } from '../../../../Server/Commands/NotifyNodeViewed';
 import { GetSubnodesInEnabledLayersEnhanced } from '../../../../Store/firebase/layers';
 import { GetNodeChangeType, GetPathsToNodesChangedSinceX } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
@@ -17,7 +16,6 @@ import { GetNodeChildrenL3, GetNodeID, GetParentNodeL2, GetParentNodeL3, IsRootN
 import { GetNodeForm, IsMultiPremiseArgument, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
 import { AccessLevel, MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
-import { GetUserViewedNodes } from '../../../../Store/firebase/userViewedNodes';
 import { GetNodeView } from '../../../../Store/main/mapViews';
 import { MapNodeView } from '../../../../Store/main/mapViews/@MapViews';
 import { GetPlayingTimeline, GetPlayingTimelineCurrentStepRevealNodes, GetPlayingTimelineRevealNodes, GetPlayingTimelineStepIndex, GetTimeFromWhichToShowChangedNodes } from '../../../../Store/main/maps/$map';
@@ -79,7 +77,7 @@ const connector = (state, { node, path, map }: Props) => {
 		isSinglePremiseArgument: IsSinglePremiseArgument(node),
 		isMultiPremiseArgument: IsMultiPremiseArgument(node),
 
-		userViewedNodes: GetUserViewedNodes(MeID(), { useUndefinedForInProgress: true }),
+		// userViewedNodes: GetUserViewedNodes(MeID(), { useUndefinedForInProgress: true }),
 		playingTimeline: GetPlayingTimeline(map._key),
 		playingTimeline_currentStepIndex: GetPlayingTimelineStepIndex(map._key),
 		playingTimelineShowableNodes: GetPlayingTimelineRevealNodes(map._key),
@@ -321,7 +319,7 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 		return this.proxyDisplayedNodeUI || this;
 	}
 
-	ComponentDidMount() {
+	/* ComponentDidMount() {
 		const { node, userViewedNodes } = this.props;
 		if (MeID() == null) return;
 
@@ -329,7 +327,7 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 		if (userViewedNodes_doneLoading && !(userViewedNodes || {}).VKeys(true).Contains(node._key)) {
 			new NotifyNodeViewed({ nodeID: node._key }).Run();
 		}
-	}
+	} */
 
 	PostRender() {
 		this.CheckForChanges();

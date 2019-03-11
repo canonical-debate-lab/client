@@ -69,7 +69,7 @@ g.DB_SHORT = { development: 'dev', production: 'prod' }[DB] || DB;
 // let {version, dbVersion, firebaseConfig} = DEV ? require("./BakedConfig_Dev") : require("./BakedConfig_Prod");
 const { version, firebaseConfig } = DB == 'development' ? require('./BakedConfig_Dev') : require('./BakedConfig_Prod');
 
-let dbVersion = 11;
+let dbVersion = 12;
 if (startURL.GetQueryVar('dbVersion') && startURL.GetQueryVar('dbVersion') != 'null') {
 	dbVersion = parseInt(startURL.GetQueryVar('dbVersion'));
 	console.log(`Using dbVersion: ${dbVersion}`);

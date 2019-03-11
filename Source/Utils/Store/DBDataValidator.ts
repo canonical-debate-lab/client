@@ -2,9 +2,20 @@ import { FirebaseData } from 'Store/firebase';
 import { AssertValidate } from 'Utils/FrameworkOverrides';
 
 export function ValidateDBData(data: FirebaseData) {
-	for (const map of (data.maps || {}).VValues(true)) AssertValidate('Map', map, 'Map invalid');
-	for (const node of (data.nodes || {}).VValues(true)) AssertValidate('MapNode', node, 'Node invalid');
-	for (const revision of (data.nodeRevisions || {}).VValues(true)) AssertValidate('MapNodeRevision', revision, 'Node-revision invalid');
-	for (const termComp of (data.termComponents || {}).VValues(true)) AssertValidate('TermComponent', termComp, 'Term-component invalid');
-	for (const term of (data.terms || {}).VValues(true)) AssertValidate('Term', term, 'Term invalid');
+	function ValidateCollection(collection, itemType: string) {
+		(collection || {}).VValues(1).forEach((entry) => {
+			AssertValidate(itemType, entry, `${itemType} invalid`);
+		});
+	}
+
+	ValidateCollection(data.images, 'Image');
+	ValidateCollection(data.layers, 'Layer');
+	ValidateCollection(data.maps, 'Map');
+	ValidateCollection(data.nodes, 'MapNode');
+	ValidateCollection(data.nodePhrasings, 'MapNodePhrasing');
+	ValidateCollection(data.nodeRevisions, 'MapNodeRevision');
+	ValidateCollection(data.terms, 'Term');
+	ValidateCollection(data.termComponents, 'TermComponent');
+	ValidateCollection(data.timelines, 'Timeline');
+	ValidateCollection(data.timelineSteps, 'TimelineStep');
 }

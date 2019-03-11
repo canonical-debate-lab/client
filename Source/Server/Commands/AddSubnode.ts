@@ -1,10 +1,10 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
-import {GetAsync_Raw} from 'Utils/FrameworkOverrides';
+import { GetAsync_Raw } from 'Utils/FrameworkOverrides';
+import { Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
 import { GetLayer } from '../../Store/firebase/layers';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
-import { Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
 import { AddNode } from './AddNode';
 
 @UserEdit
@@ -32,8 +32,8 @@ export class AddSubnode extends Command<{mapID: string, layerID: string, anchorN
 		const newUpdates = {};
 		// add into layer
 		newUpdates[`layers/${layerID}/.nodeSubnodes/.${anchorNodeID}/.${this.sub_addNode.nodeID}`] = true;
-		const layerPlusAnchorStr = `${layerID}_${anchorNodeID}`;
-		newUpdates[`nodes/${this.sub_addNode.nodeID}/.layerPlusAnchorParents/.${layerPlusAnchorStr}`] = true;
+		newUpdates[`nodes/${this.sub_addNode.nodeID}/.layerOwner`] = layerID;
+		newUpdates[`nodes/${this.sub_addNode.nodeID}/.layerAnchorNode`] = anchorNodeID;
 
 		return MergeDBUpdates(updates, newUpdates);
 	}

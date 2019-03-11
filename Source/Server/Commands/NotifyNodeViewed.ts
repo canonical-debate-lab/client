@@ -1,4 +1,4 @@
-import { Assert } from 'js-vextensions';
+/* import { Assert } from 'js-vextensions';
 import { GetNode } from 'Store/firebase/nodes';
 import {GetAsync} from 'Utils/FrameworkOverrides';
 import {Command} from 'Utils/FrameworkOverrides';
@@ -20,4 +20,4 @@ export class NotifyNodeViewed extends Command<{nodeID: string}, {}> {
 		updates[`userViewedNodes/${this.userInfo.id}/.${nodeID}`] = true;
 		return updates;
 	}
-}
+} */

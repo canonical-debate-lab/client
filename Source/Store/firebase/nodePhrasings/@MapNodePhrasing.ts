@@ -1,12 +1,6 @@
 import { AddSchema } from 'Utils/FrameworkOverrides';
 import { GetValues_ForSchema } from 'js-vextensions';
 
-export class MapNodePhrasings {
-	phrasings: {
-		[key: string]: MapNodePhrasing;
-	};
-}
-
 export class MapNodePhrasing {
 	constructor(props: {node: string} & Partial<MapNodePhrasing>) {
 		this.Extend(props);

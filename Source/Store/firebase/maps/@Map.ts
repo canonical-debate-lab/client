@@ -1,5 +1,6 @@
 import { GetValues_ForSchema } from 'js-vextensions';
 import { AddSchema } from 'Utils/FrameworkOverrides';
+import { UUID_regex } from 'Utils/General/KeyGenerator';
 
 export enum MapType {
 	Personal = 10,
@@ -44,8 +45,8 @@ AddSchema({
 		edits: { type: 'number' },
 		editedAt: { type: 'number' },
 
-		layers: { patternProperties: { '^[A-Za-z0-9_-]+$': { type: 'boolean' } } },
-		timelines: { patternProperties: { '^[A-Za-z0-9_-]+$': { type: 'boolean' } } },
+		layers: { patternProperties: { [UUID_regex]: { type: 'boolean' } } },
+		timelines: { patternProperties: { [UUID_regex]: { type: 'boolean' } } },
 	},
 	required: ['name', 'type', 'rootNode', 'creator', 'createdAt'],
 }, 'Map');

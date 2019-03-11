@@ -3,7 +3,6 @@ import { Button, CheckBox, Column, Div, Pre, Row, Select } from 'react-vcomponen
 import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { GetParentNodeID, GetParentNodeL3 } from 'Store/firebase/nodes';
-import { GetNodeViewers } from 'Store/firebase/nodeViewers';
 import { GetUser, MeID, GetUserPermissionGroups } from 'Store/firebase/users';
 import { Icon, InfoButton, SlicePath, Connect } from 'Utils/FrameworkOverrides';
 import { GetEntries } from 'js-vextensions';
@@ -24,12 +23,12 @@ import { User } from '../../../../../../Store/firebase/users/@User';
 const connector = (state, { node }: {map?: Map, node: MapNodeL3, path: string}) => ({
 	_: GetUserPermissionGroups(MeID()),
 	creator: GetUser(node.creator),
-	viewers: GetNodeViewers(node._key),
+	// viewers: GetNodeViewers(node._key),
 });
 @Connect(connector)
 export class OthersPanel extends BaseComponentWithConnector(connector, { convertToType: null as ClaimType }) {
 	render() {
-		const { map, node, path, creator, viewers } = this.props;
+		const { map, node, path, creator } = this.props;
 		const mapID = map ? map._key : null;
 		let { convertToType } = this.state;
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), node);
@@ -52,7 +51,7 @@ export class OthersPanel extends BaseComponentWithConnector(connector, { convert
 				<IDAndCreationInfoUI id={node._key} creator={creator} createdAt={node.createdAt}/>
 				<Row>Parents: {node.parents == null ? 'none' : node.parents.VKeys(true).join(', ')}</Row>
 				<Row>Children: {node.children == null ? 'none' : node.children.VKeys(true).join(', ')}</Row>
-				<Row>Viewers: {viewers.length || '...'} <InfoButton text="The number of registered users who have had this node displayed in-map at some point."/></Row>
+				{/* <Row>Viewers: {viewers.length || '...'} <InfoButton text="The number of registered users who have had this node displayed in-map at some point."/></Row> */}
 				{nodeArgOrParentSPArg_controlled &&
 					<Row>
 						<Button mt={3} text="Reverse argument polarity" onLeftClick={() => {

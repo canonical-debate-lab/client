@@ -1,5 +1,6 @@
 import { GetValues_ForSchema } from 'js-vextensions';
 import { AddSchema } from 'Utils/FrameworkOverrides';
+import { UUID_regex } from 'Utils/General/KeyGenerator';
 
 export class Term {
 	constructor(initialData: {name: string, type: TermType} & Partial<Term>) {
@@ -65,5 +66,5 @@ export enum TermType {
 }
 AddSchema({ oneOf: GetValues_ForSchema(TermType) }, 'TermType');
 
-export type TermComponentSet = {[key: number]: boolean};
-AddSchema({ patternProperties: { '^[A-Za-z0-9_-]+$': { type: 'boolean' } } }, 'TermComponentSet');
+export type TermComponentSet = {[key: string]: boolean};
+AddSchema({ patternProperties: { [UUID_regex]: { type: 'boolean' } } }, 'TermComponentSet');

@@ -6,7 +6,6 @@ import { GetMaps } from '../../Store/firebase/maps';
 import { GetNodeRevisions } from '../../Store/firebase/nodeRevisions';
 import { ForDelete_GetError } from '../../Store/firebase/nodes';
 import { MapNodeL2 } from '../../Store/firebase/nodes/@MapNode';
-import { GetNodeViewers } from '../../Store/firebase/nodeViewers';
 import { MapEdit, UserEdit } from '../CommandMacros';
 
 AddSchema({
@@ -34,7 +33,7 @@ export class DeleteNode extends Command<{mapID?: string, nodeID: string, withCon
 	oldData: MapNodeL2;
 	oldRevisions: MapNodeRevision[];
 	oldParentChildrenOrders: string[][];
-	viewerIDs_main: string[];
+	// viewerIDs_main: string[];
 	mapIDs: string[];
 	async Prepare() {
 		const { mapID, nodeID, withContainerArgument } = this.payload;
@@ -44,7 +43,7 @@ export class DeleteNode extends Command<{mapID?: string, nodeID: string, withCon
 
 		this.oldParentChildrenOrders = await Promise.all((this.oldData.parents || {}).VKeys().map(parentID => GetDataAsync('nodes', parentID, '.childrenOrder') as Promise<string[]>));
 
-		this.viewerIDs_main = await GetAsync(() => GetNodeViewers(nodeID));
+		// this.viewerIDs_main = await GetAsync(() => GetNodeViewers(nodeID));
 
 		this.mapIDs = (await GetAsync(() => GetMaps())).map(a => a._key);
 
@@ -71,12 +70,12 @@ export class DeleteNode extends Command<{mapID?: string, nodeID: string, withCon
 
 		// delete node's own data
 		updates[`nodes/${nodeID}`] = null;
-		updates[`nodeExtras/${nodeID}`] = null;
+		// updates[`nodeExtras/${nodeID}`] = null;
 		updates[`nodeRatings/${nodeID}`] = null;
 		updates[`nodeViewers/${nodeID}`] = null;
-		for (const viewerID of this.viewerIDs_main) {
+		/* for (const viewerID of this.viewerIDs_main) {
 			updates[`userViewedNodes/${viewerID}/.${nodeID}}`] = null;
-		}
+		} */
 
 		// delete links with parents
 		for (const { index, name: parentID } of (this.oldData.parents || {}).Props()) {
@@ -91,7 +90,7 @@ export class DeleteNode extends Command<{mapID?: string, nodeID: string, withCon
 		// delete placement in layer
 		if (this.oldData.layerPlusAnchorParents) {
 			for (const layerPlusAnchorStr of this.oldData.layerPlusAnchorParents.VKeys()) {
-				const [layerID, anchorNodeID] = layerPlusAnchorStr.split('_');
+				const [layerID, anchorNodeID] = layerPlusAnchorStr.split('+');
 				updates[`layers/${layerID}/.nodeSubnodes/.${anchorNodeID}/.${nodeID}`] = null;
 			}
 		}

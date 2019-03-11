@@ -1,4 +1,4 @@
-import { CachedTransform } from 'js-vextensions';
+/* import { CachedTransform } from 'js-vextensions';
 import {GetData} from 'Utils/FrameworkOverrides';
 import { ViewerSet } from './nodeViewers/@ViewerSet';
 
@@ -9,4 +9,4 @@ export function GetNodeViewerSet(nodeID: string) {
 export function GetNodeViewers(nodeID: string) {
 	const viewerSet = GetNodeViewerSet(nodeID);
 	return CachedTransform('GetNodeViewers', [nodeID], { viewerSet }, () => (viewerSet ? viewerSet.VKeys(true) : []));
-}
+} */

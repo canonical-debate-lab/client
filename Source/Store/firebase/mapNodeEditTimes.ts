@@ -2,16 +2,17 @@ import { GetShortestPathFromRootToNode } from 'Utils/Store/PathFinder';
 import { GetNode } from 'Store/firebase/nodes';
 import { emptyArray } from 'js-vextensions';
 import { GetData, CachedTransform_WithStore, AddSchema } from 'Utils/FrameworkOverrides';
+import {UUID_regex} from 'Utils/General/KeyGenerator';
 import { GetLastAcknowledgementTime } from '../main';
 import { GetRootNodeID } from './maps';
 import { MapNode } from './nodes/@MapNode';
 
 export class NodeEditTimes {
 	// [key: number]: ChangeInfo;
-	[key: number]: number;
+	[key: string]: number;
 }
 AddSchema({
-	patternProperties: { '^[A-Za-z0-9_-]+$': { type: 'number' } },
+	patternProperties: { [UUID_regex]: { type: 'number' } },
 }, 'NodeEditTimes');
 
 export enum ChangeType {

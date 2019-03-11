@@ -1,4 +1,5 @@
 import { AddSchema } from 'Utils/FrameworkOverrides';
+import { UUID_regex } from 'Utils/General/KeyGenerator';
 
 export class TermComponent {
 	constructor(initialData: {text: string} & Partial<TermComponent>) {
@@ -24,4 +25,4 @@ AddSchema({patternProperties: {"^[A-Za-z0-9_-]+$": {$ref: "ParentTerm"}}}, "Pare
 export type ParentTerm = boolean;
 AddSchema({type: "boolean"}, "ParentTerm"); */
 export type ParentTermSet = {[key: string]: boolean};
-AddSchema({ patternProperties: { '^[A-Za-z0-9_-]+$': { type: 'boolean' } } }, 'ParentTermSet');
+AddSchema({ patternProperties: { [UUID_regex]: { type: 'boolean' } } }, 'ParentTermSet');

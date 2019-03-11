@@ -8,7 +8,6 @@ import { State } from 'Utils/FrameworkOverrides';
 import { GeneralData } from './firebase/general';
 import { Image } from './firebase/images/@Image';
 import { Map } from './firebase/maps/@Map';
-import { MapNodePhrasings } from './firebase/nodePhrasings/@MapNodePhrasing';
 import { RatingsRoot } from './firebase/nodeRatings/@RatingsRoot';
 import { MapNode } from './firebase/nodes/@MapNode';
 import { MapNodeRevision } from './firebase/nodes/@MapNodeRevision';
@@ -18,6 +17,9 @@ import { Term } from './firebase/terms/@Term';
 import { UserExtraInfo } from './firebase/userExtras/@UserExtraInfo';
 import { UserMapInfoSet } from './firebase/userMapInfo/@UserMapInfo';
 import { ViewedNodeSet } from './firebase/userViewedNodes/@ViewedNodeSet';
+import { TimelineStep } from './firebase/timelineSteps/@TimelineStep';
+import { Timeline } from './firebase/timelines/@Timeline';
+import { MapNodePhrasing } from './firebase/nodePhrasings/@MapNodePhrasing';
 
 export interface FirebaseData {
 	// modules
@@ -27,27 +29,29 @@ export interface FirebaseData {
 
 	general: {data: GeneralData};
 	images: {[key: string]: Image};
-	layers: {[key: number]: Layer};
+	layers: {[key: string]: Layer};
 	/* maps: {
 		[key: number]: Map
 			& {nodeEditTimes: DataWrapper<NodeEditTimes>}; // nodeEditTimes -> $nodeID -> $nodeEditTime
 	}; */
-	maps: {[key: number]: Map};
-	mapNodeEditTimes: {[key: number]: NodeEditTimes};
-	nodes: {[key: number]: MapNode};
-	nodeExtras: {[key: number]: any};
-	nodeRatings: {[key: number]: RatingsRoot}; // $nodeID (key) -> $ratingType -> $userID -> value -> $value
-	nodeRevisions: {[key: number]: MapNodeRevision};
-	nodeStats: {[key: number]: MapNodeStats};
-	nodeViewers: {[key: number]: ViewerSet};
-	nodePhrasings: {[key: number]: MapNodePhrasings};
-	terms: {[key: number]: Term};
-	termComponents: {[key: number]: TermComponent};
+	maps: {[key: string]: Map};
+	mapNodeEditTimes: {[key: string]: NodeEditTimes};
+	nodes: {[key: string]: MapNode};
+	// nodeExtras: {[key: string]: any};
+	nodeRatings: {[key: string]: RatingsRoot}; // $nodeID (key) -> $ratingType -> $userID -> value -> $value
+	nodeRevisions: {[key: string]: MapNodeRevision};
+	// nodeStats: {[key: string]: MapNodeStats};
+	// nodeViewers: {[key: string]: ViewerSet}; // removed due to privacy concerns
+	nodePhrasings: {[key: string]: MapNodePhrasing};
+	terms: {[key: string]: Term};
+	termComponents: {[key: string]: TermComponent};
 	termNames: {[key: string]: any};
+	timelines: {[key: string]: Timeline};
+	timelineSteps: {[key: string]: TimelineStep};
 	users: {[key: string]: User};
 	userExtras: {[key: string]: UserExtraInfo};
 	userMapInfo: {[key: string]: UserMapInfoSet}; // $userID (key) -> $mapID -> layerStates -> $layerID -> [boolean, for whether enabled]
-	userViewedNodes: {[key: string]: ViewedNodeSet};
+	// userViewedNodes: {[key: string]: ViewedNodeSet}; // removed due to privacy concerns
 }
 
 export function GetAuth() {

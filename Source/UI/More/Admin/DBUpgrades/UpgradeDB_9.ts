@@ -1,4 +1,4 @@
-import { DeleteNode } from 'Server/Commands/DeleteNode';
+/* import { DeleteNode } from 'Server/Commands/DeleteNode';
 import { UpdateStateDataOverride } from 'UI/@Shared/StateOverrides';
 import { ApplyDBUpdates_Local, DBPath } from 'Utils/FrameworkOverrides';
 import { Clone } from 'js-vextensions';
@@ -84,4 +84,4 @@ AddUpgradeFunc(newVersion, async (oldData, markProgress) => {
 	}
 
 	return data;
-});
+}); */
