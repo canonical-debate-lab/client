@@ -100,7 +100,7 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 		if (map == null) {
 			return <div style={ES({ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, fontSize: 25 })}>Loading map...</div>;
 		}
-		Assert(map._key, 'map._id is null!');
+		Assert(map._key, 'map._key is null!');
 		if (rootNode == null) {
 			return <div style={ES({ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, fontSize: 25 })}>Loading root node...</div>;
 		}

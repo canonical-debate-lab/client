@@ -5,6 +5,7 @@ import { GetData } from 'Utils/FrameworkOverrides';
 import { Map } from './maps/@Map';
 import { AsNodeL3, GetNodeL2 } from './nodes/$node';
 import { GetUserLayerStatesForMap } from './userMapInfo';
+import { MapNodeL3 } from './nodes/@MapNode';
 
 export function GetLayers(): Layer[] {
 	const layersMap = GetData({ collection: true }, 'layers');
@@ -40,7 +41,7 @@ export function GetSubnodesInLayer(anchorNodeID: string, layerID: string) {
 	return CachedTransform("GetSubnodesInLayerEnhanced", [anchorNodeID, layerID], subnodesEnhanced, ()=>subnodesEnhanced);
 } */
 
-export function GetSubnodesInEnabledLayersEnhanced(userID: string, map: Map, anchorNodeID: string) {
+export function GetSubnodesInEnabledLayersEnhanced(userID: string, map: Map, anchorNodeID: string): MapNodeL3[] {
 	const layersEnabled = GetMapLayers(map);
 	// if some layers aren't loaded yet, return nothing
 	if (layersEnabled.Any(a => a == null)) return emptyArray;

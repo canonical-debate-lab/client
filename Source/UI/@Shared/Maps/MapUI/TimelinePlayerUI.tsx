@@ -58,7 +58,7 @@ const replacements = {
 				style={{ alignSelf: 'center', fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,.7)' }}
 				onClick={(e) => {
 					// let currentStep = await GetAsync(()=>GetPlayingTimelineStepIndex(extraInfo.map._id));
-					store.dispatch(new ACTMap_PlayingTimelineAppliedStepSet({ mapID: extraInfo.map._id, stepIndex: extraInfo.currentStepIndex }));
+					store.dispatch(new ACTMap_PlayingTimelineAppliedStepSet({ mapID: extraInfo.map._key, stepIndex: extraInfo.currentStepIndex }));
 				}}/>
 		);
 	},
@@ -73,9 +73,9 @@ const replacements = {
 };
 
 type NodeUI_InMessageProps = {map: Map, nodeID: string, polarity: Polarity, index: number} & Partial<{node: MapNodeL3}>;
-@Connect((state, {nodeID, polarity}: NodeUI_InMessageProps)=> ({
+@Connect((state, { nodeID, polarity }: NodeUI_InMessageProps) => ({
 	node: GetNodeL2(nodeID) ? AsNodeL3(GetNodeL2(nodeID), polarity, null) : null,
-	}))
+}))
 class NodeUI_InMessage extends BaseComponent<NodeUI_InMessageProps, {}> {
 	render() {
 		const { map, nodeID, index, node } = this.props;
@@ -94,11 +94,11 @@ class NodeUI_InMessage extends BaseComponent<NodeUI_InMessageProps, {}> {
 }
 
 type Props = {map: Map} & Partial<{playingTimeline: Timeline, currentStep: TimelineStep, appliedStepIndex: number}>;
-@Connect((state, {map}: Props)=> ({
+@Connect((state, { map }: Props) => ({
 	playingTimeline: GetPlayingTimeline(map._key),
 	currentStep: GetPlayingTimelineStep(map._key),
 	appliedStepIndex: GetPlayingTimelineAppliedStepIndex(map._key),
-	}))
+}))
 export class TimelinePlayerUI extends BaseComponent<Props, {}> {
 	root: Column;
 	render() {
@@ -163,10 +163,10 @@ export class TimelinePlayerUI extends BaseComponent<Props, {}> {
 }
 
 type TimelineOverlayUIProps = {map: Map} & Partial<{playingTimeline: Timeline, currentStepIndex: number}>;
-@Connect((state, {map}: Props)=> ({
+@Connect((state, { map }: Props) => ({
 	playingTimeline: GetPlayingTimeline(map._key),
 	currentStepIndex: GetPlayingTimelineStepIndex(map._key),
-	}))
+}))
 export class TimelineOverlayUI extends BaseComponent<TimelineOverlayUIProps, {}> {
 	render() {
 		const { map, playingTimeline, currentStepIndex } = this.props;

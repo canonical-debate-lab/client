@@ -4,6 +4,7 @@ import { Clone, DEL } from 'js-vextensions';
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
 import { ReverseArgumentPolarity } from 'Server/Commands/ReverseArgumentPolarity';
 import { globalMapID, globalRootNodeID } from 'Store/firebase/nodes/@MapNode';
+import _ from 'lodash';
 import { FirebaseData } from '../../../../Store/firebase';
 import { AddUpgradeFunc } from '../../Admin';
 
@@ -37,7 +38,12 @@ AddUpgradeFunc(newVersion, async (oldData, markProgress) => {
 	};
 
 	function GetNewKey(collectionKey: string, oldEntryKey: string) {
-		return conversions[collectionKey].find(a => a.oldKey == oldEntryKey).newKey;
+		const conversionEntry = conversions[collectionKey].find(a => a.oldKey == oldEntryKey);
+		if (conversionEntry == null) {
+			const placeholderKey = _.padEnd(oldEntryKey.toString().slice(0, 22), 22, '_MISSING');
+			return placeholderKey;
+		}
+		return conversionEntry.newKey;
 	}
 
 	conversions.VKeys().forEach((collectionKey) => {
@@ -99,27 +105,27 @@ AddUpgradeFunc(newVersion, async (oldData, markProgress) => {
 		entry.currentRevision = GetNewKey('nodeRevisions', entry.currentRevision);
 		// entry.layerPlusAnchorParents; // skip, since no entries
 
-		try {
-			ReplacePairKeys(entry.parents, 'nodes');
-		} catch (ex) {
+		// try {
+		ReplacePairKeys(entry.parents, 'nodes');
+		/* } catch (ex) {
 			// if hit error, delete this node (assume orphaned and outdated)
 			const newKey = GetNewKey('nodes', entry._key);
 			delete data.nodes[newKey];
 			console.log(`Deleted data.nodes[${newKey}] (${entry._key}) because it referenced a non-existent node. Text: ${data.nodeRevisions[oldRevisionID].titles.base}`);
-		}
+		} */
 	});
 	ReplacePairKeys(data.nodeRatings, 'nodes');
 	ReplacePairKeys(data.nodeRevisions, 'nodeRevisions');
 	data.nodeRevisions.VValues(1).forEach((entry) => {
 		if (entry.image) entry.image.id = GetNewKey('images', entry.image.id);
-		try {
-			entry.node = GetNewKey('nodes', entry.node);
-		} catch (ex) {
+		// try {
+		entry.node = GetNewKey('nodes', entry.node);
+		/* } catch (ex) {
 			// if hit error, delete this nodeRevision (assume orphaned and outdated)
 			const newKey = GetNewKey('nodeRevisions', entry._key);
 			delete data.nodeRevisions[newKey];
 			console.log(`Deleted data.nodeRevision[${newKey}] (${entry._key}) because it referenced a non-existent node. Text: ${entry.titles.base}`);
-		}
+		} */
 	});
 	// ReplacePairKeys(data.nodeViewers, 'nodes'); // skip nodeViewers, since removing it (privacy concerns)
 	// ReplacePairKeys(data.nodePhrasings, 'nodePhrasings');

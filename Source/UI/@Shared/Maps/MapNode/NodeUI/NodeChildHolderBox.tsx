@@ -59,11 +59,11 @@ const connector = (state, { node, path, type, nodeChildren }: Props) => {
 };
 @Connect(connector)
 export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { innerBoxOffset: 0, lineHolderHeight: 0, hovered: false, hovered_button: false }) {
-	static ValidateProps(props) {
+	static ValidateProps(props: Props) {
 		const { node, nodeChildren } = props;
 		// ms only asserts in dev for now (and only as warning); causes error sometimes when cut+pasting otherwise (firebase doesn`t send DB updates atomically?)
 		if (DEV) {
-			AssertWarn(nodeChildren.every(a => a == null || (a.parents || {})[node._id]), 'Supplied node is not a parent of all the supplied node-children!');
+			AssertWarn(nodeChildren.every(a => a == null || (a.parents || {})[node._key] != null), 'Supplied node is not a parent of all the supplied node-children!');
 		}
 	}
 	lineHolder: HTMLDivElement;

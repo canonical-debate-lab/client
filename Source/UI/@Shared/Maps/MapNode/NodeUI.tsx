@@ -38,7 +38,7 @@ const connector = (state, { node, path, map }: Props) => {
 	const nodeView = GetNodeView(map._key, path) || new MapNodeView();
 
 	const nodeChildren = GetNodeChildrenL3(node, path, true);
-	const nodeChildrenToShow = nodeChildren.Any(a => a == null) ? emptyArray_forLoading : nodeChildren; // only pass nodeChildren when all are loaded
+	const nodeChildrenToShow: MapNodeL3[] = nodeChildren.Any(a => a == null) ? emptyArray_forLoading : nodeChildren; // only pass nodeChildren when all are loaded
 	// nodeChildren = nodeChildren.filter(a=>a);
 	/* let nodeChildren_finalTypes = nodeChildren == emptyArray ? emptyArray : nodeChildren.map(child=> {
 		return GetFinalNodeTypeAtPath(child, path + "/" + child._id);
@@ -155,7 +155,7 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 		const separateChildren = node.type == MapNodeType.Claim;
 		// let nodeChildren_filtered = nodeChildren;
 		if (playingTimeline && playingTimeline_currentStepIndex < playingTimeline.steps.length - 1) {
-			nodeChildrenToShow = nodeChildrenToShow.filter(child => playingTimelineVisibleNodes.Contains(`${path}/${child._id}`));
+			nodeChildrenToShow = nodeChildrenToShow.filter(child => playingTimelineVisibleNodes.Contains(`${path}/${child._key}`));
 		}
 
 		// if the premise of a single-premise argument
@@ -202,11 +202,11 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 			// if has child-limit bar, correct its path
 			const firstChildComp = this.FlattenedChildren[0] as any;
 			if (firstChildComp && firstChildComp.props.path == path) {
-				firstChildComp.props.path = `${firstChildComp.props.path}/${premise._id}`;
+				firstChildComp.props.path = `${firstChildComp.props.path}/${premise._key}`;
 			}
 
 			return (
-				<NodeUI ref={c => this.proxyDisplayedNodeUI = c} {...this.props} key={premise._id} map={map} node={premise} path={`${path}/${premise._id}`}>
+				<NodeUI ref={c => this.proxyDisplayedNodeUI = c} {...this.props} key={premise._key} map={map} node={premise} path={`${path}/${premise._key}`}>
 					{children}
 				</NodeUI>
 			);
@@ -304,7 +304,7 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 				{nodeUIResult_withoutSubnodes}
 				{subnodes.map((subnode, index) => (
 					<NodeUI key={index} map={map} node={subnode} asSubnode={true} style={E({ marginTop: -5 })}
-						path={`${path}/L${subnode._id}`} widthOverride={widthOverride} onHeightOrPosChange={onHeightOrPosChange}/>
+						path={`${path}/L${subnode._key}`} widthOverride={widthOverride} onHeightOrPosChange={onHeightOrPosChange}/>
 				))}
 				<div className="clickThrough" style={E({ marginTop: -5 })}>
 					{isMultiPremiseArgument
