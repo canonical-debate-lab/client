@@ -32,8 +32,10 @@ export class AddSubnode extends Command<{mapID: string, layerID: string, anchorN
 		const newUpdates = {};
 		// add into layer
 		newUpdates[`layers/${layerID}/.nodeSubnodes/.${anchorNodeID}/.${this.sub_addNode.nodeID}`] = true;
-		newUpdates[`nodes/${this.sub_addNode.nodeID}/.layerOwner`] = layerID;
-		newUpdates[`nodes/${this.sub_addNode.nodeID}/.layerAnchorNode`] = anchorNodeID;
+		const layerPlusAnchorStr = `${layerID}+${anchorNodeID}`;
+		newUpdates[`nodes/${this.sub_addNode.nodeID}/.layerPlusAnchorParents/.${layerPlusAnchorStr}`] = true;
+		/* newUpdates[`nodes/${this.sub_addNode.nodeID}/.layerOwner`] = layerID;
+		newUpdates[`nodes/${this.sub_addNode.nodeID}/.layerAnchorNode`] = anchorNodeID; */
 
 		return MergeDBUpdates(updates, newUpdates);
 	}
