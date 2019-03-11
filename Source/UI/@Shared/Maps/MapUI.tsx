@@ -80,7 +80,7 @@ const connector = (state: RootState, { map, rootNode }: Props) => {
 @Connect(connector)
 export class MapUI extends BaseComponentWithConnector(connector, {}) {
 	static currentMapUI: MapUI;
-	static get CurrentMapUI { return MapUI.currentMapUI && MapUI.currentMapUI.mounted ? MapUI.currentMapUI : null }
+	static get CurrentMapUI() { return MapUI.currentMapUI && MapUI.currentMapUI.mounted ? MapUI.currentMapUI : null; }
 
 	// static defaultProps = {padding: {left: 2000, right: 2000, top: 1000, bottom: 1000}};
 	static defaultProps = {
