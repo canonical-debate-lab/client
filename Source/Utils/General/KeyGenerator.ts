@@ -1,5 +1,7 @@
-import uuidV4 from 'uuid/v4';
+// import uuidV4 from 'uuid/v4';
+import slugid from 'slugid';
 
-export function GenerateUUID(options?) {
-	return uuidV4(options);
+export function GenerateUUID(): string {
+	// return uuidV4(options);
+	return slugid.v4();
 }
