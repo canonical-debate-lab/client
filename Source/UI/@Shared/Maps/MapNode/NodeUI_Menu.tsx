@@ -41,8 +41,8 @@ type SharedProps = Props & Partial<{combinedWithParentArg: boolean, copiedNode: 
 const connector = (_: RootState, { map, node, path, holderType }: Props) => {
 	let pathsToChangedInSubtree;
 	if (map) {
-		const sinceTime = GetTimeFromWhichToShowChangedNodes(map._id);
-		const pathsToChangedNodes = GetPathsToNodesChangedSinceX(map._id, sinceTime);
+		const sinceTime = GetTimeFromWhichToShowChangedNodes(map._key);
+		const pathsToChangedNodes = GetPathsToNodesChangedSinceX(map._key, sinceTime);
 		pathsToChangedInSubtree = pathsToChangedNodes.filter(a => a == path || a.startsWith(`${path}/`)); // also include self, for this
 	}
 	const parent = GetParentNodeL3(path);
@@ -82,7 +82,7 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 	render() {
 		const { map, node, path, inList, holderType,
 			permissions, parent, nodeChildren, combinedWithParentArg, copiedNode, copiedNodePath, copiedNode_asCut, pathsToChangedInSubtree } = this.props;
-		const mapID = map ? map._id : null;
+		const mapID = map ? map._key : null;
 		const userID = MeID();
 		// let validChildTypes = MapNodeType_Info.for[node.type].childTypes;
 		let validChildTypes = GetValidNewChildTypes(node, holderType, permissions);
@@ -147,7 +147,7 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 							await WaitTillPathDataIsReceived(`nodeRevisions/${info.revisionID}`);
 							SetNodeUILocked(parent._id, false); */
 
-							await new SetNodeIsMultiPremiseArgument({ nodeID: parent._id, multiPremiseArgument: true }).Run();
+							await new SetNodeIsMultiPremiseArgument({ nodeID: parent._key, multiPremiseArgument: true }).Run();
 						}}/>}
 				{IsUserCreatorOrMod(userID, node) && IsMultiPremiseArgument(node)
 					&& nodeChildren.every(a => a != null) && nodeChildren.filter(a => a.type == MapNodeType.Claim).length == 1 && !componentBox &&
@@ -155,7 +155,7 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 						onClick={async (e) => {
 							if (e.button !== 0) return;
 
-							await new SetNodeIsMultiPremiseArgument({ nodeID: node._id, multiPremiseArgument: false }).Run();
+							await new SetNodeIsMultiPremiseArgument({ nodeID: node._key, multiPremiseArgument: false }).Run();
 						}}/>}
 				{pathsToChangedInSubtree && pathsToChangedInSubtree.length > 0 && !componentBox &&
 					<VMenuItem text="Mark subtree as viewed" style={styles.vMenuItem}
@@ -170,7 +170,7 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 						onClick={(e) => {
 							store.dispatch(new ActionSet(
 								new ACTSet(a => a.main.search.findNode_state, 'activating'),
-								new ACTSet(a => a.main.search.findNode_node, node._id),
+								new ACTSet(a => a.main.search.findNode_node, node._key),
 								new ACTSet(a => a.main.search.findNode_resultPaths, []),
 							));
 						}}/>}
@@ -210,7 +210,7 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 						}}/>}
 				<PasteAsLink_MenuItem {...sharedProps}/>
 				{/* // disabled for now, since I need to create a new command to wrap the logic. One route: create a CloneNode_HighLevel command, modeled after LinkNode_HighLevel (or containing it as a sub)
-					IsUserBasicOrAnon(userID) && copiedNode && IsNewLinkValid(GetParentNodeID(path), copiedNode.Extended({ _id: -1 }), permissions, holderType) && !copiedNode_asCut &&
+					IsUserBasicOrAnon(userID) && copiedNode && IsNewLinkValid(GetParentNodeID(path), copiedNode.Extended({ _key: -1 }), permissions, holderType) && !copiedNode_asCut &&
 					<VMenuItem text={`Paste as clone: "${GetNodeDisplayText(copiedNode, null, formForClaimChildren).KeepAtMost(50)}"`} style={styles.vMenuItem} onClick={async (e) => {
 						if (e.button != 0) return;
 						if (userID == null) return ShowSignInPopup();
@@ -248,7 +248,7 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 								title: `Unlink child "${nodeText}"`, cancelButton: true,
 								message: `Unlink the child "${nodeText}" from its parent "${parentText}"?`,
 								onOK: () => {
-									new UnlinkNode({ mapID, parentID: parent._id, childID: node._id }).Run();
+									new UnlinkNode({ mapID, parentID: parent._key, childID: node._key }).Run();
 								},
 							});
 						}}/>}
@@ -265,7 +265,7 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 								title: `Delete "${nodeText}"`, cancelButton: true,
 								message: `Delete the node "${nodeText}"${contextStr}?`,
 								onOK: async () => {
-									await new DeleteNode(E({ mapID: map ? mapID : null, nodeID: node._id })).Run();
+									await new DeleteNode(E({ mapID: map ? mapID : null, nodeID: node._key })).Run();
 								},
 							});
 						}}/>}
@@ -291,7 +291,7 @@ class PasteAsLink_MenuItem extends BaseComponent<SharedProps, {}> {
 
 		const formForClaimChildren = node.type == MapNodeType.Category ? ClaimForm.YesNoQuestion : ClaimForm.Base;
 		const linkCommand = new LinkNode_HighLevel({
-			mapID: map._id, oldParentID: GetParentNodeID(copiedNodePath), newParentID: node._id, nodeID: copiedNode._id,
+			mapID: map._key, oldParentID: GetParentNodeID(copiedNodePath), newParentID: node._key, nodeID: copiedNode._key,
 			newForm: copiedNode.type == MapNodeType.Claim ? formForClaimChildren : null,
 			newPolarity:
 				(copiedNode.type == MapNodeType.Argument ? copiedNode.link.polarity : null) // if node itself has polarity, use it
@@ -359,7 +359,7 @@ class UnlinkContainerArgument_MenuItem extends BaseComponent<SharedProps, {}> {
 						title: `Unlink "${argumentText}"`, cancelButton: true,
 						message: `Unlink the argument "${argumentText}"?`,
 						onOK: async () => {
-							new UnlinkNode({ mapID: map ? map._id : null, parentID: argumentParent._id, childID: argument._id }).Run();
+							new UnlinkNode({ mapID: map ? map._key : null, parentID: argumentParent._key, childID: argument._key }).Run();
 						},
 					});
 				}}/>
@@ -370,7 +370,7 @@ class UnlinkContainerArgument_MenuItem extends BaseComponent<SharedProps, {}> {
 class DeleteContainerArgument_MenuItem extends BaseComponent<SharedProps, {}> {
 	render() {
 		const { map, node, path, holderType, combinedWithParentArg } = this.props;
-		const mapID = map ? map._id : null;
+		const mapID = map ? map._key : null;
 		if (!combinedWithParentArg) return <div/>;
 		const componentBox = holderType != null;
 		if (componentBox) return <div/>;
@@ -378,7 +378,7 @@ class DeleteContainerArgument_MenuItem extends BaseComponent<SharedProps, {}> {
 		const argumentPath = SlicePath(path, 1);
 		const argument = GetNodeL3(argumentPath);
 		const argumentText = GetNodeDisplayText(argument, argumentPath);
-		const forDelete_error = ForDelete_GetError(MeID(), argument, { childrenToIgnore: [node._id] });
+		const forDelete_error = ForDelete_GetError(MeID(), argument, { childrenToIgnore: [node._key] });
 		if (!IsUserCreatorOrMod(MeID(), argument)) return <div/>;
 
 		const canDeleteBaseClaim = IsUserCreatorOrMod(MeID(), node);
@@ -396,12 +396,12 @@ class DeleteContainerArgument_MenuItem extends BaseComponent<SharedProps, {}> {
 						onOK: async () => {
 							// if deleting single-premise argument, first delete or unlink the base-claim
 							if (baseClaim_action == 'unlink') {
-								await new UnlinkNode({ mapID, parentID: argument._id, childID: node._id }).Run();
+								await new UnlinkNode({ mapID, parentID: argument._key, childID: node._key }).Run();
 							} else if (baseClaim_action == 'delete') {
-								await new DeleteNode({ mapID, nodeID: node._id }).Run();
+								await new DeleteNode({ mapID, nodeID: node._key }).Run();
 							}
 
-							await new DeleteNode(E({ mapID, nodeID: argument._id })).Run();
+							await new DeleteNode(E({ mapID, nodeID: argument._key })).Run();
 						},
 					});
 				}}/>

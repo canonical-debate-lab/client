@@ -5,12 +5,12 @@ import { ChildEntry, MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { AddChildNode } from './AddChildNode';
 
 type Payload = {
-	mapID: number,
-	argumentParentID: number, argumentNode: MapNode, argumentRevision: MapNodeRevision, argumentLink?: ChildEntry,
+	mapID: string,
+	argumentParentID: string, argumentNode: MapNode, argumentRevision: MapNodeRevision, argumentLink?: ChildEntry,
 	claimNode: MapNode, claimRevision: MapNodeRevision, claimLink?: ChildEntry,
 };
 
-export class AddArgumentAndClaim extends Command<Payload, {argumentNodeID: number, argumentRevisionID: number, claimNodeID: number, claimRevisionID: number}> {
+export class AddArgumentAndClaim extends Command<Payload, {argumentNodeID: string, argumentRevisionID: string, claimNodeID: string, claimRevisionID: string}> {
 	sub_addArgument: AddChildNode;
 	sub_addClaim: AddChildNode;
 	async Prepare() {
@@ -23,8 +23,8 @@ export class AddArgumentAndClaim extends Command<Payload, {argumentNodeID: numbe
 		await this.sub_addArgument.Prepare();
 
 		this.sub_addClaim = new AddChildNode({ mapID, parentID: this.sub_addArgument.returnData.nodeID, node: claimNode, revision: claimRevision, link: claimLink }).MarkAsSubcommand();
-		this.sub_addClaim.lastNodeID_addAmount = 1;
-		this.sub_addClaim.lastNodeRevisionID_addAmount = 1;
+		/* this.sub_addClaim.lastNodeID_addAmount = 1;
+		this.sub_addClaim.lastNodeRevisionID_addAmount = 1; */
 		this.sub_addClaim.Validate_Early();
 		await this.sub_addClaim.Prepare();
 		this.sub_addClaim.parent_oldData = argumentNode; // we need to do this so add-claim sub knows it's child of argument, and thus updates the children-order prop of the argument

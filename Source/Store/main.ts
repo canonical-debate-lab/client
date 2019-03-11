@@ -85,7 +85,7 @@ export class ACTTopRightOpenPanelSet extends Action<string> {}
 // export class ACTOpenMapSet extends Action<number> {}
 export class ACTNodeCopy extends Action<{path: string, asCut: boolean}> {}
 export class ACTSetInitialChildLimit extends Action<{value: number}> {}
-export class ACTSetLastAcknowledgementTime extends Action<{nodeID: number, time: number}> {}
+export class ACTSetLastAcknowledgementTime extends Action<{nodeID: string, time: number}> {}
 // export class ACTSetCurrentNodeBeingAdded extends Action<{path: string}> {}
 
 function CreateMainReducer_Real() {
@@ -262,7 +262,7 @@ export function GetSubpage() {
 	return (State('main', page, 'subpage') as string) || rootPageDefaultChilds[page];
 }
 
-export function GetLastAcknowledgementTime(nodeID: number) {
+export function GetLastAcknowledgementTime(nodeID: string) {
 	return State('main', 'nodeLastAcknowledgementTimes', nodeID) as number || 0;
 }
 

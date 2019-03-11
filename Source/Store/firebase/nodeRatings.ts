@@ -11,7 +11,7 @@ import { ClaimForm, MapNodeL3 } from './nodes/@MapNode';
 import { MapNodeType } from './nodes/@MapNodeType';
 import { MeID } from './users';
 
-export function GetNodeRatingsRoot(nodeID: number) {
+export function GetNodeRatingsRoot(nodeID: string) {
 	// RequestPaths(GetPaths_NodeRatingsRoot(nodeID));
 	// return GetData('nodeRatings', nodeID) as RatingsRoot;
 	// temp workaround for GetData() not retrieving list of subcollections for doc-path
@@ -26,7 +26,7 @@ export function GetNodeRatingsRoot(nodeID: number) {
 }
 
 // path is needed if you want
-export function GetRatingSet(nodeID: number, ratingType: RatingType, path?: string) {
+export function GetRatingSet(nodeID: string, ratingType: RatingType, path?: string) {
 	if (ratingType == 'impact') {
 		const node = GetNodeL2(nodeID);
 		if (node == null) return null;
@@ -38,8 +38,8 @@ export function GetRatingSet(nodeID: number, ratingType: RatingType, path?: stri
 	const ratingsRoot = GetNodeRatingsRoot(nodeID);
 	return ratingsRoot ? ratingsRoot[ratingType] : null;
 }
-// export function GetRatings(nodeID: number, ratingType: RatingType, thesisForm?: ThesisForm): Rating[] {
-export function GetRatings(nodeID: number, ratingType: RatingType, filter?: RatingFilter): Rating[] {
+// export function GetRatings(nodeID: string, ratingType: RatingType, thesisForm?: ThesisForm): Rating[] {
+export function GetRatings(nodeID: string, ratingType: RatingType, filter?: RatingFilter): Rating[] {
 	/* let ratingSet = GetRatingSet(nodeID, ratingType, null);
 	return CachedTransform("GetRatings", [nodeID, ratingType].concat((filter || {}).VValues()), {ratingSet},
 		()=>ratingSet ? FilterRatings(ratingSet.VValues(true), filter) : []); */
@@ -50,16 +50,16 @@ export function GetRatings(nodeID: number, ratingType: RatingType, filter?: Rati
 		return FilterRatings(ratingSet.VValues(true), filter);
 	});
 }
-export function GetRating(nodeID: number, ratingType: RatingType, userID: string) {
+export function GetRating(nodeID: string, ratingType: RatingType, userID: string) {
 	const ratingSet = GetRatingSet(nodeID, ratingType);
 	if (ratingSet == null) return null;
 	return ratingSet[userID];
 }
-export function GetRatingValue(nodeID: number, ratingType: RatingType, userID: string, resultIfNoData = null): number {
+export function GetRatingValue(nodeID: string, ratingType: RatingType, userID: string, resultIfNoData = null): number {
 	const rating = GetRating(nodeID, ratingType, userID);
 	return rating ? rating.value : resultIfNoData;
 }
-export function GetRatingAverage(nodeID: number, ratingType: RatingType, filter?: RatingFilter, resultIfNoData = null): number {
+export function GetRatingAverage(nodeID: string, ratingType: RatingType, filter?: RatingFilter, resultIfNoData = null): number {
 	// if voting disabled, always show full bar
 	/* let node = GetNodeL2(nodeID);
 	if (node && node.current.votingDisabled) return 100;
@@ -78,7 +78,7 @@ export function GetRatingAverage(nodeID: number, ratingType: RatingType, filter?
 	});
 }
 export function GetRatingAverage_AtPath(node: MapNodeL3, ratingType: RatingType, filter?: RatingFilter, resultIfNoData = null): number {
-	let result = GetRatingAverage(node._id, ratingType, filter, resultIfNoData);
+	let result = GetRatingAverage(node._key, ratingType, filter, resultIfNoData);
 	if (ShouldRatingTypeBeReversed(node, ratingType)) {
 		result = 100 - result;
 	}

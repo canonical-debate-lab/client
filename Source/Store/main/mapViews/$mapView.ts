@@ -9,9 +9,9 @@ import { MapView } from './@MapViews';
 	rootNodeViews: RootNodeViewsReducer,
 }); */
 
-export class ACTMapViewMerge extends Action<{mapID: number, mapView: MapView}> {}
+export class ACTMapViewMerge extends Action<{mapID: string, mapView: MapView}> {}
 
-export function MapViewReducer(state = new MapView(), action: Action<any>, mapID: number) {
+export function MapViewReducer(state = new MapView(), action: Action<any>, mapID: string) {
 	if (action.Is(ACTMapViewMerge) && action.payload.mapID == mapID) {
 		let newState = state;
 

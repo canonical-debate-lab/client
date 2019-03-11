@@ -4,18 +4,18 @@ import {Action, SplitStringBySlash_Cached} from 'Utils/FrameworkOverrides';
 import {MapNodeView} from "../@MapViews";
 import {RootNodeViews} from './rootNodeViews/@RootNodeViews';
 
-export class ACTMapNodeSelect extends Action<{mapID: number, path: string}> {}
-export class ACTMapNodePanelOpen extends Action<{mapID: number, path: string, panel: string}> {}
+export class ACTMapNodeSelect extends Action<{mapID: string, path: string}> {}
+export class ACTMapNodePanelOpen extends Action<{mapID: string, path: string, panel: string}> {}
 export class ACTMapNodeExpandedSet extends Action<{
-	mapID: number, path: string, recursive: boolean
+	mapID: string, path: string, recursive: boolean
 	expanded?: boolean, expanded_truth?: boolean, expanded_relevance?: boolean
 }> {}
-export class ACTMapNodeChildLimitSet extends Action<{mapID: number, path: string, direction: 'down' | 'up', value: number}> {}
-export class ACTMapNodeTermOpen extends Action<{mapID: number, path: string, termID: number}> {}
+export class ACTMapNodeChildLimitSet extends Action<{mapID: string, path: string, direction: 'down' | 'up', value: number}> {}
+export class ACTMapNodeTermOpen extends Action<{mapID: string, path: string, termID: string}> {}
 
-export class ACTViewCenterChange extends Action<{mapID: number, focusNodePath: string, viewOffset: Vector2i}> {}
+export class ACTViewCenterChange extends Action<{mapID: string, focusNodePath: string, viewOffset: Vector2i}> {}
 
-export function RootNodeViewsReducer(state = new RootNodeViews(), action: Action<any>, mapID: number) {
+export function RootNodeViewsReducer(state = new RootNodeViews(), action: Action<any>, mapID: string) {
 	// for performance reasons, we do portions of some actions "at the root", instead of using the descendant reducers
 	// ==========
 

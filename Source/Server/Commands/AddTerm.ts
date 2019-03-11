@@ -1,15 +1,15 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { AssertValidate, Command, GetDataAsync } from 'Utils/FrameworkOverrides';
 import { Term } from '../../Store/firebase/terms/@Term';
+import {GenerateUUID} from 'Utils/General/KeyGenerator';
 
 @UserEdit
 export class AddTerm extends Command<{term: Term}, {}> {
-	termID: number;
+	termID: string;
 	async Prepare() {
 		const { term } = this.payload;
 
-		const lastTermID = await GetDataAsync('general', 'data', '.lastTermID') as number;
-		this.termID = lastTermID + 1;
+		this.termID = GenerateUUID();
 		term.creator = this.userInfo.id;
 		term.createdAt = Date.now();
 	}
@@ -21,7 +21,7 @@ export class AddTerm extends Command<{term: Term}, {}> {
 	GetDBUpdates() {
 		const { term } = this.payload;
 		const updates = {
-			'general/data/.lastTermID': this.termID,
+			// 'general/data/.lastTermID': this.termID,
 			[`terms/${this.termID}`]: term,
 			[`termNames/${term.name.toLowerCase()}/.${this.termID}`]: true,
 		};

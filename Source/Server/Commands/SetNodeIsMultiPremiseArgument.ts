@@ -4,8 +4,8 @@ import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 
 AddSchema({
 	properties: {
-		mapID: { type: 'number' },
-		nodeID: { type: 'number' },
+		mapID: { type: 'string' },
+		nodeID: { type: 'string' },
 		multiPremiseArgument: { type: 'boolean' },
 	},
 	required: ['nodeID', 'multiPremiseArgument'],
@@ -13,7 +13,7 @@ AddSchema({
 
 @MapEdit
 @UserEdit
-export class SetNodeIsMultiPremiseArgument extends Command<{mapID?: number, nodeID: number, multiPremiseArgument: boolean}, {}> {
+export class SetNodeIsMultiPremiseArgument extends Command<{mapID?: number, nodeID: string, multiPremiseArgument: boolean}, {}> {
 	Validate_Early() {
 		AssertValidate('SetNodeIsMultiPremiseArgument_payload', this.payload, 'Payload invalid');
 	}

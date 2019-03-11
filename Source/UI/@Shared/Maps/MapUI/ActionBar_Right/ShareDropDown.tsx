@@ -20,7 +20,7 @@ export class ShareDropDown extends BaseComponent<ShareDropDownProps, {timeline: 
 		newURL.queryVars.Clear();
 		newURL.domain = GetCurrentURL(true).domain;
 		if (timeline) {
-			newURL.SetQueryVar('timeline', timeline._id);
+			newURL.SetQueryVar('timeline', timeline._key);
 		}
 
 		const splitAt = 130;

@@ -5,12 +5,13 @@ import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
 import { GetSchemaJSON, AssertValidate, AssertValidate_Full } from 'Utils/FrameworkOverrides';
 import { AddNodeRevision } from './AddNodeRevision';
+import {GenerateUUID} from 'Utils/General/KeyGenerator';
 
 /** Do not use this from client-side code. This is only to be used internally, by higher-level commands -- usually AddChildNode. */
-export class AddNode extends Command<{mapID: number, node: MapNode, revision: MapNodeRevision}, {}> {
+export class AddNode extends Command<{mapID: string, node: MapNode, revision: MapNodeRevision}, {}> {
 	// set these from parent command if the parent command has earlier subs that increment last-node-id, etc.
-	lastNodeID_addAmount = 0;
-	lastNodeRevisionID_addAmount = 0;
+	/* lastNodeID_addAmount = 0;
+	lastNodeRevisionID_addAmount = 0; */
 
 	sub_addRevision: AddNodeRevision;
 	Validate_Early() {
@@ -19,18 +20,19 @@ export class AddNode extends Command<{mapID: number, node: MapNode, revision: Ma
 		Assert(revision.node == null, "Cannot specifiy revision's node-id. It will be generated automatically.");
 	}
 
-	nodeID: number;
-	parentID: number;
+	nodeID: string;
+	parentID: string;
 	parent_oldChildrenOrder: number[];
 	async Prepare() {
 		const { mapID, node, revision } = this.payload;
 
-		this.nodeID = (await GetDataAsync('general', 'data', '.lastNodeID') as number) + this.lastNodeID_addAmount + 1;
+		// this.nodeID = (await GetDataAsync('general', 'data', '.lastNodeID') as number) + this.lastNodeID_addAmount + 1;
+		this.nodeID = GenerateUUID();
 		node.creator = this.userInfo.id;
 		node.createdAt = Date.now();
 
 		this.sub_addRevision = new AddNodeRevision({ mapID, revision }).MarkAsSubcommand();
-		this.sub_addRevision.lastNodeRevisionID_addAmount = this.lastNodeRevisionID_addAmount;
+		// this.sub_addRevision.lastNodeRevisionID_addAmount = this.lastNodeRevisionID_addAmount;
 		await this.sub_addRevision.Prepare();
 
 		node.currentRevision = this.sub_addRevision.revisionID;
@@ -55,7 +57,7 @@ export class AddNode extends Command<{mapID: number, node: MapNode, revision: Ma
 
 		let updates = {};
 		// add node
-		updates['general/data/.lastNodeID'] = this.nodeID;
+		// updates['general/data/.lastNodeID'] = this.nodeID;
 		updates[`nodes/${this.nodeID}`] = node;
 
 		// add as parent of (pre-existing) children

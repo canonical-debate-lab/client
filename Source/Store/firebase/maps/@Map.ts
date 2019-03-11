@@ -12,12 +12,12 @@ export class Map {
 		// this.createdAt = Date.now();
 	}
 
-	_id: number;
+	_key: string;
 	name: string;
 	note: string;
 	noteInline = true;
 	type: MapType;
-	rootNode: number;
+	rootNode: string;
 	defaultExpandDepth = 2;
 
 	creator: string;
@@ -36,7 +36,7 @@ AddSchema({
 		note: { type: 'string' },
 		noteInline: { type: 'boolean' },
 		type: { oneOf: GetValues_ForSchema(MapType) },
-		rootNode: { type: 'number' },
+		rootNode: { type: 'string' },
 		defaultExpandDepth: { type: 'number' },
 
 		creator: { type: 'string' },
@@ -44,8 +44,8 @@ AddSchema({
 		edits: { type: 'number' },
 		editedAt: { type: 'number' },
 
-		layers: { patternProperties: { '^[0-9]+$': { type: 'boolean' } } },
-		timelines: { patternProperties: { '^[0-9]+$': { type: 'boolean' } } },
+		layers: { patternProperties: { '^[A-Za-z0-9_-]+$': { type: 'boolean' } } },
+		timelines: { patternProperties: { '^[A-Za-z0-9_-]+$': { type: 'boolean' } } },
 	},
 	required: ['name', 'type', 'rootNode', 'creator', 'createdAt'],
 }, 'Map');

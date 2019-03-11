@@ -21,7 +21,7 @@ export class Image {
 		// this.createdAt = Date.now();
 	}
 
-	_id: number;
+	_key: string;
 
 	name: string;
 	type: ImageType;

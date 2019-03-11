@@ -80,7 +80,7 @@ export class ImagesUI extends BaseComponent
 									<Button ml="auto" text="Save details" enabled={selectedImage_newData != null && selectedImage_newDataError == null}
 										onClick={async (e) => {
 											const updates = RemoveHelpers(selectedImage_newData.Including(...UpdateImageData_allowedPropUpdates));
-											await new UpdateImageData({ id: selectedImage._id, updates }).Run();
+											await new UpdateImageData({ id: selectedImage._key, updates }).Run();
 											// this.SetState({selectedImage_newData: null});
 										}}/>}
 								{creatorOrMod &&
@@ -89,7 +89,7 @@ export class ImagesUI extends BaseComponent
 											title: `Delete "${selectedImage.name}"`, cancelButton: true,
 											message: `Delete the image "${selectedImage.name}"?`,
 											onOK: async () => {
-												await new DeleteImage({ id: selectedImage._id }).Run();
+												await new DeleteImage({ id: selectedImage._key }).Run();
 											},
 										});
 									}}/>}
@@ -117,13 +117,13 @@ export class ImageUI extends BaseComponent<ImageUI_Props, {}> {
 					selected && { background: 'rgba(100,100,100,.7)' },
 				)}
 				onClick={(e) => {
-					store.dispatch(new ACTImageSelect({ id: image._id }));
+					store.dispatch(new ACTImageSelect({ id: image._key }));
 				}}>
 				<Pre>{image.name}: </Pre>
 				{image.description.KeepAtMost(100)}
 				<Span ml="auto">
 					<Pre style={{ opacity: 0.7 }}>({GetNiceNameForImageType(image.type)}) </Pre>
-					<Pre>#{image._id}</Pre>
+					<Pre>#{image._key}</Pre>
 				</Span>
 			</Row>
 		);

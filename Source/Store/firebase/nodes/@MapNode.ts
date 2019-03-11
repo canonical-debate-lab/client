@@ -3,8 +3,9 @@ import { AddAJVExtraCheck, AddSchema } from 'Utils/FrameworkOverrides';
 import { MapNodeRevision } from './@MapNodeRevision';
 import { MapNodeType } from './@MapNodeType';
 
-export const globalMapID = 1;
-export const globalRootNodeID = 1;
+// these are 22-chars, matching 22-char uuids/slug-ids
+export const globalMapID = "GLOBAL_MAP_00000000001";
+export const globalRootNodeID = "GLOBAL_ROOT_0000000001";
 
 export enum AccessLevel {
 	Basic = 10,
@@ -31,16 +32,16 @@ export class MapNode {
 		this.Extend(initialData);
 	}
 
-	_id?: number;
+	_key?: string;
 	type?: MapNodeType;
 	creator?: string;
 	createdAt: number;
 
-	currentRevision: number;
+	currentRevision: string;
 
 	parents: ParentSet;
 	children: ChildSet;
-	childrenOrder: number[];
+	childrenOrder: string[];
 	// talkRoot: number;
 	multiPremiseArgument?: boolean;
 
@@ -50,7 +51,7 @@ export class MapNode {
 	informalArgumentsHolder?: boolean;
 	premiseAddHelper?: boolean;
 }
-export const MapNode_id = '^[0-9]+$';
+// export const MapNode_id = '^[A-Za-z0-9_-]+$';
 // export const MapNode_chainAfterFormat = "^(\\[start\\]|[0-9]+)$";
 AddSchema({
 	properties: {
@@ -58,11 +59,11 @@ AddSchema({
 		creator: { type: 'string' },
 		createdAt: { type: 'number' },
 
-		currentRevision: { type: 'number' },
+		currentRevision: { type: 'string' },
 
 		parents: { $ref: 'ParentSet' },
 		children: { $ref: 'ChildSet' },
-		childrenOrder: { items: { type: 'number' } },
+		childrenOrder: { items: { type: 'string' } },
 		// talkRoot: {type: "number"},
 		multiPremiseArgument: { type: 'boolean' },
 
@@ -110,16 +111,16 @@ export enum Polarity {
 // regular parents
 // ==========
 
-export type ParentSet = { [key: number]: ParentEntry; };
-AddSchema({ patternProperties: { '^[0-9]+$': { $ref: 'ParentEntry' } } }, 'ParentSet');
+export type ParentSet = { [key: string]: ParentEntry; };
+AddSchema({ patternProperties: { '^[A-Za-z0-9_-]+$': { $ref: 'ParentEntry' } } }, 'ParentSet');
 export type ParentEntry = { _: boolean; };
 AddSchema({
 	properties: { _: { type: 'boolean' } },
 	required: ['_'],
 }, 'ParentEntry');
 
-export type ChildSet = { [key: number]: ChildEntry; };
-AddSchema({ patternProperties: { '^[0-9]+$': { $ref: 'ChildEntry' } } }, 'ChildSet');
+export type ChildSet = { [key: string]: ChildEntry; };
+AddSchema({ patternProperties: { '^[A-Za-z0-9_-]+$': { $ref: 'ChildEntry' } } }, 'ChildSet');
 export type ChildEntry = {
 	_: boolean;
 	form?: ClaimForm;
@@ -146,11 +147,11 @@ AddSchema({ patternProperties: { '^[0-9_]+$': { type: 'boolean' } } }, 'LayerPlu
 // ==========
 
 export class ImageAttachment {
-	id: number;
+	id: string;
 }
 AddSchema({
 	properties: {
-		id: { type: 'number' },
+		id: { type: 'string' },
 	},
 	required: ['id'],
 }, 'ImageAttachment');

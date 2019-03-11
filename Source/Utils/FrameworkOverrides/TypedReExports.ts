@@ -4,9 +4,9 @@ import { CreateState, CreateACTSet, CreateSimpleReducer, CreateShouldLog, Create
 export class LogTypes extends LogTypes_Base {
 	actions = false;
 	nodeRenders = false;
-	nodeRenders_for = null as number;
+	nodeRenders_for = null as string;
 	nodeRenderDetails = false;
-	nodeRenderDetails_for = null as number;
+	nodeRenderDetails_for = null as string;
 	dbRequests = false;
 
 	// doesn't actually log; rather, causes data to be stored in component.props.extraInfo.renderTriggers

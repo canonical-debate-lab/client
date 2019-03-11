@@ -6,7 +6,7 @@ import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
 import { Connect } from 'Utils/FrameworkOverrides';
-import {ES} from 'Utils/UI/GlobalStyles';
+import { ES } from 'Utils/UI/GlobalStyles';
 import { Map } from '../../../../../../Store/firebase/maps/@Map';
 import { GetParentNodeL3 } from '../../../../../../Store/firebase/nodes';
 import { GetLinkUnderParent } from '../../../../../../Store/firebase/nodes/$node';
@@ -21,7 +21,7 @@ export const columnWidths = [0.15, 0.3, 0.35, 0.2];
 const connector = (state, { node, path }: {map?: Map, node: MapNodeL3, path: string}) => ({
 	// _link: GetLinkUnderParent(node._id, GetParentNode(path)),
 	creator: GetUser(node.creator),
-	revisions: GetNodeRevisions(node._id),
+	revisions: GetNodeRevisions(node._key),
 });
 @Connect(connector)
 export class HistoryPanel extends BaseComponentWithConnector(connector, {}) {
@@ -31,7 +31,7 @@ export class HistoryPanel extends BaseComponentWithConnector(connector, {}) {
 		// let mapID = map ? map._id : null;
 
 		// we want the newest ones listed first
-		revisions = revisions.OrderByDescending(a => a._id);
+		revisions = revisions.OrderByDescending(a => a._key);
 
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), node);
 		return (
@@ -46,7 +46,7 @@ export class HistoryPanel extends BaseComponentWithConnector(connector, {}) {
 				</Column>
 				<ScrollView className="selectable" style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, position: 'relative' })}>
 					{revisions.map((revision, index) => {
-						return <RevisionEntryUI key={revision._id} index={index} last={index == revisions.length - 1} revision={revision} node={node} path={path}/>;
+						return <RevisionEntryUI key={revision._key} index={index} last={index == revisions.length - 1} revision={revision} node={node} path={path}/>;
 					})}
 				</ScrollView>
 			</Column>
@@ -60,7 +60,7 @@ type RevisionEntryUI_Props = {index: number, last: boolean, revision: MapNodeRev
 	const parent = GetParentNodeL3(path);
 	return ({
 		creator: GetUser(revision.creator),
-		link: GetLinkUnderParent(node._id, parent),
+		link: GetLinkUnderParent(node._key, parent),
 		parent,
 	});
 })
@@ -72,13 +72,13 @@ class RevisionEntryUI extends BaseComponent<RevisionEntryUI_Props, {}> {
 				{ background: index % 2 == 0 ? 'rgba(30,30,30,.7)' : 'rgba(0,0,0,.7)' },
 				last && { borderRadius: '0 0 10px 10px' },
 			)}>
-				<span style={{ flex: columnWidths[0] }}>{revision._id}</span>
+				<span style={{ flex: columnWidths[0] }}>{revision._key}</span>
 				<span style={{ flex: columnWidths[1] }}>{Moment(revision.createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>
 				<span style={{ flex: columnWidths[2] }}>{creator ? creator.displayName : 'n/a'}</span>
 				<span style={{ flex: columnWidths[3] }}>
 					<Button text="V" title="View details" style={{ margin: '-2px 0', padding: '1px 3px' }} onClick={() => {
 						const boxController: BoxController = ShowMessageBox({
-							title: `Details for revision #${revision._id}`, cancelOnOverlayClick: true,
+							title: `Details for revision #${revision._key}`, cancelOnOverlayClick: true,
 							message: () => {
 								return (
 									<div style={{ minWidth: 500 }}>

@@ -94,7 +94,7 @@ export function ShowEditTimelineStepDialog(userID: string, step: TimelineStep) {
 		},
 		onOK: () => {
 			const stepUpdates = GetUpdates(step, newStep);
-			new UpdateTimelineStep({ stepID: step._id, stepUpdates }).Run();
+			new UpdateTimelineStep({ stepID: step._key, stepUpdates }).Run();
 		},
 	});
 }

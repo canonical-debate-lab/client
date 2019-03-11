@@ -3,6 +3,7 @@ import {GetNode} from 'Store/firebase/nodes';
 import {AssertValidate, Command, GetAsync, GetDataAsync} from 'Utils/FrameworkOverrides';
 import {MapNode} from '../../Store/firebase/nodes/@MapNode';
 import {MapNodeRevision} from '../../Store/firebase/nodes/@MapNodeRevision';
+import {GenerateUUID} from 'Utils/General/KeyGenerator';
 
 /** Returned terms are all lowercase. */ 
 export function GetSearchTerms(str: string) {
@@ -18,17 +19,18 @@ export function GetSearchTerms_Advanced(str: string, separateTermsWithWildcard =
 
 @MapEdit
 @UserEdit
-export class AddNodeRevision extends Command<{mapID: number, revision: MapNodeRevision}, number> {
-	lastNodeRevisionID_addAmount = 0;
+export class AddNodeRevision extends Command<{mapID: string, revision: MapNodeRevision}, number> {
+	// lastNodeRevisionID_addAmount = 0;
 
 	Validate_Early() {}
 
-	revisionID: number;
+	revisionID: string;
 	node_oldData: MapNode;
 	async Prepare() {
 		const { revision } = this.payload;
 
-		this.revisionID = (await GetDataAsync('general', 'data', '.lastNodeRevisionID')) + this.lastNodeRevisionID_addAmount + 1;
+		// this.revisionID = (await GetDataAsync('general', 'data', '.lastNodeRevisionID')) + this.lastNodeRevisionID_addAmount + 1;
+		this.revisionID = GenerateUUID();
 		revision.creator = this.userInfo.id;
 		revision.createdAt = Date.now();
 
@@ -48,7 +50,7 @@ export class AddNodeRevision extends Command<{mapID: number, revision: MapNodeRe
 		const { mapID, revision } = this.payload;
 
 		const updates = {};
-		updates['general/data/.lastNodeRevisionID'] = this.revisionID;
+		// updates['general/data/.lastNodeRevisionID'] = this.revisionID;
 		updates[`nodes/${revision.node}/.currentRevision`] = this.revisionID;
 		updates[`nodeRevisions/${this.revisionID}`] = revision;
 		// updates[`maps/${mapID}/nodeEditTimes/data/.${revision.node}`] = revision.createdAt;

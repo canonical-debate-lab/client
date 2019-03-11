@@ -4,7 +4,7 @@ import { AssertValidate, Command, GetDataAsync } from 'Utils/FrameworkOverrides'
 import { Term } from '../../Store/firebase/terms/@Term';
 
 @UserEdit
-export class UpdateTermData extends Command<{termID: number, updates: Partial<Term>}, {}> {
+export class UpdateTermData extends Command<{termID: string, updates: Partial<Term>}, {}> {
 	Validate_Early() {
 		const { termID, updates } = this.payload;
 		const allowedPropUpdates = ['name', 'disambiguation', 'type', 'person', 'shortDescription_current'];

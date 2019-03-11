@@ -42,7 +42,7 @@ export function NormalizeURL(url: VURL) {
 	return result;
 }
 
-export function GetCrawlerURLStrForMap(mapID: number) {
+export function GetCrawlerURLStrForMap(mapID: string) {
 	const map = GetMap(mapID);
 	if (map == null) return mapID.toString();
 
@@ -51,7 +51,7 @@ export function GetCrawlerURLStrForMap(mapID: number) {
 	while (result.Contains('--')) {
 		result = result.replace(/--/g, '-');
 	}
-	result = `${result.TrimStart('-').TrimEnd('-')}.${map._id.toString()}`;
+	result = `${result.TrimStart('-').TrimEnd('-')}.${map._key.toString()}`;
 	return result;
 }
 
@@ -61,14 +61,14 @@ export function GetCrawlerURLStrForNode(node: MapNodeL2) {
 	while (result.Contains('--')) {
 		result = result.replace(/--/g, '-');
 	}
-	result = `${result.TrimStart('-').TrimEnd('-')}.${node._id.toString()}`;
+	result = `${result.TrimStart('-').TrimEnd('-')}.${node._key.toString()}`;
 	return result;
 }
 export function GetCurrentURL_SimplifiedForPageViewTracking() {
 	// let result = URL.Current();
 	let result = GetNewURL(false);
 
-	const mapID = GetOpenMapID();
+	/* const mapID = GetOpenMapID();
 	const onMapPage = NormalizeURL(result).toString({ domain: false }).startsWith('/global/map');
 	if (mapID && onMapPage) {
 		const nodeID = GetFocusedNodeID(mapID);
@@ -76,19 +76,20 @@ export function GetCurrentURL_SimplifiedForPageViewTracking() {
 		// if (result.pathNodes.length == 1) {
 		/* if (NormalizeURL(result).toString({domain: false}).startsWith("/global/map") && result.pathNodes.length == 1) {
 			result.pathNodes.push("map");
-		} */
+		} *#/
 		if (node) {
 			result = NormalizeURL(result);
 			result.pathNodes.push(GetCrawlerURLStrForNode(node));
 		}
-	}
+	} */
+
 	return result;
 }
 
 // loading
 // ==========
 
-function ParseMapView(viewStr: string) {
+/* function ParseMapView(viewStr: string) {
 	const downChars = viewStr.Matches(':').length;
 	const upChars = viewStr.Matches('.').length;
 	viewStr += '.'.repeat(downChars - upChars); // add .'s that were trimmed
@@ -96,7 +97,7 @@ function ParseMapView(viewStr: string) {
 	// let [rootNodeIDStr] = viewStr.match(/^[0-9]+/)[0];
 	/* let rootNodeOwnStr = viewData.VKeys()[0];
 	let rootNodeID = parseInt(rootNodeOwnStr.match(/^[0-9]+/)[0]);
-	let rootNodeView = ParseNodeView(rootNodeOwnStr, viewData[rootNodeOwnStr]); */
+	let rootNodeView = ParseNodeView(rootNodeOwnStr, viewData[rootNodeOwnStr]); *#/
 
 	const [rootNodeID, rootNodeView] = ParseNodeView(viewStr);
 
@@ -104,7 +105,7 @@ function ParseMapView(viewStr: string) {
 	result.rootNodeViews = { [rootNodeID]: rootNodeView };
 	return result;
 }
-/* function ParseNodeView(viewStr: string) {
+/* function ParseNodeView_Old(viewStr: string) {
 	let result = {} as MapNodeView;
 
 	let ownStr = viewStr.Contains(",") ? viewStr.substr(0, viewStr.indexOf(",")) : viewStr;
@@ -123,7 +124,7 @@ function ParseMapView(viewStr: string) {
 	}
 
 	return result;
-} */
+} *#/
 function GetDataStrForProp(ownStr: string, propChar: string) {
 	const dataStart = ownStr.indexOf(`${propChar}(`) + 2;
 	return ownStr.substring(dataStart, ownStr.indexOf(')', dataStart));
@@ -191,7 +192,7 @@ function ParseNodeView(viewStr: string): [number, MapNodeView] {
 	}
 
 	return [nodeID, nodeView];
-}
+} */
 
 const pagesWithSimpleSubpages = ['database', 'feedback', 'more', 'home', 'global'].ToMap(page => page, () => null);
 export function GetLoadActionsForURL(url: VURL) {
@@ -228,21 +229,21 @@ export function GetLoadActionsForURL(url: VURL) {
 		}
 	}
 
-	let mapID: number;
+	let mapID: string;
 	if (page == 'database') {
 		const subpageInURL = url.pathNodes[1] != null;
-		const entryIDStr = url.pathNodes[2] || null;
+		const entryID = url.pathNodes[2];
 		if (subpage == 'users' && subpageInURL) {
-			result.push(new ACTUserSelect({ id: entryIDStr }));
+			result.push(new ACTUserSelect({ id: entryID }));
 		} else if (subpage == 'terms' && subpageInURL) {
-			result.push(new ACTTermSelect({ id: entryIDStr ? entryIDStr.ToInt() : null }));
+			result.push(new ACTTermSelect({ id: entryID }));
 		} else if (subpage == 'images' && subpageInURL) {
-			result.push(new ACTImageSelect({ id: entryIDStr ? entryIDStr.ToInt() : null }));
+			result.push(new ACTImageSelect({ id: entryID }));
 		}
 	} else if (page == 'personal' || page == 'debates') {
 		const urlStr = url.pathNodes[1];
-		const match = urlStr && urlStr.match(/([0-9]+)$/);
-		mapID = match ? match[1].ToInt() : null;
+		const match = urlStr && urlStr.match(/([A-Za-z0-9_-]+)$/);
+		mapID = match ? match[1] : null;
 
 		if (page == 'personal') {
 			result.push(new ACTPersonalMapSelect({ id: mapID }));
@@ -250,12 +251,12 @@ export function GetLoadActionsForURL(url: VURL) {
 			result.push(new ACTDebateMapSelect({ id: mapID }));
 		}
 	} else if (page == 'global') {
-		if (subpage == 'map') {
+		/* if (subpage == 'map') {
 			mapID = globalMapID;
 			if (isBot) {
 				// example: /global/map/some-node.123
 				const lastPathNode = url.pathNodes.LastOrX();
-				const crawlerURLMatch = lastPathNode && lastPathNode.match(/([0-9]+)$/);
+				const crawlerURLMatch = lastPathNode && lastPathNode.match(/(^|\\.)([A-Za-z0-9_-]{22})$/);
 				if (isBot) {
 					if (crawlerURLMatch) {
 						const nodeID = parseInt(crawlerURLMatch[1]);
@@ -265,7 +266,7 @@ export function GetLoadActionsForURL(url: VURL) {
 					}
 				}
 			}
-		}
+		} */
 	}
 
 	/* if (mapID) {
@@ -280,13 +281,13 @@ export function GetLoadActionsForURL(url: VURL) {
 	} */
 
 	if (url.GetQueryVar('timeline')) {
-		result.push(new ACTMap_PlayingTimelineSet({ mapID, timelineID: ToInt(url.GetQueryVar('timeline')) }));
+		result.push(new ACTMap_PlayingTimelineSet({ mapID, timelineID: url.GetQueryVar('timeline') }));
 	}
 	if (url.GetQueryVar('step')) {
-		result.push(new ACTMap_PlayingTimelineStepSet({ mapID, step: ToInt(url.GetQueryVar('step')) - 1 }));
+		result.push(new ACTMap_PlayingTimelineStepSet({ mapID, stepIndex: ToInt(url.GetQueryVar('step')) - 1 }));
 	}
 	if (url.GetQueryVar('appliedStep')) {
-		result.push(new ACTMap_PlayingTimelineAppliedStepSet({ mapID, step: ToInt(url.GetQueryVar('appliedStep')) - 1 }));
+		result.push(new ACTMap_PlayingTimelineAppliedStepSet({ mapID, stepIndex: ToInt(url.GetQueryVar('appliedStep')) - 1 }));
 	}
 
 	// If user followed search-result link (eg. "debatemap.live/global/156"), we only know the node-id.
@@ -377,7 +378,7 @@ export function GetNewURL(includeMapViewStr = true) {
 		}
 	}
 
-	let mapID: number;
+	let mapID: string;
 	if (page == 'personal') {
 		mapID = State(a => a.main.personal.selectedMapID);
 		if (mapID) {
@@ -454,7 +455,7 @@ export function GetNewURL(includeMapViewStr = true) {
 }
 
 // disabled for now, since the urls it generated would be too long with new UUIDs (instead, will implement "saved views" as json in db, which are then referenced by their own uuid, or maybe sequential id)
-/* function GetMapViewStr(mapID: number) {
+/* function GetMapViewStr(mapID: string) {
 	const map = GetMap(mapID);
 	if (map == null) return '';
 
@@ -464,7 +465,7 @@ export function GetNewURL(includeMapViewStr = true) {
 	// rootNodeViewStr += "_"; // add "_", so that Facebook doesn't cut off end special-chars
 	return rootNodeViewStr;
 }
-export function GetNodeViewStr(mapID: number, path: string) {
+export function GetNodeViewStr(mapID: string, path: string) {
 	const nodeView = GetNodeView(mapID, path);
 	if (nodeView == null) return '';
 

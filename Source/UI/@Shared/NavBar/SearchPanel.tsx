@@ -128,7 +128,7 @@ export class SearchPanel extends BaseComponentWithConnector(connector, {}) {
 	}
 }
 
-const SearchResultRow_connector = (state, { nodeID }: {nodeID: number, index: number}) => {
+const SearchResultRow_connector = (state, { nodeID }: {nodeID: string, index: number}) => {
 	const node = GetNodeL2(nodeID);
 	return {
 		node,
@@ -162,7 +162,7 @@ export class SearchResultRow extends BaseComponentWithConnector(SearchResultRow_
 		for (let depth = 0; depth < searchDepth; depth++) {
 			const newUpPathAttempts = [];
 			for (const upPath of upPathAttempts) {
-				const nodeID = upPath.split('/').Last().ToInt();
+				const nodeID = upPath.split('/').Last();
 				const node = await GetAsync(() => GetNodeL2(nodeID));
 				if (node == null) {
 					LogWarning(`Could not find node #${nodeID}, as parent of #${upPath.split('/').XFromLast(1)}.`);
@@ -205,7 +205,7 @@ export class SearchResultRow extends BaseComponentWithConnector(SearchResultRow_
 		if (node == null) return <Row></Row>;
 
 		const nodeL3 = AsNodeL3(node);
-		const path = `${node._id}`;
+		const path = `${node._key}`;
 
 		const backgroundColor = GetNodeColor(nodeL3).desaturate(0.5).alpha(0.8);
 		const nodeTypeInfo = MapNodeType_Info.for[node.type];
@@ -225,7 +225,7 @@ export class SearchResultRow extends BaseComponentWithConnector(SearchResultRow_
 					<span style={{ flex: columnWidths[1] }}>{creator ? creator.displayName : '...'}</span>
 					<span style={{ flex: columnWidths[2] }}>{Moment(node.createdAt).format('YYYY-MM-DD')}</span>
 					{/* <NodeUI_Menu_Helper {...{map, node}}/> */}
-					<NodeUI_Menu_Stub {...{ node: nodeL3, path: `${node._id}`, inList: true }}/>
+					<NodeUI_Menu_Stub {...{ node: nodeL3, path: `${node._key}`, inList: true }}/>
 				</Row>
 				{findNode_node === nodeID &&
 					<Row>
@@ -256,8 +256,8 @@ export class SearchResultRow extends BaseComponentWithConnector(SearchResultRow_
 	}
 }
 
-export function JumpToNode(mapID: number, path: string) {
-	const pathNodeIDs = path.split('/').map(ToInt);
+export function JumpToNode(mapID: string, path: string) {
+	const pathNodeIDs = path.split('/');
 
 	const mapView = new MapView();
 	const rootNodeView = new MapNodeView();

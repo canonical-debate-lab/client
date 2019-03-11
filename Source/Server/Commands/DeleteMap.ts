@@ -7,7 +7,7 @@ import { UserMapInfoSet } from '../../Store/firebase/userMapInfo/@UserMapInfo';
 import { Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
 
 @UserEdit
-export class DeleteMap extends Command<{mapID: number}, {}> {
+export class DeleteMap extends Command<{mapID: string}, {}> {
 	oldData: Map;
 	userMapInfoSets: {[key: string]: UserMapInfoSet};
 	sub_deleteNode: DeleteNode;
@@ -33,7 +33,7 @@ export class DeleteMap extends Command<{mapID: number}, {}> {
 		newUpdates[`maps/${mapID}`] = null;
 		for (const { name: userID, value: userMapInfoSet } of this.userMapInfoSets.Props(true)) {
 			for (const { name: mapID2, value: userMapInfo } of userMapInfoSet.Props(true)) {
-				if (parseInt(mapID2) == mapID) {
+				if (mapID2 == mapID) {
 					newUpdates[`userMapInfo/${userID}/.${mapID}`] = null;
 				}
 			}

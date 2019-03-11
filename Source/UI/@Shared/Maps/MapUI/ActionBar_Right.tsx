@@ -18,8 +18,8 @@ for (let offset = 1; offset <= 5; offset++) {
 changesSince_options.push({ name: 'All unclicked changes', value: `${ShowChangesSinceType.AllUnseenChanges}_null` });
 
 const connector = (state, { map }: {map: Map, subNavBarWidth: number}) => ({
-	showChangesSince_type: State(`main/maps/${map._id}/showChangesSince_type`) as ShowChangesSinceType,
-	showChangesSince_visitOffset: State(`main/maps/${map._id}/showChangesSince_visitOffset`) as number,
+	showChangesSince_type: State(`main/maps/${map._key}/showChangesSince_type`) as ShowChangesSinceType,
+	showChangesSince_visitOffset: State(`main/maps/${map._key}/showChangesSince_visitOffset`) as number,
 	weighting: State(a => a.main.weighting),
 });
 @Connect(connector)
@@ -41,8 +41,8 @@ export class ActionBar_Right extends BaseComponentWithConnector(connector, {}) {
 						<Select options={changesSince_options} value={`${showChangesSince_type}_${showChangesSince_visitOffset}`} onChange={(val) => {
 							const parts = val.split('_');
 							store.dispatch(new ActionSet(
-								new ACTSet(`main/maps/${map._id}/showChangesSince_type`, parseInt(parts[0])),
-								new ACTSet(`main/maps/${map._id}/showChangesSince_visitOffset`, FromJSON(parts[1])),
+								new ACTSet(`main/maps/${map._key}/showChangesSince_type`, parseInt(parts[0])),
+								new ACTSet(`main/maps/${map._key}/showChangesSince_visitOffset`, FromJSON(parts[1])),
 							));
 						}}/>
 						<Pre ml={5}>Weighting: </Pre>

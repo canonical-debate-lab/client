@@ -55,14 +55,14 @@ const connector = (state, { node, path, nodeChildrenToShow }: Props) => {
 	/* let nodeChildren_sortValues = IsSpecialEmptyArray(nodeChildrenToShow) ? emptyObj : nodeChildrenToShow.filter(a=>a).ToMap(child=>child._id+"", child=> {
 		return GetRatingAverage_AtPath(child, GetSortByRatingType(child));
 	}); */
-	const nodeChildren_fillPercents = IsSpecialEmptyArray(nodeChildrenToShow) ? emptyObj : nodeChildrenToShow.filter(a => a).ToMap(child => `${child._id}`, (child) => {
-		return GetFillPercent_AtPath(child, `${path}/${child._id}`);
+	const nodeChildren_fillPercents = IsSpecialEmptyArray(nodeChildrenToShow) ? emptyObj : nodeChildrenToShow.filter(a => a).ToMap(child => `${child._key}`, (child) => {
+		return GetFillPercent_AtPath(child, `${path}/${child._key}`);
 	});
 
 	return {
 		initialChildLimit: State(a => a.main.initialChildLimit),
 		// nodeChildren_sortValues: CachedTransform("nodeChildren_sortValues_transform1", [node._id], nodeChildren_sortValues, ()=>nodeChildren_sortValues),
-		nodeChildren_fillPercents: CachedTransform('nodeChildren_fillPercents_transform1', [node._id], nodeChildren_fillPercents, () => nodeChildren_fillPercents),
+		nodeChildren_fillPercents: CachedTransform('nodeChildren_fillPercents_transform1', [node._key], nodeChildren_fillPercents, () => nodeChildren_fillPercents),
 		currentNodeBeingAdded_path: State(a => a.main.currentNodeBeingAdded_path),
 	};
 };
@@ -93,21 +93,21 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 
 		// apply sorting
 		if (separateChildren) {
-			upChildren = upChildren.OrderBy(child => nodeChildren_fillPercents[child._id]);
-			downChildren = downChildren.OrderByDescending(child => nodeChildren_fillPercents[child._id]);
+			upChildren = upChildren.OrderBy(child => nodeChildren_fillPercents[child._key]);
+			downChildren = downChildren.OrderByDescending(child => nodeChildren_fillPercents[child._key]);
 		} else {
-			nodeChildrenToShowHere = nodeChildrenToShowHere.OrderByDescending(child => nodeChildren_fillPercents[child._id]);
+			nodeChildrenToShowHere = nodeChildrenToShowHere.OrderByDescending(child => nodeChildren_fillPercents[child._key]);
 			// if (IsArgumentNode(node)) {
 			const isArgument_any = node.type == MapNodeType.Argument && node.current.argumentType == ArgumentType.Any;
 			if (node.childrenOrder && !isArgument_any) {
-				nodeChildrenToShowHere = nodeChildrenToShowHere.OrderBy(child => node.childrenOrder.indexOf(child._id).IfN1Then(Number.MAX_SAFE_INTEGER));
+				nodeChildrenToShowHere = nodeChildrenToShowHere.OrderBy(child => node.childrenOrder.indexOf(child._key).IfN1Then(Number.MAX_SAFE_INTEGER));
 			}
 		}
 
 		let childLimit_up = ((nodeView || {}).childLimit_up || initialChildLimit).KeepAtLeast(initialChildLimit);
 		let childLimit_down = ((nodeView || {}).childLimit_down || initialChildLimit).KeepAtLeast(initialChildLimit);
 		// if the map's root node, or an argument node, show all children
-		const showAll = node._id == map.rootNode || node.type == MapNodeType.Argument;
+		const showAll = node._key == map.rootNode || node.type == MapNodeType.Argument;
 		if (showAll) [childLimit_up, childLimit_down] = [100, 100];
 
 		const RenderChild = (child: MapNodeL3, index: number, collection, direction = 'down' as 'up' | 'down') => {
@@ -117,8 +117,8 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 
 			const childLimit = direction == 'down' ? childLimit_down : childLimit_up;
 			return (
-				<NodeUI key={child._id} ref={c => this.childBoxes[child._id] = c} map={map} node={child}
-					path={`${path}/${child._id}`} widthOverride={childrenWidthOverride} onHeightOrPosChange={this.OnChildHeightOrPosChange}>
+				<NodeUI key={child._key} ref={c => this.childBoxes[child._key] = c} map={map} node={child}
+					path={`${path}/${child._key}`} widthOverride={childrenWidthOverride} onHeightOrPosChange={this.OnChildHeightOrPosChange}>
 					{index == (direction == 'down' ? childLimit - 1 : 0) && !showAll && (collection.length > childLimit || childLimit != initialChildLimit) &&
 						<ChildLimitBar {...{ map, path, childrenWidthOverride, childLimit }} direction={direction} childCount={collection.length}/>}
 				</NodeUI>
@@ -181,7 +181,7 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 
 	get ChildOrderStr() {
 		const { nodeChildrenToShow, nodeChildren_fillPercents } = this.props;
-		return nodeChildrenToShow.OrderBy(a => nodeChildren_fillPercents[a._id]).map(a => a._id).join(',');
+		return nodeChildrenToShow.OrderBy(a => nodeChildren_fillPercents[a._key]).map(a => a._key).join(',');
 	}
 
 	PostRender() {
@@ -198,8 +198,8 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 		const height = $(GetDOM(this)).outerHeight();
 		const dividePoint = this.GetDividePoint();
 		if (height != this.lastHeight || dividePoint != this.lastDividePoint) {
-			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._id),
-				() => `OnHeightChange NodeChildHolder (${RenderSource[this.lastRender_source]}):${this.props.node._id}${nl
+			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
+				() => `OnHeightChange NodeChildHolder (${RenderSource[this.lastRender_source]}):${this.props.node._key}${nl
 				}dividePoint:${dividePoint}`);
 
 			// this.UpdateState(true);
@@ -223,8 +223,8 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 	OnChildHeightOrPosChange_updateStateQueued = false;
 	OnChildHeightOrPosChange() {
 		const { node } = this.props;
-		MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._id),
-			() => `OnChildHeightOrPosChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._id}\ncenterY:${this.GetDividePoint()}`);
+		MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
+			() => `OnChildHeightOrPosChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._key}\ncenterY:${this.GetDividePoint()}`);
 
 		// this.OnHeightOrPosChange();
 		// wait one frame, so that if multiple calls to this method occur in the same frame, we only have to call OnHeightOrPosChange() once
@@ -320,7 +320,7 @@ export class ChildLimitBar extends BaseComponentWithConnector(ChildLimitBar_conn
 					</Row>
 				} title="Show more"
 				enabled={childLimit < childCount} style={ES({ flex: 1 })} onClick={() => {
-					store.dispatch(new ACTMapNodeChildLimitSet({ mapID: map._id, path, direction, value: (childLimit + 3).KeepAtMost(childCount) }));
+					store.dispatch(new ACTMapNodeChildLimitSet({ mapID: map._key, path, direction, value: (childLimit + 3).KeepAtMost(childCount) }));
 				}}/>
 				<Button ml={5} text={
 					<Row>
@@ -329,7 +329,7 @@ export class ChildLimitBar extends BaseComponentWithConnector(ChildLimitBar_conn
 					</Row>
 				} title="Show less"
 				enabled={childLimit > initialChildLimit} style={ES({ flex: 1 })} onClick={() => {
-					store.dispatch(new ACTMapNodeChildLimitSet({ mapID: map._id, path, direction, value: (childLimit - 3).KeepAtLeast(initialChildLimit) }));
+					store.dispatch(new ACTMapNodeChildLimitSet({ mapID: map._key, path, direction, value: (childLimit - 3).KeepAtLeast(initialChildLimit) }));
 				}}/>
 			</Row>
 		);

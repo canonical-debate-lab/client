@@ -16,7 +16,7 @@ import { MapNodeRevision } from '../../../../../Store/firebase/nodes/@MapNodeRev
 import { MapNodeType } from '../../../../../Store/firebase/nodes/@MapNodeType';
 import { NodeDetailsUI } from '../NodeDetailsUI';
 
-export function ShowAddSubnodeDialog(mapID: number, anchorNode: MapNodeL2, anchorNodePath: string) {
+export function ShowAddSubnodeDialog(mapID: string, anchorNode: MapNodeL2, anchorNodePath: string) {
 	let dialog: AddSubnodeDialog;
 	const boxController: BoxController = ShowMessageBox({
 		title: 'Add subnode (to layer)', cancelButton: true,
@@ -25,7 +25,7 @@ export function ShowAddSubnodeDialog(mapID: number, anchorNode: MapNodeL2, ancho
 	});
 }
 
-type Props = {mapID: number, anchorNode: MapNode, anchorNodePath: string, boxController: BoxController} & Partial<{layers: Layer[]}>;
+type Props = {mapID: string, anchorNode: MapNode, anchorNodePath: string, boxController: BoxController} & Partial<{layers: Layer[]}>;
 @Connect((state, {}: Props) => ({
 	layers: GetLayers(),
 }))
@@ -123,7 +123,7 @@ class AddSubnodeDialog extends BaseComponent<Props, {layer: Layer, newNode: MapN
 		} */
 
 		const newNodeID = await new AddSubnode({
-			mapID, layerID: layer._id, anchorNodeID: anchorNode._id,
+			mapID, layerID: layer._key, anchorNodeID: anchorNode._key,
 			subnode: newNode, subnodeRevision: newRevision, // link: newLink,
 		}).Run();
 		// store.dispatch(new ACTMapNodeExpandedSet_InLayer({mapID, anchorNodePath, layerID: layer._id, layerPath: newNodeID, expanded: true, recursive: false}));

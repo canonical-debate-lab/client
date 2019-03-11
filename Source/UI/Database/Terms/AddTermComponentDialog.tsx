@@ -4,7 +4,7 @@ import { AddTermComponent } from '../../../Server/Commands/AddTermComponent';
 import { TermComponent } from '../../../Store/firebase/termComponents/@TermComponent';
 import { TermComponentUI } from './TermComponentsUI';
 
-export function ShowAddTermComponentDialog(userID: string, termID: number) {
+export function ShowAddTermComponentDialog(userID: string, termID: string) {
 	const firebase = store.firebase.helpers;
 
 	let info = { text: '' };

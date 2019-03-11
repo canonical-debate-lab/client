@@ -80,7 +80,7 @@ export class TermsUI extends BaseComponent<Props, {selectedTerm_newData: Term, s
 									<Button ml="auto" text="Save details" enabled={selectedTerm_newData != null && selectedTerm_newDataError == null}
 										onClick={async (e) => {
 											const updates = RemoveHelpers(selectedTerm_newData.Including('name', 'disambiguation', 'type', 'person', 'shortDescription_current'));
-											await new UpdateTermData({ termID: selectedTerm._id, updates }).Run();
+											await new UpdateTermData({ termID: selectedTerm._key, updates }).Run();
 											// this.SetState({selectedTerm_newData: null});
 										}}/>}
 								{creatorOrMod &&
@@ -90,7 +90,7 @@ export class TermsUI extends BaseComponent<Props, {selectedTerm_newData: Term, s
 												title: `Delete "${GetFullNameP(selectedTerm)}"`, cancelButton: true,
 												message: `Delete the term "${GetFullNameP(selectedTerm)}"?`,
 												onOK: async () => {
-													await new DeleteTerm({ termID: selectedTerm._id }).Run();
+													await new DeleteTerm({ termID: selectedTerm._key }).Run();
 												},
 											});
 										}}/>}
@@ -111,7 +111,7 @@ export class TermsUI extends BaseComponent<Props, {selectedTerm_newData: Term, s
 								{creatorOrMod
 									&& <Button ml="auto" text="Add component" enabled={selectedTerm != null && CanGetBasicPermissions(MeID())} onClick={async (e) => {
 										// if (userID == null) return ShowSignInPopup();
-										ShowAddTermComponentDialog(userID, selectedTerm._id);
+										ShowAddTermComponentDialog(userID, selectedTerm._key);
 									}}/>}
 							</Div>
 						</Row>
@@ -152,13 +152,13 @@ export class TermUI extends BaseComponent<TermUI_Props, {}> {
 					selected && { background: 'rgba(100,100,100,.7)' },
 				)}
 				onClick={(e) => {
-					store.dispatch(new ACTTermSelect({ id: term._id }));
+					store.dispatch(new ACTTermSelect({ id: term._key }));
 				}}>
 				<Pre>{GetFullNameP(term)}<sup>{variantNumber}</sup>: </Pre>
 				{term.shortDescription_current}
 				<Span ml="auto">
 					<Pre style={{ opacity: 0.7 }}>({GetNiceNameForTermType(term.type)}) </Pre>
-					<Pre>#{term._id}</Pre>
+					<Pre>#{term._key}</Pre>
 				</Span>
 			</Row>
 		);

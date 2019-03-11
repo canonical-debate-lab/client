@@ -9,8 +9,8 @@ import { UserEdit } from '../CommandMacros';
 
 AddSchema({
 	properties: {
-		mapID: { type: 'number' },
-		nodeID: { type: 'number' },
+		mapID: { type: 'string' },
+		nodeID: { type: 'string' },
 		path: { type: 'string' },
 	},
 	required: ['nodeID'],
@@ -18,12 +18,12 @@ AddSchema({
 
 @MapEdit
 @UserEdit
-export class ReverseArgumentPolarity extends Command<{mapID?: number, nodeID: number, path: string}, {}> {
+export class ReverseArgumentPolarity extends Command<{mapID?: number, nodeID: string, path: string}, {}> {
 	Validate_Early() {
 		AssertValidate('ReverseArgumentPolarity_payload', this.payload, 'Payload invalid');
 	}
 
-	parentID: number;
+	parentID: string;
 	oldNodeData: MapNodeL3;
 	newLinkData: ChildEntry;
 	async Prepare() {

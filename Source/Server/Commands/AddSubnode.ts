@@ -8,7 +8,7 @@ import { Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
 import { AddNode } from './AddNode';
 
 @UserEdit
-export class AddSubnode extends Command<{mapID: number, layerID: number, anchorNodeID: number, subnode: MapNode, subnodeRevision: MapNodeRevision}, number> {
+export class AddSubnode extends Command<{mapID: string, layerID: string, anchorNodeID: string, subnode: MapNode, subnodeRevision: MapNodeRevision}, number> {
 	sub_addNode: AddNode;
 	layer_oldData: Layer;
 	async Prepare() {

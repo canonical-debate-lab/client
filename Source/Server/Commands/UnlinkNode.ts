@@ -7,13 +7,13 @@ import { MapEdit, UserEdit } from '../CommandMacros';
 
 @MapEdit
 @UserEdit
-export class UnlinkNode extends Command<{mapID: number, parentID: number, childID: number}, {}> {
+export class UnlinkNode extends Command<{mapID: string, parentID: string, childID: string}, {}> {
 	allowOrphaning = false; // could also be named "asPartOfCut", to be consistent with ForUnlink_GetError parameter
 
-	parent_oldChildrenOrder: number[];
+	parent_oldChildrenOrder: string[];
 	async Prepare() {
 		const { parentID, childID } = this.payload;
-		this.parent_oldChildrenOrder = await GetDataAsync('nodes', parentID, '.childrenOrder') as number[];
+		this.parent_oldChildrenOrder = await GetDataAsync('nodes', parentID, '.childrenOrder') as string[];
 	}
 	async Validate() {
 		/* let {parentID, childID} = this.payload;

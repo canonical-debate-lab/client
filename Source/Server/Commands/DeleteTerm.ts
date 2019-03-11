@@ -3,7 +3,7 @@ import { Command, GetDataAsync } from 'Utils/FrameworkOverrides';
 import { Term } from '../../Store/firebase/terms/@Term';
 
 @UserEdit
-export class DeleteTerm extends Command<{termID: number}, {}> {
+export class DeleteTerm extends Command<{termID: string}, {}> {
 	oldData: Term;
 	async Prepare() {
 		const { termID } = this.payload;

@@ -17,7 +17,7 @@ One of these maps has been created for an existing conversation, which took plac
 Continue to the next step to begin displaying the comments made by those involved, and examining their logical connections with each other.
 `.trim();
 
-export function ShowAddTimelineDialog(userID: string, mapID: number) {
+export function ShowAddTimelineDialog(userID: string, mapID: string) {
 	let newTimeline = new Timeline({
 		name: '',
 		creator: MeID(),

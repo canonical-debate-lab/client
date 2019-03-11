@@ -34,7 +34,7 @@ export class TimelineDetailsUI extends BaseComponent<Props, {newData: Timeline}>
 		return (
 			<Column style={style}>
 				{!forNew &&
-					<IDAndCreationInfoUI id={newData._id} creator={creator} createdAt={newData.createdAt}/>}
+					<IDAndCreationInfoUI id={newData._key} creator={creator} createdAt={newData.createdAt}/>}
 				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 					<Pre>Name: </Pre>
 					<TextInput required enabled={enabled} style={{ width: '100%' }}

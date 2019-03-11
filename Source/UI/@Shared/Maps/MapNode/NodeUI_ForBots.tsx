@@ -16,7 +16,7 @@ import { RatingsPanel } from './NodeUI/Panels/RatingsPanel';
 import { SocialPanel } from './NodeUI/Panels/SocialPanel';
 import { TagsPanel } from './NodeUI/Panels/TagsPanel';
 import { NodeUI_Inner } from './NodeUI_Inner';
-import {PhrasingsPanel} from './NodeUI/Panels/PhrasingsPanel';
+import { PhrasingsPanel } from './NodeUI/Panels/PhrasingsPanel';
 
 type Props = {map: Map, node: MapNodeL2}
 	& Partial<{nodeParents: MapNodeL2[], nodeChildren: MapNodeL2[]}>;
@@ -31,7 +31,7 @@ export class NodeUI_ForBots extends BaseComponent<Props, {}> {
 		if (nodeParents.Any(a => a == null) || nodeChildren.Any(a => a == null)) return <div/>;
 
 		// just list one of the parents as the "current parent", so code relying on a parent doesn't error
-		const path = `${nodeParents.length ? `${nodeParents[0]._id}/` : ''}${node._id}`;
+		const path = `${nodeParents.length ? `${nodeParents[0]._key}/` : ''}${node._key}`;
 		const parent = GetParentNodeL2(path);
 		const nodeL3 = AsNodeL3(node);
 		return (
@@ -43,8 +43,8 @@ export class NodeUI_ForBots extends BaseComponent<Props, {}> {
 						return (
 							<span key={index}>
 								{index > 0 ? ', ' : ''}
-								<Link actions={[new ACTSet(`main/mapViews/${1}/bot_currentNodeID`, parent._id)]}>
-									{GetNodeDisplayText(parent)} ({parent._id})
+								<Link actions={[new ACTSet(`main/mapViews/${1}/bot_currentNodeID`, parent._key)]}>
+									{GetNodeDisplayText(parent)} ({parent._key})
 								</Link>
 							</span>
 						);
@@ -55,8 +55,8 @@ export class NodeUI_ForBots extends BaseComponent<Props, {}> {
 						return (
 							<span key={index}>
 								{index > 0 ? ', ' : ''}
-								<Link actions={[new ACTSet(`main/mapViews/${1}/bot_currentNodeID`, child._id)]}>
-									{GetNodeDisplayText(child)} ({child._id})
+								<Link actions={[new ACTSet(`main/mapViews/${1}/bot_currentNodeID`, child._key)]}>
+									{GetNodeDisplayText(child)} ({child._key})
 								</Link>
 							</span>
 						);
@@ -72,7 +72,7 @@ export class NodeUI_ForBots extends BaseComponent<Props, {}> {
 						map={map} node={nodeL3} nodeView={{}} path={path} width={null} widthOverride={null}/>
 					Panels:
 					{GetRatingTypesForNode(nodeL3).map((ratingInfo, index) => {
-						const ratings = GetRatings(node._id, ratingInfo.type);
+						const ratings = GetRatings(node._key, ratingInfo.type);
 						return <RatingsPanel key={index} node={nodeL3} path={path} ratingType={ratingInfo.type} ratings={ratings}/>;
 					})}
 					<PhrasingsPanel node={node} path={path}/>

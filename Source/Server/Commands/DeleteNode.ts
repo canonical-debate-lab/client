@@ -11,42 +11,42 @@ import { MapEdit, UserEdit } from '../CommandMacros';
 
 AddSchema({
 	properties: {
-		mapID: { type: 'number' },
-		nodeID: { type: 'number' },
-		withContainerArgument: { type: 'number' },
+		mapID: { type: 'string' },
+		nodeID: { type: 'string' },
+		withContainerArgument: { type: 'string' },
 	},
 	required: ['nodeID'],
 }, 'DeleteNode_payload');
 
 @MapEdit
 @UserEdit
-export class DeleteNode extends Command<{mapID?: number, nodeID: number, withContainerArgument?: number}, {}> {
+export class DeleteNode extends Command<{mapID?: string, nodeID: string, withContainerArgument?: string}, {}> {
 	Validate_Early() {
 		AssertValidate('DeleteNode_payload', this.payload, 'Payload invalid');
 	}
 
 	// as subcommand
 	asPartOfMapDelete = false;
-	childrenToIgnore = [] as number[];
+	childrenToIgnore = [] as string[];
 
 	sub_deleteContainerArgument: DeleteNode;
 
 	oldData: MapNodeL2;
 	oldRevisions: MapNodeRevision[];
-	oldParentChildrenOrders: number[][];
+	oldParentChildrenOrders: string[][];
 	viewerIDs_main: string[];
-	mapIDs: number[];
+	mapIDs: string[];
 	async Prepare() {
 		const { mapID, nodeID, withContainerArgument } = this.payload;
 
 		this.oldData = await GetAsync_Raw(() => GetNodeL2(nodeID));
 		this.oldRevisions = await GetAsync(() => GetNodeRevisions(nodeID));
 
-		this.oldParentChildrenOrders = await Promise.all((this.oldData.parents || {}).VKeys().map(parentID => GetDataAsync('nodes', parentID, '.childrenOrder') as Promise<number[]>));
+		this.oldParentChildrenOrders = await Promise.all((this.oldData.parents || {}).VKeys().map(parentID => GetDataAsync('nodes', parentID, '.childrenOrder') as Promise<string[]>));
 
 		this.viewerIDs_main = await GetAsync(() => GetNodeViewers(nodeID));
 
-		this.mapIDs = (await GetAsync(() => GetMaps())).map(a => a._id);
+		this.mapIDs = (await GetAsync(() => GetMaps())).map(a => a._key);
 
 		if (withContainerArgument) {
 			this.sub_deleteContainerArgument = new DeleteNode({ mapID, nodeID: withContainerArgument }).MarkAsSubcommand();
@@ -91,14 +91,14 @@ export class DeleteNode extends Command<{mapID?: number, nodeID: number, withCon
 		// delete placement in layer
 		if (this.oldData.layerPlusAnchorParents) {
 			for (const layerPlusAnchorStr of this.oldData.layerPlusAnchorParents.VKeys()) {
-				const [layerID, anchorNodeID] = layerPlusAnchorStr.split('_').map(ToInt);
+				const [layerID, anchorNodeID] = layerPlusAnchorStr.split('_');
 				updates[`layers/${layerID}/.nodeSubnodes/.${anchorNodeID}/.${nodeID}`] = null;
 			}
 		}
 
 		// delete revisions
 		for (const revision of this.oldRevisions) {
-			updates[`nodeRevisions/${revision._id}`] = null;
+			updates[`nodeRevisions/${revision._key}`] = null;
 		}
 
 		// delete edit-time entry within each map (if it exists)

@@ -4,16 +4,16 @@ import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 
 AddSchema({
 	properties: {
-		mapID: { type: 'number' },
-		nodeID: { type: 'number' },
-		childrenOrder: { items: { type: 'number' } },
+		mapID: { type: 'string' },
+		nodeID: { type: 'string' },
+		childrenOrder: { items: { type: 'string' } },
 	},
 	required: ['nodeID', 'childrenOrder'],
 }, 'UpdateNodeChildrenOrder_payload');
 
 @MapEdit
 @UserEdit
-export class UpdateNodeChildrenOrder extends Command<{mapID?: number, nodeID: number, childrenOrder: number[]}, {}> {
+export class UpdateNodeChildrenOrder extends Command<{mapID?: string, nodeID: string, childrenOrder: string[]}, {}> {
 	Validate_Early() {
 		AssertValidate('UpdateNodeChildrenOrder_payload', this.payload, 'Payload invalid');
 	}

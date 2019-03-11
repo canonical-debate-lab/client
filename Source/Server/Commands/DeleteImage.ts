@@ -3,7 +3,7 @@ import { Command, GetDataAsync } from 'Utils/FrameworkOverrides';
 import { Image } from '../../Store/firebase/images/@Image';
 
 @UserEdit
-export class DeleteImage extends Command<{id: number}, {}> {
+export class DeleteImage extends Command<{id: string}, {}> {
 	oldData: Image;
 	async Prepare() {
 		const { id } = this.payload;

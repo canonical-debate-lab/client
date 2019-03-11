@@ -67,7 +67,7 @@ export class PhrasingDetailsUI extends BaseComponentWithConnector(connector, { n
 	}
 }
 
-export function ShowAddPhrasingDialog(nodeID: number, type: MapNodePhrasingType) {
+export function ShowAddPhrasingDialog(nodeID: string, type: MapNodePhrasingType) {
 	let newEntry = new MapNodePhrasing({
 		node: nodeID,
 		type,

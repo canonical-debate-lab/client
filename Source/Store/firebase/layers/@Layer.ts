@@ -5,7 +5,7 @@ export class Layer {
 		this.Extend(initialData);
 	}
 
-	_id: number;
+	_key: string;
 	name: string;
 	creator: string;
 	createdAt: number;
@@ -19,11 +19,11 @@ AddSchema({
 		creator: { type: 'string' },
 		createdAt: { type: 'number' },
 
-		mapsWhereEnabled: { patternProperties: { '^[0-9]+$': { type: 'boolean' } } },
-		nodeSubnodes: { patternProperties: { '^[0-9]+$': { $ref: 'LayerNodeSubnodes' } } },
+		mapsWhereEnabled: { patternProperties: { '^[A-Za-z0-9_-]+$': { type: 'boolean' } } },
+		nodeSubnodes: { patternProperties: { '^[A-Za-z0-9_-]+$': { $ref: 'LayerNodeSubnodes' } } },
 	},
 	required: ['name', 'creator', 'createdAt'],
 }, 'Layer');
 
 export type LayerNodeSubnodes = {[key: number]: boolean}; // key: subnode-id
-AddSchema({ patternProperties: { '^[0-9]+$': { type: 'boolean' } } }, 'LayerNodeSubnodes');
+AddSchema({ patternProperties: { '^[A-Za-z0-9_-]+$': { type: 'boolean' } } }, 'LayerNodeSubnodes');

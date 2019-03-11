@@ -3,15 +3,15 @@ import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { AssertValidate } from 'Utils/FrameworkOverrides';
 import {GetDataAsync} from 'Utils/FrameworkOverrides';
 import { Command } from 'Utils/FrameworkOverrides';
+import {GenerateUUID} from 'Utils/General/KeyGenerator';
 
 @UserEdit
-export class AddTimeline extends Command<{mapID: number, timeline: Timeline}, number> {
-	timelineID: number;
+export class AddTimeline extends Command<{mapID: string, timeline: Timeline}, string> {
+	timelineID: string;
 	async Prepare() {
 		const { mapID, timeline } = this.payload;
-
-		const lastTimelineID = await GetDataAsync('general', 'data', '.lastTimelineID') as number;
-		this.timelineID = lastTimelineID + 1;
+		
+		this.timelineID = GenerateUUID();
 		timeline.mapID = mapID;
 		timeline.createdAt = Date.now();
 
@@ -25,7 +25,7 @@ export class AddTimeline extends Command<{mapID: number, timeline: Timeline}, nu
 	GetDBUpdates() {
 		const { mapID, timeline } = this.payload;
 		const updates = {
-			'general/data/.lastTimelineID': this.timelineID,
+			// 'general/data/.lastTimelineID': this.timelineID,
 			[`timelines/${this.timelineID}`]: timeline,
 			[`maps/${mapID}/.timelines/.${this.timelineID}`]: true,
 		} as any;

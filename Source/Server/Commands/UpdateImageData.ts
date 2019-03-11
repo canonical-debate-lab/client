@@ -7,7 +7,7 @@ import { Command } from 'Utils/FrameworkOverrides';
 
 export const UpdateImageData_allowedPropUpdates = ['name', 'type', 'url', 'description', 'previewWidth', 'sourceChains'];
 @UserEdit
-export class UpdateImageData extends Command<{id: number, updates: Partial<Image>}, {}> {
+export class UpdateImageData extends Command<{id: string, updates: Partial<Image>}, {}> {
 	Validate_Early() {
 		const { id, updates } = this.payload;
 		Assert(updates.VKeys().Except(...UpdateImageData_allowedPropUpdates).length == 0,

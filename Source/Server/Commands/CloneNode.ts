@@ -6,7 +6,7 @@ import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
 import { AddChildNode } from './AddChildNode';
 import { LinkNode } from './LinkNode';
 
-export class CloneNode extends Command<{mapID: number, baseNodePath: string, newParentID: number}, {nodeID: number, revisionID: number}> {
+export class CloneNode extends Command<{mapID: string, baseNodePath: string, newParentID: string}, {nodeID: string, revisionID: string}> {
 	sub_addNode: AddChildNode;
 	sub_linkChildren: LinkNode[];
 	async Prepare() {
@@ -15,7 +15,7 @@ export class CloneNode extends Command<{mapID: number, baseNodePath: string, new
 		// prepare add-node
 		// ==========
 
-		const baseNodeID = SplitStringBySlash_Cached(baseNodePath).Last().ToInt();
+		const baseNodeID = SplitStringBySlash_Cached(baseNodePath).Last();
 		const baseNode = await GetAsync_Raw(() => GetNodeL2(baseNodeID));
 		const isArgument = baseNode.type == MapNodeType.Argument;
 
@@ -41,7 +41,7 @@ export class CloneNode extends Command<{mapID: number, baseNodePath: string, new
 		// prepare link-children
 		// ==========
 
-		let childrenToLink = (baseNode.children || {}).VKeys(true).map(a => a.ToInt());
+		let childrenToLink = (baseNode.children || {}).VKeys(true);
 		if (isArgument) {
 			// if argument, use childrenOrder instead, since it's sorted
 			childrenToLink = (baseNode.childrenOrder || []).slice();

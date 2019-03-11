@@ -11,7 +11,7 @@ import { Term } from '../../../../../Store/firebase/terms/@Term';
 	};
 	})
 export class TermPlaceholder extends BaseComponent
-		<{refText: string, termID: number, showVariantNumber?: boolean, onHover: (hovered: boolean)=>void, onClick: ()=>void}
+		<{refText: string, termID: string, showVariantNumber?: boolean, onHover: (hovered: boolean)=>void, onClick: ()=>void}
 			& Partial<{term: Term, termVariantNumber: number}>,
 		{}> {
 	static defaultProps = {showVariantNumber: true};

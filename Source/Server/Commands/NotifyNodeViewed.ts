@@ -3,7 +3,7 @@ import { GetNode } from 'Store/firebase/nodes';
 import {GetAsync} from 'Utils/FrameworkOverrides';
 import {Command} from 'Utils/FrameworkOverrides';
 
-export class NotifyNodeViewed extends Command<{nodeID: number}, {}> {
+export class NotifyNodeViewed extends Command<{nodeID: string}, {}> {
 	async Prepare() {}
 	async Validate() {
 		const { nodeID } = this.payload;

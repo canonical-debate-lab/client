@@ -6,7 +6,7 @@ import { TermComponent } from '../../Store/firebase/termComponents/@TermComponen
 import { Command } from 'Utils/FrameworkOverrides';
 
 @UserEdit
-export class UpdateTermComponentData extends Command<{termComponentID: number, updates: Partial<TermComponent>}, {}> {
+export class UpdateTermComponentData extends Command<{termComponentID: string, updates: Partial<TermComponent>}, {}> {
 	Validate_Early() {
 		const { termComponentID, updates } = this.payload;
 		const allowedPropUpdates = ['text'];

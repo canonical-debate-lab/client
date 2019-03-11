@@ -15,7 +15,7 @@ import { AddChildNode } from './AddChildNode';
 import { DeleteNode } from './DeleteNode';
 
 type Payload = {
-	mapID: number, oldParentID: number, newParentID: number, nodeID: number,
+	mapID: string, oldParentID: string, newParentID: string, nodeID: string,
 	newForm?: ClaimForm, newPolarity?: Polarity, allowCreateWrapperArg?: boolean,
 	unlinkFromOldParent?: boolean, deleteOrphanedArgumentWrapper?: boolean };
 
@@ -38,7 +38,7 @@ export function LinkNode_HighLevel_GetCommandError(command: LinkNode_HighLevel) 
 	}
 }
 
-export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: number}> {
+export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: string}> {
 	static defaultPayload = { allowCreateWrapperArg: true };
 	Validate_Early() {
 		const { oldParentID, nodeID } = this.payload;

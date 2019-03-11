@@ -11,7 +11,7 @@ export class NodeEditTimes {
 	[key: number]: number;
 }
 AddSchema({
-	patternProperties: { '^[0-9]+$': { type: 'number' } },
+	patternProperties: { '^[A-Za-z0-9_-]+$': { type: 'number' } },
 }, 'NodeEditTimes');
 
 export enum ChangeType {
@@ -35,17 +35,16 @@ export function GetChangeTypeOutlineColor(changeType: ChangeType) {
 	return colorMap[changeType];
 }
 
-export function GetMapNodeEditTimes(mapID: number) {
+export function GetMapNodeEditTimes(mapID: string) {
 	return GetData('mapNodeEditTimes', mapID) as NodeEditTimes;
 }
 
-export function GetNodeIDsChangedSinceX(mapID: number, sinceTime: number, includeAcknowledgement = true) {
+export function GetNodeIDsChangedSinceX(mapID: string, sinceTime: number, includeAcknowledgement = true) {
 	const nodeEditTimes = GetMapNodeEditTimes(mapID);
 	if (nodeEditTimes == null) return emptyArray;
 
-	const result = [] as number[];
-	for (const { name: nodeIDStr, value: editTime } of nodeEditTimes.Props(true)) {
-		const nodeID = nodeIDStr.ToInt();
+	const result = [] as string[];
+	for (const { name: nodeID, value: editTime } of nodeEditTimes.Props(true)) {
 		const lastAcknowledgementTime = includeAcknowledgement ? GetLastAcknowledgementTime(nodeID) : 0;
 		const sinceTimeForNode = sinceTime.KeepAtLeast(lastAcknowledgementTime);
 		if (editTime > sinceTimeForNode) {
@@ -54,7 +53,7 @@ export function GetNodeIDsChangedSinceX(mapID: number, sinceTime: number, includ
 	}
 	return result;
 }
-export function GetPathsToNodesChangedSinceX(mapID: number, time: number, includeAcknowledgement = true) {
+export function GetPathsToNodesChangedSinceX(mapID: string, time: number, includeAcknowledgement = true) {
 	return CachedTransform_WithStore('GetPathsToNodesChangedSinceX', [mapID, time, includeAcknowledgement], {}, () => {
 		const nodeIDs = GetNodeIDsChangedSinceX(mapID, time, includeAcknowledgement);
 		const mapRootNodeID = GetRootNodeID(mapID);
@@ -72,7 +71,7 @@ export function GetPathsToNodesChangedSinceX(mapID: number, time: number, includ
 	});
 }
 export function GetNodeChangeType(node: MapNode, sinceTime: number, includeAcknowledgement = true) {
-	const lastAcknowledgementTime = includeAcknowledgement ? GetLastAcknowledgementTime(node._id) : 0;
+	const lastAcknowledgementTime = includeAcknowledgement ? GetLastAcknowledgementTime(node._key) : 0;
 	const sinceTimeForNode = sinceTime.KeepAtLeast(lastAcknowledgementTime);
 	if (node.createdAt >= sinceTimeForNode) return ChangeType.Add;
 	return ChangeType.Edit;

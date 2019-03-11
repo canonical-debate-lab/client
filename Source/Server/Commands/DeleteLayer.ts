@@ -7,7 +7,7 @@ import { UserMapInfoSet } from '../../Store/firebase/userMapInfo/@UserMapInfo';
 import { Command } from 'Utils/FrameworkOverrides';
 
 @UserEdit
-export class DeleteLayer extends Command<{layerID: number}, {}> {
+export class DeleteLayer extends Command<{layerID: string}, {}> {
 	oldData: Layer;
 	userMapInfoSets: {[key: string]: UserMapInfoSet};
 	async Prepare() {

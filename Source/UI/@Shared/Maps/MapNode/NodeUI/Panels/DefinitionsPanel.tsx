@@ -18,7 +18,7 @@ const termsPlaceholder = [];
 	const segments = ParseSegmentsForPatterns(displayText, [
 		{ name: 'term', regex: /{(.+?)\}\[(.+?)\]/ },
 	]);
-	const terms = segments.filter(a => a.patternMatched == 'term').map(a => GetTerm(a.textParts[2].ToInt()));
+	const terms = segments.filter(a => a.patternMatched == 'term').map(a => GetTerm(a.textParts[2]));
 	const terms_variantNumbers = terms.map(a => (a ? GetTermVariantNumber(a) : 1));
 	return {
 		// only pass terms when all are loaded
@@ -29,7 +29,7 @@ const termsPlaceholder = [];
 	};
 })
 export class DefinitionsPanel extends BaseComponent
-		<{node: MapNode, path: string, hoverTermID?: number, openTermID?: number, onHoverTerm?: (termID: number)=>void, onClickTerm?: (termID: number)=>void}
+		<{node: MapNode, path: string, hoverTermID?: string, openTermID?: string, onHoverTerm?: (termID: string)=>void, onClickTerm?: (termID: string)=>void}
 			& Partial<{terms: Term[], terms_variantNumbers: number[], hoverTerm: Term, clickTerm: Term}>,
 		{/* localHoverTerm: Term, localClickTerm: Term */}> {
 	render() {
@@ -84,12 +84,12 @@ class TermDefinitionPanel extends BaseComponent<{term: Term, termVariantNumber: 
 
 		// let creatorOrMod = term != null && IsUserCreatorOrMod(MeID(), term);
 		const showDetailsURL = GetCurrentURL(true).Clone();
-		showDetailsURL.pathNodes = ['database', 'terms', `${term._id}`];
+		showDetailsURL.pathNodes = ['database', 'terms', `${term._key}`];
 		showDetailsURL.queryVars = [];
 
 		return (
 			<Column sel mt={5} style={{ whiteSpace: 'normal' }}>
-				<Row>Term: {term.name}{term.disambiguation ? ` (${term.disambiguation})` : ''} (variant #{termVariantNumber}) (id: {term._id})</Row>
+				<Row>Term: {term.name}{term.disambiguation ? ` (${term.disambiguation})` : ''} (variant #{termVariantNumber}) (id: {term._key})</Row>
 				<Row mt={5}>Short description: {term.shortDescription_current}</Row>
 				{term.components && term.components.VKeys(true).length &&
 					<Fragment>

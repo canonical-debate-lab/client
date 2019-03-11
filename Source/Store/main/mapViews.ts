@@ -1,4 +1,4 @@
-import { Assert, CachedTransform, GetTreeNodesInObjTree, IsNumberString, Vector2i, IsNumber } from 'js-vextensions';
+import { Assert, CachedTransform, GetTreeNodesInObjTree, IsNumberString, Vector2i, IsNumber, IsString } from 'js-vextensions';
 import { ShallowChanged } from 'react-vextensions';
 import { Action, DBPath, SplitStringBySlash_Cached, State, DoesActionSetFirestoreData, GetFirestoreDataSetterActionPath } from 'Utils/FrameworkOverrides';
 import { ACTDebateMapSelect_WithData } from './debates';
@@ -15,7 +15,7 @@ export function MapViewsReducer(state = new MapViews(), action: Action<any>) {
 	// if (action.type == '@@reactReduxFirebase/SET' && action['data']) {
 	if (DoesActionSetFirestoreData(action) && action.payload.data) {
 		const path = GetFirestoreDataSetterActionPath(action);
-		const match = path.match(`^${DBPath('maps')}/([0-9]+)`);
+		const match = path.match(`^${DBPath('maps')}/([A-Za-z0-9_-]+)`);
 		// if map-data was just loaded
 		if (match) {
 			const mapID = parseInt(match[1]);
@@ -60,7 +60,7 @@ export function MapViewsReducer(state = new MapViews(), action: Action<any>) {
 	}
 
 	for (const key in newState) {
-		newState[key] = MapViewReducer(newState[key], action, parseInt(key));
+		newState[key] = MapViewReducer(newState[key], action, key);
 	}
 	return ShallowChanged(newState, state) ? newState : state;
 }
@@ -79,8 +79,8 @@ export function GetPathNodeIDs(path: string) {
 	return nodes.map(a => parseInt(a.replace('L', '')));
 }
 
-export function GetSelectedNodePathNodes(mapViewOrMapID: number | MapView): string[] {
-	const mapView = IsNumber(mapViewOrMapID) ? GetMapView(mapViewOrMapID) : mapViewOrMapID;
+export function GetSelectedNodePathNodes(mapViewOrMapID: string | MapView): string[] {
+	const mapView = IsString(mapViewOrMapID) ? GetMapView(mapViewOrMapID) : mapViewOrMapID;
 	if (mapView == null) return [];
 
 	return CachedTransform('GetSelectedNodePathNodes', [], { rootNodeViews: mapView.rootNodeViews }, () => {
@@ -92,11 +92,11 @@ export function GetSelectedNodePathNodes(mapViewOrMapID: number | MapView): stri
 		return GetPathFromDataPath(selectedNodeView.PathNodes);
 	});
 }
-export function GetSelectedNodePath(mapViewOrMapID: number | MapView): string {
+export function GetSelectedNodePath(mapViewOrMapID: string | MapView): string {
 	return GetSelectedNodePathNodes(mapViewOrMapID).join('/');
 }
-export function GetSelectedNodeID(mapID: number): number {
-	return GetSelectedNodePathNodes(mapID).LastOrX().replace('L', '').ToInt();
+export function GetSelectedNodeID(mapID: string): string {
+	return GetSelectedNodePathNodes(mapID).LastOrX().replace('L', '');
 }
 
 export function GetPathFromDataPath(dataPathUnderRootNodeViews: string[]): string[] {
@@ -111,8 +111,8 @@ export function GetPathFromDataPath(dataPathUnderRootNodeViews: string[]): strin
 	return result;
 }
 
-export function GetFocusedNodePathNodes(mapViewOrMapID: number | MapView): string[] {
-	const mapView = IsNumber(mapViewOrMapID) ? GetMapView(mapViewOrMapID) : mapViewOrMapID;
+export function GetFocusedNodePathNodes(mapViewOrMapID: string | MapView): string[] {
+	const mapView = IsString(mapViewOrMapID) ? GetMapView(mapViewOrMapID) : mapViewOrMapID;
 	if (mapView == null) return [];
 
 	return CachedTransform('GetFocusedNodePathNodes', [], { rootNodeViews: mapView.rootNodeViews }, () => {
@@ -124,25 +124,25 @@ export function GetFocusedNodePathNodes(mapViewOrMapID: number | MapView): strin
 		return GetPathFromDataPath(focusedNodeView.PathNodes);
 	});
 }
-export function GetFocusedNodePath(mapViewOrMapID: number | MapView): string {
+export function GetFocusedNodePath(mapViewOrMapID: string | MapView): string {
 	return GetFocusedNodePathNodes(mapViewOrMapID).join('/').toString(); // toString() needed if only 1 item
 }
-export function GetFocusedNodeID(mapID: number): number {
+export function GetFocusedNodeID(mapID: string): string {
 	const focusedNodeStr = GetFocusedNodePathNodes(mapID).LastOrX();
-	return focusedNodeStr ? focusedNodeStr.replace('L', '').ToInt() : null;
+	return focusedNodeStr ? focusedNodeStr.replace('L', '') : null;
 }
 
-export function GetMapView(mapID: number): MapView {
+export function GetMapView(mapID: string): MapView {
 	return State('main', 'mapViews', mapID);
 }
-export function GetNodeViewDataPath(mapID: number, path: string): string[] {
+export function GetNodeViewDataPath(mapID: string, path: string): string[] {
 	const pathNodes = GetPathNodes(path);
 	// this has better perf than the simpler approaches
 	// let childPath = pathNodeIDs.map(childID=>`${childID}/children`).join("/").slice(0, -"/children".length);
 	const childPathNodes = pathNodes.SelectMany(nodeStr => ['children', nodeStr]).slice(1);
 	return ['main', 'mapViews', `${mapID}`, 'rootNodeViews', ...childPathNodes];
 }
-export function GetNodeView(mapID: number, path: string): MapNodeView {
+export function GetNodeView(mapID: string, path: string): MapNodeView {
 	const dataPath = GetNodeViewDataPath(mapID, path);
 	return State(...dataPath) as any;
 }

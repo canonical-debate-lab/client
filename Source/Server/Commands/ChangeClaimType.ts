@@ -8,6 +8,7 @@ import { ClaimType, MapNodeL2 } from './../../Store/firebase/nodes/@MapNode';
 import { MapNodeRevision } from './../../Store/firebase/nodes/@MapNodeRevision';
 import { Command } from 'Utils/FrameworkOverrides';
 import { UserEdit } from './../CommandMacros';
+import {GenerateUUID} from 'Utils/General/KeyGenerator';
 
 export const conversionTypes = [
 	// from normal to...
@@ -21,8 +22,8 @@ export function CanConvertFromClaimTypeXToY(from: ClaimType, to: ClaimType) {
 
 AddSchema({
 	properties: {
-		mapID: { type: 'number' },
-		nodeID: { type: 'number' },
+		mapID: { type: 'string' },
+		nodeID: { type: 'string' },
 		newType: { oneOf: GetValues_ForSchema(ClaimType) },
 	},
 	required: ['nodeID', 'newType'],
@@ -30,7 +31,7 @@ AddSchema({
 
 @MapEdit
 @UserEdit
-export class ChangeClaimType extends Command<{mapID?: number, nodeID: number, newType: ClaimType}, {}> {
+export class ChangeClaimType extends Command<{mapID?: number, nodeID: string, newType: ClaimType}, {}> {
 	Validate_Early() {
 		AssertValidate('ChangeClaimType_payload', this.payload, 'Payload invalid');
 	}
@@ -38,16 +39,16 @@ export class ChangeClaimType extends Command<{mapID?: number, nodeID: number, ne
 	oldType: ClaimType;
 	newData: MapNodeL2;
 	newRevision: MapNodeRevision;
-	newRevisionID: number;
+	newRevisionID: string;
 	async Prepare() {
-
 		const { nodeID, newType } = this.payload;
 		// let oldData = await GetDataAsync({addHelpers: false}, "nodes", nodeID) as MapNode;
 		const oldData = await GetAsync_Raw(() => GetNodeL2(nodeID));
 		this.oldType = GetClaimType(oldData);
 
 		this.newData = { ...oldData.Excluding('current') as any };
-		this.newRevisionID = (await GetDataAsync('general', 'data', '.lastNodeRevisionID')) + 1;
+		// this.newRevisionID = (await GetDataAsync('general', 'data', '.lastNodeRevisionID')) + 1;
+		this.newRevisionID = GenerateUUID();
 		this.newRevision = { ...oldData.current };
 		this.newData.currentRevision = this.newRevisionID;
 
@@ -74,7 +75,7 @@ export class ChangeClaimType extends Command<{mapID?: number, nodeID: number, ne
 		const { nodeID } = this.payload;
 		const updates = {};
 		updates[`nodes/${nodeID}`] = this.newData;
-		updates['general/data/.lastNodeRevisionID'] = this.newRevisionID;
+		// updates['general/data/.lastNodeRevisionID'] = this.newRevisionID;
 		updates[`nodeRevisions/${this.newRevisionID}`] = this.newRevision;
 		return updates;
 	}

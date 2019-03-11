@@ -17,7 +17,7 @@ const Phrasing_FakeID = 'FAKE';
 
 type Props = {node: MapNodeL2, path: string};
 const connector = (state, { node }: Props) => ({
-	phrasings: GetNodePhrasings(node._id),
+	phrasings: GetNodePhrasings(node._key),
 });
 @Connect(connector)
 export class PhrasingsPanel extends BaseComponentWithConnector(connector, { selectedPhrasingID: null as string }) {
@@ -27,7 +27,7 @@ export class PhrasingsPanel extends BaseComponentWithConnector(connector, { sele
 
 		// add one fake "precise" phrasing, matching the node's current text (temp)
 		phrasings = phrasings.slice();
-		phrasings.push(new MapNodePhrasing({ _key: Phrasing_FakeID, node: node._id, type: MapNodePhrasingType.Precise, text: GetNodeDisplayText(node) }));
+		phrasings.push(new MapNodePhrasing({ _key: Phrasing_FakeID, node: node._key, type: MapNodePhrasingType.Precise, text: GetNodeDisplayText(node) }));
 
 		return (
 			<Column style={{ position: 'relative' }}>
@@ -36,7 +36,7 @@ export class PhrasingsPanel extends BaseComponentWithConnector(connector, { sele
 					<InfoButton ml={5} text={'Precise phrasings are variants of the node\'s title that are meant to "compete" as the node\'s main display text. They should strive to be concise, of high quality, and neutral (ie. avoiding rhetoric).'}/>
 					<Button ml="auto" text="Add phrasing" enabled={CanGetBasicPermissions(MeID()) && false} title="Add precise phrasing-variant for this node (disabled at the moment)" onClick={() => {
 						if (MeID() == null) return ShowSignInPopup();
-						ShowAddPhrasingDialog(node._id, MapNodePhrasingType.Precise);
+						ShowAddPhrasingDialog(node._key, MapNodePhrasingType.Precise);
 					}}/>
 				</Row>
 				<Column ptb={5}>
@@ -49,7 +49,7 @@ export class PhrasingsPanel extends BaseComponentWithConnector(connector, { sele
 					<InfoButton ml={5} text="Natural phrasings are variants of the node's title that you'd hear in everyday life. These aren't used as the main display text, but can help people better understand the meaning."/>
 					<Button ml="auto" text="Add phrasing" enabled={CanGetBasicPermissions(MeID())} title="Add natural phrasing-variant for this node" onClick={() => {
 						if (MeID() == null) return ShowSignInPopup();
-						ShowAddPhrasingDialog(node._id, MapNodePhrasingType.Natural);
+						ShowAddPhrasingDialog(node._key, MapNodePhrasingType.Natural);
 					}}/>
 				</Row>
 				<Column ptb={5}>

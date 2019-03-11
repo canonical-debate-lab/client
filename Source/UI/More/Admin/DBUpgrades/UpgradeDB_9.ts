@@ -1,7 +1,7 @@
 import { DeleteNode } from 'Server/Commands/DeleteNode';
 import { UpdateStateDataOverride } from 'UI/@Shared/StateOverrides';
 import { ApplyDBUpdates_Local, DBPath } from 'Utils/FrameworkOverrides';
-import {Clone} from 'js-vextensions';
+import { Clone } from 'js-vextensions';
 import { FirebaseData } from '../../../../Store/firebase';
 import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
 import { AddUpgradeFunc } from '../../Admin';
@@ -20,7 +20,7 @@ AddUpgradeFunc(newVersion, async (oldData, markProgress) => {
 
 		if (node.type != MapNodeType.Category && node.parents == null && node.children == null) {
 			// delete node
-			const deleteNode = new DeleteNode({ nodeID: node._id });
+			const deleteNode = new DeleteNode({ nodeID: node._key });
 			await deleteNode.PreRun();
 			data = ApplyDBUpdates_Local(data, deleteNode.GetDBUpdates());
 		}
@@ -41,17 +41,17 @@ AddUpgradeFunc(newVersion, async (oldData, markProgress) => {
 				parentArg.children[childID] = node.children[childID];
 				delete node.children[childID];
 				child.parents[parentArg._id] = { _: true };
-				delete child.parents[node._id];
+				delete child.parents[node._key];
 			}
 
 			// set argument-type to impact-premise's if-type
 			const parentArgRevision = data.nodeRevisions[parentArg.currentRevision];
 			parentArgRevision.argumentType = revision['impactPremise'].ifType;
 
-			UpdateStateDataOverride({ [`firebase/data/${DBPath()}/nodes/${node._id}/children`]: null });
+			UpdateStateDataOverride({ [`firebase/data/${DBPath()}/nodes/${node._key}/children`]: null });
 
 			// delete impact-premise node
-			const deleteNode = new DeleteNode({ nodeID: node._id });
+			const deleteNode = new DeleteNode({ nodeID: node._key });
 			await deleteNode.PreRun();
 			data = ApplyDBUpdates_Local(data, deleteNode.GetDBUpdates());
 		}

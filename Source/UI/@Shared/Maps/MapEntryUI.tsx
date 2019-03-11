@@ -16,7 +16,7 @@ const connector = (state, { map }: {index: number, last: boolean, map: Map}) => 
 export class MapEntryUI extends BaseComponentWithConnector(connector, {}) {
 	render() {
 		const { index, last, map, creator } = this.props;
-		const toURL = new VURL(null, [map.type == MapType.Personal ? 'personal' : 'debates', `${map._id}`]);
+		const toURL = new VURL(null, [map.type == MapType.Personal ? 'personal' : 'debates', `${map._key}`]);
 		return (
 			<Column p="7px 10px" style={E(
 				{ background: index % 2 == 0 ? 'rgba(30,30,30,.7)' : 'rgba(0,0,0,.7)' },
@@ -34,7 +34,7 @@ export class MapEntryUI extends BaseComponentWithConnector(connector, {}) {
 					<Div style={{ position: 'relative', flex: columnWidths[0] }}>
 						<Link text={map.name} to={toURL.toString({ domain: false })} style={{ fontSize: 17 }} onClick={(e) => {
 							e.preventDefault();
-							store.dispatch(new (map.type == MapType.Personal ? ACTPersonalMapSelect : ACTDebateMapSelect)({ id: map._id }));
+							store.dispatch(new (map.type == MapType.Personal ? ACTPersonalMapSelect : ACTDebateMapSelect)({ id: map._key }));
 						}}/>
 						{map.note &&
 							<Div style={E(

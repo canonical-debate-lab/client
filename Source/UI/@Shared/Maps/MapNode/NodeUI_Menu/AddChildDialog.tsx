@@ -5,7 +5,7 @@ import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { HasModPermissions } from 'Store/firebase/userExtras';
 import { AddArgumentAndClaim } from 'Server/Commands/AddArgumentAndClaim';
 import { Link, ACTSet } from 'Utils/FrameworkOverrides';
-import {ES} from 'Utils/UI/GlobalStyles';
+import { ES } from 'Utils/UI/GlobalStyles';
 import { AddChildNode } from '../../../../../Server/Commands/AddChildNode';
 import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
 import { AsNodeL2, AsNodeL3, GetClaimType, GetNodeForm } from '../../../../../Store/firebase/nodes/$node';
@@ -17,7 +17,7 @@ import { ACTSetLastAcknowledgementTime } from '../../../../../Store/main';
 import { ACTMapNodeExpandedSet } from '../../../../../Store/main/mapViews/$mapView/rootNodeViews';
 import { NodeDetailsUI } from '../NodeDetailsUI';
 
-export function ShowAddChildDialog(parentNode: MapNodeL3, parentPath: string, childType: MapNodeType, childPolarity: Polarity, userID: string, mapID: number) {
+export function ShowAddChildDialog(parentNode: MapNodeL3, parentPath: string, childType: MapNodeType, childPolarity: Polarity, userID: string, mapID: string) {
 	const parentForm = GetNodeForm(parentNode);
 	const childTypeInfo = MapNodeType_Info.for[childType];
 	const displayName = GetMapNodeTypeDisplayName(childType, parentNode, parentForm, childPolarity);
@@ -27,7 +27,7 @@ export function ShowAddChildDialog(parentNode: MapNodeL3, parentPath: string, ch
 		: null;
 
 	let newNode = new MapNode({
-		parents: { [parentNode._id]: { _: true } },
+		parents: { [parentNode._key]: { _: true } },
 		type: childType,
 	});
 	let newRevision = new MapNodeRevision({});
@@ -149,7 +149,7 @@ The details of the argument should be described within the argument's premises. 
 			if (childType == MapNodeType.Argument) {
 				const info = await new AddArgumentAndClaim({
 					mapID,
-					argumentParentID: newNode.parents.VKeys(true)[0].ToInt(), argumentNode: newNode.Excluding('parents') as MapNode, argumentRevision: newRevision, argumentLink: newLink,
+					argumentParentID: newNode.parents.VKeys(true)[0], argumentNode: newNode.Excluding('parents') as MapNode, argumentRevision: newRevision, argumentLink: newLink,
 					claimNode: newPremise, claimRevision: newPremiseRevision,
 				}).Run();
 				store.dispatch(new ACTMapNodeExpandedSet({ mapID, path: `${parentPath}/${info.argumentNodeID}`, expanded: true, recursive: false }));
@@ -157,7 +157,7 @@ The details of the argument should be described within the argument's premises. 
 				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.claimNodeID, time: Date.now() }));
 			} else {
 				const info = await new AddChildNode({
-					mapID, parentID: newNode.parents.VKeys(true)[0].ToInt(), node: newNode.Excluding('parents') as MapNode, revision: newRevision, link: newLink,
+					mapID, parentID: newNode.parents.VKeys(true)[0], node: newNode.Excluding('parents') as MapNode, revision: newRevision, link: newLink,
 				}).Run();
 				store.dispatch(new ACTMapNodeExpandedSet({ mapID, path: `${parentPath}/${info.nodeID}`, expanded: true, recursive: false }));
 				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.nodeID, time: Date.now() }));

@@ -26,7 +26,7 @@ import { ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, AC
 
 type TimelineDropDownProps = {map: Map} & Partial<{timelines: Timeline[], selectedTimeline: Timeline, selectedTimelineSteps: TimelineStep[]}>;
 @Connect((state, { map }: TimelineDropDownProps) => {
-	const selectedTimelineID = State('main', 'maps', map._id, 'selectedTimeline');
+	const selectedTimelineID = State('main', 'maps', map._key, 'selectedTimeline');
 	const timeline = GetTimeline(selectedTimelineID);
 	return {
 		timelines: GetMapTimelines(map),
@@ -65,11 +65,11 @@ export class TimelineDropDown extends BaseComponent<TimelineDropDownProps, {}> {
 																	index == timelines.length - 1 && { borderRadius: '0 0 10px 10px' },
 																)}
 																onClick={() => {
-																	store.dispatch(new ACTMap_SelectedTimelineSet({ mapID: map._id, selectedTimeline: timeline._id }));
+																	store.dispatch(new ACTMap_SelectedTimelineSet({ mapID: map._key, selectedTimeline: timeline._key }));
 																	this.timelineSelect.hide();
 																}}>
 																<Row>
-																	<Pre>{timeline.name} </Pre><span style={{ fontSize: 11 }}>(id: {timeline._id})</span>
+																	<Pre>{timeline.name} </Pre><span style={{ fontSize: 11 }}>(id: {timeline._key})</span>
 																</Row>
 															</Column>
 														))}
@@ -79,22 +79,22 @@ export class TimelineDropDown extends BaseComponent<TimelineDropDownProps, {}> {
 										</DropDownContent>
 									</DropDown>
 									<Button ml={5} text="X" title="Delete timeline" enabled={selectedTimeline != null && selectedTimeline.steps == null} onClick={() => {
-										new DeleteTimeline({ timelineID: selectedTimeline._id }).Run();
+										new DeleteTimeline({ timelineID: selectedTimeline._key }).Run();
 									}}/>
 									<Button ml={5} text="+" title="Add new timeline" onClick={() => {
 										if (userID == null) return ShowSignInPopup();
-										ShowAddTimelineDialog(userID, map._id);
+										ShowAddTimelineDialog(userID, map._key);
 									}}/>
 									<Button ml="auto" text="Play" title="Start playing this timeline" enabled={selectedTimeline != null} style={{ flexShrink: 0 }} onClick={() => {
 										this.rootDropdown.hide();
-										store.dispatch(new ACTMap_PlayingTimelineSet({ mapID: map._id, timelineID: selectedTimeline._id }));
-										store.dispatch(new ACTMap_PlayingTimelineStepSet({ mapID: map._id, step: 0 }));
-										store.dispatch(new ACTMap_PlayingTimelineAppliedStepSet({ mapID: map._id, step: null }));
+										store.dispatch(new ACTMap_PlayingTimelineSet({ mapID: map._key, timelineID: selectedTimeline._key }));
+										store.dispatch(new ACTMap_PlayingTimelineStepSet({ mapID: map._key, stepIndex: 0 }));
+										store.dispatch(new ACTMap_PlayingTimelineAppliedStepSet({ mapID: map._key, stepIndex: null }));
 									}}/>
 									<Button ml={5} text="Add step" enabled={selectedTimeline != null} onClick={() => {
 										if (userID == null) return ShowSignInPopup();
 										const newStep = new TimelineStep({});
-										new AddTimelineStep({ timelineID: selectedTimeline._id, step: newStep }).Run();
+										new AddTimelineStep({ timelineID: selectedTimeline._key, step: newStep }).Run();
 									}}/>
 								</Row>
 							</Column>
@@ -132,7 +132,7 @@ class StepUI extends BaseComponent<StepUIProps, {}> {
 						ShowEditTimelineStepDialog(MeID(), step);
 					}}/>
 					<Button ml={5} text="X" onClick={() => {
-						new DeleteTimelineStep({ stepID: step._id }).Run();
+						new DeleteTimelineStep({ stepID: step._key }).Run();
 					}}/>
 				</Row>
 			</Column>

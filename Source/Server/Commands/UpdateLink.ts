@@ -7,8 +7,8 @@ import { UserEdit } from '../CommandMacros';
 WaitTillSchemaAddedThenRun('ChildEntry', () => {
 	AddSchema({
 		properties: {
-			linkParentID: { type: 'number' },
-			linkChildID: { type: 'number' },
+			linkParentID: { type: 'string' },
+			linkChildID: { type: 'string' },
 			linkUpdates: GetSchemaJSON('ChildEntry').Including('form', 'polarity'),
 		},
 		required: ['linkParentID', 'linkChildID', 'linkUpdates'],
@@ -16,7 +16,7 @@ WaitTillSchemaAddedThenRun('ChildEntry', () => {
 });
 
 @UserEdit
-export class UpdateLink extends Command<{linkParentID: number, linkChildID: number, linkUpdates: Partial<ChildEntry>}, {}> {
+export class UpdateLink extends Command<{linkParentID: string, linkChildID: string, linkUpdates: Partial<ChildEntry>}, {}> {
 	Validate_Early() {
 		AssertValidate('UpdateLink_payload', this.payload, 'Payload invalid');
 	}

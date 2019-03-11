@@ -5,7 +5,8 @@ import { BaseComponent } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { GetNodesL2 } from 'Store/firebase/nodes';
 import { User } from 'Store/firebase/users/@User';
-import {Connect, State, Icon, InfoButton} from 'Utils/FrameworkOverrides';
+import { Connect, State, Icon, InfoButton } from 'Utils/FrameworkOverrides';
+import { EnumNameToDisplayName } from 'Utils/General/Others';
 import { Map } from '../../../Store/firebase/maps/@Map';
 import { GetNodeRatingsRoot, GetRatings } from '../../../Store/firebase/nodeRatings';
 import { RatingsRoot } from '../../../Store/firebase/nodeRatings/@RatingsRoot';
@@ -26,8 +27,7 @@ import {TagsPanel} from '../../@Shared/Maps/MapNode/NodeUI/Panels/TagsPanel';
 import { NodeUI_Menu } from '../../@Shared/Maps/MapNode/NodeUI_Menu';
 import { HistoryPanel } from './MapNode/NodeUI/Panels/HistoryPanel';
 import { MapNodeUI_LeftBox } from './MapNode/NodeUI_LeftBox';
-import { EnumNameToDisplayName } from 'Utils/General/Others';
-import {ES} from 'Utils/UI/GlobalStyles';
+import { ES } from 'Utils/UI/GlobalStyles';
 
 const columnWidths = [0.68, 0.2, 0.12];
 
@@ -42,22 +42,22 @@ type Props = {
 	page: number,
 	selectedNode: MapNodeL2,
 }>;
-@Connect((state, {map}: Props)=> {
-	let selectedNode = GetSelectedNode_InList(map._id);
-	let page = State("main", "maps", map._id, "list_page");
+@Connect((state, { map }: Props) => {
+	const selectedNode = GetSelectedNode_InList(map._key);
+	const page = State('main', 'maps', map._key, 'list_page');
 	let nodes = GetNodesL2();
-	nodes = nodes.Any(a=>a == null) ? emptyArray : nodes; // only pass nodes when all are loaded
+	nodes = nodes.Any(a => a == null) ? emptyArray : nodes; // only pass nodes when all are loaded
 
 	return {
-// need to filter results, since other requests may have added extra data
-// nodes: GetNodes({limitToFirst: entriesPerPage * (page + 1)}).Skip(page * entriesPerPage).Take(entriesPerPage),
-	nodes,
-	sortBy: State("main", "maps", map._id, "list_sortBy"),
-	filter: State("main", "maps", map._id, "list_filter"),
-	page,
-	selectedNode: selectedNode ? GetNodeL3(selectedNode._id+"") : null,
+		// need to filter results, since other requests may have added extra data
+		// nodes: GetNodes({limitToFirst: entriesPerPage * (page + 1)}).Skip(page * entriesPerPage).Take(entriesPerPage),
+		nodes,
+		sortBy: State('main', 'maps', map._key, 'list_sortBy'),
+		filter: State('main', 'maps', map._key, 'list_filter'),
+		page,
+		selectedNode: selectedNode ? GetNodeL3(`${selectedNode._key}`) : null,
 	};
-	})
+})
 export class ListUI extends BaseComponent<Props, {panelToShow?: string}> {
 	render() {
 		let { map, nodes, sortBy, filter, page, selectedNode } = this.props;
@@ -96,7 +96,7 @@ export class ListUI extends BaseComponent<Props, {panelToShow?: string}> {
 		return (
 			<Row style={ES({ flex: 1, alignItems: 'flex-start' })} onClick={(e) => {
 				if (e.target != e.currentTarget) return;
-				store.dispatch(new ACTSelectedNode_InListSet({ mapID: map._id, nodeID: null }));
+				store.dispatch(new ACTSelectedNode_InListSet({ mapID: map._key, nodeID: null }));
 			}}>
 				<Column className="clickThrough" ml={10} mt={10} mb={10}
 					style={{
@@ -108,28 +108,28 @@ export class ListUI extends BaseComponent<Props, {panelToShow?: string}> {
 						<Row style={{ height: 40, padding: 10 }}>
 							<Pre>Sort by: </Pre>
 							<Select options={GetEntries(SortType, name => EnumNameToDisplayName(name))}
-								value={sortBy} onChange={val => store.dispatch(new ACTMapNodeListSortBySet({ mapID: map._id, sortBy: val }))}/>
+								value={sortBy} onChange={val => store.dispatch(new ACTMapNodeListSortBySet({ mapID: map._key, sortBy: val }))}/>
 							<Row width={200} style={{ position: 'absolute', left: 'calc(50% - 100px)' }}>
 								<Button text={<Icon icon="arrow-left" size={15}/>} title="Previous page"
 									enabled={page > 0} onClick={() => {
 										// store.dispatch(new ACTMapNodeListPageSet({mapID: map._id, page: page - 1}));
-										store.dispatch(new ACTMapNodeListPageSet({ mapID: map._id, page: page - 1 }));
+										store.dispatch(new ACTMapNodeListPageSet({ mapID: map._key, page: page - 1 }));
 									}}/>
 								<Div ml={10} mr={7}>Page: </Div>
 								<TextInput mr={10} pattern="[0-9]+" style={{ width: 30 }} value={page + 1}
 									onChange={(val) => {
 										if (!IsNumberString(val)) return;
-										store.dispatch(new ACTMapNodeListPageSet({ mapID: map._id, page: (parseInt(val) - 1).KeepBetween(0, lastPage) }));
+										store.dispatch(new ACTMapNodeListPageSet({ mapID: map._key, page: (parseInt(val) - 1).KeepBetween(0, lastPage) }));
 									}}/>
 								<Button text={<Icon icon="arrow-right" size={15}/>} title="Next page"
 									enabled={page < lastPage} onClick={() => {
-										store.dispatch(new ACTMapNodeListPageSet({ mapID: map._id, page: page + 1 }));
+										store.dispatch(new ACTMapNodeListPageSet({ mapID: map._key, page: page + 1 }));
 									}}/>
 							</Row>
 							<Div mlr="auto"/>
 							<Pre>Filter:</Pre>
 							<InfoButton text="Hides nodes without the given text. Regular expressions can be used, ex: /there are [0-9]+ dimensions/"/>
-							<TextInput ml={2} value={filter} onChange={val => store.dispatch(new ACTMapNodeListFilterSet({ mapID: map._id, filter: val }))}/>
+							<TextInput ml={2} value={filter} onChange={val => store.dispatch(new ACTMapNodeListFilterSet({ mapID: map._key, filter: val }))}/>
 						</Row>
 						<Row style={{ height: 40, padding: 10 }}>
 							<span style={{ flex: columnWidths[0], fontWeight: 500, fontSize: 17 }}>Title</span>
@@ -139,7 +139,7 @@ export class ListUI extends BaseComponent<Props, {panelToShow?: string}> {
 					</Column>
 					<ScrollView style={ES({ flex: 1 })} contentStyle={{ paddingTop: 10 }} onClick={(e) => {
 						if (e.target != e.currentTarget) return;
-						store.dispatch(new ACTSelectedNode_InListSet({ mapID: map._id, nodeID: null }));
+						store.dispatch(new ACTSelectedNode_InListSet({ mapID: map._key, nodeID: null }));
 					}}
 					onContextMenu={(e) => {
 						if (e.nativeEvent['passThrough']) return true;
@@ -147,7 +147,7 @@ export class ListUI extends BaseComponent<Props, {panelToShow?: string}> {
 					}}>
 						{nodes.length == 0 && <div style={{ textAlign: 'center', fontSize: 18 }}>Loading...</div>}
 						{nodesForPage.map((node, index) => {
-							return <NodeRow key={node._id} map={map} node={node} first={index == 0}/>;
+							return <NodeRow key={node._key} map={map} node={node} first={index == 0}/>;
 						})}
 					</ScrollView>
 				</Column>
@@ -164,17 +164,17 @@ export class ListUI extends BaseComponent<Props, {panelToShow?: string}> {
 }
 
 type NodeRow_Props = {map: Map, node: MapNodeL2, first: boolean} & Partial<{creator: User, selected: boolean}>;
-@Connect((state, {map, node}: NodeRow_Props)=> ({
+@Connect((state, { map, node }: NodeRow_Props) => ({
 	creator: GetUser(node.creator),
-	selected: GetSelectedNode_InList(map._id) == node,
-	}))
+	selected: GetSelectedNode_InList(map._key) == node,
+}))
 class NodeRow extends BaseComponent<NodeRow_Props, {menuOpened: boolean}> {
 	render() {
 		const { map, node, first, creator, selected } = this.props;
 		const { menuOpened } = this.state;
 
 		const nodeL3 = AsNodeL3(node);
-		const path = `${node._id}`;
+		const path = `${node._key}`;
 
 		const backgroundColor = GetNodeColor(nodeL3).desaturate(0.5).alpha(0.8);
 		const nodeTypeInfo = MapNodeType_Info.for[node.type];
@@ -186,7 +186,7 @@ class NodeRow extends BaseComponent<NodeRow_Props, {menuOpened: boolean}> {
 					selected && { background: backgroundColor.brighten(0.3).alpha(1).css() },
 				)}
 				onClick={(e) => {
-					store.dispatch(new ACTSelectedNode_InListSet({ mapID: map._id, nodeID: node._id }));
+					store.dispatch(new ACTSelectedNode_InListSet({ mapID: map._key, nodeID: node._key }));
 				}}
 				onMouseDown={(e) => {
 					if (e.button != 2) return false;
@@ -196,7 +196,7 @@ class NodeRow extends BaseComponent<NodeRow_Props, {menuOpened: boolean}> {
 				<span style={{ flex: columnWidths[1] }}>{creator ? creator.displayName : '...'}</span>
 				<span style={{ flex: columnWidths[2] }}>{Moment(node.createdAt).format('YYYY-MM-DD')}</span>
 				{/* <NodeUI_Menu_Helper {...{map, node}}/> */}
-				{menuOpened && <NodeUI_Menu {...{ map, node: nodeL3, path: `${node._id}`, inList: true }}/>}
+				{menuOpened && <NodeUI_Menu {...{ map, node: nodeL3, path: `${node._key}`, inList: true }}/>}
 			</Row>
 		);
 	}
@@ -215,17 +215,17 @@ class NodeUI_Menu_Helper extends BaseComponent<{map: Map, node: MapNode, nodeEnh
 } */
 
 type NodeColumn_Props = {map: Map, node: MapNodeL2} & Partial<{ratingsRoot: RatingsRoot, openPanel: string}>;
-@Connect((state, {map, node}: NodeColumn_Props)=> ({
-	ratingsRoot: GetNodeRatingsRoot(node._id),
-	openPanel: GetMap_List_SelectedNode_OpenPanel(map._id),
-	}))
+@Connect((state, { map, node }: NodeColumn_Props) => ({
+	ratingsRoot: GetNodeRatingsRoot(node._key),
+	openPanel: GetMap_List_SelectedNode_OpenPanel(map._key),
+}))
 class NodeColumn extends BaseComponent<NodeColumn_Props, {width: number, hoverPanel: string}> {
 	render() {
 		const { map, node, ratingsRoot, openPanel } = this.props;
 		const { width, hoverPanel } = this.state;
 
 		const nodeL3 = AsNodeL3(node);
-		const path = `${node._id}`;
+		const path = `${node._key}`;
 		const nodeTypeInfo = MapNodeType_Info.for[node.type];
 		const backgroundColor = GetNodeColor(nodeL3);
 		const nodeView = new MapNodeView();
@@ -250,7 +250,7 @@ class NodeColumn extends BaseComponent<NodeColumn_Props, {width: number, hoverPa
 				}}/> */}
 				<MapNodeUI_LeftBox {...{ map, path, node: nodeL3, nodeView, ratingsRoot, backgroundColor }}
 					onPanelButtonHover={panel => this.SetState({ hoverPanel: panel })}
-					onPanelButtonClick={panel => store.dispatch(new ACTMap_List_SelectedNode_OpenPanelSet({ mapID: map._id, panel }))}
+					onPanelButtonClick={panel => store.dispatch(new ACTMap_List_SelectedNode_OpenPanelSet({ mapID: map._key, panel }))}
 					asHover={false} inList={true} style={{ marginTop: 25 }}/>
 				<ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1 })}>
 					<Column ml={10} style={ES({ flex: 1 })}>
@@ -258,7 +258,7 @@ class NodeColumn extends BaseComponent<NodeColumn_Props, {width: number, hoverPa
 							<div style={{ position: 'relative', padding: 5, background: 'rgba(0,0,0,.7)', borderRadius: 5, boxShadow: 'rgba(0,0,0,1) 0px 0px 2px' }}>
 								<div style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, borderRadius: 5, background: backgroundColor.css() }}/>
 								{ratingTypes.Contains(panelToShow) && (() => {
-									const ratings = GetRatings(node._id, panelToShow as RatingType);
+									const ratings = GetRatings(node._key, panelToShow as RatingType);
 									return <RatingsPanel ref="ratingsPanel" node={nodeL3} path={path} ratingType={panelToShow as RatingType} ratings={ratings}/>;
 								})()}
 								{panelToShow == 'definitions' &&

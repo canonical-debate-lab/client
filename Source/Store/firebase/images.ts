@@ -2,11 +2,11 @@ import { CachedTransform, IsNaN } from 'js-vextensions';
 import { GetData } from 'Utils/FrameworkOverrides';
 import { Image } from './images/@Image';
 
-export function GetImage(id: number) {
+export function GetImage(id: string) {
 	if (id == null || IsNaN(id)) return null;
 	return GetData('images', id) as Image;
 }
-/* export async function GetImageAsync(id: number) {
+/* export async function GetImageAsync(id: string) {
 	return await GetDataAsync(`images/${id}`) as Image;
 } */
 

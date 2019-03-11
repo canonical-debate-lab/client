@@ -1,5 +1,5 @@
 import { GetValues_ForSchema } from 'js-vextensions';
-import {AddSchema} from 'Utils/FrameworkOverrides';
+import { AddSchema } from 'Utils/FrameworkOverrides';
 import { AccessLevel, ImageAttachment } from './@MapNode';
 import { Equation } from './@Equation';
 import { ContentNode } from '../contentNodes/@ContentNode';
@@ -29,8 +29,8 @@ export class MapNodeRevision {
 		this.Extend(initialData);
 	}
 
-	_id?: number;
-	node: number;
+	_key?: string;
+	node: string;
 	creator?: string;
 	createdAt: number;
 
@@ -57,7 +57,7 @@ export class MapNodeRevision {
 export const MapNodeRevision_titlePattern = '^\\S.*$'; // must start with non-whitespace
 AddSchema({
 	properties: {
-		node: { type: 'number' },
+		node: { type: 'string' },
 		creator: { type: 'string' },
 		createdAt: { type: 'number' },
 

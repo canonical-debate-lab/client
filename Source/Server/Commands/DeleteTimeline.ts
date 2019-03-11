@@ -5,7 +5,7 @@ import { GetTimeline } from '../../Store/firebase/timelines';
 import { Command } from 'Utils/FrameworkOverrides';
 
 @UserEdit
-export class DeleteTimeline extends Command<{timelineID: number}, {}> {
+export class DeleteTimeline extends Command<{timelineID: string}, {}> {
 	oldData: Timeline;
 	async Prepare() {
 		const { timelineID } = this.payload;

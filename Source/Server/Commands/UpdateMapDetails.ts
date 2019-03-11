@@ -5,7 +5,7 @@ import { UserEdit } from '../CommandMacros';
 
 AddSchema({
 	properties: {
-		mapID: { type: 'number' },
+		mapID: { type: 'string' },
 		mapUpdates: Schema({
 			properties: {
 				name: { type: 'string', pattern: Map_namePattern },
@@ -20,7 +20,7 @@ AddSchema({
 
 @MapEdit
 @UserEdit
-export class UpdateMapDetails extends Command<{mapID: number, mapUpdates: Partial<Map>}, {}> {
+export class UpdateMapDetails extends Command<{mapID: string, mapUpdates: Partial<Map>}, {}> {
 	Validate_Early() {
 		AssertValidate('UpdateMapDetails_payload', this.payload, 'Payload invalid');
 	}

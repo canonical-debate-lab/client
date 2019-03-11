@@ -4,14 +4,14 @@ import { AddSchema, AssertValidate, Command } from 'Utils/FrameworkOverrides';
 
 AddSchema({
 	properties: {
-		nodeID: { type: 'number' },
+		nodeID: { type: 'string' },
 		ratingType: { $ref: 'RatingType' },
 		value: { type: ['null', 'number'] },
 	},
 	required: ['nodeID', 'ratingType', 'value'],
 }, 'SetNodeRating_payload');
 
-export class SetNodeRating extends Command<{nodeID: number, ratingType: RatingType, value: number}, {}> {
+export class SetNodeRating extends Command<{nodeID: string, ratingType: RatingType, value: number}, {}> {
 	Validate_Early() {
 		AssertValidate('SetNodeRating_payload', this.payload, 'Payload invalid');
 	}

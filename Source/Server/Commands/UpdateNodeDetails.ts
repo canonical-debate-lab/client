@@ -52,7 +52,7 @@ AddSchema({
 @MapEdit
 @UserEdit
 export class UpdateNodeDetails extends Command
-		<{mapID?: number, nodeID: number, nodeUpdates: Partial<MapNode>, linkParentID?: number, linkUpdates?: Partial<ChildEntry>}> {
+		<{mapID?: number, nodeID: string, nodeUpdates: Partial<MapNode>, linkParentID?: number, linkUpdates?: Partial<ChildEntry>}> {
 	Validate_Early() {
 		/*let allowedNodePropUpdates = ["relative", "titles", "contentNode"];
 		Assert(nodeUpdates.VKeys().Except(...allowedNodePropUpdates).length == 0,

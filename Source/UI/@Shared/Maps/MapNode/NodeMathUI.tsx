@@ -18,7 +18,7 @@ InlineMath.prototype.generateHtml = function () {
 	}
 };
 
-export class NodeMathUI extends BaseComponent<{text: string, onTermHover: (termID: number, hovered: boolean)=>void, onTermClick: (termID: number)=>void}, {}> {
+export class NodeMathUI extends BaseComponent<{text: string, onTermHover: (termID: string, hovered: boolean)=>void, onTermClick: (termID: string)=>void}, {}> {
 	render() {
 		let { text } = this.props;
 		text = PreProcessLatex(text);
@@ -33,7 +33,7 @@ export class NodeMathUI extends BaseComponent<{text: string, onTermHover: (termI
 		const dom = $(GetDOM(this));
 		const termUIs = dom.find('.text').ToList();
 		for (const termUI of termUIs) {
-			const termTextMatch = termUI.text().match(/^@term\[(.+?),([0-9]+?)\]$/);
+			const termTextMatch = termUI.text().match(/^@term\[(.+?),([A-Za-z0-9_-]+?)\]$/);
 			if (!termTextMatch) continue; // if doesn't have marker, ignore
 			// if (!termUI.next().is(".mopen")) continue; // if no term-id specified, ignore
 			// if (!termUI.next().is(".mord.scriptstyle.uncramped.mtight")) continue; // if no term-id specified, ignore
@@ -44,14 +44,14 @@ export class NodeMathUI extends BaseComponent<{text: string, onTermHover: (termI
 			/* let siblingsForID = termUI.next();
 			//let termIDStr = siblingsForID.text().slice(2, -1); // "[t123]" -> "123"
 			//let termIDStr = siblingsForID.text().slice(1, -1); // "[123]" -> "123"
-			/*let match = siblingsForID.text().match(/^{([0-9]+)}$/);
+			/*let match = siblingsForID.text().match(/^{([A-Za-z0-9_-]+)}$/);
 			if (match == null) continue;
 			let termIDStr = match[1]; // "{123}" -> "123"*#/
 			let termIDStr = siblingsForID.text();
 			/*let siblingsForID = termUI.nextUntil(".mclose").ToList();
 			let termIDStr = siblingsForID.filter(a=>a.is(".mathrm")).map(a=>a.text()).join();*#/
 			let termID = termIDStr.ToInt(); */
-			const termID = termTextMatch[2].ToInt();
+			const termID = termTextMatch[2];
 			if (IsNaN(termID)) continue;
 
 			// let oldText = termUI.text();

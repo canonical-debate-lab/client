@@ -1,22 +1,22 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { AssertValidate } from 'Utils/FrameworkOverrides';
-import {GetDataAsync} from 'Utils/FrameworkOverrides';
+import { GetDataAsync } from 'Utils/FrameworkOverrides';
+import { Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
 import { Map } from '../../Store/firebase/maps/@Map';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeRevision } from '../../Store/firebase/nodes/@MapNodeRevision';
 import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
-import { Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
 import { AddChildNode } from './AddChildNode';
+import { GenerateUUID } from 'Utils/General/KeyGenerator';
 
 @UserEdit
 export class AddMap extends Command<{map: Map}, {}> {
-	mapID: number;
+	mapID: string;
 	sub_addNode: AddChildNode;
 	async Prepare() {
 		const { map } = this.payload;
 
-		const lastMapID = await GetDataAsync('general', 'data', '.lastMapID') as number;
-		this.mapID = lastMapID + 1;
+		this.mapID = GenerateUUID();
 		map.createdAt = Date.now();
 		map.editedAt = map.createdAt;
 

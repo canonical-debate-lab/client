@@ -8,12 +8,12 @@ export class MapNodePhrasings {
 }
 
 export class MapNodePhrasing {
-	constructor(props: {node: number} & Partial<MapNodePhrasing>) {
+	constructor(props: {node: string} & Partial<MapNodePhrasing>) {
 		this.Extend(props);
 	}
 
 	_key?: string;
-	node: number;
+	node: string;
 	type: MapNodePhrasingType;
 	text: string;
 	description: string;
@@ -23,7 +23,7 @@ export class MapNodePhrasing {
 }
 AddSchema({
 	properties: {
-		node: { type: 'number' },
+		node: { type: 'string' },
 		type: { $ref: 'MapNodePhrasingType' },
 		text: { type: 'string' },
 		description: { type: 'string' },

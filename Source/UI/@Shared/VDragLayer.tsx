@@ -20,19 +20,19 @@ type DragLayerProps = {
 
 @(DragLayer((monitor) => {
 	return {
-	item: monitor.getItem(),
-	itemType: monitor.getItemType(),
-	currentOffset: monitor.getSourceClientOffset(),
-	isDragging: monitor.isDragging(),
-// canDrop: monitor.canDrop(),
-// canDrop: monitor.getItem() ? Log(monitor.getItem().piece.canDrop) !== false : null, // old; custom
-/* canDrop: (()=> {
+		item: monitor.getItem(),
+		itemType: monitor.getItemType(),
+		currentOffset: monitor.getSourceClientOffset(),
+		isDragging: monitor.isDragging(),
+		// canDrop: monitor.canDrop(),
+		// canDrop: monitor.getItem() ? Log(monitor.getItem().piece.canDrop) !== false : null, // old; custom
+		/* canDrop: (()=> {
 			const targetIds = monitor.isDragging() ? monitor.getTargetIds() : [];
 			return targetIds.some(a=>monitor.isOverTarget(a) && monitor.canDropOnTarget(a));
 			})(),
 		}) */
 	};
-	}) as any)
+}) as any)
 export class VDragLayer extends BaseComponent<Partial<DragLayerProps>, {}> {
 	render() {
 		const { currentOffset, item, itemType, isDragging, canDrop } = this.props;
@@ -71,7 +71,7 @@ class NodeUI_Preview extends BaseComponentWithConnector(NodeUI_Preview_connector
 			<Row className="cursorSet" style={E(
 				{ width: '30%', padding: 5, backgroundColor: backgroundColor.css(), borderRadius: 5, border: '1px solid rgba(0,0,0,.5)' },
 			)}>
-				{GetNodeDisplayText(node, node._id.toString())}
+				{GetNodeDisplayText(node, node._key.toString())}
 			</Row>
 		);
 	}

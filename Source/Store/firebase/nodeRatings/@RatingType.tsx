@@ -16,7 +16,7 @@ AddSchema({
 }, 'RatingType');
 
 export function GetRatingTypeInfo(ratingType: RatingType, node: MapNodeL2, parent: MapNodeL3, path: string) {
-	const link = GetLinkUnderParent(node._id, parent);
+	const link = GetLinkUnderParent(node._key, parent);
 	const finalPolarity = link ? GetFinalPolarity(link.polarity, GetNodeForm(parent)) : Polarity.Supporting;
 	const isMultiPremiseArgument = IsMultiPremiseArgument(node);
 

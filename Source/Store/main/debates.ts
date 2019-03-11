@@ -2,12 +2,12 @@ import { GetMap } from 'Store/firebase/maps';
 import { Action, CombineReducers, State } from 'Utils/FrameworkOverrides';
 import { Map, MapType } from '../firebase/maps/@Map';
 
-export class ACTDebateMapSelect extends Action<{id: number}> {}
-export class ACTDebateMapSelect_WithData extends Action<{id: number, map: Map}> {}
+export class ACTDebateMapSelect extends Action<{id: string}> {}
+export class ACTDebateMapSelect_WithData extends Action<{id: string, map: Map}> {}
 
 export class Debates {
 	// subpage: string;
-	selectedMapID: number;
+	selectedMapID: string;
 }
 
 export const DebatesReducer = CombineReducers({

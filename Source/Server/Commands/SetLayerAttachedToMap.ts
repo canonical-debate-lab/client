@@ -6,8 +6,8 @@ import { UserEdit } from '../CommandMacros';
 
 AddSchema({
 	properties: {
-		mapID: { type: 'number' },
-		layerID: { type: 'number' },
+		mapID: { type: 'string' },
+		layerID: { type: 'string' },
 		attached: { type: 'boolean' },
 	},
 	required: ['mapID', 'layerID', 'attached'],
@@ -15,7 +15,7 @@ AddSchema({
 
 @MapEdit
 @UserEdit
-export class SetLayerAttachedToMap extends Command<{mapID: number, layerID: number, attached: boolean}, {}> {
+export class SetLayerAttachedToMap extends Command<{mapID: string, layerID: string, attached: boolean}, {}> {
 	Validate_Early() {
 		AssertValidate('SetLayerAttachedToMap_payload', this.payload, 'Payload invalid');
 	}

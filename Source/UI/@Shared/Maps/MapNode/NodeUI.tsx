@@ -27,7 +27,7 @@ import { GetMeasurementInfoForNode } from './NodeUI/NodeMeasurer';
 import { NodeUI_Inner } from './NodeUI_Inner';
 
 const nodesLocked = {};
-export function SetNodeUILocked(nodeID: number, locked: boolean, maxWait = 10000) {
+export function SetNodeUILocked(nodeID: string, locked: boolean, maxWait = 10000) {
 	nodesLocked[nodeID] = locked;
 	if (locked) {
 		setTimeout(() => SetNodeUILocked(nodeID, false), maxWait);
@@ -37,7 +37,7 @@ export function SetNodeUILocked(nodeID: number, locked: boolean, maxWait = 10000
 type Props = {map: Map, node: MapNodeL3, path?: string, asSubnode?: boolean, widthOverride?: number, style?, onHeightOrPosChange?: ()=>void};
 const connector = (state, { node, path, map }: Props) => {
 	// Log("Calling NodeUI connect func.");
-	const nodeView = GetNodeView(map._id, path) || new MapNodeView();
+	const nodeView = GetNodeView(map._key, path) || new MapNodeView();
 
 	const nodeChildren = GetNodeChildrenL3(node, path, true);
 	const nodeChildrenToShow = nodeChildren.Any(a => a == null) ? emptyArray_forLoading : nodeChildren; // only pass nodeChildren when all are loaded
@@ -46,27 +46,27 @@ const connector = (state, { node, path, map }: Props) => {
 		return GetFinalNodeTypeAtPath(child, path + "/" + child._id);
 	}); */
 
-	let subnodes = GetSubnodesInEnabledLayersEnhanced(MeID(), map, node._id);
+	let subnodes = GetSubnodesInEnabledLayersEnhanced(MeID(), map, node._key);
 	subnodes = subnodes.Any(a => a == null) ? emptyArray : subnodes; // only pass subnodes when all are loaded
 
-	const sinceTime = GetTimeFromWhichToShowChangedNodes(map._id);
-	const pathsToChangedNodes = GetPathsToNodesChangedSinceX(map._id, sinceTime);
+	const sinceTime = GetTimeFromWhichToShowChangedNodes(map._key);
+	const pathsToChangedNodes = GetPathsToNodesChangedSinceX(map._key, sinceTime);
 	const pathsToChangedDescendantNodes = pathsToChangedNodes.filter(a => a.startsWith(`${path}/`));
 	const changeTypesOfChangedDescendantNodes = pathsToChangedDescendantNodes.map(path => GetNodeChangeType(GetNode(GetNodeID(path)), sinceTime));
 	const addedDescendants = changeTypesOfChangedDescendantNodes.filter(a => a == ChangeType.Add).length;
 	const editedDescendants = changeTypesOfChangedDescendantNodes.filter(a => a == ChangeType.Edit).length;
 
-	const parentNodeView = (GetParentNodeL3(path) && GetNodeView(map._id, SlicePath(path, 1))) || new MapNodeView();
+	const parentNodeView = (GetParentNodeL3(path) && GetNodeView(map._key, SlicePath(path, 1))) || new MapNodeView();
 
 	return {
-		path: path || node._id.toString(),
+		path: path || node._key.toString(),
 
 		initialChildLimit: State(a => a.main.initialChildLimit),
 		// node_finalType: GetFinalNodeTypeAtPath(node, path),
 		// nodeEnhanced: GetNodeL3(path),
 		form: GetNodeForm(node, GetParentNodeL2(path)),
 		// only pass new nodeView when its local-props are different
-		nodeView: CachedTransform('nodeView_transform1', [map._id, path], nodeView.Excluding('focused', 'viewOffset', 'children'), () => nodeView),
+		nodeView: CachedTransform('nodeView_transform1', [map._key, path], nodeView.Excluding('focused', 'viewOffset', 'children'), () => nodeView),
 		/* nodeChildren: CachedTransform("nodeChildren_transform1", {path}, CombineDynamicPropMaps(nodeChildren, nodeChildren_finalTypes),
 			()=>nodeChildren.map((child, index)=> {
 				return child.Extended({finalType: nodeChildren_finalTypes[index]});
@@ -80,11 +80,11 @@ const connector = (state, { node, path, map }: Props) => {
 		isMultiPremiseArgument: IsMultiPremiseArgument(node),
 
 		userViewedNodes: GetUserViewedNodes(MeID(), { useUndefinedForInProgress: true }),
-		playingTimeline: GetPlayingTimeline(map._id),
-		playingTimeline_currentStepIndex: GetPlayingTimelineStepIndex(map._id),
-		playingTimelineShowableNodes: GetPlayingTimelineRevealNodes(map._id),
-		playingTimelineVisibleNodes: GetPlayingTimelineAppliedStepRevealNodes(map._id, true),
-		playingTimeline_currentStepRevealNodes: GetPlayingTimelineCurrentStepRevealNodes(map._id),
+		playingTimeline: GetPlayingTimeline(map._key),
+		playingTimeline_currentStepIndex: GetPlayingTimelineStepIndex(map._key),
+		playingTimelineShowableNodes: GetPlayingTimelineRevealNodes(map._key),
+		playingTimelineVisibleNodes: GetPlayingTimelineAppliedStepRevealNodes(map._key, true),
+		playingTimeline_currentStepRevealNodes: GetPlayingTimelineCurrentStepRevealNodes(map._key),
 		addedDescendants,
 		editedDescendants,
 	};
@@ -109,12 +109,12 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 	shouldComponentUpdate(newProps, newState) {
 		const changed = ShallowChanged(this.props, newProps) || ShallowChanged(this.state, newState);
 		const { node } = this.props;
-		if (!nodesLocked[node._id]) return changed;
+		if (!nodesLocked[node._key]) return changed;
 
 		// node-ui is locked, so wait until it gets unlocked, then update the ui
 		if (this.waitForUnlockTimer == null) {
 			this.waitForUnlockTimer = new Timer(100, () => {
-				if (nodesLocked[node._id]) return;
+				if (nodesLocked[node._key]) return;
 				this.waitForUnlockTimer.Stop();
 				delete this.waitForUnlockTimer;
 				this.Update();
@@ -134,13 +134,13 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 		const { dividePoint, selfHeight } = this.state;
 		if (ShouldLog(a => a.nodeRenders)) {
 			if (logTypes.nodeRenders_for) {
-				if (logTypes.nodeRenders_for == node._id) {
-					Log(`Updating NodeUI (${RenderSource[this.lastRender_source]}):${node._id}${nl
+				if (logTypes.nodeRenders_for == node._key) {
+					Log(`Updating NodeUI (${RenderSource[this.lastRender_source]}):${node._key}${nl
 					}PropsChanged:${this.GetPropsChanged_Data()}${nl
 					}StateChanged:${this.GetStateChanged_Data()}`);
 				}
 			} else {
-				Log(`Updating NodeUI (${RenderSource[this.lastRender_source]}):${node._id}${nl
+				Log(`Updating NodeUI (${RenderSource[this.lastRender_source]}):${node._key}${nl
 				}PropsChanged:${this.GetPropsChanged()}${nl
 				}StateChanged:${this.GetStateChanged()}`);
 			}
@@ -191,7 +191,7 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 
 			const childLimit_up = ((nodeView || {}).childLimit_up || initialChildLimit).KeepAtLeast(initialChildLimit);
 			const childLimit_down = ((nodeView || {}).childLimit_down || initialChildLimit).KeepAtLeast(initialChildLimit);
-			const showAll = node._id == map.rootNode || node.type == MapNodeType.Argument;
+			const showAll = node._key == map.rootNode || node.type == MapNodeType.Argument;
 			// return <ChildPackUI {...{map, path, childrenWidthOverride, childLimit_up, childLimit_down, showAll}} pack={pack} index={0} collection={childPacks}/>;*#/
 
 			const index = 0;
@@ -326,8 +326,8 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 		if (MeID() == null) return;
 
 		const userViewedNodes_doneLoading = userViewedNodes !== undefined;
-		if (userViewedNodes_doneLoading && !(userViewedNodes || {}).VKeys(true).map(ToInt).Contains(node._id)) {
-			new NotifyNodeViewed({ nodeID: node._id }).Run();
+		if (userViewedNodes_doneLoading && !(userViewedNodes || {}).VKeys(true).Contains(node._key)) {
+			new NotifyNodeViewed({ nodeID: node._key }).Run();
 		}
 	}
 
@@ -345,8 +345,8 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 
 		const height = $(GetDOM(this)).outerHeight();
 		if (height != this.lastHeight) {
-			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._id),
-				() => `OnHeightChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._id}${nl
+			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
+				() => `OnHeightChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._key}${nl
 				}NewHeight:${height}`);
 
 			// this.UpdateState(true);
@@ -357,8 +357,8 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 
 		const selfHeight = $(GetDOM(this.innerUI)).outerHeight();
 		if (selfHeight != this.lastSelfHeight) {
-			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._id),
-				() => `OnSelfHeightChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._id}${nl
+			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
+				() => `OnSelfHeightChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._key}${nl
 				}NewSelfHeight:${selfHeight}`);
 
 			// this.UpdateState(true);
@@ -397,7 +397,7 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 		let { expectedBoxWidth, width, expectedHeight } = GetMeasurementInfoForNode(node, path);
 
 		for (const subnode of subnodes) {
-			const subnodeMeasurementInfo = GetMeasurementInfoForNode(subnode, `${subnode._id}`);
+			const subnodeMeasurementInfo = GetMeasurementInfoForNode(subnode, `${subnode._key}`);
 			expectedBoxWidth = Math.max(expectedBoxWidth, subnodeMeasurementInfo.expectedBoxWidth);
 		}
 

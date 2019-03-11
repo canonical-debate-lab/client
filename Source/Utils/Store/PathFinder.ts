@@ -1,17 +1,17 @@
 import { Vector2i } from 'js-vextensions';
 import { GetNode } from 'Store/firebase/nodes';
-import {CachedTransform_WithStore} from 'Utils/FrameworkOverrides';
+import { CachedTransform_WithStore } from 'Utils/FrameworkOverrides';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { GetPathNodes } from '../../Store/main/mapViews';
 import { MapNodeView, MapView } from '../../Store/main/mapViews/@MapViews';
 
 // todo: probably merge this function with the StartFindingPathsFromXToY function in SearchPanel.tsx
-export function GetShortestPathFromRootToNode(rootNodeID: number, node: MapNode): string {
-	return CachedTransform_WithStore('GetShortestPathFromRootToNode', [rootNodeID, node._id], {}, () => {
-		GetNode(node._id); // call this so cache system knows to recalculate when node-data changes
+export function GetShortestPathFromRootToNode(rootNodeID: string, node: MapNode): string {
+	return CachedTransform_WithStore('GetShortestPathFromRootToNode', [rootNodeID, node._key], {}, () => {
+		GetNode(node._key); // call this so cache system knows to recalculate when node-data changes
 
-		type Head = {id: number, path: number[]};
-		let currentLayerHeads: Head[] = (node.parents || {}).VKeys(true).map(id => ({ id: parseInt(id), path: [parseInt(id), node._id] }));
+		type Head = {id: string, path: string[]};
+		let currentLayerHeads: Head[] = (node.parents || {}).VKeys(true).map(id => ({ id, path: [id, node._key] }));
 		while (currentLayerHeads.length) {
 			// first, quickly check if any current-layer-head parents are the root-node (and if so, return right away, as we found a shortest path)
 			for (const layerHead of currentLayerHeads) {
@@ -25,7 +25,7 @@ export function GetShortestPathFromRootToNode(rootNodeID: number, node: MapNode)
 			for (const layerHead of currentLayerHeads) {
 				const node = GetNode(layerHead.id);
 				if (node == null) return null;
-				for (const parentID of (node.parents || {}).VKeys(true).map(id => parseInt(id))) {
+				for (const parentID of (node.parents || {}).VKeys(true)) {
 					if (layerHead.path.Contains(parentID)) continue; // parent-id is already part of path; ignore, so we don't cause infinite-loop
 					newLayerHeads.push({ id: parentID, path: [parentID].concat(layerHead.path) });
 				}

@@ -67,12 +67,12 @@ type Props = {
 	panelPosition?: 'left' | 'below', useLocalPanelState?: boolean, style?,
 };
 const connector = (state, { map, node, path }: Props) => {
-	let sinceTime = GetTimeFromWhichToShowChangedNodes(map._id);
+	let sinceTime = GetTimeFromWhichToShowChangedNodes(map._key);
 	/* let pathsToChangedNodes = GetPathsToNodesChangedSinceX(map._id, sinceTime);
 	let ownNodeChanged = pathsToChangedNodes.Any(a=>a.split("/").Any(b=>b == node._id));
 	let changeType = ownNodeChanged ? GetNodeChangeType(node, sinceTime) : null; */
 
-	const lastAcknowledgementTime = GetLastAcknowledgementTime(node._id);
+	const lastAcknowledgementTime = GetLastAcknowledgementTime(node._key);
 	sinceTime = sinceTime.KeepAtLeast(lastAcknowledgementTime);
 
 	let changeType: ChangeType;
@@ -105,7 +105,7 @@ const connector = (state, { map, node, path }: Props) => {
 
 	return {
 		form: GetNodeForm(node, path),
-		ratingsRoot: GetNodeRatingsRoot(node._id),
+		ratingsRoot: GetNodeRatingsRoot(node._key),
 		mainRating_average,
 		mainRating_mine,
 		reasonScoreValues,
@@ -118,7 +118,7 @@ const connector = (state, { map, node, path }: Props) => {
 @(dragSourceDecorator as any)
 @Connect(connector)
 export class NodeUI_Inner extends BaseComponentWithConnector(connector,
-	{ hovered: false, hoverPanel: null as string, hoverTermID: null as number, /* local_selected: boolean, */ local_openPanel: null as string }) {
+	{ hovered: false, hoverPanel: null as string, hoverTermID: null as string, /* local_selected: boolean, */ local_openPanel: null as string }) {
 	static defaultProps = { panelPosition: 'left' };
 	titlePanel: TitlePanel;
 	render() {
@@ -184,14 +184,14 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 					} */
 
 					if (nodeView == null || !nodeView.selected) {
-						store.dispatch(new ACTMapNodeSelect({ mapID: map._id, path }));
+						store.dispatch(new ACTMapNodeSelect({ mapID: map._key, path }));
 					}
 				}}
 				onDirectClick={(e) => {
 					if (combinedWithParentArgument) {
-						store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: parent._id, time: Date.now() }));
+						store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: parent._key, time: Date.now() }));
 					}
-					store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._id, time: Date.now() }));
+					store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._key, time: Date.now() }));
 				}}
 				beforeChildren={[
 					leftPanelShow
@@ -204,9 +204,9 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 								}
 
 								if (nodeView.openPanel != panel) {
-									store.dispatch(new ACTMapNodePanelOpen({ mapID: map._id, path, panel }));
+									store.dispatch(new ACTMapNodePanelOpen({ mapID: map._key, path, panel }));
 								} else {
-									store.dispatch(new ACTMapNodePanelOpen({ mapID: map._id, path, panel: null }));
+									store.dispatch(new ACTMapNodePanelOpen({ mapID: map._key, path, panel: null }));
 									this.SetState({ hoverPanel: null });
 								}
 							}}>
@@ -230,7 +230,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 				].AutoKey()}
 				{...{ backgroundFillPercent, backgroundColor, markerPercent }}
 				toggleExpanded={(e) => {
-					store.dispatch(new ACTMapNodeExpandedSet({ mapID: map._id, path, expanded: !expanded, recursive: expanded && e.altKey }));
+					store.dispatch(new ACTMapNodeExpandedSet({ mapID: map._key, path, expanded: !expanded, recursive: expanded && e.altKey }));
 					e.nativeEvent.ignore = true; // for some reason, "return false" isn't working
 					// return false;
 				}}
@@ -262,9 +262,9 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 class NodeUI_BottomPanel extends BaseComponent
 		<{
 			map: Map, node: MapNodeL3, nodeView: MapNodeView, path: string, parent: MapNodeL3,
-			width: number, widthOverride: number, panelPosition: 'left' | 'below', panelToShow: string, hovered: boolean, hoverTermID: number, onTermHover: (id: number)=>void,
+			width: number, widthOverride: number, panelPosition: 'left' | 'below', panelToShow: string, hovered: boolean, hoverTermID: string, onTermHover: (id: string)=>void,
 			backgroundColor: Color,
-		}, {hoverTermID: number}> {
+		}, {hoverTermID: string}> {
 	render() {
 		const {
 			map, node, nodeView, path, parent,
@@ -281,17 +281,17 @@ class NodeUI_BottomPanel extends BaseComponent
 					if (['impact', 'relevance'].Contains(panelToShow) && node.type == MapNodeType.Claim) {
 						const argumentNode = parent;
 						const argumentPath = SlicePath(path, 1);
-						const ratings = GetRatings(argumentNode._id, panelToShow as RatingType);
+						const ratings = GetRatings(argumentNode._key, panelToShow as RatingType);
 						return <RatingsPanel node={argumentNode} path={argumentPath} ratingType={panelToShow as RatingType} ratings={ratings}/>;
 					}
-					const ratings = GetRatings(node._id, panelToShow as RatingType);
+					const ratings = GetRatings(node._key, panelToShow as RatingType);
 					return <RatingsPanel node={node} path={path} ratingType={panelToShow as RatingType} ratings={ratings}/>;
 				})()}
 				{panelToShow == 'definitions' &&
 					<DefinitionsPanel ref={c => this.definitionsPanel = c} {...{ node, path, hoverTermID }}
 						openTermID={nodeView.openTermID}
 						onHoverTerm={termID => onTermHover(termID)}
-						onClickTerm={termID => store.dispatch(new ACTMapNodeTermOpen({ mapID: map._id, path, termID }))}/>}
+						onClickTerm={termID => store.dispatch(new ACTMapNodeTermOpen({ mapID: map._key, path, termID }))}/>}
 				{panelToShow == 'phrasings' && <PhrasingsPanel node={node} path={path}/>}
 				{panelToShow == 'discussion' && <DiscussionPanel/>}
 				{panelToShow == 'social' && <SocialPanel/>}
@@ -411,25 +411,25 @@ class TitlePanel extends BaseComponent<TitlePanelProps, {editing: boolean, newTi
 		if (newRevision.titles[titleKey] != newTitle) {
 			newRevision.titles[titleKey] = newTitle;
 
-			SetNodeUILocked(parentNode._id, true);
-			const revisionID = await new AddNodeRevision({ mapID: map._id, revision: RemoveHelpers(newRevision) }).Run();
-			store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._id, time: Date.now() }));
+			SetNodeUILocked(parentNode._key, true);
+			const revisionID = await new AddNodeRevision({ mapID: map._key, revision: RemoveHelpers(newRevision) }).Run();
+			store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._key, time: Date.now() }));
 			// await WaitTillPathDataIsReceiving(DBPath(`nodeRevisions/${revisionID}`));
 			await WaitTillPathDataIsReceived(DBPath(`nodeRevisions/${revisionID}`));
-			SetNodeUILocked(parentNode._id, false);
+			SetNodeUILocked(parentNode._key, false);
 		}
 		this.SetState({ applyingEdit: false, editing: false });
 	}
 
-	OnTermHover(termID: number, hovered: boolean) {
+	OnTermHover(termID: string, hovered: boolean) {
 		const { parent } = this.props;
 		parent.SetState({ hoverPanel: hovered ? 'definitions' : null, hoverTermID: hovered ? termID : null });
 	}
-	OnTermClick(termID: number) {
+	OnTermClick(termID: string) {
 		const { parent, map, path } = this.props;
 		// parent.SetState({hoverPanel: "definitions", hoverTermID: termID});
-		store.dispatch(new ACTMapNodePanelOpen({ mapID: map._id, path, panel: 'definitions' }));
-		store.dispatch(new ACTMapNodeTermOpen({ mapID: map._id, path, termID }));
+		store.dispatch(new ACTMapNodePanelOpen({ mapID: map._key, path, panel: 'definitions' }));
+		store.dispatch(new ACTMapNodeTermOpen({ mapID: map._key, path, termID }));
 	}
 
 	RenderNodeDisplayText(text: string) {
@@ -457,7 +457,7 @@ class TitlePanel extends BaseComponent<TitlePanelProps, {editing: boolean, newTi
 				if (edgeWhiteSpaceMatch[2]) elements.push(<span key={elements.length}>{edgeWhiteSpaceMatch[2]}</span>);
 			} else if (segment.patternMatched == 'term') {
 				const refText = segment.textParts[1];
-				const termID = segment.textParts[2].ToInt();
+				const termID = segment.textParts[2];
 				elements.push(
 					<TermPlaceholder key={elements.length} refText={refText} termID={termID}
 						onHover={hovered => this.OnTermHover(termID, hovered)} onClick={() => this.OnTermClick(termID)}/>,

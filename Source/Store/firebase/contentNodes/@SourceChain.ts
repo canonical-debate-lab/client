@@ -14,7 +14,7 @@ export class SourceChain {
 	}
 	sources: Source[];
 }
-// AddSchema({patternProperties: {"^[0-9]+$": {$ref: "Source"}}, minProperties: 1}, "SourceChain");
+// AddSchema({patternProperties: {"^[A-Za-z0-9_-]+$": {$ref: "Source"}}, minProperties: 1}, "SourceChain");
 AddSchema({
 	properties: {
 		sources: { items: { $ref: 'Source' }, minItems: 1 },

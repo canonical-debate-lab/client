@@ -15,7 +15,7 @@ import { User } from '../../../../../../Store/firebase/users/@User';
 import { NodeDetailsUI } from '../../NodeDetailsUI';
 
 const connector = (state, { node, path }: {map?: Map, node: MapNodeL3, path: string}) => ({
-	link: GetLinkUnderParent(node._id, GetParentNode(path)),
+	link: GetLinkUnderParent(node._key, GetParentNode(path)),
 	creator: GetUser(node.creator),
 });
 @Connect(connector)
@@ -47,18 +47,18 @@ export class DetailsPanel extends BaseComponentWithConnector(connector, { dataEr
 							if (link) {
 								const linkUpdates = GetUpdates(link, this.detailsUI.GetNewLinkData());
 								if (linkUpdates.VKeys(true).length) {
-									await new UpdateLink(E({ linkParentID: GetParentNodeID(path), linkChildID: node._id, linkUpdates })).Run();
+									await new UpdateLink(E({ linkParentID: GetParentNodeID(path), linkChildID: node._key, linkUpdates })).Run();
 								}
 							}
 
-							if (parentNode) SetNodeUILocked(parentNode._id, true);
+							if (parentNode) SetNodeUILocked(parentNode._key, true);
 							try {
-								const revisionID = await new AddNodeRevision({ mapID: map._id, revision: RemoveHelpers(this.detailsUI.GetNewRevisionData()) }).Run();
-								store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._id, time: Date.now() }));
+								const revisionID = await new AddNodeRevision({ mapID: map._key, revision: RemoveHelpers(this.detailsUI.GetNewRevisionData()) }).Run();
+								store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._key, time: Date.now() }));
 								// await WaitTillPathDataIsReceiving(DBPath(`nodeRevisions/${revisionID}`));
 								await WaitTillPathDataIsReceived(DBPath(`nodeRevisions/${revisionID}`));
 							} finally {
-								if (parentNode) SetNodeUILocked(parentNode._id, false);
+								if (parentNode) SetNodeUILocked(parentNode._key, false);
 							}
 						}}/>
 						{/* error && <Pre>{error.message}</Pre> */}

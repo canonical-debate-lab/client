@@ -2,11 +2,11 @@ import { CachedTransform, IsNaN } from 'js-vextensions';
 import { GetData, GetDataAsync } from 'Utils/FrameworkOverrides';
 import { Term } from './terms/@Term';
 
-export function GetTerm(id: number) {
+export function GetTerm(id: string) {
 	if (id == null || IsNaN(id)) return null;
 	return GetData('terms', id) as Term;
 }
-export async function GetTermAsync(id: number) {
+export async function GetTermAsync(id: string) {
 	return await GetDataAsync('terms', id) as Term;
 }
 
@@ -24,6 +24,6 @@ export function GetFullNameP(term: Term) {
 export function GetTermVariantNumber(term: Term): number {
 	const termsWithSameName_map = GetData('termNames', term.name);
 	if (termsWithSameName_map == null) return 1;
-	const termsWithSameNameAndLowerIDs = termsWithSameName_map.VKeys(true).map(a => a.ToInt()).filter(a => a < term._id);
+	const termsWithSameNameAndLowerIDs = termsWithSameName_map.VKeys(true).map(a => a).filter(a => a < term._key);
 	return 1 + termsWithSameNameAndLowerIDs.length;
 }

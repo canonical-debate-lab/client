@@ -21,7 +21,7 @@ type Props = {term: Term, editing: boolean, inMap?: boolean, style?} & Partial<{
 	return {
 		// components: GetTermComponents(props.term),
 		// only pass components when all are loaded
-		components: CachedTransform('components_transform1', [term._id], termComponents, () => (termComponents.every(a => a != null) ? termComponents : componentsPlaceholder)),
+		components: CachedTransform('components_transform1', [term._key], termComponents, () => (termComponents.every(a => a != null) ? termComponents : componentsPlaceholder)),
 		// selectedTermComponent: GetSelectedTermComponent(),
 	};
 })
@@ -62,14 +62,14 @@ export class TermComponentUI extends BaseComponent
 		};
 		return (
 			<Row mt={first ? 0 : 5}>
-				{!creating && <Pre mr={7} sel style={E(inMap && { opacity: 0.5 })}>#{termComponent._id}</Pre>}
+				{!creating && <Pre mr={7} sel style={E(inMap && { opacity: 0.5 })}>#{termComponent._key}</Pre>}
 				{(creating || editing)
 					? <TextInput ref={a => a && creating && this.lastRender_source == RenderSource.Mount && WaitXThenRun(0, () => a.DOM.focus())} style={ES({ flex: 1 })}
 						value={updatedTermComponent.text} onChange={val => Change(updatedTermComponent.text = val)}/>
 					: <Div sel>{termComponent.text}</Div>}
 				{editing
 					&& <Button ml={5} text="Save" enabled={changes} onClick={(e) => {
-						new UpdateTermComponentData({ termComponentID: termComponent._id, updates: updatedTermComponent.Including('text') }).Run();
+						new UpdateTermComponentData({ termComponentID: termComponent._key, updates: updatedTermComponent.Including('text') }).Run();
 						// this.SetState({updatedTermComponent: null});
 					}}/>}
 				{editing
@@ -82,7 +82,7 @@ export class TermComponentUI extends BaseComponent
 							title: `Delete "${termComponent.text}"`, cancelButton: true,
 							message: `Delete the term-component "${termComponent.text}"?`,
 							onOK: async () => {
-								new DeleteTermComponent({ termComponentID: termComponent._id }).Run();
+								new DeleteTermComponent({ termComponentID: termComponent._key }).Run();
 							},
 						});
 					}}/>}

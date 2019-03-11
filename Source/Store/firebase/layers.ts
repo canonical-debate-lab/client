@@ -10,28 +10,28 @@ export function GetLayers(): Layer[] {
 	const layersMap = GetData({ collection: true }, 'layers');
 	return CachedTransform('GetLayers', [], layersMap, () => (layersMap ? layersMap.VValues(true) : []));
 }
-export function GetLayer(id: number): Layer {
+export function GetLayer(id: string): Layer {
 	if (id == null) return null;
 	return GetData('layers', id);
 }
 
 export function GetMapLayerIDs(map: Map) {
-	return (map.layers || {}).VKeys(true).map(ToInt);
+	return (map.layers || {}).VKeys(true);
 }
 export function GetMapLayers(map: Map) {
 	const layers = GetMapLayerIDs(map).map(id => GetLayer(id));
-	return CachedTransform('GetLayersForMap', [map._id], layers, () => layers);
+	return CachedTransform('GetLayersForMap', [map._key], layers, () => layers);
 }
 
-export function GetSubnodeIDsInLayer(anchorNodeID: number, layerID: number) {
-	return (GetData('layers', layerID, '.nodeSubnodes', `.${anchorNodeID}`) || {}).VKeys(true).map(ToInt);
+export function GetSubnodeIDsInLayer(anchorNodeID: string, layerID: string) {
+	return (GetData('layers', layerID, '.nodeSubnodes', `.${anchorNodeID}`) || {}).VKeys(true);
 }
-export function GetSubnodesInLayer(anchorNodeID: number, layerID: number) {
+export function GetSubnodesInLayer(anchorNodeID: string, layerID: string) {
 	const subnodeIDs = GetSubnodeIDsInLayer(anchorNodeID, layerID);
 	const subnodes = subnodeIDs.map(id => GetNode(id));
 	return CachedTransform('GetSubnodesInLayer', [anchorNodeID, layerID], subnodes, () => subnodes);
 }
-/* export function GetSubnodesInLayerEnhanced(anchorNodeID: number, layerID: number) {
+/* export function GetSubnodesInLayerEnhanced(anchorNodeID: string, layerID: string) {
 	let subnodes = GetSubnodesInLayer(anchorNodeID, layerID);
 	let subnodesEnhanced = subnodes.map(child=> {
 		if (child == null) return null;
@@ -40,15 +40,14 @@ export function GetSubnodesInLayer(anchorNodeID: number, layerID: number) {
 	return CachedTransform("GetSubnodesInLayerEnhanced", [anchorNodeID, layerID], subnodesEnhanced, ()=>subnodesEnhanced);
 } */
 
-export function GetSubnodesInEnabledLayersEnhanced(userID: string, map: Map, anchorNodeID: number) {
+export function GetSubnodesInEnabledLayersEnhanced(userID: string, map: Map, anchorNodeID: string) {
 	const layersEnabled = GetMapLayers(map);
 	// if some layers aren't loaded yet, return nothing
 	if (layersEnabled.Any(a => a == null)) return emptyArray;
 
-	const userLayerStates = GetUserLayerStatesForMap(userID, map._id) || {};
-	for (const { name: layerIDStr, value: state } of userLayerStates.Props(true)) {
-		const layerID = layerIDStr.ToInt();
-		const existingEntry = layersEnabled.find(a => a._id == layerID);
+	const userLayerStates = GetUserLayerStatesForMap(userID, map._key) || {};
+	for (const { name: layerID, value: state } of userLayerStates.Props(true)) {
+		const existingEntry = layersEnabled.find(a => a._key == layerID);
 		if (state == true) {
 			if (existingEntry == null) {
 				layersEnabled.push(GetLayer(layerID));
@@ -60,14 +59,14 @@ export function GetSubnodesInEnabledLayersEnhanced(userID: string, map: Map, anc
 
 	const subnodeIDs = [];
 	for (const layer of layersEnabled) {
-		subnodeIDs.AddRange(GetSubnodeIDsInLayer(anchorNodeID, layer._id));
+		subnodeIDs.AddRange(GetSubnodeIDsInLayer(anchorNodeID, layer._key));
 	}
 	const subnodesL3 = subnodeIDs.map((id) => {
 		const child = GetNodeL2(id);
 		if (child == null) return null;
 		return AsNodeL3(child);
 	});
-	return CachedTransform('GetSubnodesInEnabledLayersEnhanced', [map._id, userID, anchorNodeID], subnodesL3, () => subnodesL3);
+	return CachedTransform('GetSubnodesInEnabledLayersEnhanced', [map._key, userID, anchorNodeID], subnodesL3, () => subnodesL3);
 }
 
 export function ForDeleteLayer_GetError(userID: string, layer: Layer) {

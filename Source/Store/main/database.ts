@@ -5,15 +5,15 @@ import { GetTerms } from '../firebase/terms';
 import { SubpageReducer } from './@Shared/$subpage';
 
 export class ACTUserSelect extends Action<{id: string}> {}
-export class ACTTermSelect extends Action<{id: number}> {}
-export class ACTImageSelect extends Action<{id: number}> {}
+export class ACTTermSelect extends Action<{id: string}> {}
+export class ACTImageSelect extends Action<{id: string}> {}
 
 export class Database {
 	subpage: string;
 	selectedUserID: string;
-	selectedTermID: number;
-	// selectedTermComponentID: number;
-	selectedImageID: number;
+	selectedTermID: string;
+	// selectedTermComponentID: string;
+	selectedImageID: string;
 }
 
 export const DatabaseReducer = CombineReducers({
@@ -51,7 +51,7 @@ export function GetSelectedTermID() {
 export function GetSelectedTerm() {
 	const selectedID = GetSelectedTermID();
 	// return GetData(`terms/${selectedID}`);
-	return (GetTerms() || []).find(a => a._id == selectedID);
+	return (GetTerms() || []).find(a => a._key == selectedID);
 }
 /* export function GetSelectedTermComponent() {
 	let selectedID = State().main.selectedTermComponent;
@@ -64,5 +64,5 @@ export function GetSelectedImageID() {
 export function GetSelectedImage() {
 	const selectedID = GetSelectedImageID();
 	// return GetData(`terms/${selectedID}`);
-	return (GetImages() || []).find(a => a._id == selectedID);
+	return (GetImages() || []).find(a => a._key == selectedID);
 }

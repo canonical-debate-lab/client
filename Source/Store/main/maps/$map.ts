@@ -14,17 +14,17 @@ export enum SortType {
 	// ViewerCount = 40,
 }
 
-export class ACTMapNodeListSortBySet extends Action<{mapID: number, sortBy: SortType}> {}
-export class ACTMapNodeListFilterSet extends Action<{mapID: number, filter: string}> {}
-export class ACTMapNodeListPageSet extends Action<{mapID: number, page: number}> {}
-export class ACTSelectedNode_InListSet extends Action<{mapID: number, nodeID: number}> {}
-export class ACTMap_List_SelectedNode_OpenPanelSet extends Action<{mapID: number, panel: string}> {}
-export class ACTMap_SelectedTimelineSet extends Action<{mapID: number, selectedTimeline: number}> {}
-export class ACTMap_PlayingTimelineSet extends Action<{mapID: number, timelineID: number}> {}
-export class ACTMap_PlayingTimelineStepSet extends Action<{mapID: number, step: number}> {}
-export class ACTMap_PlayingTimelineAppliedStepSet extends Action<{mapID: number, step: number}> {}
+export class ACTMapNodeListSortBySet extends Action<{mapID: string, sortBy: SortType}> {}
+export class ACTMapNodeListFilterSet extends Action<{mapID: string, filter: string}> {}
+export class ACTMapNodeListPageSet extends Action<{mapID: string, page: number}> {}
+export class ACTSelectedNode_InListSet extends Action<{mapID: string, nodeID: string}> {}
+export class ACTMap_List_SelectedNode_OpenPanelSet extends Action<{mapID: string, panel: string}> {}
+export class ACTMap_SelectedTimelineSet extends Action<{mapID: string, selectedTimeline: string}> {}
+export class ACTMap_PlayingTimelineSet extends Action<{mapID: string, timelineID: string}> {}
+export class ACTMap_PlayingTimelineStepSet extends Action<{mapID: string, stepIndex: number}> {}
+export class ACTMap_PlayingTimelineAppliedStepSet extends Action<{mapID: string, stepIndex: number}> {}
 
-/* export function MapInfoReducer(state = null, action: Action<any>, mapID: number): MapInfo {
+/* export function MapInfoReducer(state = null, action: Action<any>, mapID: string): MapInfo {
 	if (action.Is(ACTSelectedNode_InListSet)) return {...state, list_selectedNodeID: action.payload.nodeID};
 	return state;
 } */
@@ -60,11 +60,11 @@ export const MapInfoReducer = mapID => CombineReducers({
 		return state;
 	},
 	playingTimeline_step: (state = null, action) => {
-		if (action.Is(ACTMap_PlayingTimelineStepSet)) return action.payload.step;
+		if (action.Is(ACTMap_PlayingTimelineStepSet)) return action.payload.stepIndex;
 		return state;
 	},
 	playingTimeline_appliedStep: (state = null, action) => {
-		if (action.Is(ACTMap_PlayingTimelineAppliedStepSet)) return action.payload.step;
+		if (action.Is(ACTMap_PlayingTimelineAppliedStepSet)) return action.payload.stepIndex;
 		return state;
 	},
 
@@ -72,45 +72,45 @@ export const MapInfoReducer = mapID => CombineReducers({
 	showChangesSince_visitOffset: SimpleReducer(`main/maps/${mapID}/showChangesSince_visitOffset`, 1),
 });
 
-export function GetSelectedNodeID_InList(mapID: number) {
+export function GetSelectedNodeID_InList(mapID: string) {
 	return State('main', 'maps', mapID, 'list_selectedNodeID');
 }
-export function GetSelectedNode_InList(mapID: number) {
+export function GetSelectedNode_InList(mapID: string) {
 	const nodeID = GetSelectedNodeID_InList(mapID);
 	return GetNode(nodeID);
 }
 
-export function GetMap_List_SelectedNode_OpenPanel(mapID: number) {
+export function GetMap_List_SelectedNode_OpenPanel(mapID: string) {
 	return State('main', 'maps', mapID, 'list_selectedNode_openPanel');
 }
 
-export function GetPlayingTimeline(mapID: number): Timeline {
+export function GetPlayingTimeline(mapID: string): Timeline {
 	if (mapID == null) return null;
 	const timelineID = State('main', 'maps', mapID, 'playingTimeline');
 	return GetTimeline(timelineID);
 }
-export function GetPlayingTimelineStepIndex(mapID: number): number {
+export function GetPlayingTimelineStepIndex(mapID: string): number {
 	if (mapID == null) return null;
 	return State('main', 'maps', mapID, 'playingTimeline_step');
 }
-export function GetPlayingTimelineStep(mapID: number) {
+export function GetPlayingTimelineStep(mapID: string) {
 	const playingTimeline = GetPlayingTimeline(mapID);
 	if (playingTimeline == null) return null;
 	const stepIndex = GetPlayingTimelineStepIndex(mapID) || 0;
 	const stepID = playingTimeline.steps[stepIndex];
 	return GetTimelineStep(stepID);
 }
-export function GetPlayingTimelineCurrentStepRevealNodes(mapID: number): string[] {
+export function GetPlayingTimelineCurrentStepRevealNodes(mapID: string): string[] {
 	const playingTimeline_currentStep = GetPlayingTimelineStep(mapID);
 	if (playingTimeline_currentStep == null) return emptyArray;
 	return GetNodesRevealedInSteps([playingTimeline_currentStep]);
 }
 
-export function GetPlayingTimelineAppliedStepIndex(mapID: number): number {
+export function GetPlayingTimelineAppliedStepIndex(mapID: string): number {
 	if (mapID == null) return null;
 	return State('main', 'maps', mapID, 'playingTimeline_appliedStep');
 }
-export function GetPlayingTimelineAppliedSteps(mapID: number, excludeAfterCurrentStep = false): TimelineStep[] {
+export function GetPlayingTimelineAppliedSteps(mapID: string, excludeAfterCurrentStep = false): TimelineStep[] {
 	const playingTimeline = GetPlayingTimeline(mapID);
 	if (playingTimeline == null) return emptyArray;
 	let stepIndex = GetPlayingTimelineAppliedStepIndex(mapID) || -1;
@@ -123,7 +123,7 @@ export function GetPlayingTimelineAppliedSteps(mapID: number, excludeAfterCurren
 	if (steps.Any(a => a == null)) return emptyArray;
 	return steps;
 }
-export function GetPlayingTimelineAppliedStepRevealNodes(mapID: number, excludeAfterCurrentStep = false): string[] {
+export function GetPlayingTimelineAppliedStepRevealNodes(mapID: string, excludeAfterCurrentStep = false): string[] {
 	const map = GetMap(mapID);
 	if (!map) return emptyArray;
 
@@ -131,7 +131,7 @@ export function GetPlayingTimelineAppliedStepRevealNodes(mapID: number, excludeA
 	return [`${map.rootNode}`].concat(GetNodesRevealedInSteps(appliedSteps));
 }
 
-export function GetPlayingTimelineSteps(mapID: number): TimelineStep[] {
+export function GetPlayingTimelineSteps(mapID: string): TimelineStep[] {
 	const playingTimeline = GetPlayingTimeline(mapID);
 	if (playingTimeline == null) return emptyArray;
 	const steps = playingTimeline.steps.map(a => GetTimelineStep(a));
@@ -143,9 +143,9 @@ export function GetNodesRevealedInSteps(steps: TimelineStep[]): string[] {
 	for (const step of steps) {
 		for (const reveal of step.nodeReveals || []) {
 			result[reveal.path] = true;
-			const node = GetNode(reveal.path.split('/').Last().ToInt());
+			const node = GetNode(reveal.path.split('/').Last());
 			if (node == null) continue;
-			let currentChildren = GetNodeChildren(node).map(child => ({ node: child, path: child && `${reveal.path}/${child._id}` }));
+			let currentChildren = GetNodeChildren(node).map(child => ({ node: child, path: child && `${reveal.path}/${child._key}` }));
 			if (currentChildren.Any(a => a.node == null)) return emptyArray;
 
 			for (let childrenDepth = 1; childrenDepth <= reveal.revealDepth; childrenDepth++) {
@@ -154,7 +154,7 @@ export function GetNodesRevealedInSteps(steps: TimelineStep[]): string[] {
 					result[child.path] = true;
 					// if there's another loop/depth after this one
 					if (childrenDepth < reveal.revealDepth) {
-						const childChildren = GetNodeChildren(child.node).map(child2 => ({ node: child2, path: child2 && `${child.path}/${child2._id}` }));
+						const childChildren = GetNodeChildren(child.node).map(child2 => ({ node: child2, path: child2 && `${child.path}/${child2._key}` }));
 						if (childChildren.Any(a => a == null)) return emptyArray;
 						nextChildren.AddRange(childChildren);
 					}
@@ -165,7 +165,7 @@ export function GetNodesRevealedInSteps(steps: TimelineStep[]): string[] {
 	}
 	return result.VKeys();
 }
-export function GetPlayingTimelineRevealNodes(mapID: number, excludeAfterCurrentStep = false): string[] {
+export function GetPlayingTimelineRevealNodes(mapID: string, excludeAfterCurrentStep = false): string[] {
 	const map = GetMap(mapID);
 	if (!map) return emptyArray;
 
@@ -173,7 +173,7 @@ export function GetPlayingTimelineRevealNodes(mapID: number, excludeAfterCurrent
 	return [`${map.rootNode}`].concat(GetNodesRevealedInSteps(steps));
 }
 
-export function GetTimeFromWhichToShowChangedNodes(mapID: number) {
+export function GetTimeFromWhichToShowChangedNodes(mapID: string) {
 	const type = State(`main/maps/${mapID}/showChangesSince_type`) as ShowChangesSinceType;
 	if (type == ShowChangesSinceType.None) return Number.MAX_SAFE_INTEGER; // from end of time (nothing)
 	if (type == ShowChangesSinceType.AllUnseenChanges) return 0; // from start of time (everything)

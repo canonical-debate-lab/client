@@ -5,9 +5,10 @@ import { ApplyDBUpdates, DBPath, ConvertDataToValidDBUpdates } from 'Utils/Frame
 import {ValidateDBData} from 'Utils/Store/DBDataValidator';
 import { FirebaseData } from '../../../Store/firebase';
 import { Map, MapType } from '../../../Store/firebase/maps/@Map';
-import { MapNode } from '../../../Store/firebase/nodes/@MapNode';
+import { MapNode, globalRootNodeID, globalMapID } from '../../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../../Store/firebase/nodes/@MapNodeType';
 import { UserExtraInfo } from '../../../Store/firebase/userExtras/@UserExtraInfo';
+import {GenerateUUID} from 'Utils/General/KeyGenerator';
 
 // Note: This is currently not used, and probably doesn`t even work atm.
 
@@ -42,11 +43,11 @@ export async function ResetCurrentDBRoot() {
 		joinDate: Date.now(),
 		permissionGroups: { basic: true, verified: true, mod: true, admin: true },
 	}));
-	AddMap(data, { name: 'Global', type: MapType.Global, rootNode: 1 } as Map, 1);
+	AddMap(data, { name: 'Global', type: MapType.Global, rootNode: globalRootNodeID } as Map, globalMapID);
 	AddNode(data,
 		new MapNode({ type: MapNodeType.Category }),
 		new MapNodeRevision({ titles: { base: 'Root' } }),
-		1);
+		globalRootNodeID);
 
 	ValidateDBData(data);
 
@@ -58,17 +59,18 @@ export async function ResetCurrentDBRoot() {
 function AddUserExtras(data: FirebaseData, userID: string, extraInfo: UserExtraInfo) {
 	data.userExtras[userID] = extraInfo;
 }
-function AddMap(data: FirebaseData, entry: Map, id?: number) {
+function AddMap(data: FirebaseData, entry: Map, id: string) {
 	entry = E(sharedData.creatorInfo, entry);
 
-	data.maps[id || ++data.general.data.lastMapID] = entry as any;
+	//data.maps[id || ++data.general.data.lastMapID] = entry as any;
+	data.maps[id || GenerateUUID()] = entry as any;
 }
-function AddNode(data: FirebaseData, node: MapNode, revision: MapNodeRevision, nodeID?: number) {
+function AddNode(data: FirebaseData, node: MapNode, revision: MapNodeRevision, nodeID?: string) {
 	node = E(sharedData.creatorInfo, node);
 	revision = E(sharedData.creatorInfo, revision);
 
-	nodeID = nodeID || ++data.general.data.lastNodeID;
-	const revisionID = ++data.general.data.lastNodeRevisionID;
+	nodeID = nodeID || GenerateUUID();
+	const revisionID = GenerateUUID();
 
 	node.currentRevision = revisionID;
 	data.nodes[nodeID] = node as any;

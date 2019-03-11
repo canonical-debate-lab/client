@@ -1,15 +1,15 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { AssertValidate } from 'Utils/FrameworkOverrides';
-import {GetDataAsync} from 'Utils/FrameworkOverrides';
-import { Image } from '../../Store/firebase/images/@Image';
+import { GetDataAsync } from 'Utils/FrameworkOverrides';
 import { Command } from 'Utils/FrameworkOverrides';
+import { GenerateUUID } from 'Utils/General/KeyGenerator';
+import { Image } from '../../Store/firebase/images/@Image';
 
 @UserEdit
 export class AddImage extends Command<{image: Image}, {}> {
-	imageID: number;
+	imageID: string;
 	async Prepare() {
-		const lastImageID = await GetDataAsync('general', 'data', '.lastImageID') as number;
-		this.imageID = lastImageID + 1;
+		this.imageID = GenerateUUID();
 		this.payload.image.createdAt = Date.now();
 	}
 	async Validate() {
@@ -20,7 +20,7 @@ export class AddImage extends Command<{image: Image}, {}> {
 	GetDBUpdates() {
 		const { image } = this.payload;
 		const updates = {
-			'general/data/.lastImageID': this.imageID,
+			// 'general/data/.lastImageID': this.imageID,
 			[`images/${this.imageID}`]: image,
 		};
 		return updates;

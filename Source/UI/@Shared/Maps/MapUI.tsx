@@ -35,7 +35,7 @@ export function GetViewOffsetForNodeBox(nodeBox: Element) {
 	return viewCenter_onScreen.Minus($(nodeBox).GetScreenRect().Position).NewX(x => x.RoundTo(1)).NewY(y => y.RoundTo(1));
 }
 
-export function UpdateFocusNodeAndViewOffset(mapID: number) {
+export function UpdateFocusNodeAndViewOffset(mapID: string) {
 	/* let selectedNodePath = GetSelectedNodePath(mapID);
 	let focusNodeBox = selectedNodePath ? GetNodeBoxForPath(selectedNodePath) : GetNodeBoxClosestToViewCenter(); */
 	const focusNodeBox = GetNodeBoxClosestToViewCenter();
@@ -63,7 +63,7 @@ const connector = (state: RootState, { map, rootNode }: Props) => {
 	}
 
 	if (map) {
-		const nodeID = State('main', 'mapViews', map._id, 'bot_currentNodeID');
+		const nodeID = State('main', 'mapViews', map._key, 'bot_currentNodeID');
 		if (isBot && nodeID) {
 			rootNode = GetNodeL3(`${nodeID}`);
 		}
@@ -100,7 +100,7 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 		if (map == null) {
 			return <div style={ES({ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, fontSize: 25 })}>Loading map...</div>;
 		}
-		Assert(map._id, 'map._id is null!');
+		Assert(map._key, 'map._id is null!');
 		if (rootNode == null) {
 			return <div style={ES({ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, fontSize: 25 })}>Loading root node...</div>;
 		}
@@ -132,7 +132,7 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 					// bufferScrollEventsBy={10000}
 					onScrollEnd={(pos) => {
 						// if (withinPage) return;
-						UpdateFocusNodeAndViewOffset(map._id);
+						UpdateFocusNodeAndViewOffset(map._key);
 					}}>
 					<style>{`
 					.MapUI { display: inline-flex; flex-wrap: wrap; }
@@ -155,8 +155,8 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 							if (e.target != this.mapUI) return;
 							if (new Vector2i(e.clientX, e.clientY).DistanceTo(this.downPos) >= 3) return;
 							const mapView = GetMapView(GetOpenMapID());
-							if (GetSelectedNodePath(map._id)) {
-								store.dispatch(new ACTMapNodeSelect({ mapID: map._id, path: null }));
+							if (GetSelectedNodePath(map._key)) {
+								store.dispatch(new ACTMapNodeSelect({ mapID: map._key, path: null }));
 								// UpdateFocusNodeAndViewOffset(map._id);
 							}
 						}}
@@ -164,7 +164,7 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 							if (e.nativeEvent['passThrough']) return true;
 							e.preventDefault();
 						}}>
-						<NodeUI map={map} node={rootNode} path={(Assert(rootNode._id != null), rootNode._id.toString())}/>
+						<NodeUI map={map} node={rootNode} path={(Assert(rootNode._key != null), rootNode._key.toString())}/>
 						{/* <ReactResizeDetector handleWidth handleHeight onResize={()=> { */}
 						{/* <ResizeSensor ref="resizeSensor" onResize={()=> {
 							this.LoadScroll();
@@ -212,7 +212,7 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 			}
 		}).Start(); */
 
-		const focusNodePath = GetFocusedNodePath(map._id);
+		const focusNodePath = GetFocusedNodePath(map._key);
 
 		let lastFoundPath = '';
 		const timer = new Timer(100, () => {
@@ -252,7 +252,7 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 			this.scrollView.vScrollableDOM = $('#HomeScrollView').children('.content')[0];
 		}
 		if (map) {
-			SetMapVisitTimeForThisSession(map._id, Date.now());
+			SetMapVisitTimeForThisSession(map._key, Date.now());
 		}
 	}
 
@@ -262,7 +262,7 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 		if (this.scrollView == null) return;
 		if (this.scrollView.state.scrollOp_bar) return; // if user is already scrolling manually, don't interrupt
 
-		const focusNode_target = GetFocusedNodePath(GetMapView(map._id)); // || map.rootNode.toString();
+		const focusNode_target = GetFocusedNodePath(GetMapView(map._key)); // || map.rootNode.toString();
 		this.ScrollToNode(focusNode_target);
 	}
 
@@ -286,7 +286,7 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 	ScrollToNode(nodePath: string) {
 		const { map, rootNode, withinPage } = this.props;
 
-		const viewOffset_target = GetViewOffset(GetMapView(map._id)); // || new Vector2i(200, 0);
+		const viewOffset_target = GetViewOffset(GetMapView(map._key)); // || new Vector2i(200, 0);
 		// Log(`LoadingScroll:${nodePath};${ToJSON(viewOffset_target)}`);
 		if (nodePath == null || viewOffset_target == null) return;
 
@@ -316,7 +316,7 @@ window.addEventListener('beforeunload', () => {
 	SetMapVisitTimeForThisSession(mapID, Date.now());
 });
 
-function SetMapVisitTimeForThisSession(mapID: number, time: number) {
+function SetMapVisitTimeForThisSession(mapID: string, time: number) {
 	if (mapID == null) return;
 	const lastMapViewTimes = FromJSON(localStorage.getItem(`lastMapViewTimes_${mapID}`) || `[${Date.now()}]`) as number[];
 

@@ -1,6 +1,6 @@
 import { ArgumentType } from 'Store/firebase/nodes/@MapNodeRevision';
 import { emptyObj } from 'js-vextensions';
-import {CachedTransform_WithStore} from 'Utils/FrameworkOverrides';
+import { CachedTransform_WithStore } from 'Utils/FrameworkOverrides';
 import { GetRatingAverage, GetRatingSet, GetRatingValue } from '../../Store/firebase/nodeRatings';
 import { Rating, RatingsSet } from '../../Store/firebase/nodeRatings/@RatingsRoot';
 import { GetMainRatingType, GetNodeForm, GetRatingTypesForNode } from '../../Store/firebase/nodes/$node';
@@ -12,10 +12,10 @@ export function GetArgumentImpactPseudoRating(argument: MapNodeL2, premises: Map
 
 	const premiseProbabilities = premises.map((premise) => {
 		const ratingType = GetRatingTypesForNode(premise)[0].type;
-		let ratingValue = GetRatingValue(premise._id, ratingType, userID, null);
+		let ratingValue = GetRatingValue(premise._key, ratingType, userID, null);
 		// if user didn't rate this premise, just use the average rating
 		if (ratingValue == null) {
-			ratingValue = GetRatingAverage(premise._id, ratingType, null, 0);
+			ratingValue = GetRatingAverage(premise._key, ratingType, null, 0);
 		}
 
 		const form = GetNodeForm(premise, argument);
@@ -33,10 +33,10 @@ export function GetArgumentImpactPseudoRating(argument: MapNodeL2, premises: Map
 		combinedTruthOfPremises = premiseProbabilities.Max(null, true);
 	}
 
-	let relevance = GetRatingValue(argument._id, 'relevance', userID, null);
+	let relevance = GetRatingValue(argument._key, 'relevance', userID, null);
 	// if user didn't rate the relevance, just use the average rating
 	if (relevance == null) {
-		relevance = GetRatingAverage(argument._id, 'relevance', null, 0);
+		relevance = GetRatingAverage(argument._key, 'relevance', null, 0);
 	}
 	// let strengthForType = adjustment.Distance(50) / 50;
 	const result = combinedTruthOfPremises * (relevance / 100);
@@ -72,10 +72,10 @@ export function GetArgumentImpactPseudoRatingSet(argument: MapNodeL2, premises: 
 	dataUsedInCalculation.argumentType = argument.current.argumentType;
 
 	// let result = CachedTransform("GetArgumentImpactPseudoRatingSet", [argument._id], dataUsedInCalculation, ()=> {
-	const result = CachedTransform_WithStore('GetArgumentImpactPseudoRatingSet', [argument._id], dataUsedInCalculation, () => {
-		const argRatingSet = GetRatingSet(argument._id, GetMainRatingType(argument)) || emptyObj;
+	const result = CachedTransform_WithStore('GetArgumentImpactPseudoRatingSet', [argument._key], dataUsedInCalculation, () => {
+		const argRatingSet = GetRatingSet(argument._key, GetMainRatingType(argument)) || emptyObj;
 		const premiseRatingSets = premises.map((child) => {
-			return GetRatingSet(child._id, GetMainRatingType(child)) || emptyObj;
+			return GetRatingSet(child._key, GetMainRatingType(child)) || emptyObj;
 		});
 
 		const usersWhoRatedArgOrPremise = {};

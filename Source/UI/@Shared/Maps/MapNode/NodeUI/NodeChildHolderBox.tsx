@@ -128,7 +128,7 @@ export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { 
 						{...{ backgroundFillPercent, backgroundColor, markerPercent }}
 						toggleExpanded={(e) => {
 							store.dispatch(new ACTMapNodeExpandedSet({
-								mapID: map._id, path, recursive: nodeView[expandKey] && e.altKey,
+								mapID: map._key, path, recursive: nodeView[expandKey] && e.altKey,
 								[expandKey]: !nodeView[expandKey],
 							}));
 							e.nativeEvent.ignore = true; // for some reason, "return false" isn't working
@@ -145,7 +145,7 @@ export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { 
 									padding: 5, background: backgroundColor.css(), borderRadius: 5, boxShadow: 'rgba(0,0,0,1) 0px 0px 2px',
 								}}>
 									{(() => {
-										const ratings = GetRatings(node._id, holderTypeStr as RatingType);
+										const ratings = GetRatings(node._key, holderTypeStr as RatingType);
 										return <RatingsPanel node={node} path={path} ratingType={holderTypeStr as RatingType} ratings={ratings}/>;
 									})()}
 								</div>,

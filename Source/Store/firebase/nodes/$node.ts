@@ -15,7 +15,7 @@ import { GetNodeRevision } from '../nodeRevisions';
 export function PreProcessLatex(text: string) {
 	// text = text.replace(/\\term{/g, "\\text{");
 	// "\term{some-term}{123}" -> "\text{@term[some-term,123]}
-	text = text.replace(/\\term{(.+?)}{([0-9]+?)}/g, (m, g1, g2) => `\\text{@term[${g1},${g2}]}`);
+	text = text.replace(/\\term{(.+?)}{([A-Za-z0-9_-]+?)}/g, (m, g1, g2) => `\\text{@term[${g1},${g2}]}`);
 	text = text.replace(/\\term/g, () => '[syntax wrong]'); // for user syntax mistakes, keep from causing error
 	return text;
 }
@@ -75,9 +75,9 @@ export function GetFinalPolarityAtPath(node: MapNodeL2, path: string): Polarity 
 	const parent = GetParentNodeL2(path);
 	if (!parent) return Polarity.Supporting; // can be null, if for NodeUI_ForBots
 
-	const link = GetLinkUnderParent(node._id, parent);
+	const link = GetLinkUnderParent(node._key, parent);
 	if (link == null) return Polarity.Supporting; // can be null, if path is invalid (eg. copied-node path)
-	Assert(link.polarity != null, `The link for the argument #${node._id} must specify the polarity.`);
+	Assert(link.polarity != null, `The link for the argument #${node._key} must specify the polarity.`);
 
 	const parentForm = GetNodeForm(parent, SplitStringBySlash_Cached(path).slice(0, -1).join('/'));
 	return GetFinalPolarity(link.polarity, parentForm);
@@ -110,8 +110,8 @@ export function AsNodeL2(node: MapNode, currentRevision: MapNodeRevision) {
 	delete result['link'];
 	return result;
 }
-export function GetNodeL2(nodeID: number | MapNode, path?: string) {
-	if (IsNumber(nodeID)) nodeID = GetNode(nodeID);
+export function GetNodeL2(nodeID: string | MapNode, path?: string) {
+	if (IsString(nodeID)) nodeID = GetNode(nodeID);
 	if (nodeID == null) return null;
 	const node = nodeID as MapNode;
 
@@ -153,7 +153,7 @@ export function GetNodeL3(path: string) {
 	if (!isSubnode) {
 		const parent = GetParentNode(path);
 		if (parent == null && path.Contains('/')) return null;
-		var link = GetLinkUnderParent(node._id, parent);
+		var link = GetLinkUnderParent(node._key, parent);
 		if (link == null && path.Contains('/')) return null;
 	}
 
@@ -176,11 +176,11 @@ export function GetNodeForm(node: MapNodeL2 | MapNodeL3, pathOrParent?: string |
 	}
 
 	const parent: MapNodeL2 = IsString(pathOrParent) ? GetParentNodeL2(pathOrParent as string) : pathOrParent as MapNodeL2;
-	const link = GetLinkUnderParent(node._id, parent);
+	const link = GetLinkUnderParent(node._key, parent);
 	if (link == null) return ClaimForm.Base;
 	return link.form;
 }
-export function GetLinkUnderParent(nodeID: number, parent: MapNode): ChildEntry {
+export function GetLinkUnderParent(nodeID: string, parent: MapNode): ChildEntry {
 	if (parent == null) return null;
 	if (parent.children == null) return null; // post-delete, parent-data might have updated before child-data
 	const link = parent.children[nodeID];
@@ -208,7 +208,7 @@ export function GetNodeDisplayText(node: MapNodeL2, path?: string, form?: ClaimF
 	const titles = node.current.titles || {} as TitlesMap;
 
 	if (node.type == MapNodeType.Argument && !node.multiPremiseArgument && !titles.base) {
-		const baseClaim = GetNodeL2(node.children && node.children.VKeys(true).length ? node.children.VKeys(true)[0].ToInt() : null);
+		const baseClaim = GetNodeL2(node.children && node.children.VKeys(true).length ? node.children.VKeys(true)[0] : null);
 		if (baseClaim) return GetNodeDisplayText(baseClaim);
 	}
 	if (node.type == MapNodeType.Claim) {
@@ -265,7 +265,7 @@ export function GetValidChildTypes(nodeType: MapNodeType, path: string) {
 }
 export function GetValidNewChildTypes(parent: MapNodeL2, holderType: HolderType, permissions: PermissionGroupSet) {
 	const nodeTypes = GetValues<MapNodeType>(MapNodeType);
-	const validChildTypes = nodeTypes.filter(type => ForNewLink_GetError(parent._id, { type } as any, permissions, holderType) == null);
+	const validChildTypes = nodeTypes.filter(type => ForNewLink_GetError(parent._key, { type } as any, permissions, holderType) == null);
 	return validChildTypes;
 }
 

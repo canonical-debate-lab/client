@@ -21,7 +21,7 @@ function CreateLinkCommand(map: Map, draggedNode: MapNodeL3, draggedNodePath: st
 	const formForClaimChildren = dropOnNode.type == MapNodeType.Category ? ClaimForm.YesNoQuestion : ClaimForm.Base;
 
 	return new LinkNode_HighLevel({
-		mapID: map._id, oldParentID: GetParentNodeID(draggedNodePath), newParentID: dropOnNode._id, nodeID: draggedNode._id,
+		mapID: map._key, oldParentID: GetParentNodeID(draggedNodePath), newParentID: dropOnNode._key, nodeID: draggedNode._key,
 		newForm: draggedNode.type == MapNodeType.Claim ? formForClaimChildren : null,
 		newPolarity: polarity,
 		allowCreateWrapperArg: holderType != null || !dropOnNode.multiPremiseArgument,
@@ -109,7 +109,7 @@ export class AddArgumentButton extends BaseComponent<Props, {}> {
 					if (e.button != 0) return;
 					if (MeID() == null) return ShowSignInPopup();
 
-					ShowAddChildDialog(node, path, MapNodeType.Argument, polarity, MeID(), map._id);
+					ShowAddChildDialog(node, path, MapNodeType.Argument, polarity, MeID(), map._key);
 				}}/>
 		);
 	}

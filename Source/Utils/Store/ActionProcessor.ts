@@ -108,10 +108,10 @@ export async function PostDispatchAction(action: Action<any>) {
 			for (let depth = 0; depth < map.defaultExpandDepth; depth++) {
 				const newPathsToExpand = [];
 				for (const path of pathsToExpand) {
-					const nodeID = path.split('/').Last().ToInt();
+					const nodeID = path.split('/').Last();
 					const node = await GetAsync(() => GetNodeL2(nodeID));
-					if (GetNodeView(map._id, path) == null) {
-						store.dispatch(new ACTMapNodeExpandedSet({ mapID: map._id, path, expanded: true, recursive: false }));
+					if (GetNodeView(map._key, path) == null) {
+						store.dispatch(new ACTMapNodeExpandedSet({ mapID: map._key, path, expanded: true, recursive: false }));
 					}
 					if (node.children) {
 						newPathsToExpand.push(...node.children.VKeys(true).map(childID => `${path}/${childID}`));
@@ -132,7 +132,7 @@ export async function PostDispatchAction(action: Action<any>) {
 			const children = GetNodeChildrenL2(node).every(a => a != null) ? GetNodeChildrenL2(node) : await GetAsync(() => GetNodeChildrenL2(node));
 			const actions = [];
 			for (const child of children) {
-				const childPath = `${action.payload.path}/${child._id}`;
+				const childPath = `${action.payload.path}/${child._key}`;
 				const childNodeView = (GetNodeView(action.payload.mapID, childPath) || await GetAsync(() => GetNodeView(action.payload.mapID, childPath))) || {};
 				if (child && child.type == MapNodeType.Argument && childNodeView.expanded == null) {
 					actions.push(new ACTMapNodeExpandedSet({ mapID: action.payload.mapID, path: childPath, expanded: true, recursive: false }));
@@ -214,7 +214,7 @@ export async function PostDispatchAction(action: Action<any>) {
 	}
 }
 
-async function ExpandToAndFocusOnNodes(mapID: number, paths: string[]) {
+async function ExpandToAndFocusOnNodes(mapID: string, paths: string[]) {
 	const { UpdateFocusNodeAndViewOffset } = require('../../UI/@Shared/Maps/MapUI'); // eslint-disable-line
 
 	for (const path of paths) {

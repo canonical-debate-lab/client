@@ -5,7 +5,7 @@ import { UserEdit } from '../CommandMacros';
 WaitTillSchemaAddedThenRun('TimelineStep', () => {
 	AddSchema({
 		properties: {
-			stepID: { type: 'number' },
+			stepID: { type: 'string' },
 			stepUpdates: Schema({
 				properties: GetSchemaJSON('TimelineStep')['properties'].Including('title', 'message', 'nodeReveals'),
 			}),
@@ -15,7 +15,7 @@ WaitTillSchemaAddedThenRun('TimelineStep', () => {
 });
 
 @UserEdit
-export class UpdateTimelineStep extends Command<{stepID: number, stepUpdates: Partial<TimelineStep>}, {}> {
+export class UpdateTimelineStep extends Command<{stepID: string, stepUpdates: Partial<TimelineStep>}, {}> {
 	Validate_Early() {
 		AssertValidate('UpdateTimelineStep_payload', this.payload, 'Payload invalid');
 	}

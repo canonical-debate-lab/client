@@ -7,7 +7,7 @@ export class Term {
 		// this.createdAt = Date.now();
 	}
 
-	_id?: number;
+	_key?: string;
 	name: string;
 	disambiguation: string;
 	type: TermType;
@@ -66,4 +66,4 @@ export enum TermType {
 AddSchema({ oneOf: GetValues_ForSchema(TermType) }, 'TermType');
 
 export type TermComponentSet = {[key: number]: boolean};
-AddSchema({ patternProperties: { '^[0-9]+$': { type: 'boolean' } } }, 'TermComponentSet');
+AddSchema({ patternProperties: { '^[A-Za-z0-9_-]+$': { type: 'boolean' } } }, 'TermComponentSet');

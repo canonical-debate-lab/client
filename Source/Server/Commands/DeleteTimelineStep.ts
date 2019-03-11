@@ -5,9 +5,9 @@ import { GetTimeline, GetTimelineStep } from '../../Store/firebase/timelines';
 import { Command } from 'Utils/FrameworkOverrides';
 
 @UserEdit
-export class DeleteTimelineStep extends Command<{stepID: number}, {}> {
+export class DeleteTimelineStep extends Command<{stepID: string}, {}> {
 	oldData: TimelineStep;
-	timeline_oldSteps: number[];
+	timeline_oldSteps: string[];
 	async Prepare() {
 		const { stepID } = this.payload;
 		this.oldData = await GetAsync_Raw(() => GetTimelineStep(stepID));

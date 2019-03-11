@@ -75,7 +75,7 @@ class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: string}> {
 						<Row>
 							<Button mt={5} text="Save" enabled={dataError == null} onLeftClick={async () => {
 								const mapUpdates = GetUpdates(map, this.detailsUI.GetNewData()).Excluding('layers', 'timelines');
-								await new UpdateMapDetails({ mapID: map._id, mapUpdates }).Run();
+								await new UpdateMapDetails({ mapID: map._key, mapUpdates }).Run();
 							}}/>
 						</Row>}
 					{creatorOrMod &&
@@ -93,7 +93,7 @@ class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: string}> {
 										title: `Delete "${map.name}"`, cancelButton: true,
 										message: `Delete the map "${map.name}"?`,
 										onOK: async () => {
-											await new DeleteMap({ mapID: map._id }).Run();
+											await new DeleteMap({ mapID: map._key }).Run();
 											store.dispatch(new ACTDebateMapSelect({ id: null }));
 										},
 									});
@@ -162,7 +162,7 @@ class LayersDropDown extends BaseComponent<LayersDropDownProps, {}> {
 							</Column>
 							<ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, position: 'relative' })}>
 								{layers.length == 0 && <div style={{ textAlign: 'center', fontSize: 18 }}>Loading...</div>}
-								{layers.map((layer, index) => <LayerUI key={layer._id} index={index} last={index == layers.length - 1} map={map} layer={layer}/>)}
+								{layers.map((layer, index) => <LayerUI key={layer._key} index={index} last={index == layers.length - 1} map={map} layer={layer}/>)}
 							</ScrollView>
 						</Column>
 						{false &&
@@ -178,7 +178,7 @@ class LayersDropDown extends BaseComponent<LayersDropDownProps, {}> {
 type LayerUIProps = {index: number, last: boolean, map: Map, layer: Layer} & Partial<{creator: User, userLayerState: boolean}>;
 @Connect((state, { map, layer }: LayerUIProps) => ({
 	creator: layer && GetUser(layer.creator),
-	userLayerState: GetUserLayerStateForMap(MeID(), map._id, layer._id),
+	userLayerState: GetUserLayerStateForMap(MeID(), map._key, layer._key),
 }))
 class LayerUI extends BaseComponent<LayerUIProps, {}> {
 	render() {
@@ -200,15 +200,15 @@ class LayerUI extends BaseComponent<LayerUIProps, {}> {
 										title: `Delete "${layer.name}"`, cancelButton: true,
 										message: `Delete the layer "${layer.name}"?`,
 										onOK: async () => {
-											new DeleteLayer({ layerID: layer._id }).Run();
+											new DeleteLayer({ layerID: layer._key }).Run();
 										},
 									});
 								}}/>}
 					</span>
 					<span style={{ flex: columnWidths[1] }}>{creator ? creator.displayName : '...'}</span>
 					<span style={{ flex: columnWidths[2] }}>
-						<CheckBox enabled={creatorOrMod} checked={GetMapLayerIDs(map).Contains(layer._id)} onChange={(val) => {
-							new SetLayerAttachedToMap({ mapID: map._id, layerID: layer._id, attached: val }).Run();
+						<CheckBox enabled={creatorOrMod} checked={GetMapLayerIDs(map).Contains(layer._key)} onChange={(val) => {
+							new SetLayerAttachedToMap({ mapID: map._key, layerID: layer._key, attached: val }).Run();
 						}}/>
 					</span>
 					<span style={{ flex: columnWidths[3] }}>
@@ -217,7 +217,7 @@ class LayerUI extends BaseComponent<LayerUIProps, {}> {
 							const newState =								userLayerState == null ? true
 								: userLayerState == true ? false
 									: null;
-							new SetMapLayerStateForUser({ userID: MeID(), mapID: map._id, layerID: layer._id, state: newState }).Run();
+							new SetMapLayerStateForUser({ userID: MeID(), mapID: map._key, layerID: layer._key, state: newState }).Run();
 						}}/>
 					</span>
 				</Row>

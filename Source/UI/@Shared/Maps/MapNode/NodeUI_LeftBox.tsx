@@ -91,7 +91,7 @@ export class MapNodeUI_LeftBox extends BaseComponentWithConnector(connector, {})
 						// let ratingSet = ratingsRoot && ratingsRoot[ratingType];
 
 						let percentStr = '...';
-						const ratings = GetRatings(nodeForRatingType._id, ratingInfo.type);
+						const ratings = GetRatings(nodeForRatingType._key, ratingInfo.type);
 						const average = GetRatingAverage_AtPath(nodeForRatingType, ratingInfo.type, null, -1);
 						if (average != -1) {
 							percentStr = `${average}%`;

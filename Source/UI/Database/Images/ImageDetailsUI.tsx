@@ -40,7 +40,7 @@ export class ImageDetailsUI extends BaseComponent<Props, {newData: Image, dataEr
 		return (
 			<Column style={style}>
 				{!creating &&
-					<IDAndCreationInfoUI id={newData._id} creator={creator} createdAt={newData.createdAt}/>}
+					<IDAndCreationInfoUI id={newData._key} creator={creator} createdAt={newData.createdAt}/>}
 				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 					<Pre>Name: </Pre>
 					<TextInput

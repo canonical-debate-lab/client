@@ -24,13 +24,13 @@ import { User } from '../../../../../../Store/firebase/users/@User';
 const connector = (state, { node }: {map?: Map, node: MapNodeL3, path: string}) => ({
 	_: GetUserPermissionGroups(MeID()),
 	creator: GetUser(node.creator),
-	viewers: GetNodeViewers(node._id),
+	viewers: GetNodeViewers(node._key),
 });
 @Connect(connector)
 export class OthersPanel extends BaseComponentWithConnector(connector, { convertToType: null as ClaimType }) {
 	render() {
 		const { map, node, path, creator, viewers } = this.props;
-		const mapID = map ? map._id : null;
+		const mapID = map ? map._key : null;
 		let { convertToType } = this.state;
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), node);
 
@@ -49,7 +49,7 @@ export class OthersPanel extends BaseComponentWithConnector(connector, { convert
 
 		return (
 			<Column sel style={{ position: 'relative' }}>
-				<IDAndCreationInfoUI id={node._id} creator={creator} createdAt={node.createdAt}/>
+				<IDAndCreationInfoUI id={node._key} creator={creator} createdAt={node.createdAt}/>
 				<Row>Parents: {node.parents == null ? 'none' : node.parents.VKeys(true).join(', ')}</Row>
 				<Row>Children: {node.children == null ? 'none' : node.children.VKeys(true).join(', ')}</Row>
 				<Row>Viewers: {viewers.length || '...'} <InfoButton text="The number of registered users who have had this node displayed in-map at some point."/></Row>
@@ -61,7 +61,7 @@ export class OthersPanel extends BaseComponentWithConnector(connector, { convert
 								// message: `Reverse polarity of argument "${GetNodeDisplayText(nodeArgOrParentSPArg_controlled)}"?\n\nAll relevance ratings will be deleted.`,
 								message: `Reverse polarity of argument "${GetNodeDisplayText(nodeArgOrParentSPArg_controlled)}"?`,
 								onOK: () => {
-									new ReverseArgumentPolarity(E(mapID && { mapID }, { nodeID: nodeArgOrParentSPArg_controlled._id, path: nodeArgOrParentSPArg_controlled_path })).Run();
+									new ReverseArgumentPolarity(E(mapID && { mapID }, { nodeID: nodeArgOrParentSPArg_controlled._key, path: nodeArgOrParentSPArg_controlled_path })).Run();
 								},
 							});
 						}}/>
@@ -71,7 +71,7 @@ export class OthersPanel extends BaseComponentWithConnector(connector, { convert
 						<Pre>Convert to: </Pre>
 						<Select options={convertToTypes} value={convertToType} onChange={val => this.SetState({ convertToType: val })}/>
 						<Button ml={5} text="Convert" onClick={() => {
-							new ChangeClaimType(E({ mapID }, { nodeID: node._id, newType: convertToType })).Run();
+							new ChangeClaimType(E({ mapID }, { nodeID: node._key, newType: convertToType })).Run();
 						}}/>
 					</Row>}
 				{node.type === MapNodeType.Argument && node.multiPremiseArgument && !isArgument_any &&
@@ -105,7 +105,7 @@ class AtThisLocation extends BaseComponent<{node: MapNodeL3, path: string}, {}> 
 						<CheckBox checked={node.link.form == ClaimForm.Negation}
 							onChange={(val) => {
 								new UpdateLink({
-									linkParentID: GetParentNodeID(path), linkChildID: node._id,
+									linkParentID: GetParentNodeID(path), linkChildID: node._key,
 									linkUpdates: { form: val ? ClaimForm.Negation : ClaimForm.Base },
 								}).Run();
 							}}/>
@@ -117,7 +117,7 @@ class AtThisLocation extends BaseComponent<{node: MapNodeL3, path: string}, {}> 
 							// onChange={val=>Change(val ? newLinkData.isStep = true : delete newLinkData.isStep)}/>
 							onChange={(val) => {
 								new UpdateLink({
-									linkParentID: GetParentNodeID(path), linkChildID: node._id,
+									linkParentID: GetParentNodeID(path), linkChildID: node._key,
 									linkUpdates: { seriesAnchor: val || null },
 								}).Run();
 							}}/>
@@ -127,7 +127,7 @@ class AtThisLocation extends BaseComponent<{node: MapNodeL3, path: string}, {}> 
 	}
 }
 
-class ChildrenOrder extends BaseComponent<{mapID: number, node: MapNodeL3}, {}> {
+class ChildrenOrder extends BaseComponent<{mapID: string, node: MapNodeL3}, {}> {
 	render() {
 		const { mapID, node } = this.props;
 		const oldChildrenOrder = node.childrenOrder || [];
@@ -136,7 +136,7 @@ class ChildrenOrder extends BaseComponent<{mapID: number, node: MapNodeL3}, {}> 
 			<Column mt={5}>
 				<Row style={{ fontWeight: 'bold' }}>Children order:</Row>
 				{oldChildrenOrder.map((childID, index) => {
-					const childPath = (node._id ? `${node._id}/` : '') + childID;
+					const childPath = (node._key ? `${node._key}/` : '') + childID;
 					const child = GetNodeL3(childPath);
 					const childTitle = child ? GetNodeDisplayText(child, childPath, GetNodeForm(child, node)) : '...';
 					return (
@@ -152,14 +152,14 @@ class ChildrenOrder extends BaseComponent<{mapID: number, node: MapNodeL3}, {}> 
 									const newOrder = oldChildrenOrder.slice(0);
 									newOrder.RemoveAt(index);
 									newOrder.Insert(index - 1, childID);
-									new UpdateNodeChildrenOrder({ mapID, nodeID: node._id, childrenOrder: newOrder }).Run();
+									new UpdateNodeChildrenOrder({ mapID, nodeID: node._key, childrenOrder: newOrder }).Run();
 								}}/>
 							<Button text={<Icon size={16} icon="arrow-down"/> as any} m={2} ml={5} style={{ padding: 3 }} enabled={index < oldChildrenOrder.length - 1}
 								onClick={() => {
 									const newOrder = oldChildrenOrder.slice(0);
 									newOrder.RemoveAt(index);
 									newOrder.Insert(index + 1, childID);
-									new UpdateNodeChildrenOrder({ mapID, nodeID: node._id, childrenOrder: newOrder }).Run();
+									new UpdateNodeChildrenOrder({ mapID, nodeID: node._key, childrenOrder: newOrder }).Run();
 								}}/>
 						</Row>
 					);
@@ -167,8 +167,8 @@ class ChildrenOrder extends BaseComponent<{mapID: number, node: MapNodeL3}, {}> 
 				{!oldChildrenOrderValid &&
 					<Button mr="auto" text="Fix children-order" onClick={() => {
 						const existingValidIDs = oldChildrenOrder.filter(id => node.children[id] != null);
-						const missingChildIDs = node.children.Pairs(true).filter(pair => !oldChildrenOrder.Contains(pair.keyNum)).map(pair => pair.keyNum);
-						new UpdateNodeChildrenOrder({ mapID, nodeID: node._id, childrenOrder: existingValidIDs.concat(missingChildIDs) }).Run();
+						const missingChildIDs = node.children.Pairs(true).filter(pair => !oldChildrenOrder.Contains(pair.key)).map(pair => pair.key);
+						new UpdateNodeChildrenOrder({ mapID, nodeID: node._key, childrenOrder: existingValidIDs.concat(missingChildIDs) }).Run();
 					}}/>}
 			</Column>
 		);

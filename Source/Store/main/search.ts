@@ -3,10 +3,10 @@ import { CombineReducers, SimpleReducer } from 'Utils/FrameworkOverrides';
 export class SearchStorage {
 	queryStr: string;
 	searchResults_partialTerms: string[];
-	searchResults_nodeIDs: number[];
+	searchResults_nodeIDs: string[];
 
 	findNode_state: 'inactive' | 'activating' | 'active';
-	findNode_node: number;
+	findNode_node: string;
 	findNode_resultPaths: string[];
 	findNode_currentSearchDepth: number;
 }

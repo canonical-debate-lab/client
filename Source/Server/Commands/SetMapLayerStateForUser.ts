@@ -6,8 +6,8 @@ import { UserEdit } from '../CommandMacros';
 AddSchema({
 	properties: {
 		userID: { type: 'string' },
-		mapID: { type: 'number' },
-		layerID: { type: 'number' },
+		mapID: { type: 'string' },
+		layerID: { type: 'string' },
 		state: { type: ['null', 'boolean'] },
 	},
 	required: ['userID', 'mapID', 'layerID', 'state'],
@@ -15,7 +15,7 @@ AddSchema({
 
 @MapEdit
 @UserEdit
-export class SetMapLayerStateForUser extends Command<{userID: string, mapID: number, layerID: number, state: boolean}, {}> {
+export class SetMapLayerStateForUser extends Command<{userID: string, mapID: string, layerID: string, state: boolean}, {}> {
 	Validate_Early() {
 		AssertValidate('SetMapLayerStateForUser_payload', this.payload, 'Payload invalid');
 	}

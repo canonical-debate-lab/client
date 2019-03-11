@@ -29,12 +29,12 @@ export function GetNodesL2(queries?): MapNodeL2[] {
 	return CachedTransform("GetNodes_Enhanced", [], nodeMap, ()=>nodeMap ? nodeMap.VValues(true) : []);
 } */
 
-export function GetNode(id: number) {
+export function GetNode(id: string) {
 	// Assert(id != null && !IsNaN(id), "Node-id cannot be null or NaN.");
 	if (id == null || IsNaN(id)) return null;
 	return GetData('nodes', id) as MapNode;
 }
-/* export async function GetNodeAsync(id: number) {
+/* export async function GetNodeAsync(id: string) {
 	return await GetDataAsync("nodes", id) as MapNode;
 } */
 
@@ -57,7 +57,7 @@ export function GetParentNodeID(path: string) {
 	const pathNodes = SplitStringBySlash_Cached(path);
 	if (pathNodes.Last()[0] == 'L') return null;
 	const parentNodeStr = pathNodes.XFromLast(1);
-	return parentNodeStr ? parentNodeStr.replace('L', '').ToInt() : null;
+	return parentNodeStr ? parentNodeStr.replace('L', '') : null;
 }
 export function GetParentNode(childPath: string) {
 	return GetNode(GetParentNodeID(childPath));
@@ -70,12 +70,12 @@ export function GetParentNodeL3(childPath: string) {
 }
 export function GetNodeID(path: string) {
 	const ownNodeStr = SplitStringBySlash_Cached(path).LastOrX();
-	return ownNodeStr ? ownNodeStr.replace('L', '').ToInt() : null;
+	return ownNodeStr ? ownNodeStr.replace('L', '') : null;
 }
 
 export function GetNodeParents(node: MapNode) {
-	const parents = (node.parents || {}).VKeys(true).map(id => GetNode(parseInt(id)));
-	return CachedTransform('GetNodeParents', [node._id], parents, () => parents);
+	const parents = (node.parents || {}).VKeys(true).map(id => GetNode(id));
+	return CachedTransform('GetNodeParents', [node._key], parents, () => parents);
 }
 export async function GetNodeParentsAsync(node: MapNode) {
 	return await Promise.all(node.parents.VKeys(true).map(parentID => GetDataAsync('nodes', parentID))) as MapNode[];
@@ -89,7 +89,7 @@ export function GetNodeParentsL3(node: MapNode, path: string) {
 	return CachedTransform('GetNodeParentsL3', [path], parentsL3, () => parentsL3);
 }
 
-/* export function GetNodeChildIDs(nodeID: number) {
+/* export function GetNodeChildIDs(nodeID: string) {
 	let node = GetNode(nodeID);
 	// any time the childIDs changes, we know the node object changes as well; so just cache childIDs on node
 	if (node["@childIDs"] == null)
@@ -102,8 +102,8 @@ export function GetNodeChildren(node: MapNode) {
 		return node.children as any as MapNode[];
 	}
 
-	const children = (node.children || {}).VKeys(true).map(id => GetNode(parseInt(id)));
-	return CachedTransform('GetNodeChildren', [node._id], children, () => children);
+	const children = (node.children || {}).VKeys(true).map(id => GetNode(id));
+	return CachedTransform('GetNodeChildren', [node._key], children, () => children);
 }
 export async function GetNodeChildrenAsync(node: MapNode) {
 	return await Promise.all(node.children.VKeys(true).map(id => GetDataAsync('nodes', id))) as MapNode[];
@@ -116,11 +116,11 @@ export function GetNodeChildrenL2(node: MapNode) {
 }
 export function GetNodeChildrenL3(node: MapNode, path?: string, filterForPath = false): MapNodeL3[] {
 	if (node == null) return emptyArray;
-	return CachedTransform_WithStore('GetNodeChildrenL3', [node._id, path, filterForPath], node.children, () => {
-		path = path || `${node._id}`;
+	return CachedTransform_WithStore('GetNodeChildrenL3', [node._key, path, filterForPath], node.children, () => {
+		path = path || `${node._key}`;
 
 		const nodeChildrenL2 = GetNodeChildrenL2(node);
-		let nodeChildrenL3 = nodeChildrenL2.map(child => (child ? GetNodeL3(`${path}/${child._id}`) : null));
+		let nodeChildrenL3 = nodeChildrenL2.map(child => (child ? GetNodeL3(`${path}/${child._key}`) : null));
 		if (filterForPath) {
 			nodeChildrenL3 = nodeChildrenL3.filter((child) => {
 				// if null, keep (so receiver knows there's an entry here, but it's still loading)
@@ -147,18 +147,18 @@ export function ForLink_GetError(parentType: MapNodeType, childType: MapNodeType
 	const parentTypeInfo = MapNodeType_Info.for[parentType].childTypes;
 	if (!parentTypeInfo.Contains(childType)) return `The child's type (${MapNodeType[childType]}) is not valid for the parent's type (${MapNodeType[parentType]}).`;
 }
-export function ForNewLink_GetError(parentID: number, newChild: Pick<MapNode, '_id' | 'type'>, permissions: PermissionGroupSet, newHolderType?: HolderType) {
+export function ForNewLink_GetError(parentID: string, newChild: Pick<MapNode, '_key' | 'type'>, permissions: PermissionGroupSet, newHolderType?: HolderType) {
 	if (!CanGetBasicPermissions(permissions)) return "You're not signed in, or lack basic permissions.";
 	const parent = GetNode(parentID);
 	if (parent == null) return 'Parent data not found.';
 	// const parentPathIDs = SplitStringBySlash_Cached(parentPath).map(a => a.ToInt());
 	// if (map.name == "Global" && parentPathIDs.length == 1) return false; // if parent is l1(root), don't accept new children
-	if (parent._id == globalRootNodeID && !HasAdminPermissions(permissions)) return 'Only admins can add children to the global-root.';
+	if (parent._key == globalRootNodeID && !HasAdminPermissions(permissions)) return 'Only admins can add children to the global-root.';
 	// if in global map, parent is l2, and user is not a mod (and not node creator), don't accept new children
 	// if (parentPathIDs[0] == globalRootNodeID && parentPathIDs.length == 2 && !HasModPermissions(permissions) && parent.creator != MeID()) return false;
-	if (parent._id == newChild._id) return 'Cannot link node as its own child.';
+	if (parent._key == newChild._key) return 'Cannot link node as its own child.';
 
-	const isAlreadyChild = (parent.children || {}).VKeys(true).Contains(`${newChild._id}`);
+	const isAlreadyChild = (parent.children || {}).VKeys(true).Contains(`${newChild._key}`);
 	// if new-holder-type is not specified, consider "any" and so don't check
 	if (newHolderType !== undefined) {
 		const currentHolderType = GetHolderType(newChild.type, parent.type);
@@ -168,23 +168,23 @@ export function ForNewLink_GetError(parentID: number, newChild: Pick<MapNode, '_
 }
 
 export function ForUnlink_GetError(userID: string, node: MapNodeL2, asPartOfCut = false) {
-	const baseText = `Cannot unlink node #${node._id}, since `;
+	const baseText = `Cannot unlink node #${node._key}, since `;
 	if (!IsUserCreatorOrMod(userID, node)) return `${baseText}you are not its owner. (or a mod)`;
 	if (!asPartOfCut && (node.parents || {}).VKeys(true).length <= 1) return `${baseText}doing so would orphan it. Try deleting it instead.`;
 	if (IsRootNode(node)) return `${baseText}it's the root-node of a map.`;
 	if (IsNodeSubnode(node)) return `${baseText}it's a subnode. Try deleting it instead.`;
 	return null;
 }
-export function ForDelete_GetError(userID: string, node: MapNodeL2, subcommandInfo?: {asPartOfMapDelete?: boolean, childrenToIgnore?: number[]}) {
-	const baseText = `Cannot delete node #${node._id}, since `;
+export function ForDelete_GetError(userID: string, node: MapNodeL2, subcommandInfo?: {asPartOfMapDelete?: boolean, childrenToIgnore?: string[]}) {
+	const baseText = `Cannot delete node #${node._key}, since `;
 	if (!IsUserCreatorOrMod(userID, node)) return `${baseText}you are not the owner of this node. (or a mod)`;
 	if (GetParentCount(node) > 1) return `${baseText}it has more than one parent. Try unlinking it instead.`;
 	if (IsRootNode(node) && !AsObj(subcommandInfo).asPartOfMapDelete) return `${baseText}it's the root-node of a map.`;
 
 	const nodeChildren = GetNodeChildrenL2(node);
 	if (nodeChildren.Any(a => a == null)) return '[still loading children...]';
-	if (nodeChildren.map(a => a._id).Except(AsObj(subcommandInfo).childrenToIgnore || []).length) {
-		return `Cannot delete this node (#${node._id}) until all its children have been unlinked or deleted.`;
+	if (nodeChildren.map(a => a._key).Except(AsObj(subcommandInfo).childrenToIgnore || []).length) {
+		return `Cannot delete this node (#${node._key}) until all its children have been unlinked or deleted.`;
 	}
 	return null;
 }

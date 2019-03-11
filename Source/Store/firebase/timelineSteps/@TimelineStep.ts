@@ -5,15 +5,15 @@ export class TimelineStep {
 		this.Extend(initialData);
 	}
 
-	_id: number;
-	timelineID: number;
+	_key: string;
+	timelineID: string;
 	title: string;
 	message: string;
 	nodeReveals: NodeReveal[];
 }
 AddSchema({
 	properties: {
-		timelineID: { type: 'number' },
+		timelineID: { type: 'string' },
 		title: { type: 'string' },
 		message: { type: 'string' },
 		nodeReveals: { $ref: 'NodeReveal' },

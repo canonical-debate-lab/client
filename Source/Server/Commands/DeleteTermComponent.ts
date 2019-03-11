@@ -5,7 +5,7 @@ import { Command } from 'Utils/FrameworkOverrides';
 import { TermComponent } from '../../Store/firebase/termComponents/@TermComponent';
 
 @UserEdit
-export class DeleteTermComponent extends Command<{termComponentID: number}, {}> {
+export class DeleteTermComponent extends Command<{termComponentID: string}, {}> {
 	Validate_Early() {
 		const { termComponentID } = this.payload;
 		Assert(IsNumber(termComponentID));

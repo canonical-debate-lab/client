@@ -6,7 +6,7 @@ export class TermComponent {
 		// this.createdAt = Date.now();
 	}
 
-	_id?: number;
+	_key?: string;
 	text: string;
 
 	parentTerms: ParentTermSet;
@@ -20,8 +20,8 @@ AddSchema({
 }, 'TermComponent');
 
 /* export type ParentTermSet = {[key: number]: ParentTerm};
-AddSchema({patternProperties: {"^[0-9]+$": {$ref: "ParentTerm"}}}, "ParentTermSet");
+AddSchema({patternProperties: {"^[A-Za-z0-9_-]+$": {$ref: "ParentTerm"}}}, "ParentTermSet");
 export type ParentTerm = boolean;
 AddSchema({type: "boolean"}, "ParentTerm"); */
-export type ParentTermSet = {[key: number]: boolean};
-AddSchema({ patternProperties: { '^[0-9]+$': { type: 'boolean' } } }, 'ParentTermSet');
+export type ParentTermSet = {[key: string]: boolean};
+AddSchema({ patternProperties: { '^[A-Za-z0-9_-]+$': { type: 'boolean' } } }, 'ParentTermSet');

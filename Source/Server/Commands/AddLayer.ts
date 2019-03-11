@@ -1,17 +1,17 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { AssertValidate } from 'Utils/FrameworkOverrides';
-import {GetDataAsync} from 'Utils/FrameworkOverrides';
+import { GetDataAsync } from 'Utils/FrameworkOverrides';
 import { Command } from 'Utils/FrameworkOverrides';
+import { GenerateUUID } from 'Utils/General/KeyGenerator';
 
 @UserEdit
 export class AddLayer extends Command<{layer: Layer}, {}> {
-	layerID: number;
+	layerID: string;
 	async Prepare() {
 		const { layer } = this.payload;
 
-		const lastLayerID = await GetDataAsync('general', 'data', '.lastLayerID') as number;
-		this.layerID = lastLayerID + 1;
+		this.layerID = GenerateUUID();
 		layer.createdAt = Date.now();
 	}
 	async Validate() {
@@ -22,7 +22,7 @@ export class AddLayer extends Command<{layer: Layer}, {}> {
 	GetDBUpdates() {
 		const { layer } = this.payload;
 		const updates = {
-			'general/data/.lastLayerID': this.layerID,
+			// 'general/data/.lastLayerID': this.layerID,
 			[`layers/${this.layerID}`]: layer,
 		} as any;
 		return updates;
