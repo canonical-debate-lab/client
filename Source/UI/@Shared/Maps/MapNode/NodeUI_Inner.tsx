@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import keycode from 'keycode';
 import { DragSource } from 'react-dnd';
 import { Button, Pre, Row, TextArea } from 'react-vcomponents';
-import { BaseComponent, BaseComponentWithConnector, GetInnerComp, GetDOM } from 'react-vextensions';
+import { BaseComponent, BaseComponentWithConnector, GetInnerComp, GetDOM, FindReact } from 'react-vextensions';
 import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthScoreComposite, RS_GetAllValues } from 'Store/firebase/nodeRatings/ReasonScore';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
@@ -11,7 +11,7 @@ import { NodeMathUI } from 'UI/@Shared/Maps/MapNode/NodeMathUI';
 import { SetNodeUILocked } from 'UI/@Shared/Maps/MapNode/NodeUI';
 import { SlicePath, State, Connect, IsDoubleClick, InfoButton, RemoveHelpers, DBPath, WaitTillPathDataIsReceived, VReactMarkdown_Remarkable } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { Clone, Assert } from 'js-vextensions';
+import { Clone, Assert, Timer, VRect, Vector2i } from 'js-vextensions';
 import { ParseSegmentsForPatterns } from '../../../../Utils/General/RegexHelpers';
 import { AddNodeRevision } from '../../../../Server/Commands/AddNodeRevision';
 import { GetImage } from '../../../../Store/firebase/images';
@@ -120,7 +120,26 @@ const connector = (state, { map, node, path }: Props) => {
 export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 	{ hovered: false, hoverPanel: null as string, hoverTermID: null as string, /* local_selected: boolean, */ local_openPanel: null as string }) {
 	static defaultProps = { panelPosition: 'left' };
+
+	root: ExpandableBox;
 	titlePanel: TitlePanel;
+	checkStillHoveredTimer = new Timer(100, () => {
+		const dom = GetDOM(this.root);
+		if (dom == null) {
+			this.checkStillHoveredTimer.Stop();
+			return;
+		}
+		const mainRect = VRect.FromLTWH(dom.getBoundingClientRect());
+
+		const leftBoxDOM = dom.querySelector('.NodeUI_LeftBox');
+		const leftBoxRect = leftBoxDOM ? VRect.FromLTWH(leftBoxDOM.getBoundingClientRect()) : null;
+
+		const mouseRect = new VRect(mousePos, new Vector2i(1, 1));
+		const intersectsOne = mouseRect.Intersects(mainRect) || (leftBoxRect && mouseRect.Intersects(leftBoxRect));
+		// Log(`Main: ${mainRect} Mouse:${mousePos} Intersects one?:${intersectsOne}`);
+		this.SetState({ hovered: intersectsOne });
+	});
+
 	render() {
 		const { map, node, nodeView, path, width, widthOverride,
 			panelPosition, useLocalPanelState, style, form,
@@ -171,9 +190,17 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 		const expanded = nodeView && nodeView.expanded;
 
 		return (
-			<ExpandableBox
+			<ExpandableBox ref={c => this.root = c}
 				{...{ width, widthOverride, outlineColor, expanded }} parent={this}
 				className={classNames('NodeUI_Inner', { root: pathNodeIDs.length == 0 })}
+				onMouseEnter={() => {
+					this.SetState({ hovered: true });
+					this.checkStillHoveredTimer.Start();
+				}}
+				onMouseLeave={() => {
+					this.SetState({ hovered: false });
+					this.checkStillHoveredTimer.Stop();
+				}}
 				style={E(style)}
 				padding={GetPaddingForNode(node, isSubnode)}
 				onClick={(e) => {
@@ -245,7 +272,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 		);
 	}
 	definitionsPanel: DefinitionsPanel;
-	ComponentDidMount() {
+	/* ComponentDidMount() {
 		// we have to use native/jquery hover/mouseenter+mouseleave, to fix that in-equation term-placeholders would cause "mouseleave" to be triggered
 		const dom = $(GetDOM(this));
 		// dom.off("mouseenter mouseleave");
@@ -256,7 +283,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 		}, () => {
 			this.SetState({ hovered: false });
 		});
-	}
+	} */
 }
 
 class NodeUI_BottomPanel extends BaseComponent

@@ -74,7 +74,7 @@ export class MapNodeUI_LeftBox extends BaseComponentWithConnector(connector, {})
 		}
 
 		return (
-			<div style={E(
+			<div className="NodeUI_LeftBox" style={E(
 				{ display: 'flex', flexDirection: 'column', whiteSpace: 'nowrap', zIndex: asHover ? 6 : 5 },
 				!inList && panelPosition == 'left' && { position: 'absolute', right: 'calc(100% + 1px)' },
 				!inList && panelPosition == 'below' && { position: 'absolute', top: 'calc(100% + 1px)', width: 130 },

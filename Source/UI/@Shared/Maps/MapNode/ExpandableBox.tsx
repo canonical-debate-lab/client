@@ -4,7 +4,7 @@ import { Assert } from 'js-vextensions';
 
 type Props = {
 	parent?,
-	className?: string, width: number, widthOverride: number, innerWidth?: number, outlineColor?: string, padding: number | string, style, onClick?, onDirectClick?,
+	className?: string, width: number, widthOverride: number, innerWidth?: number, outlineColor?: string, padding: number | string, style, onClick?, onDirectClick?, onMouseEnter?: Function, onMouseLeave?: Function,
 	backgroundFillPercent: number, backgroundColor: Color, markerPercent: number,
 	text, onTextHolderClick?, beforeChildren?, afterChildren?,
 	expanded: boolean, toggleExpanded: Function,
@@ -20,7 +20,7 @@ export class ExpandableBox extends BaseComponent<Props, {}> {
 	expandButton: Button;
 	render() {
 		const { parent,
-			className, width, widthOverride, innerWidth, outlineColor, padding, style, onClick, onDirectClick,
+			className, width, widthOverride, innerWidth, outlineColor, padding, style, onClick, onDirectClick, onMouseEnter, onMouseLeave,
 			backgroundFillPercent, backgroundColor, markerPercent,
 			text, onTextHolderClick, beforeChildren, afterChildren,
 			expanded, toggleExpanded } = this.props;
@@ -33,7 +33,7 @@ export class ExpandableBox extends BaseComponent<Props, {}> {
 					width, minWidth: widthOverride,
 					boxShadow: `rgba(0,0,0,1) 0px 0px 2px${(outlineColor ? `, rgba(${outlineColor},1) 0px 0px 1px` : '').repeat(6)}`,
 				}, style)}
-				onClick={onClick}>
+				onClick={onClick} onMouseEnter={onMouseEnter as any} onMouseLeave={onMouseLeave as any}>
 				{beforeChildren}
 				<Row style={{ alignItems: 'stretch', width: innerWidth || '100%', borderRadius: 5, cursor: 'pointer' }} onClick={onDirectClick}>
 					<div ref={c => this.textHolder = c} style={{ position: 'relative', width: 'calc(100% - 17px)', padding,
