@@ -18,7 +18,7 @@ import { NodeDetailsUI } from '../NodeDetailsUI';
 
 export function ShowAddSubnodeDialog(mapID: string, anchorNode: MapNodeL2, anchorNodePath: string) {
 	let dialog: AddSubnodeDialog;
-	const boxController: BoxController = ShowMessageBox({
+	const boxController = ShowMessageBox({
 		title: 'Add subnode (to layer)', cancelButton: true,
 		message: () => <AddSubnodeDialog ref={c => dialog = c} {...{ mapID, anchorNode, anchorNodePath, boxController }}/>,
 		onOK: () => dialog.OnOK(),

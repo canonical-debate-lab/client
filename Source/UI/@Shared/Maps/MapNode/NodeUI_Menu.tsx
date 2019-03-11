@@ -117,9 +117,9 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 						);
 					});
 				})}
-				{/* // IsUserBasicOrAnon(userID) && !inList && path.includes("/") && !path.includes("L") && !componentBox &&
+				{/* // IsUserBasicOrAnon(userID) && !inList && path.includes("/") && !path.includes("*") && !componentBox &&
 				// for now, only let mods add layer-subnodes (confusing otherwise)
-					HasModPermissions(userID) && !inList && path.includes('/') && !path.includes('L') && !componentBox &&
+					HasModPermissions(userID) && !inList && path.includes('/') && !path.includes('*') && !componentBox &&
 					<VMenuItem text="Add subnode (in layer)" style={styles.vMenuItem}
 						onClick={(e) => {
 							if (e.button != 0) return;

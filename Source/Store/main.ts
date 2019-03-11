@@ -5,9 +5,6 @@ import { MapInfo } from 'Store/main/maps/@MapInfo';
 import { ShallowChanged } from 'react-vextensions';
 import { MapInfoReducer } from 'Store/main/maps/$map';
 import { Personal } from 'Store/main/personal';
-import { persistReducer, createTransform } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
-import { omit } from 'lodash';
 import { Action, CombineReducers, SimpleReducer, State } from 'Utils/FrameworkOverrides';
 import { rootPageDefaultChilds } from 'Utils/URL/URLs';
 import { MapViews, MapNodeView, MapView } from './main/mapViews/@MapViews';
@@ -31,9 +28,12 @@ export enum WeightingType {
 export class MainState {
 	page: string;
 	urlExtraStr: string;
+
+	lastDBVersion: number; // tracks the last db-version the client started with, so we can know when we need to upgrade the store-data
 	envOverride: string;
 	dbOverride: string;
 	dbVersionOverride: string;
+
 	analyticsEnabled: boolean;
 	topLeftOpenPanel: string;
 	topRightOpenPanel: string;
@@ -88,158 +88,136 @@ export class ACTSetInitialChildLimit extends Action<{value: number}> {}
 export class ACTSetLastAcknowledgementTime extends Action<{nodeID: string, time: number}> {}
 // export class ACTSetCurrentNodeBeingAdded extends Action<{path: string}> {}
 
-function CreateMainReducer_Real() {
-	const regularReducer = CombineReducers({
-		page: (state = null, action) => {
-			if (action.Is(ACTSetPage)) return action.payload;
-			return state;
-		},
+export const MainReducer = CombineReducers({
+	page: (state = null, action) => {
+		if (action.Is(ACTSetPage)) return action.payload;
+		return state;
+	},
 
-		/* _: (state = null, action)=> {
-			PreDispatchAction(action);
-			return null;
-		}, */
-		// use this for eg. conditional debug displaying on live site
-		urlExtraStr: (state = null, action) => {
-			// if ((action.type == "@@INIT" || action.type == "persist/REHYDRATE") && startURL.GetQueryVar("env"))
-			// if ((action.type == "PostRehydrate") && startURL.GetQueryVar("env"))
-			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload.location).GetQueryVar('extra')) {
-				let newVal = VURL.FromLocationObject(action.payload.location).GetQueryVar('extra');
-				if (newVal == 'null') newVal = null;
-				return newVal;
-			}
-			return state;
-		},
-		envOverride: (state = null, action) => {
-			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload.location).GetQueryVar('env')) {
-				let newVal = VURL.FromLocationObject(action.payload.location).GetQueryVar('env');
-				if (newVal == 'null') newVal = null;
-				return newVal;
-			}
-			return state;
-		},
-		dbOverride: (state = null, action) => {
-			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload.location).GetQueryVar('db')) {
-				let newVal = VURL.FromLocationObject(action.payload.location).GetQueryVar('db');
-				if (newVal == 'null') newVal = null;
-				return newVal;
-			}
-			return state;
-		},
-		dbVersionOverride: (state = null, action) => {
-			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload.location).GetQueryVar('dbVersion')) {
-				const str = VURL.FromLocationObject(action.payload.location).GetQueryVar('dbVersion');
-				return str == 'null' ? null : parseInt(str);
-			}
-			return state;
-		},
-		analyticsEnabled: (state = true, action) => {
-			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload.location).GetQueryVar('analytics') == 'false') { return false; }
-			if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload.location).GetQueryVar('analytics') == 'true') { return true; }
-			return state;
-		},
-		topLeftOpenPanel: (state = null, action) => {
-			if (action.Is(ACTTopLeftOpenPanelSet)) { return action.payload; }
-			return state;
-		},
-		topRightOpenPanel: (state = null, action) => {
-			if (action.Is(ACTTopRightOpenPanelSet)) { return action.payload; }
-			return state;
-		},
-		ratingUI: RatingUIReducer,
+	/* _: (state = null, action)=> {
+		PreDispatchAction(action);
+		return null;
+	}, */
+	// use this for eg. conditional debug displaying on live site
+	urlExtraStr: (state = null, action) => {
+		// if ((action.type == "@@INIT" || action.type == "persist/REHYDRATE") && startURL.GetQueryVar("env"))
+		// if ((action.type == "PostRehydrate") && startURL.GetQueryVar("env"))
+		if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload.location).GetQueryVar('extra')) {
+			let newVal = VURL.FromLocationObject(action.payload.location).GetQueryVar('extra');
+			if (newVal == 'null') newVal = null;
+			return newVal;
+		}
+		return state;
+	},
 
-		// pages (and nav-bar panels)
-		// ==========
+	lastDBVersion: SimpleReducer(a => a.main.lastDBVersion), // tracks the last db-version the client started with, so we can know when we need to upgrade the store-data
+	envOverride: (state = null, action) => {
+		if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload.location).GetQueryVar('env')) {
+			let newVal = VURL.FromLocationObject(action.payload.location).GetQueryVar('env');
+			if (newVal == 'null') newVal = null;
+			return newVal;
+		}
+		return state;
+	},
+	dbOverride: (state = null, action) => {
+		if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload.location).GetQueryVar('db')) {
+			let newVal = VURL.FromLocationObject(action.payload.location).GetQueryVar('db');
+			if (newVal == 'null') newVal = null;
+			return newVal;
+		}
+		return state;
+	},
+	dbVersionOverride: (state = null, action) => {
+		if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload.location).GetQueryVar('dbVersion')) {
+			const str = VURL.FromLocationObject(action.payload.location).GetQueryVar('dbVersion');
+			return str == 'null' ? null : parseInt(str);
+		}
+		return state;
+	},
+	analyticsEnabled: (state = true, action) => {
+		if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload.location).GetQueryVar('analytics') == 'false') { return false; }
+		if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload.location).GetQueryVar('analytics') == 'true') { return true; }
+		return state;
+	},
+	topLeftOpenPanel: (state = null, action) => {
+		if (action.Is(ACTTopLeftOpenPanelSet)) { return action.payload; }
+		return state;
+	},
+	topRightOpenPanel: (state = null, action) => {
+		if (action.Is(ACTTopRightOpenPanelSet)) { return action.payload; }
+		return state;
+	},
+	ratingUI: RatingUIReducer,
 
-		stream: CombineReducers({ subpage: SubpageReducer('stream') }),
-		chat: CombineReducers({ subpage: SubpageReducer('chat') }),
-		reputation: CombineReducers({ subpage: SubpageReducer('reputation') }),
+	// pages (and nav-bar panels)
+	// ==========
 
-		database: DatabaseReducer,
-		// forum: ForumReducer,
-		feedback: CombineReducers({ subpage: SubpageReducer('feedback') }),
-		more: CombineReducers({ subpage: SubpageReducer('more') }),
-		home: CombineReducers({ subpage: SubpageReducer('home') }),
-		social: CombineReducers({ subpage: SubpageReducer('social') }),
-		personal: PersonalReducer,
-		debates: DebatesReducer,
-		global: CombineReducers({ subpage: SubpageReducer('global') }),
+	stream: CombineReducers({ subpage: SubpageReducer('stream') }),
+	chat: CombineReducers({ subpage: SubpageReducer('chat') }),
+	reputation: CombineReducers({ subpage: SubpageReducer('reputation') }),
 
-		search: SearchReducer,
-		guide: CombineReducers({ subpage: SubpageReducer('guide') }),
-		profile: CombineReducers({ subpage: SubpageReducer('profile') }),
+	database: DatabaseReducer,
+	// forum: ForumReducer,
+	feedback: CombineReducers({ subpage: SubpageReducer('feedback') }),
+	more: CombineReducers({ subpage: SubpageReducer('more') }),
+	home: CombineReducers({ subpage: SubpageReducer('home') }),
+	social: CombineReducers({ subpage: SubpageReducer('social') }),
+	personal: PersonalReducer,
+	debates: DebatesReducer,
+	global: CombineReducers({ subpage: SubpageReducer('global') }),
 
-		// maps
-		// ==========
+	search: SearchReducer,
+	guide: CombineReducers({ subpage: SubpageReducer('guide') }),
+	profile: CombineReducers({ subpage: SubpageReducer('profile') }),
 
-		maps: (state = {}, action) => {
-			const newState = { ...state };
-			/* if (action.Is(ACTSetPage) && action.payload == "global" && state[globalMapID] == null) {
-				state = {...state, [globalMapID]: new MapInfo()};
-			} */
-			// if (state[demoMap._id] == null) newState[demoMap._id] = new MapInfo().Strip();
-			if (state[globalMapID] == null) newState[globalMapID] = new MapInfo().Strip();
-			if ((action.Is(ACTPersonalMapSelect) || action.Is(ACTDebateMapSelect)) && newState[action.payload.id] == null) {
-				newState[action.payload.id] = new MapInfo().Strip();
-			}
+	// maps
+	// ==========
 
-			for (const key in newState) {
-				// action.VSet("parentKey", parseInt(key), {prop: {}});
-				if (action.payload && action.payload.mapID && key != action.payload.mapID) continue;
-				newState[key] = MapInfoReducer(key)(newState[key], action); // , parseInt(key));
-			}
-			return ShallowChanged(newState, state) ? newState : state;
-		},
+	maps: (state = {}, action) => {
+		const newState = { ...state };
+		/* if (action.Is(ACTSetPage) && action.payload == "global" && state[globalMapID] == null) {
+			state = {...state, [globalMapID]: new MapInfo()};
+		} */
+		// if (state[demoMap._id] == null) newState[demoMap._id] = new MapInfo().Strip();
+		if (state[globalMapID] == null) newState[globalMapID] = new MapInfo().Strip();
+		if ((action.Is(ACTPersonalMapSelect) || action.Is(ACTDebateMapSelect)) && newState[action.payload.id] == null) {
+			newState[action.payload.id] = new MapInfo().Strip();
+		}
 
-		nodeLastAcknowledgementTimes: (state = {}, action) => {
-			if (action.Is(ACTSetLastAcknowledgementTime)) {
-				state = { ...state, [action.payload.nodeID]: action.payload.time };
-			}
-			return state;
-		},
-		currentNodeBeingAdded_path: SimpleReducer(a => a.main.currentNodeBeingAdded_path),
+		for (const key in newState) {
+			// action.VSet("parentKey", parseInt(key), {prop: {}});
+			if (action.payload && action.payload.mapID && key != action.payload.mapID) continue;
+			newState[key] = MapInfoReducer(key)(newState[key], action); // , parseInt(key));
+		}
+		return ShallowChanged(newState, state) ? newState : state;
+	},
 
-		/* openMap: (state = null, action)=> {
-			if (action.Is(ACTSetPage) && action.payload == "global") return globalMapID;
-			//if (action.Is(ACTOpenMapSet)) return action.payload;
-			return state;
-		}, */
-		mapViews: MapViewsReducer,
-		copiedNodePath: (state = null as string, action) => {
-			if (action.Is(ACTNodeCopy)) return action.payload.path;
-			return state;
-		},
-		copiedNodePath_asCut: (state = null as string, action) => {
-			if (action.Is(ACTNodeCopy)) return action.payload.asCut;
-			return state;
-		},
-		initialChildLimit: SimpleReducer(a => a.main.initialChildLimit, 5),
-		showReasonScoreValues: SimpleReducer(a => a.main.showReasonScoreValues, false),
-		weighting: SimpleReducer(a => a.main.weighting, WeightingType.Votes),
-	});
+	nodeLastAcknowledgementTimes: (state = {}, action) => {
+		if (action.Is(ACTSetLastAcknowledgementTime)) {
+			state = { ...state, [action.payload.nodeID]: action.payload.time };
+		}
+		return state;
+	},
+	currentNodeBeingAdded_path: SimpleReducer(a => a.main.currentNodeBeingAdded_path),
 
-	const blacklistPaths = ['notificationMessages', 'currentNodeBeingAdded_path', 'search.findNode_state'];
-	const persistConfig = {
-		key: 'main_key',
-		storage,
-		// blacklist: ["notificationMessages", "currentNodeBeingAdded_path"],
-		transforms: [
-			// use a custom blacklist transform, so that we can blacklist nested paths
-			createTransform((inboundState, key) => {
-				if (blacklistPaths.Contains(key)) return undefined;
-				const blacklistPaths_forKey = blacklistPaths.filter(path => path.startsWith(`${key}.`)).map(path => path.substr(key.length + 1));
-				return blacklistPaths_forKey.length ? omit(inboundState, ...blacklistPaths_forKey) : inboundState;
-			}, null),
-		],
-	};
-	return persistReducer(persistConfig, regularReducer);
-}
-
-let MainReducer_Real;
-export function MainReducer(state, action) {
-	MainReducer_Real = MainReducer_Real || CreateMainReducer_Real();
-	return MainReducer_Real(state, action);
-}
+	/* openMap: (state = null, action)=> {
+		if (action.Is(ACTSetPage) && action.payload == "global") return globalMapID;
+		//if (action.Is(ACTOpenMapSet)) return action.payload;
+		return state;
+	}, */
+	mapViews: MapViewsReducer,
+	copiedNodePath: (state = null as string, action) => {
+		if (action.Is(ACTNodeCopy)) return action.payload.path;
+		return state;
+	},
+	copiedNodePath_asCut: (state = null as string, action) => {
+		if (action.Is(ACTNodeCopy)) return action.payload.asCut;
+		return state;
+	},
+	initialChildLimit: SimpleReducer(a => a.main.initialChildLimit, 5),
+	showReasonScoreValues: SimpleReducer(a => a.main.showReasonScoreValues, false),
+	weighting: SimpleReducer(a => a.main.weighting, WeightingType.Votes),
+});
 
 // selectors
 // ==========

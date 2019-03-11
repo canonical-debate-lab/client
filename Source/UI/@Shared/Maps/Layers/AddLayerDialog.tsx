@@ -1,18 +1,9 @@
-import { BoxController, ShowMessageBox } from 'react-vmessagebox';
-import { Column } from 'react-vcomponents';
-import { Row } from 'react-vcomponents';
-import { TextInput } from 'react-vcomponents';
-import { GetInnerComp } from 'react-vextensions';
-import { Pre } from 'react-vcomponents';
-import {Layer} from "Store/firebase/layers/@Layer";
-import {Term, TermType} from "../../../../Store/firebase/terms/@Term";
-import {AddTerm} from "../../../../Server/Commands/AddTerm";
-import {Map, MapType} from "../../../../Store/firebase/maps/@Map";
-import {AddMap} from "../../../../Server/Commands/AddMap";
-import {MapDetailsUI} from "./../MapDetailsUI";
-import { GetUser, MeID } from '../../../../Store/firebase/users';
-import { LayerDetailsUI } from '../LayerDetailsUI';
+import { Column, Row } from 'react-vcomponents';
+import { ShowMessageBox } from 'react-vmessagebox';
+import { Layer } from 'Store/firebase/layers/@Layer';
 import { AddLayer } from '../../../../Server/Commands/AddLayer';
+import { MeID } from '../../../../Store/firebase/users';
+import { LayerDetailsUI } from '../LayerDetailsUI';
 
 export function ShowAddLayerDialog(userID: string) {
 	let newLayer = new Layer({
@@ -22,7 +13,7 @@ export function ShowAddLayerDialog(userID: string) {
 
 	let error = null;
 	const Change = (..._) => boxController.UpdateUI();
-	let boxController: BoxController = ShowMessageBox({
+	let boxController = ShowMessageBox({
 		title: 'Add layer', cancelButton: true,
 		message: () => {
 			boxController.options.okButtonClickable = error == null;

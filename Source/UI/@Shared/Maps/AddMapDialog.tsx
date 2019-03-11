@@ -1,5 +1,5 @@
 import { Column, Row } from 'react-vcomponents';
-import { BoxController, ShowMessageBox } from 'react-vmessagebox';
+import { ShowMessageBox } from 'react-vmessagebox';
 import { AddMap } from '../../../Server/Commands/AddMap';
 import { Map, MapType } from '../../../Store/firebase/maps/@Map';
 import { MeID } from '../../../Store/firebase/users';
@@ -14,7 +14,7 @@ export function ShowAddMapDialog(userID: string, type: MapType) {
 
 	let error = null;
 	const Change = (..._) => boxController.UpdateUI();
-	let boxController: BoxController = ShowMessageBox({
+	let boxController = ShowMessageBox({
 		title: 'Add map', cancelButton: true,
 		message: () => {
 			boxController.options.okButtonClickable = error == null;

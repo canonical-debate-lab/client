@@ -1,10 +1,12 @@
 import { firebaseStateReducer } from 'react-redux-firebase';
 import { VMenuReducer, VMenuState } from 'react-vmenu';
-import { MessageBoxReducer, MessageBoxState } from 'react-vmessagebox';
 import { firestoreReducer } from 'redux-firestore';
 import { DeepGet, DeepSet } from 'js-vextensions';
 import { CombineReducers_Advanced, bufferedActions, HandleError, manager } from 'Utils/FrameworkOverrides';
 import { FeedbackReducer } from 'firebase-feedback';
+import { persistReducer, createTransform } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+import { omit } from 'lodash';
 import { MainReducer, MainState } from './main';
 
 // class is used only for initialization
@@ -21,8 +23,6 @@ export class RootState {
 	feedback: FeedbackData; */
 }
 export function MakeRootReducer() {
-	const extraReducers = manager.GetExtraReducers();
-
 	const innerReducer = CombineReducers_Advanced({
 		/* preReduce: (state, action) => {
 			// if (action.type == '@@reactReduxFirebase/START' || action.type == '@@reactReduxFirebase/SET') {
@@ -52,7 +52,7 @@ export function MakeRootReducer() {
 			vMenu: VMenuReducer,
 			// forum: ForumReducer,
 			feedback: FeedbackReducer,
-			...extraReducers,
+			...manager.GetExtraReducers(),
 		},
 		actionSendInclusions: {
 			/* '@@reactReduxFirebase/START': ['firebase'],
@@ -61,7 +61,7 @@ export function MakeRootReducer() {
 		},
 	});
 
-	return (state: RootState, rootAction) => {
+	const outerReducer_prePersist = (state: RootState, rootAction) => {
 		if (bufferedActions) {
 			bufferedActions.push(rootAction);
 			return state;
@@ -74,12 +74,6 @@ export function MakeRootReducer() {
 			try {
 				const oldResult = result;
 				result = innerReducer(result, action) as RootState;
-				// if (action.Is(ACTSet)) {
-				// removed auto-apply code, because gets overwritten when a peer-field causes reducer to give new value (without field having reducer code...)
-				/* if (action.type.startsWith("ACTSet_")) {
-					result = u.updateIn(action.payload.path.replace(/\//g, "."), u.constant(action.payload.value), result);
-				} */
-
 				if (action.type.startsWith('ACTSet_') && result === oldResult) {
 					LogWarning(`An ${action.type} action was dispatched, but did not cause any change to the store contents! Did you forget to add a reducer entry?`);
 				}
@@ -93,13 +87,35 @@ export function MakeRootReducer() {
 			'firestore/data',
 		];
 		for (const path of ignorePaths) {
-			if (DeepGet(result, path) != null && DeepGet(state, path) == null) {
-				DeepSet(result, `${path}/toJSON`, () => '[IGNORED]');
+			const data = DeepGet(result, path);
+			if (data != null && data['toJSON'] == null) {
+				data['toJSON'] = () => '[IGNORED]';
 			}
 		}
 
 		return result;
 	};
+
+	const blacklistPaths = [
+		'firebase', 'firestore', 'vmenu', // from above
+		'router', // from vwebapp-framework
+		// main sub-exclusions
+		'main.notificationMessages', 'main.currentNodeBeingAdded_path', 'main.search.findNode_state',
+	];
+	const persistConfig = {
+		key: 'reduxPersist_root',
+		storage,
+		// blacklist: ["notificationMessages", "currentNodeBeingAdded_path"],
+		transforms: [
+			// use a custom blacklist transform, so that we can blacklist nested paths
+			createTransform((inboundState, key) => {
+				if (blacklistPaths.Contains(key)) return undefined;
+				const blacklistPaths_forKey = blacklistPaths.filter(path => path.startsWith(`${key}.`)).map(path => path.substr(key.length + 1));
+				return blacklistPaths_forKey.length ? omit(inboundState, ...blacklistPaths_forKey) : inboundState;
+			}, null),
+		],
+	};
+	return persistReducer(persistConfig, outerReducer_prePersist);
 }
 
 /* function RouterReducer(state = {location: null}, action) {

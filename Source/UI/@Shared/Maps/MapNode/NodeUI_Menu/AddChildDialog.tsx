@@ -1,7 +1,7 @@
 import { E, GetErrorMessagesUnderElement, GetEntries } from 'js-vextensions';
 import { Column, Pre, Row, Select, TextArea } from 'react-vcomponents';
 import { GetInnerComp } from 'react-vextensions';
-import { BoxController, ShowMessageBox } from 'react-vmessagebox';
+import { ShowMessageBox } from 'react-vmessagebox';
 import { HasModPermissions } from 'Store/firebase/userExtras';
 import { AddArgumentAndClaim } from 'Server/Commands/AddArgumentAndClaim';
 import { Link, ACTSet } from 'Utils/FrameworkOverrides';
@@ -47,7 +47,7 @@ export function ShowAddChildDialog(parentNode: MapNodeL3, parentPath: string, ch
 	let nodeEditorUI: NodeDetailsUI;
 	let validationError = 'No data entered yet.';
 	const Change = (..._) => boxController.UpdateUI();
-	let boxController: BoxController = ShowMessageBox({
+	let boxController = ShowMessageBox({
 		title: `Add ${displayName}`, cancelButton: true,
 		message: () => {
 			setTimeout(() => justShowed = false);

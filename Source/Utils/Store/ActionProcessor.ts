@@ -18,6 +18,7 @@ import { GetNodeView } from '../../Store/main/mapViews';
 import { ACTMapNodeExpandedSet } from '../../Store/main/mapViews/$mapView/rootNodeViews';
 import { ACTPersonalMapSelect, ACTPersonalMapSelect_WithData } from '../../Store/main/personal';
 import { MapUI } from '../../UI/@Shared/Maps/MapUI';
+import { ProcessRehydrateData } from './StoreRehydrateProcessor';
 
 // use this to intercept dispatches (for debugging)
 /* let oldDispatch = store.dispatch;
@@ -32,6 +33,11 @@ export function PreDispatchAction(action: Action<any>) {
 	MaybeLog(a => a.actions, () => `Dispatching: ${action.type} JSON:${ToJSON(action)}`);
 }
 export function MidDispatchAction(action: Action<any>, newState: RootState) {
+	if (action.type == 'persist/REHYDRATE') {
+		if (action['key'] == 'root_key') {
+			ProcessRehydrateData(action.payload);
+		}
+	}
 }
 
 export function DoesURLChangeCountAsPageChange(oldURL: VURL, newURL: VURL) {
@@ -82,7 +88,7 @@ export async function PostDispatchAction(action: Action<any>) {
 		RecordPageView(simpleURL);
 	}
 
-	if (action.type == 'PostRehydrate') {
+	if (action.type == 'PostRehydrate') { // triggered by vwebapp-framework/ActionProcessor
 		if (!hasHotReloaded) {
 			LoadURL(startURL);
 		}

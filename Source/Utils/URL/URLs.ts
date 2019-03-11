@@ -66,7 +66,7 @@ export function GetCrawlerURLStrForNode(node: MapNodeL2) {
 }
 export function GetCurrentURL_SimplifiedForPageViewTracking() {
 	// let result = URL.Current();
-	let result = GetNewURL(false);
+	const result = GetNewURL(false);
 
 	/* const mapID = GetOpenMapID();
 	const onMapPage = NormalizeURL(result).toString({ domain: false }).startsWith('/global/map');
@@ -232,7 +232,7 @@ export function GetLoadActionsForURL(url: VURL) {
 	let mapID: string;
 	if (page == 'database') {
 		const subpageInURL = url.pathNodes[1] != null;
-		const entryID = url.pathNodes[2];
+		const entryID = url.pathNodes[2] || null; // null needed, else reducer complains
 		if (subpage == 'users' && subpageInURL) {
 			result.push(new ACTUserSelect({ id: entryID }));
 		} else if (subpage == 'terms' && subpageInURL) {

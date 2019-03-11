@@ -1,5 +1,6 @@
 import { CachedTransform, IsNaN, emptyArray, ToJSON, AsObj } from 'js-vextensions';
 import { GetData, SplitStringBySlash_Cached, SlicePath, GetDataAsync, CachedTransform_WithStore } from 'Utils/FrameworkOverrides';
+import { PathSegmentToNodeID } from 'Store/main/mapViews';
 import { GetNodeL2, GetNodeL3 } from './nodes/$node';
 import { MapNode, MapNodeL2, MapNodeL3, globalRootNodeID } from './nodes/@MapNode';
 import { MapNodeType, MapNodeType_Info } from './nodes/@MapNodeType';
@@ -55,9 +56,9 @@ export function IsNodeSubnode(node: MapNode) {
 
 export function GetParentNodeID(path: string) {
 	const pathNodes = SplitStringBySlash_Cached(path);
-	if (pathNodes.Last()[0] == 'L') return null;
+	if (pathNodes.Last()[0] == '*') return null;
 	const parentNodeStr = pathNodes.XFromLast(1);
-	return parentNodeStr ? parentNodeStr.replace('L', '') : null;
+	return parentNodeStr ? PathSegmentToNodeID(parentNodeStr) : null;
 }
 export function GetParentNode(childPath: string) {
 	return GetNode(GetParentNodeID(childPath));
@@ -70,7 +71,7 @@ export function GetParentNodeL3(childPath: string) {
 }
 export function GetNodeID(path: string) {
 	const ownNodeStr = SplitStringBySlash_Cached(path).LastOrX();
-	return ownNodeStr ? ownNodeStr.replace('L', '') : null;
+	return ownNodeStr ? PathSegmentToNodeID(ownNodeStr) : null;
 }
 
 export function GetNodeParents(node: MapNode) {

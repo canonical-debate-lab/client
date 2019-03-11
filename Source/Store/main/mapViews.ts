@@ -1,6 +1,6 @@
 import { Assert, CachedTransform, GetTreeNodesInObjTree, IsNumberString, Vector2i, IsNumber, IsString } from 'js-vextensions';
 import { ShallowChanged } from 'react-vextensions';
-import { Action, DBPath, SplitStringBySlash_Cached, State, DoesActionSetFirestoreData, GetFirestoreDataSetterActionPath } from 'Utils/FrameworkOverrides';
+import { Action, DBPath, SplitStringBySlash_Cached, State, DoesActionSetFirestoreData, GetFirestoreDataSetterActionPath, Validate } from 'Utils/FrameworkOverrides';
 import { ACTDebateMapSelect_WithData } from './debates';
 import { ACTMapViewMerge, MapViewReducer } from './mapViews/$mapView';
 import { MapNodeView, MapView, MapViews } from './mapViews/@MapViews';
@@ -70,13 +70,18 @@ export function MapViewsReducer(state = new MapViews(), action: Action<any>) {
 
 export function GetPathNodes(path: string) {
 	const pathSegments = SplitStringBySlash_Cached(path);
-	Assert(pathSegments.every(a => IsNumberString(a) || a[0] == 'L'), `Path contains non-number, non-L-prefixed segments: ${path}`);
+	Assert(pathSegments.every(a => Validate('UUID', a) == null || a[0] == '*'), `Path contains non-uuid, non-*-prefixed segments: ${path}`);
 	// return pathSegments.map(ToInt);
 	return pathSegments;
 }
+export function PathSegmentToNodeID(segment: string) {
+	if (segment.length == 22) return segment;
+	if (segment.length == 23) return segment.slice(1);
+	Assert(false, 'Segment text is invalid.');
+}
 export function GetPathNodeIDs(path: string) {
 	const nodes = GetPathNodes(path);
-	return nodes.map(a => parseInt(a.replace('L', '')));
+	return nodes.map(a => PathSegmentToNodeID(a));
 }
 
 export function GetSelectedNodePathNodes(mapViewOrMapID: string | MapView): string[] {
@@ -96,7 +101,7 @@ export function GetSelectedNodePath(mapViewOrMapID: string | MapView): string {
 	return GetSelectedNodePathNodes(mapViewOrMapID).join('/');
 }
 export function GetSelectedNodeID(mapID: string): string {
-	return GetSelectedNodePathNodes(mapID).LastOrX().replace('L', '');
+	return PathSegmentToNodeID(GetSelectedNodePathNodes(mapID).LastOrX());
 }
 
 export function GetPathFromDataPath(dataPathUnderRootNodeViews: string[]): string[] {
@@ -129,7 +134,7 @@ export function GetFocusedNodePath(mapViewOrMapID: string | MapView): string {
 }
 export function GetFocusedNodeID(mapID: string): string {
 	const focusedNodeStr = GetFocusedNodePathNodes(mapID).LastOrX();
-	return focusedNodeStr ? focusedNodeStr.replace('L', '') : null;
+	return focusedNodeStr ? PathSegmentToNodeID(focusedNodeStr) : null;
 }
 
 export function GetMapView(mapID: string): MapView {
