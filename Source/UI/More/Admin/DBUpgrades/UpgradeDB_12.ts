@@ -41,6 +41,7 @@ AddUpgradeFunc(newVersion, async (oldData, markProgress) => {
 		const conversionEntry = conversions[collectionKey].find(a => a.oldKey == oldEntryKey);
 		if (conversionEntry == null) {
 			const placeholderKey = _.padEnd(oldEntryKey.toString().slice(0, 22), 22, '_MISSING');
+			Log(`Found broken reference. CollectionKey:${collectionKey} OldEntryKey:${oldEntryKey} PlaceholderKey:${placeholderKey}`);
 			return placeholderKey;
 		}
 		return conversionEntry.newKey;
