@@ -222,7 +222,7 @@ export function GetLoadActionsForURL(url: VURL) {
 	if (page == 'feedback') {
 		if (subpage == 'proposals') {
 			const idStr = url.pathNodes[2];
-			const idStrMatch = idStr && idStr.match(/([0-9a-f-]+)$/);
+			const idStrMatch = idStr && idStr.match(/([A-Za-z0-9_-]+)$/);
 			const proposalID = idStrMatch ? idStrMatch[1] : null;
 			result.push(new ACTProposalSelect({ id: proposalID }));
 		}
@@ -268,7 +268,7 @@ export function GetLoadActionsForURL(url: VURL) {
 		}
 	}
 
-	if (mapID) {
+	/* if (mapID) {
 		// example: /global?view=1:3:100:101f(384_111):102:.104:.....
 		const mapViewStr = url.GetQueryVar('view');
 		if (mapViewStr != null && mapViewStr.length) {
@@ -277,7 +277,7 @@ export function GetLoadActionsForURL(url: VURL) {
 			// Log("Loading map-view:" + ToJSON(mapView));
 			result.push(new ACTMapViewMerge({ mapID, mapView }));
 		}
-	}
+	} */
 
 	if (url.GetQueryVar('timeline')) {
 		result.push(new ACTMap_PlayingTimelineSet({ mapID, timelineID: ToInt(url.GetQueryVar('timeline')) }));
@@ -409,9 +409,9 @@ export function GetNewURL(includeMapViewStr = true) {
 		}
 	}
 
-	if (mapID && includeMapViewStr) {
+	/* if (mapID && includeMapViewStr) {
 		newURL.SetQueryVar('view', GetMapViewStr(mapID));
-	}
+	} */
 
 	const playingTimeline = mapID && State('main', 'maps', mapID, 'playingTimeline');
 	if (playingTimeline) {
@@ -452,7 +452,9 @@ export function GetNewURL(includeMapViewStr = true) {
 
 	return newURL;
 }
-function GetMapViewStr(mapID: number) {
+
+// disabled for now, since the urls it generated would be too long with new UUIDs (instead, will implement "saved views" as json in db, which are then referenced by their own uuid, or maybe sequential id)
+/* function GetMapViewStr(mapID: number) {
 	const map = GetMap(mapID);
 	if (map == null) return '';
 
@@ -486,7 +488,7 @@ export function GetNodeViewStr(mapID: number, path: string) {
 		let nodeBoxComp = FindReact(nodeBox[0]) as NodeUI_Inner;
 		let viewOffset = viewCenter_onScreen.Minus(nodeBox.GetScreenRect().Position).NewX(x=>x.RoundTo(1)).NewY(y=>y.RoundTo(1));
 		let offsetStr = viewOffset.toString().replace(" ", "_");
-		ownStr += `(${offsetStr})`; */
+		ownStr += `(${offsetStr})`; *#/
 	}
 	if (nodeView.focused) { // && GetSelectedNodeID(mapID) == null) {
 		Assert(nodeView.viewOffset != null);
@@ -499,7 +501,7 @@ export function GetNodeViewStr(mapID: number, path: string) {
 
 	/* let hasData = false;
 	if (childrenStr.length) hasData = true;
-	else if (nodeView.expanded) hasData = true; */
+	else if (nodeView.expanded) hasData = true; *#/
 	const hasData = ownStr.length > ownIDStr.length || nodeView.expanded;
 	if (!hasData) return '';
 
@@ -523,4 +525,4 @@ export function GetNodeViewStr(mapID: number, path: string) {
 		}
 	}
 	return result;
-}
+} */

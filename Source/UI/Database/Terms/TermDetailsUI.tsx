@@ -7,6 +7,7 @@ import { BaseComponent, GetDOM } from 'react-vextensions';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { InfoButton, Connect } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
+import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
 import { AddTerm } from '../../../Server/Commands/AddTerm';
 import { TermComponent } from '../../../Store/firebase/termComponents/@TermComponent';
 import { GetTermVariantNumber } from '../../../Store/firebase/terms';
@@ -39,23 +40,11 @@ export class TermDetailsUI extends BaseComponent<Props, {newData: Term, dataErro
 		const { newData, selectedTermComponent } = this.state;
 		const Change = _ => this.OnChange();
 
-		const splitAt = 170; const
-			width = 600;
+		const splitAt = 170; const width = 600;
 		return (
 			<Column style={style}>
 				{!forNew &&
-					<table className="selectableAC" style={{/* borderCollapse: "separate", borderSpacing: "10px 0" */}}>
-						<thead>
-							<tr><th>ID</th><th>Creator</th><th>Created at</th></tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>{newData._id}</td>
-								<td>{creator ? creator.displayName : 'n/a'}</td>
-								<td>{Moment(newData.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
-							</tr>
-						</tbody>
-					</table>}
+					<IDAndCreationInfoUI id={newData._id} creator={creator} createdAt={newData.createdAt}/>}
 				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 					<Pre>Name: </Pre>
 					<TextInput

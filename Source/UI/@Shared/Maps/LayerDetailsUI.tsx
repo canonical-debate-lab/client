@@ -6,6 +6,7 @@ import { Layer } from 'Store/firebase/layers/@Layer';
 import { User } from 'Store/firebase/users/@User';
 import { Connect } from 'Utils/FrameworkOverrides';
 import { GetUser } from '../../../Store/firebase/users';
+import { IDAndCreationInfoUI } from '../CommonPropUIs/IDAndCreationInfoUI';
 
 type Props = {baseData: Layer, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: Layer, ui: LayerDetailsUI)=>void}
 	& Partial<{creator: User}>;
@@ -32,19 +33,8 @@ export class LayerDetailsUI extends BaseComponent<Props, {newData: Layer}> {
 		const width = 600;
 		return (
 			<Column style={style}>
-				{!forNew
-					&& <table className="selectableAC" style={{/* borderCollapse: "separate", borderSpacing: "10px 0" */}}>
-						<thead>
-							<tr><th>ID</th><th>Creator</th><th>Created at</th></tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>{newData._id}</td>
-								<td>{creator ? creator.displayName : 'n/a'}</td>
-								<td>{Moment(newData.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
-							</tr>
-						</tbody>
-					</table>}
+				{!forNew &&
+					<IDAndCreationInfoUI id={newData._id} creator={creator} createdAt={newData.createdAt}/>}
 				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 					<Pre>Name: </Pre>
 					<TextInput required enabled={enabled} style={{ width: '100%' }}

@@ -62,9 +62,6 @@ export class NodeDetailsUI extends BaseComponent<Props, State> {
 		const splitAt = 170;
 		return (
 			<Column style={E({ padding: 5 }, style)}>
-				{/* <Div style={{fontSize: 12}}>ID: {node._id}</Div>
-				<Div mt={3} style={{fontSize: 12}}>Created at: {Moment(node.createdAt).format(`YYYY-MM-DD HH:mm:ss`)
-					} (by: {creator ? creator.displayName : `n/a`})</Div> */}
 				{(newData.type != MapNodeType.Claim || claimType == ClaimType.Normal) &&
 					<Title_Base {...propsEnhanced}/>}
 				{newData.type == MapNodeType.Claim && claimType == ClaimType.Normal &&

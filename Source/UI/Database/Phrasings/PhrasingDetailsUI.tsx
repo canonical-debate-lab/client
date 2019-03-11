@@ -7,10 +7,7 @@ import { AddPhrasing } from 'Server/Commands/AddPhrasing';
 import { MapNodePhrasing, MapNodePhrasingType } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
 import { Connect, Link } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { Fragment } from 'react';
-import { ACTUserSelect } from 'Store/main/database';
-import { ACTSetPage, ACTSetSubpage } from 'Store/main';
-import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
+import {IDAndCreationInfoUI} from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
 import { GetUser } from '../../../Store/firebase/users';
 
 type Props = {baseData: MapNodePhrasing, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: MapNodePhrasing, error: string)=>void};
@@ -41,15 +38,7 @@ export class PhrasingDetailsUI extends BaseComponentWithConnector(connector, { n
 		return (
 			<Column style={style}>
 				{!forNew &&
-					<Column sel>
-						<Row>ID: {newData._key}</Row>
-						<Row>
-							<Pre>Created at: {Moment(newData.createdAt).format('YYYY-MM-DD HH:mm:ss')} (by: </Pre>
-							<Link text={creator ? creator.displayName : 'n/a'}
-								actions={[new ACTSetPage('database'), new ACTSetSubpage({ page: 'database', subpage: 'users' }), new ACTUserSelect({ id: creator._key })]} />
-							<Pre>)</Pre>
-						</Row>
-					</Column>}
+					<IDAndCreationInfoUI id={newData._key} creator={creator} createdAt={newData.createdAt}/>}
 				<RowLR mt={5} splitAt={splitAt} style={{ width: '100%' }}>
 					<Pre>Type: </Pre>
 					<Select options={GetEntries(MapNodePhrasingType)} enabled={false} style={ES({ flex: 1 })}

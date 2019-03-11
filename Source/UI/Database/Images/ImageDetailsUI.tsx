@@ -6,6 +6,7 @@ import { ScrollView } from 'react-vscrollview';
 import { User } from 'Store/firebase/users/@User';
 import { Connect } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
+import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
 import { GetNiceNameForImageType, Image, ImageType, Image_namePattern, Image_urlPattern } from '../../../Store/firebase/images/@Image';
 import { GetUser } from '../../../Store/firebase/users';
 import { SourceChainsEditorUI } from '../../@Shared/Maps/MapNode/SourceChainsEditorUI';
@@ -35,23 +36,11 @@ export class ImageDetailsUI extends BaseComponent<Props, {newData: Image, dataEr
 		const { newData, dataError } = this.state;
 		const Change = _ => this.OnChange();
 
-		const splitAt = 170; const
-			width = 600;
+		const splitAt = 170; const width = 600;
 		return (
 			<Column style={style}>
 				{!creating &&
-					<table className="selectableAC" style={{/* borderCollapse: "separate", borderSpacing: "10px 0" */}}>
-						<thead>
-							<tr><th>ID</th><th>Creator</th><th>Created at</th></tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>{newData._id}</td>
-								<td>{creator ? creator.displayName : 'n/a'}</td>
-								<td>{Moment(newData.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
-							</tr>
-						</tbody>
-					</table>}
+					<IDAndCreationInfoUI id={newData._id} creator={creator} createdAt={newData.createdAt}/>}
 				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 					<Pre>Name: </Pre>
 					<TextInput

@@ -7,7 +7,8 @@ import { GetNodeViewers } from 'Store/firebase/nodeViewers';
 import { GetUser, MeID, GetUserPermissionGroups } from 'Store/firebase/users';
 import { Icon, InfoButton, SlicePath, Connect } from 'Utils/FrameworkOverrides';
 import { GetEntries } from 'js-vextensions';
-import {ES} from 'Utils/UI/GlobalStyles';
+import { ES } from 'Utils/UI/GlobalStyles';
+import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
 import { CanConvertFromClaimTypeXToY, ChangeClaimType } from '../../../../../../Server/Commands/ChangeClaimType';
 import { ReverseArgumentPolarity } from '../../../../../../Server/Commands/ReverseArgumentPolarity';
 import { UpdateLink } from '../../../../../../Server/Commands/UpdateLink';
@@ -48,7 +49,7 @@ export class OthersPanel extends BaseComponentWithConnector(connector, { convert
 
 		return (
 			<Column sel style={{ position: 'relative' }}>
-				<InfoTable node={node} creator={creator}/>
+				<IDAndCreationInfoUI id={node._id} creator={creator} createdAt={node.createdAt}/>
 				<Row>Parents: {node.parents == null ? 'none' : node.parents.VKeys(true).join(', ')}</Row>
 				<Row>Children: {node.children == null ? 'none' : node.children.VKeys(true).join(', ')}</Row>
 				<Row>Viewers: {viewers.length || '...'} <InfoButton text="The number of registered users who have had this node displayed in-map at some point."/></Row>
@@ -77,26 +78,6 @@ export class OthersPanel extends BaseComponentWithConnector(connector, { convert
 					<ChildrenOrder mapID={mapID} node={node}/>}
 				<AtThisLocation node={node} path={path}/>
 			</Column>
-		);
-	}
-}
-
-class InfoTable extends BaseComponent<{node: MapNodeL3, creator: User}, {}> {
-	render() {
-		const { node, creator } = this.props;
-		return (
-			<table className="selectableAC lighterBackground" style={{ marginBottom: 5 /* borderCollapse: "separate", borderSpacing: "10px 0" */}}>
-				<thead>
-					<tr><th>ID</th><th>Creator</th><th>Created at</th></tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>{node._id}</td>
-						<td>{creator ? creator.displayName : 'n/a'}</td>
-						<td>{Moment(node.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
-					</tr>
-				</tbody>
-			</table>
 		);
 	}
 }
