@@ -1,12 +1,14 @@
 // import { ForumData } from 'firebase-forum';
+import { FeedbackData_General, Proposal, UserData } from 'firebase-feedback';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { NodeEditTimes } from 'Store/firebase/mapNodeEditTimes';
 import { MapNodeStats } from 'Store/firebase/nodeStats/@MapNodeStats';
 import { User } from 'Store/firebase/users/@User';
-import { Action, ListenerPathToPath, State } from 'Utils/FrameworkOverrides';
+import { State } from 'Utils/FrameworkOverrides';
 import { GeneralData } from './firebase/general';
 import { Image } from './firebase/images/@Image';
 import { Map } from './firebase/maps/@Map';
+import { MapNodePhrasings } from './firebase/nodePhrasings/@MapNodePhrasing';
 import { RatingsRoot } from './firebase/nodeRatings/@RatingsRoot';
 import { MapNode } from './firebase/nodes/@MapNode';
 import { MapNodeRevision } from './firebase/nodes/@MapNodeRevision';
@@ -16,10 +18,13 @@ import { Term } from './firebase/terms/@Term';
 import { UserExtraInfo } from './firebase/userExtras/@UserExtraInfo';
 import { UserMapInfoSet } from './firebase/userMapInfo/@UserMapInfo';
 import { ViewedNodeSet } from './firebase/userViewedNodes/@ViewedNodeSet';
-import { MapNodePhrasings } from './firebase/nodePhrasings/@MapNodePhrasing';
 
 export interface FirebaseData {
-	// forum: ForumData;
+	// modules
+	'modules/feedback/general': FeedbackData_General;
+	'modules/feedback/proposals': {[key: number]: Proposal};
+	'modules/feedback/userData': {[key: string]: UserData};
+
 	general: {data: GeneralData};
 	images: {[key: string]: Image};
 	layers: {[key: number]: Layer};

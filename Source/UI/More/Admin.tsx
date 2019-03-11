@@ -137,7 +137,7 @@ The old db-root will not be modified.`,
 					cancelButton: true,
 					onOK: async () => {
 						// const oldData = await GetDataAsync({ inVersionRoot: false }, ...oldVersionPath.split('/')) as FirebaseData;
-						const oldData = await GetVersionRootDataAsync(oldVersionPath);
+						const oldData = await GetCollectionsDataAsync(oldVersionPath);
 
 						// maybe temp; use firebase-data overriding system, so upgrade-funcs can use GetData() and such -- but accessing a local data-store (which can be updated) instead of the "real" remote data
 						StartStateDataOverride(State());
@@ -156,7 +156,7 @@ The old db-root will not be modified.`,
 						/* const firebase = store.firebase.helpers;
 						await firebase.ref(DBPath(`${newVersionPath}/`, false)).set(newData); */
 
-						await ImportVersionRootData(newVersionPath, newData);
+						await ImportCollectionsData(newVersionPath, newData);
 
 						ShowMessageBox({
 							title: `Upgraded: ${oldVersionName}   ->   ${newVersionName}`,
@@ -180,17 +180,21 @@ function AssertVersionRootPath(path: string) {
 type FirebaseData_AnyValues = WithDifferentValueType<FirebaseData, any>; */
 
 /** Note that this does not capture subcollections (eg. maps/1/nodeEditTimes). Currently not an issue since we aren't using subcollections. (ie. collections stored under a document's path) */
-export async function GetVersionRootDataAsync(versionRootPath: string) {
+export async function GetCollectionsDataAsync(versionRootPath: string) {
 	AssertVersionRootPath(versionRootPath);
 
-	async function getData(key: string) {
-		return GetDataAsync({ inVersionRoot: false }, ...SplitStringBySlash_Cached(versionRootPath), key);
+	async function getData(...collectionSubpath: string[]) {
+		return GetDataAsync({ inVersionRoot: false }, ...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath);
 	}
 
-	let versionRootData: FirebaseData;
-	// we put the db-updates into this dataAsUpdates variable, so that we know we're importing data for every key (if not, Typescript throws error about value not matching FirebaseData's shape)
-	versionRootData = {
-		// forum: await getData('forum'),
+	let versionCollectionsData: FirebaseData;
+	// we put the db-updates into this variable, so that we know we're importing data for every key (if not, Typescript throws error about value not matching FirebaseData's shape)
+	versionCollectionsData = {
+		// modules
+		'modules/feedback/general': await getData('modules', 'feedback', 'general'),
+		'modules/feedback/proposals': await getData('modules', 'feedback', 'proposals'),
+		'modules/feedback/userData': await getData('modules', 'feedback', 'userData'),
+
 		general: await getData('general'),
 		images: await getData('images'),
 		layers: await getData('layers'),
@@ -212,10 +216,10 @@ export async function GetVersionRootDataAsync(versionRootPath: string) {
 		userViewedNodes: await getData('userViewedNodes'),
 	};
 
-	return versionRootData;
+	return versionCollectionsData;
 }
 
-export async function ImportVersionRootData(versionRootPath: string, versionRootData: any) {
+export async function ImportCollectionsData(versionRootPath: string, collectionsDataToImport: any) {
 	AssertVersionRootPath(versionRootPath);
 	// ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates(DBPath(), data));
 
@@ -226,11 +230,11 @@ export async function ImportVersionRootData(versionRootPath: string, versionRoot
 	}; */
 
 	const allDBUpdates = {}; // relative to root-path
-	for (const key of versionRootData.VKeys(true)) {
-		const dbUpdates = ConvertDataToValidDBUpdates(versionRootPath, { [key]: versionRootData[key] });
+	for (const key of collectionsDataToImport.VKeys(true)) {
+		const dbUpdates = ConvertDataToValidDBUpdates(versionRootPath, { [key]: collectionsDataToImport[key] });
 		allDBUpdates.Extend(dbUpdates);
 	}
 
-	Log('Importing db-data into path. Path: ', versionRootPath, ' DBData: ', versionRootData, ' DBUpdates: ', allDBUpdates);
+	Log('Importing db-data into path. Path: ', versionRootPath, ' DBData: ', collectionsDataToImport, ' DBUpdates: ', allDBUpdates);
 	await ApplyDBUpdates_InChunks(versionRootPath, allDBUpdates);
 }
