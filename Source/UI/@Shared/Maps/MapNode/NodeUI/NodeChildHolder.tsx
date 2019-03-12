@@ -153,8 +153,8 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 						nodeChildren={GetNodeChildrenL3(node, path)} nodeChildrenToShow={nodeChildrenToShowInRelevanceBox}
 						onHeightOrDividePointChange={dividePoint => this.CheckForChanges()}/>}
 				{!separateChildren &&
-					<Droppable type="MapNode" droppableId={ToJSON(droppableInfo)}>{(provided, snapshot) => (
-						<Column ref={c => provided.innerRef(GetDOM(c))}>
+					<Droppable type="MapNode" droppableId={ToJSON(droppableInfo.VSet({ subtype: 'all' }))}>{(provided, snapshot) => (
+						<Column ref={c => provided.innerRef(GetDOM(c))} ct className="allChildHolder">
 							{nodeChildrenToShowHere.slice(0, childLimit_down).map((pack, index) => {
 								return RenderChild(pack, index, nodeChildrenToShowHere);
 							})}

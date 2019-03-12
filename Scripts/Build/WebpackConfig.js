@@ -13,6 +13,7 @@ const { CyclicDependencyChecker } = require('webpack-dependency-tools');
 // const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 // const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 // const AutoDllPlugin = require("autodll-webpack-plugin");
+// require('js-vextensions'); // maybe temp; used atm for "".AsMultiline function
 
 const paths = config.utils_paths;
 const { QUICK, USE_TSLOADER, OUTPUT_STATS } = process.env;
@@ -205,6 +206,31 @@ webpackConfig.module.rules.push(
 			{
 				pattern: /from 'react-redux';/g,
 				replacement: (match, offset, str) => "from '../node_modules/react-redux';",
+			},
+			// make lib support nested-lists better (from: https://github.com/atlassian/react-beautiful-dnd/pull/636)
+			{
+				pattern: /var getDroppableOver = (.|\n)+?(?=var getDraggablesInsideDroppable)/,
+				replacement: () => {
+					return `
+						var getDroppableOver = (function(args) {
+							var target = args.target, droppables = args.droppables;
+							var maybe = toDroppableList(droppables)
+								.filter(droppable => {
+									if (!droppable.isEnabled) return false;
+									var active = droppable.subject.active;
+									if (!active) return false;
+									return isPositionInFrame(active)(target);
+								})
+								.sort((a, b) => {
+									if (a.client.contentBox[a.axis.size] < b.client.contentBox[b.axis.size]) return -1;
+									if (a.client.contentBox[a.axis.size] > b.client.contentBox[b.axis.size]) return 1;
+									return 0;
+								})
+								.find(droppable => !!droppable);
+							return maybe ? maybe.descriptor.id : null;
+						});
+					`.trim();
+				},
 			},
 		] }),
 	},
