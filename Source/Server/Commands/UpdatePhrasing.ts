@@ -1,6 +1,5 @@
 import { MapNodePhrasing } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
-import { Command } from 'vwebapp-framework/Source/Server/Command';
-import { WaitTillSchemaAddedThenRun, AddSchema, GetSchemaJSON, Schema, AssertValidate, GetDataAsync } from 'Utils/FrameworkOverrides';
+import { WaitTillSchemaAddedThenRun, AddSchema, GetSchemaJSON, Schema, AssertValidate, GetDataAsync, Command } from 'Utils/FrameworkOverrides';
 import { UserEdit } from 'Server/CommandMacros';
 
 type MainType = MapNodePhrasing;

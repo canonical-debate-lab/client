@@ -2,7 +2,6 @@ import { MeID } from 'Store/firebase/users';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { Button } from 'react-vcomponents';
 import { BaseComponent, GetDOM } from 'react-vextensions';
-import { DropTarget } from 'react-dnd';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { ForNewLink_GetError, GetParentNodeID, GetParentNodeL3, GetHolderType } from 'Store/firebase/nodes';
 import { LinkNode_HighLevel, LinkNode_HighLevel_GetCommandError } from 'Server/Commands/LinkNode_HighLevel';
@@ -30,7 +29,7 @@ function CreateLinkCommand(map: Map, draggedNode: MapNodeL3, draggedNodePath: st
 }
 
 type Props = {map: Map, node: MapNodeL3, path: string, polarity: Polarity, style?};
-const dropTargetDecorator = DropTarget('node',
+/* const dropTargetDecorator = DropTarget('node',
 	{
 		canDrop(props: Props, monitor) {
 			const { map, node: draggedNode, path: draggedNodePath } = monitor.getItem();
@@ -77,16 +76,14 @@ const dropTargetDecorator = DropTarget('node',
 		canDrop: monitor.canDrop(),
 		isOver: monitor.isOver(), // ({shallow: true}),
 		draggedItem: monitor.getItem(),
-	}));
-@(dropTargetDecorator as any)
+	})); */
 export class AddArgumentButton extends BaseComponent<Props, {}> {
 	render() {
 		const { map, node, path, polarity, style } = this.props;
-		const { connectDropTarget, canDrop, isOver, draggedItem } = this.props as any; // lazy
 		const backgroundColor = GetNodeColor({ type: MapNodeType.Argument, finalPolarity: polarity } as MapNodeL3);
 
 		return (
-			<Button ref={a => connectDropTarget(GetDOM(a))}
+			<Button
 				text={`Add ${polarity == Polarity.Supporting ? 'pro' : 'con'}`} title={`Add ${Polarity[polarity].toLowerCase()} argument`}
 				enabled={CanGetBasicPermissions(MeID())}
 				// text={`Add ${Polarity[polarity].toLowerCase()} argument`}
@@ -102,7 +99,7 @@ export class AddArgumentButton extends BaseComponent<Props, {}> {
 					polarity == Polarity.Opposing && {marginTop: 5}, */
 					{ height: 17, fontSize: 11, padding: '0 12px' }, // vertical
 					// {fontSize: 18, padding: "0 12px"}, // horizontal
-					canDrop && { outline: `1px solid ${isOver ? 'yellow' : 'white'}` },
+					// canDrop && { outline: `1px solid ${isOver ? 'yellow' : 'white'}` },
 					style,
 				)}
 				onClick={(e) => {

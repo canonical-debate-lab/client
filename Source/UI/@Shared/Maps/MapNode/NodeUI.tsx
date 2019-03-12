@@ -32,7 +32,7 @@ export function SetNodeUILocked(nodeID: string, locked: boolean, maxWait = 10000
 	}
 }
 
-type Props = {map: Map, node: MapNodeL3, path?: string, asSubnode?: boolean, widthOverride?: number, style?, onHeightOrPosChange?: ()=>void};
+type Props = {indexInNodeList: number, map: Map, node: MapNodeL3, path?: string, asSubnode?: boolean, widthOverride?: number, style?, onHeightOrPosChange?: ()=>void};
 const connector = (state, { node, path, map }: Props) => {
 	// Log("Calling NodeUI connect func.");
 	const nodeView = GetNodeView(map._key, path) || new MapNodeView();
@@ -124,7 +124,7 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 	nodeUI: HTMLDivElement;
 	innerUI: NodeUI_Inner;
 	render() {
-		let { map, node, path, asSubnode, widthOverride, style, onHeightOrPosChange,
+		let { indexInNodeList, map, node, path, asSubnode, widthOverride, style, onHeightOrPosChange,
 			initialChildLimit, form, children, nodeView, parentNodeView, nodeChildren, nodeChildrenToShow, subnodes,
 			isSinglePremiseArgument, isMultiPremiseArgument,
 			playingTimeline, playingTimeline_currentStepIndex, playingTimelineShowableNodes, playingTimelineVisibleNodes, playingTimeline_currentStepRevealNodes,
@@ -266,7 +266,7 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 						<NodeUI_Inner
 							ref={c => this.innerUI = GetInnerComp(c)}
 							// ref={c => this.innerUI = c ? c['getDecoratedComponentInstance']() : null}
-							{...{ map, node, nodeView, path, width, widthOverride }}
+							{...{ indexInNodeList, map, node, nodeView, path, width, widthOverride }}
 							style={E(
 								playingTimeline_currentStepRevealNodes.Contains(path) && { boxShadow: 'rgba(255,255,0,1) 0px 0px 7px, rgb(0, 0, 0) 0px 0px 2px' },
 							)}/>
@@ -303,7 +303,7 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 			<div className="clickThrough" style={{ display: 'flex', flexDirection: 'column' }}>
 				{nodeUIResult_withoutSubnodes}
 				{subnodes.map((subnode, index) => (
-					<NodeUI key={index} map={map} node={subnode} asSubnode={true} style={E({ marginTop: -5 })}
+					<NodeUI key={index} indexInNodeList={index} map={map} node={subnode} asSubnode={true} style={E({ marginTop: -5 })}
 						path={`${path}/L${subnode._key}`} widthOverride={widthOverride} onHeightOrPosChange={onHeightOrPosChange}/>
 				))}
 				<div className="clickThrough" style={E({ marginTop: -5 })}>

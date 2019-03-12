@@ -79,7 +79,7 @@ const connector = (state: RootState, { map, rootNode }: Props) => {
 };
 @Connect(connector)
 export class MapUI extends BaseComponentWithConnector(connector, {}) {
-	static currentMapUI: MapUI;
+	private static currentMapUI: MapUI;
 	static get CurrentMapUI() { return MapUI.currentMapUI && MapUI.currentMapUI.mounted ? MapUI.currentMapUI : null; }
 
 	// static defaultProps = {padding: {left: 2000, right: 2000, top: 1000, bottom: 1000}};
@@ -167,7 +167,7 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 							if (e.nativeEvent['passThrough']) return true;
 							e.preventDefault();
 						}}>
-						<NodeUI map={map} node={rootNode} path={(Assert(rootNode._key != null), rootNode._key.toString())}/>
+						<NodeUI indexInNodeList={0} map={map} node={rootNode} path={(Assert(rootNode._key != null), rootNode._key.toString())}/>
 						{/* <ReactResizeDetector handleWidth handleHeight onResize={()=> { */}
 						{/* <ResizeSensor ref="resizeSensor" onResize={()=> {
 							this.LoadScroll();

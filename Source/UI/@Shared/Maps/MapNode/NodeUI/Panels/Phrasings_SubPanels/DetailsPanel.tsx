@@ -1,21 +1,13 @@
-import { ACTSetLastAcknowledgementTime } from 'Store/main';
-import { SetNodeUILocked } from 'UI/@Shared/Maps/MapNode/NodeUI';
 import { Button, Column, Row } from 'react-vcomponents';
-import { MapNodeL3 } from 'Store/firebase/nodes/@MapNode';
-import { GetLinkUnderParent } from 'Store/firebase/nodes/$node';
-import { GetParentNode, IsNodeSubnode, GetParentNodeL3, GetParentNodeID } from 'Store/firebase/nodes';
-import { GetUser, MeID } from 'Store/firebase/users';
-import { Connect, GetUpdates, RemoveHelpers, WaitTillPathDataIsReceived, DBPath } from 'vwebapp-framework/Source';
 import { BaseComponentWithConnector } from 'react-vextensions';
-import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
-import { UpdateLink } from 'Server/Commands/UpdateLink';
-import { AddNodeRevision } from 'Server/Commands/AddNodeRevision';
-import { MapNodePhrasing } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
-import { PhrasingDetailsUI } from 'UI/Database/Phrasings/PhrasingDetailsUI';
-import { UpdatePhrasing } from 'Server/Commands/UpdatePhrasing';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { DeletePhrasing } from 'Server/Commands/DeletePhrasing';
-import { NodeDetailsUI } from '../../../NodeDetailsUI';
+import { UpdatePhrasing } from 'Server/Commands/UpdatePhrasing';
+import { MapNodePhrasing } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
+import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
+import { GetUser, MeID } from 'Store/firebase/users';
+import { PhrasingDetailsUI } from 'UI/Database/Phrasings/PhrasingDetailsUI';
+import { Connect, GetUpdates } from 'Utils/FrameworkOverrides';
 
 const connector = (state, { phrasing }: {phrasing: MapNodePhrasing}) => ({
 	creator: GetUser(phrasing.creator),

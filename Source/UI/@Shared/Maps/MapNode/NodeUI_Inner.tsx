@@ -1,6 +1,5 @@
 import classNames from 'classnames';
 import keycode from 'keycode';
-import { DragSource } from 'react-dnd';
 import { Button, Pre, Row, TextArea } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector, GetInnerComp, GetDOM, FindReact } from 'react-vextensions';
 import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthScoreComposite, RS_GetAllValues } from 'Store/firebase/nodeRatings/ReasonScore';
@@ -9,9 +8,11 @@ import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
 import { NodeMathUI } from 'UI/@Shared/Maps/MapNode/NodeMathUI';
 import { SetNodeUILocked } from 'UI/@Shared/Maps/MapNode/NodeUI';
-import { SlicePath, State, Connect, IsDoubleClick, InfoButton, RemoveHelpers, DBPath, WaitTillPathDataIsReceived, VReactMarkdown_Remarkable } from 'Utils/FrameworkOverrides';
+import { SlicePath, State, Connect, IsDoubleClick, InfoButton, RemoveHelpers, DBPath, WaitTillPathDataIsReceived, VReactMarkdown_Remarkable, DragInfo, MakeDraggable } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { Clone, Assert, Timer, VRect, Vector2i } from 'js-vextensions';
+import { Clone, Assert, Timer, VRect, Vector2i, WaitXThenRun } from 'js-vextensions';
+import { DraggableInfo } from 'Utils/UI/DNDStructures';
+import ReactDOM from 'react-dom';
 import { ParseSegmentsForPatterns } from '../../../../Utils/General/RegexHelpers';
 import { AddNodeRevision } from '../../../../Server/Commands/AddNodeRevision';
 import { GetImage } from '../../../../Store/firebase/images';
@@ -47,7 +48,7 @@ import { PhrasingsPanel } from './NodeUI/Panels/PhrasingsPanel';
 // drag and drop
 // ==========
 
-const dragSourceDecorator = DragSource('node',
+/* const dragSourceDecorator = DragSource('node',
 	{
 		canDrag: ({ map, node, path }) => ForCopy_GetError(MeID(), node) == null,
 		beginDrag: ({ map, node, path }) => ({ map, node, path }),
@@ -55,7 +56,7 @@ const dragSourceDecorator = DragSource('node',
 	(connect, monitor) => ({
 		connectDragSource: connect.dragSource(),
 		isDragging: monitor.isDragging(),
-	}));
+	})); */
 
 // main
 // ==========
@@ -63,9 +64,9 @@ const dragSourceDecorator = DragSource('node',
 // export type NodeHoverExtras = {panel?: string, term?: number};
 
 type Props = {
-	map: Map, node: MapNodeL3, nodeView: MapNodeView, path: string, width: number, widthOverride?: number,
+	indexInNodeList: number, map: Map, node: MapNodeL3, nodeView: MapNodeView, path: string, width: number, widthOverride?: number,
 	panelPosition?: 'left' | 'below', useLocalPanelState?: boolean, style?,
-};
+} & {dragInfo?: DragInfo};
 const connector = (state, { map, node, path }: Props) => {
 	let sinceTime = GetTimeFromWhichToShowChangedNodes(map._key);
 	/* let pathsToChangedNodes = GetPathsToNodesChangedSinceX(map._id, sinceTime);
@@ -115,7 +116,16 @@ const connector = (state, { map, node, path }: Props) => {
 		markerPercent,
 	};
 };
-@(dragSourceDecorator as any)
+
+@MakeDraggable((props: TitlePanelProps) => {
+	const { path, indexInNodeList } = props;
+	if (!path.includes('/')) return null; // don't make draggable if root-node of map
+	return {
+		type: 'MapNode',
+		draggableInfo: new DraggableInfo({ nodePath: path }),
+		index: indexInNodeList,
+	};
+})
 @Connect(connector)
 export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 	{ hovered: false, hoverPanel: null as string, hoverTermID: null as string, /* local_selected: boolean, */ local_openPanel: null as string }) {
@@ -141,14 +151,18 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 	});
 
 	render() {
-		const { map, node, nodeView, path, width, widthOverride,
+		const { indexInNodeList, map, node, nodeView, path, width, widthOverride,
 			panelPosition, useLocalPanelState, style, form,
 			ratingsRoot, mainRating_average, mainRating_mine, reasonScoreValues,
-			showReasonScoreValues, changeType, backgroundFillPercent, markerPercent } = this.props;
-		const { connectDragSource } = this.props as any; // lazy
-		const { hovered, hoverPanel, hoverTermID, /* local_selected, */ local_openPanel } = this.state;
+			showReasonScoreValues, changeType, backgroundFillPercent, markerPercent, dragInfo } = this.props;
+		let { hovered, hoverPanel, hoverTermID, /* local_selected, */ local_openPanel } = this.state;
 		const nodeTypeInfo = MapNodeType_Info.for[node.type];
 		let backgroundColor = GetNodeColor(node);
+		const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
+		if (asDragPreview) {
+			hovered = false;
+			local_openPanel = null;
+		}
 
 		const parent = GetParentNodeL3(path);
 		const combinedWithParentArgument = IsPremiseOfSinglePremiseArgument(node, parent);
@@ -189,7 +203,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 		const bottomPanelShow = leftPanelShow && panelToShow;
 		const expanded = nodeView && nodeView.expanded;
 
-		return (
+		const result = (
 			<ExpandableBox ref={c => this.root = c}
 				{...{ width, widthOverride, outlineColor, expanded }} parent={this}
 				className={classNames('NodeUI_Inner', { root: pathNodeIDs.length == 0 })}
@@ -201,7 +215,8 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 					this.SetState({ hovered: false });
 					this.checkStillHoveredTimer.Stop();
 				}}
-				style={E(style)}
+				{...(dragInfo && dragInfo.provided.draggableProps)} {...(dragInfo && dragInfo.provided.dragHandleProps)}
+				style={E(style, dragInfo && dragInfo.provided.draggableProps.style, asDragPreview && { zIndex: 10 })}
 				padding={GetPaddingForNode(node, isSubnode)}
 				onClick={(e) => {
 					if ((e.nativeEvent as any).ignore) return;
@@ -246,11 +261,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 				onTextHolderClick={e => IsDoubleClick(e) && this.titlePanel && this.titlePanel.OnDoubleClick()}
 				text={[
 					/* eslint-disable react/jsx-key */
-					<TitlePanel {...{ parent: this, map, node, nodeView, path }}
-						ref={(comp) => {
-							this.titlePanel = comp;
-							connectDragSource(GetDOM(comp));
-						}}/>,
+					<TitlePanel {...{ indexInNodeList, parent: this, map, node, nodeView, path }} ref={c => this.titlePanel = c}/>,
 					subPanelShow && <SubPanel node={node}/>,
 					<NodeUI_Menu_Stub {...{ map, node, path }}/>,
 					/* eslint-enable react/jsx-key */
@@ -270,6 +281,12 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 				].AutoKey()}
 			/>
 		);
+
+		// if drag preview, we have to put in portal, since otherwise the "filter" effect of ancestors causes the {position:fixed} style to not be relative-to-page
+		if (asDragPreview) {
+			return ReactDOM.createPortal(result, portal);
+	  }
+	  return result;
 	}
 	definitionsPanel: DefinitionsPanel;
 	/* ComponentDidMount() {
@@ -285,6 +302,12 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 		});
 	} */
 }
+
+let portal: HTMLElement;
+WaitXThenRun(0, () => {
+	portal = document.createElement('div');
+	document.body.appendChild(portal);
+});
 
 class NodeUI_BottomPanel extends BaseComponent
 		<{
@@ -352,13 +375,14 @@ class ReasonScoreValueMarkers extends BaseComponent<{node: MapNodeL3, reasonScor
 	}
 }
 
-type TitlePanelProps = {parent: NodeUI_Inner, map: Map, node: MapNodeL2, nodeView: MapNodeView, path: string} & Partial<{equationNumber: number}>;
-@Connect((state, { node, path }: TitlePanelProps) => ({
-	_: GetNodeDisplayText(node, path),
+type TitlePanelProps = {parent: NodeUI_Inner, map: Map, node: MapNodeL2, nodeView: MapNodeView, path: string, indexInNodeList: number};
+const TitlePanel_connector = (state, { node, path }: TitlePanelProps) => ({
+	displayText: GetNodeDisplayText(node, path),
 	$1: node.current.image && GetImage(node.current.image.id),
 	equationNumber: node.current.equation ? GetEquationStepNumber(path) : null,
-}))
-class TitlePanel extends BaseComponent<TitlePanelProps, {editing: boolean, newTitle: string, applyingEdit: boolean}> {
+});
+@Connect(TitlePanel_connector)
+class TitlePanel extends BaseComponentWithConnector(TitlePanel_connector, { editing: false, newTitle: null as string, applyingEdit: false }) {
 	OnDoubleClick() {
 		const { node } = this.props;
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), node);
@@ -367,11 +391,12 @@ class TitlePanel extends BaseComponent<TitlePanelProps, {editing: boolean, newTi
 		}
 	}
 	render() {
-		const { map, node, nodeView, path, equationNumber } = this.props;
+		const { map, node, nodeView, path, displayText, equationNumber } = this.props;
 		const latex = node.current.equation && node.current.equation.latex;
 		const isSubnode = IsNodeSubnode(node);
+
 		let { editing, newTitle, applyingEdit } = this.state;
-		newTitle = newTitle != null ? newTitle : GetNodeDisplayText(node, path);
+		newTitle = newTitle != null ? newTitle : displayText;
 
 		const noteText = (node.current.equation && node.current.equation.explanation) || node.current.note;
 

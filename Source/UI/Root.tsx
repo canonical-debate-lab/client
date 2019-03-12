@@ -1,5 +1,5 @@
 import chroma from 'chroma-js';
-import { Vector2i, VURL } from 'js-vextensions';
+import { Vector2i, VURL, FromJSON } from 'js-vextensions';
 import * as ReactColor from 'react-color';
 import { Provider } from 'react-redux';
 import { ColorPickerBox, Column } from 'react-vcomponents';
@@ -11,13 +11,13 @@ import { MeID, Me } from 'Store/firebase/users';
 import { GuideUI } from 'UI/Guide';
 import '../../Source/Utils/Styles/Main.scss'; // keep absolute-ish, since scss file not copied to Source_JS folder
 import '../Utils/UI/JQueryExtensions';
-import { DragDropContext } from 'react-dnd';
-import MouseBackend from 'react-dnd-mouse-backend';
 import keycode from 'keycode';
 import { State, Connect, Route, browserHistory, AddressBarWrapper } from 'Utils/FrameworkOverrides';
 import { NormalizeURL } from 'Utils/URL/URLs';
 import { ConnectedRouter } from 'connected-react-router';
 import { ES } from 'Utils/UI/GlobalStyles';
+import { DragDropContext as DragDropContext_Beautiful, Droppable } from 'react-beautiful-dnd';
+import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
 import { GetUserBackground } from '../Store/firebase/users';
 import { NavBar } from '../UI/@Shared/NavBar';
 import { GlobalUI } from '../UI/Global';
@@ -34,9 +34,6 @@ import { ReputationUI } from './Reputation';
 import { SearchUI } from './Search';
 import { SocialUI } from './Social';
 import { StreamUI } from './Stream';
-import { VDragLayer } from './@Shared/VDragLayer';
-// import HTML5Backend from "react-dnd-html5-backend";
-// import TouchBackend from "react-dnd-touch-backend";
 
 const aa = { Provider, ConnectedRouter } as any;
 
@@ -78,12 +75,27 @@ export class RootUIWrapper extends BaseComponent<{store}, {}> {
 			<aa.Provider store={store}>
 				<PersistGate loading={null} persistor={persister}>
 					<aa.ConnectedRouter history={browserHistory}>
-						<RootUI/>
+						<DragDropContext_Beautiful onDragEnd={this.OnDragEnd}>
+							<RootUI/>
+						</DragDropContext_Beautiful>
 					</aa.ConnectedRouter>
 				</PersistGate>
 			</aa.Provider>
 		);
 	}
+
+	OnDragEnd = (result) => {
+		const sourceDroppableInfo = FromJSON(result.source.droppableId) as DroppableInfo;
+		const sourceIndex = result.source.index as number;
+		const targetDroppableInfo = result.destination && FromJSON(result.destination.droppableId) as DroppableInfo;
+		const targetIndex = result.destination && result.destination.index as number;
+		const draggableInfo = FromJSON(result.draggableId) as DraggableInfo;
+
+		if (targetDroppableInfo == null) {
+		} else if (targetDroppableInfo.type == 'NodeChildHolder') {
+			// todo
+		}
+	};
 
 	ComponentDidMount() {
 		/* if (DEV) {
@@ -132,7 +144,6 @@ const connector = (state, {}: {}) => ({
 	currentPage: State(a => a.main.page),
 });
 @Connect(connector)
-@DragDropContext(MouseBackend)
 class RootUI extends BaseComponentWithConnector(connector, {}) {
 	shouldComponentUpdate(newProps, newState) {
 		// ignore change of 'router' prop -- we don't use it
@@ -193,7 +204,6 @@ class OverlayUI extends BaseComponent<{}, {}> {
 			<div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflow: 'hidden' }}>
 				<MessageBoxUI/>
 				<VMenuLayer/>
-				<VDragLayer/>
 			</div>
 		);
 	}

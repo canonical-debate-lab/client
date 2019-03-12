@@ -1,4 +1,4 @@
-import { CachedTransform, Vector2i, emptyObj, nl, Assert } from 'js-vextensions';
+import { CachedTransform, Vector2i, emptyObj, nl, Assert, ToJSON } from 'js-vextensions';
 import { Button, Column, Div, Row } from 'react-vcomponents';
 import { BaseComponentWithConnector, GetInnerComp, RenderSource, GetDOM } from 'react-vextensions';
 import { GetFillPercent_AtPath } from 'Store/firebase/nodeRatings';
@@ -12,11 +12,14 @@ import { NodeConnectorBackground } from 'UI/@Shared/Maps/MapNode/NodeConnectorBa
 import { NodeUI } from 'UI/@Shared/Maps/MapNode/NodeUI';
 import { IsSpecialEmptyArray, State, Connect, MaybeLog, Icon } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
+import { DroppableInfo } from 'Utils/UI/DNDStructures';
+import { Droppable } from 'react-beautiful-dnd';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { IsMultiPremiseArgument } from '../../../../../Store/firebase/nodes/$node';
 import { Polarity } from '../../../../../Store/firebase/nodes/@MapNode';
 import { ArgumentsControlBar } from '../ArgumentsControlBar';
 import { NodeChildHolderBox } from './NodeChildHolderBox';
+
 
 /* export class ChildPackUI extends BaseComponent
 		<{
@@ -117,7 +120,7 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 
 			const childLimit = direction == 'down' ? childLimit_down : childLimit_up;
 			return (
-				<NodeUI key={child._key} ref={c => this.childBoxes[child._key] = c} map={map} node={child}
+				<NodeUI key={child._key} ref={c => this.childBoxes[child._key] = c} indexInNodeList={index} map={map} node={child}
 					path={`${path}/${child._key}`} widthOverride={childrenWidthOverride} onHeightOrPosChange={this.OnChildHeightOrPosChange}>
 					{index == (direction == 'down' ? childLimit - 1 : 0) && !showAll && (collection.length > childLimit || childLimit != initialChildLimit) &&
 						<ChildLimitBar {...{ map, path, childrenWidthOverride, childLimit }} direction={direction} childCount={collection.length}/>}
@@ -125,6 +128,7 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 			);
 		};
 
+		const droppableInfo = new DroppableInfo({ type: 'NodeChildHolder', parentPath: path });
 		this.childBoxes = {};
 		return (
 			<Column ref={c => this.childHolder = c} className="childHolder clickThrough" style={E(
@@ -148,23 +152,35 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 						widthOfNode={childrenWidthOverride}
 						nodeChildren={GetNodeChildrenL3(node, path)} nodeChildrenToShow={nodeChildrenToShowInRelevanceBox}
 						onHeightOrDividePointChange={dividePoint => this.CheckForChanges()}/>}
-				{!separateChildren && nodeChildrenToShowHere.slice(0, childLimit_down).map((pack, index) => {
-					return RenderChild(pack, index, nodeChildrenToShowHere);
-				})}
+				{!separateChildren &&
+					<Droppable type="MapNode" droppableId={ToJSON(droppableInfo)}>{(provided, snapshot) => (
+						<Column ref={c => provided.innerRef(GetDOM(c))}>
+							{nodeChildrenToShowHere.slice(0, childLimit_down).map((pack, index) => {
+								return RenderChild(pack, index, nodeChildrenToShowHere);
+							})}
+							{provided.placeholder}
+						</Column>
+					)}</Droppable>}
 				{separateChildren &&
-					<Column ref={c => this.upChildHolder = c} ct className="upChildHolder">
-						{upChildren.slice(-childLimit_up).map((child, index) => {
-							return RenderChild(child, index, upChildren, 'up');
-						})}
-					</Column>}
+					<Droppable type="MapNode" droppableId={ToJSON(droppableInfo.VSet({ subtype: 'up' }))}>{(provided, snapshot) => (
+						<Column ref={(c) => { this.upChildHolder = c; provided.innerRef(GetDOM(c)); }} ct className="upChildHolder">
+							{upChildren.slice(-childLimit_up).map((child, index) => {
+								return RenderChild(child, index, upChildren, 'up');
+							})}
+							{provided.placeholder}
+						</Column>
+					)}</Droppable>}
 				{showArgumentsControlBar &&
 					<ArgumentsControlBar ref={c => this.argumentsControlBar = c} map={map} node={node} path={path} childBeingAdded={currentNodeBeingAdded_path == `${path}/?`}/>}
 				{separateChildren &&
-					<Column ref={c => this.downChildHolder = c} ct>
-						{downChildren.slice(0, childLimit_down).map((child, index) => {
-							return RenderChild(child, index, downChildren, 'down');
-						})}
-					</Column>}
+					<Droppable type="MapNode" droppableId={ToJSON(droppableInfo.VSet({ subtype: 'down' }))}>{(provided, snapshot) => (
+						<Column ref={(c) => { this.downChildHolder = c; provided.innerRef(GetDOM(c)); }} ct className="downChildHolder">
+							{downChildren.slice(0, childLimit_down).map((child, index) => {
+								return RenderChild(child, index, downChildren, 'down');
+							})}
+							{provided.placeholder}
+						</Column>
+					)}</Droppable>}
 			</Column>
 		);
 	}

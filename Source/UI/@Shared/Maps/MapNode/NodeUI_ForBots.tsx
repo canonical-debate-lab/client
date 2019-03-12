@@ -69,7 +69,7 @@ export class NodeUI_ForBots extends BaseComponent<Props, {}> {
 					<NodeUI_Inner
 						ref={c => this.innerUI = GetInnerComp(c)}
 						// ref={c => this.innerUI = c ? c['getDecoratedComponentInstance']() : null}
-						map={map} node={nodeL3} nodeView={{}} path={path} width={null} widthOverride={null}/>
+						indexInNodeList={0} map={map} node={nodeL3} nodeView={{}} path={path} width={null} widthOverride={null}/>
 					Panels:
 					{GetRatingTypesForNode(nodeL3).map((ratingInfo, index) => {
 						const ratings = GetRatings(node._key, ratingInfo.type);

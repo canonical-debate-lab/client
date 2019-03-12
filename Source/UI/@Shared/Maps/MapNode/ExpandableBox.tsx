@@ -23,7 +23,7 @@ export class ExpandableBox extends BaseComponent<Props, {}> {
 			className, width, widthOverride, innerWidth, outlineColor, padding, style, onClick, onDirectClick, onMouseEnter, onMouseLeave,
 			backgroundFillPercent, backgroundColor, markerPercent,
 			text, onTextHolderClick, beforeChildren, afterChildren,
-			expanded, toggleExpanded } = this.props;
+			expanded, toggleExpanded, ...rest } = this.props;
 		this.parent = parent; // probably temp; used to access NodeUI_Inner comp's props, from MapUI.FindNodeBox
 
 		return (
@@ -33,7 +33,7 @@ export class ExpandableBox extends BaseComponent<Props, {}> {
 					width, minWidth: widthOverride,
 					boxShadow: `rgba(0,0,0,1) 0px 0px 2px${(outlineColor ? `, rgba(${outlineColor},1) 0px 0px 1px` : '').repeat(6)}`,
 				}, style)}
-				onClick={onClick} onMouseEnter={onMouseEnter as any} onMouseLeave={onMouseLeave as any}>
+				onClick={onClick} onMouseEnter={onMouseEnter as any} onMouseLeave={onMouseLeave as any} {...rest}>
 				{beforeChildren}
 				<Row style={{ alignItems: 'stretch', width: innerWidth || '100%', borderRadius: 5, cursor: 'pointer' }} onClick={onDirectClick}>
 					<div ref={c => this.textHolder = c} style={{ position: 'relative', width: 'calc(100% - 17px)', padding,

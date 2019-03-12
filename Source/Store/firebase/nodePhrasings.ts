@@ -1,5 +1,5 @@
-import { GetData } from 'vwebapp-framework/Source';
 import { CachedTransform } from 'js-vextensions';
+import {GetData} from 'Utils/FrameworkOverrides';
 import { MapNodePhrasing } from './nodePhrasings/@MapNodePhrasing';
 
 /* export function GetPhrasings(nodeID: string): MapNodePhrasing[] {
