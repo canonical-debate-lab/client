@@ -3,7 +3,7 @@ import keycode from 'keycode';
 import { Button, Pre, Row, TextArea } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector, GetInnerComp, GetDOM, FindReact } from 'react-vextensions';
 import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthScoreComposite, RS_GetAllValues } from 'Store/firebase/nodeRatings/ReasonScore';
-import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
+import { IsUserCreatorOrMod, HasModPermissions } from 'Store/firebase/userExtras';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
 import { NodeMathUI } from 'UI/@Shared/Maps/MapNode/NodeMathUI';
@@ -118,8 +118,9 @@ const connector = (state, { map, node, path }: Props) => {
 	};
 };
 
-@MakeDraggable((props: TitlePanelProps) => {
-	const { path, indexInNodeList } = props;
+@Connect(connector)
+@MakeDraggable(({ node, path, indexInNodeList }: TitlePanelProps) => {
+	if (!IsUserCreatorOrMod(MeID(), node)) return null;
 	if (!path.includes('/')) return null; // don't make draggable if root-node of map
 	return {
 		type: 'MapNode',
@@ -127,7 +128,6 @@ const connector = (state, { map, node, path }: Props) => {
 		index: indexInNodeList,
 	};
 })
-@Connect(connector)
 export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 	{ hovered: false, hoverPanel: null as string, hoverTermID: null as string, /* local_selected: boolean, */ local_openPanel: null as string }) {
 	static defaultProps = { panelPosition: 'left' };
