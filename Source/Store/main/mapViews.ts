@@ -1,6 +1,7 @@
 import { Assert, CachedTransform, GetTreeNodesInObjTree, IsNumberString, Vector2i, IsNumber, IsString } from 'js-vextensions';
 import { ShallowChanged } from 'react-vextensions';
 import { Action, DBPath, SplitStringBySlash_Cached, State, DoesActionSetFirestoreData, GetFirestoreDataSetterActionPath, Validate } from 'Utils/FrameworkOverrides';
+import {UUID} from 'Utils/General/KeyGenerator';
 import { ACTDebateMapSelect_WithData } from './debates';
 import { ACTMapViewMerge, MapViewReducer } from './mapViews/$mapView';
 import { MapNodeView, MapView, MapViews } from './mapViews/@MapViews';
@@ -74,12 +75,12 @@ export function GetPathNodes(path: string) {
 	// return pathSegments.map(ToInt);
 	return pathSegments;
 }
-export function PathSegmentToNodeID(segment: string) {
+export function PathSegmentToNodeID(segment: string): UUID {
 	if (segment.length == 22) return segment;
 	if (segment.length == 23) return segment.slice(1);
 	Assert(false, 'Segment text is invalid.');
 }
-export function GetPathNodeIDs(path: string) {
+export function GetPathNodeIDs(path: string): UUID[] {
 	const nodes = GetPathNodes(path);
 	return nodes.map(a => PathSegmentToNodeID(a));
 }

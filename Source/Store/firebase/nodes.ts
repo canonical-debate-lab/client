@@ -138,8 +138,10 @@ export function GetNodeChildrenL3(node: MapNode, path?: string, filterForPath = 
 }
 
 export function GetHolderType(childType: MapNodeType, parentType: MapNodeType) {
-	if (childType == MapNodeType.Argument) {
-		return parentType == MapNodeType.Argument ? HolderType.Relevance : HolderType.Truth;
+	if (parentType == MapNodeType.Argument) {
+		if (childType == MapNodeType.Argument) return HolderType.Relevance;
+	} else if (parentType == MapNodeType.Claim) {
+		if (childType == MapNodeType.Argument) return HolderType.Truth;
 	}
 	return null;
 }

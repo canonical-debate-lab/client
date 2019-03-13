@@ -1,6 +1,8 @@
-//import JQuery from "../JQuery/JQuery3.1.0";
-let JQuery = jQuery; // include JQuery file directly from html, for faster building
-import React from "react";
+import React from 'react';
+// import JQuery from "../JQuery/JQuery3.1.0";
 
-G({JQuery, jQuery: JQuery, $: JQuery}); declare global { const JQuery; /*const jQuery; const $;*/ }
-G({React}); declare global { const React; }
+// include JQuery file directly from html, for faster building
+const JQuery = jQuery;
+
+G({ JQuery, jQuery: JQuery, $: JQuery }); declare global { const JQuery; /* const jQuery; const $; */ }
+G({ React }); declare global { const React: typeof React; }

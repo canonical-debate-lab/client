@@ -222,9 +222,29 @@ webpackConfig.module.rules.push(
 									return isPositionInFrame(active)(target);
 								})
 								.sort((a, b) => {
-									if (a.client.contentBox[a.axis.size] < b.client.contentBox[b.axis.size]) return -1;
+									// if draggable is over two lists, and one's not as tall, have it prioritize the list that's not as tall
+									/*if (a.client.contentBox[a.axis.size] < b.client.contentBox[b.axis.size]) return -1;
 									if (a.client.contentBox[a.axis.size] > b.client.contentBox[b.axis.size]) return 1;
-									return 0;
+									return 0;*/
+									if (a.client.contentBox[a.axis.size] != b.client.contentBox[b.axis.size]) {
+										return a.client.contentBox[a.axis.size] - b.client.contentBox[b.axis.size]; // ascending
+									}
+
+									// if draggable is over two lists, have it prioritize the list farther to the right
+									/*if (a.client.contentBox.left != b.client.contentBox.left) {
+										return a.client.contentBox.left - b.client.contentBox.left; // ascending
+									}*/
+
+									// if draggable is over multiple lists, have it prioritize the list whose center is closest to the mouse
+									/*var aDist = Math.hypot(target.x - a.client.contentBox.center.x, target.y - a.client.contentBox.center.y);
+									var bDist = Math.hypot(target.x - b.client.contentBox.center.x, target.y - b.client.contentBox.center.y);
+									return aDist - bDist; // ascending*/
+
+									// prioritize the list farther to the right/bottom (evaluated as distance from union-rect top-left)
+									var unionRect = {x: Math.min(a.client.contentBox.left, b.client.contentBox.left), y: Math.min(a.client.contentBox.top, b.client.contentBox.top)};
+									var aDist = Math.hypot(unionRect.x - a.client.contentBox.center.x, unionRect.y - a.client.contentBox.center.y);
+									var bDist = Math.hypot(unionRect.x - b.client.contentBox.center.x, unionRect.y - b.client.contentBox.center.y);
+									return -(aDist - bDist); // descending
 								})
 								.find(droppable => !!droppable);
 							return maybe ? maybe.descriptor.id : null;

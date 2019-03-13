@@ -2,10 +2,10 @@ import { CachedTransform, Vector2i, emptyObj, nl, Assert, ToJSON, Timer, VRect, 
 import { Button, Column, Div, Row } from 'react-vcomponents';
 import { BaseComponentWithConnector, GetInnerComp, RenderSource, GetDOM } from 'react-vextensions';
 import { GetFillPercent_AtPath } from 'Store/firebase/nodeRatings';
-import { GetNodeChildrenL3, HolderType } from 'Store/firebase/nodes';
-import { MapNodeL3 } from 'Store/firebase/nodes/@MapNode';
+import { GetNodeChildrenL3, HolderType, GetParentNodeL3, GetHolderType, GetParentNodeID } from 'Store/firebase/nodes';
+import { MapNodeL3, ClaimForm } from 'Store/firebase/nodes/@MapNode';
 import { ArgumentType } from 'Store/firebase/nodes/@MapNodeRevision';
-import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
+import { MapNodeType, MapNodeType_Info, GetMapNodeTypeDisplayName } from 'Store/firebase/nodes/@MapNodeType';
 import { ACTMapNodeChildLimitSet } from 'Store/main/mapViews/$mapView/rootNodeViews';
 import { MapNodeView } from 'Store/main/mapViews/@MapViews';
 import { NodeConnectorBackground } from 'UI/@Shared/Maps/MapNode/NodeConnectorBackground';
@@ -13,37 +13,13 @@ import { NodeUI } from 'UI/@Shared/Maps/MapNode/NodeUI';
 import { IsSpecialEmptyArray, State, Connect, MaybeLog, Icon } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { DroppableInfo } from 'Utils/UI/DNDStructures';
-import { Droppable } from 'react-beautiful-dnd';
-import { any } from 'prop-types';
+import * as React from 'react';
+import { DroppableProvided, Droppable, DroppableStateSnapshot } from 'react-beautiful-dnd';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { IsMultiPremiseArgument } from '../../../../../Store/firebase/nodes/$node';
 import { Polarity } from '../../../../../Store/firebase/nodes/@MapNode';
 import { ArgumentsControlBar } from '../ArgumentsControlBar';
 import { NodeChildHolderBox } from './NodeChildHolderBox';
-
-
-/* export class ChildPackUI extends BaseComponent
-		<{
-			map: Map, path: string, childrenWidthOverride: number, showAll: boolean, childLimit_up: number, childLimit_down: number,
-			pack: ChildPack, index: number, collection: ChildPack[], direction?: "up" | "down",
-		}, {}> {
-	static defaultProps = {direction: "down"};
-	render() {
-		let {map, path, childrenWidthOverride, childLimit_up, childLimit_down, showAll, pack, index, direction} = this.props;
-		/*if (pack.node.premiseAddHelper) {
-			return <PremiseAddHelper mapID={map._id} parentNode={node} parentPath={path}/>;
-		}*#/
-
-		let childLimit = direction == "down" ? childLimit_down : childLimit_up;
-		return (
-			<NodeUI key={pack.node._id} map={map} node={pack.node}
-					path={path + "/" + pack.node._id} widthOverride={childrenWidthOverride} onHeightOrPosChange={this.OnChildHeightOrPosChange}>
-				{index == (direction == "down" ? childLimit - 1 : 0) && !showAll && (collection.length > childLimit || childLimit != initialChildLimit) &&
-					<ChildLimitBar {...{map, path, childrenWidthOverride, childLimit}} direction={direction} childCount={collection.length}/>}
-			</NodeUI>
-		);
-	}
-} */
 
 type Props = {
 	map: Map, node: MapNodeL3, path: string, nodeView: MapNodeView, nodeChildrenToShow: MapNodeL3[], type: HolderType,
@@ -71,6 +47,7 @@ const connector = (state, { node, path, nodeChildrenToShow }: Props) => {
 		currentNodeBeingAdded_path: State(a => a.main.currentNodeBeingAdded_path),
 	};
 };
+
 @Connect(connector)
 export class NodeChildHolder extends BaseComponentWithConnector(connector, initialState) {
 	static defaultProps = { minWidth: 0 };
@@ -134,9 +111,17 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 			const refName = `${group}ChildHolder`;
 			const childLimit = group == 'up' ? childLimit_up : childLimit_down; // "all" and "down" share a child-limit
 			const childrenHere = group == 'all' ? nodeChildrenToShow : group == 'up' ? upChildren : downChildren;
+
+			const dragBox = document.querySelector('.NodeUI_Inner.DragPreview');
+			const dragBoxRect = dragBox && VRect.FromLTWH(dragBox.getBoundingClientRect());
 			return (
-				<Droppable type="MapNode" droppableId={ToJSON(droppableInfo.VSet({ subtype: group }))}>{(provided, snapshot) => (
-					<Column ref={(c) => { this[`${group}ChildHolder`] = c; provided.innerRef(GetDOM(c)); }} ct className={refName} style={{ position: 'relative' }}>
+				<Droppable type="MapNode" droppableId={ToJSON(droppableInfo.VSet({ subtype: group, childIDs: childrenHere.map(a => a._key) }))}>{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
+					<Column ref={(c) => { this[`${group}ChildHolder`] = c; provided.innerRef(GetDOM(c) as any); }} ct className={refName}
+						style={E(
+							{ position: 'relative' },
+							childrenHere.length == 0 && { position: 'absolute', top: group == 'down' ? '100%' : 0, width: MapNodeType_Info.for[MapNodeType.Claim].minWidth, height: 100 },
+						)}>
+						{/* childrenHere.length == 0 && <div style={{ position: 'absolute', top: '100%', width: '100%', height: 200 }}/> */}
 						{childrenHere.slice(0, childLimit).map((pack, index) => {
 							return RenderChild(pack, index, childrenHere);
 						})}
@@ -157,7 +142,9 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 		return (
 			<Column ref={c => this.childHolder = c} className="childHolder clickThrough" style={E(
 				{
-					marginLeft: vertical ? 20 : (nodeChildrenToShow.length || showArgumentsControlBar) ? 30 : 0,
+					position: 'relative', // needed so position:absolute in RenderGroup takes into account NodeUI padding
+					// marginLeft: vertical ? 20 : (nodeChildrenToShow.length || showArgumentsControlBar) ? 30 : 0,
+					marginLeft: vertical ? 20 : 30,
 					// display: "flex", flexDirection: "column", marginLeft: 10, maxHeight: expanded ? 500 : 0, transition: "max-height 1s", overflow: "hidden",
 				},
 				//! expanded && {visibility: "hidden", height: 0}, // maybe temp; fix for lines-sticking-to-top issue
@@ -206,7 +193,7 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 		/* const match = firstOffsetInner.style.transform.match(/([0-9]+).+?([0-9]+)/);
 		const dragBoxSize = new Vector2i(match[1].ToInt(), match[2].ToInt());
 		// delete dragInfo.provided.draggableProps.style.transform; */
-		const dragBox = $('.NodeUI_Inner.DragPreview')[0];
+		const dragBox = document.querySelector('.NodeUI_Inner.DragPreview');
 		if (dragBox == null) return; // this can happen at end of drag
 		const dragBoxRect = VRect.FromLTWH(dragBox.getBoundingClientRect());
 
@@ -221,13 +208,17 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 
 			placeholderRect = firstOffsetInnerRect_relative.NewWidth(dragBoxRect.width).NewHeight(dragBoxRect.height);
 		} else {
-			const lastInner = siblingNodeUIInnerDOMs.Last();
-			const lastInnerRect = VRect.FromLTWH(lastInner.getBoundingClientRect()).NewTop(top => top - dragBoxRect.height);
-			const lastInnerRect_relative = new VRect(lastInnerRect.Position.Minus(childHolderRect.Position), lastInnerRect.Size);
+			if (siblingNodeUIInnerDOMs.length) {
+				const lastInner = siblingNodeUIInnerDOMs.Last();
+				const lastInnerRect = VRect.FromLTWH(lastInner.getBoundingClientRect()).NewTop(top => top - dragBoxRect.height);
+				const lastInnerRect_relative = new VRect(lastInnerRect.Position.Minus(childHolderRect.Position), lastInnerRect.Size);
 
-			placeholderRect = lastInnerRect_relative.NewWidth(dragBoxRect.width).NewHeight(dragBoxRect.height);
-			// if (dragBoxRect.Center.y > firstOffsetInnerRect.Center.y) {
-			placeholderRect.y += lastInnerRect.height;
+				placeholderRect = lastInnerRect_relative.NewWidth(dragBoxRect.width).NewHeight(dragBoxRect.height);
+				// if (dragBoxRect.Center.y > firstOffsetInnerRect.Center.y) {
+				placeholderRect.y += lastInnerRect.height;
+			} else {
+				placeholderRect = new VRect(Vector2i.zero, dragBoxRect.Size);
+			}
 		}
 
 		this.SetState({ placeholderRect });

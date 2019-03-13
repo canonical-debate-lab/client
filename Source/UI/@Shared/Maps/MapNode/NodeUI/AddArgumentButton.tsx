@@ -13,21 +13,6 @@ import { MapNodeL3, Polarity, ClaimForm } from '../../../../../Store/firebase/no
 import { GetNodeColor, MapNodeType } from '../../../../../Store/firebase/nodes/@MapNodeType';
 import { ShowAddChildDialog } from '../NodeUI_Menu/AddChildDialog';
 
-function CreateLinkCommand(map: Map, draggedNode: MapNodeL3, draggedNodePath: string, dropOnNode: MapNodeL3, dropOnNodePath: string, polarity: Polarity) {
-	// const draggedNode_parent = GetParentNodeL3(draggedNodePath);
-	const dropOnNode_parent = GetParentNodeL3(dropOnNodePath);
-	const holderType = GetHolderType(dropOnNode.type, dropOnNode_parent.type);
-	const formForClaimChildren = dropOnNode.type == MapNodeType.Category ? ClaimForm.YesNoQuestion : ClaimForm.Base;
-
-	return new LinkNode_HighLevel({
-		mapID: map._key, oldParentID: GetParentNodeID(draggedNodePath), newParentID: dropOnNode._key, nodeID: draggedNode._key,
-		newForm: draggedNode.type == MapNodeType.Claim ? formForClaimChildren : null,
-		newPolarity: polarity,
-		allowCreateWrapperArg: holderType != null || !dropOnNode.multiPremiseArgument,
-		unlinkFromOldParent: !ctrlDown, deleteOrphanedArgumentWrapper: true,
-	});
-}
-
 type Props = {map: Map, node: MapNodeL3, path: string, polarity: Polarity, style?};
 /* const dropTargetDecorator = DropTarget('node',
 	{

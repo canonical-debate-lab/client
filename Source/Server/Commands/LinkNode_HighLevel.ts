@@ -1,12 +1,14 @@
-import { GetNode, GetHolderType, ForNewLink_GetError } from 'Store/firebase/nodes';
+import { GetNode, GetHolderType, ForNewLink_GetError, GetParentNodeL3, GetParentNodeID } from 'Store/firebase/nodes';
 import { Assert, E } from 'js-vextensions';
-import { GetNodeL2 } from 'Store/firebase/nodes/$node';
+import { GetNodeL2, GetNodeL3 } from 'Store/firebase/nodes/$node';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
 import { GetAsync } from 'Utils/FrameworkOverrides';
-import { ClaimForm, MapNode, Polarity } from './../../Store/firebase/nodes/@MapNode';
-import { MapNodeType } from './../../Store/firebase/nodes/@MapNodeType';
 import { Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
+import { Map } from 'Store/firebase/maps/@Map';
+import { UUID } from 'Utils/General/KeyGenerator';
+import { ClaimForm, MapNode, Polarity, MapNodeL3 } from './../../Store/firebase/nodes/@MapNode';
+import { MapNodeType } from './../../Store/firebase/nodes/@MapNodeType';
 import { UserEdit } from './../CommandMacros';
 import { LinkNode } from './LinkNode';
 import { UnlinkNode } from './UnlinkNode';
@@ -32,10 +34,30 @@ export function LinkNode_HighLevel_GetCommandError(command: LinkNode_HighLevel) 
 		const argumentWrapper_partial = new MapNode({ type: MapNodeType.Argument });
 		const error = ForNewLink_GetError(newParentID, argumentWrapper_partial, permissions);
 		if (error) return error;
+		if (newParentID == nodeID) return 'Cannot link node as its own child.';
 	} else {
 		const error = ForNewLink_GetError(newParentID, node, permissions);
 		if (error) return error;
 	}
+	// todo: find way of including all the validation of the actual LinkNode_HighLevel command, without having to duplicate the logic here
+}
+
+export function CreateLinkCommand(mapID: UUID, draggedNodePath: string, dropOnNodePath: string, polarity: Polarity, asCopy: boolean) {
+	const draggedNode = GetNodeL3(draggedNodePath);
+	const dropOnNode = GetNodeL3(dropOnNodePath);
+
+	// const draggedNode_parent = GetParentNodeL3(draggedNodePath);
+	const dropOnNode_parent = GetParentNodeL3(dropOnNodePath);
+	const holderType = GetHolderType(dropOnNode.type, dropOnNode_parent ? dropOnNode_parent.type : null);
+	const formForClaimChildren = dropOnNode.type == MapNodeType.Category ? ClaimForm.YesNoQuestion : ClaimForm.Base;
+
+	return new LinkNode_HighLevel({
+		mapID, oldParentID: GetParentNodeID(draggedNodePath), newParentID: dropOnNode._key, nodeID: draggedNode._key,
+		newForm: draggedNode.type == MapNodeType.Claim ? formForClaimChildren : null,
+		newPolarity: polarity,
+		allowCreateWrapperArg: holderType != null || !dropOnNode.multiPremiseArgument,
+		unlinkFromOldParent: !asCopy, deleteOrphanedArgumentWrapper: true,
+	});
 }
 
 export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: string}> {

@@ -21,7 +21,7 @@ import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebas
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatingAverage_AtPath, GetRatings, RatingFilter } from '../../../../Store/firebase/nodeRatings';
 import { RatingType, ratingTypes } from '../../../../Store/firebase/nodeRatings/@RatingType';
-import { GetParentNode, GetParentNodeL3, IsNodeSubnode, ForCopy_GetError } from '../../../../Store/firebase/nodes';
+import { GetParentNode, GetParentNodeL3, IsNodeSubnode } from '../../../../Store/firebase/nodes';
 import { GetFontSizeForNode, GetMainRatingType, GetNodeDisplayText, GetNodeForm, GetNodeL3, GetPaddingForNode, IsPremiseOfSinglePremiseArgument, missingTitleStrings } from '../../../../Store/firebase/nodes/$node';
 import { GetEquationStepNumber } from '../../../../Store/firebase/nodes/$node/equation';
 import { ClaimForm, MapNodeL2, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';

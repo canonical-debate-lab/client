@@ -1,3 +1,5 @@
+import { UUID } from 'Utils/General/KeyGenerator';
+
 export class DroppableInfo {
 	constructor(data: Partial<DroppableInfo>) {
 		this.Extend(data);
@@ -7,6 +9,7 @@ export class DroppableInfo {
 	// if NodeChildHolder
 	parentPath?: string;
 	subtype?: 'up' | 'down';
+	childIDs?: UUID[];
 }
 export class DraggableInfo {
 	constructor(data: Partial<DraggableInfo>) {
@@ -14,5 +17,6 @@ export class DraggableInfo {
 	}
 
 	// if in NodeChildHolder
+	mapID?: UUID;
 	nodePath?: string;
 }

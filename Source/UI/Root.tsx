@@ -2,10 +2,10 @@ import chroma from 'chroma-js';
 import { Vector2i, VURL, FromJSON } from 'js-vextensions';
 import * as ReactColor from 'react-color';
 import { Provider } from 'react-redux';
-import { ColorPickerBox, Column } from 'react-vcomponents';
+import { ColorPickerBox, Column, Button, Row, Pre } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector, ShallowChanged } from 'react-vextensions';
 import { VMenuLayer } from 'react-vmenu';
-import { MessageBoxUI } from 'react-vmessagebox';
+import { MessageBoxUI, ShowMessageBox } from 'react-vmessagebox';
 import { PersistGate as PersistGate_ } from 'redux-persist/integration/react';
 import { MeID, Me } from 'Store/firebase/users';
 import { GuideUI } from 'UI/Guide';
@@ -18,6 +18,12 @@ import { ConnectedRouter } from 'connected-react-router';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { DragDropContext as DragDropContext_Beautiful, Droppable } from 'react-beautiful-dnd';
 import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
+import { Polarity } from 'Store/firebase/nodes/@MapNode';
+import { GetPathNodeIDs } from 'Store/main/mapViews';
+import { CreateLinkCommand as CreateLinkCommandForDND, LinkNode_HighLevel_GetCommandError } from 'Server/Commands/LinkNode_HighLevel';
+import { GetNodeDisplayText, GetNodeL3 } from 'Store/firebase/nodes/$node';
+import { ACTSetLastAcknowledgementTime } from 'Store/main';
+import { Fragment } from 'react';
 import { GetUserBackground } from '../Store/firebase/users';
 import { NavBar } from '../UI/@Shared/NavBar';
 import { GlobalUI } from '../UI/Global';
@@ -36,18 +42,6 @@ import { SocialUI } from './Social';
 import { StreamUI } from './Stream';
 
 const aa = { Provider, ConnectedRouter } as any;
-
-// temp fix for "isOver({shallow: true})"
-// var DragDropMonitor = require("dnd-core/lib/DragDropMonitor").default;
-let DragDropMonitor = require('dnd-core/lib/DragDropMonitorImpl').default; // eslint-disable-line
-DragDropMonitor.prototype.GetTargetComponents = function () { // eslint-disable-line
-	return this.getTargetIds().map(targetID => this.registry.handlers[targetID].component);
-};
-/* var createTargetMonitor = require("react-dnd/lib/createTargetMonitor").default;
-var TargetMonitor = createTargetMonitor({getMonitor: function() {}}).constructor;
-TargetMonitor.prototype.GetTargetComponent = function() {
-    return this.internalMonitor.registry.handlers[this.targetId].component;
-}; */
 
 const PersistGate = PersistGate_ as any;
 
@@ -91,9 +85,57 @@ export class RootUIWrapper extends BaseComponent<{store}, {}> {
 		const targetIndex = result.destination && result.destination.index as number;
 		const draggableInfo = FromJSON(result.draggableId) as DraggableInfo;
 
+		// we don't support setting the actual order for nodes through dnd right now, so ignore if dragging onto same list
+		if (result.destination && result.source.droppableId == result.destination.droppableId) return;
+
 		if (targetDroppableInfo == null) {
 		} else if (targetDroppableInfo.type == 'NodeChildHolder') {
-			// todo
+			const { parentPath: newParentPath } = targetDroppableInfo;
+			const newParentID = GetPathNodeIDs(newParentPath).Last();
+			const newParent = GetNodeL3(newParentID);
+			const polarity = targetDroppableInfo.subtype == 'up' ? Polarity.Supporting : Polarity.Opposing;
+
+			const { mapID, nodePath: draggedNodePath } = draggableInfo;
+			const draggedNodeID = GetPathNodeIDs(draggedNodePath).Last();
+			const draggedNode = GetNodeL3(draggedNodeID);
+
+			const copyCommand = CreateLinkCommandForDND(mapID, draggedNodePath, newParentPath, polarity, true);
+			const moveCommand = CreateLinkCommandForDND(mapID, draggedNodePath, newParentPath, polarity, false);
+
+			const copyCommand_error = LinkNode_HighLevel_GetCommandError(copyCommand);
+			if (copyCommand_error) {
+				ShowMessageBox({ title: 'Cannot copy/move node', message: `Reason: ${copyCommand_error}` });
+				return;
+			}
+
+			const moveCommand_error = LinkNode_HighLevel_GetCommandError(moveCommand);
+
+			const controller = ShowMessageBox({
+				title: 'Copy/move the dragged node?', okButton: false, cancelButton: false,
+				message: `
+					Are you sure you want to copy/move the dragged node?
+
+					Destination (new parent): ${GetNodeDisplayText(newParent)}
+					Dragged claim/argument: ${GetNodeDisplayText(draggedNode)}
+				`.AsMultiline(0),
+				extraButtons: () => <>
+					<Button text="Copy" onClick={async () => {
+						controller.Close();
+						const { argumentWrapperID } = await copyCommand.Run();
+						if (argumentWrapperID) {
+							store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: argumentWrapperID, time: Date.now() }));
+						}
+					}}/>
+					<Button ml={5} text="Move" enabled={moveCommand_error == null} title={moveCommand_error} onClick={async () => {
+						controller.Close();
+						const { argumentWrapperID } = await moveCommand.Run();
+						if (argumentWrapperID) {
+							store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: argumentWrapperID, time: Date.now() }));
+						}
+					}}/>
+					<Button ml={5} text="Cancel" onClick={() => controller.Close()}/>
+				</>,
+			});
 		}
 	};
 

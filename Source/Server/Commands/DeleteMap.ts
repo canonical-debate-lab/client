@@ -1,10 +1,10 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { DeleteNode } from 'Server/Commands/DeleteNode';
 import { GetMap } from 'Store/firebase/maps';
-import {GetAsync_Raw, GetDataAsync} from 'Utils/FrameworkOverrides';
+import { GetAsync_Raw, GetDataAsync } from 'Utils/FrameworkOverrides';
+import { Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
 import { Map } from '../../Store/firebase/maps/@Map';
 import { UserMapInfoSet } from '../../Store/firebase/userMapInfo/@UserMapInfo';
-import { Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
 
 @UserEdit
 export class DeleteMap extends Command<{mapID: string}, {}> {
@@ -23,6 +23,7 @@ export class DeleteMap extends Command<{mapID: string}, {}> {
 	}
 	async Validate() {
 		await this.sub_deleteNode.Validate();
+		// todo: use parents recursion on l2 nodes to make sure they're all connected to at least one other map root
 	}
 
 	GetDBUpdates() {
