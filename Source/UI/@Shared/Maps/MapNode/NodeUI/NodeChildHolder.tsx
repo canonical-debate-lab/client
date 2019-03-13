@@ -1,4 +1,4 @@
-import { CachedTransform, Vector2i, emptyObj, nl, Assert, ToJSON, Timer, VRect, WaitXThenRun } from 'js-vextensions';
+import { CachedTransform, Vector2i, emptyObj, nl, Assert, ToJSON, Timer, VRect, WaitXThenRun, Vector3i } from 'js-vextensions';
 import { Button, Column, Div, Row } from 'react-vcomponents';
 import { BaseComponentWithConnector, GetInnerComp, RenderSource, GetDOM } from 'react-vextensions';
 import { GetFillPercent_AtPath } from 'Store/firebase/nodeRatings';
@@ -231,8 +231,6 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 		}
 
 		this.SetState({ placeholderRect });
-
-		Log(`Showing placeholder! Group: ${group} Rect: ${placeholderRect}`);
 	}
 
 	get Expanded() {
@@ -338,19 +336,22 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 		const showAddArgumentButtons = false; // node.type == MapNodeType.Claim && expanded && nodeChildren != emptyArray_forLoading; // && nodeChildren.length > 0;
 		// if (this.lastRender_source == RenderSource.SetState && this.refs.childHolder) {
 		if (this.Expanded && this.childHolder) {
-			const holderOffset = new Vector2i($(GetDOM(this.childHolder)).offset());
+			const holderRect = VRect.FromLTWH(this.childHolder.DOM.getBoundingClientRect());
 
 			const oldChildBoxOffsets = this.childBoxes.Props().filter(pair => pair.value != null).ToMap(pair => pair.name, (pair) => {
 				// let childBox = FindDOM_(pair.value).find("> div:first-child > div"); // get inner-box of child
 				// let childBox = $(GetDOM(pair.value)).find(".NodeUI_Inner").first(); // get inner-box of child
 				// not sure why this is needed... (bad sign!)
-				if (pair.value.NodeUIForDisplayedNode.innerUI == null) return new Vector2i(0, 0);
+				if (pair.value.NodeUIForDisplayedNode.innerUI == null) return null;
 
-				const childBox = $(pair.value.NodeUIForDisplayedNode.innerUI.DOM);
-				Assert(childBox.length, 'Could not find inner-ui of child-box.');
-				let childBoxOffset = new Vector2i(childBox.offset()).Minus(holderOffset);
+				const childBox = pair.value.NodeUIForDisplayedNode.innerUI.DOM;
+				// Assert(childBox.length, 'Could not find inner-ui of child-box.');
+				if (childBox == null) return null; // if can't find child-node's box, don't draw line for it (can happen if dragging child-node)
+				if (childBox.matches('.DragPreview')) return null; // don't draw line to node-box being dragged
+
+				let childBoxOffset = VRect.FromLTWH(childBox.getBoundingClientRect()).Position.Minus(holderRect.Position);
 				Assert(childBoxOffset.x < 100, 'Something is wrong. X-offset should never be more than 100.');
-				childBoxOffset = childBoxOffset.Plus(new Vector2i(0, childBox.outerHeight() / 2));
+				childBoxOffset = childBoxOffset.Plus(new Vector2i(0, childBox.getBoundingClientRect().height / 2));
 				return childBoxOffset;
 			});
 			newState.oldChildBoxOffsets = oldChildBoxOffsets;

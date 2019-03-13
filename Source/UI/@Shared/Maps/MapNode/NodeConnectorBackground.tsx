@@ -12,12 +12,14 @@ type Props = {
 @SimpleShouldUpdate_Overridable
 export class NodeConnectorBackground extends BaseComponent<Props, {}> {
 	render() {
-		let { node, linkSpawnPoint, straightLines, nodeChildren, childBoxOffsets } = this.props;
+		const { node, linkSpawnPoint, straightLines, nodeChildren, childBoxOffsets } = this.props;
 
 		return (
 			<svg className="clickThroughChain" style={{ position: 'absolute', overflow: 'visible', zIndex: -1 }}>
 				{childBoxOffsets.Props(true).OrderBy(a => a.name).map(({ name: childID, value: childOffset }) => {
-					/*result.push(<line key={"inputLine" + result.length} x1={inputPos.x} y1={inputPos.y}
+					if (childOffset == null) return null;
+
+					/* result.push(<line key={"inputLine" + result.length} x1={inputPos.x} y1={inputPos.y}
 						x2={inputVal.position.x} y2={inputVal.position.y + 10} style={{stroke: "rgba(0,0,0,.5)", strokeWidth: 2}}/>); */
 
 					// let child = A.NonNull = childNodes.First(a=>a._id == childIDStr.ToInt());
@@ -25,15 +27,15 @@ export class NodeConnectorBackground extends BaseComponent<Props, {}> {
 					const child = nodeChildren.FirstOrX(a => a._key == childID);
 					if (child == null) return null;
 
-					const backgroundColor = GetNodeColor(/* node.type == MapNodeType.Argument ? node :*/ child, 'raw');
+					const backgroundColor = GetNodeColor(/* node.type == MapNodeType.Argument ? node : */ child, 'raw');
 
-					/*var start = mainBoxOffset;
+					/* var start = mainBoxOffset;
 					var startControl = start.Plus(30, 0);
 					let end = childOffset;
 					let endControl = childOffset.Plus(-30, 0);
 					return <path key={"connectorLine_" + index} style={{stroke: `rgba(${backgroundColor},1)`, strokeWidth: 3, fill: "none"}}
 						d={`M${start.x},${start.y} C${startControl.x},${startControl.y} ${endControl.x},${endControl.y} ${end.x},${end.y}`}/>; */
-					/*var start = mainBoxOffset;
+					/* var start = mainBoxOffset;
 					var startControl = start.Plus(15, 0);
 					let end = childOffset;
 					let endControl = childOffset.Plus(-15, 0);
@@ -47,11 +49,11 @@ export class NodeConnectorBackground extends BaseComponent<Props, {}> {
 						const end = childOffset;
 						// return <line x1={start.x} y1={start.y} x2={mid.x} y2={mid.y} x3={end.x} y3={end.y}/>;
 						// return <polyline stroke="orange" fill="transparent" stroke-width="5"points={`${start.x} ${start.y} ${mid.x} ${mid.y} ${end.x} ${end.y}`}/>;
-						return <path key={'connectorLine_' + child._key} style={{ stroke: backgroundColor.css(), strokeWidth: 3, fill: 'none' }}
+						return <path key={`connectorLine_${child._key}`} style={{ stroke: backgroundColor.css(), strokeWidth: 3, fill: 'none' }}
 							d={`M${start.x},${start.y} L${mid.x},${mid.y} L${end.x},${end.y}`}/>;
 					}
 
-					let start = linkSpawnPoint;
+					const start = linkSpawnPoint;
 					let startControl = start.Plus(30, 0);
 					const end = childOffset;
 					let endControl = childOffset.Plus(-30, 0);
@@ -60,7 +62,7 @@ export class NodeConnectorBackground extends BaseComponent<Props, {}> {
 					startControl = startControl.Plus(middleControl).Times(0.5); // average with middle-control
 					endControl = endControl.Plus(middleControl).Times(0.5); // average with middle-control
 
-					return <path key={'connectorLine_' + child._key} style={{ stroke: backgroundColor.css(), strokeWidth: 3, fill: 'none' }}
+					return <path key={`connectorLine_${child._key}`} style={{ stroke: backgroundColor.css(), strokeWidth: 3, fill: 'none' }}
 						d={`M${start.x},${start.y} C${startControl.x},${startControl.y} ${endControl.x},${endControl.y} ${end.x},${end.y}`}/>;
 				})}
 			</svg>
