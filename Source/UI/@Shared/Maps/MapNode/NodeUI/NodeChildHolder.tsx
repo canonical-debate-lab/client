@@ -1,4 +1,4 @@
-import { CachedTransform, Vector2i, emptyObj, nl, Assert, ToJSON } from 'js-vextensions';
+import { CachedTransform, Vector2i, emptyObj, nl, Assert, ToJSON, Timer, VRect, WaitXThenRun } from 'js-vextensions';
 import { Button, Column, Div, Row } from 'react-vcomponents';
 import { BaseComponentWithConnector, GetInnerComp, RenderSource, GetDOM } from 'react-vextensions';
 import { GetFillPercent_AtPath } from 'Store/firebase/nodeRatings';
@@ -14,6 +14,7 @@ import { IsSpecialEmptyArray, State, Connect, MaybeLog, Icon } from 'Utils/Frame
 import { ES } from 'Utils/UI/GlobalStyles';
 import { DroppableInfo } from 'Utils/UI/DNDStructures';
 import { Droppable } from 'react-beautiful-dnd';
+import { any } from 'prop-types';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { IsMultiPremiseArgument } from '../../../../../Store/firebase/nodes/$node';
 import { Polarity } from '../../../../../Store/firebase/nodes/@MapNode';
@@ -52,6 +53,7 @@ type Props = {
 const initialState = {
 	childrenWidthOverride: null as number,
 	oldChildBoxOffsets: null as {[key: number]: Vector2i},
+	placeholderRect: null as VRect,
 };
 
 const connector = (state, { node, path, nodeChildrenToShow }: Props) => {
@@ -81,7 +83,7 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 	render() {
 		const { map, node, nodeView, path, nodeChildrenToShow, type, separateChildren, showArgumentsControlBar, linkSpawnPoint, vertical, minWidth, onHeightOrDividePointChange,
 			initialChildLimit, nodeChildren_fillPercents, currentNodeBeingAdded_path } = this.props;
-		let { childrenWidthOverride, oldChildBoxOffsets } = this.state;
+		let { childrenWidthOverride, oldChildBoxOffsets, placeholderRect } = this.state;
 		childrenWidthOverride = (childrenWidthOverride | 0).KeepAtLeast(minWidth);
 
 		let nodeChildrenToShowHere = nodeChildrenToShow;
@@ -128,6 +130,28 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 			);
 		};
 
+		const RenderGroup = (group: 'all' | 'up' | 'down') => {
+			const refName = `${group}ChildHolder`;
+			const childLimit = group == 'up' ? childLimit_up : childLimit_down; // "all" and "down" share a child-limit
+			const childrenHere = group == 'all' ? nodeChildrenToShow : group == 'up' ? upChildren : downChildren;
+			return (
+				<Droppable type="MapNode" droppableId={ToJSON(droppableInfo.VSet({ subtype: group }))}>{(provided, snapshot) => (
+					<Column ref={(c) => { this[`${group}ChildHolder`] = c; provided.innerRef(GetDOM(c)); }} ct className={refName} style={{ position: 'relative' }}>
+						{childrenHere.slice(0, childLimit).map((pack, index) => {
+							return RenderChild(pack, index, childrenHere);
+						})}
+						{provided.placeholder}
+						{provided.placeholder && void WaitXThenRun(0, () => this.StartGeneratingPositionedPlaceholder(group))}
+						{provided.placeholder && placeholderRect &&
+							<div style={{
+								position: 'absolute', left: 0 /* placeholderRect.x */, top: placeholderRect.y, width: childrenWidthOverride || placeholderRect.width, height: placeholderRect.height,
+								border: '1px dashed rgba(255,255,255,1)', borderRadius: 5,
+							}}/>}
+					</Column>
+				)}</Droppable>
+			);
+		};
+
 		const droppableInfo = new DroppableInfo({ type: 'NodeChildHolder', parentPath: path });
 		this.childBoxes = {};
 		return (
@@ -153,41 +177,63 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 						nodeChildren={GetNodeChildrenL3(node, path)} nodeChildrenToShow={nodeChildrenToShowInRelevanceBox}
 						onHeightOrDividePointChange={dividePoint => this.CheckForChanges()}/>}
 				{!separateChildren &&
-					<Droppable type="MapNode" droppableId={ToJSON(droppableInfo.VSet({ subtype: 'all' }))}>{(provided, snapshot) => (
-						<Column ref={c => provided.innerRef(GetDOM(c))} ct className="allChildHolder">
-							{nodeChildrenToShowHere.slice(0, childLimit_down).map((pack, index) => {
-								return RenderChild(pack, index, nodeChildrenToShowHere);
-							})}
-							{provided.placeholder}
-						</Column>
-					)}</Droppable>}
+					RenderGroup('all')}
 				{separateChildren &&
-					<Droppable type="MapNode" droppableId={ToJSON(droppableInfo.VSet({ subtype: 'up' }))}>{(provided, snapshot) => (
-						<Column ref={(c) => { this.upChildHolder = c; provided.innerRef(GetDOM(c)); }} ct className="upChildHolder">
-							{upChildren.slice(-childLimit_up).map((child, index) => {
-								return RenderChild(child, index, upChildren, 'up');
-							})}
-							{provided.placeholder}
-						</Column>
-					)}</Droppable>}
+					RenderGroup('up')}
 				{showArgumentsControlBar &&
 					<ArgumentsControlBar ref={c => this.argumentsControlBar = c} map={map} node={node} path={path} childBeingAdded={currentNodeBeingAdded_path == `${path}/?`}/>}
 				{separateChildren &&
-					<Droppable type="MapNode" droppableId={ToJSON(droppableInfo.VSet({ subtype: 'down' }))}>{(provided, snapshot) => (
-						<Column ref={(c) => { this.downChildHolder = c; provided.innerRef(GetDOM(c)); }} ct className="downChildHolder">
-							{downChildren.slice(0, childLimit_down).map((child, index) => {
-								return RenderChild(child, index, downChildren, 'down');
-							})}
-							{provided.placeholder}
-						</Column>
-					)}</Droppable>}
+					RenderGroup('down')}
 			</Column>
 		);
 	}
 	childHolder: Column;
+	allChildHolder: Column;
 	upChildHolder: Column;
 	downChildHolder: Column;
 	argumentsControlBar: ArgumentsControlBar;
+
+	StartGeneratingPositionedPlaceholder(group: 'all' | 'up' | 'down') {
+		const groups = { all: this.allChildHolder, up: this.upChildHolder, down: this.downChildHolder };
+		const childHolder = groups[group];
+		if (childHolder == null || !childHolder.mounted) {
+			// call again in a second, once child-holder is initialized
+			WaitXThenRun(0, () => this.StartGeneratingPositionedPlaceholder(group));
+			return;
+		}
+
+		const childHolderRect = VRect.FromLTWH(childHolder.DOM.getBoundingClientRect());
+		/* const match = firstOffsetInner.style.transform.match(/([0-9]+).+?([0-9]+)/);
+		const dragBoxSize = new Vector2i(match[1].ToInt(), match[2].ToInt());
+		// delete dragInfo.provided.draggableProps.style.transform; */
+		const dragBox = $('.NodeUI_Inner.DragPreview')[0];
+		if (dragBox == null) return; // this can happen at end of drag
+		const dragBoxRect = VRect.FromLTWH(dragBox.getBoundingClientRect());
+
+		const siblingNodeUIs = (childHolder.DOM.childNodes.ToArray() as HTMLElement[]).filter(a => a.classList.contains('NodeUI'));
+		const siblingNodeUIInnerDOMs = siblingNodeUIs.map(nodeUI => nodeUI.QuerySelector_BreadthFirst('.NodeUI_Inner'));
+		const firstOffsetInner = siblingNodeUIInnerDOMs.find(a => a && a.style.transform && a.style.transform.includes('translate('));
+
+		let placeholderRect: VRect;
+		if (firstOffsetInner) {
+			const firstOffsetInnerRect = VRect.FromLTWH(firstOffsetInner.getBoundingClientRect()).NewTop(top => top - dragBoxRect.height);
+			const firstOffsetInnerRect_relative = new VRect(firstOffsetInnerRect.Position.Minus(childHolderRect.Position), firstOffsetInnerRect.Size);
+
+			placeholderRect = firstOffsetInnerRect_relative.NewWidth(dragBoxRect.width).NewHeight(dragBoxRect.height);
+		} else {
+			const lastInner = siblingNodeUIInnerDOMs.Last();
+			const lastInnerRect = VRect.FromLTWH(lastInner.getBoundingClientRect()).NewTop(top => top - dragBoxRect.height);
+			const lastInnerRect_relative = new VRect(lastInnerRect.Position.Minus(childHolderRect.Position), lastInnerRect.Size);
+
+			placeholderRect = lastInnerRect_relative.NewWidth(dragBoxRect.width).NewHeight(dragBoxRect.height);
+			// if (dragBoxRect.Center.y > firstOffsetInnerRect.Center.y) {
+			placeholderRect.y += lastInnerRect.height;
+		}
+
+		this.SetState({ placeholderRect });
+
+		Log(`Showing placeholder! Group: ${group} Rect: ${placeholderRect}`);
+	}
 
 	get Expanded() {
 		const { type, nodeView } = this.props;

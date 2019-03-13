@@ -129,7 +129,7 @@ const connector = (state, { map, node, path }: Props) => {
 })
 @Connect(connector)
 export class NodeUI_Inner extends BaseComponentWithConnector(connector,
-	{ hovered: false, hoverPanel: null as string, hoverTermID: null as string, /* local_selected: boolean, */ local_openPanel: null as string, draggingTo: null as 'above' | 'below' }) {
+	{ hovered: false, hoverPanel: null as string, hoverTermID: null as string, /* local_selected: boolean, */ local_openPanel: null as string }) {
 	static defaultProps = { panelPosition: 'left' };
 
 	root: ExpandableBox;
@@ -156,7 +156,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 			panelPosition, useLocalPanelState, style, form,
 			ratingsRoot, mainRating_average, mainRating_mine, reasonScoreValues,
 			showReasonScoreValues, changeType, backgroundFillPercent, markerPercent, dragInfo } = this.props;
-		let { hovered, hoverPanel, hoverTermID, /* local_selected, */ local_openPanel, draggingTo } = this.state;
+		let { hovered, hoverPanel, hoverTermID, /* local_selected, */ local_openPanel } = this.state;
 		const nodeTypeInfo = MapNodeType_Info.for[node.type];
 		let backgroundColor = GetNodeColor(node);
 		const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
@@ -166,7 +166,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 			local_openPanel = null;
 		}
 
-		Log(`${node._key} -- ${dragInfo && dragInfo.snapshot.isDragging}; ${dragInfo && dragInfo.snapshot.draggingOver}`);
+		// Log(`${node._key} -- ${dragInfo && dragInfo.snapshot.isDragging}; ${dragInfo && dragInfo.snapshot.draggingOver}`);
 
 		const parent = GetParentNodeL3(path);
 		const combinedWithParentArgument = IsPremiseOfSinglePremiseArgument(node, parent);
@@ -207,13 +207,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 		const bottomPanelShow = leftPanelShow && panelToShow;
 		const expanded = nodeView && nodeView.expanded;
 
-		if (dragInfo && dragInfo.provided.draggableProps.style.transform) {
-			const match = dragInfo.provided.draggableProps.style.transform.match(/([0-9]+).+?([0-9]+)/);
-			var dragBoxSize = new Vector2i(match[1].ToInt(), match[2].ToInt());
-			// delete dragInfo.provided.draggableProps.style.transform;
-		}
-
-		let result = (
+		const result = (
 			<ExpandableBox ref={c => this.root = c}
 				{...{ width, widthOverride, outlineColor, expanded }} parent={this}
 				className={classNames('NodeUI_Inner', asDragPreview && 'DragPreview', { root: pathNodeIDs.length == 0 })}
@@ -296,21 +290,6 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 			/>
 		);
 
-		if (dragBoxSize && draggingTo) {
-			const placeholderBox = (
-				<div style={{ position: 'relative' }}>
-					<div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: dragBoxSize.y, border: '1px dashed rgba(255,255,255,1)', borderRadius: 5 }}/>
-				</div>
-			);
-			result = (
-				<Fragment>
-					{draggingTo == 'above' && placeholderBox}
-					{result}
-					{draggingTo == 'below' && placeholderBox}
-				</Fragment>
-			);
-		}
-
 		// if drag preview, we have to put in portal, since otherwise the "filter" effect of ancestors causes the {position:fixed} style to not be relative-to-page
 		if (asDragPreview) {
 			return ReactDOM.createPortal(result, portal);
@@ -330,66 +309,6 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 			this.SetState({ hovered: false });
 		});
 	} */
-
-	ComponentDidUpdate() {
-		const { node, dragInfo } = this.props;
-		const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
-		if (asDragPreview) {
-			this.SetState({ draggingTo: null });
-			return;
-		}
-
-		const siblingNodeUIHolder = $(this.DOM).parents().toArray().find(a => a.classList.contains('allChildHolder') || a.classList.contains('upChildHolder') || a.classList.contains('downChildHolder'));
-		const siblingNodeUIs = siblingNodeUIHolder.childNodes.ToArray() as HTMLElement[];
-		const siblingNodeUIInnerDOMs = siblingNodeUIs.map(nodeUI => nodeUI.querySelector('.NodeUI_Inner') as HTMLElement);
-		const indexOfFirstOffsetInner = siblingNodeUIInnerDOMs.findIndex(a => a && a.style.transform && a.style.transform.includes('translate('));
-
-		if (indexOfFirstOffsetInner == -1) {
-			this.SetState({ draggingTo: null });
-			return;
-		}
-
-		if (indexOfFirstOffsetInner != -1) Log(`${node._key} -- In: ${indexOfFirstOffsetInner}`);
-
-		/* const ourIndex = siblingNodeUIInnerDOMs.findIndex(a => a == this.DOM);
-		if (ourIndex == -1) return; // we can't do the checking if we can't access this yet */
-		const ourIndex = this.props.indexInNodeList;
-
-		if (indexOfFirstOffsetInner == ourIndex) {
-			this.SetState({ draggingTo: 'above' });
-		} /* else if (indexOfFirstOffsetInner == -1 && ourIndex == siblingNodeUIInnerDOMs.length - 1) {
-			// this isn't correct
-			this.SetState({ draggingTo: 'below' });
-		} */ else {
-			this.SetState({ draggingTo: null });
-		}
-
-		/* let draggingTo = null;
-
-		const dragBox = $('.NodeUI_Inner.DragPreview')[0];
-		const ownBox = this.root && this.root.DOM;
-		if (dragBox && ownBox) {
-			const dragBoxRect = VRect.FromLTWH(dragBox.getBoundingClientRect());
-			const ownRect = VRect.FromLTWH(ownBox.getBoundingClientRect());
-
-			if (dragInfo && dragInfo.provided.draggableProps.style.transform) {
-				const match = dragInfo.provided.draggableProps.style.transform.match(/([0-9]+).+?([0-9]+)/);
-				var dragBoxSize = new Vector2i(match[1].ToInt(), match[2].ToInt());
-				// delete dragInfo.provided.draggableProps.style.transform;
-			}
-			// const ownRect_orig = ownRect;
-			const ownRect_orig = dragBoxSize ? ownRect.NewY(y => y - dragBoxSize.y) : ownRect;
-
-			if (new VRect(dragBoxRect.Center, Vector2i.one).Intersects(ownRect_orig)) {
-				draggingTo = dragBoxRect.Center.y < ownRect_orig.Center.y ? 'above' : 'below';
-			}
-			this.SetState({ draggingTo });
-			// const dragBoxIsAtOrAbove = dragBoxRect.Center.y < ownRect.Bottom;
-			/* const dragBoxIsAtOrAbove = new VRect(dragBoxRect.Center, Vector2i.one).Intersects(ownRect);
-			this.SetState({ draggingTo: dragBoxIsAtOrAbove ? 'above' : null }); *#/
-			// this.SetState({ dragBoxIsAtOrAbove: dragBoxRect.Center.y < ownRect.Bottom.y });
-		} */
-	}
 }
 
 let portal: HTMLElement;
