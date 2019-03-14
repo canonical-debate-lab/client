@@ -254,6 +254,59 @@ webpackConfig.module.rules.push(
 			},
 		] }),
 	},
+	// react
+	{
+		test: /ReactDebugTool.js/,
+		loader: StringReplacePlugin.replace({ replacements: [
+			{
+				// expose ReactDebugTool.getTreeSnapshot
+				pattern: /module.exports = /g,
+				replacement: (match, offset, string) => Clip(`
+ReactDebugTool.getTreeSnapshot = getTreeSnapshot;
+
+module.exports = 
+					`),
+			},
+		] }),
+	},
+	// react-redux
+	{
+		test: /connectAdvanced.js/,
+		loader: StringReplacePlugin.replace({ replacements: [
+			// remove try-catch blocks
+			{ pattern: /try {/g, replacement: () => '//try {' },
+			{
+				pattern: /} catch(.+?){/g,
+				replacement: (match, p1) => `//} catch${p1}{
+					if (0) {`,
+			},
+		] }),
+	},
+	{
+		test: /wrapMapToProps.js/,
+		loader: StringReplacePlugin.replace({ replacements: [
+			// make WrappedComponent (the class) accessible as "this.WrappedComponent" from within Connect (FirebaseConnect.ts), and Connect functions
+			{
+				pattern: 'proxy.dependsOnOwnProps = true;',
+				replacement: match => `${match} proxy.WrappedComponent = _ref.WrappedComponent;`,
+			},
+		] }),
+	},
+	// redux
+	{
+		test: /createStore.js/,
+		loader: StringReplacePlugin.replace({ replacements: [
+			// optimize redux so that if a reducer does not change the state at all, then the store-subscribers are not notified
+			{
+				pattern: 'currentState = currentReducer(currentState, action)',
+				replacement: match => `var oldState = currentState; ${match}`,
+			},
+			{
+				pattern: 'for (var i = 0; i < listeners.length; i++) {',
+				replacement: match => `if (currentState !== oldState) ${match}`,
+			},
+		] }),
+	},
 );
 
 // make all Object.defineProperty calls leave the property configurable (probably better to just wrap the Object.defineProperty function)

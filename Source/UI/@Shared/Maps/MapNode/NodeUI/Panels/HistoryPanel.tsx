@@ -1,4 +1,3 @@
-import { GetNodeRevisions } from 'Store/firebase/nodeRevisions';
 import { User } from 'Store/firebase/users/@User';
 import Moment from 'moment';
 import { Button, Column, Row } from 'react-vcomponents';
@@ -7,6 +6,7 @@ import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
 import { Connect } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
+import { GetNodeRevisions } from 'Store/firebase/nodeRevisions';
 import { Map } from '../../../../../../Store/firebase/maps/@Map';
 import { GetParentNodeL3 } from '../../../../../../Store/firebase/nodes';
 import { GetLinkUnderParent } from '../../../../../../Store/firebase/nodes/$node';

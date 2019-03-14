@@ -59,9 +59,9 @@ export class SearchPanel extends BaseComponentWithConnector(connector, {}) {
 		for (const term of searchTerms.wholeTerms) {
 			query = query.where(`titles.allTerms.${term}`, '==', true);
 		}
-
 		const { docs } = await query.get();
 		const docIDs = docs.map(a => a.id);
+
 		store.dispatch(new ACTSet(a => a.main.search.searchResults_partialTerms, searchTerms.partialTerms));
 		store.dispatch(new ACTSet(a => a.main.search.searchResults_nodeIDs, docIDs));
 	}

@@ -7,7 +7,7 @@ import { ResetCurrentDBRoot } from 'UI/More/Admin/ResetCurrentDBRoot';
 import { dbVersion } from 'Main';
 import { Connect, State, Action, Link, GetData } from 'Utils/FrameworkOverrides';
 import { ACTUserSelect } from 'Store/main/database';
-import {ACTProposalSelect} from 'firebase-feedback';
+import { ACTProposalSelect } from 'firebase-feedback';
 import { colors } from '../../Utils/UI/GlobalStyles';
 import { ACTSetPage, ACTSetSubpage, ACTTopLeftOpenPanelSet, ACTTopRightOpenPanelSet } from '../../Store/main';
 import { ACTPersonalMapSelect } from '../../Store/main/personal';
@@ -36,7 +36,7 @@ const connector = (state, {}: {}) => ({
 	topLeftOpenPanel: State(a => a.main.topLeftOpenPanel),
 	topRightOpenPanel: State(a => a.main.topRightOpenPanel),
 	auth: State(a => a.firebase.auth),
-	dbNeedsInit: GetData({ collection: true, useUndefinedForInProgress: true }, 'nodeRevisions') === null,
+	dbNeedsInit: GetData({ collection: true, useUndefinedForInProgress: true }, 'maps') === null, // use maps because it won't cause too much data to be downloaded-and-watched; improve this later
 });
 @Connect(connector)
 export class NavBar extends BaseComponentWithConnector(connector, {}) {

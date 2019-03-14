@@ -7,7 +7,6 @@ export class LogTypes extends LogTypes_Base {
 	nodeRenders_for = null as string;
 	nodeRenderDetails = false;
 	nodeRenderDetails_for = null as string;
-	dbRequests = false;
 
 	// doesn't actually log; rather, causes data to be stored in component.props.extraInfo.renderTriggers
 	renderTriggers = false;
