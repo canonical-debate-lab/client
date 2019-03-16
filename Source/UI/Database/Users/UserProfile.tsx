@@ -4,7 +4,7 @@ import { GetUser, MeID, GetUserPermissionGroups } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
 import { UpdateProfile } from 'Server/Commands/UpdateProfile';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
-import { presetBackgrounds } from 'Utils/UI/PresetBackgrounds';
+import { presetBackgrounds, defaultPresetBackground } from 'Utils/UI/PresetBackgrounds';
 import { Connect, ClearLocalData, DBPath } from 'Utils/FrameworkOverrides';
 import { styles, ES } from 'Utils/UI/GlobalStyles';
 import { Fragment } from 'react';
@@ -12,13 +12,14 @@ import { PropNameToTitle } from 'Utils/General/Others';
 import { SetUserPermissionGroups } from 'Server/Commands/SetUserPermissionGroups';
 
 const connector = (state, { profileUser }: {profileUser: User}) => ({
-	profileUserPermissionGroups: GetUserPermissionGroups(profileUser._key),
+	profileUserPermissionGroups: GetUserPermissionGroups(profileUser ? profileUser._key : null),
 	currentUser: GetUser(MeID()),
 });
 @Connect(connector)
 export class UserProfileUI extends BaseComponentWithConnector(connector, {}) {
 	render() {
 		const { profileUser, profileUserPermissionGroups, currentUser } = this.props;
+		if (profileUser == null) return <Column style={styles.page}>User does not exist.</Column>;
 		// if (currentUser == null) return <Column style={styles.page}>Must be signed-in to access.</Column>;
 
 		return (
@@ -49,17 +50,17 @@ export class UserProfileUI extends BaseComponentWithConnector(connector, {}) {
 						<Row mt={10} mb={5} style={{ fontSize: 15, fontWeight: 'bold' }}>Customization</Row>
 						<Row mt={5}>Background:</Row>
 						<Column mt={5} style={{ background: 'rgba(0,0,0,.7)' }}>
-							<Row>
-								{presetBackgrounds.Props().map((prop) => {
-									const id = prop.name.ToInt();
+							<Row style={{ flexWrap: 'wrap' }}>
+								{presetBackgrounds.Pairs().map((prop) => {
+									const id = prop.key;
 									const background = prop.value;
-									const selected = (profileUser.backgroundID || 1) == id;
+									const selected = (profileUser.backgroundID || defaultPresetBackground) == id;
 									return (
 										<Div key={prop.index}
 											style={E(
 												{
 													width: 100, height: 100, border: '1px solid black', cursor: 'pointer',
-													backgroundColor: background.color, backgroundImage: `url(${background.url_1920})`,
+													backgroundColor: background.color, backgroundImage: `url(${background.url_1920 || background.url_3840 || background.url_max})`,
 													backgroundPosition: 'center', backgroundSize: 'cover',
 												},
 												selected && { border: '1px solid rgba(255,255,255,.3)' },

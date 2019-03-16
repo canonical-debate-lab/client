@@ -14,16 +14,16 @@ export enum HolderType {
 }
 
 export type NodeMap = {[key: string]: MapNode};
-export function GetNodeMap(queries?): NodeMap {
-	return GetData({ queries }, 'nodes');
+export function GetNodeMap(): NodeMap {
+	return GetData('nodes');
 }
-export function GetNodes(queries?): MapNode[] {
-	const nodeMap = GetNodeMap(queries);
-	return CachedTransform('GetNodes', [ToJSON(queries)], nodeMap, () => (nodeMap ? nodeMap.VValues(true) : []));
+export function GetNodes(): MapNode[] {
+	const nodeMap = GetNodeMap();
+	return CachedTransform('GetNodes', [], nodeMap, () => (nodeMap ? nodeMap.VValues(true) : []));
 }
-export function GetNodesL2(queries?): MapNodeL2[] {
-	const nodes = GetNodes(queries);
-	return CachedTransform('GetNodes', [ToJSON(queries)], nodes, () => nodes.map(a => GetNodeL2(a)));
+export function GetNodesL2(): MapNodeL2[] {
+	const nodes = GetNodes();
+	return CachedTransform('GetNodes', [], nodes, () => nodes.map(a => GetNodeL2(a)));
 }
 /* export function GetNodes_Enhanced(): MapNode[] {
 	let nodeMap = GetNodeMap();

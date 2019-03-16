@@ -13,7 +13,7 @@ export type User = {
 	providerData: UserInfo[];
 
 	// custom
-	backgroundID?: number;
+	backgroundID?: string;
 	backgroundCustom_enabled?: boolean;
 	backgroundCustom_color?: string;
 	backgroundCustom_url?: string;
@@ -27,7 +27,7 @@ AddSchema({
 		providerData: { type: 'array' },
 
 		// custom
-		backgroundID: { type: 'number' },
+		backgroundID: { type: 'string' },
 		backgroundCustom_enabled: { type: 'boolean' },
 		backgroundCustom_color: { type: ['null', 'string'] },
 		backgroundCustom_url: { type: 'string' },

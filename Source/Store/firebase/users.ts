@@ -1,6 +1,6 @@
 import { CachedTransform, Assert } from 'js-vextensions';
 import { User } from 'Store/firebase/users/@User';
-import { presetBackgrounds } from 'Utils/UI/PresetBackgrounds';
+import { presetBackgrounds, defaultPresetBackground } from 'Utils/UI/PresetBackgrounds';
 import { GetData } from 'Utils/FrameworkOverrides';
 import { GetAuth, IsAuthValid } from '../firebase';
 import { AccessLevel } from './nodes/@MapNode';
@@ -58,17 +58,18 @@ export function GetUserAccessLevel(userID: string) {
 
 export function GetUserBackground(userID: string) {
 	const user = GetUser(userID);
-	if (!user) return presetBackgrounds[1];
+	if (!user) return presetBackgrounds[defaultPresetBackground];
 
 	if (user.backgroundCustom_enabled) {
 		return {
 			color: user.backgroundCustom_color,
 			url_1920: user.backgroundCustom_url,
 			url_3840: user.backgroundCustom_url,
+			url_max: user.backgroundCustom_url,
 			position: user.backgroundCustom_position || 'center center',
 		};
 	}
 
-	const background = presetBackgrounds[user.backgroundID] || presetBackgrounds[1];
+	const background = presetBackgrounds[user.backgroundID] || presetBackgrounds[defaultPresetBackground];
 	return background;
 }

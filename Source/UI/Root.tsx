@@ -202,13 +202,18 @@ class RootUI extends BaseComponentWithConnector(connector, {}) {
 				<style>{`
 				.background {
 					background-color: ${background.color};
-					background-image: url(${background.url_1920}); /*, url(/Images/Backgrounds/Ocean_x1920.jpg);*/
+					background-image: url(${background.url_1920 || background.url_3840 || background.url_max});
 					background-position: ${background.position || 'center center'};
-					background-size: cover;
+					background-size: ${background.size || 'cover'};
 				}
 				@media (min-width: 1921px) {
 					.background {
-						background-image: url(${background.url_3840}); /*, url(/Images/Backgrounds/Ocean_x3840.jpg);*/
+						background-image: url(${background.url_3840 || background.url_max});
+					}
+				}
+				@media (min-width: 3841px) {
+					.background {
+						background-image: url(${background.url_max});
 					}
 				}
 				`}</style>
