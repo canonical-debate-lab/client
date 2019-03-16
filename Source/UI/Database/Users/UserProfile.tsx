@@ -60,7 +60,7 @@ export class UserProfileUI extends BaseComponentWithConnector(connector, {}) {
 											style={E(
 												{
 													width: 100, height: 100, border: '1px solid black', cursor: 'pointer',
-													backgroundColor: background.color, backgroundImage: `url(${background.url_1920 || background.url_3840 || background.url_max})`,
+													backgroundColor: background.color, backgroundImage: `url(${background.url_256 || background.url_1920 || background.url_3840 || background.url_max})`,
 													backgroundPosition: 'center', backgroundSize: 'cover',
 												},
 												selected && { border: '1px solid rgba(255,255,255,.3)' },

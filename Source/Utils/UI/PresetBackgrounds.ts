@@ -1,5 +1,6 @@
 export class BackgroundConfig {
 	color?: string;
+	url_256?: string;
 	url_1920?: string;
 	url_3840?: string;
 	url_max?: string; // not currently in use
@@ -175,3 +176,11 @@ export const presetBackgrounds = {
 		size: '30%',
 	},
 } as any as {[key: string]: BackgroundConfig};
+
+// automatically add x256 urls
+for (const pair of presetBackgrounds.Pairs()) {
+	if (pair.value.url_max != null && pair.value.url_256 == null) {
+		const fileName = pair.value.url_max.match(/%2F([A-Za-z0-9_-]{22}.[a-z]+)/)[1];
+		pair.value.url_256 = `https://firebasestorage.googleapis.com/v0/b/canonical-debate-prod.appspot.com/o/backgrounds%2Fx256%2F${fileName}?alt=media`;
+	}
+}

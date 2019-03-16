@@ -12,6 +12,7 @@ import { styles } from '../../Utils/UI/GlobalStyles';
 import { FirebaseData } from '../../Store/firebase';
 import { MeID, GetUser } from '../../Store/firebase/users';
 import { ResetCurrentDBRoot } from './Admin/ResetCurrentDBRoot';
+import { CreateMissingThumbnails } from './Admin/ThumnailCreator';
 
 type UpgradeFunc = (oldData: FirebaseData, markProgress: MarkProgressFunc)=>Promise<FirebaseData>;
 type MarkProgressFunc = (depth: number, entryIndex: number, entryCount?: number)=>void;
@@ -95,6 +96,20 @@ export class AdminUI extends BaseComponentWithConnector(connector, { dbUpgrade_e
 						throw new Error('Oh no!');
 					}}/>
 				</Row>
+
+				{/* <Row m="-10px 0"><h2>Storage</h2></Row>
+				<Row><h4>Backgound images</h4></Row>
+				<Row>
+					<Button text={'Create missing thumnails'} onClick={() => {
+						ShowMessageBox({
+							title: 'Create missing thumbnails?',
+							message: 'This could take some time.', cancelButton: true,
+							onOK: () => {
+								CreateMissingThumbnails();
+							},
+						});
+					}}/>
+				</Row> */}
 			</Column>
 		);
 	}
