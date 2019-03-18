@@ -12,7 +12,6 @@ import { styles } from '../../Utils/UI/GlobalStyles';
 import { FirebaseData } from '../../Store/firebase';
 import { MeID, GetUser } from '../../Store/firebase/users';
 import { ResetCurrentDBRoot } from './Admin/ResetCurrentDBRoot';
-import { CreateMissingThumbnails } from './Admin/ThumnailCreator';
 
 type UpgradeFunc = (oldData: FirebaseData, markProgress: MarkProgressFunc)=>Promise<FirebaseData>;
 type MarkProgressFunc = (depth: number, entryIndex: number, entryCount?: number)=>void;

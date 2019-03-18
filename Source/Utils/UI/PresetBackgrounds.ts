@@ -1,3 +1,6 @@
+// To test out backgrounds, run this in console: S = a=>document.querySelector(".background").style.backgroundImage = `url(${a.split("?")[0]})`;
+// Then run: S("IMAGE_URL")
+
 export class BackgroundConfig {
 	color?: string;
 
@@ -11,7 +14,7 @@ export class BackgroundConfig {
 	size?: string;
 }
 
-export const defaultPresetBackground = 'n60KYTsHSZqUuyEQxSnmew';
+export const defaultPresetBackground = '3dUKlcMOSN6ENstC_YIN8g';
 export const presetBackgrounds = {
 	n60KYTsHSZqUuyEQxSnmew: {
 		color: '#E5E8EC',
@@ -23,6 +26,10 @@ export const presetBackgrounds = {
 	CIhC7K5qRAyjj7uxoEf3sA: {
 		url_1920: 'https://firebasestorage.googleapis.com/v0/b/canonical-debate-prod.appspot.com/o/backgrounds%2FCIhC7K5qRAyjj7uxoEf3sA_x1920.jpg?alt=media&token=1071fee9-2615-4e47-9d63-5776884dcf19',
 		url_3840: 'https://firebasestorage.googleapis.com/v0/b/canonical-debate-prod.appspot.com/o/backgrounds%2FCIhC7K5qRAyjj7uxoEf3sA_x3840.jpg?alt=media&token=79e2e9b6-b5ae-47a8-8e8e-b1eabee65238',
+		position: 'center bottom',
+	},
+	'3dUKlcMOSN6ENstC_YIN8g': {},
+	tspvGTFhR9uSXoIErUwnSQ: {
 		position: 'center bottom',
 	},
 	Ofe2PazuRtS98X3jOVCxSQ: {},
