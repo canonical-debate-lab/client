@@ -32,10 +32,10 @@ export const presetBackgrounds = {
 	tspvGTFhR9uSXoIErUwnSQ: {
 		position: 'center bottom',
 	},
+	bfF7Wk6ZSzub9ixpQxZZog: {},
 	Ofe2PazuRtS98X3jOVCxSQ: {},
 	'O-OgyYQLTbe5saP_7UPYuQ': {},
 	'H-lm4J81Q8iWSvCaqcHaLQ': {},
-	'9_wvbGO-TyuTSnV2cPE4KQ': {},
 	'BhWQnMLRS0a_7J-pRGS5ig': {},
 	ou5iDV8zRNai7xF7i8ZW4A: {},
 	'kjmG-vk-TFKeojwOj-Bb8A': {},
@@ -71,7 +71,6 @@ export const presetBackgrounds = {
 	'Bh1XzmiRT-2h-DlY3ocMXA': {},
 	'iqIiGV-pS-e9r1sp8L9ZAw': {},
 	'S-thz4oZRc6t2C9J096GzQ': {},
-	GKe95eRDTWmIUh_DaDQsvA: {},
 	a2PcJvDbQR2yVqMA6uy2qQ: {},
 	'9IKtTHhOSeCBYugeZns13g': {},
 	's7Us3NNzS6GmCdE-9LuDSQ': {},
@@ -79,11 +78,16 @@ export const presetBackgrounds = {
 	elevPB8jTb2TtyRYnG1C2w: {},
 	C_RcylpdQjCl9uuiJ1utrQ: {},
 	'-RD8s_wFRh6f--bO6wkUZA': {},
-	L13kOfxgSbSu6fGGuJO00Q: {},
 	Kdwu8UubSm6tdiQt8ABHCA: {},
 	W9_1tWOzQ6W7yMSF3jDWOg: {
 		size: '30%',
 	},
+	'-HxNv0cQSoO8QtyrePe0tw': {},
+	'htxcrACjR16z3fl5TM-RAQ': {},
+	'hLny2GjLR4GIV-wKMa0Mcw': {},
+	'2k8-TMkxSFy9KRYN3Gwqdw': {},
+	wQjPTK3_Soaz3ByEAccygg: {},
+	g7xIKFB_QrOfjbooOynXmA: {},
 } as any as {[key: string]: BackgroundConfig};
 
 // infer the urls

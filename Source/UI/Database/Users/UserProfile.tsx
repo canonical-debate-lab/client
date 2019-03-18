@@ -10,6 +10,7 @@ import { styles, ES } from 'Utils/UI/GlobalStyles';
 import { Fragment } from 'react';
 import { PropNameToTitle } from 'Utils/General/Others';
 import { SetUserPermissionGroups } from 'Server/Commands/SetUserPermissionGroups';
+import { ScrollView } from 'react-vscrollview';
 
 const connector = (state, { profileUser }: {profileUser: User}) => ({
 	profileUserPermissionGroups: GetUserPermissionGroups(profileUser ? profileUser._key : null),
@@ -49,7 +50,7 @@ export class UserProfileUI extends BaseComponentWithConnector(connector, {}) {
 					<Fragment>
 						<Row mt={10} mb={5} style={{ fontSize: 15, fontWeight: 'bold' }}>Customization</Row>
 						<Row mt={5}>Background:</Row>
-						<Column mt={5} style={{ background: 'rgba(0,0,0,.7)' }}>
+						<ScrollView mt={5} style={{ height: 450, background: 'rgba(0,0,0,.7)' }}>
 							<Row style={{ flexWrap: 'wrap' }}>
 								{presetBackgrounds.Pairs().map((prop) => {
 									const id = prop.key;
@@ -63,7 +64,7 @@ export class UserProfileUI extends BaseComponentWithConnector(connector, {}) {
 													backgroundColor: background.color, backgroundImage: `url(${background.url_256 || background.url_1920 || background.url_3840 || background.url_max})`,
 													backgroundPosition: 'center', backgroundSize: 'cover',
 												},
-												selected && { border: '1px solid rgba(255,255,255,.3)' },
+												selected && { border: '1px solid rgba(255,255,255,.7)' },
 											)}
 											onClick={() => {
 												new UpdateProfile({ id: profileUser._key, updates: { backgroundID: id } }).Run();
@@ -72,7 +73,7 @@ export class UserProfileUI extends BaseComponentWithConnector(connector, {}) {
 									);
 								})}
 							</Row>
-						</Column>
+						</ScrollView>
 						<Row mt={5}>
 							<CheckBox text="Custom background" checked={profileUser.backgroundCustom_enabled} onChange={(val) => {
 								new UpdateProfile({ id: profileUser._key, updates: { backgroundCustom_enabled: val } }).Run();
