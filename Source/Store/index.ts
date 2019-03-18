@@ -22,7 +22,7 @@ export class RootState {
 	/* forum: ForumData;
 	feedback: FeedbackData; */
 }
-export function MakeRootReducer() {
+export function MakeRootReducer(pureOnly = false) {
 	const innerReducer = CombineReducers_Advanced({
 		/* preReduce: (state, action) => {
 			// if (action.type == '@@reactReduxFirebase/START' || action.type == '@@reactReduxFirebase/SET') {
@@ -95,6 +95,7 @@ export function MakeRootReducer() {
 
 		return result;
 	};
+	if (pureOnly) return outerReducer_prePersist;
 
 	const blacklistPaths = [
 		'firebase', 'firestore', 'vmenu', // from above
@@ -105,13 +106,12 @@ export function MakeRootReducer() {
 	const persistConfig = {
 		key: 'reduxPersist_root',
 		storage,
-		// blacklist: ["notificationMessages", "currentNodeBeingAdded_path"],
+		blacklist: blacklistPaths.filter(a => !a.includes('.')),
 		transforms: [
-			// use a custom blacklist transform, so that we can blacklist nested paths
+			// nested blacklist-paths require a custom transform to be applied
 			createTransform((inboundState, key) => {
-				if (blacklistPaths.Contains(key)) return undefined;
 				const blacklistPaths_forKey = blacklistPaths.filter(path => path.startsWith(`${key}.`)).map(path => path.substr(key.length + 1));
-				return blacklistPaths_forKey.length ? omit(inboundState, ...blacklistPaths_forKey) : inboundState;
+				return omit(inboundState, ...blacklistPaths_forKey);
 			}, null),
 		],
 	};
