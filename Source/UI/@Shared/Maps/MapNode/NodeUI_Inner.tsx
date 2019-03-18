@@ -14,6 +14,7 @@ import { Clone, Assert, Timer, VRect, Vector2i, WaitXThenRun } from 'js-vextensi
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
 import ReactDOM from 'react-dom';
 import { Fragment } from 'react';
+import {GetPathNodeIDs} from 'Store/main/mapViews';
 import { ParseSegmentsForPatterns } from '../../../../Utils/General/RegexHelpers';
 import { AddNodeRevision } from '../../../../Server/Commands/AddNodeRevision';
 import { GetImage } from '../../../../Store/firebase/images';
@@ -176,7 +177,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 
 		const outlineColor = GetChangeTypeOutlineColor(changeType);
 		const barSize = 5;
-		const pathNodeIDs = path.split('/').Select(a => parseInt(a));
+		const pathNodeIDs = GetPathNodeIDs(path);
 		const isSubnode = IsNodeSubnode(node);
 
 		/* let backgroundFillPercent = mainRating_average || 0;

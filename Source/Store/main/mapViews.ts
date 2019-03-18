@@ -1,7 +1,7 @@
 import { Assert, CachedTransform, GetTreeNodesInObjTree, IsNumberString, Vector2i, IsNumber, IsString } from 'js-vextensions';
 import { ShallowChanged } from 'react-vextensions';
 import { Action, DBPath, SplitStringBySlash_Cached, State, DoesActionSetFirestoreData, GetFirestoreDataSetterActionPath, Validate } from 'Utils/FrameworkOverrides';
-import {UUID} from 'Utils/General/KeyGenerator';
+import { UUID } from 'Utils/General/KeyGenerator';
 import { ACTDebateMapSelect_WithData } from './debates';
 import { ACTMapViewMerge, MapViewReducer } from './mapViews/$mapView';
 import { MapNodeView, MapView, MapViews } from './mapViews/@MapViews';
@@ -19,7 +19,7 @@ export function MapViewsReducer(state = new MapViews(), action: Action<any>) {
 		const match = path.match(`^${DBPath('maps')}/([A-Za-z0-9_-]+)`);
 		// if map-data was just loaded
 		if (match) {
-			const mapID = parseInt(match[1]);
+			const mapID = match[1];
 			// and no map-view exists for it yet, create one (by expanding root-node, and changing focus-node/view-offset)
 			// if (GetMapView(mapID) == null) {
 			// if (state[mapID].rootNodeViews.VKeys().length == 0) {
