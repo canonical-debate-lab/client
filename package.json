@@ -7,7 +7,7 @@
     "npm": "^3.0.0"
   },
   "scripts": {
-    "clean": "rimraf dist",
+    "clean": "rimraf Dist",
     "compile": "better-npm-run compile",
     "lint": "eslint Source Tests Scripts",
     "lint:fix": "npm run lint -- --fix",
@@ -32,7 +32,7 @@
     "deploy:prod-quick": "better-npm-run deploy:prod-quick",
     "deploy-db-backup-app": "gcloud app deploy Tools/DBBackupApp/app.yaml Tools/DBBackupApp/cron.yaml",
     "@build-stats": "node_modules\\.bin\\webpack --config Scripts/Build/WebpackConfig.js --output-file ForStats/Bundle.js --profile --json > BuildStats.json",
-    "build-stats": "node_modules\\.bin\\webpack --config Scripts/Build/WebpackConfig.js --output-file ForStats/Bundle.js --profile --json > dist/ForStats/BuildStats.json"
+    "build-stats": "node_modules\\.bin\\webpack --config Scripts/Build/WebpackConfig.js --output-file ForStats/Bundle.js --profile --json > Dist/ForStats/BuildStats.json"
   },
   "betterScripts": {
     "compile": {

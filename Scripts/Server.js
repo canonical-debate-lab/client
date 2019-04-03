@@ -53,21 +53,21 @@ if (DEV) {
 	}
 
 	// Serve static assets from ~/Source/Resources since Webpack is unaware of these files.
-	// This middleware doesn't need to be enabled outside of development since this directory will be copied into ~/dist when the application is compiled.
+	// This middleware doesn't need to be enabled outside of development since this directory will be copied into ~/Dist when the application is compiled.
 	// app.use(express.static(paths.client("Resources")));
 	app.use(express.static(paths.base('Resources')));
 	app.use(express.static(paths.base('Scripts/Config/dll'))); // enable static-loading of dll.vendor.js
-	app.use(express.static(paths.dist())); // enable static loading of files in dist, for dll.vendor.js
+	app.use(express.static(paths.dist())); // enable static loading of files in Dist, for dll.vendor.js
 } else {
 	debug(
 		'Server is being run outside of live development mode, meaning it will '
-		+ 'only serve the compiled application bundle in ~/dist. Generally you '
+		+ 'only serve the compiled application bundle in ~/Dist. Generally you '
 		+ 'do not need an application server for this and can instead use a web '
 		+ 'server such as nginx to serve your static files. See the "deployment" '
 		+ 'section in the README for more information on deployment strategies.',
 	);
 
-	// Serving ~/dist by default. Ideally these files should be served by the web server and not the app server, but this helps to demo the server in production.
+	// Serving ~/Dist by default. Ideally these files should be served by the web server and not the app server, but this helps to demo the server in production.
 	app.use(express.static(paths.dist()));
 }
 

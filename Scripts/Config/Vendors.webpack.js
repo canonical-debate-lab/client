@@ -26,8 +26,8 @@ module.exports = {
 		vendor: [path.join(__dirname, 'Vendors.js')],
 	},
 	output: {
-		// path: path.join(root, "dist", "dll"),
-		// path: path.join(root, "dist"),
+		// path: path.join(root, "Dist", "dll"),
+		// path: path.join(root, "Dist"),
 		path: path.join(root, 'Scripts', 'Config', 'dll'),
 		// filename: "dll.[name].js?[chunkhash]",
 		// filename: "dll.[name].js?[hash]",

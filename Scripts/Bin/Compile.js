@@ -14,7 +14,7 @@ const compile = ()=> {
 			if (stats.warnings.length && config.compiler_fail_on_warning) {
 				throw new Error("Config set to fail on warning, exiting with status code '1'.");
 			}
-			debug("Copying resources to dist folder.");
+			debug("Copying resources to Dist folder.");
 			//fs.copySync(paths.client("Resources"), paths.dist());
 			fs.copySync(paths.base("Resources"), paths.dist());
 			fs.copySync(paths.base("Scripts/Config/dll/dll.vendor.js"), paths.dist("dll.vendor.js"));

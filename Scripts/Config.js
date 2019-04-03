@@ -19,7 +19,7 @@ Object.assign(config, {
 	// ----------
 	path_base: path.resolve(__dirname, '..'),
 	dir_client: USE_TSLOADER ? 'Source' : 'Source_JS',
-	dir_dist: 'dist',
+	dir_dist: 'Dist',
 	dir_server: 'Scripts/Server',
 	dir_test: 'Tests',
 
