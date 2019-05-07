@@ -46,7 +46,7 @@ export function GetCrawlerURLStrForMap(mapID: string) {
 	const map = GetMap(mapID);
 	if (map == null) return mapID.toString();
 
-	let result = map.name.toLowerCase().replace(/[^a-z]/g, '-');
+	let result = map.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
 	// need to loop, in some cases, since regex doesn't reprocess "---" as two sets of "--".
 	while (result.Contains('--')) {
 		result = result.replace(/--/g, '-');
@@ -56,7 +56,7 @@ export function GetCrawlerURLStrForMap(mapID: string) {
 }
 
 export function GetCrawlerURLStrForNode(node: MapNodeL2) {
-	let result = GetNodeDisplayText(node).toLowerCase().replace(/[^a-z]/g, '-');
+	let result = GetNodeDisplayText(node).toLowerCase().replace(/[^a-z0-9]/g, '-');
 	// need to loop, in some cases, since regex doesn't reprocess "---" as two sets of "--".
 	while (result.Contains('--')) {
 		result = result.replace(/--/g, '-');

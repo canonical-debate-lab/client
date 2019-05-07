@@ -11,6 +11,8 @@ export class Timeline {
 	creator: string;
 	createdAt: number;
 
+	videoID: string;
+
 	steps: string[];
 }
 AddSchema({
@@ -19,6 +21,8 @@ AddSchema({
 		name: { type: 'string' },
 		creator: { type: 'string' },
 		createdAt: { type: 'number' },
+
+		videoID: { type: ['string', 'null'] },
 
 		steps: { items: { type: 'string' } },
 	},

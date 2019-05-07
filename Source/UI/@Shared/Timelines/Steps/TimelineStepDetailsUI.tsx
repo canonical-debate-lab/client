@@ -23,8 +23,7 @@ export class TimelineStepDetailsUI extends BaseComponent<Props, {newData: Timeli
 			this.Update();
 		};
 
-		const splitAt = 170; const
-			width = 600;
+		const splitAt = 170; const width = 600;
 		return (
 			<Column style={style}>
 				<RowLR mt={5} splitAt={splitAt} style={{ width }}>

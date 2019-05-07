@@ -252,6 +252,15 @@ webpackConfig.module.rules.push(
 					`.trim();
 				},
 			},
+			// disable map edge-scrolling, when option is set
+			{
+				// pattern: /var canScrollDroppable = function canScrollDroppable\(droppable, change\) {/,
+				pattern: /var canScrollDroppable = function canScrollDroppable.+/,
+				replacement: () => `
+					var canScrollDroppable = function canScrollDroppable(droppable, change) {
+						if (window.LockMapEdgeScrolling()) return false;
+				`.trim(),
+			},
 		] }),
 	},
 	// react

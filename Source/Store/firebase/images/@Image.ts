@@ -42,7 +42,7 @@ AddSchema({
 		type: { $ref: 'ImageType' },
 		url: { type: 'string' },
 		description: { type: 'string' },
-		previewWidth: { type: ['null', 'number'] },
+		previewWidth: { type: ['number', 'null'] },
 
 		sourceChains: { items: { $ref: 'SourceChain' } },
 

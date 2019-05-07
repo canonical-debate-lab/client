@@ -74,6 +74,7 @@ export class MainState {
 	copiedNodePath: string;
 	copiedNodePath_asCut: boolean;
 
+	lockMapScrolling: boolean;
 	initialChildLimit: number;
 	showReasonScoreValues: boolean;
 	weighting: WeightingType;
@@ -214,6 +215,8 @@ export const MainReducer = CombineReducers({
 		if (action.Is(ACTNodeCopy)) return action.payload.asCut;
 		return state;
 	},
+
+	lockMapScrolling: SimpleReducer(a => a.main.lockMapScrolling, true),
 	initialChildLimit: SimpleReducer(a => a.main.initialChildLimit, 5),
 	showReasonScoreValues: SimpleReducer(a => a.main.showReasonScoreValues, false),
 	weighting: SimpleReducer(a => a.main.weighting, WeightingType.Votes),

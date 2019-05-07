@@ -1,12 +1,13 @@
 import { StandardCompProps } from 'Utils/UI/General';
 import { DeepGet, E, SleepAsync, Timer, Vector2i, FindDOMAll, Assert, FromJSON, ToJSON } from 'js-vextensions';
-import { Column } from 'react-vcomponents';
+import { Column, Row } from 'react-vcomponents';
 import { BaseComponentWithConnector, FindReact, GetDOM } from 'react-vextensions';
 import { VMenuStub } from 'react-vmenu';
 import { VMenuItem } from 'react-vmenu/dist/VMenu';
 import { ScrollView } from 'react-vscrollview';
 import { TimelinePlayerUI } from 'UI/@Shared/Maps/MapUI/TimelinePlayerUI';
 import { State, Connect, GetDistanceBetweenRectAndPoint, inFirefox } from 'Utils/FrameworkOverrides';
+import { GetTimelinePanelOpen } from 'Store/main/maps/$map';
 import { styles, ES } from '../../../Utils/UI/GlobalStyles';
 import { Map } from '../../../Store/firebase/maps/@Map';
 import { GetNodeL3, IsNodeL2, IsNodeL3 } from '../../../Store/firebase/nodes/$node';
@@ -20,6 +21,7 @@ import { NodeUI_ForBots } from './MapNode/NodeUI_ForBots';
 import { NodeUI_Inner } from './MapNode/NodeUI_Inner';
 import { ActionBar_Left } from './MapUI/ActionBar_Left';
 import { ActionBar_Right } from './MapUI/ActionBar_Right';
+import { TimelinePanel } from './MapUI/TimelinePanel';
 
 
 export function GetNodeBoxForPath(path: string) {
@@ -75,6 +77,7 @@ const connector = (state: RootState, { map, rootNode }: Props) => {
 		viewOffset: GetMapView(state, {map}) ? GetMapView(state, {map}).viewOffset : null, */
 		/* focusNode_available: (GetMapView(state, {map}) && GetMapView(state, {map}).focusNode) != null,
 		viewOffset_available: (GetMapView(state, {map}) && GetMapView(state, {map}).viewOffset) != null, */
+		timelinePanelOpen: GetTimelinePanelOpen(map._key),
 	};
 };
 @Connect(connector)
@@ -99,7 +102,7 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 	mapUI: HTMLDivElement;
 	downPos: Vector2i;
 	render() {
-		const { map, rootNode, withinPage, padding, subNavBarWidth, ...rest } = this.props;
+		const { map, rootNode, withinPage, padding, subNavBarWidth, timelinePanelOpen, ...rest } = this.props;
 		if (map == null) {
 			return <div style={ES({ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, fontSize: 25 })}>Loading map...</div>;
 		}
@@ -118,65 +121,69 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 					<ActionBar_Left map={map} subNavBarWidth={subNavBarWidth}/>}
 				{!withinPage &&
 					<ActionBar_Right map={map} subNavBarWidth={subNavBarWidth}/>}
-				{!withinPage &&
-					<TimelinePlayerUI map={map}/>}
+				{/* !withinPage &&
+					<TimelinePlayerUI map={map}/> */}
 				{/*! withinPage &&
 					<TimelineOverlayUI map={map}/> */}
-				<ScrollView {...rest.Excluding(...StandardCompProps())} ref={c => this.scrollView = c}
-					backgroundDrag={true} backgroundDragMatchFunc={a => a == GetDOM(this.scrollView.content) || a == this.mapUI}
-					style={ES({ flex: 1 }, withinPage && { overflow: 'visible' })}
-					scrollHBarStyle={E({ height: 10 }, withinPage && { display: 'none' })} scrollVBarStyle={E({ width: 10 }, withinPage && { display: 'none' })}
-					contentStyle={E(
-						{ willChange: 'transform' },
-						withinPage && { position: 'relative', marginBottom: -300, paddingBottom: 300 },
-						withinPage && inFirefox && { overflow: 'hidden' },
-					)}
-					// contentStyle={E({willChange: "transform"}, withinPage && {marginTop: -300, paddingBottom: 300, transform: "translateY(300px)"})}
-					// bufferScrollEventsBy={10000}
-					onScrollEnd={(pos) => {
-						// if (withinPage) return;
-						UpdateFocusNodeAndViewOffset(map._key);
-					}}>
-					<style>{`
-					.MapUI { display: inline-flex; flex-wrap: wrap; }
-					.MapUI.scrolling > * { pointer-events: none; }
-					`}</style>
-					<div className="MapUI" ref={c => this.mapUI = c}
-						style={{
-							position: 'relative', /* display: "flex", */ whiteSpace: 'nowrap',
-							padding: `${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px`,
-							filter: 'drop-shadow(0px 0px 10px rgba(0,0,0,1))',
-						}}
-						onMouseDown={(e) => {
-							this.downPos = new Vector2i(e.clientX, e.clientY);
-							if (e.button == 2) { $(this.mapUI).addClass('scrolling'); }
-						}}
-						onMouseUp={(e) => {
-							$(this.mapUI).removeClass('scrolling');
-						}}
-						onClick={(e) => {
-							if (e.target != this.mapUI) return;
-							if (new Vector2i(e.clientX, e.clientY).DistanceTo(this.downPos) >= 3) return;
-							const mapView = GetMapView(GetOpenMapID());
-							if (GetSelectedNodePath(map._key)) {
-								store.dispatch(new ACTMapNodeSelect({ mapID: map._key, path: null }));
-								// UpdateFocusNodeAndViewOffset(map._id);
-							}
-						}}
-						onContextMenu={(e) => {
-							if (e.nativeEvent['passThrough']) return true;
-							e.preventDefault();
+				<Row style={{ marginTop: 30, alignItems: 'flex-start' }}>
+					{!withinPage && timelinePanelOpen &&
+						<TimelinePanel map={map}/>}
+					<ScrollView {...rest.Excluding(...StandardCompProps())} ref={c => this.scrollView = c}
+						backgroundDrag={true} backgroundDragMatchFunc={a => a == GetDOM(this.scrollView.content) || a == this.mapUI}
+						style={ES({ height: '100%' }, withinPage && { overflow: 'visible' })}
+						scrollHBarStyle={E({ height: 10 }, withinPage && { display: 'none' })} scrollVBarStyle={E({ width: 10 }, withinPage && { display: 'none' })}
+						contentStyle={E(
+							{ willChange: 'transform' },
+							withinPage && { position: 'relative', marginBottom: -300, paddingBottom: 300 },
+							withinPage && inFirefox && { overflow: 'hidden' },
+						)}
+						// contentStyle={E({willChange: "transform"}, withinPage && {marginTop: -300, paddingBottom: 300, transform: "translateY(300px)"})}
+						// bufferScrollEventsBy={10000}
+						onScrollEnd={(pos) => {
+							// if (withinPage) return;
+							UpdateFocusNodeAndViewOffset(map._key);
 						}}>
-						<NodeUI indexInNodeList={0} map={map} node={rootNode} path={(Assert(rootNode._key != null), rootNode._key.toString())}/>
-						{/* <ReactResizeDetector handleWidth handleHeight onResize={()=> { */}
-						{/* <ResizeSensor ref="resizeSensor" onResize={()=> {
-							this.LoadScroll();
-						}}/> */}
-						<VMenuStub preOpen={e => e.passThrough != true}>
-							<VMenuItem text="(To add a node, right click on an existing node.)" style={styles.vMenuItem}/>
-						</VMenuStub>
-					</div>
-				</ScrollView>
+						<style>{`
+						.MapUI { display: inline-flex; flex-wrap: wrap; }
+						.MapUI.scrolling > * { pointer-events: none; }
+						`}</style>
+						<div className="MapUI" ref={c => this.mapUI = c}
+							style={{
+								position: 'relative', /* display: "flex", */ whiteSpace: 'nowrap',
+								padding: `${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px`,
+								filter: 'drop-shadow(0px 0px 10px rgba(0,0,0,1))',
+							}}
+							onMouseDown={(e) => {
+								this.downPos = new Vector2i(e.clientX, e.clientY);
+								if (e.button == 2) { $(this.mapUI).addClass('scrolling'); }
+							}}
+							onMouseUp={(e) => {
+								$(this.mapUI).removeClass('scrolling');
+							}}
+							onClick={(e) => {
+								if (e.target != this.mapUI) return;
+								if (new Vector2i(e.clientX, e.clientY).DistanceTo(this.downPos) >= 3) return;
+								const mapView = GetMapView(GetOpenMapID());
+								if (GetSelectedNodePath(map._key)) {
+									store.dispatch(new ACTMapNodeSelect({ mapID: map._key, path: null }));
+									// UpdateFocusNodeAndViewOffset(map._id);
+								}
+							}}
+							onContextMenu={(e) => {
+								if (e.nativeEvent['passThrough']) return true;
+								e.preventDefault();
+							}}>
+							<NodeUI indexInNodeList={0} map={map} node={rootNode} path={(Assert(rootNode._key != null), rootNode._key.toString())}/>
+							{/* <ReactResizeDetector handleWidth handleHeight onResize={()=> { */}
+							{/* <ResizeSensor ref="resizeSensor" onResize={()=> {
+								this.LoadScroll();
+							}}/> */}
+							<VMenuStub preOpen={e => e.passThrough != true}>
+								<VMenuItem text="(To add a node, right click on an existing node.)" style={styles.vMenuItem}/>
+							</VMenuStub>
+						</div>
+					</ScrollView>
+				</Row>
 			</Column>
 		);
 	}

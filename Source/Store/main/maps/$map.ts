@@ -13,12 +13,20 @@ export enum SortType {
 	// UpdateDate = 30,
 	// ViewerCount = 40,
 }
+export enum TimelineSubpanel {
+	Collection,
+	Editor,
+	Playing,
+}
 
 export class ACTMapNodeListSortBySet extends Action<{mapID: string, sortBy: SortType}> {}
 export class ACTMapNodeListFilterSet extends Action<{mapID: string, filter: string}> {}
 export class ACTMapNodeListPageSet extends Action<{mapID: string, page: number}> {}
 export class ACTSelectedNode_InListSet extends Action<{mapID: string, nodeID: string}> {}
 export class ACTMap_List_SelectedNode_OpenPanelSet extends Action<{mapID: string, panel: string}> {}
+
+export class ACTMap_TimelinePanelOpenSet extends Action<{mapID: string, open: boolean}> {}
+export class ACTMap_TimelineOpenSubpanelSet extends Action<{mapID: string, subpanel: TimelineSubpanel}> {}
 export class ACTMap_SelectedTimelineSet extends Action<{mapID: string, selectedTimeline: string}> {}
 export class ACTMap_PlayingTimelineSet extends Action<{mapID: string, timelineID: string}> {}
 export class ACTMap_PlayingTimelineStepSet extends Action<{mapID: string, stepIndex: number}> {}
@@ -49,6 +57,15 @@ export const MapInfoReducer = mapID => CombineReducers({
 	},
 	list_selectedNode_openPanel: (state = null, action) => {
 		if (action.Is(ACTMap_List_SelectedNode_OpenPanelSet)) return action.payload.panel;
+		return state;
+	},
+
+	timelinePanelOpen: (state = null, action) => {
+		if (action.Is(ACTMap_TimelinePanelOpenSet)) return action.payload.open;
+		return state;
+	},
+	timelineOpenSubpanel: (state = null, action) => {
+		if (action.Is(ACTMap_TimelineOpenSubpanelSet)) return action.payload.subpanel;
 		return state;
 	},
 	selectedTimeline: (state = null, action) => {
@@ -84,6 +101,19 @@ export function GetMap_List_SelectedNode_OpenPanel(mapID: string) {
 	return State('main', 'maps', mapID, 'list_selectedNode_openPanel');
 }
 
+export function GetTimelinePanelOpen(mapID: string): boolean {
+	if (mapID == null) return false;
+	return State('main', 'maps', mapID, 'timelinePanelOpen');
+}
+export function GetTimelineOpenSubpanel(mapID: string): TimelineSubpanel {
+	if (mapID == null) return null;
+	return State('main', 'maps', mapID, 'timelineOpenSubpanel');
+}
+export function GetSelectedTimeline(mapID: string): Timeline {
+	if (mapID == null) return null;
+	const timelineID = State('main', 'maps', mapID, 'selectedTimeline');
+	return GetTimeline(timelineID);
+}
 export function GetPlayingTimeline(mapID: string): Timeline {
 	if (mapID == null) return null;
 	const timelineID = State('main', 'maps', mapID, 'playingTimeline');

@@ -75,8 +75,8 @@ AddSchema({
 		voteLevel: { oneOf: GetValues_ForSchema(AccessLevel).concat({ const: null }) }, // not currently used
 
 		relative: { type: 'boolean' },
-		fontSizeOverride: { type: ['null', 'number'] },
-		widthOverride: { type: ['null', 'number'] },
+		fontSizeOverride: { type: ['number', 'null'] },
+		widthOverride: { type: ['number', 'null'] },
 
 		argumentType: { $ref: 'ArgumentType' },
 		equation: { $ref: 'Equation' },

@@ -1,5 +1,5 @@
 import { Button, CheckBox, Column, DropDown, DropDownContent, DropDownTrigger, Row } from 'react-vcomponents';
-import { BaseComponent, GetInnerComp } from 'react-vextensions';
+import { BaseComponent, GetInnerComp, BaseComponentWithConnector } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
 import { Layer } from 'Store/firebase/layers/@Layer';
@@ -7,9 +7,9 @@ import { GetChildCount } from 'Store/firebase/nodes';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { GetUser, MeID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
-import { TimelineDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Left/Timeline';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
-import { GetUpdates, GetAsync, Connect } from 'Utils/FrameworkOverrides';
+import { GetUpdates, GetAsync, Connect, State } from 'Utils/FrameworkOverrides';
+import { GetTimelinePanelOpen, ACTMap_TimelinePanelOpenSet } from 'Store/main/maps/$map';
 import { colors, ES } from '../../../../Utils/UI/GlobalStyles';
 import { DeleteLayer } from '../../../../Server/Commands/DeleteLayer';
 import { DeleteMap } from '../../../../Server/Commands/DeleteMap';
@@ -26,13 +26,14 @@ import { ACTPersonalMapSelect } from '../../../../Store/main/personal';
 import { ShowAddLayerDialog } from '../Layers/AddLayerDialog';
 import { MapDetailsUI } from '../MapDetailsUI';
 
-type ActionBar_LeftProps = {map: Map, subNavBarWidth: number};
-@Connect((state, { map }: ActionBar_LeftProps) => ({
+const connector = (state, { map }: {map: Map, subNavBarWidth: number}) => ({
 	_: IsUserCreatorOrMod(MeID(), map),
-}))
-export class ActionBar_Left extends BaseComponent<ActionBar_LeftProps, {}> {
+	timelinePanelOpen: GetTimelinePanelOpen(map._key),
+});
+@Connect(connector)
+export class ActionBar_Left extends BaseComponentWithConnector(connector, {}) {
 	render() {
-		const { map, subNavBarWidth } = this.props;
+		const { map, subNavBarWidth, timelinePanelOpen } = this.props;
 		return (
 			<nav style={{
 				position: 'absolute', zIndex: 1, left: 0, width: `calc(50% - ${subNavBarWidth / 2}px)`, top: 0, textAlign: 'center',
@@ -48,8 +49,12 @@ export class ActionBar_Left extends BaseComponent<ActionBar_LeftProps, {}> {
 						}}/>}
 					{IsUserMap(map) && <DetailsDropDown map={map}/>}
 					{/* // disabled for now, so we can iterate quickly on the stuff we're actually using right now
-					{IsUserMap(map) && HasModPermissions(MeID()) && <LayersDropDown map={map}/>}
-					{IsUserMap(map) && HasModPermissions(MeID()) && <TimelineDropDown map={map}/>} */}
+					{IsUserMap(map) && HasModPermissions(MeID()) && <LayersDropDown map={map}/>} */}
+					{/* IsUserMap(map) && HasModPermissions(MeID()) && <TimelineDropDown map={map}/> */}
+					{IsUserMap(map) &&
+						<Button ml={5} text="Timelines" onClick={() => {
+							store.dispatch(new ACTMap_TimelinePanelOpenSet({ mapID: map._key, open: !timelinePanelOpen }));
+						}}/>}
 				</Row>
 			</nav>
 		);

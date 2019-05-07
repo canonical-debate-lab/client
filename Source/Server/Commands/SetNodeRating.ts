@@ -6,7 +6,7 @@ AddSchema({
 	properties: {
 		nodeID: { type: 'string' },
 		ratingType: { $ref: 'RatingType' },
-		value: { type: ['null', 'number'] },
+		value: { type: ['number', 'null'] },
 	},
 	required: ['nodeID', 'ratingType', 'value'],
 }, 'SetNodeRating_payload');
