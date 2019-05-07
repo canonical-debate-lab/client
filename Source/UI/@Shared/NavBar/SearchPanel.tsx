@@ -26,14 +26,14 @@ const connector = (state, {}: {}) => {
 	const searchResults_partialTerms = State(a => a.main.search.searchResults_partialTerms);
 	const searchResultIDs = State(a => a.main.search.searchResults_nodeIDs);
 
-	let results_nodeRevisions = searchResultIDs.map(revisionID => GetNodeRevision(revisionID));
+	let results_nodeRevisions = searchResultIDs == null ? null : searchResultIDs.map(revisionID => GetNodeRevision(revisionID));
 	if (searchResults_partialTerms.length) {
 		for (const term of searchResults_partialTerms) {
 			results_nodeRevisions = results_nodeRevisions.filter(a => GetAllNodeRevisionTitles(a).find(a => a.toLowerCase().includes(term)));
 		}
 	}
 
-	const results_nodeIDs = results_nodeRevisions.map(a => a && a.node).Distinct();
+	const results_nodeIDs = results_nodeRevisions == null ? null : results_nodeRevisions.map(a => a && a.node).Distinct();
 	return {
 		queryStr: State(a => a.main.search.queryStr),
 		results_nodeIDs,
@@ -48,22 +48,26 @@ export class SearchPanel extends BaseComponentWithConnector(connector, {}) {
 			queryStr = queryStr.slice(0, -' /unrestricted'.length);
 		}
 
-		const searchTerms = GetSearchTerms_Advanced(queryStr);
-		if (searchTerms.wholeTerms.length == 0 && !unrestricted) {
-			store.dispatch(new ACTSet(a => a.main.search.searchResults_partialTerms, []));
-			store.dispatch(new ACTSet(a => a.main.search.searchResults_nodeIDs, []));
-			return;
-		}
+		// first clear the old results
+		store.dispatch(new ActionSet(
+			new ACTSet(a => a.main.search.searchResults_partialTerms, []),
+			new ACTSet(a => a.main.search.searchResults_nodeIDs, null),
+		));
 
+		const searchTerms = GetSearchTerms_Advanced(queryStr);
+		if (searchTerms.wholeTerms.length == 0 && !unrestricted) return;
 		let query = firestoreDB.collection(DBPath('nodeRevisions')) as CollectionReference | Query;
 		for (const term of searchTerms.wholeTerms) {
 			query = query.where(`titles.allTerms.${term}`, '==', true);
 		}
+
+		// perform the actual search and show the results
 		const { docs } = await query.get();
 		const docIDs = docs.map(a => a.id);
-
-		store.dispatch(new ACTSet(a => a.main.search.searchResults_partialTerms, searchTerms.partialTerms));
-		store.dispatch(new ACTSet(a => a.main.search.searchResults_nodeIDs, docIDs));
+		store.dispatch(new ActionSet(
+			new ACTSet(a => a.main.search.searchResults_partialTerms, searchTerms.partialTerms),
+			new ACTSet(a => a.main.search.searchResults_nodeIDs, docIDs),
+		));
 	}
 
 	render() {
@@ -117,8 +121,9 @@ export class SearchPanel extends BaseComponentWithConnector(connector, {}) {
 					if (e.nativeEvent['passThrough']) return true;
 					e.preventDefault();
 				}}>
-					{results_nodeIDs.filter(a => a).length == 0 && 'No search results.'}
-					{results_nodeIDs.map((nodeID, index) => {
+					{results_nodeIDs == null && 'Search in progress...'}
+					{results_nodeIDs && results_nodeIDs.filter(a => a).length == 0 && 'No search results.'}
+					{results_nodeIDs && results_nodeIDs.map((nodeID, index) => {
 						return (
 							<SearchResultRow key={nodeID} nodeID={nodeID} index={index}/>
 						);

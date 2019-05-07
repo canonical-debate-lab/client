@@ -8,14 +8,23 @@ export class TimelineStep {
 	_key: string;
 	timelineID: string;
 	title: string;
+	groupID: number;
+	// if timeline has video
+	videoTime: number;
+
 	message: string;
+
 	nodeReveals: NodeReveal[];
 }
 AddSchema({
 	properties: {
 		timelineID: { type: 'string' },
 		title: { type: 'string' },
+		groupID: { type: ['number', 'null'] },
+		videoTime: { type: ['number', 'null'] },
+
 		message: { type: 'string' },
+
 		nodeReveals: { $ref: 'NodeReveal' },
 	},
 	required: ['timelineID'],
