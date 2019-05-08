@@ -4,12 +4,15 @@ export class DroppableInfo {
 	constructor(data: Partial<DroppableInfo>) {
 		this.Extend(data);
 	}
-	type: 'NodeChildHolder';
+	type: 'NodeChildHolder' | 'TimelineStep';
 
 	// if NodeChildHolder
 	parentPath?: string;
 	subtype?: 'up' | 'down';
 	childIDs?: UUID[];
+
+	// if TimelineStep
+	stepID: string;
 }
 export class DraggableInfo {
 	constructor(data: Partial<DraggableInfo>) {

@@ -1,8 +1,8 @@
 import { Button, Row, Column, Pre, CheckBox, TextInput, TextArea, Select, Spinner } from 'react-vcomponents';
-import { BaseComponentWithConnector, BaseComponent } from 'react-vextensions';
+import { BaseComponentWithConnector, BaseComponent, GetDOM } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { AddTimelineStep } from 'Server/Commands/AddTimelineStep';
-import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
+import { TimelineStep, NodeReveal } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { Connect, State, ACTSet } from 'Utils/FrameworkOverrides';
@@ -15,11 +15,17 @@ import { GetTimelineSteps } from 'Store/firebase/timelines';
 import { GetSelectedTimeline, GetTimelineOpenSubpanel, TimelineSubpanel, GetTimelinePanelOpen } from 'Store/main/maps/$map';
 import { UpdateTimelineStep } from 'Server/Commands/UpdateTimelineStep';
 import { UpdateTimeline } from 'Server/Commands/UpdateTimeline';
-import { Global, ToInt, ToNumber } from 'js-vextensions';
+import { Global, ToInt, ToNumber, ToJSON, WaitXThenRun, VRect, Vector2i } from 'js-vextensions';
 import { GetOpenMapID } from 'Store/main';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { MinuteSecondInput } from 'Utils/ReactComponents/MinuteSecondInput';
+import { Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
+import { DroppableInfo } from 'Utils/UI/DNDStructures';
+import { GetNodeColor } from 'Store/firebase/nodes/@MapNodeType';
+import { GetNodeL3, GetNodeDisplayText, GetNodeL2 } from 'Store/firebase/nodes/$node';
+import { GetNode, GetNodeID } from 'Store/firebase/nodes';
+import { NodeUI_Menu_Stub } from '../../MapNode/NodeUI_Menu';
 
 // for use by react-beautiful-dnd (using text replacement)
 G({ LockMapEdgeScrolling });
@@ -49,7 +55,7 @@ export class EditorSubpanel extends BaseComponentWithConnector(EditorSubpanel_co
 						if (MeID() == null) return ShowSignInPopup();
 						new UpdateTimeline({ id: selectedTimeline._key, updates: { videoID: '' } }).Run();
 					}}/>
-					<Button ml={5} text="Text" enabled={selectedTimeline != null} onClick={() => {
+					<Button ml={5} text="Statement" enabled={selectedTimeline != null} onClick={() => {
 						if (MeID() == null) return ShowSignInPopup();
 						const newStep = new TimelineStep({});
 						new AddTimelineStep({ timelineID: selectedTimeline._key, step: newStep }).Run();
@@ -101,10 +107,12 @@ const positionOptions = [
 type StepUIProps = {index: number, last: boolean, map: Map, timeline: Timeline, step: TimelineStep} & Partial<{}>;
 @Connect((state, { map, step }: StepUIProps) => ({
 }))
-class StepUI extends BaseComponent<StepUIProps, {}> {
+class StepUI extends BaseComponent<StepUIProps, {placeholderRect: VRect}> {
 	render() {
 		const { index, last, map, timeline, step } = this.props;
+		const { placeholderRect } = this.state;
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), map);
+
 		return (
 			<Column mt={index == 0 ? 0 : 7} style={{ background: 'rgba(0,0,0,.7)', borderRadius: 10, border: '1px solid rgba(255,255,255,.15)' }}>
 				<Row p="7px 10px">
@@ -152,11 +160,104 @@ class StepUI extends BaseComponent<StepUIProps, {}> {
 					onChange={(val) => {
 						new UpdateTimelineStep({ stepID: step._key, stepUpdates: { message: val } }).Run();
 					}}/>
-				<Row style={{ padding: 7, background: 'rgba(255,255,255,.2)', borderRadius: '0 0 10px 10px' }}>
-					{step.nodeReveals == null &&
-						'Drag nodes here to have them display when the playback reaches this step.'}
-				</Row>
+				<Droppable type="MapNode" droppableId={ToJSON(new DroppableInfo({ type: 'TimelineStep', stepID: step._key }))}>{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
+					<Column ref={(c) => { this.nodeHolder = c; provided.innerRef(GetDOM(c) as any); }} style={{ position: 'relative', padding: 7, background: 'rgba(255,255,255,.2)', borderRadius: '0 0 10px 10px' }}>
+						{(step.nodeReveals == null || step.nodeReveals.length == 0) && provided.placeholder == null &&
+							<div>Drag nodes here to have them display when the playback reaches this step.</div>}
+						{step.nodeReveals && step.nodeReveals.map((nodeReveal, index) => {
+							return <NodeRevealUI key={index} step={step} nodeReveal={nodeReveal} index={index}/>;
+						})}
+						{provided.placeholder}
+						{provided.placeholder && void WaitXThenRun(0, () => this.StartGeneratingPositionedPlaceholder())}
+						{provided.placeholder && placeholderRect &&
+							<div style={{
+								// position: 'absolute', left: 0 /* placeholderRect.x */, top: placeholderRect.y, width: placeholderRect.width, height: placeholderRect.height,
+								position: 'absolute', left: 7 /* placeholderRect.x */, top: placeholderRect.y, right: 7, height: placeholderRect.height,
+								border: '1px dashed rgba(255,255,255,1)', borderRadius: 5,
+							}}/>}
+					</Column>
+				)}</Droppable>
 			</Column>
+		);
+	}
+	nodeHolder: Row;
+
+	StartGeneratingPositionedPlaceholder() {
+		if (this.nodeHolder == null || !this.nodeHolder.mounted) {
+			// call again in a second, once node-holder is initialized
+			WaitXThenRun(0, () => this.StartGeneratingPositionedPlaceholder());
+			return;
+		}
+
+		const nodeHolderRect = VRect.FromLTWH(this.nodeHolder.DOM.getBoundingClientRect());
+		const dragBox = document.querySelector('.NodeUI_Inner.DragPreview');
+		if (dragBox == null) return; // this can happen at end of drag
+		const dragBoxRect = VRect.FromLTWH(dragBox.getBoundingClientRect());
+
+		const siblingNodeUIs = (this.nodeHolder.DOM.childNodes.ToArray() as HTMLElement[]).filter(a => a.classList.contains('NodeUI'));
+		const siblingNodeUIInnerDOMs = siblingNodeUIs.map(nodeUI => nodeUI.QuerySelector_BreadthFirst('.NodeUI_Inner'));
+		const firstOffsetInner = siblingNodeUIInnerDOMs.find(a => a && a.style.transform && a.style.transform.includes('translate('));
+
+		let placeholderRect: VRect;
+		if (firstOffsetInner) {
+			const firstOffsetInnerRect = VRect.FromLTWH(firstOffsetInner.getBoundingClientRect()).NewTop(top => top - dragBoxRect.height);
+			const firstOffsetInnerRect_relative = new VRect(firstOffsetInnerRect.Position.Minus(nodeHolderRect.Position), firstOffsetInnerRect.Size);
+
+			placeholderRect = firstOffsetInnerRect_relative.NewWidth(dragBoxRect.width).NewHeight(dragBoxRect.height);
+		} else {
+			if (siblingNodeUIInnerDOMs.length) {
+				const lastInner = siblingNodeUIInnerDOMs.Last();
+				const lastInnerRect = VRect.FromLTWH(lastInner.getBoundingClientRect()).NewTop(top => top - dragBoxRect.height);
+				const lastInnerRect_relative = new VRect(lastInnerRect.Position.Minus(nodeHolderRect.Position), lastInnerRect.Size);
+
+				placeholderRect = lastInnerRect_relative.NewWidth(dragBoxRect.width).NewHeight(dragBoxRect.height);
+				// if (dragBoxRect.Center.y > firstOffsetInnerRect.Center.y) {
+				placeholderRect.y += lastInnerRect.height;
+			} else {
+				// placeholderRect = new VRect(Vector2i.zero, dragBoxRect.Size);
+				placeholderRect = new VRect(new Vector2i(7, 7), dragBoxRect.Size); // adjust for padding
+			}
+		}
+
+		this.SetState({ placeholderRect });
+	}
+}
+
+const connector = (state, { nodeReveal }: {step: TimelineStep, nodeReveal: NodeReveal, index: number}) => {
+	const node = GetNodeL2(GetNodeID(nodeReveal.path));
+	const nodeL3 = GetNodeL3(nodeReveal.path);
+	return {
+		node,
+		nodeL3,
+		displayText: node && nodeL3 && GetNodeDisplayText(node, nodeReveal.path),
+	};
+};
+@Connect(connector)
+export class NodeRevealUI extends BaseComponentWithConnector(connector, {}) {
+	render() {
+		const { step, nodeReveal, index, node, nodeL3, displayText } = this.props;
+		if (node == null || nodeL3 == null) return null;
+
+		const path = nodeReveal.path;
+		const backgroundColor = GetNodeColor(nodeL3).desaturate(0.5).alpha(0.8);
+		return (
+			<Row key={index} mt={index === 0 ? 0 : 5}
+				style={E(
+					{ width: '100%', padding: 5, background: backgroundColor.css(), borderRadius: 5, /* cursor: 'pointer', */ border: '1px solid rgba(0,0,0,.5)' },
+					// selected && { background: backgroundColor.brighten(0.3).alpha(1).css() },
+				)}
+				onMouseDown={(e) => {
+					if (e.button !== 2) return false;
+					// this.SetState({ menuOpened: true });
+				}}>
+				<span>{displayText}</span>
+				{/* <NodeUI_Menu_Helper {...{map, node}}/> */}
+				{/* <NodeUI_Menu_Stub {...{ node: nodeL3, path: `${node._key}`, inList: true }}/> */}
+				<Button ml="auto" text="X" style={{ margin: -3, padding: '3px 10px' }} onClick={() => {
+					const newNodeReveals = step.nodeReveals.Except(nodeReveal);
+					new UpdateTimelineStep({ stepID: step._key, stepUpdates: { nodeReveals: newNodeReveals } }).Run();
+				}}/>
+			</Row>
 		);
 	}
 }

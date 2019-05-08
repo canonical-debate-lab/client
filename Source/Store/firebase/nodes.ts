@@ -54,6 +54,9 @@ export function IsNodeSubnode(node: MapNode) {
 	return node.layerPlusAnchorParents != null;
 }
 
+export function GetParentPath(childPath: string) {
+	return SplitStringBySlash_Cached(childPath).slice(0, -1).join('/');
+}
 export function GetParentNodeID(path: string) {
 	const pathNodes = SplitStringBySlash_Cached(path);
 	if (pathNodes.Last()[0] == '*') return null;
@@ -67,7 +70,7 @@ export function GetParentNodeL2(childPath: string) {
 	return GetNodeL2(GetParentNodeID(childPath));
 }
 export function GetParentNodeL3(childPath: string) {
-	return GetNodeL3(childPath.split('/').slice(0, -1).join('/'));
+	return GetNodeL3(GetParentPath(childPath));
 }
 export function GetNodeID(path: string) {
 	const ownNodeStr = SplitStringBySlash_Cached(path).LastOrX();

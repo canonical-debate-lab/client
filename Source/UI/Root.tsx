@@ -21,9 +21,14 @@ import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
 import { Polarity } from 'Store/firebase/nodes/@MapNode';
 import { GetPathNodeIDs } from 'Store/main/mapViews';
 import { CreateLinkCommand as CreateLinkCommandForDND, LinkNode_HighLevel_GetCommandError } from 'Server/Commands/LinkNode_HighLevel';
-import { GetNodeDisplayText, GetNodeL3 } from 'Store/firebase/nodes/$node';
+import { GetNodeDisplayText, GetNodeL3, IsMultiPremiseArgument } from 'Store/firebase/nodes/$node';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { Fragment } from 'react';
+import { GetTimelineStep } from 'Store/firebase/timelines';
+import { UpdateTimelineStep } from 'Server/Commands/UpdateTimelineStep';
+import { NodeReveal } from 'Store/firebase/timelineSteps/@TimelineStep';
+import { GetParentNode, GetParentPath } from 'Store/firebase/nodes';
+import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { GetUserBackground } from '../Store/firebase/users';
 import { NavBar } from '../UI/@Shared/NavBar';
 import { GlobalUI } from '../UI/Global';
@@ -136,6 +141,19 @@ export class RootUIWrapper extends BaseComponent<{store}, {}> {
 					<Button ml={5} text="Cancel" onClick={() => controller.Close()}/>
 				</>,
 			});
+		} else if (targetDroppableInfo.type == 'TimelineStep') {
+			let path = draggableInfo.nodePath;
+			const parentNode = GetParentNode(path);
+			// if parent is argument, and it's a single-premise argument, use that instead (the UI for the argument and claim are combined, but user probably wanted the whole argument dragged)
+			if (parentNode && parentNode.type == MapNodeType.Argument && !IsMultiPremiseArgument(parentNode)) {
+				path = GetParentPath(path);
+			}
+
+			const step = GetTimelineStep(targetDroppableInfo.stepID);
+			const newNodeReveal = new NodeReveal();
+			newNodeReveal.path = path;
+			const newNodeReveals = (step.nodeReveals || []).concat(newNodeReveal);
+			new UpdateTimelineStep({ stepID: step._key, stepUpdates: { nodeReveals: newNodeReveals } }).Run();
 		}
 	};
 
