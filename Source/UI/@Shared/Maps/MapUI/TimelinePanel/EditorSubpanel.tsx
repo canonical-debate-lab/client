@@ -19,6 +19,7 @@ import { Global, ToInt, ToNumber } from 'js-vextensions';
 import { GetOpenMapID } from 'Store/main';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
+import { MinuteSecondInput } from 'Utils/ReactComponents/MinuteSecondInput';
 
 // for use by react-beautiful-dnd (using text replacement)
 G({ LockMapEdgeScrolling });
@@ -64,6 +65,15 @@ export class EditorSubpanel extends BaseComponentWithConnector(EditorSubpanel_co
 							<TextInput value={selectedTimeline.videoID} delayChangeTillDefocus={true} onChange={(val) => {
 								new UpdateTimeline({ id: selectedTimeline._key, updates: { videoID: val } }).Run();
 							}}/>
+							<CheckBox ml={5} text="Start time: " checked={selectedTimeline.videoStartTime != null} onChange={(val) => {
+								if (val) {
+									new UpdateTimeline({ id: selectedTimeline._key, updates: { videoStartTime: 0 } }).Run();
+								} else {
+									new UpdateTimeline({ id: selectedTimeline._key, updates: { videoStartTime: null } }).Run();
+								}
+							}}/>
+							<MinuteSecondInput mr={5} style={{ width: 60 }} enabled={selectedTimeline.videoStartTime != null} value={selectedTimeline.videoStartTime}
+								onChange={val => new UpdateTimeline({ id: selectedTimeline._key, updates: { videoStartTime: val } }).Run()}/>
 							<Button ml="auto" text="X" onClick={() => {
 								ShowMessageBox({
 									title: 'Delete video attachment', cancelButton: true,
@@ -112,15 +122,8 @@ class StepUI extends BaseComponent<StepUIProps, {}> {
 										new UpdateTimelineStep({ stepID: step._key, stepUpdates: { videoTime: null } }).Run();
 									}
 								}}/>
-								<TextInput mr={5} style={{ width: 60 }} delayChangeTillDefocus={true} enabled={step.videoTime != null}
-									value={step.videoTime == null ? null : `${ToInt(step.videoTime / 60)}:${step.videoTime % 60}`}
-									onChange={(timeStr) => {
-										const parts = timeStr.split(':');
-										if (parts.length != 2) return;
-										const minutes = ToNumber(parts[0]);
-										const seconds = ToNumber(parts[1]);
-										new UpdateTimelineStep({ stepID: step._key, stepUpdates: { videoTime: (minutes * 60) + seconds } }).Run();
-									}}/>
+								<MinuteSecondInput mr={5} style={{ width: 60 }} enabled={step.videoTime != null} value={step.videoTime}
+									onChange={val => new UpdateTimelineStep({ stepID: step._key, stepUpdates: { videoTime: val } }).Run()}/>
 							</>}
 						{/* <Pre>Speaker: </Pre>
 						<Select value={} onChange={val=> {}}/> */}
