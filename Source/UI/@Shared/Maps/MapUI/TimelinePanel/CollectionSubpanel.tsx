@@ -12,22 +12,20 @@ import { GetMapTimelines, GetTimelineSteps } from 'Store/firebase/timelines';
 import { MeID } from 'Store/firebase/users';
 
 const CollectionSubpanel_connector = (state, { map }: {map: Map}) => {
-	const timeline = GetSelectedTimeline(map._key);
 	return {
 		timelines: GetMapTimelines(map),
-		selectedTimeline: timeline,
-		selectedTimelineSteps: timeline && GetTimelineSteps(timeline),
+		timeline: GetSelectedTimeline(map._key),
 	};
 };
 @Connect(CollectionSubpanel_connector)
 export class CollectionSubpanel extends BaseComponentWithConnector(CollectionSubpanel_connector, {}) {
 	timelineSelect: DropDown;
 	render() {
-		const { map, timelines, selectedTimeline, selectedTimelineSteps } = this.props;
+		const { map, timelines, timeline } = this.props;
 		return (
 			<Row style={{ height: 40, padding: 10 }}>
 				<DropDown ref={c => this.timelineSelect = c}>
-					<DropDownTrigger><Button text={selectedTimeline ? selectedTimeline.name : '[none]'} /></DropDownTrigger>
+					<DropDownTrigger><Button text={timeline ? timeline.name : '[none]'} /></DropDownTrigger>
 					<DropDownContent style={{ left: 0, padding: null, background: null, borderRadius: null, zIndex: 1 }}>
 						<Row style={{ alignItems: 'flex-start' }}>
 							<Column style={{ width: 600 }}>
@@ -55,8 +53,8 @@ export class CollectionSubpanel extends BaseComponentWithConnector(CollectionSub
 						</Row>
 					</DropDownContent>
 				</DropDown>
-				<Button ml={5} text="X" title="Delete timeline" enabled={selectedTimeline != null && selectedTimeline.steps == null} onClick={() => {
-					new DeleteTimeline({ timelineID: selectedTimeline._key }).Run();
+				<Button ml={5} text="X" title="Delete timeline" enabled={timeline != null && timeline.steps == null} onClick={() => {
+					new DeleteTimeline({ timelineID: timeline._key }).Run();
 				}} />
 				<Button ml={5} text="+" title="Add new timeline" onClick={() => {
 					if (MeID() == null) return ShowSignInPopup();

@@ -5,7 +5,7 @@ import { AddTimelineStep } from 'Server/Commands/AddTimelineStep';
 import { TimelineStep, NodeReveal } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { Connect, State, ACTSet } from 'Utils/FrameworkOverrides';
+import { Connect, State, ACTSet, InfoButton } from 'Utils/FrameworkOverrides';
 import { Map } from 'Store/firebase/maps/@Map';
 import { MeID } from 'Store/firebase/users';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
@@ -25,7 +25,6 @@ import { DroppableInfo } from 'Utils/UI/DNDStructures';
 import { GetNodeColor } from 'Store/firebase/nodes/@MapNodeType';
 import { GetNodeL3, GetNodeDisplayText, GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { GetNode, GetNodeID } from 'Store/firebase/nodes';
-import { NodeUI_Menu_Stub } from '../../MapNode/NodeUI_Menu';
 
 // for use by react-beautiful-dnd (using text replacement)
 G({ LockMapEdgeScrolling });
@@ -37,60 +36,70 @@ function LockMapEdgeScrolling() {
 const EditorSubpanel_connector = (state, { map }: {map: Map}) => {
 	const timeline = GetSelectedTimeline(map._key);
 	return {
-		selectedTimeline: timeline,
-		selectedTimelineSteps: timeline && GetTimelineSteps(timeline),
+		timeline,
+		timelineSteps: timeline && GetTimelineSteps(timeline),
 		lockMapScrolling: State(a => a.main.lockMapScrolling),
 	};
 };
 @Connect(EditorSubpanel_connector)
 export class EditorSubpanel extends BaseComponentWithConnector(EditorSubpanel_connector, {}) {
 	render() {
-		const { map, selectedTimeline, selectedTimelineSteps, lockMapScrolling } = this.props;
-		if (selectedTimeline == null) return null;
+		const { map, timeline, timelineSteps, lockMapScrolling } = this.props;
+		if (timeline == null) return null;
 		return (
 			<>
 				<Row mlr={5}>
 					<Pre>Add: </Pre>
-					<Button ml={5} text="Video" enabled={selectedTimeline != null && selectedTimeline.videoID == null} onClick={() => {
+					<Button ml={5} text="Video" enabled={timeline != null && timeline.videoID == null} onClick={() => {
 						if (MeID() == null) return ShowSignInPopup();
-						new UpdateTimeline({ id: selectedTimeline._key, updates: { videoID: '' } }).Run();
+						new UpdateTimeline({ id: timeline._key, updates: { videoID: '' } }).Run();
 					}}/>
-					<Button ml={5} text="Statement" enabled={selectedTimeline != null} onClick={() => {
+					<Button ml={5} text="Statement" enabled={timeline != null} onClick={() => {
 						if (MeID() == null) return ShowSignInPopup();
 						const newStep = new TimelineStep({});
-						new AddTimelineStep({ timelineID: selectedTimeline._key, step: newStep }).Run();
+						new AddTimelineStep({ timelineID: timeline._key, step: newStep }).Run();
 					}}/>
 					<CheckBox ml="auto" text="Lock map scrolling" title="Lock map edge-scrolling. (for dragging onto timeline steps)" checked={lockMapScrolling} onChange={(val) => {
 						store.dispatch(new ACTSet(a => a.main.lockMapScrolling, val));
 					}}/>
 				</Row>
 				<ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, position: 'relative', padding: 7, filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)' })}>
-					{selectedTimeline.videoID != null &&
+					{timeline.videoID != null &&
 						<Row mb={7} p="7px 10px" style={{ background: 'rgba(0,0,0,.7)', borderRadius: 10, border: '1px solid rgba(255,255,255,.15)' }}>
 							<Pre>Video ID: </Pre>
-							<TextInput value={selectedTimeline.videoID} delayChangeTillDefocus={true} onChange={(val) => {
-								new UpdateTimeline({ id: selectedTimeline._key, updates: { videoID: val } }).Run();
+							<TextInput value={timeline.videoID} delayChangeTillDefocus={true} onChange={(val) => {
+								new UpdateTimeline({ id: timeline._key, updates: { videoID: val } }).Run();
 							}}/>
-							<CheckBox ml={5} text="Start time: " checked={selectedTimeline.videoStartTime != null} onChange={(val) => {
+							<CheckBox ml={5} text="Start: " checked={timeline.videoStartTime != null} onChange={(val) => {
 								if (val) {
-									new UpdateTimeline({ id: selectedTimeline._key, updates: { videoStartTime: 0 } }).Run();
+									new UpdateTimeline({ id: timeline._key, updates: { videoStartTime: 0 } }).Run();
 								} else {
-									new UpdateTimeline({ id: selectedTimeline._key, updates: { videoStartTime: null } }).Run();
+									new UpdateTimeline({ id: timeline._key, updates: { videoStartTime: null } }).Run();
 								}
 							}}/>
-							<MinuteSecondInput mr={5} style={{ width: 60 }} enabled={selectedTimeline.videoStartTime != null} value={selectedTimeline.videoStartTime}
-								onChange={val => new UpdateTimeline({ id: selectedTimeline._key, updates: { videoStartTime: val } }).Run()}/>
+							<MinuteSecondInput mr={5} style={{ width: 60 }} enabled={timeline.videoStartTime != null} value={timeline.videoStartTime}
+								onChange={val => new UpdateTimeline({ id: timeline._key, updates: { videoStartTime: val } }).Run()}/>
+							<Pre>Height<InfoButton text={`
+								The height, as a percentage of the width.
+
+								4:3 = 75%
+								16:9 = 56.25%
+							`.AsMultiline(0)}/>: </Pre>
+							<Spinner min={0} max={100} step={0.01} delayChangeTillDefocus={true} style={{ width: 62 }} value={(timeline.videoHeightVSWidthPercent * 100).RoundTo(0.01)} onChange={(val) => {
+								new UpdateTimeline({ id: timeline._key, updates: { videoHeightVSWidthPercent: (val / 100).RoundTo(0.0001) } }).Run();
+							}}/>
+							<Pre>%</Pre>
 							<Button ml="auto" text="X" onClick={() => {
 								ShowMessageBox({
 									title: 'Delete video attachment', cancelButton: true,
 									message: 'Remove the video attachment for this timeline?',
 									onOK: () => {
-										new UpdateTimeline({ id: selectedTimeline._key, updates: { videoID: null } }).Run();
+										new UpdateTimeline({ id: timeline._key, updates: { videoID: null } }).Run();
 									},
 								});
 							}}/>
 						</Row>}
-					{selectedTimelineSteps && selectedTimelineSteps.map((step, index) => <StepUI key={index} index={index} last={index == selectedTimeline.steps.length - 1} map={map} timeline={selectedTimeline} step={step}/>)}
+					{timelineSteps && timelineSteps.map((step, index) => <StepUI key={index} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>)}
 				</ScrollView>
 			</>
 		);

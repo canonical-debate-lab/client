@@ -11,7 +11,7 @@ WaitTillSchemaAddedThenRun(MTName, () => {
 		properties: {
 			id: { type: 'string' },
 			updates: Schema({
-				properties: GetSchemaJSON(MTName)['properties'].Including('name', 'videoID', 'videoStartTime'),
+				properties: GetSchemaJSON(MTName)['properties'].Including('name', 'videoID', 'videoStartTime', 'videoHeightVSWidthPercent'),
 			}),
 		},
 		required: ['id', 'updates'],

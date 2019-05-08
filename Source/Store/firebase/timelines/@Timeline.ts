@@ -13,6 +13,7 @@ export class Timeline {
 
 	videoID: string;
 	videoStartTime: number;
+	videoHeightVSWidthPercent: number;
 
 	steps: string[];
 }
@@ -25,6 +26,7 @@ AddSchema({
 
 		videoID: { type: ['string', 'null'] },
 		videoStartTime: { type: ['number', 'null'] },
+		videoHeightVSWidthPercent: { type: 'number' },
 
 		steps: { items: { type: 'string' } },
 	},
