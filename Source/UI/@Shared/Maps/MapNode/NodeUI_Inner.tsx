@@ -14,7 +14,7 @@ import { Clone, Assert, Timer, VRect, Vector2i, WaitXThenRun } from 'js-vextensi
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
 import ReactDOM from 'react-dom';
 import { Fragment } from 'react';
-import {GetPathNodeIDs} from 'Store/main/mapViews';
+import { GetPathNodeIDs } from 'Store/main/mapViews';
 import { ParseSegmentsForPatterns } from '../../../../Utils/General/RegexHelpers';
 import { AddNodeRevision } from '../../../../Server/Commands/AddNodeRevision';
 import { GetImage } from '../../../../Store/firebase/images';
@@ -161,7 +161,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 		const nodeTypeInfo = MapNodeType_Info.for[node.type];
 		let backgroundColor = GetNodeColor(node);
 		const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
-		const offsetByAnotherDrag = dragInfo && dragInfo.provided.draggableProps.style.transform;
+		// const offsetByAnotherDrag = dragInfo && dragInfo.provided.draggableProps.style.transform;
 		if (asDragPreview) {
 			hovered = false;
 			local_openPanel = null;

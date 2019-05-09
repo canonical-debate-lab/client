@@ -29,6 +29,7 @@ import { UpdateTimelineStep } from 'Server/Commands/UpdateTimelineStep';
 import { NodeReveal } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { GetParentNode, GetParentPath } from 'Store/firebase/nodes';
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
+import { UpdateTimelineStepOrder } from 'Server/Commands/UpdateTimelineStepOrder';
 import { GetUserBackground } from '../Store/firebase/users';
 import { NavBar } from '../UI/@Shared/NavBar';
 import { GlobalUI } from '../UI/Global';
@@ -87,14 +88,14 @@ export class RootUIWrapper extends BaseComponent<{store}, {}> {
 		const sourceDroppableInfo = FromJSON(result.source.droppableId) as DroppableInfo;
 		const sourceIndex = result.source.index as number;
 		const targetDroppableInfo = result.destination && FromJSON(result.destination.droppableId) as DroppableInfo;
-		const targetIndex = result.destination && result.destination.index as number;
+		let targetIndex = result.destination && result.destination.index as number;
 		const draggableInfo = FromJSON(result.draggableId) as DraggableInfo;
-
-		// we don't support setting the actual order for nodes through dnd right now, so ignore if dragging onto same list
-		if (result.destination && result.source.droppableId == result.destination.droppableId) return;
 
 		if (targetDroppableInfo == null) {
 		} else if (targetDroppableInfo.type == 'NodeChildHolder') {
+			// we don't support setting the actual order for nodes through dnd right now, so ignore if dragging onto same list
+			if (result.destination && result.source.droppableId == result.destination.droppableId) return;
+
 			const { parentPath: newParentPath } = targetDroppableInfo;
 			const newParentID = GetPathNodeIDs(newParentPath).Last();
 			const newParent = GetNodeL3(newParentID);
@@ -141,7 +142,14 @@ export class RootUIWrapper extends BaseComponent<{store}, {}> {
 					<Button ml={5} text="Cancel" onClick={() => controller.Close()}/>
 				</>,
 			});
-		} else if (targetDroppableInfo.type == 'TimelineStep') {
+		} else if (targetDroppableInfo.type == 'TimelineStepList') {
+			// if we're moving an item to later in the same list, increment the target-index again (since react-beautiful-dnd pre-applies target-index adjustment, unlike the rest of our code that uses UpdateTimelineStepsOrder/Array.Move())
+			if (sourceDroppableInfo.type == targetDroppableInfo.type && sourceIndex < targetIndex) {
+				targetIndex++;
+			}
+
+			new UpdateTimelineStepOrder({ timelineID: sourceDroppableInfo.timelineID, stepID: draggableInfo.stepID, newIndex: targetIndex }).Run();
+		} else if (targetDroppableInfo.type == 'TimelineStepNodeRevealList') {
 			let path = draggableInfo.nodePath;
 			const parentNode = GetParentNode(path);
 			// if parent is argument, and it's a single-premise argument, use that instead (the UI for the argument and claim are combined, but user probably wanted the whole argument dragged)

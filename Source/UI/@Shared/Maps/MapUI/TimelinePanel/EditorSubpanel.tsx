@@ -5,7 +5,7 @@ import { AddTimelineStep } from 'Server/Commands/AddTimelineStep';
 import { TimelineStep, NodeReveal } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { Connect, State, ACTSet, InfoButton } from 'Utils/FrameworkOverrides';
+import { Connect, State, ACTSet, InfoButton, MakeDraggable, DragInfo } from 'Utils/FrameworkOverrides';
 import { Map } from 'Store/firebase/maps/@Map';
 import { MeID } from 'Store/firebase/users';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
@@ -21,10 +21,11 @@ import { ShowMessageBox } from 'react-vmessagebox';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { MinuteSecondInput } from 'Utils/ReactComponents/MinuteSecondInput';
 import { Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
-import { DroppableInfo } from 'Utils/UI/DNDStructures';
+import { DroppableInfo, DraggableInfo } from 'Utils/UI/DNDStructures';
 import { GetNodeColor } from 'Store/firebase/nodes/@MapNodeType';
 import { GetNodeL3, GetNodeDisplayText, GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { GetNode, GetNodeID } from 'Store/firebase/nodes';
+import ReactDOM from 'react-dom';
 
 // for use by react-beautiful-dnd (using text replacement)
 G({ LockMapEdgeScrolling });
@@ -46,6 +47,8 @@ export class EditorSubpanel extends BaseComponentWithConnector(EditorSubpanel_co
 	render() {
 		const { map, timeline, timelineSteps, lockMapScrolling } = this.props;
 		if (timeline == null) return null;
+
+		const droppableInfo = new DroppableInfo({ type: 'TimelineStepList', timelineID: timeline._key });
 		return (
 			<>
 				<Row mlr={5}>
@@ -63,7 +66,10 @@ export class EditorSubpanel extends BaseComponentWithConnector(EditorSubpanel_co
 						store.dispatch(new ACTSet(a => a.main.lockMapScrolling, val));
 					}}/>
 				</Row>
-				<ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, position: 'relative', padding: 7, filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)' })}>
+				<ScrollView style={ES({ flex: 1 })} contentStyle={ES({
+					flex: 1, position: 'relative', padding: 7,
+					// filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)', // disabled for now, since otherwise causes issue with dnd system (and portal fix causes errors here, fsr)
+				})}>
 					{timeline.videoID != null &&
 						<Row mb={7} p="7px 10px" style={{ background: 'rgba(0,0,0,.7)', borderRadius: 10, border: '1px solid rgba(255,255,255,.15)' }}>
 							<Pre>Video ID: </Pre>
@@ -99,7 +105,11 @@ export class EditorSubpanel extends BaseComponentWithConnector(EditorSubpanel_co
 								});
 							}}/>
 						</Row>}
-					{timelineSteps && timelineSteps.map((step, index) => <StepUI key={index} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>)}
+					<Droppable type="TimelineStep" droppableId={ToJSON(droppableInfo.VSet({ timelineID: timeline._key }))}>{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
+						<Column ref={c => provided.innerRef(GetDOM(c) as any)}>
+							{timelineSteps && timelineSteps.map((step, index) => <StepUI key={index} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>)}
+						</Column>
+					)}</Droppable>
 				</ScrollView>
 			</>
 		);
@@ -113,18 +123,38 @@ const positionOptions = [
 	{ name: 'Center', value: 3 },
 ];
 
-type StepUIProps = {index: number, last: boolean, map: Map, timeline: Timeline, step: TimelineStep} & Partial<{}>;
+
+/* let portal: HTMLElement;
+WaitXThenRun(0, () => {
+	portal = document.createElement('div');
+	document.body.appendChild(portal);
+}); */
+
+type StepUIProps = {index: number, last: boolean, map: Map, timeline: Timeline, step: TimelineStep} & {dragInfo?: DragInfo} & Partial<{}>;
 @Connect((state, { map, step }: StepUIProps) => ({
 }))
+@MakeDraggable(({ index, step }: StepUIProps) => {
+	return {
+		type: 'TimelineStep',
+		draggableInfo: new DraggableInfo({ stepID: step._key }),
+		index,
+	};
+})
 class StepUI extends BaseComponent<StepUIProps, {placeholderRect: VRect}> {
 	render() {
-		const { index, last, map, timeline, step } = this.props;
+		const { index, last, map, timeline, step, dragInfo } = this.props;
 		const { placeholderRect } = this.state;
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), map);
+		const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
 
-		return (
-			<Column mt={index == 0 ? 0 : 7} style={{ background: 'rgba(0,0,0,.7)', borderRadius: 10, border: '1px solid rgba(255,255,255,.15)' }}>
-				<Row p="7px 10px">
+		const result = (
+			<Column mt={index == 0 ? 0 : 7} {...(dragInfo && dragInfo.provided.draggableProps)}
+				style={E(
+					{ background: 'rgba(0,0,0,.7)', borderRadius: 10, border: '1px solid rgba(255,255,255,.15)' },
+					dragInfo && dragInfo.provided.draggableProps.style,
+					asDragPreview && { zIndex: 10 },
+				)}>
+				<Row p="7px 10px" {...(dragInfo && dragInfo.provided.dragHandleProps)}>
 					<Pre>Step {index + 1}</Pre>
 					{/* <Button ml={5} text="Edit" title="Edit this step" style={{ flexShrink: 0 }} onClick={() => {
 						ShowEditTimelineStepDialog(MeID(), step);
@@ -164,15 +194,19 @@ class StepUI extends BaseComponent<StepUIProps, {placeholderRect: VRect}> {
 					</Row>
 				</Row>
 				{/* <Row ml={5} style={{ minHeight: 20 }}>{step.message}</Row> */}
-				<TextArea autoSize={true} delayChangeTillDefocus={true} style={{ background: 'rgba(255,255,255,.1)', color: 'rgba(255,255,255,.7)', padding: 5, outline: 'none' }}
+				<TextArea autoSize={true} delayChangeTillDefocus={true} style={{ background: 'rgba(255,255,255,.2)', color: 'rgba(255,255,255,.7)', padding: 5, outline: 'none' }}
 					value={step.message}
 					onChange={(val) => {
 						new UpdateTimelineStep({ stepID: step._key, stepUpdates: { message: val } }).Run();
 					}}/>
-				<Droppable type="MapNode" droppableId={ToJSON(new DroppableInfo({ type: 'TimelineStep', stepID: step._key }))}>{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-					<Column ref={(c) => { this.nodeHolder = c; provided.innerRef(GetDOM(c) as any); }} style={{ position: 'relative', padding: 7, background: 'rgba(255,255,255,.2)', borderRadius: '0 0 10px 10px' }}>
+				<Droppable type="MapNode" droppableId={ToJSON(new DroppableInfo({ type: 'TimelineStepNodeRevealList', stepID: step._key }))}>{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
+					<Column ref={(c) => { this.nodeHolder = c; provided.innerRef(GetDOM(c) as any); }}
+						style={E(
+							{ position: 'relative', padding: 7, background: 'rgba(255,255,255,.3)', borderRadius: '0 0 10px 10px' },
+							(step.nodeReveals == null || step.nodeReveals.length == 0) && { padding: '3px 5px' },
+						)}>
 						{(step.nodeReveals == null || step.nodeReveals.length == 0) && provided.placeholder == null &&
-							<div>Drag nodes here to have them display when the playback reaches this step.</div>}
+							<div style={{ fontSize: 11, opacity: 0.7, textAlign: 'center' }}>Drag nodes here to have them display when the playback reaches this step.</div>}
 						{step.nodeReveals && step.nodeReveals.map((nodeReveal, index) => {
 							return <NodeRevealUI key={index} step={step} nodeReveal={nodeReveal} index={index}/>;
 						})}
@@ -188,6 +222,12 @@ class StepUI extends BaseComponent<StepUIProps, {placeholderRect: VRect}> {
 				)}</Droppable>
 			</Column>
 		);
+
+		// if drag preview, we have to put in portal, since otherwise the "filter" effect of ancestors causes the {position:fixed} style to not be relative-to-page
+		/* if (asDragPreview) {
+			return ReactDOM.createPortal(result, portal);
+		} */
+		return result;
 	}
 	nodeHolder: Row;
 
