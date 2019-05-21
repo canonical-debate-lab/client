@@ -208,7 +208,9 @@ export function GetNodeDisplayText(node: MapNodeL2, path?: string, form?: ClaimF
 	const titles = node.current.titles || {} as TitlesMap;
 
 	if (node.type == MapNodeType.Argument && !node.multiPremiseArgument && !titles.base) {
-		const baseClaim = GetNodeL2(node.children && node.children.VKeys(true).length ? node.children.VKeys(true)[0] : null);
+		// const baseClaim = GetNodeL2(node.children && node.children.VKeys(true).length ? node.children.VKeys(true)[0] : null);
+		// const baseClaim = GetArgumentPremises(node)[0];
+		const baseClaim = GetNodeChildrenL2(node).filter(a => a && a.type == MapNodeType.Claim)[0];
 		if (baseClaim) return GetNodeDisplayText(baseClaim);
 	}
 	if (node.type == MapNodeType.Claim) {

@@ -4,7 +4,7 @@ import { MeID } from 'Store/firebase/users';
 import { GetPlayingTimelineAppliedStepRevealNodes } from 'Store/main/maps/$map';
 import { NodeChildHolder } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolder';
 import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolderBox';
-import { CachedTransform, E, Timer, emptyArray_forLoading, emptyArray, Assert, IsNaN, nl, ToInt } from 'js-vextensions';
+import { CachedTransform, E, Timer, emptyArray_forLoading, emptyArray, Assert, IsNaN, nl, ToInt, ToJSON } from 'js-vextensions';
 import { Column } from 'react-vcomponents';
 import { BaseComponentWithConnector, GetInnerComp, RenderSource, ShallowChanged, ShallowEquals, GetDOM } from 'react-vextensions';
 import { Connect, State, SlicePath, ShouldLog, MaybeLog } from 'Utils/FrameworkOverrides';
@@ -134,13 +134,13 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 			if (logTypes.nodeRenders_for) {
 				if (logTypes.nodeRenders_for == node._key) {
 					Log(`Updating NodeUI (${RenderSource[this.lastRender_source]}):${node._key}${nl
-					}PropsChanged:${this.GetPropsChanged_Data()}${nl
-					}StateChanged:${this.GetStateChanged_Data()}`);
+					}PropsChanged:${ToJSON(this.GetPropChanges())}${nl
+					}StateChanged:${ToJSON(this.GetStateChanges())}`);
 				}
 			} else {
 				Log(`Updating NodeUI (${RenderSource[this.lastRender_source]}):${node._key}${nl
-				}PropsChanged:${this.GetPropsChanged()}${nl
-				}StateChanged:${this.GetStateChanged()}`);
+				}PropsChanged:${this.GetPropChanges().map(a => a.key)}${nl
+				}StateChanged:${this.GetStateChanges().map(a => a.key)}`);
 			}
 		}
 		NodeUI.renderCount++;

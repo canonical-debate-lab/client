@@ -1,5 +1,5 @@
 import { Button, Row, Column, Pre, CheckBox, TextInput, TextArea, Select, Spinner } from 'react-vcomponents';
-import { BaseComponentWithConnector, BaseComponent, GetDOM } from 'react-vextensions';
+import { BaseComponentWithConnector, BaseComponent, GetDOM, SimpleShouldUpdate, ShallowChanged } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { AddTimelineStep } from 'Server/Commands/AddTimelineStep';
 import { TimelineStep, NodeReveal } from 'Store/firebase/timelineSteps/@TimelineStep';
@@ -22,7 +22,7 @@ import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { MinuteSecondInput } from 'Utils/ReactComponents/MinuteSecondInput';
 import { Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 import { DroppableInfo, DraggableInfo } from 'Utils/UI/DNDStructures';
-import { GetNodeColor } from 'Store/firebase/nodes/@MapNodeType';
+import { GetNodeColor, MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { GetNodeL3, GetNodeDisplayText, GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { GetNode, GetNodeID } from 'Store/firebase/nodes';
 import ReactDOM from 'react-dom';
@@ -38,7 +38,7 @@ const EditorSubpanel_connector = (state, { map }: {map: Map}) => {
 	const timeline = GetSelectedTimeline(map._key);
 	return {
 		timeline,
-		timelineSteps: timeline && GetTimelineSteps(timeline),
+		timelineSteps: timeline && GetTimelineSteps(timeline, true),
 		lockMapScrolling: State(a => a.main.lockMapScrolling),
 	};
 };
@@ -107,7 +107,10 @@ export class EditorSubpanel extends BaseComponentWithConnector(EditorSubpanel_co
 						</Row>}
 					<Droppable type="TimelineStep" droppableId={ToJSON(droppableInfo.VSet({ timelineID: timeline._key }))}>{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
 						<Column ref={c => provided.innerRef(GetDOM(c) as any)}>
-							{timelineSteps && timelineSteps.map((step, index) => <StepUI key={index} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>)}
+							{timelineSteps && timelineSteps.map((step, index) => {
+								if (step == null) return null;
+								return <StepUI key={index} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>;
+							})}
 						</Column>
 					)}</Droppable>
 				</ScrollView>
@@ -130,9 +133,7 @@ WaitXThenRun(0, () => {
 	document.body.appendChild(portal);
 }); */
 
-type StepUIProps = {index: number, last: boolean, map: Map, timeline: Timeline, step: TimelineStep} & {dragInfo?: DragInfo} & Partial<{}>;
-@Connect((state, { map, step }: StepUIProps) => ({
-}))
+type StepUIProps = {index: number, last: boolean, map: Map, timeline: Timeline, step: TimelineStep} & {dragInfo?: DragInfo};
 @MakeDraggable(({ index, step }: StepUIProps) => {
 	return {
 		type: 'TimelineStep',
@@ -140,6 +141,7 @@ type StepUIProps = {index: number, last: boolean, map: Map, timeline: Timeline, 
 		index,
 	};
 })
+@SimpleShouldUpdate({ propsToIgnore: ['dragInfo'] })
 class StepUI extends BaseComponent<StepUIProps, {placeholderRect: VRect}> {
 	render() {
 		const { index, last, map, timeline, step, dragInfo } = this.props;
@@ -273,22 +275,28 @@ class StepUI extends BaseComponent<StepUIProps, {placeholderRect: VRect}> {
 }
 
 const connector = (state, { nodeReveal }: {step: TimelineStep, nodeReveal: NodeReveal, index: number}) => {
-	const node = GetNodeL2(GetNodeID(nodeReveal.path));
-	const nodeL3 = GetNodeL3(nodeReveal.path);
+	let node = GetNodeL2(GetNodeID(nodeReveal.path));
+	let nodeL3 = GetNodeL3(nodeReveal.path);
+	// if one is null, make them both null to be consistent
+	if (node == null || nodeL3 == null) {
+		node = null;
+		nodeL3 = null;
+	}
+
 	return {
 		node,
 		nodeL3,
-		displayText: node && nodeL3 && GetNodeDisplayText(node, nodeReveal.path),
+		displayText: node && nodeL3 ? GetNodeDisplayText(node, nodeReveal.path) : `(Node no longer exists: ${GetNodeID(nodeReveal.path)})`,
 	};
 };
 @Connect(connector)
 export class NodeRevealUI extends BaseComponentWithConnector(connector, {}) {
 	render() {
 		const { step, nodeReveal, index, node, nodeL3, displayText } = this.props;
-		if (node == null || nodeL3 == null) return null;
+		// if (node == null || nodeL3 == null) return null;
 
 		const path = nodeReveal.path;
-		const backgroundColor = GetNodeColor(nodeL3).desaturate(0.5).alpha(0.8);
+		const backgroundColor = GetNodeColor(nodeL3 || { type: MapNodeType.Category } as any).desaturate(0.5).alpha(0.8);
 		return (
 			<Row key={index} mt={index === 0 ? 0 : 5}
 				style={E(

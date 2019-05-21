@@ -26,8 +26,8 @@ export function GetTimelineStep(id: string): TimelineStep {
 	if (id == null) return null;
 	return GetData('timelineSteps', id);
 }
-export function GetTimelineSteps(timeline: Timeline): TimelineStep[] {
+export function GetTimelineSteps(timeline: Timeline, allowStillLoading = false): TimelineStep[] {
 	const steps = (timeline.steps || []).map(id => GetTimelineStep(id));
-	if (steps.Any(a => a == null)) return emptyArray;
+	if (!allowStillLoading && steps.Any(a => a == null)) return emptyArray;
 	return CachedTransform('GetTimelineSteps', [timeline._key], steps, () => steps);
 }
