@@ -36,7 +36,7 @@ export class ActionBar_Right extends BaseComponentWithConnector(connector, {}) {
 					justifyContent: 'flex-end', background: 'rgba(0,0,0,.7)', boxShadow: colors.navBarBoxShadow,
 					width: '100%', height: 30, borderRadius: '0 0 0 10px',
 				}}>
-					<Row mr={5}>
+					<Row center mr={5}>
 						<Pre>Show changes since: </Pre>
 						<Select options={changesSince_options} value={`${showChangesSince_type}_${showChangesSince_visitOffset}`} onChange={(val) => {
 							const parts = val.split('_');

@@ -125,7 +125,7 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 					<TimelinePlayerUI map={map}/> */}
 				{/*! withinPage &&
 					<TimelineOverlayUI map={map}/> */}
-				<Row style={{ marginTop: 30, alignItems: 'flex-start' }}>
+				<Row style={{ marginTop: 30, height: 'calc(100% - 30px)', alignItems: 'flex-start' }}>
 					{!withinPage && timelinePanelOpen &&
 						<TimelinePanel map={map}/>}
 					<ScrollView {...rest.Excluding(...StandardCompProps())} ref={c => this.scrollView = c}

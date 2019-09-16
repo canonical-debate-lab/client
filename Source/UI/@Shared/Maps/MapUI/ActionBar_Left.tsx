@@ -39,7 +39,7 @@ export class ActionBar_Left extends BaseComponentWithConnector(connector, {}) {
 				position: 'absolute', zIndex: 1, left: 0, width: `calc(50% - ${subNavBarWidth / 2}px)`, top: 0, textAlign: 'center',
 				// background: "rgba(0,0,0,.5)", boxShadow: "3px 3px 7px rgba(0,0,0,.07)",
 			}}>
-				<Row style={{
+				<Row center style={{
 					justifyContent: 'flex-start', background: 'rgba(0,0,0,.7)', boxShadow: colors.navBarBoxShadow,
 					width: '100%', height: 30, borderRadius: '0 0 10px 0',
 				}}>
