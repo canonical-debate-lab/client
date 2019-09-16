@@ -1,7 +1,7 @@
 import { firebaseStateReducer } from 'react-redux-firebase';
 import { VMenuReducer, VMenuState } from 'react-vmenu';
 import { firestoreReducer } from 'redux-firestore';
-import { DeepGet, DeepSet } from 'js-vextensions';
+import { DeepGet, DeepSet, IsString, Assert } from 'js-vextensions';
 import { CombineReducers_Advanced, bufferedActions, HandleError, manager } from 'Utils/FrameworkOverrides';
 import { FeedbackReducer } from 'firebase-feedback';
 import { persistReducer, createTransform } from 'redux-persist';
@@ -110,6 +110,7 @@ export function MakeRootReducer(pureOnly = false) {
 		transforms: [
 			// nested blacklist-paths require a custom transform to be applied
 			createTransform((inboundState, key) => {
+				if (!IsString(key)) throw Assert(false); // we want the type-guard (but not sure if this is correct)
 				const blacklistPaths_forKey = blacklistPaths.filter(path => path.startsWith(`${key}.`)).map(path => path.substr(key.length + 1));
 				return omit(inboundState as any, ...blacklistPaths_forKey);
 			}, null),

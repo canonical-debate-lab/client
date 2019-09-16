@@ -6,7 +6,7 @@ import { ColorPickerBox, Column, Button, Row, Pre } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector, ShallowChanged } from 'react-vextensions';
 import { VMenuLayer } from 'react-vmenu';
 import { MessageBoxUI, ShowMessageBox } from 'react-vmessagebox';
-import { PersistGate as PersistGate_ } from 'redux-persist/integration/react';
+import { PersistGate } from 'redux-persist/integration/react';
 import { MeID, Me } from 'Store/firebase/users';
 import { GuideUI } from 'UI/Guide';
 import '../../Source/Utils/Styles/Main.scss'; // keep absolute-ish, since scss file not copied to Source_JS folder
@@ -47,10 +47,6 @@ import { SearchUI } from './Search';
 import { SocialUI } from './Social';
 import { StreamUI } from './Stream';
 
-const aa = { Provider, ConnectedRouter } as any;
-
-const PersistGate = PersistGate_ as any;
-
 ColorPickerBox.Init(ReactColor, chroma);
 
 export class RootUIWrapper extends BaseComponent<{store}, {}> {
@@ -72,15 +68,15 @@ export class RootUIWrapper extends BaseComponent<{store}, {}> {
 		// if (!g.storeRehydrated) return <div/>;
 
 		return (
-			<aa.Provider store={store}>
+			<Provider store={store}>
 				<PersistGate loading={null} persistor={persister}>
-					<aa.ConnectedRouter history={browserHistory}>
+					<ConnectedRouter history={browserHistory}>
 						<DragDropContext_Beautiful onDragEnd={this.OnDragEnd}>
 							<RootUI/>
 						</DragDropContext_Beautiful>
-					</aa.ConnectedRouter>
+					</ConnectedRouter>
 				</PersistGate>
-			</aa.Provider>
+			</Provider>
 		);
 	}
 
@@ -213,10 +209,10 @@ const connector = (state, {}: {}) => ({
 });
 @Connect(connector)
 class RootUI extends BaseComponentWithConnector(connector, {}) {
-	shouldComponentUpdate(newProps, newState) {
+	/* shouldComponentUpdate(newProps, newState) {
 		// ignore change of 'router' prop -- we don't use it
 		return ShallowChanged(newProps.Excluding('router'), this.props.Excluding('router')) || ShallowChanged(newState, this.state);
-	}
+	} */
 	render() {
 		// let {currentPage} = this.props;
 		const background = GetUserBackground(MeID());

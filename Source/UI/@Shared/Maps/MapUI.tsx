@@ -77,7 +77,7 @@ const connector = (state: RootState, { map, rootNode }: Props) => {
 		viewOffset: GetMapView(state, {map}) ? GetMapView(state, {map}).viewOffset : null, */
 		/* focusNode_available: (GetMapView(state, {map}) && GetMapView(state, {map}).focusNode) != null,
 		viewOffset_available: (GetMapView(state, {map}) && GetMapView(state, {map}).viewOffset) != null, */
-		timelinePanelOpen: GetTimelinePanelOpen(map._key),
+		timelinePanelOpen: map ? GetTimelinePanelOpen(map._key) : null,
 	};
 };
 @Connect(connector)
