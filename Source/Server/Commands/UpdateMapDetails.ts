@@ -3,7 +3,7 @@ import { AddSchema, AssertValidate, Command, GetDataAsync, Schema } from 'Utils/
 import { Map, Map_namePattern } from '../../Store/firebase/maps/@Map';
 import { UserEdit } from '../CommandMacros';
 
-AddSchema({
+AddSchema('UpdateMapDetails_payload', {
 	properties: {
 		mapID: { type: 'string' },
 		mapUpdates: Schema({
@@ -16,7 +16,7 @@ AddSchema({
 		}),
 	},
 	required: ['mapID', 'mapUpdates'],
-}, 'UpdateMapDetails_payload');
+});
 
 @MapEdit
 @UserEdit

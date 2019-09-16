@@ -11,9 +11,9 @@ export class NodeEditTimes {
 	// [key: number]: ChangeInfo;
 	[key: string]: number;
 }
-AddSchema({
+AddSchema('NodeEditTimes', {
 	patternProperties: { [UUID_regex]: { type: 'number' } },
-}, 'NodeEditTimes');
+});
 
 export enum ChangeType {
 	Add = 10,

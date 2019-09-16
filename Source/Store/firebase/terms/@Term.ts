@@ -36,7 +36,7 @@ export const Term_nameFormat = '^[a-zA-Z0-9 ,\'"%-]+$';
 export const Term_disambiguationFormat = '^[a-zA-Z0-9 ,\'"%-\\/]+$';
 // export const Term_shortDescriptionFormat = "^[a-zA-Z ()[],;.!?-+*/]+$";
 export const Term_shortDescriptionFormat = '^.+$';
-AddSchema({
+AddSchema('Term', {
 	properties: {
 		name: { type: 'string', pattern: Term_nameFormat },
 		disambiguation: { type: 'string', pattern: Term_disambiguationFormat },
@@ -55,7 +55,7 @@ AddSchema({
 		createdAt: { type: 'number' },
 	},
 	required: ['name', 'type', /* "variant_current", */ 'shortDescription_current', /* "components", */ 'creator', 'createdAt'],
-}, 'Term');
+});
 
 export enum TermType {
 	SpecificEntity = 10,
@@ -64,7 +64,7 @@ export enum TermType {
 	Action = 40,
 	Adverb = 50,
 }
-AddSchema({ oneOf: GetValues_ForSchema(TermType) }, 'TermType');
+AddSchema('TermType', { oneOf: GetValues_ForSchema(TermType) });
 
 export type TermComponentSet = {[key: string]: boolean};
-AddSchema({ patternProperties: { [UUID_regex]: { type: 'boolean' } } }, 'TermComponentSet');
+AddSchema('TermComponentSet', { patternProperties: { [UUID_regex]: { type: 'boolean' } } });

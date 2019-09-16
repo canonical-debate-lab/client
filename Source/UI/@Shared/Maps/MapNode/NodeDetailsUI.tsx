@@ -132,7 +132,7 @@ class Title_Base extends BaseComponent<Props_Enhanced, {}> {
 						value={newRevisionData.titles["base"]} onChange={val=>Change(newRevisionData.titles["base"] = val)}/> */}
 					<TextArea enabled={enabled} required={!hasOtherTitlesEntered && !willUseYesNoTitleHere} pattern={MapNodeRevision_titlePattern} autoSize={true}
 						allowLineBreaks={false} style={ES({ flex: 1 })}
-						ref={a => a && forNew && this.lastRender_source == RenderSource.Mount && WaitXThenRun(0, () => a.DOM && a.DOM.focus())}
+						ref={a => a && forNew && this.lastRender_source == RenderSource.Mount && WaitXThenRun(0, () => a.DOM && a.DOM_HTML.focus())}
 						value={newRevisionData.titles['base']} onChange={val => Change(newRevisionData.titles['base'] = val)}/>
 				</Row>
 				{forNew && newData.type == MapNodeType.Argument &&

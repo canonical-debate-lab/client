@@ -10,7 +10,7 @@ export class UserExtraInfo {
 	edits: number;
 	lastEditAt: number;
 }
-AddSchema({
+AddSchema('UserExtraInfo', {
 	properties: {
 		joinDate: { type: 'number' },
 		permissionGroups: { $ref: 'PermissionGroupSet' },
@@ -18,7 +18,7 @@ AddSchema({
 		edits: { type: 'number' },
 		lastEditAt: { type: 'number' },
 	},
-}, 'UserExtraInfo');
+});
 
 export class PermissionGroupSet {
 	basic: boolean;
@@ -26,11 +26,11 @@ export class PermissionGroupSet {
 	mod: boolean;
 	admin: boolean;
 }
-AddSchema({
+AddSchema('PermissionGroupSet', {
 	properties: {
 		basic: { type: 'boolean' },
 		verified: { type: 'boolean' },
 		mod: { type: 'boolean' },
 		admin: { type: 'boolean' },
 	},
-}, 'PermissionGroupSet');
+});

@@ -14,7 +14,7 @@ export class Layer {
 	mapsWhereEnabled: {[key: string]: boolean};
 	nodeSubnodes: {[key: string]: LayerNodeSubnodes}; // key: node-id
 }
-AddSchema({
+AddSchema('Layer', {
 	properties: {
 		name: { type: 'string' },
 		creator: { type: 'string' },
@@ -24,7 +24,7 @@ AddSchema({
 		nodeSubnodes: { patternProperties: { [UUID_regex]: { $ref: 'LayerNodeSubnodes' } } },
 	},
 	required: ['name', 'creator', 'createdAt'],
-}, 'Layer');
+});
 
 export type LayerNodeSubnodes = {[key: string]: boolean}; // key: subnode-id
-AddSchema({ patternProperties: { [UUID_regex]: { type: 'boolean' } } }, 'LayerNodeSubnodes');
+AddSchema('LayerNodeSubnodes', { patternProperties: { [UUID_regex]: { type: 'boolean' } } });

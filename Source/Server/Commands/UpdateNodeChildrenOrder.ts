@@ -2,14 +2,14 @@ import { MapEdit, UserEdit } from 'Server/CommandMacros';
 import { AddSchema, AssertValidate, Command, GetDataAsync } from 'Utils/FrameworkOverrides';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 
-AddSchema({
+AddSchema('UpdateNodeChildrenOrder_payload', {
 	properties: {
 		mapID: { type: 'string' },
 		nodeID: { type: 'string' },
 		childrenOrder: { items: { type: 'string' } },
 	},
 	required: ['nodeID', 'childrenOrder'],
-}, 'UpdateNodeChildrenOrder_payload');
+});
 
 @MapEdit
 @UserEdit

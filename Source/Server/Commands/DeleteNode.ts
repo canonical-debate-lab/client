@@ -8,14 +8,14 @@ import { ForDelete_GetError } from '../../Store/firebase/nodes';
 import { MapNodeL2 } from '../../Store/firebase/nodes/@MapNode';
 import { MapEdit, UserEdit } from '../CommandMacros';
 
-AddSchema({
+AddSchema('DeleteNode_payload', {
 	properties: {
 		mapID: { type: 'string' },
 		nodeID: { type: 'string' },
 		withContainerArgument: { type: 'string' },
 	},
 	required: ['nodeID'],
-}, 'DeleteNode_payload');
+});
 
 @MapEdit
 @UserEdit

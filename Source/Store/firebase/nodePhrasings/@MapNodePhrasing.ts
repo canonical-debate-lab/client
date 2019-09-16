@@ -15,7 +15,7 @@ export class MapNodePhrasing {
 	creator: string;
 	createdAt: number;
 }
-AddSchema({
+AddSchema('MapNodePhrasing', {
 	properties: {
 		node: { type: 'string' },
 		type: { $ref: 'MapNodePhrasingType' },
@@ -26,10 +26,10 @@ AddSchema({
 		createdAt: { type: 'number' },
 	},
 	required: ['node', 'type', 'text', 'creator', 'createdAt'],
-}, 'MapNodePhrasing');
+});
 
 export enum MapNodePhrasingType {
 	Precise = 10,
 	Natural = 20,
 }
-AddSchema({ oneOf: GetValues_ForSchema(MapNodePhrasingType) }, 'MapNodePhrasingType');
+AddSchema('MapNodePhrasingType', { oneOf: GetValues_ForSchema(MapNodePhrasingType) });

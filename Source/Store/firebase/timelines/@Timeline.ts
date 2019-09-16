@@ -17,7 +17,7 @@ export class Timeline {
 
 	steps: string[];
 }
-AddSchema({
+AddSchema('Timeline', {
 	properties: {
 		mapID: { type: 'string' },
 		name: { type: 'string' },
@@ -31,4 +31,4 @@ AddSchema({
 		steps: { items: { type: 'string' } },
 	},
 	required: ['mapID', 'name', 'creator', 'createdAt'],
-}, 'Timeline');
+});

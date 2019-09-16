@@ -2,14 +2,14 @@ import { MapEdit, UserEdit } from 'Server/CommandMacros';
 import { AddSchema, AssertValidate, Command, GetDataAsync } from 'Utils/FrameworkOverrides';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 
-AddSchema({
+AddSchema('SetNodeIsMultiPremiseArgument_payload', {
 	properties: {
 		mapID: { type: 'string' },
 		nodeID: { type: 'string' },
 		multiPremiseArgument: { type: 'boolean' },
 	},
 	required: ['nodeID', 'multiPremiseArgument'],
-}, 'SetNodeIsMultiPremiseArgument_payload');
+});
 
 @MapEdit
 @UserEdit

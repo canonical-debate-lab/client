@@ -1,13 +1,14 @@
 import { Button, Row } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
 import { Assert } from 'js-vextensions';
+import React from 'react';
 
 type Props = {
 	parent?,
 	className?: string, width: number, widthOverride: number, innerWidth?: number, outlineColor?: string, padding: number | string, style, onClick?, onDirectClick?, onMouseEnter?: Function, onMouseLeave?: Function,
 	backgroundFillPercent: number, backgroundColor: Color, markerPercent: number,
 	text, onTextHolderClick?, beforeChildren?, afterChildren?,
-	expanded: boolean, toggleExpanded: Function,
+	expanded: boolean, toggleExpanded: (event: React.MouseEvent<any>)=>any,
 };
 export class ExpandableBox extends BaseComponent<Props, {}> {
 	static ValidateProps(props: Props) {

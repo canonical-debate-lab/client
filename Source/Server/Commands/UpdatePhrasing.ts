@@ -1,21 +1,19 @@
 import { MapNodePhrasing } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
-import { WaitTillSchemaAddedThenRun, AddSchema, GetSchemaJSON, Schema, AssertValidate, GetDataAsync, Command } from 'Utils/FrameworkOverrides';
+import { AddSchema, GetSchemaJSON, Schema, AssertValidate, GetDataAsync, Command } from 'Utils/FrameworkOverrides';
 import { UserEdit } from 'Server/CommandMacros';
 
 type MainType = MapNodePhrasing;
 const MTName = 'MapNodePhrasing';
 
-WaitTillSchemaAddedThenRun(MTName, () => {
-	AddSchema({
-		properties: {
-			id: { type: 'string' },
-			updates: Schema({
-				properties: GetSchemaJSON(MTName).properties.Including('type', 'text', 'description'),
-			}),
-		},
-		required: ['id', 'updates'],
-	}, `Update${MTName}_payload`);
-});
+AddSchema(`Update${MTName}_payload`, [MTName], () => ({
+	properties: {
+		id: { type: 'string' },
+		updates: Schema({
+			properties: GetSchemaJSON(MTName).properties.Including('type', 'text', 'description'),
+		}),
+	},
+	required: ['id', 'updates'],
+}));
 
 @UserEdit
 export class UpdatePhrasing extends Command<{id: string, updates: Partial<MainType>}> {

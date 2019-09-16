@@ -278,7 +278,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 				{...{ backgroundFillPercent, backgroundColor, markerPercent }}
 				toggleExpanded={(e) => {
 					store.dispatch(new ACTMapNodeExpandedSet({ mapID: map._key, path, expanded: !expanded, recursive: expanded && e.altKey }));
-					e.nativeEvent.ignore = true; // for some reason, "return false" isn't working
+					e.nativeEvent['ignore'] = true; // for some reason, "return false" isn't working
 					// return false;
 				}}
 				afterChildren={[
@@ -430,7 +430,7 @@ class TitlePanel extends BaseComponentWithConnector(TitlePanel_connector, { edit
 					)}>
 						{!applyingEdit &&
 							<TextArea required={true} pattern={MapNodeRevision_titlePattern} allowLineBreaks={false} autoSize={true} style={ES({ flex: 1 })}
-								ref={a => a && a.DOM.focus()}
+								ref={a => a && a.DOM_HTML.focus()}
 								onKeyDown={(e) => {
 									if (e.keyCode == keycode.codes.esc) {
 										this.SetState({ editing: false });

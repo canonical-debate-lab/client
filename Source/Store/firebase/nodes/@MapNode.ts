@@ -57,7 +57,7 @@ export class MapNode {
 }
 // export const MapNode_id = UUID_regex;
 // export const MapNode_chainAfterFormat = "^(\\[start\\]|[0-9]+)$";
-AddSchema({
+AddSchema('MapNode', {
 	properties: {
 		type: { oneOf: GetValues_ForSchema(MapNodeType) },
 		creator: { type: 'string' },
@@ -87,7 +87,7 @@ AddSchema({
 			else: {prohibited: ["childrenOrder"]}
 		}
 	], */
-}, 'MapNode');
+});
 // disabled for now, simply because we haven't finished making all places that manipulate "MapNode.children" reliably update "MapNode.childrenOrder" as well
 /* AddAJVExtraCheck('MapNode', (node: MapNode) => {
 	if (node.type == MapNodeType.Argument) {
@@ -117,22 +117,22 @@ export enum Polarity {
 // ==========
 
 export type ParentSet = { [key: string]: ParentEntry; };
-AddSchema({ patternProperties: { [UUID_regex]: { $ref: 'ParentEntry' } } }, 'ParentSet');
+AddSchema('ParentSet', { patternProperties: { [UUID_regex]: { $ref: 'ParentEntry' } } });
 export type ParentEntry = { _: boolean; };
-AddSchema({
+AddSchema('ParentEntry', {
 	properties: { _: { type: 'boolean' } },
 	required: ['_'],
-}, 'ParentEntry');
+});
 
 export type ChildSet = { [key: string]: ChildEntry; };
-AddSchema({ patternProperties: { [UUID_regex]: { $ref: 'ChildEntry' } } }, 'ChildSet');
+AddSchema('ChildSet', { patternProperties: { [UUID_regex]: { $ref: 'ChildEntry' } } });
 export type ChildEntry = {
 	_: boolean;
 	form?: ClaimForm;
 	seriesAnchor?: boolean;
 	polarity?: Polarity;
 };
-AddSchema({
+AddSchema('ChildEntry', {
 	properties: {
 		_: { type: 'boolean' },
 		form: { oneOf: GetValues_ForSchema(ClaimForm) },
@@ -140,13 +140,13 @@ AddSchema({
 		polarity: { oneOf: GetValues_ForSchema(Polarity) },
 	},
 	required: ['_'],
-}, 'ChildEntry');
+});
 
 // layer+anchor parents (for if subnode)
 // ==========
 
 export type LayerPlusAnchorParentSet = { [key: string]: boolean; };
-AddSchema({ patternProperties: { [`${UUID_regex_partial}\\+${UUID_regex_partial}`]: { type: 'boolean' } } }, 'LayerPlusAnchorParentSet');
+AddSchema('LayerPlusAnchorParentSet', { patternProperties: { [`${UUID_regex_partial}\\+${UUID_regex_partial}`]: { type: 'boolean' } } });
 
 // others
 // ==========
@@ -154,9 +154,9 @@ AddSchema({ patternProperties: { [`${UUID_regex_partial}\\+${UUID_regex_partial}
 export class ImageAttachment {
 	id: string;
 }
-AddSchema({
+AddSchema('ImageAttachment', {
 	properties: {
 		id: { type: 'string' },
 	},
 	required: ['id'],
-}, 'ImageAttachment');
+});

@@ -2,13 +2,13 @@ import { MapEdit } from 'Server/CommandMacros';
 import { Assert, GetValues_ForSchema } from 'js-vextensions';
 import { AssertValidate, AddSchema } from 'Utils/FrameworkOverrides';
 import { GetAsync_Raw, GetDataAsync } from 'Utils/FrameworkOverrides';
+import { Command } from 'Utils/FrameworkOverrides';
 import { GetClaimType, GetNodeL2 } from './../../Store/firebase/nodes/$node';
 import { Equation } from './../../Store/firebase/nodes/@Equation';
 import { ClaimType, MapNodeL2 } from './../../Store/firebase/nodes/@MapNode';
 import { MapNodeRevision } from './../../Store/firebase/nodes/@MapNodeRevision';
-import { Command } from 'Utils/FrameworkOverrides';
 import { UserEdit } from './../CommandMacros';
-import {GenerateUUID} from 'Utils/General/KeyGenerator';
+import { GenerateUUID } from 'Utils/General/KeyGenerator';
 
 export const conversionTypes = [
 	// from normal to...
@@ -20,14 +20,14 @@ export function CanConvertFromClaimTypeXToY(from: ClaimType, to: ClaimType) {
 	return conversionTypes.Contains(`${ClaimType[from]}>${ClaimType[to]}`);
 }
 
-AddSchema({
+AddSchema('ChangeClaimType_payload', {
 	properties: {
 		mapID: { type: 'string' },
 		nodeID: { type: 'string' },
 		newType: { oneOf: GetValues_ForSchema(ClaimType) },
 	},
 	required: ['nodeID', 'newType'],
-}, 'ChangeClaimType_payload');
+});
 
 @MapEdit
 @UserEdit

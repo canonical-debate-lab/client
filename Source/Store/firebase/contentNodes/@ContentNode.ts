@@ -12,10 +12,10 @@ export class ContentNode {
 	content = '';
 	sourceChains: SourceChain[];
 }
-AddSchema({
+AddSchema('ContentNode', {
 	properties: {
 		content: { type: 'string' },
 		sourceChains: { items: { $ref: 'SourceChain' } },
 	},
 	required: ['content', 'sourceChains'],
-}, 'ContentNode');
+});

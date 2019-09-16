@@ -19,7 +19,7 @@ export type User = {
 	backgroundCustom_url?: string;
 	backgroundCustom_position?: string;
 };
-AddSchema({
+AddSchema('User', {
 	properties: {
 		avatarUrl: { type: 'string' },
 		displayName: { type: 'string' },
@@ -33,4 +33,4 @@ AddSchema({
 		backgroundCustom_url: { type: 'string' },
 		backgroundCustom_position: { type: 'string' },
 	},
-}, 'User');
+});

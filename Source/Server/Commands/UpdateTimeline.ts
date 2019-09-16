@@ -1,4 +1,4 @@
-import { AddSchema, AssertValidate, Command, GetDataAsync, GetSchemaJSON, Schema, WaitTillSchemaAddedThenRun, GetAsync, GetData } from 'Utils/FrameworkOverrides';
+import { AddSchema, AssertValidate, Command, GetDataAsync, GetSchemaJSON, Schema, GetAsync, GetData } from 'Utils/FrameworkOverrides';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { GetTimeline } from 'Store/firebase/timelines';
 import { User } from '../../Store/firebase/users/@User';
@@ -6,17 +6,15 @@ import { User } from '../../Store/firebase/users/@User';
 type MainType = Timeline;
 const MTName = 'Timeline';
 
-WaitTillSchemaAddedThenRun(MTName, () => {
-	AddSchema({
-		properties: {
-			id: { type: 'string' },
-			updates: Schema({
-				properties: GetSchemaJSON(MTName)['properties'].Including('name', 'videoID', 'videoStartTime', 'videoHeightVSWidthPercent'),
-			}),
-		},
-		required: ['id', 'updates'],
-	}, `Update${MTName}_payload`);
-});
+AddSchema(`Update${MTName}_payload`, [MTName], () => ({
+	properties: {
+		id: { type: 'string' },
+		updates: Schema({
+			properties: GetSchemaJSON(MTName)['properties'].Including('name', 'videoID', 'videoStartTime', 'videoHeightVSWidthPercent'),
+		}),
+	},
+	required: ['id', 'updates'],
+}));
 
 export class UpdateTimeline extends Command<{id: string, updates: Partial<MainType>}, {}> {
 	Validate_Early() {

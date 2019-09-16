@@ -8,10 +8,10 @@ import { GetMapTimelines } from '../../../../../Store/firebase/timelines';
 import { Timeline } from '../../../../../Store/firebase/timelines/@Timeline';
 
 type ShareDropDownProps = {map: Map} & Partial<{newURL: VURL, timelines: Timeline[]}>;
-@Connect((state, {map}: ShareDropDownProps)=> ({
+@Connect((state, { map }: ShareDropDownProps) => ({
 	newURL: GetNewURL(),
 	timelines: GetMapTimelines(map),
-	}))
+}))
 export class ShareDropDown extends BaseComponent<ShareDropDownProps, {timeline: Timeline, justCopied: boolean}> {
 	render() {
 		const { map, newURL, timelines } = this.props;
@@ -32,7 +32,7 @@ export class ShareDropDown extends BaseComponent<ShareDropDownProps, {timeline: 
 						<RowLR splitAt={splitAt}>
 							<Pre>URL: </Pre>
 							<Row style={{ width: '100%' }}>
-								<TextInput value={newURL.toString({ domain: true })} readOnly={true} style={{ flex: 0.75 }}/>
+								<TextInput value={newURL.toString({ domain: true })} editable={false} style={{ flex: 0.75 }}/>
 								<Button text={justCopied ? 'Copied!' : 'Copy'} ml={5} style={{ flex: '.25 0 auto' }} onClick={() => {
 									CopyText(newURL.toString({ domain: true }));
 									this.SetState({ justCopied: true });

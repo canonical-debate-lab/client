@@ -40,6 +40,7 @@ Otherwise, delete the `&collections=test1,test2` param.
 To deploy the project, run:
 
 ```
+$ cd FOLDER_CONTAINING_FILES_BELOW
 $ gcloud --project YOUR_PROJECT_ID app deploy app.yaml cron.yaml
 ```
 

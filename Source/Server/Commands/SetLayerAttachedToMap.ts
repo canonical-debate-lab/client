@@ -4,14 +4,14 @@ import { AddSchema, AssertValidate, Command, GetDataAsync } from 'Utils/Framewor
 import { Map } from '../../Store/firebase/maps/@Map';
 import { UserEdit } from '../CommandMacros';
 
-AddSchema({
+AddSchema('SetLayerAttachedToMap_payload', {
 	properties: {
 		mapID: { type: 'string' },
 		layerID: { type: 'string' },
 		attached: { type: 'boolean' },
 	},
 	required: ['mapID', 'layerID', 'attached'],
-}, 'SetLayerAttachedToMap_payload');
+});
 
 @MapEdit
 @UserEdit

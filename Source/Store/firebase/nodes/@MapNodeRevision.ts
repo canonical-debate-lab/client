@@ -13,7 +13,7 @@ export class TitlesMap {
 	// allTerms?: string[];
 	allTerms?: {[key: string]: boolean};
 }
-AddSchema({
+AddSchema('TitlesMap', {
 	properties: {
 		base: { type: 'string' },
 		negation: { type: 'string' },
@@ -22,7 +22,7 @@ AddSchema({
 		// allTerms: { items: { type: 'string' } },
 		allTerms: { type: 'object' },
 	},
-}, 'TitlesMap');
+});
 
 export class MapNodeRevision {
 	constructor(initialData: Partial<MapNodeRevision>) {
@@ -55,7 +55,7 @@ export class MapNodeRevision {
 }
 // export const MapNodeRevision_titlePattern = `(^\\S$)|(^\\S.*\\S$)`; // must start and end with non-whitespace
 export const MapNodeRevision_titlePattern = '^\\S.*$'; // must start with non-whitespace
-AddSchema({
+AddSchema('MapNodeRevision', {
 	properties: {
 		node: { type: 'string' },
 		creator: { type: 'string' },
@@ -91,7 +91,7 @@ AddSchema({
 			then: { required: ['titles'] },
 		},
 	],
-}, 'MapNodeRevision');
+});
 
 // argument
 // ==========
@@ -101,7 +101,7 @@ export enum ArgumentType {
 	AnyTwo = 15,
 	All = 20,
 }
-AddSchema({ oneOf: GetValues_ForSchema(ArgumentType) }, 'ArgumentType');
+AddSchema('ArgumentType', { oneOf: GetValues_ForSchema(ArgumentType) });
 
 export function GetArgumentTypeDisplayText(type: ArgumentType) {
 	return { Any: 'any', AnyTwo: 'any two', All: 'all' }[ArgumentType[type]];

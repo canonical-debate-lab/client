@@ -3,7 +3,7 @@ import { MapEdit } from 'Server/CommandMacros';
 import { AddSchema, AssertValidate, Command } from 'Utils/FrameworkOverrides';
 import { UserEdit } from '../CommandMacros';
 
-AddSchema({
+AddSchema('SetMapLayerStateForUser_payload', {
 	properties: {
 		userID: { type: 'string' },
 		mapID: { type: 'string' },
@@ -11,7 +11,7 @@ AddSchema({
 		state: { type: ['null', 'boolean'] },
 	},
 	required: ['userID', 'mapID', 'layerID', 'state'],
-}, 'SetMapLayerStateForUser_payload');
+});
 
 @MapEdit
 @UserEdit

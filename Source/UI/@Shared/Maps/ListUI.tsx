@@ -7,6 +7,7 @@ import { GetNodesL2 } from 'Store/firebase/nodes';
 import { User } from 'Store/firebase/users/@User';
 import { Connect, State, Icon, InfoButton } from 'Utils/FrameworkOverrides';
 import { EnumNameToDisplayName } from 'Utils/General/Others';
+import { ES } from 'Utils/UI/GlobalStyles';
 import { Map } from '../../../Store/firebase/maps/@Map';
 import { GetNodeRatingsRoot, GetRatings } from '../../../Store/firebase/nodeRatings';
 import { RatingsRoot } from '../../../Store/firebase/nodeRatings/@RatingsRoot';
@@ -17,17 +18,16 @@ import { GetNodeColor, MapNodeType_Info } from '../../../Store/firebase/nodes/@M
 import { GetUser } from '../../../Store/firebase/users';
 import { ACTMapNodeListFilterSet, ACTMapNodeListPageSet, ACTMapNodeListSortBySet, ACTMap_List_SelectedNode_OpenPanelSet, ACTSelectedNode_InListSet, GetMap_List_SelectedNode_OpenPanel, GetSelectedNode_InList, SortType } from '../../../Store/main/maps/$map';
 import { MapNodeView } from '../../../Store/main/mapViews/@MapViews';
-import {DefinitionsPanel} from '../../@Shared/Maps/MapNode/NodeUI/Panels/DefinitionsPanel';
-import {DetailsPanel} from '../../@Shared/Maps/MapNode/NodeUI/Panels/DetailsPanel';
-import {DiscussionPanel} from '../../@Shared/Maps/MapNode/NodeUI/Panels/DiscussionPanel';
+import { DefinitionsPanel } from '../../@Shared/Maps/MapNode/NodeUI/Panels/DefinitionsPanel';
+import { DetailsPanel } from '../../@Shared/Maps/MapNode/NodeUI/Panels/DetailsPanel';
+import { DiscussionPanel } from '../../@Shared/Maps/MapNode/NodeUI/Panels/DiscussionPanel';
 import { OthersPanel } from '../../@Shared/Maps/MapNode/NodeUI/Panels/OthersPanel';
 import { RatingsPanel } from '../../@Shared/Maps/MapNode/NodeUI/Panels/RatingsPanel';
-import {SocialPanel} from '../../@Shared/Maps/MapNode/NodeUI/Panels/SocialPanel';
-import {TagsPanel} from '../../@Shared/Maps/MapNode/NodeUI/Panels/TagsPanel';
+import { SocialPanel } from '../../@Shared/Maps/MapNode/NodeUI/Panels/SocialPanel';
+import { TagsPanel } from '../../@Shared/Maps/MapNode/NodeUI/Panels/TagsPanel';
 import { NodeUI_Menu } from '../../@Shared/Maps/MapNode/NodeUI_Menu';
 import { HistoryPanel } from './MapNode/NodeUI/Panels/HistoryPanel';
 import { MapNodeUI_LeftBox } from './MapNode/NodeUI_LeftBox';
-import { ES } from 'Utils/UI/GlobalStyles';
 
 const columnWidths = [0.68, 0.2, 0.12];
 
@@ -109,7 +109,7 @@ export class ListUI extends BaseComponent<Props, {panelToShow?: string}> {
 							<Pre>Sort by: </Pre>
 							<Select options={GetEntries(SortType, name => EnumNameToDisplayName(name))}
 								value={sortBy} onChange={val => store.dispatch(new ACTMapNodeListSortBySet({ mapID: map._key, sortBy: val }))}/>
-							<Row width={200} style={{ position: 'absolute', left: 'calc(50% - 100px)' }}>
+							<Row style={{ position: 'absolute', left: 'calc(50% - 100px)' /* width: 200 */ }}>
 								<Button text={<Icon icon="arrow-left" size={15}/>} title="Previous page"
 									enabled={page > 0} onClick={() => {
 										// store.dispatch(new ACTMapNodeListPageSet({mapID: map._id, page: page - 1}));

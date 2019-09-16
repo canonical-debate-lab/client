@@ -111,7 +111,7 @@ export function MakeRootReducer(pureOnly = false) {
 			// nested blacklist-paths require a custom transform to be applied
 			createTransform((inboundState, key) => {
 				const blacklistPaths_forKey = blacklistPaths.filter(path => path.startsWith(`${key}.`)).map(path => path.substr(key.length + 1));
-				return omit(inboundState, ...blacklistPaths_forKey);
+				return omit(inboundState as any, ...blacklistPaths_forKey);
 			}, null),
 		],
 	};

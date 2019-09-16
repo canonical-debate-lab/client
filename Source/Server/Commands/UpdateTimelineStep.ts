@@ -1,18 +1,16 @@
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
-import { AddSchema, AssertValidate, Command, GetDataAsync, GetSchemaJSON, Schema, WaitTillSchemaAddedThenRun } from 'Utils/FrameworkOverrides';
+import { AddSchema, AssertValidate, Command, GetDataAsync, GetSchemaJSON, Schema } from 'Utils/FrameworkOverrides';
 import { UserEdit } from '../CommandMacros';
 
-WaitTillSchemaAddedThenRun('TimelineStep', () => {
-	AddSchema({
-		properties: {
-			stepID: { type: 'string' },
-			stepUpdates: Schema({
-				properties: GetSchemaJSON('TimelineStep')['properties'].Including('title', 'message', 'groupID', 'videoTime', 'nodeReveals'),
-			}),
-		},
-		required: ['stepID', 'stepUpdates'],
-	}, 'UpdateTimelineStep_payload');
-});
+AddSchema('UpdateTimelineStep_payload', ['TimelineStep'], () => ({
+	properties: {
+		stepID: { type: 'string' },
+		stepUpdates: Schema({
+			properties: GetSchemaJSON('TimelineStep')['properties'].Including('title', 'message', 'groupID', 'videoTime', 'nodeReveals'),
+		}),
+	},
+	required: ['stepID', 'stepUpdates'],
+}));
 
 @UserEdit
 export class UpdateTimelineStep extends Command<{stepID: string, stepUpdates: Partial<TimelineStep>}, {}> {

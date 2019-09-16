@@ -6,7 +6,7 @@ export enum ImageType {
 	Photo = 10,
 	Illustration = 20,
 }
-AddSchema({ oneOf: GetValues_ForSchema(ImageType) }, 'ImageType');
+AddSchema('ImageType', { oneOf: GetValues_ForSchema(ImageType) });
 
 export function GetNiceNameForImageType(type: ImageType) {
 	return ImageType[type].toLowerCase();
@@ -36,7 +36,7 @@ export class Image {
 }
 export const Image_namePattern = '^[a-zA-Z0-9 ,\'"%\\-()\\/]+$';
 export const Image_urlPattern = '^https?://[^\\s/$.?#]+\\.[^\\s]+\.(jpg|jpeg|gif|png)$';
-AddSchema({
+AddSchema('Image', {
 	properties: {
 		name: { type: 'string', pattern: Image_namePattern },
 		type: { $ref: 'ImageType' },
@@ -50,4 +50,4 @@ AddSchema({
 		createdAt: { type: 'number' },
 	},
 	required: ['name', 'type', 'url', 'description', 'sourceChains', 'creator', 'createdAt'],
-}, 'Image');
+});

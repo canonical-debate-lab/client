@@ -11,9 +11,9 @@ import { MapNodeType } from '../nodes/@MapNodeType';
 // export const ratingTypes = ["significance", "neutrality", "probability", "truth", "impact", "strength"];
 export const ratingTypes = ['significance', 'neutrality', 'truth', 'relevance', 'impact'];
 export type RatingType = 'significance' | 'neutrality' | 'truth' | 'relevance' | 'impact';
-AddSchema({
+AddSchema('RatingType', {
 	oneOf: ratingTypes.map(a => ({ const: a })),
-}, 'RatingType');
+});
 
 export function GetRatingTypeInfo(ratingType: RatingType, node: MapNodeL2, parent: MapNodeL3, path: string) {
 	const link = GetLinkUnderParent(node._key, parent);

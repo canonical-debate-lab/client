@@ -131,7 +131,7 @@ export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { 
 								mapID: map._key, path, recursive: nodeView[expandKey] && e.altKey,
 								[expandKey]: !nodeView[expandKey],
 							}));
-							e.nativeEvent.ignore = true; // for some reason, "return false" isn't working
+							e.nativeEvent['ignore'] = true; // for some reason, "return false" isn't working
 							// return false;
 							if (nodeView[expandKey]) {
 								this.CheckForChanges();

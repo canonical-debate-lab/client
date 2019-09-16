@@ -12,17 +12,17 @@ export class TermComponent {
 
 	parentTerms: ParentTermSet;
 }
-AddSchema({
+AddSchema('TermComponent', {
 	properties: {
 		text: { type: 'string' },
 		parentTerms: { $ref: 'ParentTermSet' },
 	},
 	required: ['text', 'parentTerms'],
-}, 'TermComponent');
+});
 
 /* export type ParentTermSet = {[key: number]: ParentTerm};
 AddSchema({patternProperties: {"^[A-Za-z0-9_-]+$": {$ref: "ParentTerm"}}}, "ParentTermSet");
 export type ParentTerm = boolean;
 AddSchema({type: "boolean"}, "ParentTerm"); */
 export type ParentTermSet = {[key: string]: boolean};
-AddSchema({ patternProperties: { [UUID_regex]: { type: 'boolean' } } }, 'ParentTermSet');
+AddSchema('ParentTermSet', { patternProperties: { [UUID_regex]: { type: 'boolean' } } });

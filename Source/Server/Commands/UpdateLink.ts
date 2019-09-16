@@ -1,19 +1,17 @@
 import { GetNode } from 'Store/firebase/nodes';
-import { AddSchema, AssertValidate, Command, GetAsync_Raw, GetSchemaJSON, WaitTillSchemaAddedThenRun } from 'Utils/FrameworkOverrides';
+import { AddSchema, AssertValidate, Command, GetAsync_Raw, GetSchemaJSON } from 'Utils/FrameworkOverrides';
 import { GetLinkUnderParent } from '../../Store/firebase/nodes/$node';
 import { ChildEntry } from '../../Store/firebase/nodes/@MapNode';
 import { UserEdit } from '../CommandMacros';
 
-WaitTillSchemaAddedThenRun('ChildEntry', () => {
-	AddSchema({
-		properties: {
-			linkParentID: { type: 'string' },
-			linkChildID: { type: 'string' },
-			linkUpdates: GetSchemaJSON('ChildEntry').Including('form', 'polarity'),
-		},
-		required: ['linkParentID', 'linkChildID', 'linkUpdates'],
-	}, 'UpdateLink_payload');
-});
+AddSchema('UpdateLink_payload', ['ChildEntry'], () => ({
+	properties: {
+		linkParentID: { type: 'string' },
+		linkChildID: { type: 'string' },
+		linkUpdates: GetSchemaJSON('ChildEntry').Including('form', 'polarity'),
+	},
+	required: ['linkParentID', 'linkChildID', 'linkUpdates'],
+}));
 
 @UserEdit
 export class UpdateLink extends Command<{linkParentID: string, linkChildID: string, linkUpdates: Partial<ChildEntry>}, {}> {

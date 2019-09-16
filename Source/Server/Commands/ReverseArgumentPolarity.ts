@@ -7,14 +7,14 @@ import { ChildEntry, MapNodeL3 } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
 import { UserEdit } from '../CommandMacros';
 
-AddSchema({
+AddSchema('ReverseArgumentPolarity_payload', {
 	properties: {
 		mapID: { type: 'string' },
 		nodeID: { type: 'string' },
 		path: { type: 'string' },
 	},
 	required: ['nodeID'],
-}, 'ReverseArgumentPolarity_payload');
+});
 
 @MapEdit
 @UserEdit

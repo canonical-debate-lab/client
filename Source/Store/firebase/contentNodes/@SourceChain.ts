@@ -15,12 +15,12 @@ export class SourceChain {
 	sources: Source[];
 }
 // AddSchema({patternProperties: {"^[A-Za-z0-9_-]+$": {$ref: "Source"}}, minProperties: 1}, "SourceChain");
-AddSchema({
+AddSchema('SourceChain', {
 	properties: {
 		sources: { items: { $ref: 'Source' }, minItems: 1 },
 	},
 	required: ['sources'],
-}, 'SourceChain');
+});
 
 export enum SourceType {
 	Speech = 10,
@@ -29,7 +29,7 @@ export enum SourceType {
 	Video = 40, */
 	Webpage = 50,
 }
-AddSchema({ oneOf: GetValues_ForSchema(SourceType) }, 'SourceType');
+AddSchema('SourceType', { oneOf: GetValues_ForSchema(SourceType) });
 
 export class Source {
 	type = SourceType.Writing;
@@ -37,7 +37,7 @@ export class Source {
 	author: string;
 	link: string; // only the "Webpage" SourceType uses this (and this is all it uses atm)
 }
-AddSchema({
+AddSchema('Source', {
 	properties: {
 		type: { $ref: 'SourceType' },
 		name: { pattern: '\\S.*' },
@@ -76,4 +76,4 @@ AddSchema({
 			// else: {prohibited: ["name", "author", "link"]},
 		},
 	],
-}, 'Source');
+});

@@ -1,23 +1,21 @@
-import { AddSchema, AssertValidate, Command, GetDataAsync, GetSchemaJSON, Schema, WaitTillSchemaAddedThenRun } from 'Utils/FrameworkOverrides';
+import { AddSchema, AssertValidate, Command, GetDataAsync, GetSchemaJSON, Schema } from 'Utils/FrameworkOverrides';
 import { User } from '../../Store/firebase/users/@User';
 
 type MainType = User;
 const MTName = 'User';
 
-WaitTillSchemaAddedThenRun(MTName, () => {
-	AddSchema({
-		properties: {
-			id: { type: 'string' },
-			updates: Schema({
-				properties: GetSchemaJSON(MTName)['properties'].Including(
-					'displayName', 'backgroundID',
-					'backgroundCustom_enabled', 'backgroundCustom_color', 'backgroundCustom_url', 'backgroundCustom_position',
-				),
-			}),
-		},
-		required: ['id', 'updates'],
-	}, `Update${MTName}_payload`);
-});
+AddSchema(`Update${MTName}_payload`, [MTName], () => ({
+	properties: {
+		id: { type: 'string' },
+		updates: Schema({
+			properties: GetSchemaJSON(MTName)['properties'].Including(
+				'displayName', 'backgroundID',
+				'backgroundCustom_enabled', 'backgroundCustom_color', 'backgroundCustom_url', 'backgroundCustom_position',
+			),
+		}),
+	},
+	required: ['id', 'updates'],
+}));
 
 export class UpdateProfile extends Command<{id: string, updates: Partial<MainType>}, {}> {
 	Validate_Early() {
