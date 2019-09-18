@@ -1,31 +1,29 @@
-import { Button, Row, Column, Pre, CheckBox, TextInput, TextArea, Select, Spinner } from 'react-vcomponents';
-import { BaseComponentWithConnector, BaseComponent, GetDOM, SimpleShouldUpdate, ShallowChanged } from 'react-vextensions';
+import { ToJSON, Vector2i, VRect, WaitXThenRun, Assert } from 'js-vextensions';
+import { Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
+import { Text, Button, CheckBox, Column, Pre, Row, Select, Spinner, TextArea, TextInput, TimeSpanInput } from 'react-vcomponents';
+import { BaseComponent, BaseComponentWithConnector, GetDOM, SimpleShouldUpdate } from 'react-vextensions';
+import { ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
 import { AddTimelineStep } from 'Server/Commands/AddTimelineStep';
-import { TimelineStep, NodeReveal } from 'Store/firebase/timelineSteps/@TimelineStep';
-import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
-import { ES } from 'Utils/UI/GlobalStyles';
-import { Connect, State, ACTSet, InfoButton, MakeDraggable, DragInfo } from 'Utils/FrameworkOverrides';
-import { Map } from 'Store/firebase/maps/@Map';
-import { MeID } from 'Store/firebase/users';
-import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
-import { ShowEditTimelineStepDialog } from 'UI/@Shared/Timelines/Steps/TimelineStepDetailsUI';
 import { DeleteTimelineStep } from 'Server/Commands/DeleteTimelineStep';
-import { GetTimelineSteps } from 'Store/firebase/timelines';
-import { GetSelectedTimeline, GetTimelineOpenSubpanel, TimelineSubpanel, GetTimelinePanelOpen } from 'Store/main/maps/$map';
-import { UpdateTimelineStep } from 'Server/Commands/UpdateTimelineStep';
 import { UpdateTimeline } from 'Server/Commands/UpdateTimeline';
-import { Global, ToInt, ToNumber, ToJSON, WaitXThenRun, VRect, Vector2i } from 'js-vextensions';
-import { GetOpenMapID } from 'Store/main';
-import { ShowMessageBox } from 'react-vmessagebox';
-import { Timeline } from 'Store/firebase/timelines/@Timeline';
-import { MinuteSecondInput } from 'Utils/ReactComponents/MinuteSecondInput';
-import { Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
-import { DroppableInfo, DraggableInfo } from 'Utils/UI/DNDStructures';
+import { UpdateTimelineStep } from 'Server/Commands/UpdateTimelineStep';
+import { Map } from 'Store/firebase/maps/@Map';
+import { GetNodeID } from 'Store/firebase/nodes';
+import { GetNodeDisplayText, GetNodeL2, GetNodeL3 } from 'Store/firebase/nodes/$node';
 import { GetNodeColor, MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
-import { GetNodeL3, GetNodeDisplayText, GetNodeL2 } from 'Store/firebase/nodes/$node';
-import { GetNode, GetNodeID } from 'Store/firebase/nodes';
-import ReactDOM from 'react-dom';
+import { GetTimelineSteps } from 'Store/firebase/timelines';
+import { Timeline } from 'Store/firebase/timelines/@Timeline';
+import { NodeReveal, TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
+import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
+import { MeID } from 'Store/firebase/users';
+import { GetOpenMapID } from 'Store/main';
+import { GetSelectedTimeline, GetTimelineOpenSubpanel, GetTimelinePanelOpen, TimelineSubpanel } from 'Store/main/maps/$map';
+import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
+import { ACTSet, Connect, DragInfo, InfoButton, MakeDraggable, State } from 'Utils/FrameworkOverrides';
+import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
+import { ES } from 'Utils/UI/GlobalStyles';
+import ReactList from 'react-list';
 
 // for use by react-beautiful-dnd (using text replacement)
 G({ LockMapEdgeScrolling });
@@ -51,7 +49,7 @@ export class EditorSubpanel extends BaseComponentWithConnector(EditorSubpanel_co
 		const droppableInfo = new DroppableInfo({ type: 'TimelineStepList', timelineID: timeline._key });
 		return (
 			<>
-				<Row mlr={5}>
+				<Row center mlr={5}>
 					<Pre>Add: </Pre>
 					<Button ml={5} text="Video" enabled={timeline != null && timeline.videoID == null} onClick={() => {
 						if (MeID() == null) return ShowSignInPopup();
@@ -71,7 +69,7 @@ export class EditorSubpanel extends BaseComponentWithConnector(EditorSubpanel_co
 					// filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)', // disabled for now, since otherwise causes issue with dnd system (and portal fix causes errors here, fsr)
 				})}>
 					{timeline.videoID != null &&
-						<Row mb={7} p="7px 10px" style={{ background: 'rgba(0,0,0,.7)', borderRadius: 10, border: '1px solid rgba(255,255,255,.15)' }}>
+						<Row center mb={7} p="7px 10px" style={{ background: 'rgba(0,0,0,.7)', borderRadius: 10, border: '1px solid rgba(255,255,255,.15)' }}>
 							<Pre>Video ID: </Pre>
 							<TextInput value={timeline.videoID} delayChangeTillDefocus={true} onChange={(val) => {
 								new UpdateTimeline({ id: timeline._key, updates: { videoID: val } }).Run();
@@ -83,14 +81,18 @@ export class EditorSubpanel extends BaseComponentWithConnector(EditorSubpanel_co
 									new UpdateTimeline({ id: timeline._key, updates: { videoStartTime: null } }).Run();
 								}
 							}}/>
-							<MinuteSecondInput mr={5} style={{ width: 60 }} enabled={timeline.videoStartTime != null} value={timeline.videoStartTime}
+							<TimeSpanInput mr={5} style={{ width: 60 }} enabled={timeline.videoStartTime != null} delayChangeTillDefocus={true} value={timeline.videoStartTime}
 								onChange={val => new UpdateTimeline({ id: timeline._key, updates: { videoStartTime: val } }).Run()}/>
-							<Pre>Height<InfoButton text={`
-								The height, as a percentage of the width.
+							<Row center>
+								<Text>Height</Text>
+								<InfoButton text={`
+									The height, as a percentage of the width.
 
-								4:3 = 75%
-								16:9 = 56.25%
-							`.AsMultiline(0)}/>: </Pre>
+									4:3 = 75%
+									16:9 = 56.25%
+								`.AsMultiline(0)}/>
+								<Text>: </Text>
+							</Row>
 							<Spinner min={0} max={100} step={0.01} delayChangeTillDefocus={true} style={{ width: 62 }} value={(timeline.videoHeightVSWidthPercent * 100).RoundTo(0.01)} onChange={(val) => {
 								new UpdateTimeline({ id: timeline._key, updates: { videoHeightVSWidthPercent: (val / 100).RoundTo(0.0001) } }).Run();
 							}}/>
@@ -107,16 +109,31 @@ export class EditorSubpanel extends BaseComponentWithConnector(EditorSubpanel_co
 						</Row>}
 					<Droppable type="TimelineStep" droppableId={ToJSON(droppableInfo.VSet({ timelineID: timeline._key }))}>{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
 						<Column ref={c => provided.innerRef(GetDOM(c) as any)}>
-							{timelineSteps && timelineSteps.map((step, index) => {
+							{/* timelineSteps && timelineSteps.map((step, index) => {
 								if (step == null) return null;
 								return <StepUI key={index} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>;
-							})}
+							}) */}
+							{timelineSteps && timelineSteps.All(a => a != null) &&
+							<ReactList type='variable' length={timelineSteps.length} itemSizeEstimator={this.EstimateStepHeight} itemRenderer={this.RenderStep}/>}
 						</Column>
 					)}</Droppable>
 				</ScrollView>
 			</>
 		);
 	}
+
+	EstimateStepHeight = (index: number, cache: any) => {
+		const { map, timeline, timelineSteps } = this.props;
+		const step = timelineSteps[index];
+		return 100;
+	};
+	RenderStep = (index: number, key: any) => {
+		const { map, timeline, timelineSteps } = this.props;
+		const step = timelineSteps[index];
+		// Assert(step != null);
+		// if (step == null) return null;
+		return <StepUI key={key} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>;
+	};
 }
 
 const positionOptions = [
@@ -143,6 +160,10 @@ type StepUIProps = {index: number, last: boolean, map: Map, timeline: Timeline, 
 })
 @SimpleShouldUpdate({ propsToIgnore: ['dragInfo'] })
 class StepUI extends BaseComponent<StepUIProps, {placeholderRect: VRect}> {
+	/* static ValidateProps(props: StepUIProps) {
+		Assert(props.step != null);
+	} */
+
 	render() {
 		const { index, last, map, timeline, step, dragInfo } = this.props;
 		const { placeholderRect } = this.state;
@@ -150,79 +171,90 @@ class StepUI extends BaseComponent<StepUIProps, {placeholderRect: VRect}> {
 		const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
 
 		const result = (
-			<Column mt={index == 0 ? 0 : 7} {...(dragInfo && dragInfo.provided.draggableProps)}
-				style={E(
-					{ background: 'rgba(0,0,0,.7)', borderRadius: 10, border: '1px solid rgba(255,255,255,.15)' },
-					dragInfo && dragInfo.provided.draggableProps.style,
-					asDragPreview && { zIndex: 10 },
-				)}>
-				<Row p="7px 10px" {...(dragInfo && dragInfo.provided.dragHandleProps)}>
-					<Pre>Step {index + 1}</Pre>
-					{/* <Button ml={5} text="Edit" title="Edit this step" style={{ flexShrink: 0 }} onClick={() => {
-						ShowEditTimelineStepDialog(MeID(), step);
-					}}/> */}
-					<Row ml="auto">
-						{timeline.videoID != null &&
-							<>
-								<CheckBox text="Video time: " checked={step.videoTime != null} onChange={(val) => {
-									if (val) {
-										new UpdateTimelineStep({ stepID: step._key, stepUpdates: { videoTime: 0 } }).Run();
-									} else {
-										new UpdateTimelineStep({ stepID: step._key, stepUpdates: { videoTime: null } }).Run();
-									}
-								}}/>
-								<MinuteSecondInput mr={5} style={{ width: 60 }} enabled={step.videoTime != null} value={step.videoTime}
-									onChange={val => new UpdateTimelineStep({ stepID: step._key, stepUpdates: { videoTime: val } }).Run()}/>
-							</>}
-						{/* <Pre>Speaker: </Pre>
-						<Select value={} onChange={val=> {}}/> */}
-						<Pre>Position: </Pre>
-						<Select options={positionOptions} value={step.groupID} onChange={(val) => {
-							new UpdateTimelineStep({ stepID: step._key, stepUpdates: { groupID: val } }).Run();
-						}}/>
-						<Button ml={5} text="X" onClick={() => {
-							ShowMessageBox({
-								title: `Delete step ${index + 1}`, cancelButton: true,
-								message: `
-									Delete timeline step with text:
+			// wrapper needed to emulate margin-top (since react-list doesn't support margins)
+			<div style={{ paddingTop: index == 0 ? 0 : 7 }}>
+				<Column /* mt={index == 0 ? 0 : 7} */ {...(dragInfo && dragInfo.provided.draggableProps)}
+					style={E(
+						{ background: 'rgba(0,0,0,.7)', borderRadius: 10, border: '1px solid rgba(255,255,255,.15)' },
+						dragInfo && dragInfo.provided.draggableProps.style,
+						asDragPreview && { zIndex: 10 },
+					)}>
+					<Row center p="7px 10px" {...(dragInfo && dragInfo.provided.dragHandleProps)}>
+						<Pre>Step {index + 1}</Pre>
+						{/* <Button ml={5} text="Edit" title="Edit this step" style={{ flexShrink: 0 }} onClick={() => {
+							ShowEditTimelineStepDialog(MeID(), step);
+						}}/> */}
+						<Row center ml="auto">
+							{timeline.videoID != null &&
+								<>
+									<CheckBox text="Video time: " checked={step.videoTime != null} onChange={(val) => {
+										if (val) {
+											new UpdateTimelineStep({ stepID: step._key, stepUpdates: { videoTime: 0 } }).Run();
+										} else {
+											new UpdateTimelineStep({ stepID: step._key, stepUpdates: { videoTime: null } }).Run();
+										}
+									}}/>
+									<TimeSpanInput mr={5} style={{ width: 60 }} enabled={step.videoTime != null} delayChangeTillDefocus={true} value={step.videoTime}
+										onChange={val => new UpdateTimelineStep({ stepID: step._key, stepUpdates: { videoTime: val } }).Run()}/>
+								</>}
+							{/* <Pre>Speaker: </Pre>
+							<Select value={} onChange={val=> {}}/> */}
+							<Pre>Position: </Pre>
+							<Select options={positionOptions} value={step.groupID} onChange={(val) => {
+								new UpdateTimelineStep({ stepID: step._key, stepUpdates: { groupID: val } }).Run();
+							}}/>
+							<Button ml={5} text="X" onClick={() => {
+								ShowMessageBox({
+									title: `Delete step ${index + 1}`, cancelButton: true,
+									message: `
+										Delete timeline step with text:
 
-									${step.message}
-								`.AsMultiline(0),
-								onOK: () => {
-									new DeleteTimelineStep({ stepID: step._key }).Run();
-								},
-							});
-						}}/>
+										${step.message}
+									`.AsMultiline(0),
+									onOK: () => {
+										new DeleteTimelineStep({ stepID: step._key }).Run();
+									},
+								});
+							}}/>
+						</Row>
 					</Row>
-				</Row>
-				{/* <Row ml={5} style={{ minHeight: 20 }}>{step.message}</Row> */}
-				<TextArea autoSize={true} delayChangeTillDefocus={true} style={{ background: 'rgba(255,255,255,.2)', color: 'rgba(255,255,255,.7)', padding: 5, outline: 'none' }}
-					value={step.message}
-					onChange={(val) => {
-						new UpdateTimelineStep({ stepID: step._key, stepUpdates: { message: val } }).Run();
-					}}/>
-				<Droppable type="MapNode" droppableId={ToJSON(new DroppableInfo({ type: 'TimelineStepNodeRevealList', stepID: step._key }))}>{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-					<Column ref={(c) => { this.nodeHolder = c; provided.innerRef(GetDOM(c) as any); }}
-						style={E(
-							{ position: 'relative', padding: 7, background: 'rgba(255,255,255,.3)', borderRadius: '0 0 10px 10px' },
-							(step.nodeReveals == null || step.nodeReveals.length == 0) && { padding: '3px 5px' },
-						)}>
-						{(step.nodeReveals == null || step.nodeReveals.length == 0) && provided.placeholder == null &&
-							<div style={{ fontSize: 11, opacity: 0.7, textAlign: 'center' }}>Drag nodes here to have them display when the playback reaches this step.</div>}
-						{step.nodeReveals && step.nodeReveals.map((nodeReveal, index) => {
-							return <NodeRevealUI key={index} step={step} nodeReveal={nodeReveal} index={index}/>;
-						})}
-						{provided.placeholder}
-						{provided.placeholder && void WaitXThenRun(0, () => this.StartGeneratingPositionedPlaceholder())}
-						{provided.placeholder && placeholderRect &&
-							<div style={{
-								// position: 'absolute', left: 0 /* placeholderRect.x */, top: placeholderRect.y, width: placeholderRect.width, height: placeholderRect.height,
-								position: 'absolute', left: 7 /* placeholderRect.x */, top: placeholderRect.y, right: 7, height: placeholderRect.height,
-								border: '1px dashed rgba(255,255,255,1)', borderRadius: 5,
-							}}/>}
-					</Column>
-				)}</Droppable>
-			</Column>
+					{/* <Row ml={5} style={{ minHeight: 20 }}>{step.message}</Row> */}
+					<TextArea /* {...{ useCacheForDOMMeasurements: true } as any} */ autoSize={true} delayChangeTillDefocus={true} style={{ background: 'rgba(255,255,255,.2)', color: 'rgba(255,255,255,.7)', padding: 5, outline: 'none' }}
+						value={step.message}
+						onChange={(val) => {
+							new UpdateTimelineStep({ stepID: step._key, stepUpdates: { message: val } }).Run();
+						}}/>
+					<Droppable type="MapNode" droppableId={ToJSON(new DroppableInfo({ type: 'TimelineStepNodeRevealList', stepID: step._key }))}>
+						{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => {
+							const dragIsOverDropArea = provided.placeholder.props['on'] != null;
+							if (dragIsOverDropArea) {
+								WaitXThenRun(0, () => this.StartGeneratingPositionedPlaceholder());
+							}
+
+							return (
+								<Column ref={(c) => { this.nodeHolder = c; provided.innerRef(GetDOM(c) as any); }}
+									style={E(
+										{ position: 'relative', padding: 7, background: 'rgba(255,255,255,.3)', borderRadius: '0 0 10px 10px' },
+										(step.nodeReveals == null || step.nodeReveals.length == 0) && { padding: '3px 5px' },
+									)}>
+									{(step.nodeReveals == null || step.nodeReveals.length == 0) && !dragIsOverDropArea &&
+									<div style={{ fontSize: 11, opacity: 0.7, textAlign: 'center' }}>Drag nodes here to have them display when the playback reaches this step.</div>}
+									{step.nodeReveals && step.nodeReveals.map((nodeReveal, index) => {
+										return <NodeRevealUI key={index} step={step} nodeReveal={nodeReveal} index={index}/>;
+									})}
+									{provided.placeholder}
+									{dragIsOverDropArea && placeholderRect &&
+										<div style={{
+											// position: 'absolute', left: 0 /* placeholderRect.x */, top: placeholderRect.y, width: placeholderRect.width, height: placeholderRect.height,
+											position: 'absolute', left: 7 /* placeholderRect.x */, top: placeholderRect.y, right: 7, height: placeholderRect.height,
+											border: '1px dashed rgba(255,255,255,1)', borderRadius: 5,
+										}}/>}
+								</Column>
+							);
+						}}
+					</Droppable>
+				</Column>
+			</div>
 		);
 
 		// if drag preview, we have to put in portal, since otherwise the "filter" effect of ancestors causes the {position:fixed} style to not be relative-to-page

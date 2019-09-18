@@ -1,10 +1,9 @@
-import { Button, Column, DropDown, Row } from 'react-vcomponents';
+import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponentWithConnector } from 'react-vextensions';
 import { MeID } from 'Store/firebase/users';
 import { ACTMap_TimelineOpenSubpanelSet, GetSelectedTimeline, GetTimelineOpenSubpanel, TimelineSubpanel } from 'Store/main/maps/$map';
 import { Connect } from 'Utils/FrameworkOverrides';
 import { Map } from '../../../../Store/firebase/maps/@Map';
-import { GetMapTimelines, GetTimelineSteps } from '../../../../Store/firebase/timelines';
 import { IsUserCreatorOrMod } from '../../../../Store/firebase/userExtras';
 import { CollectionSubpanel } from './TimelinePanel/CollectionSubpanel';
 import { EditorSubpanel } from './TimelinePanel/EditorSubpanel';

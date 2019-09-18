@@ -32,7 +32,8 @@ const webpackConfig = {
 	devtool: config.compiler_devtool,
 	resolve: {
 		modules: [
-			paths.base('node_modules'), // make the root node_modules folder always preferred for node-module references (is this actually good!?)
+			// 'node_modules', // commented; thus we ignore the closest-to-import-statement node_modules folder, instead we: [...]
+			paths.base('node_modules'), // [...] always get libraries from the root node_modules folder
 			paths.client(),
 		],
 		// extensions: [".js", ".jsx", ".json"].concat(USE_TSLOADER ? [".ts", ".tsx"] : []),
@@ -150,7 +151,7 @@ webpackConfig.plugins = [
 webpackConfig.module.rules = [
 	{
 		test: /\.(jsx?|tsx?)$/,
-		// we have babel ignore most node_modules, but we tell it to transpile the vwebapp-framework typescript files
+		// we have babel ignore most node_modules (ie. include them raw), but we tell it to transpile the vwebapp-framework typescript files
 		// include: [paths.client(), paths.base("node_modules", "vwebapp-framework")],
 		include: [paths.client(), fs.realpathSync(paths.base('node_modules', 'vwebapp-framework'))],
 		loader: 'babel-loader',
@@ -201,12 +202,13 @@ webpackConfig.module.rules.push(
 	{
 		// test: /connected-(draggable|droppable).js$/,
 		test: /react-beautiful-dnd.esm.js$/,
+		// note: the replacements below may need updating, since the library was updated since the replacements were written
 		loader: StringReplacePlugin.replace({ replacements: [
 			// make react-beautiful-dnd import react-redux using a relative path, so it uses its local v5 instead of the project's v6
-			{
+			/* {
 				pattern: /from 'react-redux';/g,
 				replacement: (match, offset, str) => "from '../node_modules/react-redux';",
-			},
+			}, */
 			// make lib support nested-lists better (from: https://github.com/atlassian/react-beautiful-dnd/pull/636)
 			{
 				pattern: /var getDroppableOver = (.|\n)+?(?=var getDraggablesInsideDroppable)/,
