@@ -115,25 +115,33 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 			const dragBox = document.querySelector('.NodeUI_Inner.DragPreview');
 			const dragBoxRect = dragBox && VRect.FromLTWH(dragBox.getBoundingClientRect());
 			return (
-				<Droppable type="MapNode" droppableId={ToJSON(droppableInfo.VSet({ subtype: group, childIDs: childrenHere.map(a => a._key) }))}>{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-					<Column ref={(c) => { this[`${group}ChildHolder`] = c; provided.innerRef(GetDOM(c) as any); }} ct className={refName}
-						style={E(
-							{ position: 'relative' },
-							childrenHere.length == 0 && { position: 'absolute', top: group == 'down' ? '100%' : 0, width: MapNodeType_Info.for[MapNodeType.Claim].minWidth, height: 100 },
-						)}>
-						{/* childrenHere.length == 0 && <div style={{ position: 'absolute', top: '100%', width: '100%', height: 200 }}/> */}
-						{childrenHere.slice(0, childLimit).map((pack, index) => {
-							return RenderChild(pack, index, childrenHere);
-						})}
-						{provided.placeholder}
-						{provided.placeholder && void WaitXThenRun(0, () => this.StartGeneratingPositionedPlaceholder(group))}
-						{provided.placeholder && placeholderRect &&
-							<div style={{
-								position: 'absolute', left: 0 /* placeholderRect.x */, top: placeholderRect.y, width: childrenWidthOverride || placeholderRect.width, height: placeholderRect.height,
-								border: '1px dashed rgba(255,255,255,1)', borderRadius: 5,
-							}}/>}
-					</Column>
-				)}</Droppable>
+				<Droppable type="MapNode" droppableId={ToJSON(droppableInfo.VSet({ subtype: group, childIDs: childrenHere.map(a => a._key) }))}>
+					{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => {
+						const dragIsOverDropArea = provided.placeholder.props['on'] != null;
+						if (dragIsOverDropArea) {
+							WaitXThenRun(0, () => this.StartGeneratingPositionedPlaceholder(group));
+						}
+
+						return (
+							<Column ref={(c) => { this[`${group}ChildHolder`] = c; provided.innerRef(GetDOM(c) as any); }} ct className={refName}
+								style={E(
+									{ position: 'relative' },
+									childrenHere.length == 0 && { position: 'absolute', top: group == 'down' ? '100%' : 0, width: MapNodeType_Info.for[MapNodeType.Claim].minWidth, height: 100 },
+								)}>
+								{/* childrenHere.length == 0 && <div style={{ position: 'absolute', top: '100%', width: '100%', height: 200 }}/> */}
+								{childrenHere.slice(0, childLimit).map((pack, index) => {
+									return RenderChild(pack, index, childrenHere);
+								})}
+								{provided.placeholder}
+								{dragIsOverDropArea && placeholderRect &&
+									<div style={{
+										position: 'absolute', left: 0 /* placeholderRect.x */, top: placeholderRect.y, width: childrenWidthOverride || placeholderRect.width, height: placeholderRect.height,
+										border: '1px dashed rgba(255,255,255,1)', borderRadius: 5,
+									}}/>}
+							</Column>
+						);
+					}}
+				</Droppable>
 			);
 		};
 
@@ -198,7 +206,7 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 		const dragBoxRect = VRect.FromLTWH(dragBox.getBoundingClientRect());
 
 		const siblingNodeUIs = (childHolder.DOM.childNodes.ToArray() as HTMLElement[]).filter(a => a.classList.contains('NodeUI'));
-		const siblingNodeUIInnerDOMs = siblingNodeUIs.map(nodeUI => nodeUI.QuerySelector_BreadthFirst('.NodeUI_Inner'));
+		const siblingNodeUIInnerDOMs = siblingNodeUIs.map(nodeUI => nodeUI.QuerySelector_BreadthFirst('.NodeUI_Inner')).filter(a => a != null); // entry can be null if inner-ui still loading
 		const firstOffsetInner = siblingNodeUIInnerDOMs.find(a => a && a.style.transform && a.style.transform.includes('translate('));
 
 		let placeholderRect: VRect;
