@@ -12,7 +12,7 @@ import { Map } from 'Store/firebase/maps/@Map';
 import { GetNodeID } from 'Store/firebase/nodes';
 import { GetNodeDisplayText, GetNodeL2, GetNodeL3 } from 'Store/firebase/nodes/$node';
 import { GetNodeColor, MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
-import { GetTimelineSteps } from 'Store/firebase/timelines';
+import { GetTimelineSteps, GetTimelineStep } from 'Store/firebase/timelines';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { NodeReveal, TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
@@ -36,14 +36,14 @@ const EditorSubpanel_connector = (state, { map }: {map: Map}) => {
 	const timeline = GetSelectedTimeline(map._key);
 	return {
 		timeline,
-		timelineSteps: timeline && GetTimelineSteps(timeline, true),
+		// timelineSteps: timeline && GetTimelineSteps(timeline, true),
 		lockMapScrolling: State(a => a.main.lockMapScrolling),
 	};
 };
 @Connect(EditorSubpanel_connector)
 export class EditorSubpanel extends BaseComponentWithConnector(EditorSubpanel_connector, {}) {
 	render() {
-		const { map, timeline, timelineSteps, lockMapScrolling } = this.props;
+		const { map, timeline, lockMapScrolling } = this.props;
 		if (timeline == null) return null;
 
 		const droppableInfo = new DroppableInfo({ type: 'TimelineStepList', timelineID: timeline._key });
@@ -113,8 +113,7 @@ export class EditorSubpanel extends BaseComponentWithConnector(EditorSubpanel_co
 								if (step == null) return null;
 								return <StepUI key={index} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>;
 							}) */}
-							{timelineSteps && timelineSteps.All(a => a != null) &&
-							<ReactList type='variable' length={timelineSteps.length} itemSizeEstimator={this.EstimateStepHeight} itemRenderer={this.RenderStep}/>}
+							<ReactList type='variable' length={timeline.steps.length} itemSizeEstimator={this.EstimateStepHeight} itemRenderer={this.RenderStep}/>
 						</Column>
 					)}</Droppable>
 				</ScrollView>
@@ -123,16 +122,11 @@ export class EditorSubpanel extends BaseComponentWithConnector(EditorSubpanel_co
 	}
 
 	EstimateStepHeight = (index: number, cache: any) => {
-		const { map, timeline, timelineSteps } = this.props;
-		const step = timelineSteps[index];
 		return 100;
 	};
 	RenderStep = (index: number, key: any) => {
-		const { map, timeline, timelineSteps } = this.props;
-		const step = timelineSteps[index];
-		// Assert(step != null);
-		// if (step == null) return null;
-		return <StepUI key={key} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>;
+		const { map, timeline } = this.props;
+		return <StepUI key={key} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} stepID={timeline.steps[index]}/>;
 	};
 }
 
@@ -150,15 +144,24 @@ WaitXThenRun(0, () => {
 	document.body.appendChild(portal);
 }); */
 
-type StepUIProps = {index: number, last: boolean, map: Map, timeline: Timeline, step: TimelineStep} & {dragInfo?: DragInfo};
-@MakeDraggable(({ index, step }: StepUIProps) => {
+type StepUIProps = {index: number, last: boolean, map: Map, timeline: Timeline, stepID: string} & Partial<{step: TimelineStep}> & {dragInfo?: DragInfo};
+
+const StepUI_connector = (state, { stepID }: StepUIProps) => {
+	return {
+		step: GetTimelineStep(stepID),
+	};
+};
+@Connect(StepUI_connector)
+@MakeDraggable(({ index, stepID, step }: StepUIProps) => {
+	if (step == null) return null; // if step is not yet loaded, don't actually apply the draggable-wrapping
 	return {
 		type: 'TimelineStep',
-		draggableInfo: new DraggableInfo({ stepID: step._key }),
+		draggableInfo: new DraggableInfo({ stepID }),
 		index,
+		// enabled: step != null, // if step is not yet loaded, don't actually apply the draggable-wrapping
 	};
 })
-@SimpleShouldUpdate({ propsToIgnore: ['dragInfo'] })
+// @SimpleShouldUpdate({ propsToIgnore: ['dragInfo'] })
 class StepUI extends BaseComponent<StepUIProps, {placeholderRect: VRect}> {
 	/* static ValidateProps(props: StepUIProps) {
 		Assert(props.step != null);
@@ -166,6 +169,7 @@ class StepUI extends BaseComponent<StepUIProps, {placeholderRect: VRect}> {
 
 	render() {
 		const { index, last, map, timeline, step, dragInfo } = this.props;
+		if (step == null) return <div style={{ height: 100 }} {...(dragInfo && dragInfo.provided.draggableProps)} {...(dragInfo && dragInfo.provided.dragHandleProps)}/>;
 		const { placeholderRect } = this.state;
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), map);
 		const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
