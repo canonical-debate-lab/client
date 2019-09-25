@@ -57,8 +57,11 @@ export class EditorSubpanel extends BaseComponentWithConnector(EditorSubpanel_co
 					}}/>
 					<Button ml={5} text="Statement" enabled={timeline != null} onClick={() => {
 						if (MeID() == null) return ShowSignInPopup();
+						const lastVisibleStepIndex = this.stepList.getVisibleRange()[1];
+						const newStepIndex = lastVisibleStepIndex == timeline.steps.length - 1 ? null : lastVisibleStepIndex;
+
 						const newStep = new TimelineStep({});
-						new AddTimelineStep({ timelineID: timeline._key, step: newStep }).Run();
+						new AddTimelineStep({ timelineID: timeline._key, step: newStep, stepIndex: newStepIndex }).Run();
 					}}/>
 					<CheckBox ml="auto" text="Lock map scrolling" title="Lock map edge-scrolling. (for dragging onto timeline steps)" checked={lockMapScrolling} onChange={(val) => {
 						store.dispatch(new ACTSet(a => a.main.lockMapScrolling, val));
@@ -113,13 +116,14 @@ export class EditorSubpanel extends BaseComponentWithConnector(EditorSubpanel_co
 								if (step == null) return null;
 								return <StepUI key={index} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>;
 							}) */}
-							<ReactList type='variable' length={timeline.steps.length} itemSizeEstimator={this.EstimateStepHeight} itemRenderer={this.RenderStep}/>
+							<ReactList ref={c => this.stepList = c} type='variable' length={timeline.steps.length} itemSizeEstimator={this.EstimateStepHeight} itemRenderer={this.RenderStep}/>
 						</Column>
 					)}</Droppable>
 				</ScrollView>
 			</>
 		);
 	}
+	stepList: ReactList;
 
 	EstimateStepHeight = (index: number, cache: any) => {
 		return 100;
