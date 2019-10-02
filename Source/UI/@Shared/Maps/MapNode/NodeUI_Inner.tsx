@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import keycode from 'keycode';
 import { Button, Pre, Row, TextArea } from 'react-vcomponents';
-import { BaseComponent, BaseComponentWithConnector, GetInnerComp, GetDOM, FindReact } from 'react-vextensions';
+import { BaseComponent, BaseComponentWithConnector, GetInnerComp, GetDOM, FindReact, FilterOutUnrecognizedProps } from 'react-vextensions';
 import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthScoreComposite, RS_GetAllValues } from 'Store/firebase/nodeRatings/ReasonScore';
 import { IsUserCreatorOrMod, HasModPermissions } from 'Store/firebase/userExtras';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
@@ -220,7 +220,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 					this.SetState({ hovered: false });
 					this.checkStillHoveredTimer.Stop();
 				}}
-				{...(dragInfo && dragInfo.provided.draggableProps)} {...(dragInfo && dragInfo.provided.dragHandleProps)}
+				{...(dragInfo && dragInfo.provided.draggableProps)} // {...(dragInfo && dragInfo.provided.dragHandleProps)} // drag-handle is attached to just the TitlePanel, below
 				style={E(
 					style,
 					dragInfo && dragInfo.provided.draggableProps.style,
@@ -268,13 +268,11 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 					leftPanelShow && panelPosition == 'left' && <div style={{ position: 'absolute', right: '100%', width: 1, top: 0, bottom: 0 }}/>,
 				].AutoKey()}
 				onTextHolderClick={e => IsDoubleClick(e) && this.titlePanel && this.titlePanel.OnDoubleClick()}
-				text={[
-					/* eslint-disable react/jsx-key */
-					<TitlePanel {...{ indexInNodeList, parent: this, map, node, nodeView, path }} ref={c => this.titlePanel = c}/>,
-					subPanelShow && <SubPanel node={node}/>,
-					<NodeUI_Menu_Stub {...{ map, node, path }}/>,
-					/* eslint-enable react/jsx-key */
-				].AutoKey()}
+				text={<>
+					<TitlePanel {...{ indexInNodeList, parent: this, map, node, nodeView, path }} ref={c => this.titlePanel = c} {...(dragInfo && dragInfo.provided.dragHandleProps)}/>
+					{subPanelShow && <SubPanel node={node}/>}
+					<NodeUI_Menu_Stub {...{ map, node, path }}/>
+				</>}
 				{...{ backgroundFillPercent, backgroundColor, markerPercent }}
 				toggleExpanded={(e) => {
 					store.dispatch(new ACTMapNodeExpandedSet({ mapID: map._key, path, expanded: !expanded, recursive: expanded && e.altKey }));
@@ -400,7 +398,7 @@ class TitlePanel extends BaseComponentWithConnector(TitlePanel_connector, { edit
 		}
 	}
 	render() {
-		const { map, node, nodeView, path, displayText, equationNumber } = this.props;
+		const { map, parent, node, nodeView, path, displayText, equationNumber, ...rest } = this.props;
 		const latex = node.current.equation && node.current.equation.latex;
 		const isSubnode = IsNodeSubnode(node);
 
@@ -411,7 +409,7 @@ class TitlePanel extends BaseComponentWithConnector(TitlePanel_connector, { edit
 
 		return (
 			// <Row style={{position: "relative"}}>
-			<div style={{ position: 'relative' }} onClick={e => IsDoubleClick(e) && this.OnDoubleClick()}>
+			<div {...FilterOutUnrecognizedProps(rest, 'div')} style={{ position: 'relative', cursor: 'pointer' }} onClick={e => IsDoubleClick(e) && this.OnDoubleClick()}>
 				{equationNumber != null &&
 					<Pre>{equationNumber}) </Pre>}
 				{!editing &&

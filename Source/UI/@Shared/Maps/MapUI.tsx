@@ -162,7 +162,7 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 							}}
 							onClick={(e) => {
 								if (e.target != this.mapUI) return;
-								if (new Vector2i(e.clientX, e.clientY).DistanceTo(this.downPos) >= 3) return;
+								if (this.downPos && new Vector2i(e.clientX, e.clientY).DistanceTo(this.downPos) >= 3) return;
 								const mapView = GetMapView(GetOpenMapID());
 								if (GetSelectedNodePath(map._key)) {
 									store.dispatch(new ACTMapNodeSelect({ mapID: map._key, path: null }));

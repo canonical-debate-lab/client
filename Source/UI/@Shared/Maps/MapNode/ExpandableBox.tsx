@@ -54,6 +54,7 @@ export class ExpandableBox extends BaseComponent<Props, {}> {
 								width: 2, background: 'rgba(0,255,0,.5)',
 							}}/>}
 						{text}
+						{/* children */}
 					</div>
 					<Button ref={c => this.expandButton = c}
 						text={expanded ? '-' : '+'} // size={28}

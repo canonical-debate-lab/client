@@ -7,6 +7,7 @@ import { ScrollView } from 'react-vscrollview';
 import { Connect } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { GetNodeRevisions } from 'Store/firebase/nodeRevisions';
+import { UUIDStub } from 'UI/@Shared/UUIDStub';
 import { Map } from '../../../../../../Store/firebase/maps/@Map';
 import { GetParentNodeL3 } from '../../../../../../Store/firebase/nodes';
 import { GetLinkUnderParent } from '../../../../../../Store/firebase/nodes/$node';
@@ -72,12 +73,14 @@ class RevisionEntryUI extends BaseComponent<RevisionEntryUI_Props, {}> {
 				{ background: index % 2 == 0 ? 'rgba(30,30,30,.7)' : 'rgba(0,0,0,.7)' },
 				last && { borderRadius: '0 0 10px 10px' },
 			)}>
-				<span style={{ flex: columnWidths[0] }}>{revision._key}</span>
+				<span style={{ flex: columnWidths[0] }}>
+					<UUIDStub id={revision._key}/>
+				</span>
 				<span style={{ flex: columnWidths[1] }}>{Moment(revision.createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>
 				<span style={{ flex: columnWidths[2] }}>{creator ? creator.displayName : 'n/a'}</span>
 				<span style={{ flex: columnWidths[3] }}>
 					<Button text="V" title="View details" style={{ margin: '-2px 0', padding: '1px 3px' }} onClick={() => {
-						const boxController: BoxController = ShowMessageBox({
+						const boxController = ShowMessageBox({
 							title: `Details for revision #${revision._key}`, cancelOnOverlayClick: true,
 							message: () => {
 								return (

@@ -1,13 +1,15 @@
 import Moment from 'moment';
-import { Button, CheckBox, Column, Div, Pre, Row, Select } from 'react-vcomponents';
+import { Button, Text, CheckBox, Column, Div, Pre, Row, Select } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { GetParentNodeID, GetParentNodeL3 } from 'Store/firebase/nodes';
 import { GetUser, MeID, GetUserPermissionGroups } from 'Store/firebase/users';
-import { Icon, InfoButton, SlicePath, Connect } from 'Utils/FrameworkOverrides';
+import { Icon, InfoButton, SlicePath, Connect, SplitStringBySlash_Cached } from 'Utils/FrameworkOverrides';
 import { GetEntries } from 'js-vextensions';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
+import { UUIDStub } from 'UI/@Shared/UUIDStub';
+import { Fragment } from 'react';
 import { CanConvertFromClaimTypeXToY, ChangeClaimType } from '../../../../../../Server/Commands/ChangeClaimType';
 import { ReverseArgumentPolarity } from '../../../../../../Server/Commands/ReverseArgumentPolarity';
 import { UpdateLink } from '../../../../../../Server/Commands/UpdateLink';
@@ -49,8 +51,24 @@ export class OthersPanel extends BaseComponentWithConnector(connector, { convert
 		return (
 			<Column sel style={{ position: 'relative' }}>
 				<IDAndCreationInfoUI id={node._key} creator={creator} createdAt={node.createdAt}/>
-				<Row>Parents: {node.parents == null ? 'none' : node.parents.VKeys(true).join(', ')}</Row>
-				<Row>Children: {node.children == null ? 'none' : node.children.VKeys(true).join(', ')}</Row>
+				<Row style={{ whiteSpace: 'normal' }}>
+					<Text>Parents: </Text>
+					{node.parents == null ? 'none' : node.parents.VKeys(true).map((parentID, index) => {
+						return <Fragment key={index}>
+							{index != 0 && <Text>, </Text>}
+							<UUIDStub id={parentID}/>
+						</Fragment>;
+					})}
+				</Row>
+				<Row style={{ whiteSpace: 'normal' }}>
+					<Text>Children: </Text>
+					{node.children == null ? 'none' : node.children.VKeys(true).map((childID, index) => {
+						return <Fragment key={index}>
+							{index != 0 && <Text>, </Text>}
+							<UUIDStub id={childID}/>
+						</Fragment>;
+					})}
+				</Row>
 				{/* <Row>Viewers: {viewers.length || '...'} <InfoButton text="The number of registered users who have had this node displayed in-map at some point."/></Row> */}
 				{nodeArgOrParentSPArg_controlled &&
 					<Row>
@@ -94,10 +112,19 @@ class AtThisLocation extends BaseComponent<{node: MapNodeL3, path: string}, {}> 
 			canSetAsSeriesAnchor = claimType === ClaimType.Equation && !node.current.equation.isStep; // && !creating;
 		}
 
+		const pathIDs = SplitStringBySlash_Cached(path);
 		return (
 			<Column mt={10}>
 				<Row style={{ fontWeight: 'bold' }}>At this location:</Row>
-				<Row>Path: {path}</Row>
+				<Row style={{ whiteSpace: 'normal' }}>
+					<Text>Path: </Text>
+					{pathIDs.map((id, index) => {
+						return <Fragment key={index}>
+							{index != 0 && <Text>/</Text>}
+							<UUIDStub id={id}/>
+						</Fragment>;
+					})}
+				</Row>
 				{canSetAsNegation &&
 					<Row style={{ display: 'flex', alignItems: 'center' }}>
 						<Pre>Show as negation: </Pre>
@@ -140,7 +167,10 @@ class ChildrenOrder extends BaseComponent<{mapID: string, node: MapNodeL3}, {}> 
 					const childTitle = child ? GetNodeDisplayText(child, childPath, GetNodeForm(child, node)) : '...';
 					return (
 						<Row key={index} style={{ alignItems: 'center' }}>
-							<Div mr={7} sel style={{ opacity: 0.5 }}>#{childID}</Div>
+							<Row mr={7} sel style={{ opacity: 0.5 }}>
+								<Text>#</Text>
+								<UUIDStub id={childID}/>
+							</Row>
 							<Div sel style={ES({ flex: 1, whiteSpace: 'normal' })}>{childTitle}</Div>
 							{/* <TextInput enabled={false} style={ES({flex: 1})} required pattern={MapNode_id}
 								value={`#${childID.toString()}: ${childTitle}`}
