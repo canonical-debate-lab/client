@@ -116,7 +116,11 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 			const dragBoxRect = dragBox && VRect.FromLTWH(dragBox.getBoundingClientRect());
 
 			return (
-				<Droppable type="MapNode" droppableId={ToJSON(droppableInfo.VSet({ subtype: group, childIDs: childrenHere.map(a => a._key) }))} /* renderClone={() => <div style={{ background: 'red' }}>Test1</div>} */>
+				<Droppable type="MapNode" droppableId={ToJSON(droppableInfo.VSet({ subtype: group, childIDs: childrenHere.map(a => a._key) }))} /* renderClone={(provided, snapshot, descriptor) => {
+					const index = descriptor.index;
+					const pack = childrenHere.slice(0, childLimit)[index];
+					return RenderChild(pack, index, childrenHere);
+				}} */>
 					{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => {
 						const dragIsOverDropArea = provided.placeholder.props['on'] != null;
 						if (dragIsOverDropArea) {
@@ -160,7 +164,7 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 				// if we don't know our child offsets yet, render still (so we can measure ourself), but make self invisible
 				oldChildBoxOffsets == null && { opacity: 0, pointerEvents: 'none' },
 			)}>
-				{linkSpawnPoint && oldChildBoxOffsets &&
+				{linkSpawnPoint > 0 && oldChildBoxOffsets &&
 					// <NodeConnectorBackground node={node} linkSpawnPoint={vertical ? Vector2iCache.Get(0, linkSpawnPoint) : Vector2iCache.Get(-30, linkSpawnPoint)}
 					<NodeConnectorBackground node={node} linkSpawnPoint={vertical ? new Vector2i(-10, 0) : new Vector2i(-30, linkSpawnPoint)} straightLines={vertical}
 						shouldUpdate={true} // this.lastRender_source == RenderSource.SetState}

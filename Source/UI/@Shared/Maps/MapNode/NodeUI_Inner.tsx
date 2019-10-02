@@ -8,13 +8,14 @@ import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
 import { NodeMathUI } from 'UI/@Shared/Maps/MapNode/NodeMathUI';
 import { SetNodeUILocked } from 'UI/@Shared/Maps/MapNode/NodeUI';
-import { SlicePath, State, Connect, IsDoubleClick, InfoButton, RemoveHelpers, DBPath, WaitTillPathDataIsReceived, VReactMarkdown_Remarkable, DragInfo, MakeDraggable } from 'Utils/FrameworkOverrides';
+import { SlicePath, State, Connect, IsDoubleClick, InfoButton, RemoveHelpers, DBPath, WaitTillPathDataIsReceived, VReactMarkdown_Remarkable, DragInfo, MakeDraggable, HSLA } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { Clone, Assert, Timer, VRect, Vector2i, WaitXThenRun } from 'js-vextensions';
+import { Clone, Assert, Timer, VRect, Vector2i, WaitXThenRun, ToJSON, DoNothing, FindDOM } from 'js-vextensions';
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
 import ReactDOM from 'react-dom';
 import { Fragment } from 'react';
 import { GetPathNodeIDs } from 'Store/main/mapViews';
+import { Draggable } from 'react-beautiful-dnd';
 import { ParseSegmentsForPatterns } from '../../../../Utils/General/RegexHelpers';
 import { AddNodeRevision } from '../../../../Server/Commands/AddNodeRevision';
 import { GetImage } from '../../../../Store/firebase/images';
@@ -120,7 +121,7 @@ const connector = (state, { map, node, path }: Props) => {
 };
 
 @Connect(connector)
-@MakeDraggable(({ node, path, indexInNodeList }: TitlePanelProps) => {
+/* @MakeDraggable(({ node, path, indexInNodeList }: TitlePanelProps) => {
 	if (!IsUserCreatorOrMod(MeID(), node)) return null;
 	if (!path.includes('/')) return null; // don't make draggable if root-node of map
 	return {
@@ -128,9 +129,9 @@ const connector = (state, { map, node, path }: Props) => {
 		draggableInfo: new DraggableInfo({ nodePath: path }),
 		index: indexInNodeList,
 	};
-})
+}) */
 export class NodeUI_Inner extends BaseComponentWithConnector(connector,
-	{ hovered: false, hoverPanel: null as string, hoverTermID: null as string, /* local_selected: boolean, */ local_openPanel: null as string }) {
+	{ hovered: false, hoverPanel: null as string, hoverTermID: null as string, /* local_selected: boolean, */ local_openPanel: null as string, lastWidthWhenNotPreview: 0 }) {
 	static defaultProps = { panelPosition: 'left' };
 
 	root: ExpandableBox;
@@ -152,6 +153,16 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 		this.SetState({ hovered: intersectsOne });
 	});
 
+	ComponentDidMountOrUpdate() {
+		/* const { dragInfo } = this.props;
+		const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
+		if (!asDragPreview && this.draggableDiv) { */
+		this.SetState(E(
+			// { dragActive: this.draggableDiv == null },
+			this.draggableDiv != null && { lastWidthWhenNotPreview: this.draggableDiv.getBoundingClientRect().width },
+		));
+	}
+
 	render() {
 		const { indexInNodeList, map, node, nodeView, path, width, widthOverride,
 			panelPosition, useLocalPanelState, style, form,
@@ -160,12 +171,12 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 		let { hovered, hoverPanel, hoverTermID, /* local_selected, */ local_openPanel } = this.state;
 		const nodeTypeInfo = MapNodeType_Info.for[node.type];
 		let backgroundColor = GetNodeColor(node);
-		const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
+		/* const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
 		// const offsetByAnotherDrag = dragInfo && dragInfo.provided.draggableProps.style.transform;
 		if (asDragPreview) {
 			hovered = false;
 			local_openPanel = null;
-		}
+		} */
 
 		// Log(`${node._key} -- ${dragInfo && dragInfo.snapshot.isDragging}; ${dragInfo && dragInfo.snapshot.draggingOver}`);
 
@@ -208,93 +219,165 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 		const bottomPanelShow = leftPanelShow && panelToShow;
 		const expanded = nodeView && nodeView.expanded;
 
-		const result = (
-			<ExpandableBox ref={c => this.root = c}
-				{...{ width, widthOverride, outlineColor, expanded }} parent={this}
-				className={classNames('NodeUI_Inner', asDragPreview && 'DragPreview', { root: pathNodeIDs.length == 0 })}
-				onMouseEnter={() => {
-					this.SetState({ hovered: true });
-					this.checkStillHoveredTimer.Start();
-				}}
-				onMouseLeave={() => {
-					this.SetState({ hovered: false });
-					this.checkStillHoveredTimer.Stop();
-				}}
-				{...(dragInfo && dragInfo.provided.draggableProps)} // {...(dragInfo && dragInfo.provided.dragHandleProps)} // drag-handle is attached to just the TitlePanel, below
-				style={E(
-					style,
-					dragInfo && dragInfo.provided.draggableProps.style,
-					asDragPreview && { zIndex: 10 },
-				)}
-				padding={GetPaddingForNode(node, isSubnode)}
-				onClick={(e) => {
-					if ((e.nativeEvent as any).ignore) return;
-					/* if (useLocalPanelState) {
-						this.SetState({local_selected: true});
-						return;
-					} */
+		const renderInner = (dragInfo) => {
+			const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
+			// const offsetByAnotherDrag = dragInfo && dragInfo.provided.draggableProps.style.transform;
+			if (asDragPreview) {
+				hovered = false;
+				local_openPanel = null;
+			}
+			return (
+				<ExpandableBox ref={c => DoNothing(dragInfo && dragInfo.provided.innerRef(GetDOM(c) as any), this.root = c, this.draggableDiv = GetDOM(c) as HTMLDivElement)}
+					{...{ width, widthOverride, outlineColor, expanded }} parent={this}
+					className={classNames('NodeUI_Inner', asDragPreview && 'DragPreview', { root: pathNodeIDs.length == 0 })}
+					onMouseEnter={() => {
+						this.SetState({ hovered: true });
+						this.checkStillHoveredTimer.Start();
+					}}
+					onMouseLeave={() => {
+						this.SetState({ hovered: false });
+						this.checkStillHoveredTimer.Stop();
+					}}
+					{...(dragInfo && dragInfo.provided.draggableProps)} // {...(dragInfo && dragInfo.provided.dragHandleProps)} // drag-handle is attached to just the TitlePanel, below
+					style={E(
+						style,
+						dragInfo && dragInfo.provided.draggableProps.style,
+						asDragPreview && { zIndex: 10 },
+					)}
+					padding={GetPaddingForNode(node, isSubnode)}
+					onClick={(e) => {
+						if ((e.nativeEvent as any).ignore) return;
+						/* if (useLocalPanelState) {
+							this.SetState({local_selected: true});
+							return;
+						} */
 
-					if (nodeView == null || !nodeView.selected) {
-						store.dispatch(new ACTMapNodeSelect({ mapID: map._key, path }));
-					}
-				}}
-				onDirectClick={(e) => {
-					if (combinedWithParentArgument) {
-						store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: parent._key, time: Date.now() }));
-					}
-					store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._key, time: Date.now() }));
-				}}
-				beforeChildren={[
-					leftPanelShow
-						&& <MapNodeUI_LeftBox {...{ map, path, node, nodeView, ratingsRoot, panelPosition, local_openPanel, backgroundColor }} asHover={hovered}
-							onPanelButtonHover={panel => this.SetState({ hoverPanel: panel })}
-							onPanelButtonClick={(panel) => {
-								if (useLocalPanelState) {
-									this.SetState({ local_openPanel: panel, hoverPanel: null });
-									return;
-								}
+						if (nodeView == null || !nodeView.selected) {
+							store.dispatch(new ACTMapNodeSelect({ mapID: map._key, path }));
+						}
+					}}
+					onDirectClick={(e) => {
+						if (combinedWithParentArgument) {
+							store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: parent._key, time: Date.now() }));
+						}
+						store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._key, time: Date.now() }));
+					}}
+					beforeChildren={[
+						leftPanelShow
+							&& <MapNodeUI_LeftBox {...{ map, path, node, nodeView, ratingsRoot, panelPosition, local_openPanel, backgroundColor }} asHover={hovered}
+								onPanelButtonHover={panel => this.SetState({ hoverPanel: panel })}
+								onPanelButtonClick={(panel) => {
+									if (useLocalPanelState) {
+										this.SetState({ local_openPanel: panel, hoverPanel: null });
+										return;
+									}
 
-								if (nodeView.openPanel != panel) {
-									store.dispatch(new ACTMapNodePanelOpen({ mapID: map._key, path, panel }));
-								} else {
-									store.dispatch(new ACTMapNodePanelOpen({ mapID: map._key, path, panel: null }));
-									this.SetState({ hoverPanel: null });
-								}
-							}}>
-							{/* fixes click-gap */}
-							{panelPosition == 'below' && <div style={{ position: 'absolute', right: -1, width: 1, top: 0, bottom: 0 }}/>}
-						</MapNodeUI_LeftBox>,
-					// fixes click-gap
-					leftPanelShow && panelPosition == 'left' && <div style={{ position: 'absolute', right: '100%', width: 1, top: 0, bottom: 0 }}/>,
-				].AutoKey()}
-				onTextHolderClick={e => IsDoubleClick(e) && this.titlePanel && this.titlePanel.OnDoubleClick()}
-				text={<>
-					<TitlePanel {...{ indexInNodeList, parent: this, map, node, nodeView, path }} ref={c => this.titlePanel = c} {...(dragInfo && dragInfo.provided.dragHandleProps)}/>
-					{subPanelShow && <SubPanel node={node}/>}
-					<NodeUI_Menu_Stub {...{ map, node, path }}/>
-				</>}
-				{...{ backgroundFillPercent, backgroundColor, markerPercent }}
-				toggleExpanded={(e) => {
-					store.dispatch(new ACTMapNodeExpandedSet({ mapID: map._key, path, expanded: !expanded, recursive: expanded && e.altKey }));
-					e.nativeEvent['ignore'] = true; // for some reason, "return false" isn't working
-					// return false;
-				}}
-				afterChildren={[
-					bottomPanelShow
-						&& <NodeUI_BottomPanel {...{ map, node, nodeView, path, parent, width, widthOverride, panelPosition, panelToShow, hovered, backgroundColor }}
-							hoverTermID={hoverTermID} onTermHover={termID => this.SetState({ hoverTermID: termID })}/>,
-					reasonScoreValues && showReasonScoreValues
-						&& <ReasonScoreValueMarkers {...{ node, combinedWithParentArgument, reasonScoreValues }}/>,
-				].AutoKey()}
-			/>
-		);
+									if (nodeView.openPanel != panel) {
+										store.dispatch(new ACTMapNodePanelOpen({ mapID: map._key, path, panel }));
+									} else {
+										store.dispatch(new ACTMapNodePanelOpen({ mapID: map._key, path, panel: null }));
+										this.SetState({ hoverPanel: null });
+									}
+								}}>
+								{/* fixes click-gap */}
+								{panelPosition == 'below' && <div style={{ position: 'absolute', right: -1, width: 1, top: 0, bottom: 0 }}/>}
+							</MapNodeUI_LeftBox>,
+						// fixes click-gap
+						leftPanelShow && panelPosition == 'left' && <div style={{ position: 'absolute', right: '100%', width: 1, top: 0, bottom: 0 }}/>,
+					].AutoKey()}
+					onTextHolderClick={e => IsDoubleClick(e) && this.titlePanel && this.titlePanel.OnDoubleClick()}
+					text={<>
+						<TitlePanel {...{ indexInNodeList, parent: this, map, node, nodeView, path }} ref={c => this.titlePanel = c} {...(dragInfo && dragInfo.provided.dragHandleProps)}/>
+						{subPanelShow && <SubPanel node={node}/>}
+						<NodeUI_Menu_Stub {...{ map, node, path }}/>
+					</>}
+					{...{ backgroundFillPercent, backgroundColor, markerPercent }}
+					toggleExpanded={(e) => {
+						store.dispatch(new ACTMapNodeExpandedSet({ mapID: map._key, path, expanded: !expanded, recursive: expanded && e.altKey }));
+						e.nativeEvent['ignore'] = true; // for some reason, "return false" isn't working
+						// return false;
+					}}
+					afterChildren={[
+						bottomPanelShow
+							&& <NodeUI_BottomPanel {...{ map, node, nodeView, path, parent, width, widthOverride, panelPosition, panelToShow, hovered, backgroundColor }}
+								hoverTermID={hoverTermID} onTermHover={termID => this.SetState({ hoverTermID: termID })}/>,
+						reasonScoreValues && showReasonScoreValues
+							&& <ReasonScoreValueMarkers {...{ node, combinedWithParentArgument, reasonScoreValues }}/>,
+					].AutoKey()}
+				/>
+			);
+		};
 
 		// if drag preview, we have to put in portal, since otherwise the "filter" effect of ancestors causes the {position:fixed} style to not be relative-to-page
-		if (asDragPreview) {
+		/* if (asDragPreview) {
 			return ReactDOM.createPortal(result, portal);
+		} */
+		// return result;
+
+		function GetCompProps() {
+			if (!IsUserCreatorOrMod(MeID(), node)) return null;
+			if (!path.includes('/')) return null; // don't make draggable if root-node of map
+			return {
+				type: 'MapNode',
+				draggableInfo: new DraggableInfo({ nodePath: path }),
+				index: indexInNodeList,
+			};
 		}
-		return result;
+		const compProps = GetCompProps();
+		if (compProps == null) {
+			return renderInner(null);
+			/* return (
+				<div style={E(
+					{ width: 350, background: HSLA(0, 0, 0, 0.5), whiteSpace: 'normal' as any },
+				)}>
+					Test
+				</div>
+			); */
+		}
+		const draggableID = ToJSON(compProps.draggableInfo);
+		return (
+			<>
+				{/* <div>asDragPreview: {asDragPreview}</div> */}
+				<Draggable type={compProps.type} key={draggableID} draggableId={draggableID} index={compProps.index}>
+					{(provided, snapshot) => {
+						const dragInfo = { provided, snapshot };
+						// return renderInner(dragInfo);
+						const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
+						return asDragPreview ? ReactDOM.createPortal(renderInner(dragInfo), portal) : renderInner(dragInfo);
+						// return <WrappedComponent {...this.props} ref={c=>provided.innerRef(GetDOM(c) as any)} dragInfo={dragInfo}/>;
+						// test
+						/* return (
+							<div ref={(c) => {
+								this.draggableDiv = c;
+								provided.innerRef(c as any);
+							}}
+							{...(dragInfo && dragInfo.provided.draggableProps)}
+							{...(dragInfo && dragInfo.provided.dragHandleProps)}
+							style={E(
+								{ width: 350, background: HSLA(0, 0, 0, 0.5), whiteSpace: 'normal' },
+								dragInfo && dragInfo.provided.draggableProps.style,
+							)}>
+								{ToJSON(dragInfo).substr(0, 30)}
+							</div>
+						); */
+					}}
+				</Draggable>
+				<div style={{ width: this.state.lastWidthWhenNotPreview }}/>
+			</>
+		);
+
+		// test
+		/* return (
+			<TitlePanel {...{ indexInNodeList, parent: this, map, node, nodeView, path }} ref={c => this.titlePanel = c}
+				{...(dragInfo && dragInfo.provided.draggableProps)}
+				{...(dragInfo && dragInfo.provided.dragHandleProps)}
+				style={E(
+					{ width: 350 },
+					dragInfo && dragInfo.provided.draggableProps.style,
+				)}/>
+		); */
 	}
+	draggableDiv: HTMLDivElement;
 	definitionsPanel: DefinitionsPanel;
 	/* ComponentDidMount() {
 		// we have to use native/jquery hover/mouseenter+mouseleave, to fix that in-equation term-placeholders would cause "mouseleave" to be triggered
@@ -382,7 +465,7 @@ class ReasonScoreValueMarkers extends BaseComponent<{node: MapNodeL3, reasonScor
 	}
 }
 
-type TitlePanelProps = {parent: NodeUI_Inner, map: Map, node: MapNodeL2, nodeView: MapNodeView, path: string, indexInNodeList: number};
+type TitlePanelProps = {parent: NodeUI_Inner, map: Map, node: MapNodeL2, nodeView: MapNodeView, path: string, indexInNodeList: number, style};
 const TitlePanel_connector = (state, { node, path }: TitlePanelProps) => ({
 	displayText: GetNodeDisplayText(node, path),
 	$1: node.current.image && GetImage(node.current.image.id),
@@ -398,7 +481,7 @@ class TitlePanel extends BaseComponentWithConnector(TitlePanel_connector, { edit
 		}
 	}
 	render() {
-		const { map, parent, node, nodeView, path, displayText, equationNumber, ...rest } = this.props;
+		const { map, parent, node, nodeView, path, displayText, equationNumber, style, ...rest } = this.props;
 		const latex = node.current.equation && node.current.equation.latex;
 		const isSubnode = IsNodeSubnode(node);
 
@@ -409,7 +492,7 @@ class TitlePanel extends BaseComponentWithConnector(TitlePanel_connector, { edit
 
 		return (
 			// <Row style={{position: "relative"}}>
-			<div {...FilterOutUnrecognizedProps(rest, 'div')} style={{ position: 'relative', cursor: 'pointer' }} onClick={e => IsDoubleClick(e) && this.OnDoubleClick()}>
+			<div {...FilterOutUnrecognizedProps(rest, 'div')} style={E({ position: 'relative', cursor: 'pointer' }, style)} onClick={e => IsDoubleClick(e) && this.OnDoubleClick()}>
 				{equationNumber != null &&
 					<Pre>{equationNumber}) </Pre>}
 				{!editing &&
