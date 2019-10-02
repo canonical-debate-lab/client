@@ -292,8 +292,8 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 		// if drag preview, we have to put in portal, since otherwise the "filter" effect of ancestors causes the {position:fixed} style to not be relative-to-page
 		if (asDragPreview) {
 			return ReactDOM.createPortal(result, portal);
-	  }
-	  return result;
+		}
+		return result;
 	}
 	definitionsPanel: DefinitionsPanel;
 	/* ComponentDidMount() {

@@ -110,12 +110,13 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 		const RenderGroup = (group: 'all' | 'up' | 'down') => {
 			const refName = `${group}ChildHolder`;
 			const childLimit = group == 'up' ? childLimit_up : childLimit_down; // "all" and "down" share a child-limit
-			const childrenHere = group == 'all' ? nodeChildrenToShow : group == 'up' ? upChildren : downChildren;
+			const childrenHere = group == 'all' ? nodeChildrenToShowHere : group == 'up' ? upChildren : downChildren;
 
 			const dragBox = document.querySelector('.NodeUI_Inner.DragPreview');
 			const dragBoxRect = dragBox && VRect.FromLTWH(dragBox.getBoundingClientRect());
+
 			return (
-				<Droppable type="MapNode" droppableId={ToJSON(droppableInfo.VSet({ subtype: group, childIDs: childrenHere.map(a => a._key) }))}>
+				<Droppable type="MapNode" droppableId={ToJSON(droppableInfo.VSet({ subtype: group, childIDs: childrenHere.map(a => a._key) }))} /* renderClone={() => <div style={{ background: 'red' }}>Test1</div>} */>
 					{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => {
 						const dragIsOverDropArea = provided.placeholder.props['on'] != null;
 						if (dragIsOverDropArea) {
@@ -123,7 +124,7 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 						}
 
 						return (
-							<Column ref={(c) => { this[`${group}ChildHolder`] = c; provided.innerRef(GetDOM(c) as any); }} ct className={refName}
+							<Column ref={(c) => { this[`${group}ChildHolder`] = c; provided.innerRef(GetDOM(c) as any); }} ct className={refName} {...provided.droppableProps}
 								style={E(
 									{ position: 'relative' },
 									childrenHere.length == 0 && { position: 'absolute', top: group == 'down' ? '100%' : 0, width: MapNodeType_Info.for[MapNodeType.Claim].minWidth, height: 100 },

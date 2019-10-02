@@ -111,7 +111,7 @@ export class EditorSubpanel extends BaseComponentWithConnector(EditorSubpanel_co
 							}}/>
 						</Row>}
 					<Droppable type="TimelineStep" droppableId={ToJSON(droppableInfo.VSet({ timelineID: timeline._key }))}>{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-						<Column ref={c => provided.innerRef(GetDOM(c) as any)}>
+						<Column ref={c => provided.innerRef(GetDOM(c) as any)} {...provided.droppableProps}>
 							{/* timelineSteps && timelineSteps.map((step, index) => {
 								if (step == null) return null;
 								return <StepUI key={index} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>;
@@ -240,7 +240,7 @@ class StepUI extends BaseComponent<StepUIProps, {placeholderRect: VRect}> {
 							}
 
 							return (
-								<Column ref={(c) => { this.nodeHolder = c; provided.innerRef(GetDOM(c) as any); }}
+								<Column ref={(c) => { this.nodeHolder = c; provided.innerRef(GetDOM(c) as any); }} {...provided.droppableProps}
 									style={E(
 										{ position: 'relative', padding: 7, background: 'rgba(255,255,255,.3)', borderRadius: '0 0 10px 10px' },
 										(step.nodeReveals == null || step.nodeReveals.length == 0) && { padding: '3px 5px' },

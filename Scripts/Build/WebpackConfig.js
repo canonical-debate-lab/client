@@ -179,159 +179,181 @@ webpackConfig.module.rules.push({ test: /\.tsx?$/, loader: 'ts-loader' });
 // file text-replacements
 // ==========
 
-webpackConfig.module.rules.push(
-	{
-		test: /\.jsx?$/,
-		loader: StringReplacePlugin.replace({ replacements: [
-			// optimization; replace `State(a=>a.some.thing)` with `State("some/thing")`
-			{
-				pattern: /State\(a ?=> ?a\.([a-zA-Z_.]+)\)/g,
-				replacement(match, sub1, offset, string) {
-					return `State("${sub1.replace(/\./g, '/')}")`;
-				},
+function AddStringReplacement(fileRegex, replacements, minCallCount = 1) {
+	const replacementCallCounts = replacements.map(() => 0);
+	function VerifyReplacementsCalled() {
+		const undercalledIndex = replacementCallCounts.findIndex(callCount => callCount < minCallCount);
+		const undercalledReplacement = replacements[undercalledIndex];
+		if (undercalledIndex != -1) {
+			throw new Error(`
+
+				A text-replacement was not called as many times as it should have been.
+				File: ${fileRegex}
+				Pattern (#${undercalledIndex}): ${undercalledReplacement.pattern}
+				Min call count: ${minCallCount}
+				Actual call acount: ${replacementCallCounts[undercalledIndex]}
+
+				Ensure that you have the correct version of the npm package installed.
+			`);
+		}
+	}
+
+	const replacements_final = replacements.map((oldReplacement, index) => {
+		return {
+			...oldReplacement,
+			replacement: (...args) => {
+				replacementCallCounts[index]++;
+				return oldReplacement.replacement.apply(this, args);
 			},
-			/* {
-				pattern: /State\(function \(a\) {\s+return a.([a-zA-Z_.]+);\s+}\)/g,
-				replacement: function(match, sub1, offset, string) {
-					Log("Replacing...");
-					return `State("${sub1.replace(/\./g, "/")}")`;
-				}
-			}, */
-		] }),
+		};
+	}).concat({
+		pattern: /(.|\n)+/g,
+		replacement: (match) => {
+			VerifyReplacementsCalled();
+			return match;
+		},
+	});
+	webpackConfig.module.rules.push({
+		test: fileRegex,
+		loader: StringReplacePlugin.replace({ replacements: replacements_final }),
+	});
+}
+
+AddStringReplacement(/\.jsx?$/, [
+	// optimization; replace `State(a=>a.some.thing)` with `State("some/thing")`
+	{
+		pattern: /State\(a ?=> ?a\.([a-zA-Z_.]+)\)/g,
+		replacement(match, sub1, offset, string) {
+			return `State("${sub1.replace(/\./g, '/')}")`;
+		},
 	},
+	/* {
+		pattern: /State\(function \(a\) {\s+return a.([a-zA-Z_.]+);\s+}\)/g,
+		replacement: function(match, sub1, offset, string) {
+			Log("Replacing...");
+			return `State("${sub1.replace(/\./g, "/")}")`;
+		}
+	}, */
+], 0);
+
+// AddStringReplacement(/connected-(draggable|droppable).js$/, [
+AddStringReplacement(/react-beautiful-dnd.esm.js$/, [
+	// note: the replacements below may need updating, since the library was updated since the replacements were written
+	// make react-beautiful-dnd import react-redux using a relative path, so it uses its local v5 instead of the project's v6
+	/* {
+		pattern: /from 'react-redux';/g,
+		replacement: (match, offset, str) => "from '../node_modules/react-redux';",
+	}, */
+	// make lib support nested-lists better (from: https://github.com/atlassian/react-beautiful-dnd/pull/636)
 	{
-		// test: /connected-(draggable|droppable).js$/,
-		test: /react-beautiful-dnd.esm.js$/,
-		// note: the replacements below may need updating, since the library was updated since the replacements were written
-		loader: StringReplacePlugin.replace({ replacements: [
-			// make react-beautiful-dnd import react-redux using a relative path, so it uses its local v5 instead of the project's v6
-			/* {
-				pattern: /from 'react-redux';/g,
-				replacement: (match, offset, str) => "from '../node_modules/react-redux';",
-			}, */
-			// make lib support nested-lists better (from: https://github.com/atlassian/react-beautiful-dnd/pull/636)
-			{
-				pattern: /var getDroppableOver = (.|\n)+?(?=var getDraggablesInsideDroppable)/,
-				replacement: () => {
-					return `
-						var getDroppableOver = (function(args) {
-							var target = args.target, droppables = args.droppables;
-							var maybe = toDroppableList(droppables)
-								.filter(droppable => {
-									if (!droppable.isEnabled) return false;
-									var active = droppable.subject.active;
-									if (!active) return false;
-									return isPositionInFrame(active)(target);
-								})
-								.sort((a, b) => {
-									// if draggable is over two lists, and one's not as tall, have it prioritize the list that's not as tall
-									/*if (a.client.contentBox[a.axis.size] < b.client.contentBox[b.axis.size]) return -1;
-									if (a.client.contentBox[a.axis.size] > b.client.contentBox[b.axis.size]) return 1;
-									return 0;*/
-									if (a.client.contentBox[a.axis.size] != b.client.contentBox[b.axis.size]) {
-										return a.client.contentBox[a.axis.size] - b.client.contentBox[b.axis.size]; // ascending
-									}
+		pattern: /var getDroppableOver = (.|\n)+?(?=var getDraggablesInsideDroppable)/,
+		replacement: () => {
+			return `
+				var getDroppableOver = (function(args) {
+					var target = args.target, droppables = args.droppables;
+					var maybe = toDroppableList(droppables)
+						.filter(droppable => {
+							if (!droppable.isEnabled) return false;
+							var active = droppable.subject.active;
+							if (!active) return false;
+							return isPositionInFrame(active)(target);
+						})
+						.sort((a, b) => {
+							// if draggable is over two lists, and one's not as tall, have it prioritize the list that's not as tall
+							/*if (a.client.contentBox[a.axis.size] < b.client.contentBox[b.axis.size]) return -1;
+							if (a.client.contentBox[a.axis.size] > b.client.contentBox[b.axis.size]) return 1;
+							return 0;*/
+							if (a.client.contentBox[a.axis.size] != b.client.contentBox[b.axis.size]) {
+								return a.client.contentBox[a.axis.size] - b.client.contentBox[b.axis.size]; // ascending
+							}
 
-									// if draggable is over two lists, have it prioritize the list farther to the right
-									/*if (a.client.contentBox.left != b.client.contentBox.left) {
-										return a.client.contentBox.left - b.client.contentBox.left; // ascending
-									}*/
+							// if draggable is over two lists, have it prioritize the list farther to the right
+							/*if (a.client.contentBox.left != b.client.contentBox.left) {
+								return a.client.contentBox.left - b.client.contentBox.left; // ascending
+							}*/
 
-									// if draggable is over multiple lists, have it prioritize the list whose center is closest to the mouse
-									/*var aDist = Math.hypot(target.x - a.client.contentBox.center.x, target.y - a.client.contentBox.center.y);
-									var bDist = Math.hypot(target.x - b.client.contentBox.center.x, target.y - b.client.contentBox.center.y);
-									return aDist - bDist; // ascending*/
+							// if draggable is over multiple lists, have it prioritize the list whose center is closest to the mouse
+							/*var aDist = Math.hypot(target.x - a.client.contentBox.center.x, target.y - a.client.contentBox.center.y);
+							var bDist = Math.hypot(target.x - b.client.contentBox.center.x, target.y - b.client.contentBox.center.y);
+							return aDist - bDist; // ascending*/
 
-									// prioritize the list farther to the right/bottom (evaluated as distance from union-rect top-left)
-									var unionRect = {x: Math.min(a.client.contentBox.left, b.client.contentBox.left), y: Math.min(a.client.contentBox.top, b.client.contentBox.top)};
-									var aDist = Math.hypot(unionRect.x - a.client.contentBox.center.x, unionRect.y - a.client.contentBox.center.y);
-									var bDist = Math.hypot(unionRect.x - b.client.contentBox.center.x, unionRect.y - b.client.contentBox.center.y);
-									return -(aDist - bDist); // descending
-								})
-								.find(droppable => !!droppable);
-							return maybe ? maybe.descriptor.id : null;
-						});
-					`.trim();
-				},
-			},
-			// disable map edge-scrolling, when option is set
-			{
-				// pattern: /var canScrollDroppable = function canScrollDroppable\(droppable, change\) {/,
-				pattern: /var canScrollDroppable = function canScrollDroppable.+/,
-				replacement: () => `
-					var canScrollDroppable = function canScrollDroppable(droppable, change) {
-						if (window.LockMapEdgeScrolling()) return false;
-				`.trim(),
-			},
-		] }),
+							// prioritize the list farther to the right/bottom (evaluated as distance from union-rect top-left)
+							var unionRect = {x: Math.min(a.client.contentBox.left, b.client.contentBox.left), y: Math.min(a.client.contentBox.top, b.client.contentBox.top)};
+							var aDist = Math.hypot(unionRect.x - a.client.contentBox.center.x, unionRect.y - a.client.contentBox.center.y);
+							var bDist = Math.hypot(unionRect.x - b.client.contentBox.center.x, unionRect.y - b.client.contentBox.center.y);
+							return -(aDist - bDist); // descending
+						})
+						.find(droppable => !!droppable);
+					return maybe ? maybe.descriptor.id : null;
+				});
+			`.trim();
+		},
 	},
-	// react
+	// disable map edge-scrolling, when option is set
 	{
-		test: /ReactDebugTool.js/,
-		loader: StringReplacePlugin.replace({ replacements: [
-			{
-				// expose ReactDebugTool.getTreeSnapshot
-				pattern: /module.exports = /g,
-				replacement: (match, offset, string) => Clip(`
+		// pattern: /var canScrollDroppable = function canScrollDroppable\(droppable, change\) {/,
+		pattern: /var canScrollDroppable = function canScrollDroppable.+/,
+		replacement: () => `
+			var canScrollDroppable = function canScrollDroppable(droppable, change) {
+				if (window.LockMapEdgeScrolling()) return false;
+		`.trim(),
+	},
+]);
+
+// react
+AddStringReplacement(/ReactDebugTool.js/, [
+	{
+		// expose ReactDebugTool.getTreeSnapshot
+		pattern: /module.exports = /g,
+		replacement: (match, offset, string) => Clip(`
 ReactDebugTool.getTreeSnapshot = getTreeSnapshot;
 
 module.exports = 
-					`),
-			},
-		] }),
+			`),
 	},
-	// react-redux
+]);
+
+// react-redux
+AddStringReplacement(/connectAdvanced.js/, [
+	// remove try-catch blocks
+	{ pattern: /try {/g, replacement: () => '//try {' },
 	{
-		test: /connectAdvanced.js/,
-		loader: StringReplacePlugin.replace({ replacements: [
-			// remove try-catch blocks
-			{ pattern: /try {/g, replacement: () => '//try {' },
-			{
-				pattern: /} catch(.+?){/g,
-				replacement: (match, p1) => `//} catch${p1}{
-					if (0) {`,
-			},
-		] }),
+		pattern: /} catch(.+?){/g,
+		replacement: (match, p1) => `//} catch${p1}{
+			if (0) {`,
+	},
+]);
+AddStringReplacement(/wrapMapToProps.js/, [
+	// make WrappedComponent (the class) accessible as "this.WrappedComponent" from within Connect (FirebaseConnect.ts), and Connect functions
+	{
+		pattern: 'proxy.dependsOnOwnProps = true;',
+		replacement: match => `${match} proxy.WrappedComponent = _ref.WrappedComponent;`,
+	},
+]);
+
+// redux
+AddStringReplacement(/createStore.js/, [
+	// optimize redux so that if a reducer does not change the state at all, then the store-subscribers are not notified
+	{
+		pattern: 'currentState = currentReducer(currentState, action)',
+		replacement: match => `var oldState = currentState; ${match}`,
 	},
 	{
-		test: /wrapMapToProps.js/,
-		loader: StringReplacePlugin.replace({ replacements: [
-			// make WrappedComponent (the class) accessible as "this.WrappedComponent" from within Connect (FirebaseConnect.ts), and Connect functions
-			{
-				pattern: 'proxy.dependsOnOwnProps = true;',
-				replacement: match => `${match} proxy.WrappedComponent = _ref.WrappedComponent;`,
-			},
-		] }),
+		pattern: 'for (var i = 0; i < listeners.length; i++) {',
+		replacement: match => `if (currentState !== oldState) ${match}`,
 	},
-	// redux
-	{
-		test: /createStore.js/,
-		loader: StringReplacePlugin.replace({ replacements: [
-			// optimize redux so that if a reducer does not change the state at all, then the store-subscribers are not notified
-			{
-				pattern: 'currentState = currentReducer(currentState, action)',
-				replacement: match => `var oldState = currentState; ${match}`,
-			},
-			{
-				pattern: 'for (var i = 0; i < listeners.length; i++) {',
-				replacement: match => `if (currentState !== oldState) ${match}`,
-			},
-		] }),
-	},
-);
+]);
+
 
 // make all Object.defineProperty calls leave the property configurable (probably better to just wrap the Object.defineProperty function)
-/* webpackConfig.module.rules.push({
-	test: /index\.js$/,
-	loader: StringReplacePlugin.replace({ replacements: [
-		{
-			pattern: /enumerable: true,/g,
-			replacement(match, offset, string) {
-				return `${match} configurable: true,`;
-			},
+/* AddStringReplacement(/index\.js$/, [
+	{
+		pattern: /enumerable: true,/g,
+		replacement(match, offset, string) {
+			return `${match} configurable: true,`;
 		},
-	] }),
-}); */
+	},
+]); */
 
 // css loaders
 // ==========
