@@ -21,7 +21,7 @@ type Payload = {
 	newForm?: ClaimForm, newPolarity?: Polarity, allowCreateWrapperArg?: boolean,
 	unlinkFromOldParent?: boolean, deleteOrphanedArgumentWrapper?: boolean };
 
-export function LinkNode_HighLevel_GetCommandError(command: LinkNode_HighLevel) {
+export function LinkNode_HighLevel_GetCommandError(command: LinkNode_HighLevel, draggedNodePath: string, newParentPath: string) {
 	const { mapID, newParentID, nodeID, newForm, newPolarity } = command.payload;
 	const permissions = GetUserPermissionGroups(MeID());
 	const node = GetNode(nodeID);
@@ -40,6 +40,12 @@ export function LinkNode_HighLevel_GetCommandError(command: LinkNode_HighLevel) 
 		if (error) return error;
 	}
 	// todo: find way of including all the validation of the actual LinkNode_HighLevel command, without having to duplicate the logic here
+
+	// extra checks // todo: integrate these safeguards into the LinkNode_HighLevel Validate() function as well
+	// if (command.payload.unlinkFromOldParent && node.parents.VKeys(true).length == 1 && newParentPath.startsWith(draggedNodePath)) {
+	if (command.payload.unlinkFromOldParent && newParentPath.startsWith(draggedNodePath)) {
+		return "Cannot move a node to a path underneath itself. (the move could orphan it and its descendants, if the new-parent's only anchoring was through the dragged-node)";
+	}
 }
 
 export function CreateLinkCommand(mapID: UUID, draggedNodePath: string, dropOnNodePath: string, polarity: Polarity, asCopy: boolean) {

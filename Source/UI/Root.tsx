@@ -110,7 +110,7 @@ export class RootUIWrapper extends BaseComponent<{store}, {}> {
 				return;
 			}
 
-			const moveCommand_error = LinkNode_HighLevel_GetCommandError(moveCommand);
+			const moveCommand_error = LinkNode_HighLevel_GetCommandError(moveCommand, draggedNodePath, newParentPath);
 
 			const controller = ShowMessageBox({
 				title: 'Copy/move the dragged node?', okButton: false, cancelButton: false,

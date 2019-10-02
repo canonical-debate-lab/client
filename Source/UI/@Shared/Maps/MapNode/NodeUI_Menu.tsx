@@ -299,7 +299,7 @@ class PasteAsLink_MenuItem extends BaseComponent<SharedProps, {}> {
 			allowCreateWrapperArg: holderType != null || !node.multiPremiseArgument,
 			unlinkFromOldParent: copiedNode_asCut, deleteOrphanedArgumentWrapper: true,
 		});
-		const error = LinkNode_HighLevel_GetCommandError(linkCommand);
+		const error = LinkNode_HighLevel_GetCommandError(linkCommand, copiedNodePath, path);
 
 		return (
 			<VMenuItem text={`Paste${copiedNode_asCut ? '' : ' as link'}: "${GetNodeDisplayText(copiedNode, null, formForClaimChildren).KeepAtMost(50)}"`}
