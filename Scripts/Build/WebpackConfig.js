@@ -246,10 +246,10 @@ AddStringReplacement(/react-beautiful-dnd.esm.js$/, [
 	}, */
 	// make lib support nested-lists better (from: https://github.com/atlassian/react-beautiful-dnd/pull/636)
 	{
-		pattern: /var getDroppableOver = (.|\n)+?(?=var getDraggablesInsideDroppable)/,
+		pattern: /var getDroppableOver\$1 = (.|\n)+?(?=var withDroppableScroll)/,
 		replacement: () => {
 			return `
-				var getDroppableOver = (function(args) {
+				var getDroppableOver$1 = (function(args) {
 					var target = args.target, droppables = args.droppables;
 					var maybe = toDroppableList(droppables)
 						.filter(droppable => {

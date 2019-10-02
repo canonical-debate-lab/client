@@ -4,7 +4,7 @@ export function MapEdit(target: Function) {
 	const oldPrepare = target.prototype.Prepare;
 	target.prototype.Prepare = async function () {
 		await oldPrepare.apply(this);
-		if (this.payload.mapID && this.payload.mapID > 0) {
+		if (this.payload.mapID) {
 			this.map_oldEditCount = await GetDataAsync({ addHelpers: false }, 'maps', this.payload.mapID, '.edits') as number || 0;
 		}
 	};
@@ -13,7 +13,7 @@ export function MapEdit(target: Function) {
 	target.prototype.GetDBUpdates = function () {
 		const updates = oldGetDBUpdates.apply(this);
 		const newUpdates = {};
-		if (this.payload.mapID && this.payload.mapID > 0) {
+		if (this.payload.mapID) {
 			newUpdates[`maps/${this.payload.mapID}/.edits`] = this.map_oldEditCount + 1;
 			newUpdates[`maps/${this.payload.mapID}/.editedAt`] = Date.now();
 		}
