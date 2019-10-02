@@ -5,6 +5,7 @@ import { Column } from 'react-vcomponents';
 import { GetMaps } from 'Store/firebase/maps';
 import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
 import { ScrollView } from 'react-vscrollview';
+import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import {styles, ES} from "../Utils/UI/GlobalStyles";
 import { MapType, Map } from '../Store/firebase/maps/@Map';
 import { MapEntryUI } from './@Shared/Maps/MapEntryUI';
@@ -13,8 +14,8 @@ import { ShowSignInPopup } from './@Shared/NavBar/UserPanel';
 import { ShowAddMapDialog } from './@Shared/Maps/AddMapDialog';
 import { GetSelectedDebateMapID, GetSelectedDebateMap } from '../Store/main/debates';
 import { MapUI } from './@Shared/Maps/MapUI';
-import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { Connect } from 'Utils/FrameworkOverrides';
+import { ToNumber } from 'js-vextensions';
 
 export const columnWidths = [0.64, 0.06, 0.12, 0.18];
 
@@ -33,7 +34,7 @@ export class DebatesUI extends BaseComponentWithConnector(connector, {}) {
 			return <MapUI map={selectedMap}/>;
 		}
 
-		maps = maps.OrderByDescending(a => a.edits);
+		maps = maps.OrderByDescending(a => ToNumber(a.edits, 0));
 
 		return (
 			<Column style={ES({ width: 960, flex: 1, margin: '20px auto 20px auto', filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)' })}>

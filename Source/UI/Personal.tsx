@@ -8,6 +8,7 @@ import { GetSelectedPersonalMap } from 'Store/main/personal';
 import { columnWidths } from 'UI/Debates';
 import { Connect } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
+import {ToNumber} from 'js-vextensions';
 import { Map, MapType } from '../Store/firebase/maps/@Map';
 import { PermissionGroupSet } from '../Store/firebase/userExtras/@UserExtraInfo';
 import { ShowAddMapDialog } from './@Shared/Maps/AddMapDialog';
@@ -32,7 +33,7 @@ export class PersonalUI extends BaseComponentWithConnector(connector, {}) {
 			return <MapUI map={selectedMap}/>;
 		}
 
-		maps = maps.OrderByDescending(a => a.edits);
+		maps = maps.OrderByDescending(a => ToNumber(a.edits, 0));
 
 		return (
 			<Column style={ES({ width: 960, flex: 1, margin: '20px auto 20px auto', filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)' })}>
