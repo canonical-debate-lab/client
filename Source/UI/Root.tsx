@@ -104,7 +104,7 @@ export class RootUIWrapper extends BaseComponent<{store}, {}> {
 			const copyCommand = CreateLinkCommandForDND(mapID, draggedNodePath, newParentPath, polarity, true);
 			const moveCommand = CreateLinkCommandForDND(mapID, draggedNodePath, newParentPath, polarity, false);
 
-			const copyCommand_error = LinkNode_HighLevel_GetCommandError(copyCommand);
+			const copyCommand_error = LinkNode_HighLevel_GetCommandError(copyCommand, draggedNodePath, newParentPath);
 			if (copyCommand_error) {
 				ShowMessageBox({ title: 'Cannot copy/move node', message: `Reason: ${copyCommand_error}` });
 				return;

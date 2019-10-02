@@ -39,6 +39,13 @@ export function LinkNode_HighLevel_GetCommandError(command: LinkNode_HighLevel, 
 		const error = ForNewLink_GetError(newParentID, node, permissions);
 		if (error) return error;
 	}
+
+	try {
+		command.Validate_Early();
+	} catch (error) {
+		return error.message.replace(/^Assert failed\) /, '');
+	}
+
 	// todo: find way of including all the validation of the actual LinkNode_HighLevel command, without having to duplicate the logic here
 
 	// extra checks // todo: integrate these safeguards into the LinkNode_HighLevel Validate() function as well
@@ -69,8 +76,10 @@ export function CreateLinkCommand(mapID: UUID, draggedNodePath: string, dropOnNo
 export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: string}> {
 	static defaultPayload = { allowCreateWrapperArg: true };
 	Validate_Early() {
-		const { oldParentID, nodeID } = this.payload;
-		Assert(oldParentID !== nodeID, 'Parent-id and child-id cannot be the same!');
+		const { oldParentID, newParentID, nodeID } = this.payload;
+		Assert(oldParentID !== nodeID, 'Old parent-id and child-id cannot be the same!');
+		Assert(newParentID !== nodeID, 'New parent-id and child-id cannot be the same!');
+		Assert(oldParentID !== newParentID, 'Old-parent-id and new-parent-id cannot be the same!');
 	}
 
 	node_data: MapNode;
@@ -144,10 +153,10 @@ export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: st
 
 	GetDBUpdates() {
 		let updates = {};
-		if (this.sub_addArgumentWrapper) updates = MergeDBUpdates(updates, this.sub_addArgumentWrapper.GetDBUpdates());
-		updates = MergeDBUpdates(updates, this.sub_linkToNewParent.GetDBUpdates());
 		if (this.sub_unlinkFromOldParent) updates = MergeDBUpdates(updates, this.sub_unlinkFromOldParent.GetDBUpdates());
 		if (this.sub_deleteOldParent) updates = MergeDBUpdates(updates, this.sub_deleteOldParent.GetDBUpdates());
+		if (this.sub_addArgumentWrapper) updates = MergeDBUpdates(updates, this.sub_addArgumentWrapper.GetDBUpdates());
+		updates = MergeDBUpdates(updates, this.sub_linkToNewParent.GetDBUpdates());
 		return updates;
 	}
 }
