@@ -159,7 +159,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 		if (!asDragPreview && this.draggableDiv) { */
 		this.SetState(E(
 			// { dragActive: this.draggableDiv == null },
-			this.draggableDiv != null && { lastWidthWhenNotPreview: this.draggableDiv.getBoundingClientRect().width },
+			this.root && this.root.DOM && { lastWidthWhenNotPreview: this.root.DOM.getBoundingClientRect().width },
 		));
 	}
 
@@ -227,7 +227,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 				local_openPanel = null;
 			}
 			return (
-				<ExpandableBox ref={c => DoNothing(dragInfo && dragInfo.provided.innerRef(GetDOM(c) as any), this.root = c, this.draggableDiv = GetDOM(c) as HTMLDivElement)}
+				<ExpandableBox ref={c => DoNothing(dragInfo && dragInfo.provided.innerRef(GetDOM(c) as any), this.root = c)}
 					{...{ width, widthOverride, outlineColor, expanded }} parent={this}
 					className={classNames('NodeUI_Inner', asDragPreview && 'DragPreview', { root: pathNodeIDs.length == 0 })}
 					onMouseEnter={() => {
@@ -308,13 +308,12 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 			);
 		};
 
-		// if drag preview, we have to put in portal, since otherwise the "filter" effect of ancestors causes the {position:fixed} style to not be relative-to-page
 		/* if (asDragPreview) {
 			return ReactDOM.createPortal(result, portal);
 		} */
 		// return result;
 
-		function GetCompProps() {
+		function GetDNDProps() {
 			if (!IsUserCreatorOrMod(MeID(), node)) return null;
 			if (!path.includes('/')) return null; // don't make draggable if root-node of map
 			return {
@@ -323,61 +322,29 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 				index: indexInNodeList,
 			};
 		}
-		const compProps = GetCompProps();
-		if (compProps == null) {
+		const dndProps = GetDNDProps();
+		if (dndProps == null) {
 			return renderInner(null);
-			/* return (
-				<div style={E(
-					{ width: 350, background: HSLA(0, 0, 0, 0.5), whiteSpace: 'normal' as any },
-				)}>
-					Test
-				</div>
-			); */
 		}
-		const draggableID = ToJSON(compProps.draggableInfo);
+
+		const draggableID = ToJSON(dndProps.draggableInfo);
 		return (
 			<>
 				{/* <div>asDragPreview: {asDragPreview}</div> */}
-				<Draggable type={compProps.type} key={draggableID} draggableId={draggableID} index={compProps.index}>
+				<Draggable type={dndProps.type} key={draggableID} draggableId={draggableID} index={dndProps.index}>
 					{(provided, snapshot) => {
 						const dragInfo = { provided, snapshot };
-						// return renderInner(dragInfo);
 						const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
-						return asDragPreview ? ReactDOM.createPortal(renderInner(dragInfo), portal) : renderInner(dragInfo);
-						// return <WrappedComponent {...this.props} ref={c=>provided.innerRef(GetDOM(c) as any)} dragInfo={dragInfo}/>;
-						// test
-						/* return (
-							<div ref={(c) => {
-								this.draggableDiv = c;
-								provided.innerRef(c as any);
-							}}
-							{...(dragInfo && dragInfo.provided.draggableProps)}
-							{...(dragInfo && dragInfo.provided.dragHandleProps)}
-							style={E(
-								{ width: 350, background: HSLA(0, 0, 0, 0.5), whiteSpace: 'normal' },
-								dragInfo && dragInfo.provided.draggableProps.style,
-							)}>
-								{ToJSON(dragInfo).substr(0, 30)}
-							</div>
-						); */
+
+						// if drag preview, we have to put in portal, since otherwise the "filter" effect of ancestors causes the {position:fixed} style to not be relative-to-page
+						if (asDragPreview) return ReactDOM.createPortal(renderInner(dragInfo), portal);
+						return renderInner(dragInfo);
 					}}
 				</Draggable>
 				<div style={{ width: this.state.lastWidthWhenNotPreview }}/>
 			</>
 		);
-
-		// test
-		/* return (
-			<TitlePanel {...{ indexInNodeList, parent: this, map, node, nodeView, path }} ref={c => this.titlePanel = c}
-				{...(dragInfo && dragInfo.provided.draggableProps)}
-				{...(dragInfo && dragInfo.provided.dragHandleProps)}
-				style={E(
-					{ width: 350 },
-					dragInfo && dragInfo.provided.draggableProps.style,
-				)}/>
-		); */
 	}
-	draggableDiv: HTMLDivElement;
 	definitionsPanel: DefinitionsPanel;
 	/* ComponentDidMount() {
 		// we have to use native/jquery hover/mouseenter+mouseleave, to fix that in-equation term-placeholders would cause "mouseleave" to be triggered
