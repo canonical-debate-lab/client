@@ -20,6 +20,7 @@ const PlayingSubpanel_connector = (state, { map }: {map: Map}) => {
 };
 @Connect(PlayingSubpanel_connector)
 export class PlayingSubpanel extends BaseComponentWithConnector(PlayingSubpanel_connector, {}) {
+	player: YoutubePlayer;
 	render() {
 		const { map, timeline } = this.props;
 		if (timeline == null) return null;
@@ -27,7 +28,11 @@ export class PlayingSubpanel extends BaseComponentWithConnector(PlayingSubpanel_
 			<Column style={{ height: '100%' }}>
 				{timeline.videoID &&
 				<YoutubePlayerUI videoID={timeline.videoID} startTime={timeline.videoStartTime} heightVSWidthPercent={timeline.videoHeightVSWidthPercent}
-					onPlayerInitialized={player => player.GetPlayerUI().style.position = 'absolute'}/>}
+					onPlayerInitialized={(player) => {
+						this.player = player;
+						player.GetPlayerUI().style.position = 'absolute';
+						this.Update();
+					}}/>}
 				<ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, position: 'relative', padding: 7, filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)' })}>
 					{/* timelineSteps && timelineSteps.map((step, index) => <StepUI key={index} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>) */}
 					<ReactList type='variable' length={timeline.steps.length}
@@ -43,17 +48,17 @@ export class PlayingSubpanel extends BaseComponentWithConnector(PlayingSubpanel_
 	};
 	RenderStep = (index: number, key: any) => {
 		const { map, timeline } = this.props;
-		return <StepUI key={key} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} stepID={timeline.steps[index]}/>;
+		return <StepUI key={key} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} stepID={timeline.steps[index]} player={this.player}/>;
 	};
 }
 
-type StepUIProps = {index: number, last: boolean, map: Map, timeline: Timeline, stepID: string} & Partial<{step: TimelineStep}> & Partial<{}>;
+type StepUIProps = {index: number, last: boolean, map: Map, timeline: Timeline, stepID: string, player: YoutubePlayer} & Partial<{step: TimelineStep}> & Partial<{}>;
 @Connect((state, { map, stepID }: StepUIProps) => ({
 	step: GetTimelineStep(stepID),
 }))
 class StepUI extends BaseComponent<StepUIProps, {}> {
 	render() {
-		const { index, last, map, timeline, step } = this.props;
+		const { index, last, map, timeline, step, player } = this.props;
 		if (step == null) return <div style={{ height: 50 }}/>;
 
 		let margin: string;
@@ -64,7 +69,16 @@ class StepUI extends BaseComponent<StepUIProps, {}> {
 		return (
 			// wrapper needed to emulate margin-top (since react-list doesn't support margins)
 			<div style={{ paddingTop: index == 0 ? 0 : 7 }}>
-				<Column /* mt={index == 0 ? 0 : 7} */ m={margin} style={{ background: 'rgba(0,0,0,.7)', borderRadius: 10, border: '1px solid rgba(255,255,255,.15)' }}>
+				<Column /* mt={index == 0 ? 0 : 7} */ m={margin}
+					style={E(
+						{ background: 'rgba(0,0,0,.7)', borderRadius: 10, border: '1px solid rgba(255,255,255,.15)' },
+						player && step.videoTime != null && { cursor: 'pointer' },
+					)}
+					onClick={() => {
+						if (player && step.videoTime != null) {
+							player.SetPosition(step.videoTime);
+						}
+					}}>
 					<Div sel p="7px 10px">
 						<Row style={{ float: 'right', fontSize: 16 }}>{index + 1}</Row>
 						<VReactMarkdown_Remarkable addMarginsForDanglingNewLines={true}
