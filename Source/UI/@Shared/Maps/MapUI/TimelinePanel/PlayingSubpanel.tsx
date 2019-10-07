@@ -1,5 +1,5 @@
 import { BaseComponentWithConnector, BaseComponent } from 'react-vextensions';
-import { Connect, YoutubePlayer, YoutubePlayerUI, VReactMarkdown_Remarkable } from 'Utils/FrameworkOverrides';
+import { Connect, YoutubePlayer, YoutubePlayerUI, VReactMarkdown_Remarkable, YoutubePlayerState } from 'Utils/FrameworkOverrides';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetSelectedTimeline } from 'Store/main/maps/$map';
 import { GetTimelineSteps, GetTimelineStep } from 'Store/firebase/timelines';
@@ -63,8 +63,8 @@ class StepUI extends BaseComponent<StepUIProps, {}> {
 
 		let margin: string;
 		if (step.groupID == PositionOptionsEnum.Center) margin = '0 30px';
-		if (step.groupID == PositionOptionsEnum.Left) margin = '0 0 0 50px';
-		if (step.groupID == PositionOptionsEnum.Right) margin = '0 50px 0 0';
+		if (step.groupID == PositionOptionsEnum.Left) margin = '0 50px 0 0';
+		if (step.groupID == PositionOptionsEnum.Right) margin = '0 0 0 50px';
 
 		return (
 			// wrapper needed to emulate margin-top (since react-list doesn't support margins)
@@ -74,8 +74,13 @@ class StepUI extends BaseComponent<StepUIProps, {}> {
 						{ background: 'rgba(0,0,0,.7)', borderRadius: 10, border: '1px solid rgba(255,255,255,.15)' },
 						player && step.videoTime != null && { cursor: 'pointer' },
 					)}
-					onClick={() => {
+					onClick={async () => {
 						if (player && step.videoTime != null) {
+							// this shouldn't be necessary, but apparently is
+							if (player.state == YoutubePlayerState.CUED) {
+								player.Play();
+								await player.WaitTillState(YoutubePlayerState.PLAYING);
+							}
 							player.SetPosition(step.videoTime);
 						}
 					}}>
