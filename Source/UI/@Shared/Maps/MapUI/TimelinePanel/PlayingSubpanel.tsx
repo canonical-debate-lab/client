@@ -9,6 +9,7 @@ import { ES } from 'Utils/UI/GlobalStyles';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import ReactList from 'react-list';
+import { PositionOptionsEnum } from './EditorSubpanel';
 
 const PlayingSubpanel_connector = (state, { map }: {map: Map}) => {
 	const timeline = GetSelectedTimeline(map._key);
@@ -55,10 +56,15 @@ class StepUI extends BaseComponent<StepUIProps, {}> {
 		const { index, last, map, timeline, step } = this.props;
 		if (step == null) return <div style={{ height: 50 }}/>;
 
+		let margin: string;
+		if (step.groupID == PositionOptionsEnum.Center) margin = '0 30px';
+		if (step.groupID == PositionOptionsEnum.Left) margin = '0 0 0 50px';
+		if (step.groupID == PositionOptionsEnum.Right) margin = '0 50px 0 0';
+
 		return (
 			// wrapper needed to emulate margin-top (since react-list doesn't support margins)
 			<div style={{ paddingTop: index == 0 ? 0 : 7 }}>
-				<Column /* mt={index == 0 ? 0 : 7} */ style={{ background: 'rgba(0,0,0,.7)', borderRadius: 10, border: '1px solid rgba(255,255,255,.15)' }}>
+				<Column /* mt={index == 0 ? 0 : 7} */ m={margin} style={{ background: 'rgba(0,0,0,.7)', borderRadius: 10, border: '1px solid rgba(255,255,255,.15)' }}>
 					<Div sel p="7px 10px">
 						<Row style={{ float: 'right', fontSize: 16 }}>{index + 1}</Row>
 						<VReactMarkdown_Remarkable addMarginsForDanglingNewLines={true}

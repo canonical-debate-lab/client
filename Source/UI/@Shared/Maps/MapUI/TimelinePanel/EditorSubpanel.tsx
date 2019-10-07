@@ -1,4 +1,4 @@
-import { ToJSON, Vector2i, VRect, WaitXThenRun, Assert } from 'js-vextensions';
+import { ToJSON, Vector2i, VRect, WaitXThenRun, Assert, GetEntries } from 'js-vextensions';
 import { Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 import { Text, Button, CheckBox, Column, Pre, Row, Select, Spinner, TextArea, TextInput, TimeSpanInput } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector, GetDOM, SimpleShouldUpdate } from 'react-vextensions';
@@ -134,12 +134,19 @@ export class EditorSubpanel extends BaseComponentWithConnector(EditorSubpanel_co
 	};
 }
 
-const positionOptions = [
+export enum PositionOptionsEnum {
+	Full = null,
+	Left = 1,
+	Right = 2,
+	Center = 3,
+}
+/* export const positionOptions = [
 	{ name: 'Full', value: null },
 	{ name: 'Left', value: 1 },
 	{ name: 'Right', value: 2 },
 	{ name: 'Center', value: 3 },
-];
+]; */
+const positionOptions = GetEntries(PositionOptionsEnum);
 
 
 /* let portal: HTMLElement;
