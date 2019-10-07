@@ -21,13 +21,13 @@ import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
 import { Polarity } from 'Store/firebase/nodes/@MapNode';
 import { GetPathNodeIDs } from 'Store/main/mapViews';
 import { CreateLinkCommand as CreateLinkCommandForDND, LinkNode_HighLevel_GetCommandError } from 'Server/Commands/LinkNode_HighLevel';
-import { GetNodeDisplayText, GetNodeL3, IsMultiPremiseArgument } from 'Store/firebase/nodes/$node';
+import { GetNodeDisplayText, GetNodeL3, IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument } from 'Store/firebase/nodes/$node';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { Fragment } from 'react';
 import { GetTimelineStep } from 'Store/firebase/timelines';
 import { UpdateTimelineStep } from 'Server/Commands/UpdateTimelineStep';
 import { NodeReveal } from 'Store/firebase/timelineSteps/@TimelineStep';
-import { GetParentNode, GetParentPath } from 'Store/firebase/nodes';
+import { GetParentNode, GetParentPath, GetNode, GetNodeID } from 'Store/firebase/nodes';
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { UpdateTimelineStepOrder } from 'Server/Commands/UpdateTimelineStepOrder';
 import { GetUserBackground } from '../Store/firebase/users';
@@ -147,9 +147,10 @@ export class RootUIWrapper extends BaseComponent<{store}, {}> {
 			new UpdateTimelineStepOrder({ timelineID: sourceDroppableInfo.timelineID, stepID: draggableInfo.stepID, newIndex: targetIndex }).Run();
 		} else if (targetDroppableInfo.type == 'TimelineStepNodeRevealList') {
 			let path = draggableInfo.nodePath;
+			const draggedNode = GetNode(GetNodeID(path));
 			const parentNode = GetParentNode(path);
-			// if parent is argument, and it's a single-premise argument, use that instead (the UI for the argument and claim are combined, but user probably wanted the whole argument dragged)
-			if (parentNode && parentNode.type == MapNodeType.Argument && !IsMultiPremiseArgument(parentNode)) {
+			// if dragged-node is the premise of a single-premise argument, use the argument-node instead (the UI for the argument and claim are combined, but user probably wanted the whole argument dragged)
+			if (IsPremiseOfSinglePremiseArgument(draggedNode, parentNode)) {
 				path = GetParentPath(path);
 			}
 

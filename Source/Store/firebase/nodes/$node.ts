@@ -281,6 +281,7 @@ export function GetClaimType(node: MapNodeL2) {
 	);
 }
 
+/** Returns whether the node provided is an argument, and marked as single-premise. */
 export function IsSinglePremiseArgument(node: MapNode) {
 	/* nodeChildren = nodeChildren || GetNodeChildren(node);
 	if (nodeChildren.Any(a=>a == null)) return null;
@@ -288,6 +289,7 @@ export function IsSinglePremiseArgument(node: MapNode) {
 	return node.type == MapNodeType.Argument && nodeChildren.filter(a=>a.type == MapNodeType.Claim).length == 1; */
 	return node && node.type == MapNodeType.Argument && !node.multiPremiseArgument;
 }
+/** Returns whether the node provided is an argument, and marked as multi-premise. */
 export function IsMultiPremiseArgument(node: MapNode) {
 	/* nodeChildren = nodeChildren || GetNodeChildren(node);
 	if (nodeChildren.Any(a=>a == null)) return null;

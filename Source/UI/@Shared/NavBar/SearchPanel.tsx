@@ -74,7 +74,7 @@ export class SearchPanel extends BaseComponentWithConnector(connector, {}) {
 		const { queryStr, results_nodeIDs } = this.props;
 		return (
 			<Column style={{ width: 750, padding: 5, background: 'rgba(0,0,0,.7)', borderRadius: '0 0 0 5px' }}>
-				<Row>
+				<Row center>
 					<TextInput style={{ flex: 1 }} value={queryStr}
 						onChange={(val) => {
 							store.dispatch(new ACTSet(a => a.main.search.queryStr, val));

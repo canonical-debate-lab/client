@@ -31,7 +31,7 @@ export class PhrasingsPanel extends BaseComponentWithConnector(connector, { sele
 
 		return (
 			<Column style={{ position: 'relative' }}>
-				<Row>
+				<Row center>
 					<Pre style={{ fontSize: 17 }}>Precise Phrasings</Pre>
 					<InfoButton ml={5} text={'Precise phrasings are variants of the node\'s title that are meant to "compete" as the node\'s main display text. They should strive to be concise, of high quality, and neutral (ie. avoiding rhetoric).'}/>
 					<Button ml="auto" text="Add phrasing" enabled={CanGetBasicPermissions(MeID()) && false} title="Add precise phrasing-variant for this node (disabled at the moment)" onClick={() => {
@@ -44,7 +44,7 @@ export class PhrasingsPanel extends BaseComponentWithConnector(connector, { sele
 						return <PhrasingRow key={index} phrasing={phrasing} index={index} selected={phrasing._key == selectedPhrasingID} toggleSelected={() => this.TogglePhrasingSelected(phrasing._key)}/>;
 					})}
 				</Column>
-				<Row>
+				<Row center>
 					<Pre style={{ fontSize: 17 }}>Natural Phrasings</Pre>
 					<InfoButton ml={5} text="Natural phrasings are variants of the node's title that you'd hear in everyday life. These aren't used as the main display text, but can help people better understand the meaning."/>
 					<Button ml="auto" text="Add phrasing" enabled={CanGetBasicPermissions(MeID())} title="Add natural phrasing-variant for this node" onClick={() => {
