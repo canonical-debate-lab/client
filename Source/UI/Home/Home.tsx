@@ -1,6 +1,6 @@
 import { E } from 'js-vextensions';
 import { BaseComponent } from 'react-vextensions';
-import { VReactMarkdown } from 'Utils/FrameworkOverrides';
+import { VReactMarkdown, PageContainer } from 'Utils/FrameworkOverrides';
 import { styles } from '../../Utils/UI/GlobalStyles';
 
 const pageText = `
@@ -12,9 +12,11 @@ Description text will be added here later.
 export class HomeUI2 extends BaseComponent<{}, {}> {
 	render() {
 		return (
-			<article>
-				<VReactMarkdown source={pageText} className='selectable' style={E(styles.page, { marginBottom: 0 })}/>
-			</article>
+			<PageContainer scrollable={true}>
+				<article>
+					<VReactMarkdown source={pageText} className='selectable'/>
+				</article>
+			</PageContainer>
 		);
 	}
 }

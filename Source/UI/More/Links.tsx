@@ -1,5 +1,5 @@
 import { BaseComponent, SimpleShouldUpdate } from 'react-vextensions';
-import {VReactMarkdown_Remarkable} from 'Utils/FrameworkOverrides';
+import { VReactMarkdown_Remarkable, PageContainer } from 'Utils/FrameworkOverrides';
 import { styles } from '../../Utils/UI/GlobalStyles';
 
 const pageText = `
@@ -20,10 +20,12 @@ export class LinksUI extends BaseComponent<{}, {}> {
 	render() {
 		const { page, match } = this.props;
 		return (
-			<article className="selectableAC" style={styles.page}>
-				{/* <VReactMarkdown className="selectable" source={pageText} containerProps={{style: styles.page}}/> */}
-				<VReactMarkdown_Remarkable source={pageText}/>
-			</article>
+			<PageContainer scrollable={true}>
+				<article className="selectableAC">
+					{/* <VReactMarkdown className="selectable" source={pageText}/> */}
+					<VReactMarkdown_Remarkable source={pageText}/>
+				</article>
+			</PageContainer>
 		);
 	}
 }

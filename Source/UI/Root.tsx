@@ -8,7 +8,6 @@ import { VMenuLayer } from 'react-vmenu';
 import { MessageBoxUI, ShowMessageBox } from 'react-vmessagebox';
 import { PersistGate } from 'redux-persist/integration/react';
 import { MeID, Me } from 'Store/firebase/users';
-import { GuideUI } from 'UI/Guide';
 import '../../Source/Utils/Styles/Main.scss'; // keep absolute-ish, since scss file not copied to Source_JS folder
 import '../Utils/UI/JQueryExtensions';
 import keycode from 'keycode';
@@ -42,7 +41,6 @@ import { FeedbackUI } from './Feedback';
 import { ForumUI } from './Forum';
 import { PersonalUI } from './Personal';
 import { UserProfileUI } from './Database/Users/UserProfile';
-import { SearchUI } from './Search';
 import { SocialUI } from './Social';
 import { GADDemo } from './@GAD/GAD';
 import { NavBar_GAD } from './@GAD/NavBar_GAD';
@@ -275,8 +273,8 @@ class RootUI extends BaseComponentWithConnector(connector, {}) {
 					<Route path='/debates'><DebatesUI/></Route>
 					<Route path='/global'><GlobalUI/></Route>
 
-					<Route path='/search'><SearchUI/></Route>
-					<Route path='/guide'><GuideUI/></Route>
+					{/* <Route path='/search'><SearchUI/></Route>
+					<Route path='/guide'><GuideUI/></Route> */}
 					<Route path='/profile'><UserProfileUI profileUser={Me()}/></Route>
 				</main>
 			</Column>

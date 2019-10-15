@@ -1,5 +1,5 @@
 import { BaseComponent, SimpleShouldUpdate } from 'react-vextensions';
-import {VReactMarkdown} from 'Utils/FrameworkOverrides';
+import { VReactMarkdown, PageContainer } from 'Utils/FrameworkOverrides';
 import { styles } from '../../Utils/UI/GlobalStyles';
 
 const pageText = `
@@ -20,21 +20,23 @@ export class AboutUI extends BaseComponent<{}, {}> {
 	render() {
 		const { page, match } = this.props;
 		return (
-			<article>
-				<VReactMarkdown className="selectable" style={styles.page} source={pageText}
-					/* markdownOptions={{breaks: false}} rendererOptions={{breaks: false}}
-					rendererOptions={{
-						components: {
-							br: ()=><span> </span>
-						}
-					}} */
-					/* renderers={{
-						Text: props=> {
-							return <span style={{color: "rgba(255,255,255,.7)"}}>{props.literal}</span>;
-						}
-					}} */
-				/>
-			</article>
+			<PageContainer scrollable={true}>
+				<article>
+					<VReactMarkdown className="selectable" source={pageText}
+						/* markdownOptions={{breaks: false}} rendererOptions={{breaks: false}}
+						rendererOptions={{
+							components: {
+								br: ()=><span> </span>
+							}
+						}} */
+						/* renderers={{
+							Text: props=> {
+								return <span style={{color: "rgba(255,255,255,.7)"}}>{props.literal}</span>;
+							}
+						}} */
+					/>
+				</article>
+			</PageContainer>
 		);
 	}
 }

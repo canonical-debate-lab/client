@@ -5,7 +5,7 @@ import { ShowMessageBox } from 'react-vmessagebox';
 import { HasAdminPermissions } from 'Store/firebase/userExtras';
 import { Omit } from 'lodash';
 import { StopStateDataOverride, StartStateDataOverride, UpdateStateDataOverride } from 'UI/@Shared/StateOverrides';
-import { Connect, GetData, DBPath, State, RemoveHelpers, SplitStringBySlash_Cached, GetDataAsync, ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks } from 'Utils/FrameworkOverrides';
+import { Connect, GetData, DBPath, State, RemoveHelpers, SplitStringBySlash_Cached, GetDataAsync, ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks, PageContainer } from 'Utils/FrameworkOverrides';
 import { dbVersion } from 'Main';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
 import { styles } from '../../Utils/UI/GlobalStyles';
@@ -57,12 +57,12 @@ export class AdminUI extends BaseComponentWithConnector(connector, { dbUpgrade_e
 
 	render() {
 		const { isAdmin } = this.props;
-		if (!isAdmin) return <Column style={E(styles.page)}>Please sign in.</Column>;
+		if (!isAdmin) return <PageContainer>Please sign in.</PageContainer>;
 
 		const { dbUpgrade_entryIndexes, dbUpgrade_entryCounts } = this.state;
 
 		return (
-			<Column style={E(styles.page)}>
+			<PageContainer scrollable={true}>
 				<Row m="-10px 0"><h2>Database</h2></Row>
 				{/* <Row>
 					<Pre>Environment: </Pre><Select options={["dev", "prod"]} value={this.state.env} onChange={val=>this.SetEnvironment(val)}/>
@@ -109,7 +109,7 @@ export class AdminUI extends BaseComponentWithConnector(connector, { dbUpgrade_e
 						});
 					}}/>
 				</Row> */}
-			</Column>
+			</PageContainer>
 		);
 	}
 

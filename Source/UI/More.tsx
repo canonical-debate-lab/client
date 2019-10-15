@@ -21,7 +21,7 @@ export class MoreUI extends BaseComponentWithConnector(connector, {}) {
 		const page = 'more';
 		const admin = HasAdminPermissions(MeID());
 		return (
-			<Column style={ES({ flex: 1 })}>
+			<>
 				<SubNavBar>
 					<SubNavBarButton page={page} subpage="links" text="Links"/>
 					{/* <SubNavBarButton page={page} subpage="tasks" text="Tasks"/> */}
@@ -32,7 +32,7 @@ export class MoreUI extends BaseComponentWithConnector(connector, {}) {
 					{/* currentSubpage == "tasks" && <TasksUI/> */}
 					{currentSubpage == 'admin' && <AdminUI/>}
 				</Switch>
-			</Column>
+			</>
 		);
 	}
 }

@@ -5,7 +5,7 @@ import { User } from 'Store/firebase/users/@User';
 import { UpdateProfile } from 'Server/Commands/UpdateProfile';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { presetBackgrounds, defaultPresetBackground } from 'Utils/UI/PresetBackgrounds';
-import { Connect, ClearLocalData, DBPath } from 'Utils/FrameworkOverrides';
+import { Connect, ClearLocalData, DBPath, PageContainer } from 'Utils/FrameworkOverrides';
 import { styles, ES } from 'Utils/UI/GlobalStyles';
 import { Fragment } from 'react';
 import { PropNameToTitle } from 'Utils/General/Others';
@@ -20,11 +20,11 @@ const connector = (state, { profileUser }: {profileUser: User}) => ({
 export class UserProfileUI extends BaseComponentWithConnector(connector, {}) {
 	render() {
 		const { profileUser, profileUserPermissionGroups, currentUser } = this.props;
-		if (profileUser == null) return <Column style={styles.page}>User does not exist.</Column>;
-		// if (currentUser == null) return <Column style={styles.page}>Must be signed-in to access.</Column>;
+		if (profileUser == null) return <PageContainer>User does not exist.</PageContainer>;
+		// if (currentUser == null) return <PageContainer>Must be signed-in to access.</PageContainer>;
 
 		return (
-			<Column style={E(styles.page, { flex: '0 0 auto' })}>
+			<PageContainer>
 				<Row>
 					<Pre>Username: {profileUser.displayName}</Pre>
 					{profileUser == currentUser &&
@@ -129,7 +129,7 @@ export class UserProfileUI extends BaseComponentWithConnector(connector, {}) {
 							}}/>
 						</Row>
 					</Fragment>}
-			</Column>
+			</PageContainer>
 		);
 	}
 }
