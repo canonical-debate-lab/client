@@ -17,7 +17,7 @@ export class DatabaseUI extends BaseComponent<Props, {}> {
 		const { currentSubpage } = this.props;
 		const page = 'database';
 		return (
-			<div style={ES({ flex: 1, display: 'flex', flexDirection: 'column' })}>
+			<>
 				<SubNavBar>
 					<SubNavBarButton page={page} subpage="users" text="Users" actionIfAlreadyActive={() => new ACTUserSelect({ id: null })}/>
 					<SubNavBarButton page={page} subpage="terms" text="Terms" /* actionIfAlreadyActive={() => new ACTTermSelect({ id: null })} *//>
@@ -28,7 +28,7 @@ export class DatabaseUI extends BaseComponent<Props, {}> {
 					{currentSubpage == 'terms' && <TermsUI/>}
 					{currentSubpage == 'images' && <ImagesUI/>}
 				</Switch>
-			</div>
+			</>
 		);
 	}
 }

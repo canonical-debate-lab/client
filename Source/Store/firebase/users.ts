@@ -2,6 +2,7 @@ import { CachedTransform, Assert } from 'js-vextensions';
 import { User } from 'Store/firebase/users/@User';
 import { presetBackgrounds, defaultPresetBackground } from 'Utils/UI/PresetBackgrounds';
 import { GetData } from 'Utils/FrameworkOverrides';
+import { GADDemo } from 'UI/@GAD/GAD';
 import { GetAuth, IsAuthValid } from '../firebase';
 import { AccessLevel } from './nodes/@MapNode';
 import { UserExtraInfo, PermissionGroupSet } from './userExtras/@UserExtraInfo';
@@ -57,6 +58,8 @@ export function GetUserAccessLevel(userID: string) {
 }
 
 export function GetUserBackground(userID: string) {
+	if (GADDemo) return { color: '#ffffff' };
+
 	const user = GetUser(userID);
 	if (!user) return presetBackgrounds[defaultPresetBackground];
 

@@ -1,6 +1,6 @@
 import { E } from 'js-vextensions';
 import { BaseComponent } from 'react-vextensions';
-import {VReactMarkdown} from 'Utils/FrameworkOverrides';
+import { VReactMarkdown } from 'Utils/FrameworkOverrides';
 import { styles } from '../../Utils/UI/GlobalStyles';
 
 const pageText = `

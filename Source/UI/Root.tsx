@@ -23,29 +23,30 @@ import { GetPathNodeIDs } from 'Store/main/mapViews';
 import { CreateLinkCommand as CreateLinkCommandForDND, LinkNode_HighLevel_GetCommandError } from 'Server/Commands/LinkNode_HighLevel';
 import { GetNodeDisplayText, GetNodeL3, IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument } from 'Store/firebase/nodes/$node';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
-import { Fragment } from 'react';
+import React, { Fragment } from 'react';
 import { GetTimelineStep } from 'Store/firebase/timelines';
 import { UpdateTimelineStep } from 'Server/Commands/UpdateTimelineStep';
 import { NodeReveal } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { GetParentNode, GetParentPath, GetNode, GetNodeID } from 'Store/firebase/nodes';
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { UpdateTimelineStepOrder } from 'Server/Commands/UpdateTimelineStepOrder';
+import ReactDOM from 'react-dom';
 import { GetUserBackground } from '../Store/firebase/users';
 import { NavBar } from '../UI/@Shared/NavBar';
 import { GlobalUI } from '../UI/Global';
 import { HomeUI } from '../UI/Home';
 import { MoreUI } from '../UI/More';
-import { ChatUI } from './Chat';
 import { DatabaseUI } from './Database';
 import { DebatesUI } from './Debates';
 import { FeedbackUI } from './Feedback';
 import { ForumUI } from './Forum';
 import { PersonalUI } from './Personal';
 import { UserProfileUI } from './Database/Users/UserProfile';
-import { ReputationUI } from './Reputation';
 import { SearchUI } from './Search';
 import { SocialUI } from './Social';
-import { StreamUI } from './Stream';
+import { GADDemo } from './@GAD/GAD';
+import { NavBar_GAD } from './@GAD/NavBar_GAD';
+import { HomeUI_GAD } from './@GAD/Home_GAD';
 
 ColorPickerBox.Init(ReactColor, chroma);
 
@@ -193,6 +194,17 @@ export class RootUIWrapper extends BaseComponent<{store}, {}> {
 		if (DEV) {
 			document.body.style.minHeight = null;
 		}
+
+		if (GADDemo) {
+			const linkEl = <link href="//fonts.googleapis.com/css?family=Cinzel&display=swap" rel="stylesheet"/>;
+			ReactDOM.render(ReactDOM.createPortal(linkEl, document.head), document.createElement('div')); // render directly into head
+
+			// const linkEl2 = <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/bebasneueregular" type="text/css"/>;
+			// const linkEl2 = <link rel="stylesheet" media="screen" href="https://cdn.jsdelivr.net/npm/@typopro/web-bebas-neue@3.7.5/TypoPRO-BebasNeue-Bold.css" type="text/css"/>;
+			/* const linkEl2 = <link rel="stylesheet" media="screen" href="//cdn.jsdelivr.net/npm/@typopro/web-bebas-neue@3.7.5/TypoPRO-BebasNeue.css" type="text/css"/>;
+			// const linkEl2 = <link rel="stylesheet" media="screen" href="https://cdn.jsdelivr.net/npm/@typopro/web-bebas-neue@3.7.5/TypoPRO-BebasNeue-Thin.css" type="text/css"/>;
+			ReactDOM.render(ReactDOM.createPortal(linkEl2, document.head), document.createElement('div')); // render directly into head */
+		}
 	}
 }
 
@@ -242,18 +254,22 @@ class RootUI extends BaseComponentWithConnector(connector, {}) {
 				`}</style>
 				<AddressBarWrapper/>
 				<OverlayUI/>
-				<NavBar/>
+				{!GADDemo && <NavBar/>}
+				{GADDemo && <NavBar_GAD/>}
 				{/* <InfoButton_TooltipWrapper/> */}
-				<main style={ES({ position: 'relative', flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' })}>
-					<Route path='/stream'><StreamUI/></Route>
+				<main style={{ position: 'relative', flex: 1, overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+					{/* <Route path='/stream'><StreamUI/></Route>
 					<Route path='/chat'><ChatUI/></Route>
-					<Route path='/reputation'><ReputationUI/></Route>
+					<Route path='/reputation'><ReputationUI/></Route> */}
 
 					<Route path='/database'><DatabaseUI/></Route>
 					<Route path='/forum'><ForumUI/></Route>
 					<Route path='/feedback'><FeedbackUI/></Route>
 					<Route path='/more'><MoreUI/></Route>
-					<Route withConditions={url => NormalizeURL(VURL.FromLocationObject(url)).pathNodes[0] == 'home'}><HomeUI/></Route>
+					<Route withConditions={url => NormalizeURL(VURL.FromLocationObject(url)).pathNodes[0] == 'home'}>
+						{!GADDemo && <HomeUI/>}
+						{GADDemo && <HomeUI_GAD/>}
+					</Route>
 					<Route path='/social'><SocialUI/></Route>
 					<Route path='/personal'><PersonalUI/></Route>
 					<Route path='/debates'><DebatesUI/></Route>

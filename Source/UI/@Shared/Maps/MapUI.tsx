@@ -265,9 +265,9 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 
 	PostRender() {
 		const { map, withinPage } = this.props;
-		if (withinPage && this.scrollView) {
+		/*if (withinPage && this.scrollView) {
 			this.scrollView.vScrollableDOM = $('#HomeScrollView').children('.content')[0];
-		}
+		} */
 		if (map) {
 			SetMapVisitTimeForThisSession(map._key, Date.now());
 		}

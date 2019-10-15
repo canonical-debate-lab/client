@@ -3,7 +3,7 @@ import { User } from 'Store/firebase/users/@User';
 import { Row, Column } from 'react-vcomponents';
 import Moment from 'moment';
 import { ScrollView } from 'react-vscrollview';
-import { Connect, Link, ACTSet, State } from 'Utils/FrameworkOverrides';
+import { Connect, Link, ACTSet, State, PageContainer } from 'Utils/FrameworkOverrides';
 import { GetSelectedUser, ACTUserSelect } from 'Store/main/database';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { UserExtraInfo } from '../../Store/firebase/userExtras/@UserExtraInfo';
@@ -31,7 +31,7 @@ export class UsersUI extends BaseComponentWithConnector(connector, {}) {
 		users = users.OrderByDescending(a => (userExtraInfoMap[a._key] ? (userExtraInfoMap[a._key].edits | 0) : Number.MIN_SAFE_INTEGER));
 
 		return (
-			<Column style={ES({ width: 960, flex: 1, margin: '50px auto 20px auto', filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)' })}>
+			<PageContainer style={{ padding: 0, background: null }}>
 				<Column className="clickThrough" style={{ height: 40, background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' }}>
 					{/* <Row style={{height: 40, padding: 10}}>
 						<Row width={200} style={{position: "absolute", left: "calc(50% - 100px)"}}>
@@ -71,7 +71,7 @@ export class UsersUI extends BaseComponentWithConnector(connector, {}) {
 						return <UserRow key={user._key} index={index} last={index == users.length - 1} user={user} userExtraInfo={userExtraInfo}/>;
 					})}
 				</ScrollView>
-			</Column>
+			</PageContainer>
 		);
 	}
 }

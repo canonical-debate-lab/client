@@ -46,7 +46,7 @@ export class TermsUI extends BaseComponent<Props, {selectedTerm_newData: Term, s
 					position: 'absolute', left: 10, right: '40%', height: 'calc(100% - 20px)', // fix for safari
 					background: 'rgba(0,0,0,.5)', borderRadius: 10,
 				}}>
-					<Row style={{ height: 40, justifyContent: 'center', background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' }}>
+					<Row center style={{ height: 40, justifyContent: 'center', background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' }}>
 						<Div p={7} style={{ position: 'absolute', left: 0 }}>
 							<Button text="Add term" enabled={CanGetBasicPermissions(MeID())} onClick={(e) => {
 								if (userID == null) return ShowSignInPopup();

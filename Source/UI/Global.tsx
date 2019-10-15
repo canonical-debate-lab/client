@@ -17,7 +17,7 @@ export class GlobalUI extends BaseComponent<Props, {}> {
 		const { currentSubpage } = this.props;
 		const page = 'global';
 		return (
-			<Column style={ES({ flex: 1 })}>
+			<>
 				<SubNavBar>
 					<SubNavBarButton page={page} subpage="map" text="Map"/>
 					{/* <SubNavBarButton page={page} subpage="list" text="List"/> */}
@@ -26,7 +26,7 @@ export class GlobalUI extends BaseComponent<Props, {}> {
 					<GlobalMapUI/>
 					{currentSubpage == 'list' && <GlobalListUI/>}
 				</Switch>
-			</Column>
+			</>
 		);
 	}
 }

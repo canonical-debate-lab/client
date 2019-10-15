@@ -27,13 +27,11 @@ export class MoreUI extends BaseComponentWithConnector(connector, {}) {
 					{/* <SubNavBarButton page={page} subpage="tasks" text="Tasks"/> */}
 					{admin && <SubNavBarButton page={page} subpage="admin" text="Admin"/>}
 				</SubNavBar>
-				<ScrollView style={ES({ flex: 1 } /* styles.fillParent_abs */)} scrollVBarStyle={{ width: 10 }}>
-					<Switch>
-						<LinksUI/>
-						{/* currentSubpage == "tasks" && <TasksUI/> */}
-						{currentSubpage == 'admin' && <AdminUI/>}
-					</Switch>
-				</ScrollView>
+				<Switch>
+					<LinksUI/>
+					{/* currentSubpage == "tasks" && <TasksUI/> */}
+					{currentSubpage == 'admin' && <AdminUI/>}
+				</Switch>
 			</Column>
 		);
 	}
