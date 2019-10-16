@@ -258,7 +258,7 @@ function PostInit() {
 	let lastContextData; // only gets updated when one of the above components change
 	store.subscribe(() => {
 		const auth = GetAuth();
-		const mapView = GetMapView(GetOpenMapID());
+		const mapView = GetOpenMapID() ? GetMapView(GetOpenMapID()) : null;
 
 		let newContextData;
 		const ExtendNewContextData = (newData) => {
