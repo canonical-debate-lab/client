@@ -14,7 +14,7 @@ import { GetUser } from 'Store/firebase/users';
 import { GetOpenMapID } from 'Store/main';
 import { ACTMapViewMerge } from 'Store/main/mapViews/$mapView';
 import { MapNodeView, MapView } from 'Store/main/mapViews/@MapViews';
-import { State, Connect, ACTSet, DBPath, GetAsync, ActionSet, InfoButton } from 'Utils/FrameworkOverrides';
+import { State, Connect, ACTSet, DBPath, GetAsync, ActionSet, InfoButton, ErrorBoundary } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { UUID } from 'Utils/General/KeyGenerator';
 import { NodeUI_Menu_Stub } from '../Maps/MapNode/NodeUI_Menu';
@@ -125,7 +125,9 @@ export class SearchPanel extends BaseComponentWithConnector(connector, {}) {
 					{results_nodeIDs && results_nodeIDs.filter(a => a).length == 0 && 'No search results.'}
 					{results_nodeIDs && results_nodeIDs.map((nodeID, index) => {
 						return (
-							<SearchResultRow key={nodeID} nodeID={nodeID} index={index}/>
+							<ErrorBoundary key={nodeID}>
+								<SearchResultRow nodeID={nodeID} index={index}/>
+							</ErrorBoundary>
 						);
 					})}
 				</ScrollView>

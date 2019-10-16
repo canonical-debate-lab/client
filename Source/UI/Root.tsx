@@ -11,7 +11,7 @@ import { MeID, Me } from 'Store/firebase/users';
 import '../../Source/Utils/Styles/Main.scss'; // keep absolute-ish, since scss file not copied to Source_JS folder
 import '../Utils/UI/JQueryExtensions';
 import keycode from 'keycode';
-import { State, Connect, Route, browserHistory, AddressBarWrapper } from 'Utils/FrameworkOverrides';
+import { State, Connect, Route, browserHistory, AddressBarWrapper, ErrorBoundary } from 'Utils/FrameworkOverrides';
 import { NormalizeURL } from 'Utils/URL/URLs';
 import { ConnectedRouter } from 'connected-react-router';
 import { ES } from 'Utils/UI/GlobalStyles';
@@ -255,28 +255,30 @@ class RootUI extends BaseComponentWithConnector(connector, {}) {
 				{!GADDemo && <NavBar/>}
 				{GADDemo && <NavBar_GAD/>}
 				{/* <InfoButton_TooltipWrapper/> */}
-				<main style={{ position: 'relative', flex: 1, overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
-					{/* <Route path='/stream'><StreamUI/></Route>
-					<Route path='/chat'><ChatUI/></Route>
-					<Route path='/reputation'><ReputationUI/></Route> */}
+				<ErrorBoundary>
+					<main style={{ position: 'relative', flex: 1, overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+						{/* <Route path='/stream'><StreamUI/></Route>
+						<Route path='/chat'><ChatUI/></Route>
+						<Route path='/reputation'><ReputationUI/></Route> */}
 
-					<Route path='/database'><DatabaseUI/></Route>
-					<Route path='/forum'><ForumUI/></Route>
-					<Route path='/feedback'><FeedbackUI/></Route>
-					<Route path='/more'><MoreUI/></Route>
-					<Route withConditions={url => NormalizeURL(VURL.FromLocationObject(url)).pathNodes[0] == 'home'}>
-						{!GADDemo && <HomeUI/>}
-						{GADDemo && <HomeUI_GAD/>}
-					</Route>
-					<Route path='/social'><SocialUI/></Route>
-					<Route path='/personal'><PersonalUI/></Route>
-					<Route path='/debates'><DebatesUI/></Route>
-					<Route path='/global'><GlobalUI/></Route>
+						<Route path='/database'><DatabaseUI/></Route>
+						<Route path='/forum'><ForumUI/></Route>
+						<Route path='/feedback'><FeedbackUI/></Route>
+						<Route path='/more'><MoreUI/></Route>
+						<Route withConditions={url => NormalizeURL(VURL.FromLocationObject(url)).pathNodes[0] == 'home'}>
+							{!GADDemo && <HomeUI/>}
+							{GADDemo && <HomeUI_GAD/>}
+						</Route>
+						<Route path='/social'><SocialUI/></Route>
+						<Route path='/personal'><PersonalUI/></Route>
+						<Route path='/debates'><DebatesUI/></Route>
+						<Route path='/global'><GlobalUI/></Route>
 
-					{/* <Route path='/search'><SearchUI/></Route>
-					<Route path='/guide'><GuideUI/></Route> */}
-					<Route path='/profile'><UserProfileUI profileUser={Me()}/></Route>
-				</main>
+						{/* <Route path='/search'><SearchUI/></Route>
+						<Route path='/guide'><GuideUI/></Route> */}
+						<Route path='/profile'><UserProfileUI profileUser={Me()}/></Route>
+					</main>
+				</ErrorBoundary>
 			</Column>
 		);
 	}

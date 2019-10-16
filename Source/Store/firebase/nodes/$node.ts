@@ -207,6 +207,8 @@ export function GetNodeDisplayText(node: MapNodeL2, path?: string, form?: ClaimF
 	form = form || GetNodeForm(node, path);
 	const titles = node.current.titles || {} as TitlesMap;
 
+	// if (path && path.split('/').length > 3) throw new Error('Test1'); // for testing node error-boundaries
+
 	if (node.type == MapNodeType.Argument && !node.multiPremiseArgument && !titles.base) {
 		// const baseClaim = GetNodeL2(node.children && node.children.VKeys(true).length ? node.children.VKeys(true)[0] : null);
 		// const baseClaim = GetArgumentPremises(node)[0];

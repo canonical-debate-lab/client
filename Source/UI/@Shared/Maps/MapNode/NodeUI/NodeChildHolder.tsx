@@ -10,7 +10,7 @@ import { ACTMapNodeChildLimitSet } from 'Store/main/mapViews/$mapView/rootNodeVi
 import { MapNodeView } from 'Store/main/mapViews/@MapViews';
 import { NodeConnectorBackground } from 'UI/@Shared/Maps/MapNode/NodeConnectorBackground';
 import { NodeUI } from 'UI/@Shared/Maps/MapNode/NodeUI';
-import { IsSpecialEmptyArray, State, Connect, MaybeLog, Icon } from 'Utils/FrameworkOverrides';
+import { IsSpecialEmptyArray, State, Connect, MaybeLog, Icon, ErrorBoundary } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { DroppableInfo } from 'Utils/UI/DNDStructures';
 import * as React from 'react';
@@ -99,11 +99,14 @@ export class NodeChildHolder extends BaseComponentWithConnector(connector, initi
 
 			const childLimit = direction == 'down' ? childLimit_down : childLimit_up;
 			return (
-				<NodeUI key={child._key} ref={c => this.childBoxes[child._key] = c} indexInNodeList={index} map={map} node={child}
-					path={`${path}/${child._key}`} widthOverride={childrenWidthOverride} onHeightOrPosChange={this.OnChildHeightOrPosChange}>
-					{index == (direction == 'down' ? childLimit - 1 : 0) && !showAll && (collection.length > childLimit || childLimit != initialChildLimit) &&
-						<ChildLimitBar {...{ map, path, childrenWidthOverride, childLimit }} direction={direction} childCount={collection.length}/>}
-				</NodeUI>
+				// <ErrorBoundary errorUI={props=>props.defaultUI(E(props, {style: {width: 500, height: 300}}))}>
+				<ErrorBoundary key={child._key} errorUIStyle={{ width: 500, height: 300 }}>
+					<NodeUI key={child._key} ref={c => this.childBoxes[child._key] = c} indexInNodeList={index} map={map} node={child}
+						path={`${path}/${child._key}`} widthOverride={childrenWidthOverride} onHeightOrPosChange={this.OnChildHeightOrPosChange}>
+						{index == (direction == 'down' ? childLimit - 1 : 0) && !showAll && (collection.length > childLimit || childLimit != initialChildLimit) &&
+							<ChildLimitBar {...{ map, path, childrenWidthOverride, childLimit }} direction={direction} childCount={collection.length}/>}
+					</NodeUI>
+				</ErrorBoundary>
 			);
 		};
 

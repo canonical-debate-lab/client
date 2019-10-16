@@ -18,16 +18,6 @@ import { ACTPersonalMapSelect } from '../../Store/main/personal';
 // main
 // ==========
 
-const originSettings = { horizontal: 'right', vertical: 'top' };
-const buttonStyle = { color: 'white', textDecoration: 'none' };
-const avatarSize = 50;
-
-const avatarStyles = {
-	icon: { width: avatarSize, height: avatarSize },
-	button: { marginRight: '1.5rem', width: avatarSize, height: avatarSize },
-	wrapper: { marginTop: 45 - avatarSize },
-};
-
 const connector = (state, {}: {}) => ({
 	topLeftOpenPanel: State(a => a.main.topLeftOpenPanel),
 	topRightOpenPanel: State(a => a.main.topRightOpenPanel),
@@ -57,7 +47,7 @@ export class NavBar_GAD extends BaseComponentWithConnector(connector, {}) {
 							</Div> as any
 						} panel="reputation" corner="top-left"/> */}
 					</span>
-					<Div ct style={{ position: 'fixed', left: 0, width: '30%', top: 45, bottom: 0 }}>
+					<Div ct style={{ position: 'fixed', left: 0, width: '30%', top: 150, bottom: 0 }}>
 						{dbNeedsInit && startURL.GetQueryVar('init') &&
 							<Row>
 								<Button text="Initialize database" onClick={() => {
@@ -84,7 +74,7 @@ export class NavBar_GAD extends BaseComponentWithConnector(connector, {}) {
 						<NavBarPanelButton text={DeepGet(auth, 'displayName') ? auth.displayName.match(/(.+?)( |$)/)[1] : 'Login'} panel="profile" corner="top-right"/>
 					</span>
 					<div style={{
-						position: 'fixed', display: 'flex', zIndex: 11, right: 0, top: 45, maxHeight: 'calc(100% - 45px - 30px)',
+						position: 'fixed', display: 'flex', zIndex: 11, right: 0, top: 150, maxHeight: 'calc(100% - 150px - 30px)',
 						boxShadow: colors.navBarBoxShadow, clipPath: 'inset(0 0 -150px -150px)', // display: 'table',
 					}}>
 						{topRightOpenPanel == 'search' && <SearchPanel/>}
@@ -110,13 +100,15 @@ class NavBarPageButton extends BaseComponent
 		const { hovered } = this.state;
 		active = active != null ? active : page == currentPage;
 
+		const sideButton = ['search', 'profile'].Contains(page);
 		let finalStyle = E(
 			{
 				position: 'relative', display: 'inline-block', cursor: 'pointer', verticalAlign: 'middle',
 				// fontFamily: 'TypoPRO Bebas Neue',
-				fontFamily: 'Bebas Neue', // computer should have this font
-				fontSize: 20, fontVariant: ['search', 'profile'].Contains(page) ? 'all-small-caps' : 'small-caps', fontWeight: 'normal',
-				lineHeight: '45px', color: '#777', padding: '0 15px', textDecoration: 'none', opacity: 0.9,
+				// fontFamily: 'Bebas Neue', // computer should have this font
+				fontFamily: 'Cinzel',
+				fontSize: sideButton ? 16 : 18, textTransform: sideButton ? 'uppercase' : null, fontWeight: 'normal',
+				lineHeight: '150px', color: '#000', padding: '0 15px', textDecoration: 'none', opacity: 0.9,
 			},
 			style,
 		);

@@ -8,7 +8,7 @@ import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
 import { NodeMathUI } from 'UI/@Shared/Maps/MapNode/NodeMathUI';
 import { SetNodeUILocked } from 'UI/@Shared/Maps/MapNode/NodeUI';
-import { SlicePath, State, Connect, IsDoubleClick, InfoButton, RemoveHelpers, DBPath, WaitTillPathDataIsReceived, VReactMarkdown_Remarkable, DragInfo, MakeDraggable, HSLA } from 'Utils/FrameworkOverrides';
+import { SlicePath, State, Connect, IsDoubleClick, InfoButton, RemoveHelpers, DBPath, WaitTillPathDataIsReceived, VReactMarkdown_Remarkable, DragInfo, MakeDraggable, HSLA, ErrorBoundary } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { Clone, Assert, Timer, VRect, Vector2i, WaitXThenRun, ToJSON, DoNothing, FindDOM } from 'js-vextensions';
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
@@ -379,34 +379,36 @@ class NodeUI_BottomPanel extends BaseComponent
 			backgroundColor,
 		} = this.props;
 		return (
-			<div style={{
-				position: 'absolute', left: panelPosition == 'below' ? 130 + 1 : 0, top: 'calc(100% + 1px)',
-				width, minWidth: (widthOverride | 0).KeepAtLeast(550), zIndex: hovered ? 6 : 5,
-				padding: 5, background: backgroundColor.css(), borderRadius: 5, boxShadow: 'rgba(0,0,0,1) 0px 0px 2px',
-			}}>
-				{ratingTypes.Contains(panelToShow) && (() => {
-					if (['impact', 'relevance'].Contains(panelToShow) && node.type == MapNodeType.Claim) {
-						const argumentNode = parent;
-						const argumentPath = SlicePath(path, 1);
-						const ratings = GetRatings(argumentNode._key, panelToShow as RatingType);
-						return <RatingsPanel node={argumentNode} path={argumentPath} ratingType={panelToShow as RatingType} ratings={ratings}/>;
-					}
-					const ratings = GetRatings(node._key, panelToShow as RatingType);
-					return <RatingsPanel node={node} path={path} ratingType={panelToShow as RatingType} ratings={ratings}/>;
-				})()}
-				{panelToShow == 'definitions' &&
-					<DefinitionsPanel ref={c => this.definitionsPanel = c} {...{ node, path, hoverTermID }}
-						openTermID={nodeView.openTermID}
-						onHoverTerm={termID => onTermHover(termID)}
-						onClickTerm={termID => store.dispatch(new ACTMapNodeTermOpen({ mapID: map._key, path, termID }))}/>}
-				{panelToShow == 'phrasings' && <PhrasingsPanel node={node} path={path}/>}
-				{panelToShow == 'discussion' && <DiscussionPanel/>}
-				{panelToShow == 'social' && <SocialPanel/>}
-				{panelToShow == 'tags' && <TagsPanel/>}
-				{panelToShow == 'details' && <DetailsPanel map={map} node={node} path={path}/>}
-				{panelToShow == 'history' && <HistoryPanel map={map} node={node} path={path}/>}
-				{panelToShow == 'others' && <OthersPanel map={map} node={node} path={path}/>}
-			</div>
+			<ErrorBoundary>
+				<div style={{
+					position: 'absolute', left: panelPosition == 'below' ? 130 + 1 : 0, top: 'calc(100% + 1px)',
+					width, minWidth: (widthOverride | 0).KeepAtLeast(550), zIndex: hovered ? 6 : 5,
+					padding: 5, background: backgroundColor.css(), borderRadius: 5, boxShadow: 'rgba(0,0,0,1) 0px 0px 2px',
+				}}>
+					{ratingTypes.Contains(panelToShow) && (() => {
+						if (['impact', 'relevance'].Contains(panelToShow) && node.type == MapNodeType.Claim) {
+							const argumentNode = parent;
+							const argumentPath = SlicePath(path, 1);
+							const ratings = GetRatings(argumentNode._key, panelToShow as RatingType);
+							return <RatingsPanel node={argumentNode} path={argumentPath} ratingType={panelToShow as RatingType} ratings={ratings}/>;
+						}
+						const ratings = GetRatings(node._key, panelToShow as RatingType);
+						return <RatingsPanel node={node} path={path} ratingType={panelToShow as RatingType} ratings={ratings}/>;
+					})()}
+					{panelToShow == 'definitions' &&
+						<DefinitionsPanel ref={c => this.definitionsPanel = c} {...{ node, path, hoverTermID }}
+							openTermID={nodeView.openTermID}
+							onHoverTerm={termID => onTermHover(termID)}
+							onClickTerm={termID => store.dispatch(new ACTMapNodeTermOpen({ mapID: map._key, path, termID }))}/>}
+					{panelToShow == 'phrasings' && <PhrasingsPanel node={node} path={path}/>}
+					{panelToShow == 'discussion' && <DiscussionPanel/>}
+					{panelToShow == 'social' && <SocialPanel/>}
+					{panelToShow == 'tags' && <TagsPanel/>}
+					{panelToShow == 'details' && <DetailsPanel map={map} node={node} path={path}/>}
+					{panelToShow == 'history' && <HistoryPanel map={map} node={node} path={path}/>}
+					{panelToShow == 'others' && <OthersPanel map={map} node={node} path={path}/>}
+				</div>
+			</ErrorBoundary>
 		);
 	}
 	definitionsPanel: DefinitionsPanel;

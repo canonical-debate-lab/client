@@ -7,7 +7,7 @@ import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHold
 import { CachedTransform, E, Timer, emptyArray_forLoading, emptyArray, Assert, IsNaN, nl, ToInt, ToJSON } from 'js-vextensions';
 import { Column } from 'react-vcomponents';
 import { BaseComponentWithConnector, GetInnerComp, RenderSource, ShallowChanged, ShallowEquals, GetDOM } from 'react-vextensions';
-import { Connect, State, SlicePath, ShouldLog, MaybeLog } from 'Utils/FrameworkOverrides';
+import { Connect, State, SlicePath, ShouldLog, MaybeLog, ErrorBoundary } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
 import { GetSubnodesInEnabledLayersEnhanced } from '../../../../Store/firebase/layers';
 import { GetNodeChangeType, GetPathsToNodesChangedSinceX } from '../../../../Store/firebase/mapNodeEditTimes';

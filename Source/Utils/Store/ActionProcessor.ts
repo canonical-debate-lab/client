@@ -1,4 +1,4 @@
-import { SleepAsync, Vector2i, VURL, ToJSON } from 'js-vextensions';
+import { SleepAsync, Vector2i, VURL, ToJSON, Clone } from 'js-vextensions';
 import { hasHotReloaded } from 'Main';
 import Raven from 'raven-js';
 import ReactGA from 'react-ga';
@@ -10,11 +10,12 @@ import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { ACTMapViewMerge } from 'Store/main/mapViews/$mapView';
 import { Action, ActionSet, DBPath, GetAsync, GetCurrentURL, GetDataAsync, LoadURL, MaybeLog, State } from 'Utils/FrameworkOverrides';
 import { GetCurrentURL_SimplifiedForPageViewTracking } from 'Utils/URL/URLs';
+import { GetOpenMapID } from 'Store/main';
 import { Map } from '../../Store/firebase/maps/@Map';
 import { RootState } from '../../Store/index';
 import { ACTDebateMapSelect, ACTDebateMapSelect_WithData } from '../../Store/main/debates';
 import { ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimelineCurrentStepRevealNodes } from '../../Store/main/maps/$map';
-import { GetNodeView } from '../../Store/main/mapViews';
+import { GetNodeView, GetMapView } from '../../Store/main/mapViews';
 import { ACTMapNodeExpandedSet } from '../../Store/main/mapViews/$mapView/rootNodeViews';
 import { ACTPersonalMapSelect, ACTPersonalMapSelect_WithData } from '../../Store/main/personal';
 import { MapUI } from '../../UI/@Shared/Maps/MapUI';
@@ -253,14 +254,28 @@ async function ExpandToAndFocusOnNodes(mapID: string, paths: string[]) {
 
 function PostInit() {
 	let lastAuth;
-	// Log("Subscribed");
+	let lastMapView;
+	let lastContextData; // only gets updated when one of the above components change
 	store.subscribe(() => {
 		const auth = GetAuth();
-		if (IsAuthValid(auth) && auth != lastAuth) {
-			// Log("Setting user-context: " + auth);
-			// Raven.setUserContext(auth);
-			Raven.setUserContext(auth.Including('uid', 'displayName', 'email', 'photoURL'));
-			lastAuth = auth;
+		const mapView = GetMapView(GetOpenMapID());
+
+		let newContextData;
+		const ExtendNewContextData = (newData) => {
+			if (newContextData == null) newContextData = Clone(lastContextData || {});
+			newContextData.Extend(newData);
+		};
+		// if (auth != lastAuth) ExtendNewContextData(auth ? auth.Including('uid', 'displayName', 'email', 'photoURL') : null);
+		if (auth != lastAuth) ExtendNewContextData({ auth: auth ? auth.Including('uid', 'displayName', 'email', 'photoURL') : null });
+		if (mapView != lastMapView) ExtendNewContextData({ mapView });
+
+		if (newContextData != null) {
+			Log('Setting user-context: ', newContextData);
+			Raven.setUserContext(newContextData);
+			lastContextData = newContextData;
 		}
+
+		lastAuth = auth;
+		lastMapView = mapView;
 	});
 }

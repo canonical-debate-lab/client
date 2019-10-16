@@ -42,9 +42,10 @@ export class SubNavBarButton_GAD extends BaseComponent<SubNavBarButtonProps, {}>
 
 		const style = {
 			display: 'inline-block', cursor: 'pointer', verticalAlign: 'middle',
-			lineHeight: '30px', color: '#777', padding: '0 15px', textDecoration: 'none', opacity: 0.9,
-			fontFamily: 'Bebas Neue', // computer should have this font
-			fontSize: 20, fontVariant: 'all-small-caps', fontWeight: 'normal',
+			lineHeight: '30px', color: '#000', padding: '0 15px', textDecoration: 'none', opacity: 0.9,
+			// fontFamily: 'Bebas Neue', // computer should have this font
+			fontFamily: 'Cinzel',
+			fontSize: 16, textTransform: 'uppercase', fontWeight: 'normal',
 		};
 
 		if (subpage == 'about') {
