@@ -1,6 +1,8 @@
 import { Button, CheckBox, Column, DropDown, DropDownContent, DropDownTrigger, Pre, RowLR, Spinner } from 'react-vcomponents';
 import { BaseComponentWithConnector } from 'react-vextensions';
 import { Connect, State, ACTSet } from 'Utils/FrameworkOverrides';
+import { GADDemo } from 'UI/@GAD/GAD';
+import {Button_GAD} from 'UI/@GAD/GADButton';
 import { ACTSetInitialChildLimit } from '../../../../../Store/main';
 
 const connector = (state, {}: {}) => ({
@@ -11,10 +13,12 @@ const connector = (state, {}: {}) => ({
 export class LayoutDropDown extends BaseComponentWithConnector(connector, {}) {
 	render() {
 		const { initialChildLimit, showReasonScoreValues } = this.props;
+
+		const Button_Final = GADDemo ? Button_GAD : Button;
 		const splitAt = 230;
 		return (
 			<DropDown>
-				<DropDownTrigger><Button text="Layout"/></DropDownTrigger>
+				<DropDownTrigger><Button_Final text="Layout"/></DropDownTrigger>
 				<DropDownContent style={{ right: 0, width: 320 }}><Column>
 					<RowLR splitAt={splitAt}>
 						<Pre>Initial child limit: </Pre>

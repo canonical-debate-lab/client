@@ -8,6 +8,9 @@ import { ScrollView } from 'react-vscrollview';
 import { TimelinePlayerUI } from 'UI/@Shared/Maps/MapUI/TimelinePlayerUI';
 import { State, Connect, GetDistanceBetweenRectAndPoint, inFirefox } from 'Utils/FrameworkOverrides';
 import { GetTimelinePanelOpen } from 'Store/main/maps/$map';
+import { GADDemo } from 'UI/@GAD/GAD';
+import { ActionBar_Left_GAD } from 'UI/@GAD/ActionBar_Left_GAD';
+import {ActionBar_Right_GAD} from 'UI/@GAD/ActionBar_Right_GAD';
 import { styles, ES } from '../../../Utils/UI/GlobalStyles';
 import { Map } from '../../../Store/firebase/maps/@Map';
 import { GetNodeL3, IsNodeL2, IsNodeL3 } from '../../../Store/firebase/nodes/$node';
@@ -115,12 +118,14 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 			return <NodeUI_ForBots map={map} node={rootNode}/>;
 		}
 
+		const ActionBar_Left_Final = GADDemo ? ActionBar_Left_GAD : ActionBar_Left;
+		const ActionBar_Right_Final = GADDemo ? ActionBar_Right_GAD : ActionBar_Right;
 		return (
 			<Column style={ES({ flex: 1 })}>
 				{!withinPage &&
-					<ActionBar_Left map={map} subNavBarWidth={subNavBarWidth}/>}
+					<ActionBar_Left_Final map={map} subNavBarWidth={subNavBarWidth}/>}
 				{!withinPage &&
-					<ActionBar_Right map={map} subNavBarWidth={subNavBarWidth}/>}
+					<ActionBar_Right_Final map={map} subNavBarWidth={subNavBarWidth}/>}
 				{/* !withinPage &&
 					<TimelinePlayerUI map={map}/> */}
 				{/*! withinPage &&
@@ -265,7 +270,7 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 
 	PostRender() {
 		const { map, withinPage } = this.props;
-		/*if (withinPage && this.scrollView) {
+		/* if (withinPage && this.scrollView) {
 			this.scrollView.vScrollableDOM = $('#HomeScrollView').children('.content')[0];
 		} */
 		if (map) {

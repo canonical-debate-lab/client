@@ -6,7 +6,7 @@ import { GetMaps } from 'Store/firebase/maps';
 import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
 import { ScrollView } from 'react-vscrollview';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
-import { Connect, PageContainer } from 'Utils/FrameworkOverrides';
+import { Connect, PageContainer, HSLA } from 'Utils/FrameworkOverrides';
 import { ToNumber } from 'js-vextensions';
 import { styles, ES } from '../Utils/UI/GlobalStyles';
 import { MapType, Map } from '../Store/firebase/maps/@Map';
@@ -46,7 +46,7 @@ export class DebatesUI extends BaseComponentWithConnector(connector, {}) {
 				<Column className="clickThrough" style={E(
 					{ height: 80, background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' },
 					GADDemo && {
-						background: 'rgba(222,222,222,1)', color: '#5D667A',
+						background: 'rgba(222,222,222,1)', color: HSLA(221, 0.13, 0.42, 1),
 						fontFamily: "'Cinzel', serif", fontVariant: 'small-caps', fontSize: 17, fontWeight: 'bold',
 					},
 				)}>

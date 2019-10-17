@@ -8,8 +8,10 @@ import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { GetUser, MeID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
-import { GetUpdates, GetAsync, Connect, State } from 'Utils/FrameworkOverrides';
+import { GetUpdates, GetAsync, Connect, State, HSLA } from 'Utils/FrameworkOverrides';
 import { GetTimelinePanelOpen, ACTMap_TimelinePanelOpenSet } from 'Store/main/maps/$map';
+import { GADDemo } from 'UI/@GAD/GAD';
+import { Button_GAD } from 'UI/@GAD/GADButton';
 import { colors, ES } from '../../../../Utils/UI/GlobalStyles';
 import { DeleteLayer } from '../../../../Server/Commands/DeleteLayer';
 import { DeleteMap } from '../../../../Server/Commands/DeleteMap';
@@ -39,10 +41,18 @@ export class ActionBar_Left extends BaseComponentWithConnector(connector, {}) {
 				position: 'absolute', zIndex: 1, left: 0, width: `calc(50% - ${subNavBarWidth / 2}px)`, top: 0, textAlign: 'center',
 				// background: "rgba(0,0,0,.5)", boxShadow: "3px 3px 7px rgba(0,0,0,.07)",
 			}}>
-				<Row center style={{
-					justifyContent: 'flex-start', background: 'rgba(0,0,0,.7)', boxShadow: colors.navBarBoxShadow,
-					width: '100%', height: 30, borderRadius: '0 0 10px 0',
-				}}>
+				<Row center style={E(
+					{
+						justifyContent: 'flex-start', background: 'rgba(0,0,0,.7)', boxShadow: colors.navBarBoxShadow,
+						width: '100%', height: 30, borderRadius: '0 0 10px 0',
+					},
+					GADDemo && {
+						background: HSLA(0, 0, 1, 1),
+						boxShadow: 'rgba(100, 100, 100, .3) 0px 0px 3px, rgba(70,70,70,.5) 0px 0px 150px',
+						// boxShadow: null,
+						// filter: 'drop-shadow(rgba(0,0,0,.5) 0px 0px 10px)',
+					},
+				)}>
 					{IsUserMap(map) &&
 						<Button text="Back" onClick={() => {
 							store.dispatch(new (map.type == MapType.Personal ? ACTPersonalMapSelect : ACTDebateMapSelect)({ id: null }));
@@ -51,7 +61,7 @@ export class ActionBar_Left extends BaseComponentWithConnector(connector, {}) {
 					{/* // disabled for now, so we can iterate quickly on the stuff we're actually using right now
 					{IsUserMap(map) && HasModPermissions(MeID()) && <LayersDropDown map={map}/>} */}
 					{/* IsUserMap(map) && HasModPermissions(MeID()) && <TimelineDropDown map={map}/> */}
-					{IsUserMap(map) &&
+					{IsUserMap(map) && !GADDemo &&
 						<Button ml={5} text="Timelines" onClick={() => {
 							store.dispatch(new ACTMap_TimelinePanelOpenSet({ mapID: map._key, open: !timelinePanelOpen }));
 						}}/>}
@@ -61,15 +71,17 @@ export class ActionBar_Left extends BaseComponentWithConnector(connector, {}) {
 	}
 }
 
-class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: string}> {
+export class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: string}> {
 	detailsUI: MapDetailsUI;
 	render() {
 		const { map } = this.props;
 		const { dataError } = this.state;
+
+		const Button_Final = GADDemo ? Button_GAD : Button;
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), map);
 		return (
 			<DropDown>
-				<DropDownTrigger><Button ml={5} text="Details"/></DropDownTrigger>
+				<DropDownTrigger><Button_Final ml={5} text="Details"/></DropDownTrigger>
 				<DropDownContent style={{ left: 0 }}><Column>
 					<MapDetailsUI ref={c => this.detailsUI = c} baseData={map}
 						forNew={false} enabled={creatorOrMod}
@@ -90,8 +102,10 @@ class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: string}> {
 								<Button mt={5} text="Delete" onLeftClick={async () => {
 									const rootNode = await GetAsync(() => GetNodeL2(map.rootNode));
 									if (GetChildCount(rootNode) != 0) {
-										return void ShowMessageBox({ title: 'Still has children',
-											message: 'Cannot delete this map until all the children of its root-node have been unlinked or deleted.' });
+										return void ShowMessageBox({
+											title: 'Still has children',
+											message: 'Cannot delete this map until all the children of its root-node have been unlinked or deleted.',
+										});
 									}
 
 									ShowMessageBox({
