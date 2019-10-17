@@ -16,6 +16,7 @@ import { ShowSignInPopup } from './@Shared/NavBar/UserPanel';
 import { ShowAddMapDialog } from './@Shared/Maps/AddMapDialog';
 import { GetSelectedDebateMapID, GetSelectedDebateMap } from '../Store/main/debates';
 import { MapUI } from './@Shared/Maps/MapUI';
+import { GADDemo } from './@GAD/GAD';
 
 export const columnWidths = [0.64, 0.06, 0.12, 0.18];
 
@@ -41,8 +42,11 @@ export class DebatesUI extends BaseComponentWithConnector(connector, {}) {
 		maps = maps.OrderByDescending(a => ToNumber(a.edits, 0));
 
 		return (
-			<PageContainer style={{ margin: '20px auto 20px auto', padding: 0, background: null }}>
-				<Column className="clickThrough" style={{ height: 80, background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' }}>
+			<PageContainer style={E({ margin: '20px auto 20px auto', padding: 0, background: null }, GADDemo && { filter: 'drop-shadow(rgba(0,0,0,.5) 0px 0px 10px)' })}>
+				<Column className="clickThrough" style={E(
+					{ height: 80, background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' },
+					GADDemo && { background: 'rgba(222,222,222,1)', color: '#5D667A' },
+				)}>
 					<Row style={{ height: 40, padding: 10 }}>
 						{/* <Row width={200} style={{position: "absolute", left: "calc(50% - 100px)"}}>
 							<Button text={<Icon icon="arrow-left" size={15}/>} title="Previous page"
@@ -65,7 +69,7 @@ export class DebatesUI extends BaseComponentWithConnector(connector, {}) {
 						<Pre>Filter:</Pre>
 						<InfoButton text="Hides nodes without the given text. Regular expressions can be used, ex: /there are [0-9]+ dimensions/"/>
 						<TextInput ml={2} value={filter} onChange={val=>store.dispatch(new ACTMapNodeListFilterSet({mapID: map._id, filter: val}))}/> */}
-						<Button text="Add debate" ml="auto" enabled={CanGetBasicPermissions(MeID())} onClick={() => {
+						<Button text="Add debate" ml="auto" enabled={CanGetBasicPermissions(MeID())} style={E(GADDemo && { color: 'rgb(255, 255, 255)' })} onClick={() => {
 							if (userID == null) return ShowSignInPopup();
 							ShowAddMapDialog(userID, MapType.Debate);
 						}}/>
