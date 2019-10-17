@@ -270,7 +270,7 @@ function PostInit() {
 		if (mapView != lastMapView) ExtendNewContextData({ mapView });
 
 		if (newContextData != null) {
-			Log('Setting user-context: ', newContextData);
+			// Log('Setting user-context: ', newContextData);
 			Raven.setUserContext(newContextData);
 			lastContextData = newContextData;
 		}

@@ -3,7 +3,7 @@ import Moment from 'moment';
 import { Column, Div, Row } from 'react-vcomponents';
 import { BaseComponentWithConnector } from 'react-vextensions';
 import { columnWidths } from 'UI/Debates';
-import { Connect, Link } from 'Utils/FrameworkOverrides';
+import { Connect, Link, HSLA } from 'Utils/FrameworkOverrides';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { Map, MapType } from '../../../Store/firebase/maps/@Map';
 import { GetUser } from '../../../Store/firebase/users';
@@ -21,7 +21,10 @@ export class MapEntryUI extends BaseComponentWithConnector(connector, {}) {
 		return (
 			<Column p="7px 10px" style={E(
 				{ background: index % 2 == 0 ? 'rgba(30,30,30,.7)' : 'rgba(0,0,0,.7)' },
-				GADDemo && { background: index % 2 == 0 ? 'rgba(255,255,255,1)' : 'rgba(222,222,222,1)', color: '#445887' },
+				GADDemo && {
+					background: index % 2 == 0 ? 'rgba(255,255,255,1)' : 'rgba(222,222,222,1)', color: HSLA(222, 0.33, 0.5, 0.8),
+					fontFamily: "'Cinzel', serif", fontVariant: 'small-caps', fontSize: 17, fontWeight: 'bold',
+				},
 				last && { borderRadius: '0 0 10px 10px' },
 			)}>
 				<Row>
@@ -34,7 +37,7 @@ export class MapEntryUI extends BaseComponentWithConnector(connector, {}) {
 						<Row style={{fontSize: 13}}>{map.note}</Row>
 					</Column> */}
 					<Div style={{ position: 'relative', flex: columnWidths[0] }}>
-						<Link text={map.name} to={toURL.toString({ domain: false })} style={E({ fontSize: 17 }, GADDemo && { color: '#445887' })} onClick={(e) => {
+						<Link text={map.name} to={toURL.toString({ domain: false })} style={E({ fontSize: 17 }, GADDemo && { color: HSLA(222, 0.33, 0.5, 0.8) })} onClick={(e) => {
 							e.preventDefault();
 							store.dispatch(new (map.type == MapType.Personal ? ACTPersonalMapSelect : ACTDebateMapSelect)({ id: map._key }));
 						}}/>

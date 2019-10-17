@@ -45,7 +45,10 @@ export class DebatesUI extends BaseComponentWithConnector(connector, {}) {
 			<PageContainer style={E({ margin: '20px auto 20px auto', padding: 0, background: null }, GADDemo && { filter: 'drop-shadow(rgba(0,0,0,.5) 0px 0px 10px)' })}>
 				<Column className="clickThrough" style={E(
 					{ height: 80, background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' },
-					GADDemo && { background: 'rgba(222,222,222,1)', color: '#5D667A' },
+					GADDemo && {
+						background: 'rgba(222,222,222,1)', color: '#5D667A',
+						fontFamily: "'Cinzel', serif", fontVariant: 'small-caps', fontSize: 17, fontWeight: 'bold',
+					},
 				)}>
 					<Row style={{ height: 40, padding: 10 }}>
 						{/* <Row width={200} style={{position: "absolute", left: "calc(50% - 100px)"}}>
@@ -74,11 +77,14 @@ export class DebatesUI extends BaseComponentWithConnector(connector, {}) {
 							ShowAddMapDialog(userID, MapType.Debate);
 						}}/>
 					</Row>
-					<Row style={{ height: 40, padding: 10 }}>
-						<span style={{ flex: columnWidths[0], fontWeight: 500, fontSize: 17 }}>Title</span>
-						<span style={{ flex: columnWidths[1], fontWeight: 500, fontSize: 17 }}>Edits</span>
-						<span style={{ flex: columnWidths[2], fontWeight: 500, fontSize: 17 }}>Last edit</span>
-						<span style={{ flex: columnWidths[3], fontWeight: 500, fontSize: 17 }}>Creator</span>
+					<Row style={E(
+						{ height: 40, padding: 10, fontWeight: 500, fontSize: 17 },
+						GADDemo && { fontWeight: 'bold' },
+					)}>
+						<span style={{ flex: columnWidths[0] }}>Title</span>
+						<span style={{ flex: columnWidths[1] }}>Edits</span>
+						<span style={{ flex: columnWidths[2] }}>Last edit</span>
+						<span style={{ flex: columnWidths[3] }}>Creator</span>
 					</Row>
 				</Column>
 				<ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1 })}>
