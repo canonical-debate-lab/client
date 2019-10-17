@@ -5,7 +5,7 @@ import { ShowMessageBox } from 'react-vmessagebox';
 import { ACTDebateMapSelect } from 'Store/main/debates';
 import { ResetCurrentDBRoot } from 'UI/More/Admin/ResetCurrentDBRoot';
 import { dbVersion } from 'Main';
-import { Connect, State, Action, Link, GetData } from 'Utils/FrameworkOverrides';
+import { Connect, State, Action, Link, GetData, HSL } from 'Utils/FrameworkOverrides';
 import { ACTUserSelect } from 'Store/main/database';
 import { ACTProposalSelect } from 'firebase-feedback';
 import { NotificationsUI } from 'UI/@Shared/NavBar/NotificationsUI';
@@ -112,12 +112,12 @@ class NavBarPageButton extends BaseComponent
 			},
 			style,
 		);
+		const bottomBar = <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 6, background: HSL(220, 0.2, 0.2) }}/>;
 
 		if (page == 'website') {
 			return <Link to="https://greatamericandebate.org" style={finalStyle} onMouseEnter={() => this.SetState({ hovered: true })} onMouseLeave={() => this.SetState({ hovered: false })}>
 				Website
-				{hovered &&
-					<div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 2, background: 'rgba(100,255,100,1)' }}/>}
+				{hovered && bottomBar}
 			</Link>;
 		}
 		if (page == 'home') {
@@ -142,8 +142,7 @@ class NavBarPageButton extends BaseComponent
 		return (
 			<Link actions={actions} style={finalStyle} onMouseEnter={() => this.SetState({ hovered: true })} onMouseLeave={() => this.SetState({ hovered: false })} onClick={onClick}>
 				{text}
-				{hoverOrActive &&
-					<div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 2, background: 'rgba(100,255,100,1)' }}/>}
+				{hoverOrActive && bottomBar}
 			</Link>
 		);
 	}
