@@ -16,6 +16,10 @@
 	}
 }
 
+.ReactModal__Overlay {
+	z-index: 12 !important;
+}
+
 // fallback, for if code-based approach fails
 .background {
 	//background-image: url(/Images/Backgrounds/Ocean_x1920.jpg);

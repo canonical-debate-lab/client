@@ -121,8 +121,19 @@ class NavBarPageButton extends BaseComponent
 			</Link>;
 		}
 		if (page == 'home') {
-			text = null;
-			finalStyle = E(finalStyle, { margin: '0 50px', width: 150, height: 150, backgroundImage: 'url(/Images/@GAD/Logo.png)', backgroundPosition: 'center center', backgroundSize: '100%', backgroundRepeat: 'no-repeat' });
+			const onHomePage = currentPage == 'home';
+			finalStyle = E(finalStyle, {
+				margin: '0 50px', width: 150, height: 150,
+				backgroundImage: 'url(/Images/@GAD/Logo.png)', backgroundPosition: 'center top', backgroundSize: onHomePage ? '100%' : '75%', backgroundRepeat: 'no-repeat',
+			});
+			if (onHomePage) {
+				text = null;
+			} else {
+				text = <div style={{
+					position: 'absolute', bottom: 10, pointerEvents: 'none', left: '-50%', right: '-50%', width: '200%', height: 30,
+					backgroundImage: 'url(/Images/@GAD/GADTitle.png)', backgroundSize: '100%', backgroundRepeat: 'no-repeat',
+				}}/> as any;
+			}
 		}
 
 		const actions = [] as Action<any>[];

@@ -10,7 +10,7 @@ import { State, Connect, GetDistanceBetweenRectAndPoint, inFirefox } from 'Utils
 import { GetTimelinePanelOpen } from 'Store/main/maps/$map';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { ActionBar_Left_GAD } from 'UI/@GAD/ActionBar_Left_GAD';
-import {ActionBar_Right_GAD} from 'UI/@GAD/ActionBar_Right_GAD';
+import { ActionBar_Right_GAD } from 'UI/@GAD/ActionBar_Right_GAD';
 import { styles, ES } from '../../../Utils/UI/GlobalStyles';
 import { Map } from '../../../Store/firebase/maps/@Map';
 import { GetNodeL3, IsNodeL2, IsNodeL3 } from '../../../Store/firebase/nodes/$node';
@@ -156,7 +156,7 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 							style={{
 								position: 'relative', /* display: "flex", */ whiteSpace: 'nowrap',
 								padding: `${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px`,
-								filter: 'drop-shadow(0px 0px 10px rgba(0,0,0,1))',
+								filter: GADDemo ? 'drop-shadow(rgba(0,0,0,.7) 0px 0px 10px)' : 'drop-shadow(rgba(0,0,0,1) 0px 0px 10px)',
 							}}
 							onMouseDown={(e) => {
 								this.downPos = new Vector2i(e.clientX, e.clientY);

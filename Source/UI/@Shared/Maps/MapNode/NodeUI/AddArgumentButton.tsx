@@ -8,6 +8,8 @@ import { LinkNode_HighLevel, LinkNode_HighLevel_GetCommandError } from 'Server/C
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { GetNodeDisplayText } from 'Store/firebase/nodes/$node';
+import { GADDemo } from 'UI/@GAD/GAD';
+import { HSLA } from 'Utils/FrameworkOverrides';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { MapNodeL3, Polarity, ClaimForm } from '../../../../../Store/firebase/nodes/@MapNode';
 import { GetNodeColor, MapNodeType } from '../../../../../Store/firebase/nodes/@MapNodeType';
@@ -85,6 +87,7 @@ export class AddArgumentButton extends BaseComponent<Props, {}> {
 					{ height: 17, fontSize: 11, padding: '0 12px' }, // vertical
 					// {fontSize: 18, padding: "0 12px"}, // horizontal
 					// canDrop && { outline: `1px solid ${isOver ? 'yellow' : 'white'}` },
+					GADDemo && { color: HSLA(222, 0.1, 0.8, 1), fontFamily: 'TypoPRO Bebas Neue', fontSize: 13, letterSpacing: 1 },
 					style,
 				)}
 				onClick={(e) => {

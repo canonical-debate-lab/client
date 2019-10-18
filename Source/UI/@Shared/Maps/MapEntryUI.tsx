@@ -49,7 +49,7 @@ export class MapEntryUI extends BaseComponentWithConnector(connector, {}) {
 								{map.note}
 							</Div>}
 					</Div>
-					<span style={{ flex: columnWidths[1] }}>{map.edits || 0}</span>
+					{!GADDemo && <span style={{ flex: columnWidths[1] }}>{map.edits || 0}</span>}
 					<span style={{ flex: columnWidths[2] }}>{Moment(map.editedAt).format('YYYY-MM-DD')}</span>
 					<span style={{ flex: columnWidths[3] }}>{creator ? creator.displayName : '...'}</span>
 				</Row>

@@ -19,8 +19,8 @@ These arguments, claims, and evidence have been sourced from various forms of me
 export class HomeUI2_GAD extends BaseComponent<{}, {}> {
 	render() {
 		return (
-			<PageContainer scrollable={true} style={{ flex: '0 1 865px' }} innerStyle={{ padding: 0, borderRadius: 0, background: null }}>
-				<Row>
+			<PageContainer scrollable={true} style={{ flex: null, margin: 0, justifyContent: 'center' }} innerStyle={{ flex: '0 1 865px', padding: 0, borderRadius: 0, background: null }}>
+				<Row style={{ margin: '50px 10px 20px 10px' }}>
 					<article style={{
 						flex: '0 0 55%', padding: '180px 50px 40px 50px',
 						fontFamily: "'Cinzel', serif", fontVariant: 'small-caps', color: '#eee', textAlign: 'justify', fontSize: 17,

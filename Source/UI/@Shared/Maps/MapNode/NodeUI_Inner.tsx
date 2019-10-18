@@ -16,6 +16,8 @@ import ReactDOM from 'react-dom';
 import { Fragment } from 'react';
 import { GetPathNodeIDs } from 'Store/main/mapViews';
 import { Draggable } from 'react-beautiful-dnd';
+import { GADDemo } from 'UI/@GAD/GAD';
+import chroma from 'chroma-js';
 import { ParseSegmentsForPatterns } from '../../../../Utils/General/RegexHelpers';
 import { AddNodeRevision } from '../../../../Server/Commands/AddNodeRevision';
 import { GetImage } from '../../../../Store/firebase/images';
@@ -262,48 +264,52 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 						}
 						store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._key, time: Date.now() }));
 					}}
-					beforeChildren={[
-						leftPanelShow
-							&& <MapNodeUI_LeftBox {...{ map, path, node, nodeView, ratingsRoot, panelPosition, local_openPanel, backgroundColor }} asHover={hovered}
-								onPanelButtonHover={panel => this.SetState({ hoverPanel: panel })}
-								onPanelButtonClick={(panel) => {
-									if (useLocalPanelState) {
-										this.SetState({ local_openPanel: panel, hoverPanel: null });
-										return;
-									}
+					beforeChildren={<>
+						{leftPanelShow &&
+						<MapNodeUI_LeftBox {...{ map, path, node, nodeView, ratingsRoot, panelPosition, local_openPanel, backgroundColor }} asHover={hovered}
+							onPanelButtonHover={panel => this.SetState({ hoverPanel: panel })}
+							onPanelButtonClick={(panel) => {
+								if (useLocalPanelState) {
+									this.SetState({ local_openPanel: panel, hoverPanel: null });
+									return;
+								}
 
-									if (nodeView.openPanel != panel) {
-										store.dispatch(new ACTMapNodePanelOpen({ mapID: map._key, path, panel }));
-									} else {
-										store.dispatch(new ACTMapNodePanelOpen({ mapID: map._key, path, panel: null }));
-										this.SetState({ hoverPanel: null });
-									}
-								}}>
-								{/* fixes click-gap */}
-								{panelPosition == 'below' && <div style={{ position: 'absolute', right: -1, width: 1, top: 0, bottom: 0 }}/>}
-							</MapNodeUI_LeftBox>,
-						// fixes click-gap
-						leftPanelShow && panelPosition == 'left' && <div style={{ position: 'absolute', right: '100%', width: 1, top: 0, bottom: 0 }}/>,
-					].AutoKey()}
+								if (nodeView.openPanel != panel) {
+									store.dispatch(new ACTMapNodePanelOpen({ mapID: map._key, path, panel }));
+								} else {
+									store.dispatch(new ACTMapNodePanelOpen({ mapID: map._key, path, panel: null }));
+									this.SetState({ hoverPanel: null });
+								}
+							}}>
+							{/* fixes click-gap */}
+							{panelPosition == 'below' && <div style={{ position: 'absolute', right: -1, width: 1, top: 0, bottom: 0 }}/>}
+						</MapNodeUI_LeftBox>}
+						{/* fixes click-gap */}
+						{leftPanelShow && panelPosition == 'left' && <div style={{ position: 'absolute', right: '100%', width: 1, top: 0, bottom: 0 }}/>}
+					</>}
 					onTextHolderClick={e => IsDoubleClick(e) && this.titlePanel && this.titlePanel.OnDoubleClick()}
 					text={<>
-						<TitlePanel {...{ indexInNodeList, parent: this, map, node, nodeView, path }} ref={c => this.titlePanel = c} {...(dragInfo && dragInfo.provided.dragHandleProps)}/>
+						<TitlePanel {...{ indexInNodeList, parent: this, map, node, nodeView, path }} ref={c => this.titlePanel = c} {...(dragInfo && dragInfo.provided.dragHandleProps)}
+							style={E(GADDemo && { color: HSLA(222, 0.33, 0.25, 1), fontFamily: 'TypoPRO Bebas Neue', fontSize: 15, letterSpacing: 1 })}/>
 						{subPanelShow && <SubPanel node={node}/>}
 						<NodeUI_Menu_Stub {...{ map, node, path }}/>
 					</>}
-					{...{ backgroundFillPercent, backgroundColor, markerPercent }}
+					{...E(
+						{ backgroundFillPercent, backgroundColor, markerPercent },
+						GADDemo && { backgroundFillPercent: 100, backgroundColor: chroma(HSLA(0, 0, 1)) as Color },
+					)}
 					toggleExpanded={(e) => {
 						store.dispatch(new ACTMapNodeExpandedSet({ mapID: map._key, path, expanded: !expanded, recursive: expanded && e.altKey }));
 						e.nativeEvent['ignore'] = true; // for some reason, "return false" isn't working
 						// return false;
 					}}
-					afterChildren={[
-						bottomPanelShow
+					afterChildren={<>
+						{bottomPanelShow
 							&& <NodeUI_BottomPanel {...{ map, node, nodeView, path, parent, width, widthOverride, panelPosition, panelToShow, hovered, backgroundColor }}
-								hoverTermID={hoverTermID} onTermHover={termID => this.SetState({ hoverTermID: termID })}/>,
-						reasonScoreValues && showReasonScoreValues
-							&& <ReasonScoreValueMarkers {...{ node, combinedWithParentArgument, reasonScoreValues }}/>,
-					].AutoKey()}
+								hoverTermID={hoverTermID} onTermHover={termID => this.SetState({ hoverTermID: termID })}/>}
+						{reasonScoreValues && showReasonScoreValues
+							&& <ReasonScoreValueMarkers {...{ node, combinedWithParentArgument, reasonScoreValues }}/>}
+					</>}
 				/>
 			);
 		};
@@ -461,12 +467,12 @@ class TitlePanel extends BaseComponentWithConnector(TitlePanel_connector, { edit
 
 		return (
 			// <Row style={{position: "relative"}}>
-			<div {...FilterOutUnrecognizedProps(rest, 'div')} style={E({ position: 'relative', cursor: 'pointer' }, style)} onClick={e => IsDoubleClick(e) && this.OnDoubleClick()}>
+			<div {...FilterOutUnrecognizedProps(rest, 'div')} style={E({ position: 'relative', cursor: 'pointer', fontSize: GetFontSizeForNode(node, isSubnode) }, style)} onClick={e => IsDoubleClick(e) && this.OnDoubleClick()}>
 				{equationNumber != null &&
 					<Pre>{equationNumber}) </Pre>}
 				{!editing &&
 					<span style={E(
-						{ position: 'relative', fontSize: GetFontSizeForNode(node, isSubnode), whiteSpace: 'initial' },
+						{ position: 'relative', whiteSpace: 'initial' },
 						isSubnode && { margin: '4px 0 1px 0' },
 						missingTitleStrings.Contains(newTitle) && { color: 'rgba(255,255,255,.3)' },
 					)}>
@@ -475,7 +481,7 @@ class TitlePanel extends BaseComponentWithConnector(TitlePanel_connector, { edit
 					</span>}
 				{editing &&
 					<Row style={E(
-						{ position: 'relative', fontSize: GetFontSizeForNode(node, isSubnode), whiteSpace: 'initial', alignItems: 'stretch' },
+						{ position: 'relative', whiteSpace: 'initial', alignItems: 'stretch' },
 						isSubnode && { margin: '4px 0 1px 0' },
 					)}>
 						{!applyingEdit &&

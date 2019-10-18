@@ -82,7 +82,7 @@ export class DebatesUI extends BaseComponentWithConnector(connector, {}) {
 						GADDemo && { fontWeight: 'bold' },
 					)}>
 						<span style={{ flex: columnWidths[0] }}>Title</span>
-						<span style={{ flex: columnWidths[1] }}>Edits</span>
+						{!GADDemo && <span style={{ flex: columnWidths[1] }}>Edits</span>}
 						<span style={{ flex: columnWidths[2] }}>Last edit</span>
 						<span style={{ flex: columnWidths[3] }}>Creator</span>
 					</Row>

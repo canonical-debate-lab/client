@@ -10,7 +10,9 @@ import { ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView/rootNodeView
 import { MapNodeView } from 'Store/main/mapViews/@MapViews';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { emptyArray_forLoading, emptyArray, AssertWarn } from 'js-vextensions';
-import { Connect } from 'Utils/FrameworkOverrides';
+import { Connect, HSLA } from 'Utils/FrameworkOverrides';
+import { GADDemo } from 'UI/@GAD/GAD';
+import chroma from 'chroma-js';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath } from '../../../../../Store/firebase/nodeRatings';
 import { IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument } from '../../../../../Store/firebase/nodes/$node';
@@ -124,8 +126,14 @@ export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { 
 						ref={c => this.expandableBox = c}
 						style={{ marginTop: innerBoxOffset }}
 						padding="3px 5px 2px"
-						text={<span style={{ position: 'relative', fontSize: 13 }}>{text}</span>}
-						{...{ backgroundFillPercent, backgroundColor, markerPercent }}
+						text={<span style={E(
+							{ position: 'relative', fontSize: 13 },
+							GADDemo && { color: HSLA(222, 0.33, 0.25, 1), fontFamily: 'TypoPRO Bebas Neue', fontSize: 15, letterSpacing: 1 },
+						)}>{text}</span>}
+						{...E(
+							{ backgroundFillPercent, backgroundColor, markerPercent },
+							GADDemo && { backgroundFillPercent: 100, backgroundColor: chroma(HSLA(0, 0, 1)) as Color },
+						)}
 						toggleExpanded={(e) => {
 							store.dispatch(new ACTMapNodeExpandedSet({
 								mapID: map._key, path, recursive: nodeView[expandKey] && e.altKey,
