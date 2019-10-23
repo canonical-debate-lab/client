@@ -46,6 +46,9 @@ const webpackConfig = {
 		},
 	},
 	module: {},
+	externals: [
+		'fs', // needed for firebase-mock (code-path not actually used, so it's okay)
+	],
 };
 
 // entry points
@@ -76,16 +79,16 @@ webpackConfig.plugins = [
 	// Plugin to show any webpack warnings and prevent tests from running
 	function () {
 		const errors = [];
-		this.plugin('done', (stats) => {
-			if (stats.compilation.errors.length) {
-				// Log each of the warnings
-				stats.compilation.errors.forEach((error) => {
-					errors.push(error.message || error);
-				});
+		this.hooks.done.tap('ShowWarningsAndStopTests', (stats) => {
+			if (!stats.compilation.errors.length) return;
 
-				// Pretend no assets were generated. This prevents the tests from running, making it clear that there were warnings.
-				// throw new Error(errors)
-			}
+			// Log each of the warnings
+			stats.compilation.errors.forEach((error) => {
+				errors.push(error.message || error);
+			});
+
+			// Pretend no assets were generated. This prevents the tests from running, making it clear that there were warnings.
+			// throw new Error(errors)
 		});
 	},
 	new webpack.DefinePlugin(config.globals),
@@ -179,6 +182,7 @@ webpackConfig.module.rules.push({ test: /\.tsx?$/, loader: 'ts-loader' });
 // file text-replacements
 // ==========
 
+const onReplacementPhaseDone_listeners = [];
 function AddStringReplacement(fileRegex, replacements, minCallCount = 1) {
 	const replacementCallCounts = replacements.map(() => 0);
 	function VerifyReplacementsCalled() {
@@ -209,10 +213,17 @@ function AddStringReplacement(fileRegex, replacements, minCallCount = 1) {
 	}).concat({
 		pattern: /(.|\n)+/g,
 		replacement: (match) => {
+			if (fileRegex.toString().includes('createStosdfsdfre')) {
+				console.log(`\n\n============ Replacement called for: ${fileRegex} ==================\n`);
+			}
 			VerifyReplacementsCalled();
+			// since this replacement was called, the file-pattern must be valid -- thus, no need for the global post-compilation call to our VerifyReplacementsCalled (so remove from that list)
+			const index = onReplacementPhaseDone_listeners.indexOf(VerifyReplacementsCalled);
+			if (index != -1) onReplacementPhaseDone_listeners.splice(index, 1);
 			return match;
 		},
 	});
+	onReplacementPhaseDone_listeners.push(VerifyReplacementsCalled);
 	webpackConfig.module.rules.push({
 		test: fileRegex,
 		loader: StringReplacePlugin.replace({ replacements: replacements_final }),
@@ -301,17 +312,17 @@ AddStringReplacement(/react-beautiful-dnd.esm.js$/, [
 ]);
 
 // react
-AddStringReplacement(/ReactDebugTool.js/, [
+/* AddStringReplacement(/ReactDebugTool.js/, [
 	{
 		// expose ReactDebugTool.getTreeSnapshot
 		pattern: /module.exports = /g,
 		replacement: (match, offset, string) => Clip(`
 ReactDebugTool.getTreeSnapshot = getTreeSnapshot;
 
-module.exports = 
+module.exports =
 			`),
 	},
-]);
+]); */
 
 // react-redux
 AddStringReplacement(/connectAdvanced.js/, [
@@ -332,7 +343,7 @@ AddStringReplacement(/wrapMapToProps.js/, [
 ]);
 
 // redux
-AddStringReplacement(/createStore.js/, [
+/* AddStringReplacement(/createStore.js/, [
 	// optimize redux so that if a reducer does not change the state at all, then the store-subscribers are not notified
 	{
 		pattern: 'currentState = currentReducer(currentState, action)',
@@ -342,8 +353,7 @@ AddStringReplacement(/createStore.js/, [
 		pattern: 'for (var i = 0; i < listeners.length; i++) {',
 		replacement: match => `if (currentState !== oldState) ${match}`,
 	},
-]);
-
+]); */
 
 // make all Object.defineProperty calls leave the property configurable (probably better to just wrap the Object.defineProperty function)
 /* AddStringReplacement(/index\.js$/, [
@@ -354,6 +364,45 @@ AddStringReplacement(/createStore.js/, [
 		},
 	},
 ]); */
+
+// firebase-mock
+/* AddStringReplacement(/firebase-mock\/src\/storage-file.js/, [
+	{
+		// remove "fs" require
+		pattern: /require\('fs'\)/g,
+		replacement: (match, offset, string) => {
+			console.log('=== Replaced fs line. ===');
+			return '{}';
+		},
+	},
+]); */
+
+// just a special stub, used to call the VerifyReplacementsCalled functions after the replacement-phase is done
+/* let done = false;
+AddStringReplacement(/Root.js$/, [
+	{
+		pattern: /.$/gm,
+		replacement: (match, offset, string) => {
+			console.log('\n=== Verifying replacements called... ===\n');
+			if (!done) {
+				done = true;
+				setTimeout(() => onReplacementPhaseDone_listeners.forEach(a => a()), 0); // wait till current stack completes (since this replacement might run before some of the others)
+			}
+			return match;
+		},
+	},
+]); */
+webpackConfig.plugins.push({
+	apply(compiler) {
+		/* compiler.plugin('beforeCompile', (compilation, done) => {
+			done();
+		}); */
+		compiler.hooks.emit.tap('AddStringReplacement_Verify', (compilation) => {
+			console.log('\n=== Verifying replacements called (global)... ===\n');
+			onReplacementPhaseDone_listeners.forEach(a => a());
+		});
+	},
+});
 
 // css loaders
 // ==========
@@ -435,73 +484,69 @@ webpackConfig.module.rules.push({
 
 if (OUTPUT_STATS) {
 	let firstOutput = true;
-	webpackConfig.plugins.push(
-		{
-			apply(compiler) {
-				compiler.plugin('after-emit', (compilation, done) => {
-					const stats = compilation.getStats().toJson({
-						hash: false,
-						version: false,
-						timings: true,
-						assets: false,
-						chunks: false,
-						chunkModules: false,
-						chunkOrigins: false,
-						modules: true,
-						cached: false,
-						reasons: true,
-						children: false,
-						source: false,
-						errors: false,
-						errorDetails: false,
-						warnings: false,
-						publicPath: false,
-					});
-					fs.writeFile(`./Tools/Webpack Profiling/Stats${firstOutput ? '' : '_Incremental'}.json`, JSON.stringify(stats));
-
-					let modules_justTimings = stats.modules.map((mod) => {
-						const timings = mod.profile;
-						return {
-							name: mod.name,
-							totalTime: (timings.factory | 0) + (timings.building | 0) + (timings.dependencies | 0),
-							timings,
-						};
-					});
-					modules_justTimings = SortArrayDescending(modules_justTimings, a => a.totalTime);
-
-					const modules_justTimings_asMap = {};
-					for (const mod of modules_justTimings) {
-						modules_justTimings_asMap[mod.name] = mod;
-						delete mod.name;
-					}
-					fs.writeFile(`./Tools/Webpack Profiling/ModuleTimings${firstOutput ? '' : '_Incremental'}.json`, JSON.stringify(modules_justTimings_asMap, null, 2));
-
-					firstOutput = false;
-
-					done();
+	webpackConfig.plugins.push({
+		apply(compiler) {
+			compiler.hooks.afterEmit.tap('OutputStats', (compilation) => {
+				const stats = compilation.getStats().toJson({
+					hash: false,
+					version: false,
+					timings: true,
+					assets: false,
+					chunks: false,
+					chunkModules: false,
+					chunkOrigins: false,
+					modules: true,
+					cached: false,
+					reasons: true,
+					children: false,
+					source: false,
+					errors: false,
+					errorDetails: false,
+					warnings: false,
+					publicPath: false,
 				});
+				fs.writeFile(`./Tools/Webpack Profiling/Stats${firstOutput ? '' : '_Incremental'}.json`, JSON.stringify(stats));
 
-				// uncomment this to output the module-info that can be used later to see cyclic-dependencies, using AnalyzeDependencies.bat
-				/* compiler.plugin("done", function(stats) {
-					let moduleInfos = {};
-					for (let module of stats.compilation.modules) {
-						//if (!module.resource) continue;
-						//if (module.dependencies == null) continue;
-						let moduleInfo = {};
-						//moduleInfo.name = module.name;
-						if (module.resource) {
-							moduleInfo.name = path.relative(process.cwd(), module.resource).replace(/\\/g, "/");
-						}
-						if (module.dependencies) {
-							moduleInfo.dependencies = module.dependencies.filter(a=>a.module).map(a=>a.module.id);
-						}
-						moduleInfos[module.id] = moduleInfo;
+				let modules_justTimings = stats.modules.map((mod) => {
+					const timings = mod.profile;
+					return {
+						name: mod.name,
+						totalTime: (timings.factory | 0) + (timings.building | 0) + (timings.dependencies | 0),
+						timings,
+					};
+				});
+				modules_justTimings = SortArrayDescending(modules_justTimings, a => a.totalTime);
+
+				const modules_justTimings_asMap = {};
+				for (const mod of modules_justTimings) {
+					modules_justTimings_asMap[mod.name] = mod;
+					delete mod.name;
+				}
+				fs.writeFile(`./Tools/Webpack Profiling/ModuleTimings${firstOutput ? '' : '_Incremental'}.json`, JSON.stringify(modules_justTimings_asMap, null, 2));
+
+				firstOutput = false;
+			});
+
+			// uncomment this to output the module-info that can be used later to see cyclic-dependencies, using AnalyzeDependencies.bat
+			/* compiler.plugin("done", function(stats) {
+				let moduleInfos = {};
+				for (let module of stats.compilation.modules) {
+					//if (!module.resource) continue;
+					//if (module.dependencies == null) continue;
+					let moduleInfo = {};
+					//moduleInfo.name = module.name;
+					if (module.resource) {
+						moduleInfo.name = path.relative(process.cwd(), module.resource).replace(/\\/g, "/");
 					}
-					fs.writeFile(`./Tools/Webpack Profiling/ModuleInfo.json`, JSON.stringify(moduleInfos));
-				}); */
-			},
+					if (module.dependencies) {
+						moduleInfo.dependencies = module.dependencies.filter(a=>a.module).map(a=>a.module.id);
+					}
+					moduleInfos[module.id] = moduleInfo;
+				}
+				fs.writeFile(`./Tools/Webpack Profiling/ModuleInfo.json`, JSON.stringify(moduleInfos));
+			}); */
 		},
-	);
+	});
 
 	/* let CircularDependencyPlugin = require("circular-dependency-plugin");
 	webpackConfig.plugins.push(
