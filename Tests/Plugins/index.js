@@ -1,3 +1,5 @@
+const wp = require('@cypress/webpack-preprocessor');
+
 // ***********************************************************
 // This example plugins/index.js can be used to load plugins
 //
@@ -12,6 +14,52 @@
 // the project's config changing)
 
 module.exports = (on, config) => {
-  // `on` is used to hook into various events Cypress emits
-  // `config` is the resolved Cypress config
-}
+	// `on` is used to hook into various events Cypress emits
+	// `config` is the resolved Cypress config
+
+	const options = {
+		webpackOptions: {
+			devtool: 'cheap-source-map',
+			resolve: {
+				extensions: ['.ts', '.tsx', '.js'],
+			},
+			module: {
+				rules: [
+					{
+						test: /\.tsx?$/,
+						exclude: [/node_modules/],
+						use: [
+							/* {
+								loader: 'babel-loader',
+								options: {
+									presets: ['@babel/preset-env'],
+								},
+							}, */
+							{
+								loader: 'ts-loader',
+								options: {
+									transpileOnly: true,
+									// configFile: 'tsconfig.json',
+									// configFile: 'C:/Root/Apps/@V/@Modules/vwebapp-framework/Main/tsconfig.json',
+									/* exclude: [
+										'Build',
+										'Tests',
+										'node_modules',
+                 				], */
+									/* compilerOptions: {
+										rootDir: './../..', // need to go higher, to wrap the vwebapp-framework repo as well
+									}, */
+								},
+							},
+						],
+					},
+				],
+			},
+			externals: {
+				// needed for firebase-mock in browser (code-path not actually used, so it's okay)
+				fs: 'root location', // redirect to some global-variable, eg. window.location
+			},
+		},
+	};
+	on('file:preprocessor', wp(options));
+};

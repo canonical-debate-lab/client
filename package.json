@@ -210,6 +210,7 @@
     "@babel/core": "7.2.2",
     "@babel/preset-env": "7.2.3",
     "@babel/preset-react": "7.0.0",
+    "@cypress/webpack-preprocessor": "4.1.0",
     "@types/chroma-js": "^1.3.3",
     "@types/history": "4.7.2",
     "@types/jquery": "^2.0.40",

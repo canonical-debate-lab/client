@@ -1,5 +1,5 @@
 import { GetMap } from 'Store/firebase/maps';
-import { Action, CombineReducers, State } from 'Utils/FrameworkOverrides';
+import { Action, CombineReducers, State } from '../../Utils/FrameworkOverrides';
 import { Map, MapType } from '../firebase/maps/@Map';
 
 export class ACTPersonalMapSelect extends Action<{id: string}> {}

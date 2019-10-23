@@ -1,16 +1,14 @@
-import { UserEdit } from 'Server/CommandMacros';
-import { AssertValidate } from 'Utils/FrameworkOverrides';
-import { GetDataAsync } from 'Utils/FrameworkOverrides';
-import { Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
+import { UserEdit } from '../../Server/CommandMacros';
+import { GenerateUUID, UUID } from '../../Utils/General/KeyGenerator';
+import { AssertValidate, Command, MergeDBUpdates } from '../../Utils/FrameworkOverrides';
 import { Map } from '../../Store/firebase/maps/@Map';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeRevision } from '../../Store/firebase/nodes/@MapNodeRevision';
 import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
 import { AddChildNode } from './AddChildNode';
-import { GenerateUUID } from 'Utils/General/KeyGenerator';
 
 @UserEdit
-export class AddMap extends Command<{map: Map}, {}> {
+export class AddMap extends Command<{map: Map}, UUID> {
 	mapID: string;
 	sub_addNode: AddChildNode;
 	async Prepare() {
@@ -27,6 +25,8 @@ export class AddMap extends Command<{map: Map}, {}> {
 		await this.sub_addNode.Prepare();
 
 		map.rootNode = this.sub_addNode.sub_addNode.nodeID;
+
+		this.returnData = this.mapID;
 	}
 	async Validate() {
 		const { map } = this.payload;
