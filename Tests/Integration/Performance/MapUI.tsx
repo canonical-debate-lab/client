@@ -13,30 +13,23 @@ function DBPath(path = '', inVersionRoot = true) {
 // async function SeedDB(db: firebase.firestore.Firestore) {
 async function SeedDB(db) {
 	console.log('Seeding DB:', db);
-	db.autoFlush();
 
-	/* const collectionRef = firebase.firestore().collection('collectionId');
-	ref.doc('docId').set({foo: 'bar'});
-	ref.doc('anotherDocId').set({foo: 'baz'}); */
 	await db.doc(DBPath('users/test1')).set({ name: 'Test1' });
-	/* const collectionRef = db.collection(DBPath("users"));
-	const doc1Ref = collectionRef.doc("docId");
-	await doc1Ref.set({foo: "bar"});
-	await collectionRef.doc("anotherDocId").set({foo: "baz"}); */
-	// db.flush();
 
-	await db.doc(DBPath('maps/test1')).set({ name: 'Test1' });
-
-	console.log('DB contents2:', db.children);
-	// console.log('DB contents3:', await collectionRef.get());
-	// db.doc(DBPath('maps/test1')).get().then(val => console.log('DB contents3:', val));
-
-	setInterval(() => {
-		const mapID = Math.random();
-		const map = { name: mapID, type: 10, creator: 'MyUser' };
-		console.log(`Added map: ${mapID}`);
+	function AddMap(info, mapID = null) {
+		if (mapID == null) mapID = `Map ${Math.random()}`;
+		const map = Object.assign({}, { name: mapID, type: 10, creator: 'MyUser' }, info);
 		db.doc(DBPath(`maps/${mapID}`)).set(map);
-	}, 3000);
+	}
+	AddMap({ name: 'MainTestMap' }, '---TestingMap---');
+
+	for (let i = 0; i < 10; i++) {
+		AddMap({});
+	}
+
+	// console.log('DB contents:', await collectionRef.get());
+	// console.log('Seeded DB contents:', db.children);
+	console.log('Seeded DB contents:', (await db.collection(DBPath()).get()).ref.children);
 }
 
 context('MapUI', () => {
@@ -47,9 +40,8 @@ context('MapUI', () => {
 
 		return cy.window()
 			.then((win) => {
+				// console.log('Setting SeedDB');
 				// win['SeedDB'] = SeedDB;
-				// console.log('Set SeedDB');
-				console.log('Seeding DB...');
 				SeedDB(win['firestoreDB']);
 			});
 	});
