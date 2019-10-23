@@ -46,9 +46,11 @@ const webpackConfig = {
 		},
 	},
 	module: {},
-	externals: [
-		'fs', // needed for firebase-mock (code-path not actually used, so it's okay)
-	],
+	externals: {
+		// needed for firebase-mock (code-path not actually used, so it's okay)
+		// 'fs',
+		fs: 'root React', // just redirect to some other module
+	},
 };
 
 // entry points

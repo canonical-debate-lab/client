@@ -6,7 +6,7 @@ import { GetParentNodeL3 } from '../nodes';
 import { Polarity } from '../nodes/@MapNode';
 import { MapNodeType } from '../nodes/@MapNodeType';
 
-export function RS_CalculateTruthScore(claim: MapNodeL3, calculationPath = [] as string[]) {
+export function RS_CalculateTruthScore(claim: MapNodeL3, calculationPath = [] as string[]): number {
 	Assert(claim && claim.type == MapNodeType.Claim, 'RS truth-score can only be calculated for a claim.');
 
 	// if we've hit a cycle back to a claim we've already started calculating for (the root claim), consider the truth-score at this lower-location to be 100%

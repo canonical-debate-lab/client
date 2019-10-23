@@ -427,10 +427,10 @@ class ReasonScoreValueMarkers extends BaseComponent<{node: MapNodeL3, reasonScor
 		const { rs_argTruthScoreComposite, rs_argWeightMultiplier, rs_argWeight, rs_claimTruthScore, rs_claimBaseWeight } = reasonScoreValues;
 		return (
 			<div className="clickThrough" style={{ position: 'absolute', top: '100%', width: '100%', zIndex: 1, textAlign: 'center', fontSize: 14 }}>
-				{node.type == MapNodeType.Argument && `Truth score: ${ToPercentStr(mainScore)}${
+				{node.type == MapNodeType.Argument && `Truth score: ${mainScore.ToPercentStr()}${
 					` Weight: [...]x${rs_argWeightMultiplier.RoundTo_Str(0.01)} = ${rs_argWeight.RoundTo_Str(0.01)}`
 				}`}
-				{node.type == MapNodeType.Claim && `Truth score: ${ToPercentStr(mainScore)}${
+				{node.type == MapNodeType.Claim && `Truth score: ${mainScore.ToPercentStr()}${
 					combinedWithParentArgument
 						? ` Weight: ${rs_claimBaseWeight.RoundTo_Str(0.01)}x${rs_argWeightMultiplier.RoundTo_Str(0.01)} = ${rs_argWeight.RoundTo_Str(0.01)}`
 						: ''
