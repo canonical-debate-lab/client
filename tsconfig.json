@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
 		// general
-		"sourceMap": true,
+		//"sourceMap": true, // source-map doesn't work in dev-tools anyway fsr (with source-maps enabled, only ever shows es6, not ts), so no point creating
 		"watch": true,
 		"outDir": "Source_JS",
 		"forceConsistentCasingInFileNames": true, // creates duplicates in import-helper plugins otherwise

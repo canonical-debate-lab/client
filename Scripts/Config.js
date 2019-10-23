@@ -84,8 +84,9 @@ Object.assign(config, {
 	// list of types: https://webpack.js.org/configuration/devtool
 	// *: All "eval" ones don't work anymore with new tsc setup -- they don't show original files
 	// compiler_devtool: "source-map", // shows: original (in error.stack, shows bundle line) [6s/rebuild]
-	// compiler_devtool: "cheap-module-eval-source-map", // *shows: original (in error.stack, shows eval/transpiled-to-js-but-in-module line)
-	// compiler_devtool: "cheap-module-source-map", // shows: original [however, for some reason it misses lots of lines -- at least in async functions]
+	// compiler_devtool: 'cheap-eval-source-map', // *shows: ...
+	// compiler_devtool: 'cheap-module-eval-source-map', // *shows: original (in error.stack, shows eval/transpiled-to-js-but-in-module line)
+	// compiler_devtool: 'cheap-module-source-map', // shows: original [however, for some reason it misses lots of lines -- at least in async functions]
 	compiler_devtool: 'cheap-source-map', // shows: transpiled-to-js [.8s/rebuild]
 	// compiler_devtool: "eval", // *shows: transpiled-to-js
 	compiler_fail_on_warning: false,
