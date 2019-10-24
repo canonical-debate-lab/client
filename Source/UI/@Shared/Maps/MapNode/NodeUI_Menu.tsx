@@ -112,7 +112,7 @@ export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 									if (e.button != 0) return;
 									if (userID == null) return ShowSignInPopup();
 
-									ShowAddChildDialog(node, path, childType, polarity, userID, mapID);
+									ShowAddChildDialog(path, childType, polarity, userID, mapID);
 								}}/>
 						);
 					});

@@ -94,7 +94,7 @@ export class AddArgumentButton extends BaseComponent<Props, {}> {
 					if (e.button != 0) return;
 					if (MeID() == null) return ShowSignInPopup();
 
-					ShowAddChildDialog(node, path, MapNodeType.Argument, polarity, MeID(), map._key);
+					ShowAddChildDialog(path, MapNodeType.Argument, polarity, MeID(), map._key);
 				}}/>
 		);
 	}

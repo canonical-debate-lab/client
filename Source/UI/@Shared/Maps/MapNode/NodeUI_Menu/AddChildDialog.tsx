@@ -1,46 +1,95 @@
-import { E, GetErrorMessagesUnderElement, GetEntries } from 'js-vextensions';
+import { E, GetEntries, GetErrorMessagesUnderElement, Assert } from 'js-vextensions';
 import { Column, Pre, Row, Select, TextArea } from 'react-vcomponents';
-import { GetInnerComp } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
-import { HasModPermissions } from 'Store/firebase/userExtras';
 import { AddArgumentAndClaim } from 'Server/Commands/AddArgumentAndClaim';
-import { Link, ACTSet } from 'Utils/FrameworkOverrides';
+import { HasModPermissions } from 'Store/firebase/userExtras';
+import { ACTSet, Link } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
+import { GetNode } from 'Store/firebase/nodes';
 import { AddChildNode } from '../../../../../Server/Commands/AddChildNode';
 import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
-import { AsNodeL2, AsNodeL3, GetClaimType, GetNodeForm } from '../../../../../Store/firebase/nodes/$node';
+import { AsNodeL2, AsNodeL3, GetClaimType, GetNodeForm, GetNodeL3 } from '../../../../../Store/firebase/nodes/$node';
 import { Equation } from '../../../../../Store/firebase/nodes/@Equation';
 import { ChildEntry, ClaimForm, ClaimType, ImageAttachment, MapNode, MapNodeL3, Polarity } from '../../../../../Store/firebase/nodes/@MapNode';
 import { ArgumentType, MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../../Store/firebase/nodes/@MapNodeRevision';
-import { GetMapNodeTypeDisplayName, MapNodeType, MapNodeType_Info } from '../../../../../Store/firebase/nodes/@MapNodeType';
+import { GetMapNodeTypeDisplayName, MapNodeType } from '../../../../../Store/firebase/nodes/@MapNodeType';
 import { ACTSetLastAcknowledgementTime } from '../../../../../Store/main';
 import { ACTMapNodeExpandedSet } from '../../../../../Store/main/mapViews/$mapView/rootNodeViews';
 import { NodeDetailsUI } from '../NodeDetailsUI';
 
-export function ShowAddChildDialog(parentNode: MapNodeL3, parentPath: string, childType: MapNodeType, childPolarity: Polarity, userID: string, mapID: string) {
-	const parentForm = GetNodeForm(parentNode);
-	const childTypeInfo = MapNodeType_Info.for[childType];
-	const displayName = GetMapNodeTypeDisplayName(childType, parentNode, parentForm, childPolarity);
+export class AddChildHelper {
+	constructor(parentPath: string, childType: MapNodeType, title: string, childPolarity: Polarity, userID: string, mapID: string) {
+		this.mapID = mapID;
+		this.node_parentPath = parentPath;
+		const parentNode = GetNode(this.Node_ParentID);
+		Assert(parentNode, 'Parent-node was not pre-loaded into the store. Can use this beforehand: await GetAsync(()=>GetNode(parentID));');
 
-	const claimForm = childType == MapNodeType.Claim
-		? (parentNode.type == MapNodeType.Category ? ClaimForm.YesNoQuestion : ClaimForm.Base)
-		: null;
+		this.node = new MapNode({
+			parents: { [this.Node_ParentID]: { _: true } },
+			type: childType,
+		});
+		this.node_revision = new MapNodeRevision({});
+		this.node_link = E(
+			{ _: true },
+			childType == MapNodeType.Claim && { form: parentNode.type == MapNodeType.Category ? ClaimForm.YesNoQuestion : ClaimForm.Base },
+			childType == MapNodeType.Argument && { polarity: childPolarity },
+		) as ChildEntry;
 
-	let newNode = new MapNode({
-		parents: { [parentNode._key]: { _: true } },
-		type: childType,
-	});
-	let newRevision = new MapNodeRevision({});
-	let newLink = E(
-		{ _: true },
-		childType == MapNodeType.Claim && { form: claimForm },
-		childType == MapNodeType.Argument && { polarity: childPolarity },
-	) as ChildEntry;
-	if (childType == MapNodeType.Argument) {
-		newRevision.argumentType = ArgumentType.All;
-		var newPremise = new MapNode({ type: MapNodeType.Claim, creator: userID });
-		var newPremiseRevision = new MapNodeRevision({});
+		if (childType == MapNodeType.Argument) {
+			this.node_revision.argumentType = ArgumentType.All;
+			this.subNode = new MapNode({ type: MapNodeType.Claim, creator: userID });
+			this.subNode_revision = new MapNodeRevision({ titles: { base: title } });
+		} else {
+			const usedTitleKey = ClaimForm[this.node_link.form].replace(/^./, ch => ch.toLowerCase());
+			this.node_revision.titles[usedTitleKey] = title;
+		}
 	}
+
+	mapID: string;
+	node_parentPath: string;
+	// get Node_Parent() { return GetNodeL3(this.node_parentPath); }
+	get Node_ParentID() { return this.node_parentPath.split('/').Last(); }
+	node: MapNode;
+	node_revision: MapNodeRevision;
+	node_link: ChildEntry;
+	subNode?: MapNode;
+	subNode_revision?: MapNodeRevision;
+
+	async Apply() {
+		/* if (validationError) {
+			return void setTimeout(()=>ShowMessageBox({title: `Validation error`, message: `Validation error: ${validationError}`}));
+		} */
+		store.dispatch(new ACTSet(a => a.main.currentNodeBeingAdded_path, `${this.node_parentPath}/?`));
+
+		let info;
+		if (this.node.type == MapNodeType.Argument) {
+			info = await new AddArgumentAndClaim({
+				mapID: this.mapID,
+				argumentParentID: this.Node_ParentID, argumentNode: this.node.Excluding('parents') as MapNode, argumentRevision: this.node_revision, argumentLink: this.node_link,
+				claimNode: this.subNode, claimRevision: this.subNode_revision,
+			}).Run();
+			store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.argumentNodeID}`, expanded: true, recursive: false }));
+			store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.argumentNodeID, time: Date.now() }));
+			store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.claimNodeID, time: Date.now() }));
+		} else {
+			info = await new AddChildNode({
+				mapID: this.mapID, parentID: this.Node_ParentID, node: this.node.Excluding('parents') as MapNode, revision: this.node_revision, link: this.node_link,
+			}).Run();
+			store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.nodeID}`, expanded: true, recursive: false }));
+			store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.nodeID, time: Date.now() }));
+		}
+
+		store.dispatch(new ACTSet(a => a.main.currentNodeBeingAdded_path, null));
+
+		return info;
+	}
+}
+
+export function ShowAddChildDialog(parentPath: string, childType: MapNodeType, childPolarity: Polarity, userID: string, mapID: string) {
+	const helper = new AddChildHelper(parentPath, childType, '', childPolarity, userID, mapID);
+	const parentNode = GetNodeL3(parentPath);
+	const parentForm = GetNodeForm(parentNode);
+	const displayName = GetMapNodeTypeDisplayName(childType, parentNode, parentForm, childPolarity);
 
 	let root;
 	let justShowed = true;
@@ -58,7 +107,7 @@ export function ShowAddChildDialog(parentNode: MapNodeL3, parentPath: string, ch
 				claimTypes.Remove(claimTypes.find(a => a.value == ClaimType.Image));
 			}
 
-			const newNodeAsL2 = AsNodeL2(newNode, newRevision);
+			const newNodeAsL2 = AsNodeL2(helper.node, helper.node_revision);
 			return (
 				<Column ref={c => root = c} style={{ width: 600 }}>
 					{childType == MapNodeType.Claim &&
@@ -67,14 +116,14 @@ export function ShowAddChildDialog(parentNode: MapNodeL3, parentPath: string, ch
 							<Select displayType="button bar" options={claimTypes} style={{ display: 'inline-block' }}
 								value={GetClaimType(newNodeAsL2)}
 								onChange={(val) => {
-									newRevision.Extend({ equation: null, contentNode: null, image: null });
+									helper.node_revision.Extend({ equation: null, contentNode: null, image: null });
 									if (val == ClaimType.Normal) {
 									} else if (val == ClaimType.Equation) {
-										newRevision.equation = new Equation();
+										helper.node_revision.equation = new Equation();
 									} else if (val == ClaimType.Quote) {
-										newRevision.contentNode = new ContentNode();
+										helper.node_revision.contentNode = new ContentNode();
 									} else {
-										newRevision.image = new ImageAttachment();
+										helper.node_revision.image = new ImageAttachment();
 									}
 									Change();
 
@@ -90,13 +139,13 @@ export function ShowAddChildDialog(parentNode: MapNodeL3, parentPath: string, ch
 					{childType != MapNodeType.Argument &&
 						<NodeDetailsUI ref={c => nodeEditorUI = c} style={{ padding: childType == MapNodeType.Claim ? '5px 0 0 0' : 0 }}
 							baseData={AsNodeL3(newNodeAsL2, Polarity.Supporting, null)}
-							baseRevisionData={newRevision}
-							baseLinkData={newLink} forNew={true}
+							baseRevisionData={helper.node_revision}
+							baseLinkData={helper.node_link} forNew={true}
 							parent={parentNode}
 							onChange={(newNodeData, newRevisionData, newLinkData, comp) => {
-								newNode = newNodeData;
-								newRevision = newRevisionData;
-								newLink = newLinkData;
+								helper.node = newNodeData;
+								helper.node_revision = newRevisionData;
+								helper.node_link = newLinkData;
 								validationError = comp.GetValidationError();
 								Change();
 							}}/>}
@@ -132,38 +181,16 @@ The details of the argument should be described within the argument's premises. 
 							<Row style={{ display: 'flex', alignItems: 'center' }}>
 								<TextArea required={true} pattern={MapNodeRevision_titlePattern}
 									allowLineBreaks={false} autoSize={true} style={ES({ flex: 1 })}
-									value={newPremiseRevision.titles['base']}
-									onChange={val => Change(newPremiseRevision.titles['base'] = val, validationError = GetErrorMessagesUnderElement(root.DOM)[0])}/>
+									value={helper.subNode_revision.titles['base']}
+									onChange={val => Change(helper.subNode_revision.titles['base'] = val, validationError = GetErrorMessagesUnderElement(root.DOM)[0])}/>
 							</Row>
 							<Row mt={5} style={{ fontSize: 12 }}>To add a second premise later, right click on your new argument and press "Convert to multi-premise".</Row>
 						</Column>}
 				</Column>
 			);
 		},
-		onOK: async () => {
-			/* if (validationError) {
-				return void setTimeout(()=>ShowMessageBox({title: `Validation error`, message: `Validation error: ${validationError}`}));
-			} */
-			store.dispatch(new ACTSet(a => a.main.currentNodeBeingAdded_path, `${parentPath}/?`));
-
-			if (childType == MapNodeType.Argument) {
-				const info = await new AddArgumentAndClaim({
-					mapID,
-					argumentParentID: newNode.parents.VKeys(true)[0], argumentNode: newNode.Excluding('parents') as MapNode, argumentRevision: newRevision, argumentLink: newLink,
-					claimNode: newPremise, claimRevision: newPremiseRevision,
-				}).Run();
-				store.dispatch(new ACTMapNodeExpandedSet({ mapID, path: `${parentPath}/${info.argumentNodeID}`, expanded: true, recursive: false }));
-				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.argumentNodeID, time: Date.now() }));
-				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.claimNodeID, time: Date.now() }));
-			} else {
-				const info = await new AddChildNode({
-					mapID, parentID: newNode.parents.VKeys(true)[0], node: newNode.Excluding('parents') as MapNode, revision: newRevision, link: newLink,
-				}).Run();
-				store.dispatch(new ACTMapNodeExpandedSet({ mapID, path: `${parentPath}/${info.nodeID}`, expanded: true, recursive: false }));
-				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.nodeID, time: Date.now() }));
-			}
-
-			store.dispatch(new ACTSet(a => a.main.currentNodeBeingAdded_path, null));
+		onOK: () => {
+			helper.Apply();
 		},
 	});
 }

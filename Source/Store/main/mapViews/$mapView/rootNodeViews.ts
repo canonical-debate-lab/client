@@ -1,8 +1,8 @@
 import { GetTreeNodesInObjTree, Vector2i } from 'js-vextensions';
 import u from 'updeep';
-import {Action, SplitStringBySlash_Cached} from 'Utils/FrameworkOverrides';
-import {MapNodeView} from "../@MapViews";
-import {RootNodeViews} from './rootNodeViews/@RootNodeViews';
+import { Action, SplitStringBySlash_Cached } from '../../../../Utils/FrameworkOverrides';
+import { MapNodeView } from '../@MapViews';
+import { RootNodeViews } from './rootNodeViews/@RootNodeViews';
 
 export class ACTMapNodeSelect extends Action<{mapID: string, path: string}> {}
 export class ACTMapNodePanelOpen extends Action<{mapID: string, path: string, panel: string}> {}

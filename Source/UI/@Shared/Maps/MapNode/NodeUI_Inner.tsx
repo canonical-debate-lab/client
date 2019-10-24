@@ -528,12 +528,12 @@ class TitlePanel extends BaseComponentWithConnector(TitlePanel_connector, { edit
 		if (newRevision.titles[titleKey] != newTitle) {
 			newRevision.titles[titleKey] = newTitle;
 
-			SetNodeUILocked(parentNode._key, true);
+			if (parentNode) SetNodeUILocked(parentNode._key, true);
 			const revisionID = await new AddNodeRevision({ mapID: map._key, revision: RemoveHelpers(newRevision) }).Run();
 			store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._key, time: Date.now() }));
 			// await WaitTillPathDataIsReceiving(DBPath(`nodeRevisions/${revisionID}`));
 			await WaitTillPathDataIsReceived(DBPath(`nodeRevisions/${revisionID}`));
-			SetNodeUILocked(parentNode._key, false);
+			if (parentNode) SetNodeUILocked(parentNode._key, false);
 		}
 		this.SetState({ applyingEdit: false, editing: false });
 	}

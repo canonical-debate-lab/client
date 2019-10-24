@@ -1,22 +1,21 @@
-import { combineReducers } from 'redux';
-import { VURL } from 'js-vextensions';
 import { LOCATION_CHANGE } from 'connected-react-router';
-import { MapInfo } from 'Store/main/maps/@MapInfo';
+import { VURL } from 'js-vextensions';
 import { ShallowChanged } from 'react-vextensions';
-import { MapInfoReducer } from 'Store/main/maps/$map';
-import { Personal } from 'Store/main/personal';
-import { Action, CombineReducers, SimpleReducer, State } from 'Utils/FrameworkOverrides';
-import { rootPageDefaultChilds } from 'Utils/URL/URLs';
-import { MapViews, MapNodeView, MapView } from './main/mapViews/@MapViews';
-import { MapViewsReducer } from './main/mapViews';
-import { RatingUIReducer, RatingUIState } from './main/ratingUI';
-import { NotificationMessage } from './main/@NotificationMessage';
-import { DebatesReducer, Debates, ACTDebateMapSelect } from './main/debates';
-import { SubpageReducer } from './main/@Shared/$subpage';
-import { globalMapID } from './firebase/nodes/@MapNode';
-import { PersonalReducer, ACTPersonalMapSelect } from './main/personal';
-import { Database, DatabaseReducer } from './main/database';
+import { MapInfoReducer } from '../Store/main/maps/$map';
+import { MapInfo } from '../Store/main/maps/@MapInfo';
+import { Personal } from '../Store/main/personal';
+import { Action, CombineReducers, SimpleReducer, State } from '../Utils/FrameworkOverrides';
+import { rootPageDefaultChilds } from '../Utils/URL/URLs';
 import { GetNodeL3 } from './firebase/nodes/$node';
+import { globalMapID } from './firebase/nodes/@MapNode';
+import { NotificationMessage } from './main/@NotificationMessage';
+import { SubpageReducer } from './main/@Shared/$subpage';
+import { Database, DatabaseReducer } from './main/database';
+import { ACTDebateMapSelect, Debates, DebatesReducer } from './main/debates';
+import { MapViewsReducer } from './main/mapViews';
+import { MapViews } from './main/mapViews/@MapViews';
+import { ACTPersonalMapSelect, PersonalReducer } from './main/personal';
+import { RatingUIReducer, RatingUIState } from './main/ratingUI';
 import { SearchReducer, SearchStorage } from './main/search';
 
 export enum WeightingType {

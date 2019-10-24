@@ -16,8 +16,22 @@ declare const { AddMap }: typeof import('../../../Source/Server/Commands/AddMap'
 declare const { Assert }: typeof import('../../../../../@Modules/react-vscrollview/Main/dist/Utils');
 declare const { MeID }: typeof import('../../../Source/Store/firebase/users');
 declare const { ACTPersonalMapSelect }: typeof import('../../../Source/Store/main/personal');
+declare const { AddChildNode }: typeof import('../../../Source/Server/Commands/AddChildNode');
+declare const { ACTMapNodeExpandedSet }: typeof import('../../../Source/Store/main/mapViews/$mapView/rootNodeViews');
+declare const { ACTSetLastAcknowledgementTime }: typeof import('../../../Source/Store/main');
+declare const { MapNode }: typeof import('../../../Source/Store/firebase/nodes/@MapNode');
+declare const { MapNodeType }: typeof import('../../../Source/Store/firebase/nodes/@MapNodeType');
+declare const { MapNodeRevision }: typeof import('../../../Source/Store/firebase/nodes/@MapNodeRevision');
+declare const { ClaimForm }: typeof import('../../../Source/Store/firebase/nodes/@MapNode');
+declare const { Polarity }: typeof import('../../../Source/Store/firebase/nodes/@MapNode');
+declare const { AddChildHelper }: typeof import('../../../Source/UI/@Shared/Maps/MapNode/NodeUI_Menu/AddChildDialog');
 
 declare const global;
+/* declare global {
+	interface Object {
+		entries: any;
+	}
+} */
 declare interface Object {
 	entries: any;
 }
@@ -80,7 +94,12 @@ async function SeedDB(firebase) {
 	// Object.setPrototypeOf(fullAuth, Object.getPrototypeOf({}));
 	// Object.setPrototypeOf(fullAuth, Object.prototype);
 	// Object.setPrototypeOf(fullAuth, RR.ObjectPrototype);
-	Object.setPrototypeOf(fullAuth, Object.getPrototypeOf(RR.emptyObj));
+	// Object.setPrototypeOf(fullAuth, Object.getPrototypeOf(RR.emptyObj));
+
+	// add class-extensions from site-context prototypes, to our own test-context prototypes
+	Object.defineProperties(Object.getPrototypeOf({}), Object['getOwnPropertyDescriptors'](Object.getPrototypeOf(RR.emptyObj)));
+	Object.defineProperties(Object.getPrototypeOf([]), Object['getOwnPropertyDescriptors'](Object.getPrototypeOf(RR.emptyArray)));
+
 	RR.store.dispatch(fullAuth);
 	Assert(MeID() != null);
 
@@ -90,15 +109,32 @@ async function SeedDB(firebase) {
 		// if (mapID == null) mapID = `Map ${Math.random()}`;
 		const map = Object.assign({}, { name: `Map ${Math.random()}`, type: 10, creator: 'MyUser' }, info);
 		// db.doc(DBPath(`maps/${mapID}`)).set(map);
-		return new AddMap({ map }).Run();
+		const command = new AddMap({ map });
+		const mapID = await command.Run();
+		return { command, mapID };
 	}
-	const mainMapID = await AddTestMap({ name: 'MainTestMap' }); // , '---TestingMap---');
-	Assert(mainMapID != null);
+	const mapInfo = await AddTestMap({ name: 'MainTestMap' }); // , '---TestingMap---');
+	for (let i = 0; i < 10; i++) AddTestMap({});
+	Assert(mapInfo.mapID != null);
+	const rootNodeID = mapInfo.command.payload.map.rootNode;
 
-	RR.store.dispatch(new ACTPersonalMapSelect({ id: mainMapID }));
+	RR.store.dispatch(new ACTPersonalMapSelect({ id: mapInfo.mapID }));
 
+	await RR.SleepAsync(50); // wait a bit, till map-data loaded (otherwise nodes can't be expanded)
+
+	async function AddNode(parentPath: string, type: number, title: string, polarityIfArg?: number) {
+		const helper = new AddChildHelper(parentPath, type, title, polarityIfArg, fullAuth.auth.uid, mapInfo.mapID);
+		return helper.Apply();
+	}
+
+	await RR.GetAsync(() => RR.GetNode(rootNodeID)); // wait until root-node is loaded into store
+	const claimNodeID = (await AddNode(rootNodeID, MapNodeType.Claim, 'Claim')).nodeID;
+	await RR.GetAsync(() => RR.GetNode(claimNodeID)); // wait until claim-node is loaded into store
 	for (let i = 0; i < 10; i++) {
-		AddTestMap({});
+		await AddNode(`${rootNodeID}/${claimNodeID}`, MapNodeType.Argument, `Pro${i + 1}`, Polarity.Supporting);
+	}
+	for (let i = 0; i < 10; i++) {
+		await AddNode(`${rootNodeID}/${claimNodeID}`, MapNodeType.Argument, `Con${i + 1}`, Polarity.Opposing);
 	}
 
 	// console.log('DB contents:', await collectionRef.get());
