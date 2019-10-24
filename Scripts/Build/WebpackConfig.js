@@ -345,7 +345,8 @@ AddStringReplacement(/wrapMapToProps.js/, [
 ]);
 
 // redux
-/* AddStringReplacement(/createStore.js/, [
+// AddStringReplacement(/createStore.js/, [
+AddStringReplacement(/redux.js/, [
 	// optimize redux so that if a reducer does not change the state at all, then the store-subscribers are not notified
 	{
 		pattern: 'currentState = currentReducer(currentState, action)',
@@ -355,7 +356,7 @@ AddStringReplacement(/wrapMapToProps.js/, [
 		pattern: 'for (var i = 0; i < listeners.length; i++) {',
 		replacement: match => `if (currentState !== oldState) ${match}`,
 	},
-]); */
+]);
 
 // make all Object.defineProperty calls leave the property configurable (probably better to just wrap the Object.defineProperty function)
 /* AddStringReplacement(/index\.js$/, [
