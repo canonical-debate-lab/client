@@ -82,9 +82,10 @@ function MapNodeViewReducer(state = new MapNodeView(), action: Action<any>, path
 	} else if (action.Is(ACTMapNodeTermOpen)) {
 		state = { ...state, openTermID: action.payload.termID };
 	} else if (action.Is(ACTMapNodeExpandedSet)) {
-		const expandKey = ['expanded', 'expanded_truth', 'expanded_relevance'].find(key => action.payload[key] != null);
+		// const expandKeys = ['expanded', 'expanded_truth', 'expanded_relevance'].filter(key => action.payload[key] != null);
 		if (atTargetNode) {
-			state = { ...state, [expandKey]: action.payload[expandKey] };
+			// state = { ...state, [expandKey]: action.payload[expandKey] };
+			state = { ...state, ...action.payload.Including('expanded', 'expanded_truth', 'expanded_relevance') };
 
 			// if we're expanding the current node, and it's a claim, then auto-expand any argument children it has (assuming no expand state set yet)
 			/* let currentNode = GetNodeL2(SplitStringBySlash_Cached(pathSoFar).Last().ToInt());
@@ -105,7 +106,7 @@ function MapNodeViewReducer(state = new MapNodeView(), action: Action<any>, path
 
 		if (action.payload.recursive) {
 			state.children = { ...state.children };
-			for (const childID in state.children) {
+			for (const childID of state.children.VKeys(true)) {
 				state.children[childID] = MapNodeViewReducer(state.children[childID], action, `${pathSoFar}/${childID}`);
 			}
 		}

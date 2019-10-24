@@ -125,9 +125,9 @@ async function SeedDB(firebase) {
 	await WaitForNodeInStore(rootNodeID);
 
 	async function WaitForNodeInStore(nodeID: string) { return RR.GetAsync(() => RR.GetNode(nodeID)); }
-	async function AddNode(parentPath: string, type: number, title: string, polarityIfArg?: number) {
+	async function AddNode(parentPath: string, type: number, title: string, polarityIfArg?: number, expand = true) {
 		const helper = new AddChildHelper(parentPath, type, title, polarityIfArg, fullAuth.auth.uid, mapInfo.mapID);
-		const results = await helper.Apply();
+		const results = await helper.Apply(expand, expand);
 		const nodeID: string = results.nodeID || results.argumentNodeID;
 		await WaitForNodeInStore(nodeID);
 		return nodeID;
@@ -135,10 +135,10 @@ async function SeedDB(firebase) {
 
 	const claimNodeID = await AddNode(rootNodeID, MapNodeType.Claim, 'Claim');
 	for (let i1 = 0; i1 < 5; i1++) {
-		const sub1ProID = await AddNode(`${rootNodeID}/${claimNodeID}`, MapNodeType.Argument, `L1.Pro${i1 + 1}`, Polarity.Supporting);
+		const sub1ProID = await AddNode(`${rootNodeID}/${claimNodeID}`, MapNodeType.Argument, `L1.Pro${i1 + 1}`, Polarity.Supporting, false);
 		const sub1ConID = await AddNode(`${rootNodeID}/${claimNodeID}`, MapNodeType.Argument, `L1.Con${i1 + 1}`, Polarity.Opposing);
 		for (let i2 = 0; i2 < 5; i2++) {
-			await AddNode(`${rootNodeID}/${claimNodeID}/${sub1ConID}`, MapNodeType.Argument, `L2.Pro${i2 + 1}`, Polarity.Supporting);
+			await AddNode(`${rootNodeID}/${claimNodeID}/${sub1ConID}`, MapNodeType.Argument, `L2.Pro${i2 + 1}`, Polarity.Supporting, false);
 		}
 	}
 

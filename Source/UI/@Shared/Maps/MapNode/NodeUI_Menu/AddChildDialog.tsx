@@ -55,7 +55,7 @@ export class AddChildHelper {
 	subNode?: MapNode;
 	subNode_revision?: MapNodeRevision;
 
-	async Apply() {
+	async Apply(expandSelf = true, expandTruthAndRelevance = true) {
 		/* if (validationError) {
 			return void setTimeout(()=>ShowMessageBox({title: `Validation error`, message: `Validation error: ${validationError}`}));
 		} */
@@ -69,18 +69,23 @@ export class AddChildHelper {
 				claimNode: this.subNode, claimRevision: this.subNode_revision,
 			}).Run();
 
-			// await GetAsync(() => GetNodeView(this.mapID, this.node_parentPath)); // make sure parent node-view is loaded before setting child's node-view (otherwise will fail)
-			store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.argumentNodeID}`, expanded: true, recursive: false }));
-			store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.argumentNodeID, time: Date.now() }));
-			store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.claimNodeID, time: Date.now() }));
+			if (expandSelf) {
+				store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.argumentNodeID}`, expanded: true, recursive: false }));
+				store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.argumentNodeID}/${info.claimNodeID}`, expanded: true,
+					expanded_truth: expandTruthAndRelevance, expanded_relevance: expandTruthAndRelevance, recursive: false }));
+				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.argumentNodeID, time: Date.now() }));
+				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.claimNodeID, time: Date.now() }));
+			}
 		} else {
 			info = await new AddChildNode({
 				mapID: this.mapID, parentID: this.Node_ParentID, node: this.node.Excluding('parents') as MapNode, revision: this.node_revision, link: this.node_link,
 			}).Run();
 
-			// await GetAsync(() => GetNodeView(this.mapID, this.node_parentPath)); // make sure parent node-view is loaded before setting child's node-view (otherwise will fail)
-			store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.nodeID}`, expanded: true, recursive: false }));
-			store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.nodeID, time: Date.now() }));
+			if (expandSelf) {
+				store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.nodeID}`, expanded: true,
+					expanded_truth: expandTruthAndRelevance, expanded_relevance: expandTruthAndRelevance, recursive: false }));
+				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.nodeID, time: Date.now() }));
+			}
 		}
 
 		store.dispatch(new ACTSet(a => a.main.currentNodeBeingAdded_path, null));

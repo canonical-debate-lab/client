@@ -32,8 +32,8 @@ export class AddArgumentAndClaim extends Command<Payload, {argumentNodeID: strin
 		this.returnData = {
 			argumentNodeID: this.sub_addArgument.sub_addNode.nodeID,
 			argumentRevisionID: this.sub_addArgument.sub_addNode.sub_addRevision.revisionID,
-			claimNodeID: this.sub_addArgument.sub_addNode.nodeID,
-			claimRevisionID: this.sub_addArgument.sub_addNode.sub_addRevision.revisionID,
+			claimNodeID: this.sub_addClaim.sub_addNode.nodeID,
+			claimRevisionID: this.sub_addClaim.sub_addNode.sub_addRevision.revisionID,
 		};
 	}
 	async Validate() {
