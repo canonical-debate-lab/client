@@ -97,8 +97,10 @@ async function SeedDB(firebase) {
 	// Object.setPrototypeOf(fullAuth, Object.getPrototypeOf(RR.emptyObj));
 
 	// add class-extensions from site-context prototypes, to our own test-context prototypes
-	Object.defineProperties(Object.getPrototypeOf({}), Object['getOwnPropertyDescriptors'](Object.getPrototypeOf(RR.emptyObj)));
-	Object.defineProperties(Object.getPrototypeOf([]), Object['getOwnPropertyDescriptors'](Object.getPrototypeOf(RR.emptyArray)));
+	if (Object.getPrototypeOf({})['_AddItem'] == null) {
+		Object.defineProperties(Object.getPrototypeOf({}), Object['getOwnPropertyDescriptors'](Object.getPrototypeOf(RR.emptyObj)));
+		Object.defineProperties(Object.getPrototypeOf([]), Object['getOwnPropertyDescriptors'](Object.getPrototypeOf(RR.emptyArray)));
+	}
 
 	RR.store.dispatch(fullAuth);
 	Assert(MeID() != null);
@@ -116,25 +118,28 @@ async function SeedDB(firebase) {
 	const mapInfo = await AddTestMap({ name: 'MainTestMap' }); // , '---TestingMap---');
 	for (let i = 0; i < 10; i++) AddTestMap({});
 	Assert(mapInfo.mapID != null);
-	const rootNodeID = mapInfo.command.payload.map.rootNode;
-
 	RR.store.dispatch(new ACTPersonalMapSelect({ id: mapInfo.mapID }));
-
 	await RR.SleepAsync(50); // wait a bit, till map-data loaded (otherwise nodes can't be expanded)
 
+	const rootNodeID = mapInfo.command.payload.map.rootNode;
+	await WaitForNodeInStore(rootNodeID);
+
+	async function WaitForNodeInStore(nodeID: string) { return RR.GetAsync(() => RR.GetNode(nodeID)); }
 	async function AddNode(parentPath: string, type: number, title: string, polarityIfArg?: number) {
 		const helper = new AddChildHelper(parentPath, type, title, polarityIfArg, fullAuth.auth.uid, mapInfo.mapID);
-		return helper.Apply();
+		const results = await helper.Apply();
+		const nodeID: string = results.nodeID || results.argumentNodeID;
+		await WaitForNodeInStore(nodeID);
+		return nodeID;
 	}
 
-	await RR.GetAsync(() => RR.GetNode(rootNodeID)); // wait until root-node is loaded into store
-	const claimNodeID = (await AddNode(rootNodeID, MapNodeType.Claim, 'Claim')).nodeID;
-	await RR.GetAsync(() => RR.GetNode(claimNodeID)); // wait until claim-node is loaded into store
-	for (let i = 0; i < 10; i++) {
-		await AddNode(`${rootNodeID}/${claimNodeID}`, MapNodeType.Argument, `Pro${i + 1}`, Polarity.Supporting);
-	}
-	for (let i = 0; i < 10; i++) {
-		await AddNode(`${rootNodeID}/${claimNodeID}`, MapNodeType.Argument, `Con${i + 1}`, Polarity.Opposing);
+	const claimNodeID = await AddNode(rootNodeID, MapNodeType.Claim, 'Claim');
+	for (let i1 = 0; i1 < 5; i1++) {
+		const sub1ProID = await AddNode(`${rootNodeID}/${claimNodeID}`, MapNodeType.Argument, `L1.Pro${i1 + 1}`, Polarity.Supporting);
+		const sub1ConID = await AddNode(`${rootNodeID}/${claimNodeID}`, MapNodeType.Argument, `L1.Con${i1 + 1}`, Polarity.Opposing);
+		for (let i2 = 0; i2 < 5; i2++) {
+			await AddNode(`${rootNodeID}/${claimNodeID}/${sub1ConID}`, MapNodeType.Argument, `L2.Pro${i2 + 1}`, Polarity.Supporting);
+		}
 	}
 
 	// console.log('DB contents:', await collectionRef.get());
@@ -162,7 +167,12 @@ context('MapUI', () => {
 	});
 
 	// https://on.cypress.io/interacting-with-elements
-	it('Record how long it takes for the speed-test map to load', () => {
-		// todo
+	it('Should have all the nodes expanded', () => {
+		// nodes that should be visible: root + claim + 5 pro + 5 con (each having self + 5 subs)
+		cy.get('.NodeUI_Inner', { timeout: 20000 }).should('have.length', 1 + 1 + 5 + 5 * (1 + 5));
 	});
+
+	/* it('Record how long it takes for the speed-test map to load', () => {
+		// todo
+	}); */
 });

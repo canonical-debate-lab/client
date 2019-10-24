@@ -1,16 +1,16 @@
-import { E, GetEntries, GetErrorMessagesUnderElement, Assert } from 'js-vextensions';
+import { Assert, E, GetEntries, GetErrorMessagesUnderElement } from 'js-vextensions';
 import { Column, Pre, Row, Select, TextArea } from 'react-vcomponents';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { AddArgumentAndClaim } from 'Server/Commands/AddArgumentAndClaim';
+import { GetNode } from 'Store/firebase/nodes';
 import { HasModPermissions } from 'Store/firebase/userExtras';
 import { ACTSet, Link } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { GetNode } from 'Store/firebase/nodes';
 import { AddChildNode } from '../../../../../Server/Commands/AddChildNode';
 import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
 import { AsNodeL2, AsNodeL3, GetClaimType, GetNodeForm, GetNodeL3 } from '../../../../../Store/firebase/nodes/$node';
 import { Equation } from '../../../../../Store/firebase/nodes/@Equation';
-import { ChildEntry, ClaimForm, ClaimType, ImageAttachment, MapNode, MapNodeL3, Polarity } from '../../../../../Store/firebase/nodes/@MapNode';
+import { ChildEntry, ClaimForm, ClaimType, ImageAttachment, MapNode, Polarity } from '../../../../../Store/firebase/nodes/@MapNode';
 import { ArgumentType, MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../../Store/firebase/nodes/@MapNodeRevision';
 import { GetMapNodeTypeDisplayName, MapNodeType } from '../../../../../Store/firebase/nodes/@MapNodeType';
 import { ACTSetLastAcknowledgementTime } from '../../../../../Store/main';
@@ -68,6 +68,8 @@ export class AddChildHelper {
 				argumentParentID: this.Node_ParentID, argumentNode: this.node.Excluding('parents') as MapNode, argumentRevision: this.node_revision, argumentLink: this.node_link,
 				claimNode: this.subNode, claimRevision: this.subNode_revision,
 			}).Run();
+
+			// await GetAsync(() => GetNodeView(this.mapID, this.node_parentPath)); // make sure parent node-view is loaded before setting child's node-view (otherwise will fail)
 			store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.argumentNodeID}`, expanded: true, recursive: false }));
 			store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.argumentNodeID, time: Date.now() }));
 			store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.claimNodeID, time: Date.now() }));
@@ -75,6 +77,8 @@ export class AddChildHelper {
 			info = await new AddChildNode({
 				mapID: this.mapID, parentID: this.Node_ParentID, node: this.node.Excluding('parents') as MapNode, revision: this.node_revision, link: this.node_link,
 			}).Run();
+
+			// await GetAsync(() => GetNodeView(this.mapID, this.node_parentPath)); // make sure parent node-view is loaded before setting child's node-view (otherwise will fail)
 			store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.nodeID}`, expanded: true, recursive: false }));
 			store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.nodeID, time: Date.now() }));
 		}
