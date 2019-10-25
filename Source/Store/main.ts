@@ -4,7 +4,7 @@ import { ShallowChanged } from 'react-vextensions';
 import { MapInfoReducer } from '../Store/main/maps/$map';
 import { MapInfo } from '../Store/main/maps/@MapInfo';
 import { Personal } from '../Store/main/personal';
-import { Action, CombineReducers, SimpleReducer, State } from '../Utils/FrameworkOverrides';
+import { Action, CombineReducers, SimpleReducer, State, StoreAccessor } from '../Utils/FrameworkOverrides';
 import { rootPageDefaultChilds } from '../Utils/URL/URLs';
 import { GetNodeL3 } from './firebase/nodes/$node';
 import { globalMapID } from './firebase/nodes/@MapNode';
@@ -242,9 +242,9 @@ export function GetSubpage() {
 	return (State('main', page, 'subpage') as string) || rootPageDefaultChilds[page];
 }
 
-export function GetLastAcknowledgementTime(nodeID: string) {
+export const GetLastAcknowledgementTime = StoreAccessor((nodeID: string) => {
 	return State('main', 'nodeLastAcknowledgementTimes', nodeID) as number || 0;
-}
+});
 
 /* export const GetLastAcknowledgementTime2 = StoreAccessor((nodeID: string) => {
 	GetCopiedNodePath();

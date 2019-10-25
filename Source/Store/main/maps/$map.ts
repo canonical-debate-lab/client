@@ -2,7 +2,7 @@ import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { ShowChangesSinceType } from 'Store/main/maps/@MapInfo';
 import { emptyArray, GetValues, FromJSON } from 'js-vextensions';
-import { Action, CombineReducers, SimpleReducer, State } from 'Utils/FrameworkOverrides';
+import { Action, CombineReducers, SimpleReducer, State, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { GetMap } from '../../firebase/maps';
 import { GetNode, GetNodeChildren } from '../../firebase/nodes';
 import { GetTimeline, GetTimelineStep } from '../../firebase/timelines';
@@ -203,7 +203,7 @@ export function GetPlayingTimelineRevealNodes(mapID: string, excludeAfterCurrent
 	return [`${map.rootNode}`].concat(GetNodesRevealedInSteps(steps));
 }
 
-export function GetTimeFromWhichToShowChangedNodes(mapID: string) {
+export const GetTimeFromWhichToShowChangedNodes = StoreAccessor((mapID: string) => {
 	const type = State(`main/maps/${mapID}/showChangesSince_type`) as ShowChangesSinceType;
 	if (type == ShowChangesSinceType.None) return Number.MAX_SAFE_INTEGER; // from end of time (nothing)
 	if (type == ShowChangesSinceType.AllUnseenChanges) return 0; // from start of time (everything)
@@ -215,4 +215,4 @@ export function GetTimeFromWhichToShowChangedNodes(mapID: string) {
 
 	const timeOfSpecifiedVisit = lastMapViewTimes[visitOffset.KeepAtMost(lastMapViewTimes.length - 1)];
 	return timeOfSpecifiedVisit;
-}
+});

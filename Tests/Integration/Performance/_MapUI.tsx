@@ -170,12 +170,12 @@ context('MapUI', () => {
 	it('Should have all the nodes expanded', () => {
 		const start = Date.now();
 		// nodes that should be visible: root + claim + 5 pro + 5 con (each having self + 5 subs)
-		cy.get('.NodeUI_Inner', { timeout: 20000 }).should('have.length', 1 + 1 + 5 + 5 * (1 + 5))
+		cy.get('.NodeUI_Inner', { timeout: 111000 }).should('have.length', 1 + 1 + 5 + 5 * (1 + 5))
 			.then(() => cy.log(`Loaded node boxes by: ${Date.now() - start}`));
 
-		cy.get('.NodeUI_Inner:contains(L1.)', { timeout: 20000 }).should('have.length', 10)
+		cy.get('.NodeUI_Inner:contains(L1.)', { timeout: 111000 }).should('have.length', 10)
 			.then(() => cy.log(`Loaded L1 nodes fully by : ${Date.now() - start}`));
-		cy.get('.NodeUI_Inner:contains(L2.)', { timeout: 20000 }).should('have.length', 25)
+		cy.get('.NodeUI_Inner:contains(L2.)', { timeout: 111000 }).should('have.length', 25)
 			.then(() => cy.log(`Loaded L2 nodes fully by: ${Date.now() - start}`));
 	});
 

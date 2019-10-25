@@ -1,5 +1,5 @@
 import { Lerp, emptyObj } from 'js-vextensions';
-import { GetData, CachedTransform_WithStore, State } from 'Utils/FrameworkOverrides';
+import { GetData, CachedTransform_WithStore, State, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { GetArgumentImpactPseudoRatingSet } from '../../Utils/Store/RatingProcessor';
 import { RatingType, ratingTypes } from '../../Store/firebase/nodeRatings/@RatingType';
 import { WeightingType } from '../main';
@@ -11,7 +11,7 @@ import { ClaimForm, MapNodeL3 } from './nodes/@MapNode';
 import { MapNodeType } from './nodes/@MapNodeType';
 import { MeID } from './users';
 
-export function GetNodeRatingsRoot(nodeID: string) {
+export const GetNodeRatingsRoot = StoreAccessor((nodeID: string) => {
 	// RequestPaths(GetPaths_NodeRatingsRoot(nodeID));
 	// return GetData('nodeRatings', nodeID) as RatingsRoot;
 	// temp workaround for GetData() not retrieving list of subcollections for doc-path
@@ -23,7 +23,7 @@ export function GetNodeRatingsRoot(nodeID: string) {
 		}
 	}
 	return result;
-}
+});
 
 // path is needed if you want
 export function GetRatingSet(nodeID: string, ratingType: RatingType, path?: string) {
@@ -86,7 +86,8 @@ export function GetRatingAverage_AtPath(node: MapNodeL3, ratingType: RatingType,
 }
 
 const rsCompatibleNodeTypes = [MapNodeType.Argument, MapNodeType.Claim];
-export function GetFillPercent_AtPath(node: MapNodeL3, path: string, boxType?: HolderType, ratingType?: RatingType, filter?: RatingFilter, resultIfNoData = null): number {
+// export const GetFillPercent_AtPath = StoreAccessor('GetFillPercent_AtPath', (node: MapNodeL3, path: string, boxType?: HolderType, ratingType?: RatingType, filter?: RatingFilter, resultIfNoData = null) => {
+export const GetFillPercent_AtPath = StoreAccessor((node: MapNodeL3, path: string, boxType?: HolderType, ratingType?: RatingType, filter?: RatingFilter, resultIfNoData = null) => {
 	ratingType = ratingType || { [HolderType.Truth]: 'truth', [HolderType.Relevance]: 'relevance' }[boxType] as any || GetMainRatingType(node);
 	if (State(a => a.main.weighting) == WeightingType.Votes || !rsCompatibleNodeTypes.Contains(node.type)) {
 		return GetRatingAverage_AtPath(node, ratingType, filter, resultIfNoData);
@@ -113,13 +114,14 @@ export function GetFillPercent_AtPath(node: MapNodeL3, path: string, boxType?: H
 	} */
 
 	return result;
-}
-export function GetMarkerPercent_AtPath(node: MapNodeL3, path: string, boxType?: HolderType, ratingType?: RatingType) {
+});
+
+export const GetMarkerPercent_AtPath = StoreAccessor((node: MapNodeL3, path: string, boxType?: HolderType, ratingType?: RatingType) => {
 	ratingType = ratingType || { [HolderType.Truth]: 'truth', [HolderType.Relevance]: 'relevance' }[boxType] as any || GetMainRatingType(node);
 	if (State(a => a.main.weighting) == WeightingType.Votes || !rsCompatibleNodeTypes.Contains(node.type)) {
 		return GetRatingAverage_AtPath(node, ratingType, new RatingFilter({ includeUser: MeID() }));
 	}
-}
+});
 
 /* export function GetPaths_MainRatingSet(node: MapNode) {
 	let mainRatingType = MapNode.GetMainRatingTypes(node)[0];

@@ -1,6 +1,6 @@
 import katex from 'katex';
 import { VURL, CachedTransform, Assert, IsNumber, IsString } from 'js-vextensions';
-import { SplitStringBySlash_Cached, SlicePath } from 'Utils/FrameworkOverrides';
+import { SplitStringBySlash_Cached, SlicePath, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { GetValues } from 'js-vextensions';
 import { GetImage } from '../images';
 import { MapNode, MapNodeL2, ClaimForm, ChildEntry, ClaimType, MapNodeL3, Polarity } from './@MapNode';
@@ -57,9 +57,9 @@ export function GetRatingTypesForNode(node: MapNodeL2): RatingTypeInfo[] {
 	}
 	Assert(false);
 }
-export function GetMainRatingType(node: MapNodeL2): RatingType {
+export const GetMainRatingType = StoreAccessor((node: MapNodeL2) => {
 	return GetRatingTypesForNode(node).FirstOrX(a => a.main, {}).type;
-}
+});
 export function GetSortByRatingType(node: MapNodeL3): RatingType {
 	if ((node as MapNodeL3).link && (node as MapNodeL3).link.form == ClaimForm.YesNoQuestion) {
 		return 'significance';
@@ -136,7 +136,7 @@ export function AsNodeL3(node: MapNodeL2, finalPolarity?: Polarity, link?: Child
 	};
 	return node.Extended({ finalPolarity, link }) as MapNodeL3;
 }
-export function GetNodeL3(path: string) {
+export const GetNodeL3 = StoreAccessor((path: string) => {
 	if (path == null) return null;
 	const nodeID = GetNodeID(path);
 	const node = GetNodeL2(nodeID);
@@ -159,7 +159,7 @@ export function GetNodeL3(path: string) {
 
 	const nodeL3 = AsNodeL3(node, finalPolarity, link);
 	return CachedTransform('GetNodeL3', [path], nodeL3, () => nodeL3);
-}
+});
 
 /* export function GetNodeForm(node: MapNode, path: string): ClaimForm {
 	let parent = GetParentNode(path);
@@ -170,7 +170,7 @@ export function GetClaimFormUnderParent(node: MapNode, parent: MapNode): ClaimFo
 	if (link == null) return ClaimForm.Base;
 	return link.form;
 } */
-export function GetNodeForm(node: MapNodeL2 | MapNodeL3, pathOrParent?: string | MapNodeL2) {
+export const GetNodeForm = StoreAccessor((node: MapNodeL2 | MapNodeL3, pathOrParent?: string | MapNodeL2) => {
 	if ((node as MapNodeL3).link) {
 		return (node as MapNodeL3).link.form;
 	}
@@ -179,7 +179,7 @@ export function GetNodeForm(node: MapNodeL2 | MapNodeL3, pathOrParent?: string |
 	const link = GetLinkUnderParent(node._key, parent);
 	if (link == null) return ClaimForm.Base;
 	return link.form;
-}
+});
 export function GetLinkUnderParent(nodeID: string, parent: MapNode): ChildEntry {
 	if (parent == null) return null;
 	if (parent.children == null) return null; // post-delete, parent-data might have updated before child-data
@@ -300,13 +300,13 @@ export function IsMultiPremiseArgument(node: MapNode) {
 	return node && node.type == MapNodeType.Argument && node.multiPremiseArgument;
 }
 
-export function IsPremiseOfSinglePremiseArgument(node: MapNode, parent: MapNode) {
+export const IsPremiseOfSinglePremiseArgument = StoreAccessor((node: MapNode, parent: MapNode) => {
 	if (parent == null) return null;
 	// let parentChildren = GetNodeChildrenL2(parent);
 	/* if (parentChildren.Any(a=>a == null)) return false;
 	return node.type == MapNodeType.Claim && parentChildren.filter(a=>a.type == MapNodeType.Claim).length == 1 && node.link.form != ClaimForm.YesNoQuestion; */
 	return node.type == MapNodeType.Claim && IsSinglePremiseArgument(parent);
-}
+});
 export function IsPremiseOfMultiPremiseArgument(node: MapNode, parent: MapNode) {
 	if (parent == null) return null;
 	// let parentChildren = GetNodeChildrenL2(parent);

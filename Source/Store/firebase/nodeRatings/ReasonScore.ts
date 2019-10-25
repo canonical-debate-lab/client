@@ -2,6 +2,7 @@ import { GetNodeChildrenL3 } from 'Store/firebase/nodes';
 import { MapNodeL3 } from 'Store/firebase/nodes/@MapNode';
 import { ArgumentType } from 'Store/firebase/nodes/@MapNodeRevision';
 import { emptyArray_forLoading, Assert, IsNaN } from 'js-vextensions';
+import {StoreAccessor} from 'Utils/FrameworkOverrides';
 import { GetParentNodeL3 } from '../nodes';
 import { Polarity } from '../nodes/@MapNode';
 import { MapNodeType } from '../nodes/@MapNodeType';
@@ -94,7 +95,7 @@ export function RS_CalculateWeight(argument: MapNodeL3, premises: MapNodeL3[], c
 
 export type ReasonScoreValues = {argument, premises, argTruthScoreComposite, argWeightMultiplier, argWeight, claimTruthScore, claimBaseWeight};
 export type ReasonScoreValues_RSPrefix = {argument, premises, rs_argTruthScoreComposite, rs_argWeightMultiplier, rs_argWeight, rs_claimTruthScore, rs_claimBaseWeight};
-export function RS_GetAllValues(node: MapNodeL3, path: string, useRSPrefix = false, calculationPath = [] as string[]): ReasonScoreValues & ReasonScoreValues_RSPrefix {
+export const RS_GetAllValues = StoreAccessor((node: MapNodeL3, path: string, useRSPrefix = false, calculationPath = [] as string[]) => {
 	const parent = GetParentNodeL3(path);
 	const argument = node.type == MapNodeType.Argument ? node : parent && parent.type == MapNodeType.Argument ? parent : null;
 	const premises = node.type == MapNodeType.Argument ? GetNodeChildrenL3(argument, path).filter(a => a && a.type == MapNodeType.Claim) : [node];
@@ -116,8 +117,8 @@ export function RS_GetAllValues(node: MapNodeL3, path: string, useRSPrefix = fal
 			rs_claimTruthScore: claimTruthScore, rs_claimBaseWeight: claimBaseWeight,
 		} as any;
 	}
-	return { argument, premises, argTruthScoreComposite, argWeightMultiplier, argWeight, claimTruthScore, claimBaseWeight } as any;
-}
+	return { argument, premises, argTruthScoreComposite, argWeightMultiplier, argWeight, claimTruthScore, claimBaseWeight } as ReasonScoreValues & ReasonScoreValues_RSPrefix;
+});
 
 function CombinePremiseTruthScores(truthScores: number[], argumentType: ArgumentType) {
 	if (argumentType == ArgumentType.All) {
