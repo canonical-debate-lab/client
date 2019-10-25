@@ -37,7 +37,7 @@ import { TagsPanel } from './NodeUI/Panels/TagsPanel';
 import { SubPanel } from './NodeUI_Inner/SubPanel';
 import { MapNodeUI_LeftBox } from './NodeUI_LeftBox';
 import { NodeUI_Menu_Stub } from './NodeUI_Menu';
-import { TitlePanel } from './NodeUI_Inner/TitlePanel';
+import { TitlePanel, TitlePanelInternals } from './NodeUI_Inner/TitlePanel';
 
 // drag and drop
 // ==========
@@ -126,7 +126,8 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 	static defaultProps = { panelPosition: 'left' };
 
 	root: ExpandableBox;
-	titlePanel: TitlePanel;
+	// titlePanel: TitlePanel;
+	titlePanelInt: TitlePanelInternals;
 	checkStillHoveredTimer = new Timer(100, () => {
 		const dom = GetDOM(this.root);
 		if (dom == null) {
@@ -276,9 +277,11 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 						{/* fixes click-gap */}
 						{leftPanelShow && panelPosition == 'left' && <div style={{ position: 'absolute', right: '100%', width: 1, top: 0, bottom: 0 }}/>}
 					</>}
-					onTextHolderClick={e => IsDoubleClick(e) && this.titlePanel && this.titlePanel.OnDoubleClick()}
+					onTextHolderClick={e => IsDoubleClick(e) && this.titlePanelInt && this.titlePanelInt.OnDoubleClick()}
 					text={<>
-						<TitlePanel {...{ indexInNodeList, parent: this, map, node, nodeView, path }} ref={c => this.titlePanel = c} {...(dragInfo && dragInfo.provided.dragHandleProps)}
+						<TitlePanel {...{ indexInNodeList, parent: this, map, node, nodeView, path }} {...(dragInfo && dragInfo.provided.dragHandleProps)}
+							/* ref={c => this.titlePanel = c} */
+							exposer={a => this.titlePanelInt = a}
 							style={E(GADDemo && { color: HSLA(222, 0.33, 0.25, 1), fontFamily: 'TypoPRO Bebas Neue', fontSize: 15, letterSpacing: 1 })}/>
 						{subPanelShow && <SubPanel node={node}/>}
 						<NodeUI_Menu_Stub {...{ map, node, path }}/>

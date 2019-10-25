@@ -182,6 +182,7 @@
     "react-router": "5.0.1",
     "react-textarea-autosize": "7.1.0",
     "react-tooltip": "^3.3.0",
+    "react-universal-hooks": "0.3.6",
     "react-vcomponents": "0.0.3",
     "react-vextensions": "0.0.3",
     "react-vmarkdown": "0.0.3",
