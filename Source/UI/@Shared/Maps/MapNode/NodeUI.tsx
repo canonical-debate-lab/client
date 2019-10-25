@@ -326,6 +326,8 @@ export class NodeUI extends BaseComponent<Props, {}, {dividePoint, setSelfHeight
 		this.CheckForChanges();
 	}
 
+	// don't actually check for changes until re-rendering has stopped for 500ms
+	// CheckForChanges = _.debounce(() => {
 	CheckForChanges = () => {
 		const { node, dividePoint, setSelfHeight, onHeightOrPosChange } = this.PropsAndStash;
 

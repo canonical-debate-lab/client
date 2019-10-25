@@ -185,7 +185,7 @@ webpackConfig.module.rules.push({ test: /\.tsx?$/, loader: 'ts-loader' });
 // ==========
 
 const onReplacementPhaseDone_listeners = [];
-function AddStringReplacement(fileRegex, replacements, minCallCount = 1) {
+function AddStringReplacement(fileRegex, replacements, minCallCount = 1, verifyPerFile = true) {
 	const replacementCallCounts = replacements.map(() => 0);
 	function VerifyReplacementsCalled() {
 		const undercalledIndex = replacementCallCounts.findIndex(callCount => callCount < minCallCount);
@@ -204,7 +204,7 @@ function AddStringReplacement(fileRegex, replacements, minCallCount = 1) {
 		}
 	}
 
-	const replacements_final = replacements.map((oldReplacement, index) => {
+	let replacements_final = replacements.map((oldReplacement, index) => {
 		return {
 			...oldReplacement,
 			replacement: (...args) => {
@@ -212,19 +212,22 @@ function AddStringReplacement(fileRegex, replacements, minCallCount = 1) {
 				return oldReplacement.replacement.apply(this, args);
 			},
 		};
-	}).concat({
-		pattern: /(.|\n)+/g,
-		replacement: (match) => {
-			if (fileRegex.toString().includes('createStosdfsdfre')) {
-				console.log(`\n\n============ Replacement called for: ${fileRegex} ==================\n`);
-			}
-			VerifyReplacementsCalled();
-			// since this replacement was called, the file-pattern must be valid -- thus, no need for the global post-compilation call to our VerifyReplacementsCalled (so remove from that list)
-			const index = onReplacementPhaseDone_listeners.indexOf(VerifyReplacementsCalled);
-			if (index != -1) onReplacementPhaseDone_listeners.splice(index, 1);
-			return match;
-		},
 	});
+	if (verifyPerFile) {
+		replacements_final = replacements_final.concat({
+			pattern: /(.|\n)+/g,
+			replacement: (match) => {
+				if (fileRegex.toString().includes('createStosdfsdfre')) {
+					console.log(`\n\n============ Replacement called for: ${fileRegex} ==================\n`);
+				}
+				VerifyReplacementsCalled();
+				// since this replacement was called, the file-pattern must be valid -- thus, no need for the global post-compilation call to our VerifyReplacementsCalled (so remove from that list)
+				const index = onReplacementPhaseDone_listeners.indexOf(VerifyReplacementsCalled);
+				if (index != -1) onReplacementPhaseDone_listeners.splice(index, 1);
+				return match;
+			},
+		});
+	}
 	onReplacementPhaseDone_listeners.push(VerifyReplacementsCalled);
 	webpackConfig.module.rules.push({
 		test: fileRegex,
@@ -235,9 +238,9 @@ function AddStringReplacement(fileRegex, replacements, minCallCount = 1) {
 AddStringReplacement(/\.jsx?$/, [
 	// optimization; replace `State(a=>a.some.thing)` with `State("some/thing")`
 	{
-		pattern: /State\(a ?=> ?a\.([a-zA-Z_.]+)\)/g,
-		replacement(match, sub1, offset, string) {
-			return `State("${sub1.replace(/\./g, '/')}")`;
+		pattern: /(State|State_Base)\(a ?=> ?a\.([a-zA-Z_.]+)\)/g,
+		replacement(match, sub1, sub2, offset, string) {
+			return `${sub1}("${sub2.replace(/\./g, '/')}")`;
 		},
 	},
 	/* {
@@ -247,7 +250,7 @@ AddStringReplacement(/\.jsx?$/, [
 			return `State("${sub1.replace(/\./g, "/")}")`;
 		}
 	}, */
-], 0);
+], 0, false);
 
 // AddStringReplacement(/connected-(draggable|droppable).js$/, [
 AddStringReplacement(/react-beautiful-dnd.esm.js$/, [
