@@ -284,21 +284,21 @@ export function GetClaimType(node: MapNodeL2) {
 }
 
 /** Returns whether the node provided is an argument, and marked as single-premise. */
-export function IsSinglePremiseArgument(node: MapNode) {
+export const IsSinglePremiseArgument = StoreAccessor((node: MapNode) => {
 	/* nodeChildren = nodeChildren || GetNodeChildren(node);
 	if (nodeChildren.Any(a=>a == null)) return null;
 	//return nodeChildren.Any(child=>IsPremiseOfSinglePremiseArgument(child, node));
 	return node.type == MapNodeType.Argument && nodeChildren.filter(a=>a.type == MapNodeType.Claim).length == 1; */
 	return node && node.type == MapNodeType.Argument && !node.multiPremiseArgument;
-}
+});
 /** Returns whether the node provided is an argument, and marked as multi-premise. */
-export function IsMultiPremiseArgument(node: MapNode) {
+export const IsMultiPremiseArgument = StoreAccessor((node: MapNode) => {
 	/* nodeChildren = nodeChildren || GetNodeChildren(node);
 	if (nodeChildren.Any(a=>a == null)) return null;
 	//return node.type == MapNodeType.Argument && !IsSinglePremiseArgument(node, nodeChildren);
 	return node.type == MapNodeType.Argument && nodeChildren.filter(a=>a.type == MapNodeType.Claim).length > 1; */
 	return node && node.type == MapNodeType.Argument && node.multiPremiseArgument;
-}
+});
 
 export const IsPremiseOfSinglePremiseArgument = StoreAccessor((node: MapNode, parent: MapNode) => {
 	if (parent == null) return null;

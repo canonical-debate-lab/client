@@ -1,6 +1,6 @@
 import { Assert, CachedTransform, GetTreeNodesInObjTree, IsNumberString, Vector2i, IsNumber, IsString } from 'js-vextensions';
 import { ShallowChanged } from 'react-vextensions';
-import { Action, DBPath, SplitStringBySlash_Cached, State, DoesActionSetFirestoreData, GetFirestoreDataSetterActionPath, Validate } from 'Utils/FrameworkOverrides';
+import { Action, DBPath, SplitStringBySlash_Cached, State, DoesActionSetFirestoreData, GetFirestoreDataSetterActionPath, Validate, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { UUID } from 'Utils/General/KeyGenerator';
 import { ACTDebateMapSelect_WithData } from './debates';
 import { ACTMapViewMerge, MapViewReducer } from './mapViews/$mapView';
@@ -148,10 +148,10 @@ export function GetNodeViewDataPath(mapID: string, path: string): string[] {
 	const childPathNodes = pathNodes.SelectMany(nodeStr => ['children', nodeStr]).slice(1);
 	return ['main', 'mapViews', `${mapID}`, 'rootNodeViews', ...childPathNodes];
 }
-export function GetNodeView(mapID: string, path: string): MapNodeView {
+export const GetNodeView = StoreAccessor((mapID: string, path: string): MapNodeView => {
 	const dataPath = GetNodeViewDataPath(mapID, path);
 	return State(...dataPath) as any;
-}
+});
 export function GetViewOffset(mapView: MapView): Vector2i {
 	if (mapView == null) return null;
 	const treeNode = GetTreeNodesInObjTree(mapView.rootNodeViews).FirstOrX(a => a.prop == 'viewOffset' && a.Value);

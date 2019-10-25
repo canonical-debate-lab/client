@@ -320,7 +320,7 @@ export class NodeUI_Inner extends BaseComponent<Props, {}> {
 		} */
 		// return result;
 
-		function GetDNDProps() {
+		const GetDNDProps = () => {
 			if (!IsUserCreatorOrMod(MeID(), node)) return null;
 			if (!path.includes('/')) return null; // don't make draggable if root-node of map
 			return {
@@ -328,7 +328,7 @@ export class NodeUI_Inner extends BaseComponent<Props, {}> {
 				draggableInfo: new DraggableInfo({ nodePath: path }),
 				index: indexInNodeList,
 			};
-		}
+		};
 		const dndProps = GetDNDProps();
 		if (dndProps == null) {
 			return renderInner(null);

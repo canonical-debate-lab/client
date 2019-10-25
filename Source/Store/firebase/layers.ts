@@ -1,7 +1,7 @@
 import { CachedTransform, emptyArray, ToInt } from 'js-vextensions';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { GetNode } from 'Store/firebase/nodes';
-import { GetData } from 'Utils/FrameworkOverrides';
+import { GetData, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { Map } from './maps/@Map';
 import { AsNodeL3, GetNodeL2 } from './nodes/$node';
 import { GetUserLayerStatesForMap } from './userMapInfo';
@@ -41,7 +41,7 @@ export function GetSubnodesInLayer(anchorNodeID: string, layerID: string) {
 	return CachedTransform("GetSubnodesInLayerEnhanced", [anchorNodeID, layerID], subnodesEnhanced, ()=>subnodesEnhanced);
 } */
 
-export function GetSubnodesInEnabledLayersEnhanced(userID: string, map: Map, anchorNodeID: string): MapNodeL3[] {
+export const GetSubnodesInEnabledLayersEnhanced = StoreAccessor((userID: string, map: Map, anchorNodeID: string): MapNodeL3[] => {
 	const layersEnabled = GetMapLayers(map);
 	// if some layers aren't loaded yet, return nothing
 	if (layersEnabled.Any(a => a == null)) return emptyArray;
@@ -68,7 +68,7 @@ export function GetSubnodesInEnabledLayersEnhanced(userID: string, map: Map, anc
 		return AsNodeL3(child);
 	});
 	return CachedTransform('GetSubnodesInEnabledLayersEnhanced', [map._key, userID, anchorNodeID], subnodesL3, () => subnodesL3);
-}
+});
 
 export function ForDeleteLayer_GetError(userID: string, layer: Layer) {
 	if ((layer.nodeSubnodes || {}).VKeys(true).length) return 'Cannot delete layer until all the subnodes within it are deleted.';

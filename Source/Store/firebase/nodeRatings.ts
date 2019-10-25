@@ -44,11 +44,11 @@ export function GetRatings(nodeID: string, ratingType: RatingType, filter?: Rati
 	return CachedTransform("GetRatings", [nodeID, ratingType].concat((filter || {}).VValues()), {ratingSet},
 		()=>ratingSet ? FilterRatings(ratingSet.VValues(true), filter) : []); */
 
-	return CachedTransform_WithStore('GetRatings', [nodeID, ratingType].concat((filter || {}).VValues()), {}, () => {
-		const ratingSet = GetRatingSet(nodeID, ratingType, null);
-		if (ratingSet == null) return [];
-		return FilterRatings(ratingSet.VValues(true), filter);
-	});
+	// return CachedTransform_WithStore('GetRatings', [nodeID, ratingType].concat((filter || {}).VValues()), {}, () => {
+	const ratingSet = GetRatingSet(nodeID, ratingType, null);
+	if (ratingSet == null) return [];
+	return FilterRatings(ratingSet.VValues(true), filter);
+	// });
 }
 export function GetRating(nodeID: string, ratingType: RatingType, userID: string) {
 	const ratingSet = GetRatingSet(nodeID, ratingType);
@@ -68,14 +68,14 @@ export function GetRatingAverage(nodeID: string, ratingType: RatingType, filter?
 	if (ratings.length == 0) return resultIfNoData as any;
 	return CachedTransform("GetRatingAverage", [nodeID, ratingType].concat((filter || {}).VValues()), {ratings},
 		()=>ratings.map(a=>a.value).Average().RoundTo(1)); */
-	return CachedTransform_WithStore('GetRatingAverage', [nodeID, ratingType, resultIfNoData].concat((filter || {}).VValues()), {}, () => {
-		const node = GetNodeL2(nodeID);
-		if (node && node.current.votingDisabled) return 100;
+	// return CachedTransform_WithStore('GetRatingAverage', [nodeID, ratingType, resultIfNoData].concat((filter || {}).VValues()), {}, () => {
+	const node = GetNodeL2(nodeID);
+	if (node && node.current.votingDisabled) return 100;
 
-		const ratings = GetRatings(nodeID, ratingType, filter);
-		if (ratings.length == 0) return resultIfNoData as any;
-		return ratings.map(a => a.value).Average().RoundTo(1);
-	});
+	const ratings = GetRatings(nodeID, ratingType, filter);
+	if (ratings.length == 0) return resultIfNoData as any;
+	return ratings.map(a => a.value).Average().RoundTo(1);
+	// });
 }
 export function GetRatingAverage_AtPath(node: MapNodeL3, ratingType: RatingType, filter?: RatingFilter, resultIfNoData = null): number {
 	let result = GetRatingAverage(node._key, ratingType, filter, resultIfNoData);

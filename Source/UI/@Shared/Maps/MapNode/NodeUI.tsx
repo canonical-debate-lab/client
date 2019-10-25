@@ -6,9 +6,10 @@ import { NodeChildHolder } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolder'
 import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolderBox';
 import { CachedTransform, E, Timer, emptyArray_forLoading, emptyArray, Assert, IsNaN, nl, ToInt, ToJSON } from 'js-vextensions';
 import { Column } from 'react-vcomponents';
-import { BaseComponentWithConnector, GetInnerComp, RenderSource, ShallowChanged, ShallowEquals, GetDOM } from 'react-vextensions';
-import { Connect, State, SlicePath, ShouldLog, MaybeLog, ErrorBoundary } from 'Utils/FrameworkOverrides';
+import { BaseComponentWithConnector, GetInnerComp, RenderSource, ShallowChanged, ShallowEquals, GetDOM, BaseComponent } from 'react-vextensions';
+import { Connect, State, SlicePath, ShouldLog, MaybeLog, ErrorBoundary, UseSelector } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
+import { useState, useEffect } from 'react';
 import { GetSubnodesInEnabledLayersEnhanced } from '../../../../Store/firebase/layers';
 import { GetNodeChangeType, GetPathsToNodesChangedSinceX } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
@@ -33,63 +34,7 @@ export function SetNodeUILocked(nodeID: string, locked: boolean, maxWait = 10000
 }
 
 type Props = {indexInNodeList: number, map: Map, node: MapNodeL3, path?: string, asSubnode?: boolean, widthOverride?: number, style?, onHeightOrPosChange?: ()=>void};
-const connector = (state, { node, path, map }: Props) => {
-	// Log("Calling NodeUI connect func.");
-	const nodeView = GetNodeView(map._key, path) || new MapNodeView();
-
-	const nodeChildren = GetNodeChildrenL3(node, path, true);
-	const nodeChildrenToShow: MapNodeL3[] = nodeChildren.Any(a => a == null) ? emptyArray_forLoading : nodeChildren; // only pass nodeChildren when all are loaded
-	// nodeChildren = nodeChildren.filter(a=>a);
-	/* let nodeChildren_finalTypes = nodeChildren == emptyArray ? emptyArray : nodeChildren.map(child=> {
-		return GetFinalNodeTypeAtPath(child, path + "/" + child._id);
-	}); */
-
-	let subnodes = GetSubnodesInEnabledLayersEnhanced(MeID(), map, node._key);
-	subnodes = subnodes.Any(a => a == null) ? emptyArray : subnodes; // only pass subnodes when all are loaded
-
-	const sinceTime = GetTimeFromWhichToShowChangedNodes(map._key);
-	const pathsToChangedNodes = GetPathsToNodesChangedSinceX(map._key, sinceTime);
-	const pathsToChangedDescendantNodes = pathsToChangedNodes.filter(a => a.startsWith(`${path}/`));
-	const changeTypesOfChangedDescendantNodes = pathsToChangedDescendantNodes.map(path => GetNodeChangeType(GetNode(GetNodeID(path)), sinceTime));
-	const addedDescendants = changeTypesOfChangedDescendantNodes.filter(a => a == ChangeType.Add).length;
-	const editedDescendants = changeTypesOfChangedDescendantNodes.filter(a => a == ChangeType.Edit).length;
-
-	const parentNodeView = (GetParentNodeL3(path) && GetNodeView(map._key, SlicePath(path, 1))) || new MapNodeView();
-
-	return {
-		path: path || node._key.toString(),
-
-		initialChildLimit: State(a => a.main.initialChildLimit),
-		// node_finalType: GetFinalNodeTypeAtPath(node, path),
-		// nodeEnhanced: GetNodeL3(path),
-		form: GetNodeForm(node, GetParentNodeL2(path)),
-		// only pass new nodeView when its local-props are different
-		nodeView: CachedTransform('nodeView_transform1', [map._key, path], nodeView.Excluding('focused', 'viewOffset', 'children'), () => nodeView),
-		/* nodeChildren: CachedTransform("nodeChildren_transform1", {path}, CombineDynamicPropMaps(nodeChildren, nodeChildren_finalTypes),
-			()=>nodeChildren.map((child, index)=> {
-				return child.Extended({finalType: nodeChildren_finalTypes[index]});
-			})), */
-		nodeChildren,
-		nodeChildrenToShow,
-		subnodes,
-		parentNodeView,
-
-		isSinglePremiseArgument: IsSinglePremiseArgument(node),
-		isMultiPremiseArgument: IsMultiPremiseArgument(node),
-
-		// userViewedNodes: GetUserViewedNodes(MeID(), { useUndefinedForInProgress: true }),
-		playingTimeline: GetPlayingTimeline(map._key),
-		playingTimeline_currentStepIndex: GetPlayingTimelineStepIndex(map._key),
-		playingTimelineShowableNodes: GetPlayingTimelineRevealNodes(map._key),
-		playingTimelineVisibleNodes: GetPlayingTimelineAppliedStepRevealNodes(map._key, true),
-		playingTimeline_currentStepRevealNodes: GetPlayingTimelineCurrentStepRevealNodes(map._key),
-		addedDescendants,
-		editedDescendants,
-	};
-};
-
-@Connect(connector)
-export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxWidth: 0, expectedBoxHeight: 0, dividePoint: null as number, selfHeight: 0 }) {
+export class NodeUI extends BaseComponent<Props, {}> {
 	static renderCount = 0;
 	static lastRenderTime = -1;
 	static ValidateProps(props) {
@@ -104,7 +49,7 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 
 	// for SetNodeUILocked() function above
 	waitForUnlockTimer: Timer;
-	shouldComponentUpdate(newProps, newState) {
+	/* shouldComponentUpdate(newProps, newState) {
 		const changed = ShallowChanged(this.props, newProps) || ShallowChanged(this.state, newState);
 		const { node } = this.props;
 		if (!nodesLocked[node._key]) return changed;
@@ -119,17 +64,61 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 			}).Start();
 		}
 		return false;
-	}
+	} */
 
 	nodeUI: HTMLDivElement;
 	innerUI: NodeUI_Inner;
 	render() {
-		let { indexInNodeList, map, node, path, asSubnode, widthOverride, style, onHeightOrPosChange,
-			initialChildLimit, form, children, nodeView, parentNodeView, nodeChildren, nodeChildrenToShow, subnodes,
-			isSinglePremiseArgument, isMultiPremiseArgument,
-			playingTimeline, playingTimeline_currentStepIndex, playingTimelineShowableNodes, playingTimelineVisibleNodes, playingTimeline_currentStepRevealNodes,
-			addedDescendants, editedDescendants } = this.props;
-		const { dividePoint, selfHeight } = this.state;
+		let { indexInNodeList, map, node, path, asSubnode, widthOverride, style, onHeightOrPosChange, children } = this.props;
+
+		// state
+		const [expectedBoxWidth, setExpectedBoxWidth] = useState(0);
+		const [expectedBoxHeight, setExpectedBoxHeight] = useState(0);
+		const [dividePoint, setDividePoint] = useState(null as number);
+		const [selfHeight, setSelfHeight] = useState(0);
+
+		path = path || node._key.toString();
+
+		// Log("Calling NodeUI connect func.");
+
+		// const nodeChildren = UseSelector(() => GetNodeChildrenL3(node, path, true));
+		const nodeChildren = GetNodeChildrenL3.Watch(node, path, true);
+		if (node.currentRevision && node.current.titles.base == 'Test1') Log('NodeChildren:', nodeChildren);
+
+		let nodeChildrenToShow: MapNodeL3[] = nodeChildren.Any(a => a == null) ? emptyArray_forLoading : nodeChildren; // only pass nodeChildren when all are loaded
+		// nodeChildren = nodeChildren.filter(a=>a);
+		/* let nodeChildren_finalTypes = nodeChildren == emptyArray ? emptyArray : nodeChildren.map(child=> {
+			return GetFinalNodeTypeAtPath(child, path + "/" + child._id);
+		}); */
+
+		let subnodes = GetSubnodesInEnabledLayersEnhanced.Watch(MeID(), map, node._key);
+		subnodes = subnodes.Any(a => a == null) ? emptyArray : subnodes; // only pass subnodes when all are loaded
+
+		const sinceTime = GetTimeFromWhichToShowChangedNodes.Watch(map._key);
+		const pathsToChangedNodes = GetPathsToNodesChangedSinceX.Watch(map._key, sinceTime);
+		const pathsToChangedDescendantNodes = pathsToChangedNodes.filter(a => a.startsWith(`${path}/`));
+		const changeTypesOfChangedDescendantNodes = pathsToChangedDescendantNodes.map(path => GetNodeChangeType.Watch(GetNode.Watch(GetNodeID(path)), sinceTime));
+		const addedDescendants = changeTypesOfChangedDescendantNodes.filter(a => a == ChangeType.Add).length;
+		const editedDescendants = changeTypesOfChangedDescendantNodes.filter(a => a == ChangeType.Edit).length;
+
+		const parentNodeView = (GetParentNodeL3.Watch(path) && GetNodeView.Watch(map._key, SlicePath(path, 1))) || new MapNodeView();
+
+		const initialChildLimit = UseSelector(() => State(a => a.main.initialChildLimit));
+		const form = GetNodeForm.Watch(node, GetParentNodeL2.Watch(path));
+		const nodeView_early = GetNodeView.Watch(map._key, path) || new MapNodeView();
+		const nodeView = CachedTransform('nodeView_transform1', [map._key, path], nodeView_early.Excluding('focused', 'viewOffset', 'children'), () => nodeView_early);
+		// const nodeView = nodeView_early;
+
+		const isSinglePremiseArgument = IsSinglePremiseArgument.Watch(node);
+		const isMultiPremiseArgument = IsMultiPremiseArgument.Watch(node);
+
+		// userViewedNodes: GetUserViewedNodes(MeID(), { useUndefinedForInProgress: true });
+		const playingTimeline = GetPlayingTimeline.Watch(map._key);
+		const playingTimeline_currentStepIndex = GetPlayingTimelineStepIndex.Watch(map._key);
+		const playingTimelineShowableNodes = GetPlayingTimelineRevealNodes.Watch(map._key);
+		const playingTimelineVisibleNodes = GetPlayingTimelineAppliedStepRevealNodes.Watch(map._key, true);
+		const playingTimeline_currentStepRevealNodes = GetPlayingTimelineCurrentStepRevealNodes.Watch(map._key);
+
 		if (ShouldLog(a => a.nodeRenders)) {
 			if (logTypes.nodeRenders_for) {
 				if (logTypes.nodeRenders_for == node._key) {
@@ -226,18 +215,18 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 						// this.SetState({dividePoint: selfHeight / 2});
 						return;
 					}
-					this.SetState({ dividePoint });
+					setDividePoint(dividePoint);
 				}}/>;
 		const nodeChildHolderBox_truth = isPremiseOfSinglePremiseArg && nodeView.expanded &&
 			<NodeChildHolderBox {...{ map, node, path, nodeView }} type={HolderType.Truth}
 				widthOfNode={widthOverride || width}
 				nodeChildren={nodeChildren} nodeChildrenToShow={nodeChildrenToShow}
-				onHeightOrDividePointChange={dividePoint => this.CheckForChanges()}/>;
+				onHeightOrDividePointChange={dividePoint => CheckForChanges()}/>;
 		const nodeChildHolderBox_relevance = isPremiseOfSinglePremiseArg && nodeView.expanded &&
 			<NodeChildHolderBox {...{ map, node: parent, path: parentPath, nodeView: parentNodeView }} type={HolderType.Relevance}
 				widthOfNode={widthOverride || width}
 				nodeChildren={GetNodeChildrenL3(parent, parentPath)} nodeChildrenToShow={relevanceArguments}
-				onHeightOrDividePointChange={dividePoint => this.CheckForChanges()}/>;
+				onHeightOrDividePointChange={dividePoint => CheckForChanges()}/>;
 
 		const hasExtraWrapper = subnodes.length || isMultiPremiseArgument;
 
@@ -296,6 +285,46 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 			</div>
 		);
 
+		let CheckForChanges = () => {
+			// if (this.lastRender_source == RenderSource.SetState) return;
+
+			const height = $(GetDOM(this)).outerHeight();
+			if (height != this.lastHeight) {
+				MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
+					() => `OnHeightChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._key}${nl
+					}NewHeight:${height}`);
+
+				// this.UpdateState(true);
+				// this.UpdateState();
+				if (onHeightOrPosChange) onHeightOrPosChange();
+			}
+			this.lastHeight = height;
+
+			const selfHeight = $(GetDOM(this.innerUI)).outerHeight();
+			if (selfHeight != this.lastSelfHeight) {
+				MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
+					() => `OnSelfHeightChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._key}${nl
+					}NewSelfHeight:${selfHeight}`);
+
+				// this.UpdateState(true);
+				// this.UpdateState();
+				setSelfHeight(selfHeight);
+				// if (onHeightOrPosChange) onHeightOrPosChange();
+			}
+			this.lastSelfHeight = selfHeight;
+
+			if (dividePoint != this.lastDividePoint) {
+				if (onHeightOrPosChange) onHeightOrPosChange();
+			}
+
+			/* else {
+				if (this.lastRender_source == RenderSource.SetState) return;
+				this.UpdateState();
+				this.ReportChildrenCenterYChange();
+			} */
+		};
+		useEffect(() => CheckForChanges());
+
 		if (!hasExtraWrapper) {
 			return nodeUIResult_withoutSubnodes;
 		}
@@ -329,53 +358,9 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 		}
 	} */
 
-	PostRender() {
-		this.CheckForChanges();
-	}
-
 	lastHeight = 0;
 	lastSelfHeight = 0;
 	lastDividePoint = 0;
-	CheckForChanges() {
-		// if (this.lastRender_source == RenderSource.SetState) return;
-		const { node, onHeightOrPosChange } = this.props;
-		const { dividePoint } = this.state;
-
-		const height = $(GetDOM(this)).outerHeight();
-		if (height != this.lastHeight) {
-			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
-				() => `OnHeightChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._key}${nl
-				}NewHeight:${height}`);
-
-			// this.UpdateState(true);
-			// this.UpdateState();
-			if (onHeightOrPosChange) onHeightOrPosChange();
-		}
-		this.lastHeight = height;
-
-		const selfHeight = $(GetDOM(this.innerUI)).outerHeight();
-		if (selfHeight != this.lastSelfHeight) {
-			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
-				() => `OnSelfHeightChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._key}${nl
-				}NewSelfHeight:${selfHeight}`);
-
-			// this.UpdateState(true);
-			// this.UpdateState();
-			this.SetState({ selfHeight });
-			// if (onHeightOrPosChange) onHeightOrPosChange();
-		}
-		this.lastSelfHeight = selfHeight;
-
-		if (dividePoint != this.lastDividePoint) {
-			if (onHeightOrPosChange) onHeightOrPosChange();
-		}
-
-		/* else {
-			if (this.lastRender_source == RenderSource.SetState) return;
-			this.UpdateState();
-			this.ReportChildrenCenterYChange();
-		} */
-	}
 
 	// GetMeasurementInfo(/*props: Props, state: State*/) {
 	measurementInfo_cache;
@@ -387,11 +372,12 @@ export class NodeUI extends BaseComponentWithConnector(connector, { expectedBoxW
 	GetMeasurementInfo() {
 		if (this.proxyDisplayedNodeUI) return this.proxyDisplayedNodeUI.GetMeasurementInfo();
 
-		const props_used = this.props.Including('node', 'path', 'subnodes', 'nodeChildren') as any;
+		const props_used = this.props.Including('map', 'node', 'path', 'subnodes', 'nodeChildren') as any;
 		// Log("Checking whether should remeasure info for: " + props_used.node._id);
 		if (this.measurementInfo_cache && ShallowEquals(this.measurementInfo_cache_lastUsedProps, props_used)) return this.measurementInfo_cache;
 
-		const { node, path, subnodes, nodeChildren } = props_used as Props & {subnodes: MapNodeL3[], nodeChildren: MapNodeL3[]};
+		const { map, node, path } = props_used as Props;
+		const subnodes = GetSubnodesInEnabledLayersEnhanced(MeID(), map, node._key);
 		let { expectedBoxWidth, width, expectedHeight } = GetMeasurementInfoForNode(node, path);
 
 		for (const subnode of subnodes) {

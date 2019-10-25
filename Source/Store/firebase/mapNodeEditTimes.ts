@@ -1,8 +1,8 @@
 import { GetShortestPathFromRootToNode } from 'Utils/Store/PathFinder';
 import { GetNode } from 'Store/firebase/nodes';
 import { emptyArray } from 'js-vextensions';
-import { GetData, CachedTransform_WithStore, AddSchema } from 'Utils/FrameworkOverrides';
-import {UUID_regex} from 'Utils/General/KeyGenerator';
+import { GetData, CachedTransform_WithStore, AddSchema, StoreAccessor } from 'Utils/FrameworkOverrides';
+import { UUID_regex } from 'Utils/General/KeyGenerator';
 import { GetLastAcknowledgementTime } from '../main';
 import { GetRootNodeID } from './maps';
 import { MapNode } from './nodes/@MapNode';
@@ -54,26 +54,26 @@ export function GetNodeIDsChangedSinceX(mapID: string, sinceTime: number, includ
 	}
 	return result;
 }
-export function GetPathsToNodesChangedSinceX(mapID: string, time: number, includeAcknowledgement = true) {
-	return CachedTransform_WithStore('GetPathsToNodesChangedSinceX', [mapID, time, includeAcknowledgement], {}, () => {
-		const nodeIDs = GetNodeIDsChangedSinceX(mapID, time, includeAcknowledgement);
-		const mapRootNodeID = GetRootNodeID(mapID);
-		if (mapRootNodeID == null) return emptyArray;
+export const GetPathsToNodesChangedSinceX = StoreAccessor((mapID: string, time: number, includeAcknowledgement = true) => {
+	// return CachedTransform_WithStore('GetPathsToNodesChangedSinceX', [mapID, time, includeAcknowledgement], {}, () => {
+	const nodeIDs = GetNodeIDsChangedSinceX(mapID, time, includeAcknowledgement);
+	const mapRootNodeID = GetRootNodeID(mapID);
+	if (mapRootNodeID == null) return emptyArray;
 
-		const result = [] as string[];
-		for (const nodeID of nodeIDs) {
-			const node = GetNode(nodeID);
-			if (node == null) return emptyArray;
-			const pathToRoot = GetShortestPathFromRootToNode(mapRootNodeID, node);
-			if (pathToRoot == null) return emptyArray;
-			result.push(pathToRoot);
-		}
-		return result;
-	});
-}
-export function GetNodeChangeType(node: MapNode, sinceTime: number, includeAcknowledgement = true) {
+	const result = [] as string[];
+	for (const nodeID of nodeIDs) {
+		const node = GetNode(nodeID);
+		if (node == null) return emptyArray;
+		const pathToRoot = GetShortestPathFromRootToNode(mapRootNodeID, node);
+		if (pathToRoot == null) return emptyArray;
+		result.push(pathToRoot);
+	}
+	return result;
+	// });
+});
+export const GetNodeChangeType = StoreAccessor((node: MapNode, sinceTime: number, includeAcknowledgement = true) => {
 	const lastAcknowledgementTime = includeAcknowledgement ? GetLastAcknowledgementTime(node._key) : 0;
 	const sinceTimeForNode = sinceTime.KeepAtLeast(lastAcknowledgementTime);
 	if (node.createdAt >= sinceTimeForNode) return ChangeType.Add;
 	return ChangeType.Edit;
-}
+});

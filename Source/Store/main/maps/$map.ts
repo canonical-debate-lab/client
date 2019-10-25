@@ -114,15 +114,15 @@ export function GetSelectedTimeline(mapID: string): Timeline {
 	const timelineID = State('main', 'maps', mapID, 'selectedTimeline');
 	return GetTimeline(timelineID);
 }
-export function GetPlayingTimeline(mapID: string): Timeline {
+export const GetPlayingTimeline = StoreAccessor((mapID: string): Timeline => {
 	if (mapID == null) return null;
 	const timelineID = State('main', 'maps', mapID, 'playingTimeline');
 	return GetTimeline(timelineID);
-}
-export function GetPlayingTimelineStepIndex(mapID: string): number {
+});
+export const GetPlayingTimelineStepIndex = StoreAccessor((mapID: string): number => {
 	if (mapID == null) return null;
 	return State('main', 'maps', mapID, 'playingTimeline_step');
-}
+});
 export function GetPlayingTimelineStep(mapID: string) {
 	const playingTimeline = GetPlayingTimeline(mapID);
 	if (playingTimeline == null) return null;
@@ -130,11 +130,11 @@ export function GetPlayingTimelineStep(mapID: string) {
 	const stepID = playingTimeline.steps[stepIndex];
 	return GetTimelineStep(stepID);
 }
-export function GetPlayingTimelineCurrentStepRevealNodes(mapID: string): string[] {
+export const GetPlayingTimelineCurrentStepRevealNodes = StoreAccessor((mapID: string): string[] => {
 	const playingTimeline_currentStep = GetPlayingTimelineStep(mapID);
 	if (playingTimeline_currentStep == null) return emptyArray;
 	return GetNodesRevealedInSteps([playingTimeline_currentStep]);
-}
+});
 
 export function GetPlayingTimelineAppliedStepIndex(mapID: string): number {
 	if (mapID == null) return null;
@@ -153,13 +153,13 @@ export function GetPlayingTimelineAppliedSteps(mapID: string, excludeAfterCurren
 	if (steps.Any(a => a == null)) return emptyArray;
 	return steps;
 }
-export function GetPlayingTimelineAppliedStepRevealNodes(mapID: string, excludeAfterCurrentStep = false): string[] {
+export const GetPlayingTimelineAppliedStepRevealNodes = StoreAccessor((mapID: string, excludeAfterCurrentStep = false): string[] => {
 	const map = GetMap(mapID);
 	if (!map) return emptyArray;
 
 	const appliedSteps = GetPlayingTimelineAppliedSteps(mapID, excludeAfterCurrentStep);
 	return [`${map.rootNode}`].concat(GetNodesRevealedInSteps(appliedSteps));
-}
+});
 
 export function GetPlayingTimelineSteps(mapID: string): TimelineStep[] {
 	const playingTimeline = GetPlayingTimeline(mapID);
@@ -195,13 +195,13 @@ export function GetNodesRevealedInSteps(steps: TimelineStep[]): string[] {
 	}
 	return result.VKeys();
 }
-export function GetPlayingTimelineRevealNodes(mapID: string, excludeAfterCurrentStep = false): string[] {
+export const GetPlayingTimelineRevealNodes = StoreAccessor((mapID: string, excludeAfterCurrentStep = false): string[] => {
 	const map = GetMap(mapID);
 	if (!map) return emptyArray;
 
 	const steps = GetPlayingTimelineSteps(mapID);
 	return [`${map.rootNode}`].concat(GetNodesRevealedInSteps(steps));
-}
+});
 
 export const GetTimeFromWhichToShowChangedNodes = StoreAccessor((mapID: string) => {
 	const type = State(`main/maps/${mapID}/showChangesSince_type`) as ShowChangesSinceType;

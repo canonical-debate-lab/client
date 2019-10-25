@@ -1,5 +1,5 @@
 import { CachedTransform, IsNaN, emptyArray, ToJSON, AsObj } from 'js-vextensions';
-import { GetData, SplitStringBySlash_Cached, SlicePath, GetDataAsync, CachedTransform_WithStore } from 'Utils/FrameworkOverrides';
+import { GetData, SplitStringBySlash_Cached, SlicePath, GetDataAsync, CachedTransform_WithStore, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { PathSegmentToNodeID } from 'Store/main/mapViews';
 import { GetNodeL2, GetNodeL3 } from './nodes/$node';
 import { MapNode, MapNodeL2, MapNodeL3, globalRootNodeID } from './nodes/@MapNode';
@@ -30,11 +30,11 @@ export function GetNodesL2(): MapNodeL2[] {
 	return CachedTransform("GetNodes_Enhanced", [], nodeMap, ()=>nodeMap ? nodeMap.VValues(true) : []);
 } */
 
-export function GetNode(id: string) {
+export const GetNode = StoreAccessor((id: string) => {
 	// Assert(id != null && !IsNaN(id), "Node-id cannot be null or NaN.");
 	if (id == null || IsNaN(id)) return null;
 	return GetData('nodes', id) as MapNode;
-}
+});
 /* export async function GetNodeAsync(id: string) {
 	return await GetDataAsync("nodes", id) as MapNode;
 } */
@@ -66,12 +66,12 @@ export function GetParentNodeID(path: string) {
 export function GetParentNode(childPath: string) {
 	return GetNode(GetParentNodeID(childPath));
 }
-export function GetParentNodeL2(childPath: string) {
+export const GetParentNodeL2 = StoreAccessor((childPath: string) => {
 	return GetNodeL2(GetParentNodeID(childPath));
-}
-export function GetParentNodeL3(childPath: string) {
+});
+export const GetParentNodeL3 = StoreAccessor((childPath: string) => {
 	return GetNodeL3(GetParentPath(childPath));
-}
+});
 export function GetNodeID(path: string) {
 	const ownNodeStr = SplitStringBySlash_Cached(path).LastOrX();
 	return ownNodeStr ? PathSegmentToNodeID(ownNodeStr) : null;
@@ -118,27 +118,27 @@ export function GetNodeChildrenL2(node: MapNode) {
 	const nodeChildrenL2 = nodeChildren.map(child => (child ? GetNodeL2(child) : null));
 	return CachedTransform('GetNodeChildrenL2', [], nodeChildrenL2, () => nodeChildrenL2);
 }
-export function GetNodeChildrenL3(node: MapNode, path?: string, filterForPath = false): MapNodeL3[] {
+export const GetNodeChildrenL3 = StoreAccessor((node: MapNode, path?: string, filterForPath = false): MapNodeL3[] => {
 	if (node == null) return emptyArray;
-	return CachedTransform_WithStore('GetNodeChildrenL3', [node._key, path, filterForPath], node.children, () => {
-		path = path || `${node._key}`;
+	// return CachedTransform_WithStore('GetNodeChildrenL3', [node._key, path, filterForPath], node.children, () => {
+	path = path || `${node._key}`;
 
-		const nodeChildrenL2 = GetNodeChildrenL2(node);
-		let nodeChildrenL3 = nodeChildrenL2.map(child => (child ? GetNodeL3(`${path}/${child._key}`) : null));
-		if (filterForPath) {
-			nodeChildrenL3 = nodeChildrenL3.filter((child) => {
-				// if null, keep (so receiver knows there's an entry here, but it's still loading)
-				if (child == null) return true;
-				// filter out any nodes whose access-level is higher than our own
-				if (child.current.accessLevel > GetUserAccessLevel(MeID())) return false;
-				// hide nodes that don't have the required premise-count
-				// if (!IsNodeVisibleToNonModNonCreators(child, GetNodeChildren(child)) && !IsUserCreatorOrMod(MeID(), child)) return false;
-				return true;
-			});
-		}
-		return nodeChildrenL3;
-	});
-}
+	const nodeChildrenL2 = GetNodeChildrenL2(node);
+	let nodeChildrenL3 = nodeChildrenL2.map(child => (child ? GetNodeL3(`${path}/${child._key}`) : null));
+	if (filterForPath) {
+		nodeChildrenL3 = nodeChildrenL3.filter((child) => {
+			// if null, keep (so receiver knows there's an entry here, but it's still loading)
+			if (child == null) return true;
+			// filter out any nodes whose access-level is higher than our own
+			if (child.current.accessLevel > GetUserAccessLevel(MeID())) return false;
+			// hide nodes that don't have the required premise-count
+			// if (!IsNodeVisibleToNonModNonCreators(child, GetNodeChildren(child)) && !IsUserCreatorOrMod(MeID(), child)) return false;
+			return true;
+		});
+	}
+	return nodeChildrenL3;
+	// });
+});
 
 export function GetHolderType(childType: MapNodeType, parentType: MapNodeType) {
 	if (parentType == MapNodeType.Argument) {
