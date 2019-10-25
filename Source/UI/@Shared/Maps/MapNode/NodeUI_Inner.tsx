@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { DoNothing, Timer, ToJSON, Vector2i, VRect, WaitXThenRun } from 'js-vextensions';
 import { Draggable } from 'react-beautiful-dnd';
 import ReactDOM from 'react-dom';
-import { BaseComponent, BaseComponentWithConnector, GetDOM } from 'react-vextensions';
+import { BaseComponent, BaseComponentWithConnector, GetDOM, Handle } from 'react-vextensions';
 import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthScoreComposite, RS_GetAllValues } from 'Store/firebase/nodeRatings/ReasonScore';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
@@ -12,6 +12,7 @@ import { GetPathNodeIDs } from 'Store/main/mapViews';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { Connect, DragInfo, ErrorBoundary, HSLA, IsDoubleClick, SlicePath, State } from 'Utils/FrameworkOverrides';
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
+import { RefAttributes, Ref, ComponentPropsWithRef, ElementType, ComponentProps, forwardRef, useImperativeHandle } from 'react';
 import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatingAverage_AtPath, GetRatings, RatingFilter } from '../../../../Store/firebase/nodeRatings';
@@ -37,7 +38,7 @@ import { TagsPanel } from './NodeUI/Panels/TagsPanel';
 import { SubPanel } from './NodeUI_Inner/SubPanel';
 import { MapNodeUI_LeftBox } from './NodeUI_LeftBox';
 import { NodeUI_Menu_Stub } from './NodeUI_Menu';
-import { TitlePanel, TitlePanelInternals } from './NodeUI_Inner/TitlePanel';
+import { TitlePanel } from './NodeUI_Inner/TitlePanel';
 
 // drag and drop
 // ==========
@@ -111,6 +112,7 @@ const connector = (state, { map, node, path }: Props) => {
 	};
 };
 
+
 @Connect(connector)
 /* @MakeDraggable(({ node, path, indexInNodeList }: TitlePanelProps) => {
 	if (!IsUserCreatorOrMod(MeID(), node)) return null;
@@ -127,7 +129,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 
 	root: ExpandableBox;
 	// titlePanel: TitlePanel;
-	titlePanelInt: TitlePanelInternals;
+	titlePanel: Handle<typeof TitlePanel>;
 	checkStillHoveredTimer = new Timer(100, () => {
 		const dom = GetDOM(this.root);
 		if (dom == null) {
@@ -277,11 +279,11 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 						{/* fixes click-gap */}
 						{leftPanelShow && panelPosition == 'left' && <div style={{ position: 'absolute', right: '100%', width: 1, top: 0, bottom: 0 }}/>}
 					</>}
-					onTextHolderClick={e => IsDoubleClick(e) && this.titlePanelInt && this.titlePanelInt.OnDoubleClick()}
+					onTextHolderClick={e => IsDoubleClick(e) && this.titlePanel && this.titlePanel.OnDoubleClick()}
 					text={<>
 						<TitlePanel {...{ indexInNodeList, parent: this, map, node, nodeView, path }} {...(dragInfo && dragInfo.provided.dragHandleProps)}
-							/* ref={c => this.titlePanel = c} */
-							exposer={a => this.titlePanelInt = a}
+							ref={c => this.titlePanel = c}
+							// exposer={a => this.titlePanel = a}
 							style={E(GADDemo && { color: HSLA(222, 0.33, 0.25, 1), fontFamily: 'TypoPRO Bebas Neue', fontSize: 15, letterSpacing: 1 })}/>
 						{subPanelShow && <SubPanel node={node}/>}
 						<NodeUI_Menu_Stub {...{ map, node, path }}/>

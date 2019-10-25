@@ -1,9 +1,9 @@
 import { Assert, Clone } from 'js-vextensions';
 import keycode from 'keycode';
-import { useState } from 'react';
+import { useState, forwardRef, useImperativeHandle, Ref } from 'react';
 import { useSelector } from 'react-redux';
 import { Button, Pre, Row, TextArea } from 'react-vcomponents';
-import { FilterOutUnrecognizedProps, VProps } from 'react-vextensions';
+import { FilterOutUnrecognizedProps } from 'react-vextensions';
 import { AddNodeRevision } from 'Server/Commands/AddNodeRevision';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetParentNode, IsNodeSubnode } from 'Store/firebase/nodes';
@@ -32,13 +32,18 @@ const TitlePanel_connector = (state, { node, path }: TitlePanelProps) => ({
 });
 @Connect(TitlePanel_connector)
 // export class TitlePanel extends BaseComponentWithConnector(TitlePanel_connector, { editing: false, newTitle: null as string, applyingEdit: false }) { */
-export type TitlePanelInternals = {OnDoubleClick};
+
+/* export type TitlePanelInternals = {OnDoubleClick};
 export function TitlePanel(props: VProps<TitlePanelInternals, {
 	parent: NodeUI_Inner, map: Map, node: MapNodeL2, nodeView: MapNodeView, path: string, indexInNodeList: number, style,
-}>) {
+}>) { */
+
+export const TitlePanel = forwardRef((props: {parent: NodeUI_Inner, map: Map, node: MapNodeL2, nodeView: MapNodeView, path: string, indexInNodeList: number, style}, ref: Ref<{OnDoubleClick}>) => {
 	// const { map, parent, node, nodeView, path, displayText, equationNumber, style, ...rest } = this.props;
-	const { map, parent, node, nodeView, path, style, exposer, ...rest } = props;
-	if (exposer) exposer({ OnDoubleClick });
+	const { map, parent, node, nodeView, path, style, ...rest } = props;
+
+	// if (exposer) exposer({ OnDoubleClick });
+	useImperativeHandle(ref, () => ({ OnDoubleClick }));
 
 	const latex = node.current.equation && node.current.equation.latex;
 	const isSubnode = IsNodeSubnode(node);
@@ -175,4 +180,4 @@ export function TitlePanel(props: VProps<TitlePanelInternals, {
 				<InfoButton text="Allowed exceptions are: bold and [...] (collapsed segments)"/>}
 		</div>
 	);
-}
+});
