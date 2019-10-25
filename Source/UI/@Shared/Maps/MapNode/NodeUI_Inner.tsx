@@ -1,35 +1,24 @@
+import chroma from 'chroma-js';
 import classNames from 'classnames';
-import keycode from 'keycode';
-import { Button, Pre, Row, TextArea } from 'react-vcomponents';
-import { BaseComponent, BaseComponentWithConnector, GetInnerComp, GetDOM, FindReact, FilterOutUnrecognizedProps } from 'react-vextensions';
+import { DoNothing, Timer, ToJSON, Vector2i, VRect, WaitXThenRun } from 'js-vextensions';
+import { Draggable } from 'react-beautiful-dnd';
+import ReactDOM from 'react-dom';
+import { BaseComponent, BaseComponentWithConnector, GetDOM } from 'react-vextensions';
 import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthScoreComposite, RS_GetAllValues } from 'Store/firebase/nodeRatings/ReasonScore';
-import { IsUserCreatorOrMod, HasModPermissions } from 'Store/firebase/userExtras';
+import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
-import { NodeMathUI } from 'UI/@Shared/Maps/MapNode/NodeMathUI';
-import { SetNodeUILocked } from 'UI/@Shared/Maps/MapNode/NodeUI';
-import { SlicePath, State, Connect, IsDoubleClick, InfoButton, RemoveHelpers, DBPath, WaitTillPathDataIsReceived, VReactMarkdown_Remarkable, DragInfo, MakeDraggable, HSLA, ErrorBoundary } from 'Utils/FrameworkOverrides';
-import { ES } from 'Utils/UI/GlobalStyles';
-import { Clone, Assert, Timer, VRect, Vector2i, WaitXThenRun, ToJSON, DoNothing, FindDOM } from 'js-vextensions';
-import { DraggableInfo } from 'Utils/UI/DNDStructures';
-import ReactDOM from 'react-dom';
-import { Fragment } from 'react';
 import { GetPathNodeIDs } from 'Store/main/mapViews';
-import { Draggable } from 'react-beautiful-dnd';
 import { GADDemo } from 'UI/@GAD/GAD';
-import chroma from 'chroma-js';
-import { ParseSegmentsForPatterns } from '../../../../Utils/General/RegexHelpers';
-import { AddNodeRevision } from '../../../../Server/Commands/AddNodeRevision';
-import { GetImage } from '../../../../Store/firebase/images';
+import { Connect, DragInfo, ErrorBoundary, HSLA, IsDoubleClick, SlicePath, State } from 'Utils/FrameworkOverrides';
+import { DraggableInfo } from 'Utils/UI/DNDStructures';
 import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatingAverage_AtPath, GetRatings, RatingFilter } from '../../../../Store/firebase/nodeRatings';
 import { RatingType, ratingTypes } from '../../../../Store/firebase/nodeRatings/@RatingType';
-import { GetParentNode, GetParentNodeL3, IsNodeSubnode } from '../../../../Store/firebase/nodes';
-import { GetFontSizeForNode, GetMainRatingType, GetNodeDisplayText, GetNodeForm, GetNodeL3, GetPaddingForNode, IsPremiseOfSinglePremiseArgument, missingTitleStrings } from '../../../../Store/firebase/nodes/$node';
-import { GetEquationStepNumber } from '../../../../Store/firebase/nodes/$node/equation';
-import { ClaimForm, MapNodeL2, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
-import { MapNodeRevision_titlePattern } from '../../../../Store/firebase/nodes/@MapNodeRevision';
+import { GetParentNodeL3, IsNodeSubnode } from '../../../../Store/firebase/nodes';
+import { GetMainRatingType, GetNodeForm, GetNodeL3, GetPaddingForNode, IsPremiseOfSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
+import { ClaimForm, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
 import { GetNodeColor, MapNodeType, MapNodeType_Info } from '../../../../Store/firebase/nodes/@MapNodeType';
 import { MeID } from '../../../../Store/firebase/users';
 import { GetLastAcknowledgementTime, WeightingType } from '../../../../Store/main';
@@ -41,14 +30,14 @@ import { DetailsPanel } from './NodeUI/Panels/DetailsPanel';
 import { DiscussionPanel } from './NodeUI/Panels/DiscussionPanel';
 import { HistoryPanel } from './NodeUI/Panels/HistoryPanel';
 import { OthersPanel } from './NodeUI/Panels/OthersPanel';
+import { PhrasingsPanel } from './NodeUI/Panels/PhrasingsPanel';
 import { RatingsPanel } from './NodeUI/Panels/RatingsPanel';
 import { SocialPanel } from './NodeUI/Panels/SocialPanel';
 import { TagsPanel } from './NodeUI/Panels/TagsPanel';
 import { SubPanel } from './NodeUI_Inner/SubPanel';
-import { TermPlaceholder } from './NodeUI_Inner/TermPlaceholder';
 import { MapNodeUI_LeftBox } from './NodeUI_LeftBox';
-import { NodeUI_Menu, NodeUI_Menu_Stub } from './NodeUI_Menu';
-import { PhrasingsPanel } from './NodeUI/Panels/PhrasingsPanel';
+import { NodeUI_Menu_Stub } from './NodeUI_Menu';
+import { TitlePanel } from './NodeUI_Inner/TitlePanel';
 
 // drag and drop
 // ==========
@@ -437,152 +426,5 @@ class ReasonScoreValueMarkers extends BaseComponent<{node: MapNodeL3, reasonScor
 				}`}
 			</div>
 		);
-	}
-}
-
-type TitlePanelProps = {parent: NodeUI_Inner, map: Map, node: MapNodeL2, nodeView: MapNodeView, path: string, indexInNodeList: number, style};
-const TitlePanel_connector = (state, { node, path }: TitlePanelProps) => ({
-	displayText: GetNodeDisplayText(node, path),
-	$1: node.current.image && GetImage(node.current.image.id),
-	equationNumber: node.current.equation ? GetEquationStepNumber(path) : null,
-});
-@Connect(TitlePanel_connector)
-class TitlePanel extends BaseComponentWithConnector(TitlePanel_connector, { editing: false, newTitle: null as string, applyingEdit: false }) {
-	OnDoubleClick() {
-		const { node } = this.props;
-		const creatorOrMod = IsUserCreatorOrMod(MeID(), node);
-		if (creatorOrMod && node.current.equation == null) {
-			this.SetState({ editing: true });
-		}
-	}
-	render() {
-		const { map, parent, node, nodeView, path, displayText, equationNumber, style, ...rest } = this.props;
-		const latex = node.current.equation && node.current.equation.latex;
-		const isSubnode = IsNodeSubnode(node);
-
-		let { editing, newTitle, applyingEdit } = this.state;
-		newTitle = newTitle != null ? newTitle : displayText;
-
-		const noteText = (node.current.equation && node.current.equation.explanation) || node.current.note;
-
-		return (
-			// <Row style={{position: "relative"}}>
-			<div {...FilterOutUnrecognizedProps(rest, 'div')} style={E({ position: 'relative', cursor: 'pointer', fontSize: GetFontSizeForNode(node, isSubnode) }, style)} onClick={e => IsDoubleClick(e) && this.OnDoubleClick()}>
-				{equationNumber != null &&
-					<Pre>{equationNumber}) </Pre>}
-				{!editing &&
-					<span style={E(
-						{ position: 'relative', whiteSpace: 'initial' },
-						isSubnode && { margin: '4px 0 1px 0' },
-						missingTitleStrings.Contains(newTitle) && { color: 'rgba(255,255,255,.3)' },
-					)}>
-						{latex && <NodeMathUI text={node.current.equation.text} onTermHover={this.OnTermHover} onTermClick={this.OnTermClick}/>}
-						{!latex && this.RenderNodeDisplayText(newTitle)}
-					</span>}
-				{editing &&
-					<Row style={E(
-						{ position: 'relative', whiteSpace: 'initial', alignItems: 'stretch' },
-						isSubnode && { margin: '4px 0 1px 0' },
-					)}>
-						{!applyingEdit &&
-							<TextArea required={true} pattern={MapNodeRevision_titlePattern} allowLineBreaks={false} autoSize={true} style={ES({ flex: 1 })}
-								ref={a => a && a.DOM_HTML.focus()}
-								onKeyDown={(e) => {
-									if (e.keyCode == keycode.codes.esc) {
-										this.SetState({ editing: false });
-									} else if (e.keyCode == keycode.codes.enter) {
-										this.ApplyEdit();
-									}
-								}}
-								value={newTitle} onChange={val => this.SetState({ newTitle: val })}/>}
-						{!applyingEdit &&
-							<Button enabled={newTitle.match(MapNodeRevision_titlePattern) != null} text="✔️" p="0 3px" style={{ borderRadius: '0 5px 5px 0' }}
-								onClick={() => this.ApplyEdit()}/>}
-						{applyingEdit && <Row>Applying edit...</Row>}
-					</Row>}
-				{noteText &&
-					<Pre style={{
-						fontSize: 11, color: 'rgba(255,255,255,.5)',
-						// marginLeft: "auto",
-						marginLeft: 15, marginTop: 3, float: 'right',
-					}}>
-						{noteText}
-					</Pre>}
-				{node.type == MapNodeType.Claim && node.current.contentNode &&
-					<InfoButton text="Allowed exceptions are: bold and [...] (collapsed segments)"/>}
-			</div>
-		);
-	}
-
-	async ApplyEdit() {
-		const { map, node, nodeView, path, equationNumber } = this.props;
-		const { editing, newTitle, applyingEdit } = this.state;
-
-		this.SetState({ applyingEdit: true });
-
-		const parentNode = GetParentNode(path);
-
-		const form = GetNodeForm(node, path);
-		const titleKey = { [ClaimForm.Negation]: 'negation', [ClaimForm.YesNoQuestion]: 'yesNoQuestion' }[form] || 'base';
-		const newRevision = Clone(node.current);
-		if (newRevision.titles[titleKey] != newTitle) {
-			newRevision.titles[titleKey] = newTitle;
-
-			if (parentNode) SetNodeUILocked(parentNode._key, true);
-			const revisionID = await new AddNodeRevision({ mapID: map._key, revision: RemoveHelpers(newRevision) }).Run();
-			store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._key, time: Date.now() }));
-			// await WaitTillPathDataIsReceiving(DBPath(`nodeRevisions/${revisionID}`));
-			await WaitTillPathDataIsReceived(DBPath(`nodeRevisions/${revisionID}`));
-			if (parentNode) SetNodeUILocked(parentNode._key, false);
-		}
-		this.SetState({ applyingEdit: false, editing: false });
-	}
-
-	OnTermHover(termID: string, hovered: boolean) {
-		const { parent } = this.props;
-		parent.SetState({ hoverPanel: hovered ? 'definitions' : null, hoverTermID: hovered ? termID : null });
-	}
-	OnTermClick(termID: string) {
-		const { parent, map, path } = this.props;
-		// parent.SetState({hoverPanel: "definitions", hoverTermID: termID});
-		store.dispatch(new ACTMapNodePanelOpen({ mapID: map._key, path, panel: 'definitions' }));
-		store.dispatch(new ACTMapNodeTermOpen({ mapID: map._key, path, termID }));
-	}
-
-	RenderNodeDisplayText(text: string) {
-		const { parent, map, path } = this.props;
-
-		// let segments = ParseSegmentsFromNodeDisplayText(text);
-		const segments = ParseSegmentsForPatterns(text, [
-			{ name: 'term', regex: /{(.+?)\}\[(.+?)\]/ },
-		]);
-
-		const elements = [];
-		for (const [index, segment] of segments.entries()) {
-			if (segment.patternMatched == null) {
-				const segmentText = segment.textParts[0];
-				const edgeWhiteSpaceMatch = segmentText.match(/^( *).*?( *)$/);
-				if (edgeWhiteSpaceMatch[1]) elements.push(<span key={elements.length}>{edgeWhiteSpaceMatch[1]}</span>);
-				elements.push(
-					<VReactMarkdown_Remarkable key={elements.length} containerType="span" source={segmentText}
-						rendererOptions={{
-							components: {
-								p: props => <span>{props.children}</span>,
-							},
-						}}/>,
-				);
-				if (edgeWhiteSpaceMatch[2]) elements.push(<span key={elements.length}>{edgeWhiteSpaceMatch[2]}</span>);
-			} else if (segment.patternMatched == 'term') {
-				const refText = segment.textParts[1];
-				const termID = segment.textParts[2];
-				elements.push(
-					<TermPlaceholder key={elements.length} refText={refText} termID={termID}
-						onHover={hovered => this.OnTermHover(termID, hovered)} onClick={() => this.OnTermClick(termID)}/>,
-				);
-			} else {
-				Assert(false);
-			}
-		}
-		return elements;
 	}
 }
