@@ -153,18 +153,24 @@ context('MapUI', () => {
 		// const mfb = new MockFirebase('', '', '', '');
 		// const firestoreMock = new MockFirestore('', '', '', '');
 
-		return cy.window()
-			.then((win) => {
-				const timerID = setInterval(() => {
-					if (win['RR'] == null) return;
-					clearInterval(timerID);
-					LoadImports(win['RR']);
-					// console.log('Setting SeedDB');
-					// win['SeedDB'] = SeedDB;
-					SeedDB(win['store'].firebase);
-				}, 10);
-			});
+		return cy.window().then((win) => {
+			const timerID = setInterval(() => {
+				if (win['RR'] == null) return;
+				clearInterval(timerID);
+				LoadImports(win['RR']);
+				// console.log('Setting SeedDB');
+				// win['SeedDB'] = SeedDB;
+				SeedDB(win['store'].firebase);
+
+				win['inSpeedTest'] = true;
+			}, 10);
+		});
 	});
+	/* afterEach(()=> {
+		return cy.window().then((win) => {
+			win["inSpeedTest"] = false;
+		});
+	}); */
 
 	// https://on.cypress.io/interacting-with-elements
 	it('Should have all the nodes expanded', () => {

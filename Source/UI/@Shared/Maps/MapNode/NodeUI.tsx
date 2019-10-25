@@ -83,7 +83,7 @@ export class NodeUI extends BaseComponent<Props, {}> {
 
 		// const nodeChildren = UseSelector(() => GetNodeChildrenL3(node, path, true));
 		const nodeChildren = GetNodeChildrenL3.Watch(node, path, true);
-		if (node.currentRevision && node.current.titles.base == 'Test1') Log('NodeChildren:', nodeChildren);
+		// if (node.currentRevision && node.current.titles.base == 'Test1') Log('NodeChildren:', nodeChildren);
 
 		let nodeChildrenToShow: MapNodeL3[] = nodeChildren.Any(a => a == null) ? emptyArray_forLoading : nodeChildren; // only pass nodeChildren when all are loaded
 		// nodeChildren = nodeChildren.filter(a=>a);
