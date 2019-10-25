@@ -22,7 +22,7 @@ import { GetPathNodeIDs } from 'Store/main/mapViews';
 import { CreateLinkCommand as CreateLinkCommandForDND, LinkNode_HighLevel_GetCommandError } from 'Server/Commands/LinkNode_HighLevel';
 import { GetNodeDisplayText, GetNodeL3, IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument } from 'Store/firebase/nodes/$node';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
-import React, { Fragment } from 'react';
+import React, { Fragment, useMemo, useCallback } from 'react';
 import { GetTimelineStep } from 'Store/firebase/timelines';
 import { UpdateTimelineStep } from 'Server/Commands/UpdateTimelineStep';
 import { NodeReveal } from 'Store/firebase/timelineSteps/@TimelineStep';
@@ -265,7 +265,7 @@ class RootUI extends BaseComponentWithConnector(connector, {}) {
 						<Route path='/forum'><ForumUI/></Route>
 						<Route path='/feedback'><FeedbackUI/></Route>
 						<Route path='/more'><MoreUI/></Route>
-						<Route withConditions={url => NormalizeURL(VURL.FromLocationObject(url)).pathNodes[0] == 'home'}>
+						<Route withConditions={useCallback(url => NormalizeURL(VURL.FromLocationObject(url)).pathNodes[0] == 'home', [])}>
 							{!GADDemo && <HomeUI/>}
 							{GADDemo && <HomeUI_GAD/>}
 						</Route>

@@ -149,6 +149,7 @@ export function GetNodeViewDataPath(mapID: string, path: string): string[] {
 	return ['main', 'mapViews', `${mapID}`, 'rootNodeViews', ...childPathNodes];
 }
 export const GetNodeView = StoreAccessor((mapID: string, path: string): MapNodeView => {
+	if (path == null) return null;
 	const dataPath = GetNodeViewDataPath(mapID, path);
 	return State(...dataPath) as any;
 });

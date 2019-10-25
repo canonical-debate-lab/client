@@ -1,6 +1,6 @@
 import { DeepGet, E } from 'js-vextensions';
 import { Button, Div, Row } from 'react-vcomponents';
-import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
+import { BaseComponent, BaseComponentWithConnector, UseMemo } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ACTDebateMapSelect } from 'Store/main/debates';
 import { ResetCurrentDBRoot } from 'UI/More/Admin/ResetCurrentDBRoot';
@@ -11,6 +11,7 @@ import { ACTProposalSelect } from 'firebase-feedback';
 import { NotificationsUI } from 'UI/@Shared/NavBar/NotificationsUI';
 import { SearchPanel } from 'UI/@Shared/NavBar/SearchPanel';
 import { UserPanel } from 'UI/@Shared/NavBar/UserPanel';
+import { useMemo } from 'react';
 import { colors } from '../../Utils/UI/GlobalStyles';
 import { ACTSetPage, ACTSetSubpage, ACTTopLeftOpenPanelSet, ACTTopRightOpenPanelSet } from '../../Store/main';
 import { ACTPersonalMapSelect } from '../../Store/main/personal';
@@ -164,15 +165,30 @@ type NavBarPanelButton_Props = {text: string, panel: string, corner: 'top-left' 
 	topLeftOpenPanel: State(a => a.main.topLeftOpenPanel),
 	topRightOpenPanel: State(a => a.main.topRightOpenPanel),
 }))
-class NavBarPanelButton extends BaseComponent<NavBarPanelButton_Props, {}> {
+class NavBarPanelButton extends BaseComponent<NavBarPanelButton_Props, {}, {active: boolean}> {
 	render() {
 		const { text, panel, corner, topLeftOpenPanel, topRightOpenPanel } = this.props;
 		const active = (corner == 'top-left' ? topLeftOpenPanel : topRightOpenPanel) == panel;
-		return (
-			<NavBarPageButton page={panel} text={text} panel={true} active={active} onClick={(e) => {
+		/* return (
+			<NavBarPageButton page={panel} text={text} panel={true} active={active} onClick={useCallback((e) => {
 				e.preventDefault();
 				if (corner == 'top-left') { store.dispatch(new ACTTopLeftOpenPanelSet(active ? null : panel)); } else { store.dispatch(new ACTTopRightOpenPanelSet(active ? null : panel)); }
-			}}/>
+			}, [active, corner, panel])}/>
+		); */
+
+		this.Stash({ active });
+		return (
+			<NavBarPageButton page={panel} text={text} panel={true} active={active} onClick={this.OnClick}/>
 		);
 	}
+	OnClick = (e: MouseEvent) => {
+		e.preventDefault();
+		const { panel, corner } = this.props;
+		const { active } = this.stash;
+		if (corner == 'top-left') {
+			store.dispatch(new ACTTopLeftOpenPanelSet(active ? null : panel));
+		} else {
+			store.dispatch(new ACTTopRightOpenPanelSet(active ? null : panel));
+		}
+	};
 }

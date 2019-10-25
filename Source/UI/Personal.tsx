@@ -1,5 +1,5 @@
 import { Button, Column, Row } from 'react-vcomponents';
-import { BaseComponentWithConnector } from 'react-vextensions';
+import { BaseComponentWithConnector, UseCallback } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { GetMaps } from 'Store/firebase/maps';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
@@ -9,6 +9,7 @@ import { columnWidths } from 'UI/Debates';
 import { Connect, PageContainer } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { ToNumber } from 'js-vextensions';
+import { useMemo, useCallback } from 'react';
 import { Map, MapType } from '../Store/firebase/maps/@Map';
 import { PermissionGroupSet } from '../Store/firebase/userExtras/@UserExtraInfo';
 import { ShowAddMapDialog } from './@Shared/Maps/AddMapDialog';
@@ -22,6 +23,7 @@ const connector = (state, {}: {}) => ({
 	permissions: GetUserPermissionGroups(MeID()),
 	maps: GetMaps().filter(a => a && a.type == MapType.Personal),
 	selectedMap: GetSelectedPersonalMap(),
+	userID: MeID(),
 });
 @Connect(connector)
 export class PersonalUI extends BaseComponentWithConnector(connector, {}) {
@@ -43,10 +45,10 @@ export class PersonalUI extends BaseComponentWithConnector(connector, {}) {
 			<PageContainer style={{ margin: '20px auto 20px auto', padding: 0, background: null }}>
 				<Column className="clickThrough" style={{ height: 80, background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' }}>
 					<Row style={{ height: 40, padding: 10 }}>
-						<Button text="Add map" ml="auto" enabled={CanGetBasicPermissions(MeID())} onClick={() => {
-							if (userID == null) return ShowSignInPopup();
+						<Button text="Add map" ml="auto" enabled={CanGetBasicPermissions(MeID())} onClick={UseCallback(() => {
+							if (userID == null) return void ShowSignInPopup();
 							ShowAddMapDialog(userID, MapType.Personal);
-						}}/>
+						}, [userID])}/>
 					</Row>
 					<Row style={{ height: 40, padding: 10 }}>
 						<span style={{ flex: columnWidths[0], fontWeight: 500, fontSize: 17 }}>Title</span>

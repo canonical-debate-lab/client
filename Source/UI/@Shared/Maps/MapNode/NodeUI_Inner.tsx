@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { DoNothing, Timer, ToJSON, Vector2i, VRect, WaitXThenRun, IsNumber, Assert, A } from 'js-vextensions';
 import { Draggable } from 'react-beautiful-dnd';
 import ReactDOM from 'react-dom';
-import { BaseComponent, BaseComponentWithConnector, GetDOM, Handle, UseEffect, UseState, SimpleShouldUpdate } from 'react-vextensions';
+import { BaseComponent, BaseComponentWithConnector, GetDOM, Handle, UseEffect, UseState, SimpleShouldUpdate, UseCallback } from 'react-vextensions';
 import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthScoreComposite, RS_GetAllValues } from 'Store/firebase/nodeRatings/ReasonScore';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
@@ -12,6 +12,7 @@ import { GetPathNodeIDs } from 'Store/main/mapViews';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { Connect, DragInfo, ErrorBoundary, HSLA, IsDoubleClick, SlicePath, State, UseSelector } from 'Utils/FrameworkOverrides';
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
+import { useCallback, useEffect } from 'react';
 import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatingAverage_AtPath, GetRatings, RatingFilter } from '../../../../Store/firebase/nodeRatings';
@@ -72,12 +73,31 @@ type Props = {
 	};
 }) */
 @SimpleShouldUpdate
-export class NodeUI_Inner extends BaseComponent<Props, {}> {
+export class NodeUI_Inner extends BaseComponent<Props, {}, {setHovered}> {
 	static defaultProps = { panelPosition: 'left' };
 
 	root: ExpandableBox;
 	// titlePanel: TitlePanel;
 	titlePanel: Handle<typeof TitlePanel>;
+
+	checkStillHoveredTimer = new Timer(100, () => {
+		const { setHovered } = this.stash;
+
+		const dom = GetDOM(this.root);
+		if (dom == null) {
+			this.checkStillHoveredTimer.Stop();
+			return;
+		}
+		const mainRect = VRect.FromLTWH(dom.getBoundingClientRect());
+
+		const leftBoxDOM = dom.querySelector('.NodeUI_LeftBox');
+		const leftBoxRect = leftBoxDOM ? VRect.FromLTWH(leftBoxDOM.getBoundingClientRect()) : null;
+
+		const mouseRect = new VRect(mousePos, new Vector2i(1, 1));
+		const intersectsOne = mouseRect.Intersects(mainRect) || (leftBoxRect && mouseRect.Intersects(leftBoxRect));
+		// Log(`Main: ${mainRect} Mouse:${mousePos} Intersects one?:${intersectsOne}`);
+		setHovered(intersectsOne);
+	});
 
 	render() {
 		const { indexInNodeList, map, node, nodeView, path, width, widthOverride, panelPosition, useLocalPanelState, style } = this.props;
@@ -139,23 +159,6 @@ export class NodeUI_Inner extends BaseComponent<Props, {}> {
 		const [hoverTermID, setHoverTermID] = UseState(null as string);
 		let [local_openPanel, setLocal_openPanel] = UseState(null as string);
 		const [lastWidthWhenNotPreview, setLastWidthWhenNotPreview] = UseState(0);
-
-		const checkStillHoveredTimer = new Timer(100, () => {
-			const dom = GetDOM(this.root);
-			if (dom == null) {
-				checkStillHoveredTimer.Stop();
-				return;
-			}
-			const mainRect = VRect.FromLTWH(dom.getBoundingClientRect());
-
-			const leftBoxDOM = dom.querySelector('.NodeUI_LeftBox');
-			const leftBoxRect = leftBoxDOM ? VRect.FromLTWH(leftBoxDOM.getBoundingClientRect()) : null;
-
-			const mouseRect = new VRect(mousePos, new Vector2i(1, 1));
-			const intersectsOne = mouseRect.Intersects(mainRect) || (leftBoxRect && mouseRect.Intersects(leftBoxRect));
-			// Log(`Main: ${mainRect} Mouse:${mousePos} Intersects one?:${intersectsOne}`);
-			setHovered(intersectsOne);
-		});
 
 		UseEffect(() => {
 			/* const { dragInfo } = this.props;
@@ -219,6 +222,38 @@ export class NodeUI_Inner extends BaseComponent<Props, {}> {
 		const bottomPanelShow = leftPanelShow && panelToShow;
 		const expanded = nodeView && nodeView.expanded;
 
+		const onMouseEnter = UseCallback(() => {
+			setHovered(true);
+			this.checkStillHoveredTimer.Start();
+		}, [setHovered]);
+		const onMouseLeave = UseCallback(() => {
+			setHovered(false);
+			this.checkStillHoveredTimer.Stop();
+		}, [setHovered]);
+		const onClick = UseCallback((e) => {
+			if ((e.nativeEvent as any).ignore) return;
+			/* if (useLocalPanelState) {
+				this.SetState({local_selected: true});
+				return;
+			} */
+
+			if (nodeView == null || !nodeView.selected) {
+				store.dispatch(new ACTMapNodeSelect({ mapID: map._key, path }));
+			}
+		}, [map._key, nodeView, path]);
+		const onDirectClick = UseCallback((e) => {
+			if (combinedWithParentArgument) {
+				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: parent && parent._key, time: Date.now() }));
+			}
+			store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._key, time: Date.now() }));
+		}, [combinedWithParentArgument, node._key, parent]);
+		const onTextHolderClick = UseCallback(e => IsDoubleClick(e) && this.titlePanel && this.titlePanel.OnDoubleClick(), []);
+		const toggleExpanded = UseCallback((e) => {
+			store.dispatch(new ACTMapNodeExpandedSet({ mapID: map._key, path, expanded: !expanded, recursive: expanded && e.altKey }));
+			e.nativeEvent['ignore'] = true; // for some reason, "return false" isn't working
+			// return false;
+		}, [expanded, map._key, path]);
+
 		const renderInner = (dragInfo) => {
 			const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
 			// const offsetByAnotherDrag = dragInfo && dragInfo.provided.draggableProps.style.transform;
@@ -230,14 +265,8 @@ export class NodeUI_Inner extends BaseComponent<Props, {}> {
 				<ExpandableBox ref={c => DoNothing(dragInfo && dragInfo.provided.innerRef(GetDOM(c) as any), this.root = c)}
 					{...{ width, widthOverride, outlineColor, expanded }} parent={this}
 					className={classNames('NodeUI_Inner', asDragPreview && 'DragPreview', { root: pathNodeIDs.length == 0 })}
-					onMouseEnter={() => {
-						setHovered(true);
-						checkStillHoveredTimer.Start();
-					}}
-					onMouseLeave={() => {
-						setHovered(false);
-						checkStillHoveredTimer.Stop();
-					}}
+					onMouseEnter={onMouseEnter}
+					onMouseLeave={onMouseLeave}
 					{...(dragInfo && dragInfo.provided.draggableProps)} // {...(dragInfo && dragInfo.provided.dragHandleProps)} // drag-handle is attached to just the TitlePanel, below
 					style={E(
 						style,
@@ -245,23 +274,8 @@ export class NodeUI_Inner extends BaseComponent<Props, {}> {
 						asDragPreview && { zIndex: 10 },
 					)}
 					padding={GetPaddingForNode(node, isSubnode)}
-					onClick={(e) => {
-						if ((e.nativeEvent as any).ignore) return;
-						/* if (useLocalPanelState) {
-							this.SetState({local_selected: true});
-							return;
-						} */
-
-						if (nodeView == null || !nodeView.selected) {
-							store.dispatch(new ACTMapNodeSelect({ mapID: map._key, path }));
-						}
-					}}
-					onDirectClick={(e) => {
-						if (combinedWithParentArgument) {
-							store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: parent._key, time: Date.now() }));
-						}
-						store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._key, time: Date.now() }));
-					}}
+					onClick={onClick}
+					onDirectClick={onDirectClick}
 					beforeChildren={<>
 						{leftPanelShow &&
 						<MapNodeUI_LeftBox {...{ map, path, node, nodeView, ratingsRoot, panelPosition, local_openPanel, backgroundColor }} asHover={hovered}
@@ -286,7 +300,7 @@ export class NodeUI_Inner extends BaseComponent<Props, {}> {
 						{/* fixes click-gap */}
 						{leftPanelShow && panelPosition == 'left' && <div style={{ position: 'absolute', right: '100%', width: 1, top: 0, bottom: 0 }}/>}
 					</>}
-					onTextHolderClick={e => IsDoubleClick(e) && this.titlePanel && this.titlePanel.OnDoubleClick()}
+					onTextHolderClick={onTextHolderClick}
 					text={<>
 						<TitlePanel {...{ indexInNodeList, parent: this, map, node, nodeView, path }} {...(dragInfo && dragInfo.provided.dragHandleProps)}
 							ref={c => this.titlePanel = c}
@@ -299,11 +313,7 @@ export class NodeUI_Inner extends BaseComponent<Props, {}> {
 						{ backgroundFillPercent, backgroundColor, markerPercent },
 						GADDemo && { backgroundFillPercent: 100, backgroundColor: chroma(HSLA(0, 0, 1)) as Color },
 					)}
-					toggleExpanded={(e) => {
-						store.dispatch(new ACTMapNodeExpandedSet({ mapID: map._key, path, expanded: !expanded, recursive: expanded && e.altKey }));
-						e.nativeEvent['ignore'] = true; // for some reason, "return false" isn't working
-						// return false;
-					}}
+					toggleExpanded={toggleExpanded}
 					afterChildren={<>
 						{bottomPanelShow
 							&& <NodeUI_BottomPanel {...{ map, node, nodeView, path, parent, width, widthOverride, panelPosition, panelToShow, hovered, backgroundColor }}
@@ -319,6 +329,8 @@ export class NodeUI_Inner extends BaseComponent<Props, {}> {
 			return ReactDOM.createPortal(result, portal);
 		} */
 		// return result;
+
+		this.Stash({ setHovered });
 
 		const GetDNDProps = () => {
 			if (!IsUserCreatorOrMod(MeID(), node)) return null;

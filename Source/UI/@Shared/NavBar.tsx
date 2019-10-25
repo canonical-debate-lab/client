@@ -5,9 +5,10 @@ import { ShowMessageBox } from 'react-vmessagebox';
 import { ACTDebateMapSelect } from 'Store/main/debates';
 import { ResetCurrentDBRoot } from 'UI/More/Admin/ResetCurrentDBRoot';
 import { dbVersion } from 'Main';
-import { Connect, State, Action, Link, GetData } from 'Utils/FrameworkOverrides';
+import { Connect, State, Action, Link, GetData, UseSelector } from 'Utils/FrameworkOverrides';
 import { ACTUserSelect } from 'Store/main/database';
 import { ACTProposalSelect } from 'firebase-feedback';
+import { useMemo, useCallback } from 'react';
 import { colors } from '../../Utils/UI/GlobalStyles';
 import { ACTSetPage, ACTSetSubpage, ACTTopLeftOpenPanelSet, ACTTopRightOpenPanelSet } from '../../Store/main';
 import { ACTPersonalMapSelect } from '../../Store/main/personal';
@@ -161,7 +162,7 @@ export class NavBarPageButton extends BaseComponent
 
 		const hoverOrActive = hovered || active;
 		return (
-			<Link actions={actions} style={finalStyle} onMouseEnter={() => this.SetState({ hovered: true })} onMouseLeave={() => this.SetState({ hovered: false })} onClick={onClick}>
+			<Link actions={actions} style={finalStyle} onMouseEnter={useCallback(() => this.SetState({ hovered: true }), [])} onMouseLeave={useCallback(() => this.SetState({ hovered: false }), [])} onClick={onClick}>
 				{text}
 				{hoverOrActive &&
 					<div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 2, background: 'rgba(100,255,100,1)' }}/>}
@@ -170,20 +171,26 @@ export class NavBarPageButton extends BaseComponent
 	}
 }
 
-type NavBarPanelButton_Props = {text: string, panel: string, corner: 'top-left' | 'top-right'} & Partial<{topLeftOpenPanel, topRightOpenPanel}>;
-@Connect(_ => ({
-	topLeftOpenPanel: State(a => a.main.topLeftOpenPanel),
-	topRightOpenPanel: State(a => a.main.topRightOpenPanel),
-}))
-export class NavBarPanelButton extends BaseComponent<NavBarPanelButton_Props, {}> {
+type NavBarPanelButton_Props = {text: string, panel: string, corner: 'top-left' | 'top-right'};
+export class NavBarPanelButton extends BaseComponent<NavBarPanelButton_Props, {}, {active: boolean}> {
 	render() {
-		const { text, panel, corner, topLeftOpenPanel, topRightOpenPanel } = this.props;
+		const { text, panel, corner } = this.props;
+		const topLeftOpenPanel = UseSelector(() => State(a => a.main.topLeftOpenPanel));
+		const topRightOpenPanel = UseSelector(() => State(a => a.main.topRightOpenPanel));
 		const active = (corner == 'top-left' ? topLeftOpenPanel : topRightOpenPanel) == panel;
+
+		this.Stash({ active });
 		return (
-			<NavBarPageButton page={panel} text={text} panel={true} active={active} onClick={(e) => {
-				e.preventDefault();
-				if (corner == 'top-left') { store.dispatch(new ACTTopLeftOpenPanelSet(active ? null : panel)); } else { store.dispatch(new ACTTopRightOpenPanelSet(active ? null : panel)); }
-			}}/>
+			<NavBarPageButton page={panel} text={text} panel={true} active={active} onClick={this.OnClick}/>
 		);
 	}
+	OnClick = (e: MouseEvent) => {
+		e.preventDefault();
+		const { corner, panel, active } = this.PropsAndStash;
+		if (corner == 'top-left') {
+			store.dispatch(new ACTTopLeftOpenPanelSet(active ? null : panel));
+		} else {
+			store.dispatch(new ACTTopRightOpenPanelSet(active ? null : panel));
+		}
+	};
 }

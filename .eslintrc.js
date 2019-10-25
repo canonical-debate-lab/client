@@ -18,7 +18,8 @@ module.exports = {
 		"react",
 		//"jsx-a11y", // warns about accessibility concerns
 		//"babel",
-		"only-warn",
+		"react-hooks",
+		"only-warn"
 	],
 	settings: {
 		//"import/extensions": [".js", ".jsx", ".ts", ".tsx"],
@@ -79,6 +80,12 @@ module.exports = {
 		"operator-linebreak": "off", // messes up alignment of jsx tags otherwise
 		"no-empty-pattern": "off", // breaks comp-prop-types definition for BaseComponentWithConnector, when connect-func does not itself use the props
 		"no-lonely-if": "off",
+		"no-void": "off",
+		"consistent-return": "off",
+
+		// plugins
+		"react-hooks/rules-of-hooks": "error",
+		"react-hooks/exhaustive-deps": ["warn", { "additionalHooks": "Use(Memo|Callback|Effect)" }]
 	},
 	globals: {
 		ENV: true,

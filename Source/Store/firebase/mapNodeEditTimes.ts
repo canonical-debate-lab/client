@@ -1,5 +1,5 @@
 import { GetShortestPathFromRootToNode } from 'Utils/Store/PathFinder';
-import { GetNode } from 'Store/firebase/nodes';
+import { GetNode, GetNodeID } from 'Store/firebase/nodes';
 import { emptyArray } from 'js-vextensions';
 import { GetData, CachedTransform_WithStore, AddSchema, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { UUID_regex } from 'Utils/General/KeyGenerator';
@@ -71,6 +71,14 @@ export const GetPathsToNodesChangedSinceX = StoreAccessor((mapID: string, time: 
 	return result;
 	// });
 });
+export const GetPathsToChangedDescendantNodes_WithChangeTypes = StoreAccessor((mapID: string, sinceTime: number, path: string, includeAcknowledgement = true) => {
+	const pathsToChangedNodes = GetPathsToNodesChangedSinceX(mapID, sinceTime, includeAcknowledgement);
+	const pathsToChangedDescendantNodes = pathsToChangedNodes.filter(a => a.startsWith(`${path}/`));
+	// const changeTypesOfChangedDescendantNodes = pathsToChangedDescendantNodes.map(path => GetNodeChangeType.Watch(GetNode.Watch(GetNodeID(path)), sinceTime));
+	const changeTypesOfChangedDescendantNodes = pathsToChangedDescendantNodes.map(path => GetNodeChangeType(GetNode(GetNodeID(path)), sinceTime));
+	return changeTypesOfChangedDescendantNodes;
+});
+
 export const GetNodeChangeType = StoreAccessor((node: MapNode, sinceTime: number, includeAcknowledgement = true) => {
 	const lastAcknowledgementTime = includeAcknowledgement ? GetLastAcknowledgementTime(node._key) : 0;
 	const sinceTimeForNode = sinceTime.KeepAtLeast(lastAcknowledgementTime);

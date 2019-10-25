@@ -1,5 +1,5 @@
 import { Row } from 'react-vcomponents';
-import { BaseComponentWithConnector, GetInnerComp, GetDOM } from 'react-vextensions';
+import { BaseComponentWithConnector, GetInnerComp, GetDOM, UseCallback } from 'react-vextensions';
 import { GetMarkerPercent_AtPath, GetRatings } from 'Store/firebase/nodeRatings';
 import { RatingType } from 'Store/firebase/nodeRatings/@RatingType';
 import { GetParentNodeL3, HolderType } from 'Store/firebase/nodes';
@@ -134,7 +134,7 @@ export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { 
 							{ backgroundFillPercent, backgroundColor, markerPercent },
 							GADDemo && { backgroundFillPercent: 100, backgroundColor: chroma(HSLA(0, 0, 1)) as Color },
 						)}
-						toggleExpanded={(e) => {
+						toggleExpanded={UseCallback((e) => {
 							store.dispatch(new ACTMapNodeExpandedSet({
 								mapID: map._key, path, recursive: nodeView[expandKey] && e.altKey,
 								[expandKey]: !nodeView[expandKey],
@@ -144,7 +144,7 @@ export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { 
 							if (nodeView[expandKey]) {
 								this.CheckForChanges();
 							}
-						}}
+						}, [expandKey, map._key, nodeView, path])}
 						afterChildren={[
 							ratingPanelShow &&
 								<div ref={c => this.ratingPanelHolder = c} style={{
@@ -169,7 +169,7 @@ export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { 
 					<NodeChildHolder ref={c => this.childHolder = c}
 						{...{ map, node, path, nodeView, nodeChildrenToShow, type, separateChildren, showArgumentsControlBar }}
 						linkSpawnPoint={innerBoxOffset + (height / 2)}
-						onHeightOrDividePointChange={() => this.CheckForChanges()}/>}
+						onHeightOrDividePointChange={this.CheckForChanges}/>}
 			</Row>
 		);
 	}
@@ -197,7 +197,7 @@ export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { 
 	lastLineHolderHeight = 0;
 	lastHeight = 0;
 	lastDividePoint = 0;
-	CheckForChanges() {
+	CheckForChanges = () => {
 		const { nodeView, onHeightOrDividePointChange } = this.props;
 
 		const lineHolderHeight = $(this.lineHolder).outerHeight();
@@ -223,7 +223,7 @@ export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { 
 		}
 		this.lastHeight = height;
 		this.lastDividePoint = dividePoint;
-	}
+	};
 
 	GetMeasurementInfo() {
 		// return {width: 90, height: 26};

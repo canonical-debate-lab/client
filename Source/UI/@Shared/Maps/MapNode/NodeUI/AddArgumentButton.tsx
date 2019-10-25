@@ -4,6 +4,7 @@ import { MeID } from 'Store/firebase/users';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { HSLA } from 'Utils/FrameworkOverrides';
+import {UseCallback} from 'react-vextensions';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { MapNodeL3, Polarity } from '../../../../../Store/firebase/nodes/@MapNode';
 import { GetNodeColor, MapNodeType } from '../../../../../Store/firebase/nodes/@MapNodeType';
@@ -84,11 +85,11 @@ export function AddArgumentButton(props: Props) {
 				GADDemo && { color: HSLA(222, 0.1, 0.8, 1), fontFamily: 'TypoPRO Bebas Neue', fontSize: 13, letterSpacing: 1 },
 				style,
 			)}
-			onClick={(e) => {
+			onClick={UseCallback((e) => {
 				if (e.button != 0) return;
 				if (MeID() == null) return ShowSignInPopup();
 
 				ShowAddChildDialog(path, MapNodeType.Argument, polarity, MeID(), map._key);
-			}}/>
+			}, [map._key, path, polarity])}/>
 	);
 }

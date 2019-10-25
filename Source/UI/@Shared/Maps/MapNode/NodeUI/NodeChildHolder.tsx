@@ -1,6 +1,6 @@
 import { CachedTransform, Vector2i, emptyObj, nl, Assert, ToJSON, Timer, VRect, WaitXThenRun, Vector3i, Clone } from 'js-vextensions';
 import { Button, Column, Div, Row } from 'react-vcomponents';
-import { BaseComponentWithConnector, GetInnerComp, RenderSource, GetDOM, UseState, BaseComponent, UseEffect } from 'react-vextensions';
+import { BaseComponentWithConnector, GetInnerComp, RenderSource, GetDOM, UseState, BaseComponent, UseEffect, SimpleShouldUpdate, UseCallback } from 'react-vextensions';
 import { GetFillPercent_AtPath } from 'Store/firebase/nodeRatings';
 import { GetNodeChildrenL3, HolderType, GetParentNodeL3, GetHolderType, GetParentNodeID } from 'Store/firebase/nodes';
 import { MapNodeL3, ClaimForm } from 'Store/firebase/nodes/@MapNode';
@@ -15,6 +15,8 @@ import { ES } from 'Utils/UI/GlobalStyles';
 import { DroppableInfo } from 'Utils/UI/DNDStructures';
 import * as React from 'react';
 import { DroppableProvided, Droppable, DroppableStateSnapshot } from 'react-beautiful-dnd';
+import { GetPathsToNodesChangedSinceX } from 'Store/firebase/mapNodeEditTimes';
+import { useMemo, useCallback } from 'react';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { IsMultiPremiseArgument } from '../../../../../Store/firebase/nodes/$node';
 import { Polarity } from '../../../../../Store/firebase/nodes/@MapNode';
@@ -27,7 +29,10 @@ type Props = {
 	onHeightOrDividePointChange?: (dividePoint: number)=>void,
 };
 
-export class NodeChildHolder extends BaseComponent<Props, {}> {
+export type NodeChildHolder_InstanceStash = {CheckForChanges};
+
+@SimpleShouldUpdate
+export class NodeChildHolder extends BaseComponent<Props, {}, {nodeChildrenToShow, nodeChildren_fillPercents, UpdateChildrenWidthOverride, UpdateChildBoxOffsets, onHeightOrDividePointChange}> {
 	static defaultProps = { minWidth: 0 };
 	/* static ValidateProps(props) {
 		let {node, path} = props;
@@ -35,8 +40,14 @@ export class NodeChildHolder extends BaseComponent<Props, {}> {
 	} */
 
 	childBoxes: {[key: number]: NodeUI} = {};
+	instanceStash: NodeChildHolder_InstanceStash;
 	render() {
 		const { map, node, nodeView, path, nodeChildrenToShow, type, separateChildren, showArgumentsControlBar, linkSpawnPoint, vertical, minWidth, onHeightOrDividePointChange } = this.props;
+
+		// test; attaching stuff to instanceStash is the equivalent of attaching stuff to the component-instance
+		// (resolving callback dependency-regression, without requiring usage of "this" -- and letting you use redux/selector data directly, from within those callbacks)
+		/* const [instanceStash, _] = UseState({} as {CheckForChanges});
+		this.instanceStash = instanceStash; */
 
 		const initialChildLimit = UseSelector(() => State(a => a.main.initialChildLimit));
 
@@ -93,42 +104,6 @@ export class NodeChildHolder extends BaseComponent<Props, {}> {
 		const showAll = node._key == map.rootNode || node.type == MapNodeType.Argument;
 		if (showAll) [childLimit_up, childLimit_down] = [100, 100];
 
-		const OnChildHeightOrPosChange = () => {
-			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
-				() => `OnChildHeightOrPosChange NodeUI (${RenderSource[this.lastRender_source]}):${node._key}\ncenterY:${this.GetDividePoint()}`);
-
-			// this.OnHeightOrPosChange();
-			// wait one frame, so that if multiple calls to this method occur in the same frame, we only have to call OnHeightOrPosChange() once
-			if (!this.OnChildHeightOrPosChange_updateStateQueued) {
-				this.OnChildHeightOrPosChange_updateStateQueued = true;
-				requestAnimationFrame(() => {
-					this.OnChildHeightOrPosChange_updateStateQueued = false;
-					if (!this.mounted) return;
-					/* this.UpdateChildrenWidthOverride();
-					this.UpdateChildBoxOffsets(); */
-					CheckForChanges();
-				});
-			}
-		};
-
-		const RenderChild = (child: MapNodeL3, index: number, collection, direction = 'down' as 'up' | 'down') => {
-			/* if (pack.node.premiseAddHelper) {
-				return <PremiseAddHelper mapID={map._id} parentNode={node} parentPath={path}/>;
-			} */
-
-			const childLimit = direction == 'down' ? childLimit_down : childLimit_up;
-			return (
-				// <ErrorBoundary errorUI={props=>props.defaultUI(E(props, {style: {width: 500, height: 300}}))}>
-				<ErrorBoundary key={child._key} errorUIStyle={{ width: 500, height: 300 }}>
-					<NodeUI key={child._key} ref={c => this.childBoxes[child._key] = c} indexInNodeList={index} map={map} node={child}
-						path={`${path}/${child._key}`} widthOverride={childrenWidthOverride} onHeightOrPosChange={OnChildHeightOrPosChange}>
-						{index == (direction == 'down' ? childLimit - 1 : 0) && !showAll && (collection.length > childLimit || childLimit != initialChildLimit) &&
-							<ChildLimitBar {...{ map, path, childrenWidthOverride, childLimit }} direction={direction} childCount={collection.length}/>}
-					</NodeUI>
-				</ErrorBoundary>
-			);
-		};
-
 		const StartGeneratingPositionedPlaceholder = (group: 'all' | 'up' | 'down') => {
 			const groups = { all: this.allChildHolder, up: this.upChildHolder, down: this.downChildHolder };
 			const childHolder = groups[group];
@@ -171,6 +146,45 @@ export class NodeChildHolder extends BaseComponent<Props, {}> {
 			}
 
 			setPlaceholderRect(placeholderRect);
+		};
+
+		// todo: make sure we have all the dependencies included
+		const OnChildHeightOrPosChange = useCallback(() => {
+			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
+				() => `OnChildHeightOrPosChange NodeUI (${RenderSource[this.lastRender_source]}):${node._key}\ncenterY:${this.GetDividePoint()}`);
+
+			// this.OnHeightOrPosChange();
+			// wait one frame, so that if multiple calls to this method occur in the same frame, we only have to call OnHeightOrPosChange() once
+			if (!this.OnChildHeightOrPosChange_updateStateQueued) {
+				this.OnChildHeightOrPosChange_updateStateQueued = true;
+				requestAnimationFrame(() => {
+					this.OnChildHeightOrPosChange_updateStateQueued = false;
+					if (!this.mounted) return;
+					/* this.UpdateChildrenWidthOverride();
+					this.UpdateChildBoxOffsets(); */
+					this.CheckForChanges();
+				});
+			}
+		// }, []); // not sure if we need to add instanceStash as a dependency; I think not, since useMemo for func has same lifetime as useState for instanceStash (I think)
+		// }, [instanceStash, node._key]);
+		}, [node._key]);
+
+		const RenderChild = (child: MapNodeL3, index: number, collection, direction = 'down' as 'up' | 'down') => {
+			/* if (pack.node.premiseAddHelper) {
+				return <PremiseAddHelper mapID={map._id} parentNode={node} parentPath={path}/>;
+			} */
+
+			const childLimit = direction == 'down' ? childLimit_down : childLimit_up;
+			return (
+				// <ErrorBoundary errorUI={props=>props.defaultUI(E(props, {style: {width: 500, height: 300}}))}>
+				<ErrorBoundary key={child._key} errorUIStyle={{ width: 500, height: 300 }}>
+					<NodeUI key={child._key} ref={c => this.childBoxes[child._key] = c} indexInNodeList={index} map={map} node={child}
+						path={`${path}/${child._key}`} widthOverride={childrenWidthOverride} onHeightOrPosChange={OnChildHeightOrPosChange}>
+						{index == (direction == 'down' ? childLimit - 1 : 0) && !showAll && (collection.length > childLimit || childLimit != initialChildLimit) &&
+							<ChildLimitBar {...{ map, path, childrenWidthOverride, childLimit }} direction={direction} childCount={collection.length}/>}
+					</NodeUI>
+				</ErrorBoundary>
+			);
 		};
 
 		const RenderGroup = (group: 'all' | 'up' | 'down') => {
@@ -268,38 +282,9 @@ export class NodeChildHolder extends BaseComponent<Props, {}> {
 			}
 		};
 
-		let CheckForChanges = () => {
-			const ChildOrderStr = () => {
-				return nodeChildrenToShow.OrderBy(a => nodeChildren_fillPercents[a._key]).map(a => a._key).join(',');
-			};
+		// instanceStash.CheckForChanges = CheckForChanges;
 
-			// if (this.lastRender_source == RenderSource.SetState) return;
-
-			const height = $(GetDOM(this)).outerHeight();
-			const dividePoint = this.GetDividePoint();
-			if (height != this.lastHeight || dividePoint != this.lastDividePoint) {
-				MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
-					() => `OnHeightChange NodeChildHolder (${RenderSource[this.lastRender_source]}):${node._key}${nl
-					}dividePoint:${dividePoint}`);
-
-				// this.UpdateState(true);
-				UpdateChildrenWidthOverride();
-				UpdateChildBoxOffsets();
-				if (onHeightOrDividePointChange) onHeightOrDividePointChange(dividePoint);
-			}
-			this.lastHeight = height;
-			this.lastDividePoint = dividePoint;
-
-			const orderStr = ChildOrderStr();
-			if (orderStr != this.lastOrderStr) {
-				// this.OnChildHeightOrPosOrOrderChange();
-				// this.UpdateChildrenWidthOverride();
-				UpdateChildBoxOffsets();
-				// this.ReportDividePointChange();
-			}
-			this.lastOrderStr = orderStr;
-		};
-		UseEffect(() => CheckForChanges());
+		this.Stash({ UpdateChildBoxOffsets, UpdateChildrenWidthOverride, nodeChildrenToShow, nodeChildren_fillPercents, onHeightOrDividePointChange });
 
 		const droppableInfo = new DroppableInfo({ type: 'NodeChildHolder', parentPath: path });
 		this.childBoxes = {};
@@ -326,7 +311,7 @@ export class NodeChildHolder extends BaseComponent<Props, {}> {
 					<NodeChildHolderBox {...{ map, node, path, nodeView }} type={HolderType.Relevance} widthOverride={childrenWidthOverride}
 						widthOfNode={childrenWidthOverride}
 						nodeChildren={GetNodeChildrenL3(node, path)} nodeChildrenToShow={nodeChildrenToShowInRelevanceBox}
-						onHeightOrDividePointChange={dividePoint => CheckForChanges()}/>}
+						onHeightOrDividePointChange={UseCallback(dividePoint => this.CheckForChanges(), [])}/>}
 				{!separateChildren &&
 					RenderGroup('all')}
 				{separateChildren &&
@@ -349,6 +334,40 @@ export class NodeChildHolder extends BaseComponent<Props, {}> {
 	lastOrderStr = null;
 
 	OnChildHeightOrPosChange_updateStateQueued = false;
+
+	CheckForChanges = () => {
+		const { node, nodeChildrenToShow, nodeChildren_fillPercents, UpdateChildrenWidthOverride, UpdateChildBoxOffsets, onHeightOrDividePointChange } = this.PropsAndStash;
+
+		const ChildOrderStr = () => {
+			return nodeChildrenToShow.OrderBy(a => nodeChildren_fillPercents[a._key]).map(a => a._key).join(',');
+		};
+
+		// if (this.lastRender_source == RenderSource.SetState) return;
+
+		const height = $(GetDOM(this)).outerHeight();
+		const dividePoint = this.GetDividePoint();
+		if (height != this.lastHeight || dividePoint != this.lastDividePoint) {
+			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
+				() => `OnHeightChange NodeChildHolder (${RenderSource[this.lastRender_source]}):${node._key}${nl
+				}dividePoint:${dividePoint}`);
+
+			// this.UpdateState(true);
+			UpdateChildrenWidthOverride();
+			UpdateChildBoxOffsets();
+			if (onHeightOrDividePointChange) onHeightOrDividePointChange(dividePoint);
+		}
+		this.lastHeight = height;
+		this.lastDividePoint = dividePoint;
+
+		const orderStr = ChildOrderStr();
+		if (orderStr != this.lastOrderStr) {
+			// this.OnChildHeightOrPosOrOrderChange();
+			// this.UpdateChildrenWidthOverride();
+			UpdateChildBoxOffsets();
+			// this.ReportDividePointChange();
+		}
+		this.lastOrderStr = orderStr;
+	};
 
 	GetDividePoint() {
 		if (this.argumentsControlBar) {

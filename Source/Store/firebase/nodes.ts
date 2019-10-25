@@ -55,7 +55,9 @@ export function IsNodeSubnode(node: MapNode) {
 }
 
 export function GetParentPath(childPath: string) {
-	return SplitStringBySlash_Cached(childPath).slice(0, -1).join('/');
+	const childPathNodes = SplitStringBySlash_Cached(childPath);
+	if (childPathNodes.length == 1) return null;
+	return childPathNodes.slice(0, -1).join('/');
 }
 export function GetParentNodeID(path: string) {
 	const pathNodes = SplitStringBySlash_Cached(path);
