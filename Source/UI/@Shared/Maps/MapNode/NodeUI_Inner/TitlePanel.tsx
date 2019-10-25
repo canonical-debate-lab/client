@@ -1,9 +1,8 @@
 import { Assert, Clone } from 'js-vextensions';
 import keycode from 'keycode';
-import { useState, forwardRef, useImperativeHandle, Ref } from 'react';
-import { useSelector } from 'react-redux';
+import { forwardRef, Ref } from 'react';
 import { Button, Pre, Row, TextArea } from 'react-vcomponents';
-import { FilterOutUnrecognizedProps } from 'react-vextensions';
+import { FilterOutUnrecognizedProps, UseImperativeHandle, UseState, Wrap } from 'react-vextensions';
 import { AddNodeRevision } from 'Server/Commands/AddNodeRevision';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetParentNode, IsNodeSubnode } from 'Store/firebase/nodes';
@@ -17,7 +16,7 @@ import { MeID } from 'Store/firebase/users';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { ACTMapNodePanelOpen, ACTMapNodeTermOpen } from 'Store/main/mapViews/$mapView/rootNodeViews';
 import { MapNodeView } from 'Store/main/mapViews/@MapViews';
-import { DBPath, InfoButton, IsDoubleClick, ParseSegmentsForPatterns, RemoveHelpers, VReactMarkdown_Remarkable, WaitTillPathDataIsReceived } from 'Utils/FrameworkOverrides';
+import { DBPath, InfoButton, IsDoubleClick, ParseSegmentsForPatterns, RemoveHelpers, VReactMarkdown_Remarkable, WaitTillPathDataIsReceived, UseSelector } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { NodeMathUI } from '../NodeMathUI';
 import { SetNodeUILocked } from '../NodeUI';
@@ -38,21 +37,19 @@ export function TitlePanel(props: VProps<TitlePanelInternals, {
 	parent: NodeUI_Inner, map: Map, node: MapNodeL2, nodeView: MapNodeView, path: string, indexInNodeList: number, style,
 }>) { */
 
-export const TitlePanel = forwardRef((props: {parent: NodeUI_Inner, map: Map, node: MapNodeL2, nodeView: MapNodeView, path: string, indexInNodeList: number, style}, ref: Ref<{OnDoubleClick}>) => {
+export const TitlePanel = Wrap((props: {parent: NodeUI_Inner, map: Map, node: MapNodeL2, nodeView: MapNodeView, path: string, indexInNodeList: number, style}, ref: Ref<{OnDoubleClick}>) => {
 	// const { map, parent, node, nodeView, path, displayText, equationNumber, style, ...rest } = this.props;
 	const { map, parent, node, nodeView, path, style, ...rest } = props;
-
-	// if (exposer) exposer({ OnDoubleClick });
-	useImperativeHandle(ref, () => ({ OnDoubleClick }));
+	UseImperativeHandle(ref, () => ({ OnDoubleClick }));
 
 	const latex = node.current.equation && node.current.equation.latex;
 	const isSubnode = IsNodeSubnode(node);
 
-	const displayText = useSelector(() => GetNodeDisplayText(node, path));
-	const equationNumber = useSelector(() => (node.current.equation ? GetEquationStepNumber(path) : null));
+	const displayText = UseSelector(() => GetNodeDisplayText(node, path));
+	const equationNumber = UseSelector(() => (node.current.equation ? GetEquationStepNumber(path) : null));
 
 	// let { editing, newTitle, applyingEdit } = this.state;
-	const [editing, setEditing] = useState(false);
+	const [editing, setEditing] = UseState(false);
 	function OnDoubleClick() {
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), node);
 		if (creatorOrMod && node.current.equation == null) {
@@ -61,8 +58,8 @@ export const TitlePanel = forwardRef((props: {parent: NodeUI_Inner, map: Map, no
 	}
 	// this.OnDoubleClick = OnDoubleClick; // is this safe?
 
-	let [newTitle, setNewTitle] = useState(null as string);
-	const [applyingEdit, setApplyingEdit] = useState(false);
+	let [newTitle, setNewTitle] = UseState(null as string);
+	const [applyingEdit, setApplyingEdit] = UseState(false);
 	newTitle = newTitle != null ? newTitle : displayText;
 
 	const noteText = (node.current.equation && node.current.equation.explanation) || node.current.note;

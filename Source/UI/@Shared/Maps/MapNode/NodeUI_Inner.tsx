@@ -3,16 +3,15 @@ import classNames from 'classnames';
 import { DoNothing, Timer, ToJSON, Vector2i, VRect, WaitXThenRun } from 'js-vextensions';
 import { Draggable } from 'react-beautiful-dnd';
 import ReactDOM from 'react-dom';
-import { BaseComponent, BaseComponentWithConnector, GetDOM, Handle } from 'react-vextensions';
+import { BaseComponent, BaseComponentWithConnector, GetDOM, Handle, UseEffect, UseState, SimpleShouldUpdate } from 'react-vextensions';
 import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthScoreComposite, RS_GetAllValues } from 'Store/firebase/nodeRatings/ReasonScore';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
 import { GetPathNodeIDs } from 'Store/main/mapViews';
 import { GADDemo } from 'UI/@GAD/GAD';
-import { Connect, DragInfo, ErrorBoundary, HSLA, IsDoubleClick, SlicePath, State } from 'Utils/FrameworkOverrides';
+import { Connect, DragInfo, ErrorBoundary, HSLA, IsDoubleClick, SlicePath, State, UseSelector } from 'Utils/FrameworkOverrides';
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
-import { RefAttributes, Ref, ComponentPropsWithRef, ElementType, ComponentProps, forwardRef, useImperativeHandle } from 'react';
 import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatingAverage_AtPath, GetRatings, RatingFilter } from '../../../../Store/firebase/nodeRatings';
@@ -36,9 +35,9 @@ import { RatingsPanel } from './NodeUI/Panels/RatingsPanel';
 import { SocialPanel } from './NodeUI/Panels/SocialPanel';
 import { TagsPanel } from './NodeUI/Panels/TagsPanel';
 import { SubPanel } from './NodeUI_Inner/SubPanel';
+import { TitlePanel } from './NodeUI_Inner/TitlePanel';
 import { MapNodeUI_LeftBox } from './NodeUI_LeftBox';
 import { NodeUI_Menu_Stub } from './NodeUI_Menu';
-import { TitlePanel } from './NodeUI_Inner/TitlePanel';
 
 // drag and drop
 // ==========
@@ -62,58 +61,7 @@ type Props = {
 	indexInNodeList: number, map: Map, node: MapNodeL3, nodeView: MapNodeView, path: string, width: number, widthOverride?: number,
 	panelPosition?: 'left' | 'below', useLocalPanelState?: boolean, style?,
 } & {dragInfo?: DragInfo};
-const connector = (state, { map, node, path }: Props) => {
-	let sinceTime = GetTimeFromWhichToShowChangedNodes(map._key);
-	/* let pathsToChangedNodes = GetPathsToNodesChangedSinceX(map._id, sinceTime);
-	let ownNodeChanged = pathsToChangedNodes.Any(a=>a.split("/").Any(b=>b == node._id));
-	let changeType = ownNodeChanged ? GetNodeChangeType(node, sinceTime) : null; */
 
-	const lastAcknowledgementTime = GetLastAcknowledgementTime(node._key);
-	sinceTime = sinceTime.KeepAtLeast(lastAcknowledgementTime);
-
-	let changeType: ChangeType;
-	if (node.createdAt > sinceTime) changeType = ChangeType.Add;
-	else if (node.current.createdAt > sinceTime) changeType = ChangeType.Edit;
-
-	const parent = GetNodeL3(SlicePath(path, 1));
-	const combineWithParentArgument = IsPremiseOfSinglePremiseArgument(node, parent);
-	// let ratingReversed = ShouldRatingTypeBeReversed(node);
-
-	let mainRatingType = GetMainRatingType(node);
-	let ratingNode = node;
-	let ratingNodePath = path;
-	if (combineWithParentArgument) {
-		mainRatingType = 'impact';
-		ratingNode = parent;
-		ratingNodePath = SlicePath(path, 1);
-	}
-	const mainRating_average = GetRatingAverage_AtPath(ratingNode, mainRatingType);
-	// let mainRating_mine = GetRatingValue(ratingNode._id, mainRatingType, MeID());
-	const mainRating_mine = GetRatingAverage_AtPath(ratingNode, mainRatingType, new RatingFilter({ includeUser: MeID() }));
-
-	const useReasonScoreValuesForThisNode = State(a => a.main.weighting) == WeightingType.ReasonScore && (node.type == MapNodeType.Argument || node.type == MapNodeType.Claim);
-	if (useReasonScoreValuesForThisNode) {
-		var reasonScoreValues = RS_GetAllValues(node, path, true) as ReasonScoreValues_RSPrefix;
-	}
-
-	const backgroundFillPercent = GetFillPercent_AtPath(ratingNode, ratingNodePath, null);
-	const markerPercent = GetMarkerPercent_AtPath(ratingNode, ratingNodePath, null);
-
-	return {
-		form: GetNodeForm(node, path),
-		ratingsRoot: GetNodeRatingsRoot(node._key),
-		mainRating_average,
-		mainRating_mine,
-		reasonScoreValues,
-		showReasonScoreValues: State(a => a.main.showReasonScoreValues),
-		changeType,
-		backgroundFillPercent,
-		markerPercent,
-	};
-};
-
-
-@Connect(connector)
 /* @MakeDraggable(({ node, path, indexInNodeList }: TitlePanelProps) => {
 	if (!IsUserCreatorOrMod(MeID(), node)) return null;
 	if (!path.includes('/')) return null; // don't make draggable if root-node of map
@@ -123,46 +71,98 @@ const connector = (state, { map, node, path }: Props) => {
 		index: indexInNodeList,
 	};
 }) */
-export class NodeUI_Inner extends BaseComponentWithConnector(connector,
-	{ hovered: false, hoverPanel: null as string, hoverTermID: null as string, /* local_selected: boolean, */ local_openPanel: null as string, lastWidthWhenNotPreview: 0 }) {
+@SimpleShouldUpdate
+export class NodeUI_Inner extends BaseComponent<Props, {}> {
 	static defaultProps = { panelPosition: 'left' };
 
 	root: ExpandableBox;
 	// titlePanel: TitlePanel;
 	titlePanel: Handle<typeof TitlePanel>;
-	checkStillHoveredTimer = new Timer(100, () => {
-		const dom = GetDOM(this.root);
-		if (dom == null) {
-			this.checkStillHoveredTimer.Stop();
-			return;
-		}
-		const mainRect = VRect.FromLTWH(dom.getBoundingClientRect());
-
-		const leftBoxDOM = dom.querySelector('.NodeUI_LeftBox');
-		const leftBoxRect = leftBoxDOM ? VRect.FromLTWH(leftBoxDOM.getBoundingClientRect()) : null;
-
-		const mouseRect = new VRect(mousePos, new Vector2i(1, 1));
-		const intersectsOne = mouseRect.Intersects(mainRect) || (leftBoxRect && mouseRect.Intersects(leftBoxRect));
-		// Log(`Main: ${mainRect} Mouse:${mousePos} Intersects one?:${intersectsOne}`);
-		this.SetState({ hovered: intersectsOne });
-	});
-
-	ComponentDidMountOrUpdate() {
-		/* const { dragInfo } = this.props;
-		const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
-		if (!asDragPreview && this.draggableDiv) { */
-		this.SetState(E(
-			// { dragActive: this.draggableDiv == null },
-			this.root && this.root.DOM && { lastWidthWhenNotPreview: this.root.DOM.getBoundingClientRect().width },
-		));
-	}
 
 	render() {
-		const { indexInNodeList, map, node, nodeView, path, width, widthOverride,
-			panelPosition, useLocalPanelState, style, form,
-			ratingsRoot, mainRating_average, mainRating_mine, reasonScoreValues,
-			showReasonScoreValues, changeType, backgroundFillPercent, markerPercent, dragInfo } = this.props;
-		let { hovered, hoverPanel, hoverTermID, /* local_selected, */ local_openPanel } = this.state;
+		const { indexInNodeList, map, node, nodeView, path, width, widthOverride, panelPosition, useLocalPanelState, style } = this.props;
+
+		// connector part
+		// ==========
+
+		let sinceTime = UseSelector(() => GetTimeFromWhichToShowChangedNodes(map._key));
+		/* let pathsToChangedNodes = GetPathsToNodesChangedSinceX(map._id, sinceTime);
+		let ownNodeChanged = pathsToChangedNodes.Any(a=>a.split("/").Any(b=>b == node._id));
+		let changeType = ownNodeChanged ? GetNodeChangeType(node, sinceTime) : null; */
+
+		const lastAcknowledgementTime = UseSelector(() => GetLastAcknowledgementTime(node._key));
+		sinceTime = sinceTime.KeepAtLeast(lastAcknowledgementTime);
+
+		let changeType: ChangeType;
+		if (node.createdAt > sinceTime) changeType = ChangeType.Add;
+		else if (node.current.createdAt > sinceTime) changeType = ChangeType.Edit;
+
+		const parent = UseSelector(() => GetNodeL3(SlicePath(path, 1)));
+		const combineWithParentArgument = UseSelector(() => IsPremiseOfSinglePremiseArgument(node, parent));
+		// let ratingReversed = ShouldRatingTypeBeReversed(node);
+
+		let mainRatingType = UseSelector(() => GetMainRatingType(node));
+		let ratingNode = node;
+		let ratingNodePath = path;
+		if (combineWithParentArgument) {
+			mainRatingType = 'impact';
+			ratingNode = parent;
+			ratingNodePath = SlicePath(path, 1);
+		}
+		const mainRating_average = UseSelector(() => GetRatingAverage_AtPath(ratingNode, mainRatingType));
+		// let mainRating_mine = GetRatingValue(ratingNode._id, mainRatingType, MeID());
+		const mainRating_mine = UseSelector(() => GetRatingAverage_AtPath(ratingNode, mainRatingType, new RatingFilter({ includeUser: MeID() })));
+
+		const useReasonScoreValuesForThisNode = UseSelector(() => State(a => a.main.weighting) == WeightingType.ReasonScore && (node.type == MapNodeType.Argument || node.type == MapNodeType.Claim));
+		if (useReasonScoreValuesForThisNode) {
+			var reasonScoreValues = UseSelector(() => RS_GetAllValues(node, path, true) as ReasonScoreValues_RSPrefix);
+		}
+
+		const backgroundFillPercent = UseSelector(() => GetFillPercent_AtPath(ratingNode, ratingNodePath, null));
+		const markerPercent = UseSelector(() => GetMarkerPercent_AtPath(ratingNode, ratingNodePath, null));
+
+		const form = UseSelector(() => GetNodeForm(node, path));
+		const ratingsRoot = UseSelector(() => GetNodeRatingsRoot(node._key));
+		const showReasonScoreValues = UseSelector(() => State(a => a.main.showReasonScoreValues));
+
+		// the rest
+		// ==========
+
+		let [hovered, setHovered] = UseState(false);
+		const [hoverPanel, setHoverPanel] = UseState(null as string);
+		const [hoverTermID, setHoverTermID] = UseState(null as string);
+		let [local_openPanel, setLocal_openPanel] = UseState(null as string);
+		const [lastWidthWhenNotPreview, setLastWidthWhenNotPreview] = UseState(0);
+
+		const checkStillHoveredTimer = new Timer(100, () => {
+			const dom = GetDOM(this.root);
+			if (dom == null) {
+				checkStillHoveredTimer.Stop();
+				return;
+			}
+			const mainRect = VRect.FromLTWH(dom.getBoundingClientRect());
+
+			const leftBoxDOM = dom.querySelector('.NodeUI_LeftBox');
+			const leftBoxRect = leftBoxDOM ? VRect.FromLTWH(leftBoxDOM.getBoundingClientRect()) : null;
+
+			const mouseRect = new VRect(mousePos, new Vector2i(1, 1));
+			const intersectsOne = mouseRect.Intersects(mainRect) || (leftBoxRect && mouseRect.Intersects(leftBoxRect));
+			// Log(`Main: ${mainRect} Mouse:${mousePos} Intersects one?:${intersectsOne}`);
+			setHovered(intersectsOne);
+		});
+
+		UseEffect(() => {
+			/* const { dragInfo } = this.props;
+			const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
+			if (!asDragPreview && this.draggableDiv) { */
+			// setDragActive(this.root.DOM.getBoundingClientRect().width);
+			if (this.root && this.root.DOM) {
+				if (this.root.DOM.getBoundingClientRect().width != lastWidthWhenNotPreview) {
+					setLastWidthWhenNotPreview(this.root.DOM.getBoundingClientRect().width);
+				}
+			}
+		});
+
 		const nodeTypeInfo = MapNodeType_Info.for[node.type];
 		let backgroundColor = GetNodeColor(node);
 		/* const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
@@ -174,7 +174,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 
 		// Log(`${node._key} -- ${dragInfo && dragInfo.snapshot.isDragging}; ${dragInfo && dragInfo.snapshot.draggingOver}`);
 
-		const parent = GetParentNodeL3(path);
+		// const parent = GetParentNodeL3(path);
 		const combinedWithParentArgument = IsPremiseOfSinglePremiseArgument(node, parent);
 		if (combinedWithParentArgument) {
 			backgroundColor = GetNodeColor(parent);
@@ -225,12 +225,12 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 					{...{ width, widthOverride, outlineColor, expanded }} parent={this}
 					className={classNames('NodeUI_Inner', asDragPreview && 'DragPreview', { root: pathNodeIDs.length == 0 })}
 					onMouseEnter={() => {
-						this.SetState({ hovered: true });
-						this.checkStillHoveredTimer.Start();
+						setHovered(true);
+						checkStillHoveredTimer.Start();
 					}}
 					onMouseLeave={() => {
-						this.SetState({ hovered: false });
-						this.checkStillHoveredTimer.Stop();
+						setHovered(false);
+						checkStillHoveredTimer.Stop();
 					}}
 					{...(dragInfo && dragInfo.provided.draggableProps)} // {...(dragInfo && dragInfo.provided.dragHandleProps)} // drag-handle is attached to just the TitlePanel, below
 					style={E(
@@ -259,10 +259,11 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 					beforeChildren={<>
 						{leftPanelShow &&
 						<MapNodeUI_LeftBox {...{ map, path, node, nodeView, ratingsRoot, panelPosition, local_openPanel, backgroundColor }} asHover={hovered}
-							onPanelButtonHover={panel => this.SetState({ hoverPanel: panel })}
+							onPanelButtonHover={panel => setHoverPanel(panel)}
 							onPanelButtonClick={(panel) => {
 								if (useLocalPanelState) {
-									this.SetState({ local_openPanel: panel, hoverPanel: null });
+									setLocal_openPanel(panel);
+									setHoverPanel(null);
 									return;
 								}
 
@@ -270,7 +271,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 									store.dispatch(new ACTMapNodePanelOpen({ mapID: map._key, path, panel }));
 								} else {
 									store.dispatch(new ACTMapNodePanelOpen({ mapID: map._key, path, panel: null }));
-									this.SetState({ hoverPanel: null });
+									setHoverPanel(null);
 								}
 							}}>
 							{/* fixes click-gap */}
@@ -300,7 +301,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 					afterChildren={<>
 						{bottomPanelShow
 							&& <NodeUI_BottomPanel {...{ map, node, nodeView, path, parent, width, widthOverride, panelPosition, panelToShow, hovered, backgroundColor }}
-								hoverTermID={hoverTermID} onTermHover={termID => this.SetState({ hoverTermID: termID })}/>}
+								hoverTermID={hoverTermID} onTermHover={termID => setHoverTermID(termID)}/>}
 						{reasonScoreValues && showReasonScoreValues
 							&& <ReasonScoreValueMarkers {...{ node, combinedWithParentArgument, reasonScoreValues }}/>}
 					</>}
@@ -341,7 +342,7 @@ export class NodeUI_Inner extends BaseComponentWithConnector(connector,
 						return renderInner(dragInfo);
 					}}
 				</Draggable>
-				<div style={{ width: this.state.lastWidthWhenNotPreview }}/>
+				<div style={{ width: lastWidthWhenNotPreview }}/>
 			</>
 		);
 	}

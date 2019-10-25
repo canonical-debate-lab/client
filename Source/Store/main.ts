@@ -246,6 +246,11 @@ export function GetLastAcknowledgementTime(nodeID: string) {
 	return State('main', 'nodeLastAcknowledgementTimes', nodeID) as number || 0;
 }
 
+/* export const GetLastAcknowledgementTime2 = StoreAccessor((nodeID: string) => {
+	GetCopiedNodePath();
+	return State('main', 'nodeLastAcknowledgementTimes', nodeID) as number || 0;
+}); */
+
 export function GetCopiedNodePath() {
 	return State(a => a.main.copiedNodePath);
 }
