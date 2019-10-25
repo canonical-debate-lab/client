@@ -175,14 +175,26 @@ context('MapUI', () => {
 	// https://on.cypress.io/interacting-with-elements
 	it('Should have all the nodes expanded', () => {
 		const start = Date.now();
+
+		const timingLogs = [];
+		const LogTiming = (logStr, isLast = false) => {
+			cy.log(logStr);
+			timingLogs.push(logStr);
+			if (isLast) {
+				// click on this last log, then you can copy it from the console with line-breaks
+				// cy.log(timingLogs.join('\n'));
+				console.log(timingLogs.join('\n')); // copy from console with line-breaks
+			}
+		};
+
 		// nodes that should be visible: root + claim + 5 pro + 5 con (each having self + 5 subs)
 		cy.get('.NodeUI_Inner', { timeout: 111000 }).should('have.length', 1 + 1 + 5 + 5 * (1 + 5))
-			.then(() => cy.log(`Loaded node boxes by: ${Date.now() - start}`));
+			.then(() => LogTiming(`Loaded node boxes by: ${Date.now() - start}`));
 
 		cy.get('.NodeUI_Inner:contains(L1.)', { timeout: 111000 }).should('have.length', 10)
-			.then(() => cy.log(`Loaded L1 nodes fully by : ${Date.now() - start}`));
+			.then(() => LogTiming(`Loaded L1 nodes fully by: ${Date.now() - start}`));
 		cy.get('.NodeUI_Inner:contains(L2.)', { timeout: 111000 }).should('have.length', 25)
-			.then(() => cy.log(`Loaded L2 nodes fully by: ${Date.now() - start}`));
+			.then(() => LogTiming(`Loaded L2 nodes fully by: ${Date.now() - start}`, true));
 	});
 
 	/* it('Record how long it takes for the speed-test map to load', () => {
