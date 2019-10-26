@@ -1,5 +1,5 @@
 import { BaseComponent } from 'react-vextensions';
-import { VReactMarkdown_Remarkable, Connect, UseSelector } from 'Utils/FrameworkOverrides';
+import { VReactMarkdown_Remarkable, Connect, Watch } from 'Utils/FrameworkOverrides';
 import { MapNode, ImageAttachment, MapNodeL2 } from '../../../../../Store/firebase/nodes/@MapNode';
 import { GetFontSizeForNode } from '../../../../../Store/firebase/nodes/$node';
 import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
@@ -52,7 +52,7 @@ type SubPanel_ImageProps = {imageAttachment: ImageAttachment};
 export class SubPanel_Image extends BaseComponent<SubPanel_ImageProps, {}> {
 	render() {
 		const { imageAttachment } = this.props;
-		const image = UseSelector(() => GetImage(imageAttachment.id));
+		const image = Watch(() => GetImage(imageAttachment.id), [imageAttachment.id]);
 		if (image == null) return <div/>;
 		return (
 			<div style={{ position: 'relative' }}>

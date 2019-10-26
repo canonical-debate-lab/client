@@ -85,7 +85,7 @@ module.exports = {
 
 		// plugins
 		"react-hooks/rules-of-hooks": "error",
-		"react-hooks/exhaustive-deps": ["warn", { "additionalHooks": "Use(Memo|Callback|Effect)" }]
+		"react-hooks/exhaustive-deps": ["warn", { "additionalHooks": "(Use(Memo|Callback|Effect)|Watch)" }]
 	},
 	globals: {
 		ENV: true,

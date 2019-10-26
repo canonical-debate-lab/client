@@ -10,7 +10,7 @@ import { ACTMapNodeChildLimitSet } from 'Store/main/mapViews/$mapView/rootNodeVi
 import { MapNodeView } from 'Store/main/mapViews/@MapViews';
 import { NodeConnectorBackground } from 'UI/@Shared/Maps/MapNode/NodeConnectorBackground';
 import { NodeUI } from 'UI/@Shared/Maps/MapNode/NodeUI';
-import { IsSpecialEmptyArray, State, Connect, MaybeLog, Icon, ErrorBoundary, UseSelector } from 'Utils/FrameworkOverrides';
+import { IsSpecialEmptyArray, State, Connect, MaybeLog, Icon, ErrorBoundary, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { DroppableInfo } from 'Utils/UI/DNDStructures';
 import * as React from 'react';
@@ -49,19 +49,19 @@ export class NodeChildHolder extends BaseComponent<Props, {}, {nodeChildrenToSho
 		/* const [instanceStash, _] = UseState({} as {CheckForChanges});
 		this.instanceStash = instanceStash; */
 
-		const initialChildLimit = UseSelector(() => State(a => a.main.initialChildLimit));
+		const initialChildLimit = Watch(() => State(a => a.main.initialChildLimit), []);
 
 		/* let nodeChildren_sortValues = IsSpecialEmptyArray(nodeChildrenToShow) ? emptyObj : nodeChildrenToShow.filter(a=>a).ToMap(child=>child._id+"", child=> {
 			return GetRatingAverage_AtPath(child, GetSortByRatingType(child));
 		});
 		let nodeChildren_sortValues = CachedTransform("nodeChildren_sortValues_transform1", [node._id], nodeChildren_sortValues, ()=>nodeChildren_sortValues); */
-		const nodeChildren_fillPercents = UseSelector(() => {
+		const nodeChildren_fillPercents = Watch(() => {
 			const early = IsSpecialEmptyArray(nodeChildrenToShow) ? emptyObj : nodeChildrenToShow.filter(a => a).ToMap(child => `${child._key}`, (child) => {
 				return GetFillPercent_AtPath(child, `${path}/${child._key}`);
 			});
 			return CachedTransform('nodeChildren_fillPercents_transform1', [node._key], early, () => early);
-		});
-		const currentNodeBeingAdded_path = UseSelector(() => State(a => a.main.currentNodeBeingAdded_path));
+		}, [node._key, nodeChildrenToShow, path]);
+		const currentNodeBeingAdded_path = Watch(() => State(a => a.main.currentNodeBeingAdded_path), []);
 
 		// rest (not Connect part)
 		// ==========

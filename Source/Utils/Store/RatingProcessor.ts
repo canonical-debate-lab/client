@@ -1,6 +1,6 @@
 import { ArgumentType } from 'Store/firebase/nodes/@MapNodeRevision';
 import { emptyObj } from 'js-vextensions';
-import { CachedTransform_WithStore } from 'Utils/FrameworkOverrides';
+import { StoreAccessor } from 'vwebapp-framework/Source';
 import { GetRatingAverage, GetRatingSet, GetRatingValue } from '../../Store/firebase/nodeRatings';
 import { Rating, RatingsSet } from '../../Store/firebase/nodeRatings/@RatingsRoot';
 import { GetMainRatingType, GetNodeForm, GetRatingTypesForNode } from '../../Store/firebase/nodes/$node';
@@ -60,7 +60,7 @@ export function GetArgumentImpactPseudoRating(argument: MapNodeL2, premises: Map
 } */
 
 // export function GetArgumentImpactPseudoRatingSet(argument: MapNodeL2, premises: MapNodeL2[]): {[key: string]: Rating} {
-export function GetArgumentImpactPseudoRatingSet(argument: MapNodeL2, premises: MapNodeL2[]): RatingsSet {
+export const GetArgumentImpactPseudoRatingSet = StoreAccessor((argument: MapNodeL2, premises: MapNodeL2[]): RatingsSet => {
 	if (premises.Any(a => a == null)) return emptyObj; // must still be loading
 	if (premises.length == 0) return emptyObj;
 
@@ -72,31 +72,40 @@ export function GetArgumentImpactPseudoRatingSet(argument: MapNodeL2, premises: 
 	dataUsedInCalculation.argumentType = argument.current.argumentType;
 
 	// let result = CachedTransform("GetArgumentImpactPseudoRatingSet", [argument._id], dataUsedInCalculation, ()=> {
-	const result = CachedTransform_WithStore('GetArgumentImpactPseudoRatingSet', [argument._key], dataUsedInCalculation, () => {
-		const argRatingSet = GetRatingSet(argument._key, GetMainRatingType(argument)) || emptyObj;
-		const premiseRatingSets = premises.map((child) => {
-			return GetRatingSet(child._key, GetMainRatingType(child)) || emptyObj;
-		});
+	// const result = CachedTransform_WithStore('GetArgumentImpactPseudoRatingSet', [argument._key], dataUsedInCalculation, () => {
+	const premiseRatingSets = premises.map((child) => {
+		return GetRatingSet(child._key, GetMainRatingType(child)) || emptyObj;
+	});
 
-		const usersWhoRatedArgOrPremise = {};
-		for (const userID of argRatingSet.VKeys(true)) {
+	const usersWhoRatedArgOrPremise = {};
+	/* const argRatingSet = GetRatingSet(argument._key, GetMainRatingType(argument)) || emptyObj;
+	for (const userID of argRatingSet.VKeys(true)) {
+		usersWhoRatedArgOrPremise[userID] = true;
+	} */
+	for (const userID of (GetRatingSet(argument._key, 'relevance') || emptyObj).VKeys(true)) {
+		usersWhoRatedArgOrPremise[userID] = true;
+	}
+	for (const premise of premises) {
+		for (const userID of (GetRatingSet(premise._key, 'truth') || emptyObj).VKeys(true)) {
 			usersWhoRatedArgOrPremise[userID] = true;
 		}
-		for (const [index, child] of premises.entries()) {
-			const childRatingSet = premiseRatingSets[index];
-			for (const userID of childRatingSet.VKeys(true)) {
-				usersWhoRatedArgOrPremise[userID] = true;
-			}
-		}
+	}
 
-		const result = {} as RatingsSet;
-		for (const userID in usersWhoRatedArgOrPremise) {
-			result[userID] = GetArgumentImpactPseudoRating(argument, premises, userID);
+	for (const [index, child] of premises.entries()) {
+		const childRatingSet = premiseRatingSets[index];
+		for (const userID of childRatingSet.VKeys(true)) {
+			usersWhoRatedArgOrPremise[userID] = true;
 		}
-		return result;
-	});
+	}
+
+	const result = {} as RatingsSet;
+	for (const userID of usersWhoRatedArgOrPremise.VKeys(true)) {
+		result[userID] = GetArgumentImpactPseudoRating(argument, premises, userID);
+	}
 	return result;
-}
+	/* });
+	return result; */
+});
 
 /* export function CalculateArgumentStrength(nodeChildren: MapNode[]) {
 	if (nodeChildren.Any(a=>a == null)) return 0; // must still be loading

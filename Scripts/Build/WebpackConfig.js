@@ -330,8 +330,8 @@ module.exports =
 ]); */
 
 // react-redux
-AddStringReplacement(/connectAdvanced.js/, [
-	// remove try-catch blocks
+AddStringReplacement(/(connectAdvanced|useSelector).js/, [
+	// remove try-catch blocks // todo: maybe only have this occur for dev compilation
 	{ pattern: /try {/g, replacement: () => '//try {' },
 	{
 		pattern: /} catch(.+?){/g,

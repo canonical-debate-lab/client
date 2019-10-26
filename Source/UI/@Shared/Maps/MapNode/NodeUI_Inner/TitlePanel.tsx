@@ -16,7 +16,7 @@ import { MeID } from 'Store/firebase/users';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { ACTMapNodePanelOpen, ACTMapNodeTermOpen } from 'Store/main/mapViews/$mapView/rootNodeViews';
 import { MapNodeView } from 'Store/main/mapViews/@MapViews';
-import { DBPath, InfoButton, IsDoubleClick, ParseSegmentsForPatterns, RemoveHelpers, VReactMarkdown_Remarkable, WaitTillPathDataIsReceived, UseSelector, ExpensiveComponent } from 'Utils/FrameworkOverrides';
+import { DBPath, InfoButton, IsDoubleClick, ParseSegmentsForPatterns, RemoveHelpers, VReactMarkdown_Remarkable, WaitTillPathDataIsReceived, ExpensiveComponent, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { NodeMathUI } from '../NodeMathUI';
 import { NodeUI_Inner } from '../NodeUI_Inner';
@@ -69,8 +69,8 @@ export class TitlePanel extends BaseComponentPlus(
 		const latex = node.current.equation && node.current.equation.latex;
 		const isSubnode = IsNodeSubnode(node);
 
-		const displayText = UseSelector(() => GetNodeDisplayText(node, path));
-		const equationNumber = UseSelector(() => (node.current.equation ? GetEquationStepNumber(path) : null));
+		const displayText = Watch(() => GetNodeDisplayText(node, path), [node, path]);
+		const equationNumber = Watch(() => (node.current.equation ? GetEquationStepNumber(path) : null), [node, path]);
 
 		newTitle = newTitle != null ? newTitle : displayText;
 

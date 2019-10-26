@@ -1,26 +1,23 @@
+import { Assert, CachedTransform, E, emptyArray, emptyArray_forLoading, IsNaN, nl, ToJSON } from 'js-vextensions';
+import { Column } from 'react-vcomponents';
+import { BaseComponentPlus, GetDOM, GetInnerComp, RenderSource, ShallowEquals, UseCallback } from 'react-vextensions';
 import { ChangeType, GetPathsToChangedDescendantNodes_WithChangeTypes } from 'Store/firebase/mapNodeEditTimes';
-import { GetNode, HolderType, GetParentPath } from 'Store/firebase/nodes';
+import { GetParentPath, HolderType } from 'Store/firebase/nodes';
 import { MeID } from 'Store/firebase/users';
 import { GetPlayingTimelineAppliedStepRevealNodes } from 'Store/main/maps/$map';
 import { NodeChildHolder } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolder';
 import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolderBox';
-import { CachedTransform, E, Timer, emptyArray_forLoading, emptyArray, Assert, IsNaN, nl, ToInt, ToJSON } from 'js-vextensions';
-import { Column } from 'react-vcomponents';
-import { BaseComponentWithConnector, GetInnerComp, RenderSource, ShallowChanged, ShallowEquals, GetDOM, BaseComponent, SimpleShouldUpdate, UseCallback, BaseComponentPlus } from 'react-vextensions';
-import { Connect, State, SlicePath, ShouldLog, MaybeLog, ErrorBoundary, UseSelector, ExpensiveComponent } from 'Utils/FrameworkOverrides';
+import { ExpensiveComponent, MaybeLog, ShouldLog, SlicePath, State, Watch } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
-import { useState, useEffect } from 'react';
-import { number } from 'prop-types';
 import { GetSubnodesInEnabledLayersEnhanced } from '../../../../Store/firebase/layers';
-import { GetNodeChangeType, GetPathsToNodesChangedSinceX } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
-import { GetNodeChildrenL3, GetNodeID, GetParentNodeL2, GetParentNodeL3, IsRootNode } from '../../../../Store/firebase/nodes';
+import { GetNodeChildrenL3, GetParentNodeL2, GetParentNodeL3, IsRootNode } from '../../../../Store/firebase/nodes';
 import { GetNodeForm, IsMultiPremiseArgument, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
 import { AccessLevel, MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
+import { GetPlayingTimeline, GetPlayingTimelineCurrentStepRevealNodes, GetPlayingTimelineRevealNodes, GetPlayingTimelineStepIndex, GetTimeFromWhichToShowChangedNodes } from '../../../../Store/main/maps/$map';
 import { GetNodeView } from '../../../../Store/main/mapViews';
 import { MapNodeView } from '../../../../Store/main/mapViews/@MapViews';
-import { GetPlayingTimeline, GetPlayingTimelineCurrentStepRevealNodes, GetPlayingTimelineRevealNodes, GetPlayingTimelineStepIndex, GetTimeFromWhichToShowChangedNodes } from '../../../../Store/main/maps/$map';
 import { NodeChangesMarker } from './NodeUI/NodeChangesMarker';
 import { NodeChildCountMarker } from './NodeUI/NodeChildCountMarker';
 import { GetMeasurementInfoForNode } from './NodeUI/NodeMeasurer';
@@ -86,7 +83,7 @@ export class NodeUI extends BaseComponentPlus(null as Props, { expectedBoxWidth:
 
 		// Log("Calling NodeUI connect func.");
 
-		// const nodeChildren = UseSelector(() => GetNodeChildrenL3(node, path, true));
+		// const nodeChildren = Watch(() => GetNodeChildrenL3(node, path, true));
 		const nodeChildren = GetNodeChildrenL3.Watch(node, path, true);
 		// if (node.currentRevision && node.current.titles.base == 'Test1') Log('NodeChildren:', nodeChildren);
 
@@ -104,7 +101,7 @@ export class NodeUI extends BaseComponentPlus(null as Props, { expectedBoxWidth:
 		/* const pathsToChangedNodes = GetPathsToNodesChangedSinceX.Watch(map._key, sinceTime);
 		const pathsToChangedDescendantNodes = pathsToChangedNodes.filter(a => a.startsWith(`${path}/`));
 		// const changeTypesOfChangedDescendantNodes = pathsToChangedDescendantNodes.map(path => GetNodeChangeType.Watch(GetNode.Watch(GetNodeID(path)), sinceTime));
-		const changeTypesOfChangedDescendantNodes = UseSelector(() => pathsToChangedDescendantNodes.map(path => GetNodeChangeType(GetNode(GetNodeID(path)), sinceTime))); */
+		const changeTypesOfChangedDescendantNodes = Watch(() => pathsToChangedDescendantNodes.map(path => GetNodeChangeType(GetNode(GetNodeID(path)), sinceTime))); */
 		const pathsToChangedDescendantNodes_withChangeTypes = GetPathsToChangedDescendantNodes_WithChangeTypes.Watch(map._key, sinceTime, path);
 
 		const addedDescendants = pathsToChangedDescendantNodes_withChangeTypes.filter(a => a == ChangeType.Add).length;
@@ -113,7 +110,7 @@ export class NodeUI extends BaseComponentPlus(null as Props, { expectedBoxWidth:
 		// const parentNodeView = (GetParentNodeL3.Watch(path) && GetNodeView.Watch(map._key, SlicePath(path, 1))) || new MapNodeView();
 		const parentNodeView = GetNodeView.Watch(map._key, GetParentPath(path)) || new MapNodeView();
 
-		const initialChildLimit = UseSelector(() => State(a => a.main.initialChildLimit));
+		const initialChildLimit = Watch(() => State(a => a.main.initialChildLimit), []);
 		const form = GetNodeForm.Watch(node, GetParentNodeL2.Watch(path));
 		const nodeView_early = GetNodeView.Watch(map._key, path) || new MapNodeView();
 		const nodeView = CachedTransform('nodeView_transform1', [map._key, path], nodeView_early.Excluding('focused', 'viewOffset', 'children'), () => nodeView_early);

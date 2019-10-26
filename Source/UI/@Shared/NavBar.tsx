@@ -5,7 +5,7 @@ import { ShowMessageBox } from 'react-vmessagebox';
 import { ACTDebateMapSelect } from 'Store/main/debates';
 import { ResetCurrentDBRoot } from 'UI/More/Admin/ResetCurrentDBRoot';
 import { dbVersion } from 'Main';
-import { Connect, State, Action, Link, GetData, UseSelector } from 'Utils/FrameworkOverrides';
+import { Connect, State, Action, Link, GetData, Watch } from 'Utils/FrameworkOverrides';
 import { ACTUserSelect } from 'Store/main/database';
 import { ACTProposalSelect } from 'firebase-feedback';
 import { useMemo, useCallback } from 'react';
@@ -175,8 +175,8 @@ type NavBarPanelButton_Props = {text: string, panel: string, corner: 'top-left' 
 export class NavBarPanelButton extends BaseComponent<NavBarPanelButton_Props, {}, {active: boolean}> {
 	render() {
 		const { text, panel, corner } = this.props;
-		const topLeftOpenPanel = UseSelector(() => State(a => a.main.topLeftOpenPanel));
-		const topRightOpenPanel = UseSelector(() => State(a => a.main.topRightOpenPanel));
+		const topLeftOpenPanel = Watch(() => State(a => a.main.topLeftOpenPanel), []);
+		const topRightOpenPanel = Watch(() => State(a => a.main.topRightOpenPanel), []);
 		const active = (corner == 'top-left' ? topLeftOpenPanel : topRightOpenPanel) == panel;
 
 		this.Stash({ active });

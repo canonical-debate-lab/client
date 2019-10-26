@@ -10,7 +10,7 @@ import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
 import { GetPathNodeIDs } from 'Store/main/mapViews';
 import { GADDemo } from 'UI/@GAD/GAD';
-import { Connect, DragInfo, ErrorBoundary, HSLA, IsDoubleClick, SlicePath, State, UseSelector, ExpensiveComponent } from 'Utils/FrameworkOverrides';
+import { Connect, DragInfo, ErrorBoundary, HSLA, IsDoubleClick, SlicePath, State, ExpensiveComponent, Watch } from 'Utils/FrameworkOverrides';
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
 import { useCallback, useEffect } from 'react';
 import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/mapNodeEditTimes';
@@ -118,7 +118,7 @@ export class NodeUI_Inner extends BaseComponent<Props, {}, {setHovered}> {
 		if (node.createdAt > sinceTime) changeType = ChangeType.Add;
 		else if (node.current.createdAt > sinceTime) changeType = ChangeType.Edit;
 
-		// const parent = UseSelector(() => GetNodeL3(SlicePath(path, 1)));
+		// const parent = Watch(() => GetNodeL3(SlicePath(path, 1)));
 		// const parent = GetNodeL3(SlicePath(path, 1)); // removed UseSelector on this for now, since it somehow causes refresh of node when changing rating (which is bad for current testing)
 		const parent = GetNodeL3.Watch(SlicePath(path, 1));
 		const combineWithParentArgument = IsPremiseOfSinglePremiseArgument.Watch(node, parent);
@@ -132,25 +132,25 @@ export class NodeUI_Inner extends BaseComponent<Props, {}, {setHovered}> {
 			ratingNode = parent;
 			ratingNodePath = SlicePath(path, 1);
 		}
-		/* const mainRating_average = UseSelector(() => GetRatingAverage_AtPath(ratingNode, mainRatingType));
+		/* const mainRating_average = Watch(() => GetRatingAverage_AtPath(ratingNode, mainRatingType));
 		// let mainRating_mine = GetRatingValue(ratingNode._id, mainRatingType, MeID());
-		const mainRating_mine = UseSelector(() => GetRatingAverage_AtPath(ratingNode, mainRatingType, new RatingFilter({ includeUser: MeID() }))); */
+		const mainRating_mine = Watch(() => GetRatingAverage_AtPath(ratingNode, mainRatingType, new RatingFilter({ includeUser: MeID() }))); */
 
-		const useReasonScoreValuesForThisNode = UseSelector(() => State(a => a.main.weighting) == WeightingType.ReasonScore && (node.type == MapNodeType.Argument || node.type == MapNodeType.Claim));
+		const useReasonScoreValuesForThisNode = Watch(() => State(a => a.main.weighting) == WeightingType.ReasonScore && (node.type == MapNodeType.Argument || node.type == MapNodeType.Claim), [node.type]);
 		if (useReasonScoreValuesForThisNode) {
 			var reasonScoreValues = RS_GetAllValues.Watch(node, path, true) as ReasonScoreValues_RSPrefix;
 		}
 
-		// const backgroundFillPercent = UseSelector(() => GetFillPercent_AtPath(ratingNode, ratingNodePath, null));
-		// const markerPercent = UseSelector(() => GetMarkerPercent_AtPath(ratingNode, ratingNodePath, null));
-		// const backgroundFillPercent = UseSelector(() => GetFillPercent_AtPath(ratingNode, ratingNodePath, null));
+		// const backgroundFillPercent = Watch(() => GetFillPercent_AtPath(ratingNode, ratingNodePath, null));
+		// const markerPercent = Watch(() => GetMarkerPercent_AtPath(ratingNode, ratingNodePath, null));
+		// const backgroundFillPercent = Watch(() => GetFillPercent_AtPath(ratingNode, ratingNodePath, null));
 		const backgroundFillPercent = /* A.NonNull = */ GetFillPercent_AtPath.Watch(ratingNode, ratingNodePath, null);
 		const markerPercent = GetMarkerPercent_AtPath.Watch(ratingNode, ratingNodePath, null);
 
 		const form = GetNodeForm.Watch(node, path);
-		// const ratingsRoot = UseSelector(() => GetNodeRatingsRoot(node._key));
+		// const ratingsRoot = Watch(() => GetNodeRatingsRoot(node._key));
 		const ratingsRoot = GetNodeRatingsRoot.Watch(node._key);
-		const showReasonScoreValues = UseSelector(() => State(a => a.main.showReasonScoreValues));
+		const showReasonScoreValues = Watch(() => State(a => a.main.showReasonScoreValues), []);
 
 		// the rest
 		// ==========
