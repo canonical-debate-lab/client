@@ -1,5 +1,6 @@
 import { Vector2i } from 'js-vextensions';
 import { BaseComponent, SimpleShouldUpdate } from 'react-vextensions';
+import { ExpensiveComponent } from 'Utils/FrameworkOverrides';
 import { MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
 import { GetNodeColor } from '../../../../Store/firebase/nodes/@MapNodeType';
 
@@ -9,7 +10,7 @@ type Props = {
 	childBoxOffsets: {[key: number]: Vector2i},
 	shouldUpdate: boolean
 };
-@SimpleShouldUpdate({ useShouldUpdateProp: true })
+@ExpensiveComponent({ simpleShouldUpdate_options: { useShouldUpdateProp: true } })
 export class NodeConnectorBackground extends BaseComponent<Props, {}> {
 	render() {
 		const { node, linkSpawnPoint, straightLines, nodeChildren, childBoxOffsets } = this.props;

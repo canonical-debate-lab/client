@@ -1,5 +1,5 @@
 import { BaseComponent } from 'react-vextensions';
-import { VReactMarkdown_Remarkable, Connect } from 'Utils/FrameworkOverrides';
+import { VReactMarkdown_Remarkable, Connect, UseSelector } from 'Utils/FrameworkOverrides';
 import { MapNode, ImageAttachment, MapNodeL2 } from '../../../../../Store/firebase/nodes/@MapNode';
 import { GetFontSizeForNode } from '../../../../../Store/firebase/nodes/$node';
 import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
@@ -48,13 +48,11 @@ export class SubPanel_Quote extends BaseComponent<{contentNode: ContentNode, fon
 		);
 	}
 }
-type SubPanel_ImageProps = {imageAttachment: ImageAttachment} & Partial<{image: Image}>;
-@Connect((state, { imageAttachment }: SubPanel_ImageProps) => ({
-	image: GetImage(imageAttachment.id),
-}))
+type SubPanel_ImageProps = {imageAttachment: ImageAttachment};
 export class SubPanel_Image extends BaseComponent<SubPanel_ImageProps, {}> {
 	render() {
-		const { image } = this.props;
+		const { imageAttachment } = this.props;
+		const image = UseSelector(() => GetImage(imageAttachment.id));
 		if (image == null) return <div/>;
 		return (
 			<div style={{ position: 'relative' }}>

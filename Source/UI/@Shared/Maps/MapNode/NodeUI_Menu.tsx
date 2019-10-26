@@ -9,7 +9,7 @@ import { UnlinkNode } from 'Server/Commands/UnlinkNode';
 import { GetParentNodeID, HolderType } from 'Store/firebase/nodes';
 import { ACTSetLastAcknowledgementTime, GetCopiedNodePath, GetOpenMapID } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
-import { State, Connect, ActionSet, ACTSet, SlicePath } from 'Utils/FrameworkOverrides';
+import { State, Connect, ActionSet, ACTSet, SlicePath, ExpensiveComponent } from 'Utils/FrameworkOverrides';
 import { styles } from '../../../../Utils/UI/GlobalStyles';
 import { DeleteNode } from '../../../../Server/Commands/DeleteNode';
 import { RootState } from '../../../../Store';
@@ -78,6 +78,7 @@ const connector = (_: RootState, { map, node, path, holderType }: Props) => {
 	};
 };
 @Connect(connector)
+@ExpensiveComponent
 export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
 	render() {
 		const { map, node, path, inList, holderType,

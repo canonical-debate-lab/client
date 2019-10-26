@@ -7,7 +7,7 @@ import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHold
 import { CachedTransform, E, Timer, emptyArray_forLoading, emptyArray, Assert, IsNaN, nl, ToInt, ToJSON } from 'js-vextensions';
 import { Column } from 'react-vcomponents';
 import { BaseComponentWithConnector, GetInnerComp, RenderSource, ShallowChanged, ShallowEquals, GetDOM, BaseComponent, SimpleShouldUpdate, UseCallback } from 'react-vextensions';
-import { Connect, State, SlicePath, ShouldLog, MaybeLog, ErrorBoundary, UseSelector } from 'Utils/FrameworkOverrides';
+import { Connect, State, SlicePath, ShouldLog, MaybeLog, ErrorBoundary, UseSelector, ExpensiveComponent } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
 import { useState, useEffect } from 'react';
 import { GetSubnodesInEnabledLayersEnhanced } from '../../../../Store/firebase/layers';
@@ -36,6 +36,7 @@ export function SetNodeUILocked(nodeID: string, locked: boolean, maxWait = 10000
 type Props = {indexInNodeList: number, map: Map, node: MapNodeL3, path?: string, asSubnode?: boolean, widthOverride?: number, style?, onHeightOrPosChange?: ()=>void};
 // @SimpleShouldUpdate
 // export class NodeUI extends BaseComponent<Props, {}, {CheckForChanges}> {
+@ExpensiveComponent({ simpleShouldUpdate_call: false })
 export class NodeUI extends BaseComponent<Props, {}, {dividePoint, setSelfHeight}> {
 	static renderCount = 0;
 	static lastRenderTime = -1;

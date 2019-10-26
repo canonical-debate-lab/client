@@ -3,14 +3,14 @@ import classNames from 'classnames';
 import { DoNothing, Timer, ToJSON, Vector2i, VRect, WaitXThenRun, IsNumber, Assert, A } from 'js-vextensions';
 import { Draggable } from 'react-beautiful-dnd';
 import ReactDOM from 'react-dom';
-import { BaseComponent, BaseComponentWithConnector, GetDOM, Handle, UseEffect, UseState, SimpleShouldUpdate, UseCallback } from 'react-vextensions';
+import { BaseComponent, BaseComponentWithConnector, GetDOM, Handle, UseEffect, UseState, SimpleShouldUpdate, UseCallback, WarnOfTransientObjectProps } from 'react-vextensions';
 import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthScoreComposite, RS_GetAllValues } from 'Store/firebase/nodeRatings/ReasonScore';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
 import { GetPathNodeIDs } from 'Store/main/mapViews';
 import { GADDemo } from 'UI/@GAD/GAD';
-import { Connect, DragInfo, ErrorBoundary, HSLA, IsDoubleClick, SlicePath, State, UseSelector } from 'Utils/FrameworkOverrides';
+import { Connect, DragInfo, ErrorBoundary, HSLA, IsDoubleClick, SlicePath, State, UseSelector, ExpensiveComponent } from 'Utils/FrameworkOverrides';
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
 import { useCallback, useEffect } from 'react';
 import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/mapNodeEditTimes';
@@ -72,9 +72,10 @@ type Props = {
 		index: indexInNodeList,
 	};
 }) */
-@SimpleShouldUpdate
+@ExpensiveComponent
 export class NodeUI_Inner extends BaseComponent<Props, {}, {setHovered}> {
 	static defaultProps = { panelPosition: 'left' };
+	// static warnOfTransientObjectProps = true;
 
 	root: ExpandableBox;
 	// titlePanel: TitlePanel;

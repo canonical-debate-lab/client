@@ -37,6 +37,7 @@ export function TitlePanel(props: VProps<TitlePanelInternals, {
 	parent: NodeUI_Inner, map: Map, node: MapNodeL2, nodeView: MapNodeView, path: string, indexInNodeList: number, style,
 }>) { */
 
+// todo: probably change this back to a class -- there are advantages to classes, and advantages to hooks, but with react-universal-hooks, we can now get both *within* classes
 export const TitlePanel = Wrap((props: {parent: NodeUI_Inner, map: Map, node: MapNodeL2, nodeView: MapNodeView, path: string, indexInNodeList: number, style}, ref: Ref<{OnDoubleClick}>) => {
 	// const { map, parent, node, nodeView, path, displayText, equationNumber, style, ...rest } = this.props;
 	const { map, parent, node, nodeView, path, style, ...rest } = props;
