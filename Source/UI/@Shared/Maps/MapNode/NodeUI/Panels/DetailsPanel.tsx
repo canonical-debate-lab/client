@@ -1,5 +1,4 @@
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
-import { SetNodeUILocked } from 'UI/@Shared/Maps/MapNode/NodeUI';
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponent, GetInnerComp, BaseComponentWithConnector } from 'react-vextensions';
 import { GetUpdates, RemoveHelpers, WaitTillPathDataIsReceived, DBPath, Connect } from 'Utils/FrameworkOverrides';
@@ -51,14 +50,14 @@ export class DetailsPanel extends BaseComponentWithConnector(connector, { dataEr
 								}
 							}
 
-							if (parentNode) SetNodeUILocked(parentNode._key, true);
+							// if (parentNode) SetNodeUILocked(parentNode._key, true);
 							try {
 								const revisionID = await new AddNodeRevision({ mapID: map._key, revision: RemoveHelpers(this.detailsUI.GetNewRevisionData()) }).Run();
 								store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._key, time: Date.now() }));
 								// await WaitTillPathDataIsReceiving(DBPath(`nodeRevisions/${revisionID}`));
 								await WaitTillPathDataIsReceived(DBPath(`nodeRevisions/${revisionID}`));
 							} finally {
-								if (parentNode) SetNodeUILocked(parentNode._key, false);
+								// if (parentNode) SetNodeUILocked(parentNode._key, false);
 							}
 						}}/>
 						{/* error && <Pre>{error.message}</Pre> */}

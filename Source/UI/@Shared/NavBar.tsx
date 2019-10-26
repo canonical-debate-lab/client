@@ -186,7 +186,7 @@ export class NavBarPanelButton extends BaseComponent<NavBarPanelButton_Props, {}
 	}
 	OnClick = (e: MouseEvent) => {
 		e.preventDefault();
-		const { corner, panel, active } = this.PropsAndStash;
+		const { corner, panel, active } = this.PropsStateStash;
 		if (corner == 'top-left') {
 			store.dispatch(new ACTTopLeftOpenPanelSet(active ? null : panel));
 		} else {

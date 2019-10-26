@@ -1,11 +1,10 @@
-import {Column, Row} from 'react-vcomponents';
-import {BaseComponent} from 'react-vextensions';
-import {Map} from 'Store/firebase/maps/@Map';
-import {AddArgumentButton} from 'UI/@Shared/Maps/MapNode/NodeUI/AddArgumentButton';
-import {MapNodeL3, Polarity} from '../../../../Store/firebase/nodes/@MapNode';
- 
-export class ArgumentsControlBar extends BaseComponent<{map: Map, node: MapNodeL3, path: string, childBeingAdded: boolean}, {}> {
-	static defaultState = {premiseTitle: ""};
+import { Column, Row } from 'react-vcomponents';
+import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
+import { Map } from 'Store/firebase/maps/@Map';
+import { AddArgumentButton } from 'UI/@Shared/Maps/MapNode/NodeUI/AddArgumentButton';
+import { MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
+
+export class ArgumentsControlBar extends BaseComponentPlus({} as {map: Map, node: MapNodeL3, path: string, childBeingAdded: boolean}, { premiseTitle: '' }) {
 	render() {
 		const { map, node, path, childBeingAdded } = this.props;
 		// const backgroundColor = GetNodeColor({ type: MapNodeType.Category } as MapNodeL3);

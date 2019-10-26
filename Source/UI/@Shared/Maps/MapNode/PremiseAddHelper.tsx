@@ -1,8 +1,7 @@
 import keycode from 'keycode';
 import { Button, Row, TextArea } from 'react-vcomponents';
-import { BaseComponent } from 'react-vextensions';
+import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
-import { SetNodeUILocked } from 'UI/@Shared/Maps/MapNode/NodeUI';
 import { WaitTillPathDataIsReceived } from 'Utils/FrameworkOverrides';
 import { AddChildNode } from '../../../../Server/Commands/AddChildNode';
 import { ChildEntry, ClaimForm, MapNode, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
@@ -10,8 +9,7 @@ import { MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../Store
 import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
 import { ACTMapNodeExpandedSet } from '../../../../Store/main/mapViews/$mapView/rootNodeViews';
 
-export class PremiseAddHelper extends BaseComponent<{mapID: string, parentNode: MapNodeL3, parentPath: string} & Partial<{}>, {premiseTitle: string, adding: boolean}> {
-	static defaultState = { premiseTitle: '' };
+export class PremiseAddHelper extends BaseComponentPlus({} as {mapID: string, parentNode: MapNodeL3, parentPath: string}, { premiseTitle: '', adding: false }) {
 	render() {
 		const { mapID, parentNode, parentPath } = this.props;
 		const { premiseTitle, adding } = this.state;
@@ -49,13 +47,13 @@ export class PremiseAddHelper extends BaseComponent<{mapID: string, parentNode: 
 		const newRevision = new MapNodeRevision({ titles: { base: premiseTitle } });
 		const newLink = { _: true, form: ClaimForm.Base } as ChildEntry;
 
-		SetNodeUILocked(parentNode._key, true);
+		// SetNodeUILocked(parentNode._key, true);
 		const info = await new AddChildNode({ mapID, parentID: parentNode._key, node: newNode, revision: newRevision, link: newLink }).Run();
 		store.dispatch(new ACTMapNodeExpandedSet({ mapID, path: `${parentPath}/${info.nodeID}`, expanded: true, recursive: false }));
 		store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.nodeID, time: Date.now() }));
 
 		// await WaitTillPathDataIsReceiving(`nodeRevisions/${info.revisionID}`);
 		await WaitTillPathDataIsReceived(`nodeRevisions/${info.revisionID}`);
-		SetNodeUILocked(parentNode._key, false);
+		// SetNodeUILocked(parentNode._key, false);
 	}
 }

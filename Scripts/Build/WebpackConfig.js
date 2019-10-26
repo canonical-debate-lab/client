@@ -350,14 +350,16 @@ AddStringReplacement(/wrapMapToProps.js/, [
 // redux
 // AddStringReplacement(/createStore.js/, [
 AddStringReplacement(/redux.js/, [
-	// optimize redux so that if a reducer does not change the state at all, then the store-subscribers are not notified
+	// optimize redux so that:
+	// 1) if a reducer does not change the state at all, then the store-subscribers are not notified
+	// 2) if an action has a "dontTriggerSubscribers" prop, store subscribers/listeners will not be notified after that action's dispatch (needed for ActionSet system)
 	{
 		pattern: 'currentState = currentReducer(currentState, action)',
 		replacement: match => `var oldState = currentState; ${match}`,
 	},
 	{
 		pattern: 'for (var i = 0; i < listeners.length; i++) {',
-		replacement: match => `if (currentState !== oldState) ${match}`,
+		replacement: match => `if (currentState !== oldState && !action.dontTriggerSubscribers) ${match}`,
 	},
 ]);
 

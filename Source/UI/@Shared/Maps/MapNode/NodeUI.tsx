@@ -6,10 +6,11 @@ import { NodeChildHolder } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolder'
 import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolderBox';
 import { CachedTransform, E, Timer, emptyArray_forLoading, emptyArray, Assert, IsNaN, nl, ToInt, ToJSON } from 'js-vextensions';
 import { Column } from 'react-vcomponents';
-import { BaseComponentWithConnector, GetInnerComp, RenderSource, ShallowChanged, ShallowEquals, GetDOM, BaseComponent, SimpleShouldUpdate, UseCallback } from 'react-vextensions';
+import { BaseComponentWithConnector, GetInnerComp, RenderSource, ShallowChanged, ShallowEquals, GetDOM, BaseComponent, SimpleShouldUpdate, UseCallback, BaseComponentPlus } from 'react-vextensions';
 import { Connect, State, SlicePath, ShouldLog, MaybeLog, ErrorBoundary, UseSelector, ExpensiveComponent } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
 import { useState, useEffect } from 'react';
+import { number } from 'prop-types';
 import { GetSubnodesInEnabledLayersEnhanced } from '../../../../Store/firebase/layers';
 import { GetNodeChangeType, GetPathsToNodesChangedSinceX } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
@@ -25,19 +26,22 @@ import { NodeChildCountMarker } from './NodeUI/NodeChildCountMarker';
 import { GetMeasurementInfoForNode } from './NodeUI/NodeMeasurer';
 import { NodeUI_Inner } from './NodeUI_Inner';
 
-const nodesLocked = {};
+// removed this system, since it doesn't work reliably (now that we use react-hooks, which can trigger updates that shouldComponentUpdate can't stop)
+//		(a possible replacement is using StartBufferingActions() and StopBufferingActions(), however then you stop *all* ui updates, which is not what we want -- during async operations anyway)
+/* const nodesLocked = {};
 export function SetNodeUILocked(nodeID: string, locked: boolean, maxWait = 10000) {
 	nodesLocked[nodeID] = locked;
 	if (locked) {
 		setTimeout(() => SetNodeUILocked(nodeID, false), maxWait);
 	}
-}
+} */
 
 type Props = {indexInNodeList: number, map: Map, node: MapNodeL3, path?: string, asSubnode?: boolean, widthOverride?: number, style?, onHeightOrPosChange?: ()=>void};
 // @SimpleShouldUpdate
 // export class NodeUI extends BaseComponent<Props, {}, {CheckForChanges}> {
-@ExpensiveComponent({ simpleShouldUpdate_call: false })
-export class NodeUI extends BaseComponent<Props, {}, {dividePoint, setSelfHeight}> {
+// @ExpensiveComponent({ simpleShouldUpdate_call: false })
+@ExpensiveComponent
+export class NodeUI extends BaseComponentPlus(null as Props, { expectedBoxWidth: 0, expectedBoxHeight: 0, dividePoint: null as number, selfHeight: 0 }) {
 	static renderCount = 0;
 	static lastRenderTime = -1;
 	static ValidateProps(props) {
@@ -51,7 +55,7 @@ export class NodeUI extends BaseComponent<Props, {}, {dividePoint, setSelfHeight
 	}
 
 	// for SetNodeUILocked() function above
-	waitForUnlockTimer: Timer;
+	/* waitForUnlockTimer: Timer;
 	shouldComponentUpdate(newProps, newState) {
 		const changed = ShallowChanged(this.props, newProps) || ShallowChanged(this.state, newState);
 		// Log('Changes: ', this.GetPropChanges());
@@ -68,20 +72,15 @@ export class NodeUI extends BaseComponent<Props, {}, {dividePoint, setSelfHeight
 			}).Start();
 		}
 		return false;
-	}
+	} */
 
 	nodeUI: HTMLDivElement;
 	innerUI: NodeUI_Inner;
 	render() {
 		let { indexInNodeList, map, node, path, asSubnode, widthOverride, style, onHeightOrPosChange, children } = this.props;
+		const { expectedBoxWidth, expectedBoxHeight, dividePoint, selfHeight } = this.state;
 
 		g.nodeUIRenderCount = (g.nodeUIRenderCount | 0) + 1;
-
-		// state
-		const [expectedBoxWidth, setExpectedBoxWidth] = useState(0);
-		const [expectedBoxHeight, setExpectedBoxHeight] = useState(0);
-		const [dividePoint, setDividePoint] = useState(null as number);
-		const [selfHeight, setSelfHeight] = useState(0);
 
 		path = path || node._key.toString();
 
@@ -181,7 +180,7 @@ export class NodeUI extends BaseComponent<Props, {}, {dividePoint, setSelfHeight
 		/* let minChildCount = GetMinChildCountToBeVisibleToNonModNonCreators(node, nodeChildren);
 		let showBelowMessage = nodeChildren.length > 0 && nodeChildren.length < minChildCount; */
 
-		this.Stash({ dividePoint, setSelfHeight });
+		// this.Stash({ dividePoint, setSelfHeight });
 
 		// maybe temp
 		const combineWithChildClaim = isSinglePremiseArgument;
@@ -228,7 +227,7 @@ export class NodeUI extends BaseComponent<Props, {}, {dividePoint, setSelfHeight
 						// this.SetState({dividePoint: selfHeight / 2});
 						return;
 					}
-					setDividePoint(dividePoint);
+					this.SetState({ dividePoint });
 				}, [isMultiPremiseArgument])}/>;
 		const nodeChildHolderBox_truth = isPremiseOfSinglePremiseArg && nodeView.expanded &&
 			<NodeChildHolderBox {...{ map, node, path, nodeView }} type={HolderType.Truth}
@@ -330,7 +329,7 @@ export class NodeUI extends BaseComponent<Props, {}, {dividePoint, setSelfHeight
 	// don't actually check for changes until re-rendering has stopped for 500ms
 	// CheckForChanges = _.debounce(() => {
 	CheckForChanges = () => {
-		const { node, dividePoint, setSelfHeight, onHeightOrPosChange } = this.PropsAndStash;
+		const { node, onHeightOrPosChange, dividePoint } = this.PropsState;
 
 		// if (this.lastRender_source == RenderSource.SetState) return;
 
@@ -354,7 +353,8 @@ export class NodeUI extends BaseComponent<Props, {}, {dividePoint, setSelfHeight
 
 			// this.UpdateState(true);
 			// this.UpdateState();
-			setSelfHeight(selfHeight);
+			// setSelfHeight(selfHeight);
+			this.SetState({ selfHeight });
 			// if (onHeightOrPosChange) onHeightOrPosChange();
 		}
 		this.lastSelfHeight = selfHeight;

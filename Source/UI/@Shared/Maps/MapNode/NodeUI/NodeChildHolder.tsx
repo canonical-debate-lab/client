@@ -336,7 +336,7 @@ export class NodeChildHolder extends BaseComponent<Props, {}, {nodeChildrenToSho
 	OnChildHeightOrPosChange_updateStateQueued = false;
 
 	CheckForChanges = () => {
-		const { node, nodeChildrenToShow, nodeChildren_fillPercents, UpdateChildrenWidthOverride, UpdateChildBoxOffsets, onHeightOrDividePointChange } = this.PropsAndStash;
+		const { node, nodeChildrenToShow, nodeChildren_fillPercents, UpdateChildrenWidthOverride, UpdateChildBoxOffsets, onHeightOrDividePointChange } = this.PropsStateStash;
 
 		const ChildOrderStr = () => {
 			return nodeChildrenToShow.OrderBy(a => nodeChildren_fillPercents[a._key]).map(a => a._key).join(',');

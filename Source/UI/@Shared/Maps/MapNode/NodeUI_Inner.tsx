@@ -78,8 +78,8 @@ export class NodeUI_Inner extends BaseComponent<Props, {}, {setHovered}> {
 	// static warnOfTransientObjectProps = true;
 
 	root: ExpandableBox;
-	// titlePanel: TitlePanel;
-	titlePanel: Handle<typeof TitlePanel>;
+	titlePanel: TitlePanel;
+	// titlePanel: Handle<typeof TitlePanel>;
 
 	checkStillHoveredTimer = new Timer(100, () => {
 		const { setHovered } = this.stash;
