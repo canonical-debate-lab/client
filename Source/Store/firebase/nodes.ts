@@ -65,24 +65,25 @@ export function GetParentNodeID(path: string) {
 	const parentNodeStr = pathNodes.XFromLast(1);
 	return parentNodeStr ? PathSegmentToNodeID(parentNodeStr) : null;
 }
-export function GetParentNode(childPath: string) {
+
+export const GetParentNode = StoreAccessor((childPath: string) => {
 	return GetNode(GetParentNodeID(childPath));
-}
+});
 export const GetParentNodeL2 = StoreAccessor((childPath: string) => {
 	return GetNodeL2(GetParentNodeID(childPath));
 });
 export const GetParentNodeL3 = StoreAccessor((childPath: string) => {
 	return GetNodeL3(GetParentPath(childPath));
 });
-export function GetNodeID(path: string) {
+export const GetNodeID = StoreAccessor((path: string) => {
 	const ownNodeStr = SplitStringBySlash_Cached(path).LastOrX();
 	return ownNodeStr ? PathSegmentToNodeID(ownNodeStr) : null;
-}
+});
 
-export function GetNodeParents(node: MapNode) {
+export const GetNodeParents = StoreAccessor((node: MapNode) => {
 	const parents = (node.parents || {}).VKeys(true).map(id => GetNode(id));
 	return CachedTransform('GetNodeParents', [node._key], parents, () => parents);
-}
+});
 export async function GetNodeParentsAsync(node: MapNode) {
 	return await Promise.all(node.parents.VKeys(true).map(parentID => GetDataAsync('nodes', parentID))) as MapNode[];
 }
