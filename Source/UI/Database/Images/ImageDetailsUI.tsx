@@ -1,22 +1,17 @@
 import { GetEntries, GetErrorMessagesUnderElement, Clone } from 'js-vextensions';
 import Moment from 'moment';
 import { Column, Div, Pre, Row, RowLR, Select, Spinner, TextInput } from 'react-vcomponents';
-import { BaseComponent, GetDOM } from 'react-vextensions';
+import { BaseComponent, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { User } from 'Store/firebase/users/@User';
-import { Connect } from 'Utils/FrameworkOverrides';
+import { Connect, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
 import { GetNiceNameForImageType, Image, ImageType, Image_namePattern, Image_urlPattern } from '../../../Store/firebase/images/@Image';
 import { GetUser } from '../../../Store/firebase/users';
 import { SourceChainsEditorUI } from '../../@Shared/Maps/MapNode/SourceChainsEditorUI';
 
-type Props = {baseData: Image, creating: boolean, editing: boolean, style?, onChange?: (newData: Image, error: string)=>void}
-	& Partial<{creator: User, variantNumber: number}>;
-@Connect((state, { baseData, creating }: Props) => ({
-	creator: !creating && GetUser(baseData.creator),
-}))
-export class ImageDetailsUI extends BaseComponent<Props, {newData: Image, dataError: string}> {
+export class ImageDetailsUI extends BaseComponentPlus({} as {baseData: Image, creating: boolean, editing: boolean, style?, onChange?: (newData: Image, error: string)=>void}, {} as {newData: Image, dataError: string}) {
 	ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.baseData != this.props.baseData) { // if base-data changed
 			this.SetState({ newData: Clone(props.baseData) });
@@ -32,8 +27,10 @@ export class ImageDetailsUI extends BaseComponent<Props, {newData: Image, dataEr
 
 	scrollView: ScrollView;
 	render() {
-		const { creating, editing, style, onChange, creator, variantNumber } = this.props;
+		const { baseData, creating, editing, style, onChange } = this.props;
 		const { newData, dataError } = this.state;
+		const creator = Watch(() => !creating && GetUser(baseData.creator), [baseData.creator, creating]);
+
 		const Change = _ => this.OnChange();
 
 		const splitAt = 170; const width = 600;

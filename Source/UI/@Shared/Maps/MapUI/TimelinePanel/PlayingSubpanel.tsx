@@ -1,4 +1,4 @@
-import { BaseComponentWithConnector, BaseComponent } from 'react-vextensions';
+import { BaseComponentWithConnector, BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { Connect, YoutubePlayer, YoutubePlayerUI, VReactMarkdown_Remarkable, YoutubePlayerState } from 'Utils/FrameworkOverrides';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetSelectedTimeline } from 'Store/main/maps/$map';
@@ -11,18 +11,14 @@ import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import ReactList from 'react-list';
 import { PositionOptionsEnum } from './EditorSubpanel';
 
-const PlayingSubpanel_connector = (state, { map }: {map: Map}) => {
-	const timeline = GetSelectedTimeline(map._key);
-	return {
-		timeline,
-		// timelineSteps: timeline && GetTimelineSteps(timeline),
-	};
-};
-@Connect(PlayingSubpanel_connector)
-export class PlayingSubpanel extends BaseComponentWithConnector(PlayingSubpanel_connector, {}) {
+export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} as { timeline: Timeline }) {
 	player: YoutubePlayer;
 	render() {
-		const { map, timeline } = this.props;
+		const { map } = this.props;
+		const timeline = GetSelectedTimeline.Watch(map._key);
+		// timelineSteps: timeline && GetTimelineSteps(timeline);
+
+		this.Stash({ timeline });
 		if (timeline == null) return null;
 		return (
 			<Column style={{ height: '100%' }}>
@@ -47,18 +43,16 @@ export class PlayingSubpanel extends BaseComponentWithConnector(PlayingSubpanel_
 		return 50; // keep at just 50; apparently if set significantly above the actual height of enough items, it causes a gap to sometimes appear at the bottom of the viewport
 	};
 	RenderStep = (index: number, key: any) => {
-		const { map, timeline } = this.props;
+		const { map, timeline } = this.PropsStash;
 		return <StepUI key={key} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} stepID={timeline.steps[index]} player={this.player}/>;
 	};
 }
 
-type StepUIProps = {index: number, last: boolean, map: Map, timeline: Timeline, stepID: string, player: YoutubePlayer} & Partial<{step: TimelineStep}> & Partial<{}>;
-@Connect((state, { map, stepID }: StepUIProps) => ({
-	step: GetTimelineStep(stepID),
-}))
-class StepUI extends BaseComponent<StepUIProps, {}> {
+type StepUIProps = {index: number, last: boolean, map: Map, timeline: Timeline, stepID: string, player: YoutubePlayer};
+class StepUI extends BaseComponentPlus({} as StepUIProps, {}) {
 	render() {
-		const { index, last, map, timeline, step, player } = this.props;
+		const { index, last, map, timeline, stepID, player } = this.props;
+		const step = GetTimelineStep.Watch(stepID);
 		if (step == null) return <div style={{ height: 50 }}/>;
 
 		let margin: string;

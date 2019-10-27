@@ -224,7 +224,7 @@ export const MainReducer = CombineReducers({
 // selectors
 // ==========
 
-export function GetOpenMapID() {
+export const GetOpenMapID = StoreAccessor(() => {
 	// return State(a=>a.main.openMap);
 	const page = State(a => a.main.page);
 	// if (page == 'home') return demoMap._id;
@@ -232,7 +232,7 @@ export function GetOpenMapID() {
 	if (page == 'debates') return State(a => a.main.debates.selectedMapID);
 	if (page == 'global') return globalMapID;
 	return null;
-}
+});
 
 export function GetPage() {
 	return State(a => a.main.page) || 'home';
@@ -251,11 +251,11 @@ export const GetLastAcknowledgementTime = StoreAccessor((nodeID: string) => {
 	return State('main', 'nodeLastAcknowledgementTimes', nodeID) as number || 0;
 }); */
 
-export function GetCopiedNodePath() {
+export const GetCopiedNodePath = StoreAccessor(() => {
 	return State(a => a.main.copiedNodePath);
-}
-export function GetCopiedNode() {
+});
+export const GetCopiedNode = StoreAccessor(() => {
 	const path = GetCopiedNodePath();
 	if (!path) return null;
 	return GetNodeL3(path);
-}
+});

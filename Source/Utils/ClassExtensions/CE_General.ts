@@ -1,14 +1,14 @@
 // use require instead of import, so TS views the interface-extensions as global
 /*let FindReact = require("react-vextensions");
-let chroma = require("chroma-js");*/
-import {FindReact} from "react-vextensions";
-import chroma from "chroma-js";
+let chroma = require("chroma-js"); */
+import { FindReact } from 'react-vextensions';
+import chroma from 'chroma-js';
 
 // groups
 // ==========
 
-//require("./CE_Object");
-import "./CE_Object";
+// require("./CE_Object");
+import './CE_Object';
 
 // Node
 // ==========
@@ -23,7 +23,7 @@ HTMLElement.prototype._AddGetter_Inline = function R() { return FindReact(this);
 // Array
 // ==========
 
-declare global {
+/* declare global {
 	interface Array<T> {
 		AutoKey();
 	}
@@ -35,7 +35,7 @@ Array.prototype._AddFunction_Inline = function AutoKey(this: any[]) {
 		}
 	}
 	return this;
-};
+}; */
 
 // ChromaJS color
 // ==========
@@ -45,6 +45,6 @@ declare global {
 		Mix(otherColor: any, otherColorRatio?: number, colorSpace?: any): chroma.Color;
 	}
 }
-Object.getPrototypeOf(chroma("rgb(255,0,0)"))._AddFunction_Inline = function Mix(otherColor: any, otherColorRatio = .5, colorSpace = "rgb" as any) {
+Object.getPrototypeOf(chroma('rgb(255,0,0)'))._AddFunction_Inline = function Mix(otherColor: any, otherColorRatio = 0.5, colorSpace = 'rgb' as any) {
 	return chroma.mix(this, otherColor, otherColorRatio, colorSpace);
-}
+};

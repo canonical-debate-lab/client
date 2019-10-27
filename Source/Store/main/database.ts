@@ -1,4 +1,4 @@
-import { Action, CombineReducers, State, SimpleReducer } from 'Utils/FrameworkOverrides';
+import { Action, CombineReducers, State, SimpleReducer, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { GetUsers } from 'Store/firebase/users';
 import { GetImages } from '../firebase/images';
 import { GetTerms } from '../firebase/terms';
@@ -40,29 +40,29 @@ export const DatabaseReducer = CombineReducers({
 export function GetSelectedUserID() {
 	return State(a => a.main.database.selectedUserID);
 }
-export function GetSelectedUser() {
+export const GetSelectedUser = StoreAccessor(() => {
 	const selectedID = GetSelectedUserID();
 	return (GetUsers() || []).find(a => a._key == selectedID);
-}
+});
 
-export function GetSelectedTermID() {
+export const GetSelectedTermID = StoreAccessor(() => {
 	return State(a => a.main.database.selectedTermID);
-}
-export function GetSelectedTerm() {
+});
+export const GetSelectedTerm = StoreAccessor(() => {
 	const selectedID = GetSelectedTermID();
 	// return GetData(`terms/${selectedID}`);
 	return (GetTerms() || []).find(a => a._key == selectedID);
-}
+});
 /* export function GetSelectedTermComponent() {
 	let selectedID = State().main.selectedTermComponent;
 	return GetTermComponent(selectedID);
 } */
 
-export function GetSelectedImageID() {
+export const GetSelectedImageID = StoreAccessor(() => {
 	return State(a => a.main.database.selectedImageID);
-}
-export function GetSelectedImage() {
+});
+export const GetSelectedImage = StoreAccessor(() => {
 	const selectedID = GetSelectedImageID();
 	// return GetData(`terms/${selectedID}`);
 	return (GetImages() || []).find(a => a._key == selectedID);
-}
+});

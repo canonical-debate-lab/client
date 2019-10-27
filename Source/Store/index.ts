@@ -2,7 +2,7 @@ import { firebaseStateReducer } from 'react-redux-firebase';
 import { VMenuReducer, VMenuState } from 'react-vmenu';
 import { firestoreReducer } from 'redux-firestore';
 import { DeepGet, DeepSet, IsString, Assert } from 'js-vextensions';
-import { CombineReducers_Advanced, bufferedActions, HandleError, manager } from 'Utils/FrameworkOverrides';
+import { CombineReducers_Advanced, bufferedActions, HandleError, manager, LogWarning } from 'Utils/FrameworkOverrides';
 import { FeedbackReducer } from 'firebase-feedback';
 import { persistReducer, createTransform } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';

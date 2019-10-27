@@ -1,5 +1,5 @@
 import { GetMap } from 'Store/firebase/maps';
-import { Action, CombineReducers, State } from 'Utils/FrameworkOverrides';
+import { Action, CombineReducers, State, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { Map, MapType } from '../firebase/maps/@Map';
 
 export class ACTDebateMapSelect extends Action<{id: string}> {}
@@ -26,9 +26,9 @@ export const DebatesReducer = CombineReducers({
 export function GetSelectedDebateMapID() {
 	return State(a => a.main.debates.selectedMapID);
 }
-export function GetSelectedDebateMap() {
+export const GetSelectedDebateMap = StoreAccessor(() => {
 	const selectedID = GetSelectedDebateMapID();
 	// return GetData(`maps/${selectedID}`);
 	// return (GetMapsOfType(MapType.Debate) || []).find(a=>a._id == selectedID);
 	return GetMap(selectedID);
-}
+});

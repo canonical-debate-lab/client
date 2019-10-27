@@ -1,5 +1,5 @@
 import { E } from 'js-vextensions';
-import { BaseComponent } from 'react-vextensions';
+import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { Connect, State, Link, Action } from 'Utils/FrameworkOverrides';
 import { rootPageDefaultChilds } from 'Utils/URL/URLs';
 import { ACTSetSubpage } from '../../Store/main';
@@ -25,13 +25,10 @@ export class SubNavBar extends BaseComponent<{fullWidth?: boolean}, {}> {
 	}
 }
 
-type SubNavBarButtonProps = {page: string, subpage: string, text: string, actionIfAlreadyActive?: ()=>Action<any>} & Partial<{currentSubpage: string}>;
-@Connect((state, { page }) => ({
-	currentSubpage: State('main', page, 'subpage') || rootPageDefaultChilds[page],
-}))
-export class SubNavBarButton extends BaseComponent<SubNavBarButtonProps, {}> {
+export class SubNavBarButton extends BaseComponentPlus({} as {page: string, subpage: string, text: string, actionIfAlreadyActive?: ()=>Action<any>}, {}) {
 	render() {
-		const { page, subpage, text, actionIfAlreadyActive, currentSubpage } = this.props;
+		const { page, subpage, text, actionIfAlreadyActive } = this.props;
+		const currentSubpage = State.Watch('main', page, 'subpage') || rootPageDefaultChilds[page];
 		const active = subpage == currentSubpage;
 
 		const actions = [];

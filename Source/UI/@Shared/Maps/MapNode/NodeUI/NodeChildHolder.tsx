@@ -1,6 +1,6 @@
 import { CachedTransform, Vector2i, emptyObj, nl, Assert, ToJSON, Timer, VRect, WaitXThenRun, Vector3i, Clone } from 'js-vextensions';
 import { Button, Column, Div, Row } from 'react-vcomponents';
-import { BaseComponentWithConnector, GetInnerComp, RenderSource, GetDOM, UseState, BaseComponent, UseEffect, SimpleShouldUpdate, UseCallback } from 'react-vextensions';
+import { BaseComponentWithConnector, GetInnerComp, RenderSource, GetDOM, UseState, BaseComponent, UseEffect, SimpleShouldUpdate, UseCallback, BaseComponentPlus } from 'react-vextensions';
 import { GetFillPercent_AtPath } from 'Store/firebase/nodeRatings';
 import { GetNodeChildrenL3, HolderType, GetParentNodeL3, GetHolderType, GetParentNodeID } from 'Store/firebase/nodes';
 import { MapNodeL3, ClaimForm } from 'Store/firebase/nodes/@MapNode';
@@ -381,14 +381,12 @@ export class NodeChildHolder extends BaseComponent<Props, {}, {nodeChildrenToSho
 	}
 }
 
-const ChildLimitBar_connector = (state, props: {map: Map, path: string, childrenWidthOverride: number, direction: 'up' | 'down', childCount: number, childLimit: number}) => ({
-	initialChildLimit: State(a => a.main.initialChildLimit),
-});
-@Connect(ChildLimitBar_connector)
-export class ChildLimitBar extends BaseComponentWithConnector(ChildLimitBar_connector, {}) {
+export class ChildLimitBar extends BaseComponentPlus({} as {map: Map, path: string, childrenWidthOverride: number, direction: 'up' | 'down', childCount: number, childLimit: number}, {}) {
 	static HEIGHT = 36;
 	render() {
-		const { map, path, childrenWidthOverride, direction, childCount, childLimit, initialChildLimit } = this.props;
+		const { map, path, childrenWidthOverride, direction, childCount, childLimit } = this.props;
+		const initialChildLimit = State.Watch(a => a.main.initialChildLimit);
+
 		return (
 			<Row style={{
 				// position: "absolute", marginTop: -30,

@@ -1,4 +1,4 @@
-import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
+import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { User } from 'Store/firebase/users/@User';
 import { Row, Column } from 'react-vcomponents';
 import Moment from 'moment';
@@ -12,24 +12,19 @@ import { UserProfileUI } from './Users/UserProfile';
 
 export const columnWidths = [0.35, 0.15, 0.1, 0.15, 0.25];
 
-const connector = () => ({
-	users: GetUsers(),
-	userExtraInfoMap: GetUserExtraInfoMap(),
-	selectedUser: GetSelectedUser(),
-});
-@Connect(connector)
-export class UsersUI extends BaseComponentWithConnector(connector, {}) {
+export class UsersUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
-		let { users, userExtraInfoMap, selectedUser } = this.props;
-		if (userExtraInfoMap == null) return <div/>;
+		let users = GetUsers.Watch();
+		const userExtraInfoMap = GetUserExtraInfoMap.Watch();
+		const selectedUser = GetSelectedUser.Watch();
 
+		if (userExtraInfoMap == null) return <div/>;
 		if (selectedUser) {
 			return <UserProfileUI profileUser={selectedUser}/>;
 		}
 
 		users = users.OrderBy(a => (userExtraInfoMap[a._key] ? userExtraInfoMap[a._key].joinDate : Number.MAX_SAFE_INTEGER));
 		users = users.OrderByDescending(a => (userExtraInfoMap[a._key] ? (userExtraInfoMap[a._key].edits | 0) : Number.MIN_SAFE_INTEGER));
-
 		return (
 			<PageContainer style={{ padding: 0, background: null }}>
 				<Column className="clickThrough" style={{ height: 40, background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' }}>

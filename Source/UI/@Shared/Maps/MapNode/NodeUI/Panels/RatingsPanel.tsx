@@ -1,6 +1,6 @@
 import { DN, Range, Vector2i } from 'js-vextensions';
 import { Pre, Select, Spinner } from 'react-vcomponents';
-import { BaseComponent, RenderSource } from 'react-vextensions';
+import { BaseComponent, RenderSource, BaseComponentPlus } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { Area, AreaChart, CartesianGrid, ReferenceLine, Tooltip, XAxis, YAxis } from 'recharts';
 import { SetNodeRating } from 'Server/Commands/SetNodeRating';
@@ -25,18 +25,16 @@ import { ShowSignInPopup } from '../../../../NavBar/UserPanel';
 	{rating: 100, count: 4},
 ]; */
 
-type RatingsPanel_Props = {node: MapNodeL3, path: string, ratingType: RatingType, ratings: Rating[]}
-	& Partial<{userID: string, /* myRating: number, */ form: ClaimForm, nodeChildren: MapNode[], smoothing: number}>;
-@Connect((state: RootState, { node, path, ratingType }: RatingsPanel_Props) => ({
-	userID: MeID(),
-	form: GetNodeForm(node, path),
-	nodeChildren: GetNodeChildren(node),
-	smoothing: GetRatingUISmoothing(),
-}))
-export class RatingsPanel extends BaseComponent<RatingsPanel_Props, {size: Vector2i}> {
+type RatingsPanel_Props = {node: MapNodeL3, path: string, ratingType: RatingType, ratings: Rating[]};
+export class RatingsPanel extends BaseComponentPlus({} as RatingsPanel_Props, { size: null as Vector2i }) {
 	render() {
-		let { node, path, ratingType, ratings, userID, form, nodeChildren, smoothing } = this.props;
+		const { node, path, ratingType, ratings } = this.props;
 		const { size } = this.state;
+
+		const userID = MeID.Watch();
+		const form = GetNodeForm.Watch(node, path);
+		const nodeChildren = GetNodeChildren.Watch(node);
+		let smoothing = GetRatingUISmoothing.Watch();
 
 		const parentNode = GetNodeL3(SlicePath(path, 1));
 

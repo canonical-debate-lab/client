@@ -1,5 +1,5 @@
 import { GetMap } from 'Store/firebase/maps';
-import { Action, CombineReducers, State } from '../../Utils/FrameworkOverrides';
+import { Action, CombineReducers, State, StoreAccessor } from '../../Utils/FrameworkOverrides';
 import { Map, MapType } from '../firebase/maps/@Map';
 
 export class ACTPersonalMapSelect extends Action<{id: string}> {}
@@ -19,11 +19,11 @@ export const PersonalReducer = CombineReducers({
 	},
 });
 
-export function GetSelectedPersonalMapID() {
+export const GetSelectedPersonalMapID = StoreAccessor(() => {
 	return State(a => a.main.personal.selectedMapID);
-}
-export function GetSelectedPersonalMap() {
+});
+export const GetSelectedPersonalMap = StoreAccessor(() => {
 	const selectedID = GetSelectedPersonalMapID();
 	// if (selectedID == '---TestingMap---') return GetTestingMap();
 	return GetMap(selectedID);
-}
+});

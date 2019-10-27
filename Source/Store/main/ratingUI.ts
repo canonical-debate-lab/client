@@ -1,4 +1,4 @@
-import { Action, State } from 'Utils/FrameworkOverrides';
+import { Action, State, StoreAccessor } from 'Utils/FrameworkOverrides';
 
 export class RatingUIState {
 	smoothing = 5;
@@ -12,6 +12,6 @@ export function RatingUIReducer(state = new RatingUIState(), action: Action<any>
 // selectors
 // ==========
 
-export function GetRatingUISmoothing() {
+export const GetRatingUISmoothing = StoreAccessor(() => {
 	return State(a => a.main.ratingUI.smoothing);
-}
+});

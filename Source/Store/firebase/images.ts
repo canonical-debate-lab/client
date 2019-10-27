@@ -1,5 +1,5 @@
 import { CachedTransform, IsNaN } from 'js-vextensions';
-import { GetData } from 'Utils/FrameworkOverrides';
+import { GetData, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { Image } from './images/@Image';
 
 export function GetImage(id: string) {
@@ -10,8 +10,8 @@ export function GetImage(id: string) {
 	return await GetDataAsync(`images/${id}`) as Image;
 } */
 
-export function GetImages(): Image[] {
+export const GetImages = StoreAccessor((): Image[] => {
 	const entryMap = GetData({ collection: true }, 'images');
 	return CachedTransform('GetImages', [], entryMap, () => (entryMap ? entryMap.VValues(true) : []));
 	// return CachedTransform("GetImages", {}, imagesMap, ()=>imagesMap ? imagesMap.VKeys(true).map(id=>GetImage(parseInt(id))) : []);
-}
+});

@@ -1,21 +1,19 @@
 import { Clone, GetEntries, GetErrorMessagesUnderElement } from 'js-vextensions';
 import Moment from 'moment';
 import { Column, Pre, RowLR, Select, TextArea, TextInput, Row } from 'react-vcomponents';
-import { BaseComponentWithConnector, GetDOM } from 'react-vextensions';
+import { BaseComponentWithConnector, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { AddPhrasing } from 'Server/Commands/AddPhrasing';
 import { MapNodePhrasing, MapNodePhrasingType } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
-import { Connect, Link } from 'Utils/FrameworkOverrides';
+import { Connect, Link, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
-import {IDAndCreationInfoUI} from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
+import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
 import { GetUser } from '../../../Store/firebase/users';
 
-type Props = {baseData: MapNodePhrasing, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: MapNodePhrasing, error: string)=>void};
-const connector = (state, { baseData, forNew }: Props) => ({
-	creator: !forNew && GetUser(baseData.creator),
-});
-@Connect(connector)
-export class PhrasingDetailsUI extends BaseComponentWithConnector(connector, { newData: null as MapNodePhrasing, dataError: null as string }) {
+export class PhrasingDetailsUI extends BaseComponentPlus(
+	{} as {baseData: MapNodePhrasing, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: MapNodePhrasing, error: string)=>void},
+	{ newData: null as MapNodePhrasing, dataError: null as string },
+) {
 	ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.baseData != this.props.baseData) { // if base-data changed
 			this.SetState({ newData: Clone(props.baseData) });
@@ -30,8 +28,10 @@ export class PhrasingDetailsUI extends BaseComponentWithConnector(connector, { n
 	}
 
 	render() {
-		const { forNew, enabled, style, creator } = this.props;
+		const { baseData, forNew, enabled, style } = this.props;
 		const { newData } = this.state;
+		const creator = Watch(() => !forNew && GetUser(baseData.creator), [baseData.creator, forNew]);
+
 		const Change = _ => this.OnChange();
 
 		const splitAt = 100;

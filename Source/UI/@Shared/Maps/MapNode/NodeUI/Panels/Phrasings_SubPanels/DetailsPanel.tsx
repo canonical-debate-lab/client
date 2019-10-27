@@ -1,5 +1,5 @@
 import { Button, Column, Row } from 'react-vcomponents';
-import { BaseComponentWithConnector } from 'react-vextensions';
+import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { DeletePhrasing } from 'Server/Commands/DeletePhrasing';
 import { UpdatePhrasing } from 'Server/Commands/UpdatePhrasing';
@@ -9,15 +9,12 @@ import { GetUser, MeID } from 'Store/firebase/users';
 import { PhrasingDetailsUI } from 'UI/Database/Phrasings/PhrasingDetailsUI';
 import { Connect, GetUpdates } from 'Utils/FrameworkOverrides';
 
-const connector = (state, { phrasing }: {phrasing: MapNodePhrasing}) => ({
-	creator: GetUser(phrasing.creator),
-});
-@Connect(connector)
-export class DetailsPanel_Phrasings extends BaseComponentWithConnector(connector, { dataError: null as string }) {
+export class DetailsPanel_Phrasings extends BaseComponentPlus({} as {phrasing: MapNodePhrasing}, { dataError: null as string }) {
 	detailsUI: PhrasingDetailsUI;
 	render() {
 		const { phrasing } = this.props;
 		const { dataError } = this.state;
+		const creator = GetUser.Watch(phrasing.creator);
 
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), phrasing);
 		return (

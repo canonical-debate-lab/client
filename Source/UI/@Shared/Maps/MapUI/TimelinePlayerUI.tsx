@@ -1,11 +1,11 @@
 import { Button, Column, Pre, Row, Span } from 'react-vcomponents';
-import { BaseComponent, FindReact } from 'react-vextensions';
+import { BaseComponent, FindReact, BaseComponentPlus } from 'react-vextensions';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { ACTMap_PlayingTimelineSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimeline, GetPlayingTimelineStep } from 'Store/main/maps/$map';
 import { GetEntries } from 'js-vextensions';
-import { VReactMarkdown_Remarkable, Connect } from 'Utils/FrameworkOverrides';
+import { VReactMarkdown_Remarkable, Connect, Watch } from 'Utils/FrameworkOverrides';
 import { Segment } from '../../../../Utils/General/RegexHelpers';
 import { AsNodeL3 } from '../../../../Store/firebase/nodes/$node';
 import { MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
@@ -72,13 +72,11 @@ const replacements = {
 	},
 };
 
-type NodeUI_InMessageProps = {map: Map, nodeID: string, polarity: Polarity, index: number} & Partial<{node: MapNodeL3}>;
-@Connect((state, { nodeID, polarity }: NodeUI_InMessageProps) => ({
-	node: GetNodeL2(nodeID) ? AsNodeL3(GetNodeL2(nodeID), polarity, null) : null,
-}))
-class NodeUI_InMessage extends BaseComponent<NodeUI_InMessageProps, {}> {
+type NodeUI_InMessageProps = {map: Map, nodeID: string, polarity: Polarity, index: number};
+class NodeUI_InMessage extends BaseComponentPlus({} as NodeUI_InMessageProps, {}) {
 	render() {
-		const { map, nodeID, index, node } = this.props;
+		const { map, nodeID, polarity, index } = this.props;
+		const node = Watch(() => (GetNodeL2(nodeID) ? AsNodeL3(GetNodeL2(nodeID), polarity, null) : null), [nodeID, polarity]);
 		if (!node) return <div/>;
 
 		const path = `${nodeID}`;
@@ -93,16 +91,14 @@ class NodeUI_InMessage extends BaseComponent<NodeUI_InMessageProps, {}> {
 	}
 }
 
-type Props = {map: Map} & Partial<{playingTimeline: Timeline, currentStep: TimelineStep, appliedStepIndex: number}>;
-@Connect((state, { map }: Props) => ({
-	playingTimeline: GetPlayingTimeline(map._key),
-	currentStep: GetPlayingTimelineStep(map._key),
-	appliedStepIndex: GetPlayingTimelineAppliedStepIndex(map._key),
-}))
-export class TimelinePlayerUI extends BaseComponent<Props, {}> {
+export class TimelinePlayerUI extends BaseComponentPlus({} as {map: Map}, {}) {
 	root: Column;
 	render() {
-		const { map, playingTimeline, currentStep, appliedStepIndex } = this.props;
+		const { map } = this.props;
+		const playingTimeline = GetPlayingTimeline.Watch(map._key);
+		const currentStep = GetPlayingTimelineStep.Watch(map._key);
+		const appliedStepIndex = GetPlayingTimelineAppliedStepIndex.Watch(map._key);
+
 		if (!playingTimeline) return <div/>;
 		if (!currentStep) return <div/>;
 
@@ -162,16 +158,12 @@ export class TimelinePlayerUI extends BaseComponent<Props, {}> {
 	}
 }
 
-type TimelineOverlayUIProps = {map: Map} & Partial<{playingTimeline: Timeline, currentStepIndex: number}>;
-@Connect((state, { map }: Props) => ({
-	playingTimeline: GetPlayingTimeline(map._key),
-	currentStepIndex: GetPlayingTimelineStepIndex(map._key),
-}))
-export class TimelineOverlayUI extends BaseComponent<TimelineOverlayUIProps, {}> {
+export class TimelineOverlayUI extends BaseComponentPlus({} as {map: Map}, {}) {
 	render() {
-		const { map, playingTimeline, currentStepIndex } = this.props;
+		const { map } = this.props;
+		const playingTimeline = GetPlayingTimeline.Watch(map._key);
+		const currentStepIndex = GetPlayingTimelineStepIndex.Watch(map._key);
 		if (!playingTimeline) return <div/>;
-
 		return (
 			<Column style={{ position: 'absolute', zIndex: 1, left: 0, right: 0, top: 30, bottom: 0 }}>
 				Step: {currentStepIndex}

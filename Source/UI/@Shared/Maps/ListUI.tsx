@@ -1,11 +1,11 @@
 import { IsNumberString, emptyArray, GetEntries } from 'js-vextensions';
 import Moment from 'moment';
 import { Button, Column, Div, Pre, Row, Select, TextInput } from 'react-vcomponents';
-import { BaseComponent } from 'react-vextensions';
+import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { GetNodesL2 } from 'Store/firebase/nodes';
 import { User } from 'Store/firebase/users/@User';
-import { Connect, State, Icon, InfoButton } from 'Utils/FrameworkOverrides';
+import { Connect, State, Icon, InfoButton, Watch } from 'Utils/FrameworkOverrides';
 import { EnumNameToDisplayName } from 'Utils/General/Others';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { Map } from '../../../Store/firebase/maps/@Map';
@@ -33,34 +33,19 @@ const columnWidths = [0.68, 0.2, 0.12];
 
 const entriesPerPage = 23;
 
-type Props = {
-	map: Map,
-} & Partial<{
-	nodes: MapNodeL2[],
-	sortBy: SortType,
-	filter: string,
-	page: number,
-	selectedNode: MapNodeL2,
-}>;
-@Connect((state, { map }: Props) => {
-	const selectedNode = GetSelectedNode_InList(map._key);
-	const page = State('main', 'maps', map._key, 'list_page');
-	let nodes = GetNodesL2();
-	nodes = nodes.Any(a => a == null) ? emptyArray : nodes; // only pass nodes when all are loaded
-
-	return {
-		// need to filter results, since other requests may have added extra data
-		// nodes: GetNodes({limitToFirst: entriesPerPage * (page + 1)}).Skip(page * entriesPerPage).Take(entriesPerPage),
-		nodes,
-		sortBy: State('main', 'maps', map._key, 'list_sortBy'),
-		filter: State('main', 'maps', map._key, 'list_filter'),
-		page,
-		selectedNode: selectedNode ? GetNodeL3(`${selectedNode._key}`) : null,
-	};
-})
+type Props = {map: Map};
 export class ListUI extends BaseComponent<Props, {panelToShow?: string}> {
 	render() {
-		let { map, nodes, sortBy, filter, page, selectedNode } = this.props;
+		const { map } = this.props;
+		const selectedNodeL1 = GetSelectedNode_InList.Watch(map._key);
+		const selectedNode = Watch(() => (selectedNodeL1 ? GetNodeL3(selectedNodeL1._key) : null), [selectedNodeL1]);
+		let page = Watch(() => State('main', 'maps', map._key, 'list_page'), [map._key]);
+		// nodes: GetNodes({limitToFirst: entriesPerPage * (page + 1)}).Skip(page * entriesPerPage).Take(entriesPerPage),
+		let nodes = GetNodesL2.Watch();
+		nodes = nodes.Any(a => a == null) ? emptyArray : nodes; // only pass nodes when all are loaded
+
+		const sortBy = Watch(() => State('main', 'maps', map._key, 'list_sortBy'), [map._key]);
+		const filter = Watch(() => State('main', 'maps', map._key, 'list_filter'), [map._key]);
 
 		const nodesSorted = nodes.OrderBy((node) => {
 			if (sortBy == SortType.CreatorID) return node.creator;
@@ -163,15 +148,14 @@ export class ListUI extends BaseComponent<Props, {panelToShow?: string}> {
 	}
 }
 
-type NodeRow_Props = {map: Map, node: MapNodeL2, first: boolean} & Partial<{creator: User, selected: boolean}>;
-@Connect((state, { map, node }: NodeRow_Props) => ({
-	creator: GetUser(node.creator),
-	selected: GetSelectedNode_InList(map._key) == node,
-}))
-class NodeRow extends BaseComponent<NodeRow_Props, {menuOpened: boolean}> {
+type NodeRow_Props = {map: Map, node: MapNodeL2, first: boolean};
+class NodeRow extends BaseComponentPlus({} as NodeRow_Props, { menuOpened: false }) {
 	render() {
-		const { map, node, first, creator, selected } = this.props;
+		const { map, node, first } = this.props;
 		const { menuOpened } = this.state;
+
+		const creator = GetUser.Watch(node.creator);
+		const selected = Watch(() => GetSelectedNode_InList(map._key) == node, [map._key, node]);
 
 		const nodeL3 = AsNodeL3(node);
 		const path = `${node._key}`;
@@ -214,15 +198,14 @@ class NodeUI_Menu_Helper extends BaseComponent<{map: Map, node: MapNode, nodeEnh
 	}
 } */
 
-type NodeColumn_Props = {map: Map, node: MapNodeL2} & Partial<{ratingsRoot: RatingsRoot, openPanel: string}>;
-@Connect((state, { map, node }: NodeColumn_Props) => ({
-	ratingsRoot: GetNodeRatingsRoot(node._key),
-	openPanel: GetMap_List_SelectedNode_OpenPanel(map._key),
-}))
-class NodeColumn extends BaseComponent<NodeColumn_Props, {width: number, hoverPanel: string}> {
+type NodeColumn_Props = {map: Map, node: MapNodeL2};
+class NodeColumn extends BaseComponentPlus({} as NodeColumn_Props, { width: null as number, hoverPanel: null as string }) {
 	render() {
-		const { map, node, ratingsRoot, openPanel } = this.props;
+		const { map, node } = this.props;
 		const { width, hoverPanel } = this.state;
+
+		const ratingsRoot = GetNodeRatingsRoot.Watch(node._key);
+		const openPanel = GetMap_List_SelectedNode_OpenPanel.Watch(map._key);
 
 		const nodeL3 = AsNodeL3(node);
 		const path = `${node._key}`;

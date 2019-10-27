@@ -1,18 +1,14 @@
 import { Button, CheckBox, Column, DropDown, DropDownContent, DropDownTrigger, Pre, RowLR, Spinner } from 'react-vcomponents';
-import { BaseComponentWithConnector } from 'react-vextensions';
+import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { Connect, State, ACTSet } from 'Utils/FrameworkOverrides';
 import { GADDemo } from 'UI/@GAD/GAD';
-import {Button_GAD} from 'UI/@GAD/GADButton';
+import { Button_GAD } from 'UI/@GAD/GADButton';
 import { ACTSetInitialChildLimit } from '../../../../../Store/main';
 
-const connector = (state, {}: {}) => ({
-	initialChildLimit: State(a => a.main.initialChildLimit),
-	showReasonScoreValues: State(a => a.main.showReasonScoreValues),
-});
-@Connect(connector)
-export class LayoutDropDown extends BaseComponentWithConnector(connector, {}) {
+export class LayoutDropDown extends BaseComponentPlus({} as {}, {}) {
 	render() {
-		const { initialChildLimit, showReasonScoreValues } = this.props;
+		const initialChildLimit = State.Watch(a => a.main.initialChildLimit);
+		const showReasonScoreValues = State.Watch(a => a.main.showReasonScoreValues);
 
 		const Button_Final = GADDemo ? Button_GAD : Button;
 		const splitAt = 230;

@@ -1,6 +1,6 @@
 import Moment from 'moment';
 import { Button, Text, CheckBox, Column, Div, Pre, Row, Select } from 'react-vcomponents';
-import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
+import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { GetParentNodeID, GetParentNodeL3 } from 'Store/firebase/nodes';
 import { GetUser, MeID, GetUserPermissionGroups } from 'Store/firebase/users';
@@ -22,22 +22,21 @@ import { MapNodeType } from '../../../../../../Store/firebase/nodes/@MapNodeType
 import { IsUserCreatorOrMod } from '../../../../../../Store/firebase/userExtras';
 import { User } from '../../../../../../Store/firebase/users/@User';
 
-const connector = (state, { node }: {map?: Map, node: MapNodeL3, path: string}) => ({
-	_: GetUserPermissionGroups(MeID()),
-	creator: GetUser(node.creator),
-	// viewers: GetNodeViewers(node._key),
-});
-@Connect(connector)
-export class OthersPanel extends BaseComponentWithConnector(connector, { convertToType: null as ClaimType }) {
+export class OthersPanel extends BaseComponentPlus({} as {map?: Map, node: MapNodeL3, path: string}, { convertToType: null as ClaimType }) {
 	render() {
-		const { map, node, path, creator } = this.props;
-		const mapID = map ? map._key : null;
+		const { map, node, path } = this.props;
 		let { convertToType } = this.state;
-		const creatorOrMod = IsUserCreatorOrMod(MeID(), node);
 
-		const parent = GetParentNodeL3(path);
+		const mapID = map ? map._key : null;
+		const userID = MeID.Watch();
+		const _ = GetUserPermissionGroups.Watch(userID);
+		const creator = GetUser.Watch(node.creator);
+		// viewers: GetNodeViewers(node._key),
+		const creatorOrMod = IsUserCreatorOrMod.Watch(userID, node);
+
+		const parent = GetParentNodeL3.Watch(path);
 		const parentPath = SlicePath(path, 1);
-		const parentCreatorOrMod = IsUserCreatorOrMod(MeID(), parent);
+		const parentCreatorOrMod = IsUserCreatorOrMod.Watch(userID, parent);
 
 		const nodeArgOrParentSPArg_controlled = (node.type == MapNodeType.Argument && creatorOrMod ? node : null)
 			|| (parent && parent.type === MapNodeType.Argument && parentCreatorOrMod ? parent : null);

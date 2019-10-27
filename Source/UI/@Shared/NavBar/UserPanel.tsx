@@ -1,4 +1,4 @@
-import { ApplyBasicStyles, BaseComponent, BasicStyles, SimpleShouldUpdate } from 'react-vextensions';
+import { ApplyBasicStyles, BaseComponent, BasicStyles, SimpleShouldUpdate, BaseComponentPlus } from 'react-vextensions';
 import { firebaseConnect, helpers } from 'react-redux-firebase';
 import { Button, Div, Row } from 'react-vcomponents';
 // import SocialButton from 'react-social-button';
@@ -10,16 +10,15 @@ import { Connect, State, Link, HandleError } from 'Utils/FrameworkOverrides';
 import { ACTSetPage, ACTTopRightOpenPanelSet } from '../../../Store/main';
 import { MeID } from '../../../Store/firebase/users';
 
-@Connect(state => ({
-	// authError: pathToJS(state.firebase, "authError"),
-	// auth: helpers.pathToJS(state.firebase, "auth"),
-	auth: State(a => a.firebase.auth),
-	// account: helpers.pathToJS(state.firebase, "profile")
-}))
-export class UserPanel extends BaseComponent<{auth?}, {}> {
+export class UserPanel extends BaseComponentPlus({} as {auth?}, {}) {
 	render() {
-		const { auth } = this.props;
 		const firebase = store.firebase.helpers;
+
+		// authError: pathToJS(state.firebase, "authError"),
+		// auth: helpers.pathToJS(state.firebase, "auth"),
+		const auth = State.Watch(a => a.firebase.auth);
+		// account: helpers.pathToJS(state.firebase, "profile")
+
 		if (!IsAuthValid(auth)) {
 			return (
 				<Column style={{ padding: 10, background: 'rgba(0,0,0,.7)', borderRadius: '0 0 0 5px' }}>

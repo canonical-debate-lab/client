@@ -1,5 +1,5 @@
 import { CachedTransform, IsNaN } from 'js-vextensions';
-import { GetData, DBPath, WhereFilter, GetData_Query } from 'Utils/FrameworkOverrides';
+import { GetData, DBPath, WhereFilter, GetData_Query, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { CollectionReference, Query } from '@firebase/firestore-types';
 import { UUID } from 'Utils/General/KeyGenerator';
 import { MapNodeRevision } from './nodes/@MapNodeRevision';
@@ -26,7 +26,7 @@ export function GetNodeRevision(id: string) {
 	const docIDs = docs.map(a => a.id);
 	return docIDs;
 } */
-export function GetNodeRevisions(nodeID: string): MapNodeRevision[] {
+export const GetNodeRevisions = StoreAccessor((nodeID: string): MapNodeRevision[] => {
 	const entryMap = GetData_Query(
 		{
 			// key: `GetNodeRevisions_${nodeID}`,
@@ -36,4 +36,5 @@ export function GetNodeRevisions(nodeID: string): MapNodeRevision[] {
 		'nodeRevisions',
 	);
 	return CachedTransform('GetNodeRevisions', [nodeID], entryMap, () => (entryMap ? entryMap.VValues(true).filter(a => a && a.node == nodeID) : []));
-}
+	// return entryMap ? entryMap.VValues(true).filter(a => a && a.node == nodeID) : [];
+});

@@ -3,9 +3,9 @@ import { GetUserAccessLevel, MeID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
 import { GetErrorMessagesUnderElement, GetEntries, Clone, WaitXThenRun } from 'js-vextensions';
 import { CheckBox, Column, Div, Pre, Row, Select, Spinner, TextArea, TextInput } from 'react-vcomponents';
-import { BaseComponent, RenderSource, GetDOM } from 'react-vextensions';
+import { BaseComponent, RenderSource, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { HasAdminPermissions } from 'Store/firebase/userExtras';
-import { Connect } from 'Utils/FrameworkOverrides';
+import { Connect, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { AsNodeL2, GetClaimType } from '../../../../Store/firebase/nodes/$node';
 import { AccessLevel, ChildEntry, ClaimForm, ClaimType, MapNode, MapNodeL2, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
@@ -24,15 +24,10 @@ type Props = {
 	style?, onChange?: (newData: MapNode, newRevisionData: MapNodeRevision, newLinkData: ChildEntry, component: NodeDetailsUI)=>void,
 	// onSetError: (error: string)=>void,
 } & Partial<{creator: User}>;
-type Props_Enhanced = Props & State & {newDataAsL2, Change};
 type State = {newData: MapNode, newRevisionData: MapNodeRevision, newLinkData: ChildEntry};
+type SharedProps = Props & State & {newDataAsL2, Change, SetState};
 
-@Connect((state, { baseData, baseRevisionData, forNew }: Props) => ({
-	creator: !forNew && GetUser(baseData.creator),
-}))
-export class NodeDetailsUI extends BaseComponent<Props, State> {
-	static defaultProps = { enabled: true };
-
+export class NodeDetailsUI extends BaseComponentPlus({ enabled: true } as Props, {} as State) {
 	ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.baseData != this.props.baseData) // if base-data changed
 		{
@@ -46,9 +41,9 @@ export class NodeDetailsUI extends BaseComponent<Props, State> {
 
 	quoteEditor: QuoteInfoEditorUI;
 	render() {
-		const { baseData, parent, forNew, forOldRevision, enabled, style, onChange, creator } = this.props;
+		const { baseData, parent, forNew, forOldRevision, enabled, style, onChange } = this.props;
 		const { newData, newLinkData, newRevisionData } = this.state;
-		const firebase = store.firebase.helpers;
+		const creator = Watch(() => !forNew && GetUser(baseData.creator), [baseData.creator, forNew]);
 		const Change = (..._) => {
 			if (onChange) { onChange(this.GetNewData(), this.GetNewRevisionData(), this.GetNewLinkData(), this); }
 			this.Update();
@@ -56,16 +51,16 @@ export class NodeDetailsUI extends BaseComponent<Props, State> {
 
 		const newDataAsL2 = AsNodeL2(newData, newRevisionData);
 
-		const propsEnhanced = { ...this.props, Change, newDataAsL2, ...this.state, SetState: this.SetState };
+		const sharedProps: SharedProps = { ...this.props, Change, newDataAsL2, ...this.state, SetState: this.SetState };
 		const claimType = GetClaimType(newDataAsL2);
 
 		const splitAt = 170;
 		return (
 			<Column style={E({ padding: 5 }, style)}>
 				{(newData.type != MapNodeType.Claim || claimType == ClaimType.Normal) &&
-					<Title_Base {...propsEnhanced}/>}
+					<Title_Base {...sharedProps}/>}
 				{newData.type == MapNodeType.Claim && claimType == ClaimType.Normal &&
-					<OtherTitles {...propsEnhanced}/>}
+					<OtherTitles {...sharedProps}/>}
 				{newData.type == MapNodeType.Claim && claimType == ClaimType.Equation &&
 					<EquationEditorUI key={0} creating={forNew} editing={enabled}
 						baseData={newRevisionData.equation} onChange={val => Change(newRevisionData.equation = val)}/>}
@@ -77,14 +72,14 @@ export class NodeDetailsUI extends BaseComponent<Props, State> {
 					<ImageAttachmentEditorUI key={1} creating={forNew} editing={enabled}
 						baseData={newRevisionData.image} onChange={val => Change(newRevisionData.image = val)}/>}
 				{newData.type == MapNodeType.Argument &&
-					<ArgumentInfo {...propsEnhanced}/>}
+					<ArgumentInfo {...sharedProps}/>}
 				<Row mt={5}>
 					<Pre>Note: </Pre>
 					<TextInput enabled={enabled} style={{ width: '100%' }}
 						value={newRevisionData.note} onChange={val => Change(newRevisionData.note = val)}/>
 				</Row>
 				{!forNew &&
-					<AdvancedOptions {...propsEnhanced}/>}
+					<AdvancedOptions {...sharedProps}/>}
 			</Column>
 		);
 	}
@@ -115,7 +110,7 @@ export class NodeDetailsUI extends BaseComponent<Props, State> {
 	}
 }
 
-class Title_Base extends BaseComponent<Props_Enhanced, {}> {
+class Title_Base extends BaseComponent<SharedProps, {}> {
 	render() {
 		const { forNew, enabled, newData, newDataAsL2, newRevisionData, newLinkData, Change } = this.props;
 		const claimType = GetClaimType(newDataAsL2);
@@ -158,7 +153,7 @@ function WillNodeUseQuestionTitleHere(node: MapNodeL2, linkData: ChildEntry) {
 	return node.type == MapNodeType.Claim && !node.current.contentNode && linkData && linkData.form == ClaimForm.YesNoQuestion;
 }
 
-class OtherTitles extends BaseComponent<Props_Enhanced, {}> {
+class OtherTitles extends BaseComponent<SharedProps, {}> {
 	render() {
 		const { newDataAsL2, newRevisionData, forNew, enabled, newLinkData, Change } = this.props;
 		const willUseQuestionTitleHere = WillNodeUseQuestionTitleHere(newDataAsL2, newLinkData);
@@ -186,7 +181,7 @@ class OtherTitles extends BaseComponent<Props_Enhanced, {}> {
 	}
 }
 
-class ArgumentInfo extends BaseComponent<Props_Enhanced, {}> {
+class ArgumentInfo extends BaseComponent<SharedProps, {}> {
 	render() {
 		const { enabled, baseRevisionData, parent, newData, newDataAsL2, newRevisionData, newLinkData, Change } = this.props;
 
@@ -205,7 +200,7 @@ class ArgumentInfo extends BaseComponent<Props_Enhanced, {}> {
 	}
 }
 
-class AdvancedOptions extends BaseComponent<Props_Enhanced, {}> {
+class AdvancedOptions extends BaseComponent<SharedProps, {}> {
 	render() {
 		const { newData, newRevisionData, forNew, enabled, Change } = this.props;
 		return (

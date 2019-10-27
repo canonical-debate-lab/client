@@ -92,28 +92,28 @@ export const MapInfoReducer = mapID => CombineReducers({
 export function GetSelectedNodeID_InList(mapID: string) {
 	return State('main', 'maps', mapID, 'list_selectedNodeID');
 }
-export function GetSelectedNode_InList(mapID: string) {
+export const GetSelectedNode_InList = StoreAccessor((mapID: string) => {
 	const nodeID = GetSelectedNodeID_InList(mapID);
 	return GetNode(nodeID);
-}
+});
 
-export function GetMap_List_SelectedNode_OpenPanel(mapID: string) {
+export const GetMap_List_SelectedNode_OpenPanel = StoreAccessor((mapID: string) => {
 	return State('main', 'maps', mapID, 'list_selectedNode_openPanel');
-}
+});
 
-export function GetTimelinePanelOpen(mapID: string): boolean {
+export const GetTimelinePanelOpen = StoreAccessor((mapID: string): boolean => {
 	if (mapID == null) return false;
 	return State('main', 'maps', mapID, 'timelinePanelOpen');
-}
-export function GetTimelineOpenSubpanel(mapID: string): TimelineSubpanel {
+});
+export const GetTimelineOpenSubpanel = StoreAccessor((mapID: string): TimelineSubpanel => {
 	if (mapID == null) return null;
 	return State('main', 'maps', mapID, 'timelineOpenSubpanel');
-}
-export function GetSelectedTimeline(mapID: string): Timeline {
+});
+export const GetSelectedTimeline = StoreAccessor((mapID: string): Timeline => {
 	if (mapID == null) return null;
 	const timelineID = State('main', 'maps', mapID, 'selectedTimeline');
 	return GetTimeline(timelineID);
-}
+});
 export const GetPlayingTimeline = StoreAccessor((mapID: string): Timeline => {
 	if (mapID == null) return null;
 	const timelineID = State('main', 'maps', mapID, 'playingTimeline');
@@ -123,23 +123,23 @@ export const GetPlayingTimelineStepIndex = StoreAccessor((mapID: string): number
 	if (mapID == null) return null;
 	return State('main', 'maps', mapID, 'playingTimeline_step');
 });
-export function GetPlayingTimelineStep(mapID: string) {
+export const GetPlayingTimelineStep = StoreAccessor((mapID: string) => {
 	const playingTimeline = GetPlayingTimeline(mapID);
 	if (playingTimeline == null) return null;
 	const stepIndex = GetPlayingTimelineStepIndex(mapID) || 0;
 	const stepID = playingTimeline.steps[stepIndex];
 	return GetTimelineStep(stepID);
-}
+});
 export const GetPlayingTimelineCurrentStepRevealNodes = StoreAccessor((mapID: string): string[] => {
 	const playingTimeline_currentStep = GetPlayingTimelineStep(mapID);
 	if (playingTimeline_currentStep == null) return emptyArray;
 	return GetNodesRevealedInSteps([playingTimeline_currentStep]);
 });
 
-export function GetPlayingTimelineAppliedStepIndex(mapID: string): number {
+export const GetPlayingTimelineAppliedStepIndex = StoreAccessor((mapID: string): number => {
 	if (mapID == null) return null;
 	return State('main', 'maps', mapID, 'playingTimeline_appliedStep');
-}
+});
 export function GetPlayingTimelineAppliedSteps(mapID: string, excludeAfterCurrentStep = false): TimelineStep[] {
 	const playingTimeline = GetPlayingTimeline(mapID);
 	if (playingTimeline == null) return emptyArray;

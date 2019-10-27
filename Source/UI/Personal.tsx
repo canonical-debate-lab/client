@@ -1,35 +1,27 @@
+import { ToNumber } from 'js-vextensions';
 import { Button, Column, Row } from 'react-vcomponents';
-import { BaseComponentWithConnector, UseCallback } from 'react-vextensions';
+import { BaseComponentPlus, UseCallback } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { GetMaps } from 'Store/firebase/maps';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
-import { MeID, GetUserPermissionGroups } from 'Store/firebase/users';
+import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
 import { GetSelectedPersonalMap } from 'Store/main/personal';
 import { columnWidths } from 'UI/Debates';
-import { Connect, PageContainer } from 'Utils/FrameworkOverrides';
+import { PageContainer, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { ToNumber } from 'js-vextensions';
-import { useMemo, useCallback } from 'react';
-import { Map, MapType } from '../Store/firebase/maps/@Map';
-import { PermissionGroupSet } from '../Store/firebase/userExtras/@UserExtraInfo';
+import { MapType } from '../Store/firebase/maps/@Map';
 import { ShowAddMapDialog } from './@Shared/Maps/AddMapDialog';
 import { MapEntryUI } from './@Shared/Maps/MapEntryUI';
 import { MapUI } from './@Shared/Maps/MapUI';
 import { ShowSignInPopup } from './@Shared/NavBar/UserPanel';
 
-type Props = {} & Partial<{permissions: PermissionGroupSet, maps: Map[], selectedMap: Map}>;
-
-const connector = (state, {}: {}) => ({
-	permissions: GetUserPermissionGroups(MeID()),
-	maps: GetMaps().filter(a => a && a.type == MapType.Personal),
-	selectedMap: GetSelectedPersonalMap(),
-	userID: MeID(),
-});
-@Connect(connector)
-export class PersonalUI extends BaseComponentWithConnector(connector, {}) {
+export class PersonalUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
-		let { permissions, maps, selectedMap } = this.props;
 		const userID = MeID();
+		const permissions = GetUserPermissionGroups.Watch(userID);
+		let maps = Watch(() => GetMaps().filter(a => a && a.type == MapType.Personal), []);
+		maps = maps.OrderByDescending(a => ToNumber(a.edits, 0));
+		const selectedMap = GetSelectedPersonalMap.Watch();
 
 		if (selectedMap) {
 			return (
@@ -38,8 +30,6 @@ export class PersonalUI extends BaseComponentWithConnector(connector, {}) {
 				</PageContainer>
 			);
 		}
-
-		maps = maps.OrderByDescending(a => ToNumber(a.edits, 0));
 
 		return (
 			<PageContainer style={{ margin: '20px auto 20px auto', padding: 0, background: null }}>

@@ -1,7 +1,7 @@
 import { User } from 'Store/firebase/users/@User';
 import Moment from 'moment';
 import { Button, Column, Row } from 'react-vcomponents';
-import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
+import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
 import { Connect } from 'Utils/FrameworkOverrides';
@@ -19,18 +19,15 @@ import { NodeDetailsUI } from '../../NodeDetailsUI';
 
 export const columnWidths = [0.15, 0.3, 0.35, 0.2];
 
-const connector = (state, { node, path }: {map?: Map, node: MapNodeL3, path: string}) => ({
-	// _link: GetLinkUnderParent(node._id, GetParentNode(path)),
-	creator: GetUser(node.creator),
-	revisions: GetNodeRevisions(node._key),
-});
-@Connect(connector)
-export class HistoryPanel extends BaseComponentWithConnector(connector, {}) {
+export class HistoryPanel extends BaseComponentPlus({} as {map?: Map, node: MapNodeL3, path: string}, {}) {
 	detailsUI: NodeDetailsUI;
 	render() {
-		let { map, node, path, creator, revisions } = this.props;
+		const { map, node, path } = this.props;
 		// let mapID = map ? map._id : null;
 
+		// _link: GetLinkUnderParent(node._id, GetParentNode(path)),
+		const creator = GetUser.Watch(node.creator);
+		let revisions = GetNodeRevisions.Watch(node._key);
 		// we want the newest ones listed first
 		revisions = revisions.OrderByDescending(a => a._key);
 
@@ -55,19 +52,14 @@ export class HistoryPanel extends BaseComponentWithConnector(connector, {}) {
 	}
 }
 
-type RevisionEntryUI_Props = {index: number, last: boolean, revision: MapNodeRevision, node: MapNodeL3, path: string}
-	& Partial<{creator: User, link: ChildEntry, parent: MapNodeL3}>;
-@Connect((state, { revision, node, path }: RevisionEntryUI_Props) => {
-	const parent = GetParentNodeL3(path);
-	return ({
-		creator: GetUser(revision.creator),
-		link: GetLinkUnderParent(node._key, parent),
-		parent,
-	});
-})
-class RevisionEntryUI extends BaseComponent<RevisionEntryUI_Props, {}> {
+type RevisionEntryUI_Props = {index: number, last: boolean, revision: MapNodeRevision, node: MapNodeL3, path: string};
+class RevisionEntryUI extends BaseComponentPlus({} as RevisionEntryUI_Props, {}) {
 	render() {
-		const { index, last, revision, node, path, creator, link, parent } = this.props;
+		const { index, last, revision, node, path } = this.props;
+		const parent = GetParentNodeL3.Watch(path);
+		const creator = GetUser.Watch(revision.creator);
+		const link = GetLinkUnderParent.Watch(node._key, parent);
+
 		return (
 			<Row p="4px 7px" style={E(
 				{ background: index % 2 == 0 ? 'rgba(30,30,30,.7)' : 'rgba(0,0,0,.7)' },

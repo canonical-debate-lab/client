@@ -1,4 +1,4 @@
-import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
+import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { Column, Row, Pre, Button, TextInput, Div, CheckBox, Select, ColorPickerBox } from 'react-vcomponents';
 import { GetUser, MeID, GetUserPermissionGroups } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
@@ -12,14 +12,13 @@ import { PropNameToTitle } from 'Utils/General/Others';
 import { SetUserPermissionGroups } from 'Server/Commands/SetUserPermissionGroups';
 import { ScrollView } from 'react-vscrollview';
 
-const connector = (state, { profileUser }: {profileUser: User}) => ({
-	profileUserPermissionGroups: GetUserPermissionGroups(profileUser ? profileUser._key : null),
-	currentUser: GetUser(MeID()),
-});
-@Connect(connector)
-export class UserProfileUI extends BaseComponentWithConnector(connector, {}) {
+export class UserProfileUI extends BaseComponentPlus({} as {profileUser: User}, {}) {
 	render() {
-		const { profileUser, profileUserPermissionGroups, currentUser } = this.props;
+		const { profileUser } = this.props;
+		const userID = MeID.Watch();
+		const profileUserPermissionGroups = GetUserPermissionGroups.Watch(profileUser ? profileUser._key : null);
+		const currentUser = GetUser.Watch(userID);
+
 		if (profileUser == null) return <PageContainer>User does not exist.</PageContainer>;
 		// if (currentUser == null) return <PageContainer>Must be signed-in to access.</PageContainer>;
 
@@ -35,7 +34,7 @@ export class UserProfileUI extends BaseComponentWithConnector(connector, {}) {
 				<Row mt={3}>
 					<Pre>Permissions: </Pre>
 					{['basic', 'verified', 'mod', 'admin'].map((group, index) => {
-						const admin = MeID() && GetUserPermissionGroups(MeID()).admin;
+						const admin = userID && GetUserPermissionGroups(MeID()).admin;
 						const changingOwnAdminState = currentUser && profileUser._key == currentUser._key && group == 'admin';
 						return (
 							<CheckBox key={index} mr={index < 3 ? 5 : 0} text={PropNameToTitle(group)} checked={(profileUserPermissionGroups || {})[group]} enabled={admin && !changingOwnAdminState} onChange={(val) => {

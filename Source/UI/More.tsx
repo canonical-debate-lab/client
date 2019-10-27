@@ -1,25 +1,18 @@
-import { Column, Switch } from 'react-vcomponents';
-import { BaseComponentWithConnector } from 'react-vextensions';
-import { ScrollView } from 'react-vscrollview';
+import { Switch } from 'react-vcomponents';
+import { BaseComponentPlus } from 'react-vextensions';
 import { HasAdminPermissions } from 'Store/firebase/userExtras';
-import { Connect, State } from 'Utils/FrameworkOverrides';
-import { ES } from 'Utils/UI/GlobalStyles';
-import { MeID, GetUserPermissionGroups, GetUsers } from '../Store/firebase/users';
+import { State } from 'Utils/FrameworkOverrides';
+import { GetUsers, MeID } from '../Store/firebase/users';
 import { SubNavBar, SubNavBarButton } from './@Shared/SubNavBar';
 import { AdminUI } from './More/Admin';
 import { LinksUI } from './More/Links';
 
-const connector = state => ({
-	_: GetUserPermissionGroups(MeID()), // just to make sure we've retrieved this data (and re-render when it changes)
-	userCount: (GetUsers() || []).length,
-	currentSubpage: State(a => a.main.more.subpage),
-});
-@Connect(connector)
-export class MoreUI extends BaseComponentWithConnector(connector, {}) {
+export class MoreUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
-		const { userCount, currentSubpage, children } = this.props;
+		const admin = HasAdminPermissions.Watch(MeID.Watch());
+		const userCount = (GetUsers.Watch() || []).length;
+		const currentSubpage = State.Watch(a => a.main.more.subpage);
 		const page = 'more';
-		const admin = HasAdminPermissions(MeID());
 		return (
 			<>
 				<SubNavBar>

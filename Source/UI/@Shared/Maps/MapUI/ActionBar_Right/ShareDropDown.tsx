@@ -1,21 +1,18 @@
 import { GetNewURL } from 'Utils/URL/URLs';
 import { VURL, WaitXThenRun, CopyText } from 'js-vextensions';
 import { Button, Column, DropDown, DropDownContent, DropDownTrigger, Pre, Row, RowLR, Select, TextInput } from 'react-vcomponents';
-import { BaseComponent } from 'react-vextensions';
+import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { Connect, GetCurrentURL } from 'Utils/FrameworkOverrides';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { GetMapTimelines } from '../../../../../Store/firebase/timelines';
 import { Timeline } from '../../../../../Store/firebase/timelines/@Timeline';
 
-type ShareDropDownProps = {map: Map} & Partial<{newURL: VURL, timelines: Timeline[]}>;
-@Connect((state, { map }: ShareDropDownProps) => ({
-	newURL: GetNewURL(),
-	timelines: GetMapTimelines(map),
-}))
-export class ShareDropDown extends BaseComponent<ShareDropDownProps, {timeline: Timeline, justCopied: boolean}> {
+export class ShareDropDown extends BaseComponentPlus({} as {map: Map}, { timeline: null as Timeline, justCopied: false }) {
 	render() {
-		const { map, newURL, timelines } = this.props;
+		const { map } = this.props;
 		const { timeline, justCopied } = this.state;
+		const newURL = GetNewURL.Watch();
+		const timelines = GetMapTimelines.Watch(map);
 
 		newURL.queryVars.Clear();
 		newURL.domain = GetCurrentURL(true).domain;

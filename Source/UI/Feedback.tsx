@@ -1,17 +1,13 @@
 import { ACTProposalSelect } from 'firebase-feedback';
 import { Column, Switch } from 'react-vcomponents';
-import { BaseComponent } from 'react-vextensions';
+import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { ProposalsUI } from 'UI/Feedback/ProposalsUI';
 import { Connect, State } from 'Utils/FrameworkOverrides';
 import { SubNavBar, SubNavBarButton } from './@Shared/SubNavBar';
 
-type Props = {} & Partial<{currentSubpage: string}>;
-@Connect(state => ({
-	currentSubpage: State(a => a.main.feedback.subpage),
-}))
-export class FeedbackUI extends BaseComponent<Props, {}> {
+export class FeedbackUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
-		const { currentSubpage } = this.props;
+		const currentSubpage = State.Watch(a => a.main.feedback.subpage);
 		const page = 'feedback';
 		return (
 			<Column style={{ flex: 1 }}>

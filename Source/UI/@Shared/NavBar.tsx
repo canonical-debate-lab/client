@@ -1,6 +1,6 @@
 import { DeepGet, E } from 'js-vextensions';
 import { Button, Div, Row } from 'react-vcomponents';
-import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
+import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ACTDebateMapSelect } from 'Store/main/debates';
 import { ResetCurrentDBRoot } from 'UI/More/Admin/ResetCurrentDBRoot';
@@ -33,16 +33,12 @@ const avatarStyles = {
 	wrapper: { marginTop: 45 - avatarSize },
 };
 
-const connector = (state, {}: {}) => ({
-	topLeftOpenPanel: State(a => a.main.topLeftOpenPanel),
-	topRightOpenPanel: State(a => a.main.topRightOpenPanel),
-	auth: State(a => a.firebase.auth),
-	dbNeedsInit: GetData({ collection: true, useUndefinedForInProgress: true }, 'maps') === null, // use maps because it won't cause too much data to be downloaded-and-watched; improve this later
-});
-@Connect(connector)
-export class NavBar extends BaseComponentWithConnector(connector, {}) {
+export class NavBar extends BaseComponentPlus({} as {}, {}) {
 	render() {
-		const { topLeftOpenPanel, topRightOpenPanel, auth, dbNeedsInit } = this.props;
+		const topLeftOpenPanel = State.Watch(a => a.main.topLeftOpenPanel);
+		const topRightOpenPanel = State.Watch(a => a.main.topRightOpenPanel);
+		const auth = State.Watch(a => a.firebase.auth);
+		const dbNeedsInit = Watch(() => GetData({ collection: true, useUndefinedForInProgress: true }, 'maps') === null, []); // use maps because it won't cause too much data to be downloaded-and-watched; improve this later
 		return (
 			<nav style={{
 				position: 'relative', zIndex: 11, padding: '0 10px', boxShadow: colors.navBarBoxShadow,
@@ -117,17 +113,17 @@ export class NavBar extends BaseComponentWithConnector(connector, {}) {
 }
 
 // @Radium
-@Connect(state => ({
-	currentPage: State(a => a.main.page),
-}))
-export class NavBarPageButton extends BaseComponent
-		<{page?: string, text: string, panel?: boolean, active?: boolean, style?, onClick?: (e)=>void} & Partial<{currentPage: string}>,
-		{hovered: boolean}> {
+export class NavBarPageButton extends BaseComponentPlus(
+	{} as {page?: string, text: string, panel?: boolean, active?: boolean, style?, onClick?: (e)=>void},
+	{ hovered: false },
+) {
 	render() {
-		let { page, text, panel, active, style, onClick, currentPage } = this.props;
+		let { page, text, panel, active, style, onClick } = this.props;
 		// let {_radiumStyleState: {main: radiumState = {}} = {}} = this.state as any;
 		// let {_radiumStyleState} = this.state as any;
 		const { hovered } = this.state;
+
+		const currentPage = State.Watch(a => a.main.page);
 		active = active != null ? active : page == currentPage;
 
 		const finalStyle = E(

@@ -1,7 +1,7 @@
 import { ToInt, Vector2i, VURL, Assert, IsNumber } from 'js-vextensions';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { ACTMap_PlayingTimelineSet, ACTMap_PlayingTimelineStepSet } from 'Store/main/maps/$map';
-import { ACTSet, State } from 'Utils/FrameworkOverrides';
+import { ACTSet, State, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { ACTProposalSelect, GetSelectedProposalID } from 'firebase-feedback';
 import { GetMap } from '../../Store/firebase/maps';
 import { GetNodeDisplayText } from '../../Store/firebase/nodes/$node';
@@ -340,7 +340,7 @@ export function GetLoadActionsForURL(url: VURL) {
 // ==========
 
 // g.justChangedURLFromCode = false;
-export function GetNewURL(includeMapViewStr = true) {
+export const GetNewURL = StoreAccessor((includeMapViewStr = true) => {
 	// let newURL = URL.Current();
 	/* let oldURL = URL.Current(true);
 	let newURL = new VURL(oldURL.domain, oldURL.pathNodes); */
@@ -452,7 +452,7 @@ export function GetNewURL(includeMapViewStr = true) {
 	Assert(!newURL.pathNodes.Any(a => a == '/'), `A path-node cannot be just "/". @url(${newURL})`);
 
 	return newURL;
-}
+});
 
 // disabled for now, since the urls it generated would be too long with new UUIDs (instead, will implement "saved views" as json in db, which are then referenced by their own uuid, or maybe sequential id)
 /* function GetMapViewStr(mapID: string) {

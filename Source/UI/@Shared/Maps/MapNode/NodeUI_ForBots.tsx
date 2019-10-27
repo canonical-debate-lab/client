@@ -1,5 +1,5 @@
 import { Pre, Row } from 'react-vcomponents';
-import { BaseComponent, GetInnerComp } from 'react-vextensions';
+import { BaseComponent, GetInnerComp, BaseComponentPlus } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { Link, ACTSet, Connect } from 'Utils/FrameworkOverrides';
 import { RootState } from '../../../../Store';
@@ -18,16 +18,13 @@ import { TagsPanel } from './NodeUI/Panels/TagsPanel';
 import { NodeUI_Inner } from './NodeUI_Inner';
 import { PhrasingsPanel } from './NodeUI/Panels/PhrasingsPanel';
 
-type Props = {map: Map, node: MapNodeL2}
-	& Partial<{nodeParents: MapNodeL2[], nodeChildren: MapNodeL2[]}>;
-@Connect((state: RootState, { node }: Props) => ({
-	nodeParents: GetNodeParentsL2(node),
-	nodeChildren: GetNodeChildrenL2(node),
-}))
-export class NodeUI_ForBots extends BaseComponent<Props, {}> {
+type Props = {map: Map, node: MapNodeL2};
+export class NodeUI_ForBots extends BaseComponentPlus({} as Props, {}) {
 	innerUI: NodeUI_Inner;
 	render() {
-		const { map, node, nodeParents, nodeChildren } = this.props;
+		const { map, node } = this.props;
+		const nodeParents = GetNodeParentsL2.Watch(node);
+		const nodeChildren = GetNodeChildrenL2.Watch(node);
 		if (nodeParents.Any(a => a == null) || nodeChildren.Any(a => a == null)) return <div/>;
 
 		// just list one of the parents as the "current parent", so code relying on a parent doesn't error

@@ -1,6 +1,6 @@
 import { E, GetErrorMessagesUnderElement, GetEntries } from 'js-vextensions';
 import { Column, Pre, Row, Select } from 'react-vcomponents';
-import { BaseComponent, GetInnerComp, GetDOM } from 'react-vextensions';
+import { BaseComponent, GetInnerComp, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { HasModPermissions } from 'Store/firebase/userExtras';
@@ -25,11 +25,8 @@ export function ShowAddSubnodeDialog(mapID: string, anchorNode: MapNodeL2, ancho
 	});
 }
 
-type Props = {mapID: string, anchorNode: MapNode, anchorNodePath: string, boxController: BoxController} & Partial<{layers: Layer[]}>;
-@Connect((state, {}: Props) => ({
-	layers: GetLayers(),
-}))
-class AddSubnodeDialog extends BaseComponent<Props, {layer: Layer, newNode: MapNode, newRevision: MapNodeRevision, newLink: ChildEntry, validationError: string}> {
+type Props = {mapID: string, anchorNode: MapNode, anchorNodePath: string, boxController: BoxController};
+class AddSubnodeDialog extends BaseComponentPlus({} as Props, {} as {layer: Layer, newNode: MapNode, newRevision: MapNodeRevision, newLink: ChildEntry, validationError: string}) {
 	constructor(props) {
 		super(props);
 		const newNode = new MapNode({
@@ -52,8 +49,10 @@ class AddSubnodeDialog extends BaseComponent<Props, {layer: Layer, newNode: MapN
 
 	nodeEditorUI: NodeDetailsUI;
 	render() {
-		const { boxController, layers } = this.props;
+		const { boxController } = this.props;
 		const { layer, newNode, newRevision, newLink, validationError } = this.state;
+
+		const layers = GetLayers.Watch();
 
 		const claimTypes = GetEntries(ClaimType);
 		if (!HasModPermissions(MeID())) {

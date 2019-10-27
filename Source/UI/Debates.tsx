@@ -1,35 +1,28 @@
-import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
-import { Button } from 'react-vcomponents';
-import { Row } from 'react-vcomponents';
-import { Column } from 'react-vcomponents';
-import { GetMaps } from 'Store/firebase/maps';
-import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
-import { ScrollView } from 'react-vscrollview';
-import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
-import { Connect, PageContainer, HSLA } from 'Utils/FrameworkOverrides';
 import { ToNumber } from 'js-vextensions';
-import { styles, ES } from '../Utils/UI/GlobalStyles';
-import { MapType, Map } from '../Store/firebase/maps/@Map';
-import { MapEntryUI } from './@Shared/Maps/MapEntryUI';
-import { PermissionGroupSet } from '../Store/firebase/userExtras/@UserExtraInfo';
-import { ShowSignInPopup } from './@Shared/NavBar/UserPanel';
-import { ShowAddMapDialog } from './@Shared/Maps/AddMapDialog';
-import { GetSelectedDebateMapID, GetSelectedDebateMap } from '../Store/main/debates';
-import { MapUI } from './@Shared/Maps/MapUI';
+import { Button, Column, Row } from 'react-vcomponents';
+import { BaseComponentPlus } from 'react-vextensions';
+import { ScrollView } from 'react-vscrollview';
+import { GetMaps } from 'Store/firebase/maps';
+import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
+import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
+import { HSLA, PageContainer, Watch } from 'Utils/FrameworkOverrides';
+import { MapType } from '../Store/firebase/maps/@Map';
+import { GetSelectedDebateMap } from '../Store/main/debates';
+import { ES } from '../Utils/UI/GlobalStyles';
 import { GADDemo } from './@GAD/GAD';
+import { ShowAddMapDialog } from './@Shared/Maps/AddMapDialog';
+import { MapEntryUI } from './@Shared/Maps/MapEntryUI';
+import { MapUI } from './@Shared/Maps/MapUI';
+import { ShowSignInPopup } from './@Shared/NavBar/UserPanel';
 
 export const columnWidths = [0.64, 0.06, 0.12, 0.18];
 
-const connector = (state, {}: {}) => ({
-	permissions: GetUserPermissionGroups(MeID()),
-	maps: GetMaps().filter(a => a && a.type == MapType.Debate),
-	selectedMap: GetSelectedDebateMap(),
-});
-@Connect(connector)
-export class DebatesUI extends BaseComponentWithConnector(connector, {}) {
+export class DebatesUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
-		let { permissions, maps, selectedMap } = this.props;
 		const userID = MeID();
+		const permissions = GetUserPermissionGroups.Watch(userID);
+		let maps = Watch(() => GetMaps().filter(a => a && a.type == MapType.Debate), []);
+		const selectedMap = GetSelectedDebateMap.Watch();
 
 		if (selectedMap) {
 			return (

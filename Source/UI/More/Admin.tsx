@@ -1,11 +1,11 @@
 import { E, SleepAsync, Assert } from 'js-vextensions';
 import { Button, Column, Row } from 'react-vcomponents';
-import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
+import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { HasAdminPermissions } from 'Store/firebase/userExtras';
 import { Omit } from 'lodash';
 import { StopStateDataOverride, StartStateDataOverride, UpdateStateDataOverride } from 'UI/@Shared/StateOverrides';
-import { Connect, GetData, DBPath, State, RemoveHelpers, SplitStringBySlash_Cached, GetDataAsync, ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks, PageContainer } from 'Utils/FrameworkOverrides';
+import { Connect, GetData, DBPath, State, RemoveHelpers, SplitStringBySlash_Cached, GetDataAsync, ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks, PageContainer, Watch } from 'Utils/FrameworkOverrides';
 import { dbVersion } from 'Main';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
 import { styles } from '../../Utils/UI/GlobalStyles';
@@ -33,13 +33,7 @@ export function AddUpgradeFunc(version: number, func: UpgradeFunc) {
 // require('./Admin/DBUpgrades/UpgradeDB_11');
 require('./Admin/DBUpgrades/UpgradeDB_12');
 
-const connector = (state, {}: {}) => ({
-	isAdmin: HasAdminPermissions(MeID())
-		// also check previous version for admin-rights (so we can increment db-version without losing our rights to complete the db-upgrade!)
-		|| (MeID() != null && GetData({ inVersionRoot: false }, 'versions', `v${dbVersion - 1}-${DB_SHORT}`, 'userExtras', MeID(), '.permissionGroups', '.admin')),
-});
-@Connect(connector)
-export class AdminUI extends BaseComponentWithConnector(connector, { dbUpgrade_entryIndexes: [] as number[], dbUpgrade_entryCounts: [] as number[] }) {
+export class AdminUI extends BaseComponentPlus({} as {}, { dbUpgrade_entryIndexes: [] as number[], dbUpgrade_entryCounts: [] as number[] }) {
 	/* constructor(props) {
 		super(props);
 		//this.state = {env: envSuffix};
@@ -56,11 +50,14 @@ export class AdminUI extends BaseComponentWithConnector(connector, { dbUpgrade_e
 	} */
 
 	render() {
-		const { isAdmin } = this.props;
-		if (!isAdmin) return <PageContainer>Please sign in.</PageContainer>;
-
 		const { dbUpgrade_entryIndexes, dbUpgrade_entryCounts } = this.state;
+		const isAdmin = Watch(() => {
+			return HasAdminPermissions(MeID())
+				// also check previous version for admin-rights (so we can increment db-version without losing our rights to complete the db-upgrade!)
+				|| (MeID() != null && GetData({ inVersionRoot: false }, 'versions', `v${dbVersion - 1}-${DB_SHORT}`, 'userExtras', MeID(), '.permissionGroups', '.admin'));
+		}, []);
 
+		if (!isAdmin) return <PageContainer>Please sign in.</PageContainer>;
 		return (
 			<PageContainer scrollable={true}>
 				<Row m="-10px 0"><h2>Database</h2></Row>

@@ -1,5 +1,5 @@
 import { Row } from 'react-vcomponents';
-import { BaseComponentWithConnector, GetInnerComp, GetDOM, UseCallback } from 'react-vextensions';
+import { BaseComponentWithConnector, GetInnerComp, GetDOM, UseCallback, BaseComponentPlus } from 'react-vextensions';
 import { GetMarkerPercent_AtPath, GetRatings } from 'Store/firebase/nodeRatings';
 import { RatingType } from 'Store/firebase/nodeRatings/@RatingType';
 import { GetParentNodeL3, HolderType } from 'Store/firebase/nodes';
@@ -28,39 +28,7 @@ type Props = {
 	map: Map, node: MapNodeL3, path: string, nodeView: MapNodeView, nodeChildren: MapNodeL3[], nodeChildrenToShow: MapNodeL3[],
 	type: HolderType, widthOfNode: number, widthOverride?: number, onHeightOrDividePointChange?: (dividePoint: number)=>void,
 };
-const connector = (state, { node, path, type, nodeChildren }: Props) => {
-	// let mainRating_fillPercent = 100;
-	const parent = GetParentNodeL3(path);
-	const combineWithParentArgument = IsPremiseOfSinglePremiseArgument(node, parent);
-	// let ratingReversed = ShouldRatingTypeBeReversed(node);
-
-	/* var ratingType = {[HolderType.Truth]: "truth", [HolderType.Relevance]: "relevance"}[type] as RatingType;
-	let ratingTypeInfo = GetRatingTypeInfo(ratingType, node, parent, path);
-
-	let ratings = GetRatings(node._id, ratingType);
-	let mainRating_average = GetRatingAverage(node._id, ratingType, null, -1);
-	if (mainRating_average != -1) {
-		mainRating_average = TransformRatingForContext(mainRating_average, ShouldRatingTypeBeReversed(node, ratingType));
-	}
-	let mainRating_mine = GetRatingAverage_AtPath(node, ratingType, new RatingFilter({includeUser: MeID()}));
-	//let mainRating_fillPercent = average;
-
-	let weightingType = State(a=>a.main.weighting);
-	let showReasonScoreValuesForThisNode = State(a=>a.main.weighting) == WeightingType.ReasonScore; //&& (node.type == MapNodeType.Argument || node.type == MapNodeType.Claim);
-	if (showReasonScoreValuesForThisNode) {
-		var reasonScoreValues = RS_GetAllValues(node, path, true) as ReasonScoreValues_RSPrefix;
-	} */
-
-	const backgroundFillPercent = GetFillPercent_AtPath(node, path, type);
-	const markerPercent = GetMarkerPercent_AtPath(node, path, type);
-
-	return {
-		backgroundFillPercent,
-		markerPercent,
-	};
-};
-@Connect(connector)
-export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { innerBoxOffset: 0, lineHolderHeight: 0, hovered: false, hovered_button: false }) {
+export class NodeChildHolderBox extends BaseComponentPlus({} as Props, { innerBoxOffset: 0, lineHolderHeight: 0, hovered: false, hovered_button: false }) {
 	static ValidateProps(props: Props) {
 		const { node, nodeChildren } = props;
 		// ms only asserts in dev for now (and only as warning); causes error sometimes when cut+pasting otherwise (firebase doesn`t send DB updates atomically?)
@@ -70,8 +38,14 @@ export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { 
 	}
 	lineHolder: HTMLDivElement;
 	render() {
-		const { map, node, path, nodeView, nodeChildren, nodeChildrenToShow, type, widthOfNode, widthOverride, backgroundFillPercent, markerPercent } = this.props;
+		const { map, node, path, nodeView, nodeChildren, nodeChildrenToShow, type, widthOfNode, widthOverride } = this.props;
 		const { innerBoxOffset, lineHolderHeight, hovered, hovered_button } = this.state;
+
+		const parent = GetParentNodeL3.Watch(path);
+		const combineWithParentArgument = IsPremiseOfSinglePremiseArgument.Watch(node, parent);
+
+		const backgroundFillPercent = GetFillPercent_AtPath.Watch(node, path, type);
+		const markerPercent = GetMarkerPercent_AtPath.Watch(node, path, type);
 
 		const isMultiPremiseArgument = IsMultiPremiseArgument(node);
 		let text = type == HolderType.Truth ? 'True?' : 'Relevant?';
@@ -145,8 +119,8 @@ export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { 
 								this.CheckForChanges();
 							}
 						}, [expandKey, map._key, nodeView, path])}
-						afterChildren={[
-							ratingPanelShow &&
+						afterChildren={<>
+							{ratingPanelShow &&
 								<div ref={c => this.ratingPanelHolder = c} style={{
 									position: 'absolute', left: 0, top: 'calc(100% + 1px)',
 									width, minWidth: (widthOverride | 0).KeepAtLeast(550), zIndex: hovered_main ? 6 : 5,
@@ -156,9 +130,9 @@ export class NodeChildHolderBox extends BaseComponentWithConnector(connector, { 
 										const ratings = GetRatings(node._key, holderTypeStr as RatingType);
 										return <RatingsPanel node={node} path={path} ratingType={holderTypeStr as RatingType} ratings={ratings}/>;
 									})()}
-								</div>,
-							<NodeUI_Menu_Stub {...{ map, node, path }} holderType={type}/>,
-						].AutoKey()}
+								</div>}
+							<NodeUI_Menu_Stub {...{ map, node, path }} holderType={type}/>
+						</>}
 					/>
 					{nodeChildrenToShow != emptyArray && !expanded && nodeChildrenToShow.length != 0 &&
 						<NodeChildCountMarker childCount={nodeChildrenToShow.length}/>}

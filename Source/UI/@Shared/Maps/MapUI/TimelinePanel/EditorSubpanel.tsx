@@ -1,7 +1,7 @@
 import { ToJSON, Vector2i, VRect, WaitXThenRun, Assert, GetEntries } from 'js-vextensions';
 import { Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 import { Text, Button, CheckBox, Column, Pre, Row, Select, Spinner, TextArea, TextInput, TimeSpanInput } from 'react-vcomponents';
-import { BaseComponent, BaseComponentWithConnector, GetDOM, SimpleShouldUpdate } from 'react-vextensions';
+import { BaseComponent, BaseComponentWithConnector, GetDOM, SimpleShouldUpdate, BaseComponentPlus } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
 import { AddTimelineStep } from 'Server/Commands/AddTimelineStep';
@@ -20,7 +20,7 @@ import { MeID } from 'Store/firebase/users';
 import { GetOpenMapID } from 'Store/main';
 import { GetSelectedTimeline, GetTimelineOpenSubpanel, GetTimelinePanelOpen, TimelineSubpanel } from 'Store/main/maps/$map';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
-import { ACTSet, Connect, DragInfo, InfoButton, MakeDraggable, State } from 'Utils/FrameworkOverrides';
+import { ACTSet, Connect, DragInfo, InfoButton, MakeDraggable, State, Watch } from 'Utils/FrameworkOverrides';
 import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
 import { ES } from 'Utils/UI/GlobalStyles';
 import ReactList from 'react-list';
@@ -32,21 +32,16 @@ function LockMapEdgeScrolling() {
 	return State(a => a.main.lockMapScrolling) && GetTimelinePanelOpen(mapID) && GetTimelineOpenSubpanel(mapID) == TimelineSubpanel.Editor;
 }
 
-const EditorSubpanel_connector = (state, { map }: {map: Map}) => {
-	const timeline = GetSelectedTimeline(map._key);
-	return {
-		timeline,
-		// timelineSteps: timeline && GetTimelineSteps(timeline, true),
-		lockMapScrolling: State(a => a.main.lockMapScrolling),
-	};
-};
-@Connect(EditorSubpanel_connector)
-export class EditorSubpanel extends BaseComponentWithConnector(EditorSubpanel_connector, {}) {
+export class EditorSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} as {timeline: Timeline}) {
 	render() {
-		const { map, timeline, lockMapScrolling } = this.props;
-		if (timeline == null) return null;
-
+		const { map } = this.props;
+		const timeline = GetSelectedTimeline.Watch(map._key);
+		// timelineSteps: timeline && GetTimelineSteps(timeline, true),
+		const lockMapScrolling = State.Watch(a => a.main.lockMapScrolling);
 		const droppableInfo = new DroppableInfo({ type: 'TimelineStepList', timelineID: timeline._key });
+
+		this.Stash({ timeline });
+		if (timeline == null) return null;
 		return (
 			<>
 				<Row center mlr={5}>
@@ -129,7 +124,7 @@ export class EditorSubpanel extends BaseComponentWithConnector(EditorSubpanel_co
 		return 100;
 	};
 	RenderStep = (index: number, key: any) => {
-		const { map, timeline } = this.props;
+		const { map, timeline } = this.PropsStash;
 		return <StepUI key={key} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} stepID={timeline.steps[index]}/>;
 	};
 }
@@ -155,16 +150,11 @@ WaitXThenRun(0, () => {
 	document.body.appendChild(portal);
 }); */
 
-type StepUIProps = {index: number, last: boolean, map: Map, timeline: Timeline, stepID: string} & Partial<{step: TimelineStep}> & {dragInfo?: DragInfo};
+type StepUIProps = {index: number, last: boolean, map: Map, timeline: Timeline, stepID: string} & {dragInfo?: DragInfo};
 
-const StepUI_connector = (state, { stepID }: StepUIProps) => {
-	return {
-		step: GetTimelineStep(stepID),
-	};
-};
-@Connect(StepUI_connector)
-@MakeDraggable(({ index, stepID, step }: StepUIProps) => {
-	if (step == null) return null; // if step is not yet loaded, don't actually apply the draggable-wrapping
+@MakeDraggable(({ index, stepID }: StepUIProps) => {
+	// upgrade note: make sure dnd isn't broken from having to comment the next line out
+	// if (step == null) return null; // if step is not yet loaded, don't actually apply the draggable-wrapping
 	return {
 		type: 'TimelineStep',
 		draggableInfo: new DraggableInfo({ stepID }),
@@ -173,18 +163,19 @@ const StepUI_connector = (state, { stepID }: StepUIProps) => {
 	};
 })
 // @SimpleShouldUpdate({ propsToIgnore: ['dragInfo'] })
-class StepUI extends BaseComponent<StepUIProps, {placeholderRect: VRect}> {
+class StepUI extends BaseComponentPlus({} as StepUIProps, { placeholderRect: null as VRect }) {
 	/* static ValidateProps(props: StepUIProps) {
 		Assert(props.step != null);
 	} */
 
 	render() {
-		const { index, last, map, timeline, step, dragInfo } = this.props;
-		if (step == null) return <div style={{ height: 100 }} {...(dragInfo && dragInfo.provided.draggableProps)} {...(dragInfo && dragInfo.provided.dragHandleProps)}/>;
+		const { index, last, map, timeline, stepID, dragInfo } = this.props;
 		const { placeholderRect } = this.state;
-		const creatorOrMod = IsUserCreatorOrMod(MeID(), map);
-		const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
+		const step = GetTimelineStep.Watch(stepID);
+		const creatorOrMod = IsUserCreatorOrMod.Watch(MeID.Watch(), map);
+		if (step == null) return <div style={{ height: 100 }} {...(dragInfo && dragInfo.provided.draggableProps)} {...(dragInfo && dragInfo.provided.dragHandleProps)}/>;
 
+		const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
 		const result = (
 			// wrapper needed to emulate margin-top (since react-list doesn't support margins)
 			<div style={{ paddingTop: index == 0 ? 0 : 7 }}>
@@ -321,29 +312,23 @@ class StepUI extends BaseComponent<StepUIProps, {placeholderRect: VRect}> {
 	}
 }
 
-const connector = (state, { nodeReveal }: {step: TimelineStep, nodeReveal: NodeReveal, index: number}) => {
-	let node = GetNodeL2(GetNodeID(nodeReveal.path));
-	let nodeL3 = GetNodeL3(nodeReveal.path);
-	// if one is null, make them both null to be consistent
-	if (node == null || nodeL3 == null) {
-		node = null;
-		nodeL3 = null;
-	}
-
-	return {
-		node,
-		nodeL3,
-		displayText: node && nodeL3 ? GetNodeDisplayText(node, nodeReveal.path) : `(Node no longer exists: ${GetNodeID(nodeReveal.path)})`,
-	};
-};
-@Connect(connector)
-export class NodeRevealUI extends BaseComponentWithConnector(connector, {}) {
+export class NodeRevealUI extends BaseComponentPlus({} as {step: TimelineStep, nodeReveal: NodeReveal, index: number}, {}) {
 	render() {
-		const { step, nodeReveal, index, node, nodeL3, displayText } = this.props;
-		// if (node == null || nodeL3 == null) return null;
+		const { step, nodeReveal, index } = this.props;
+		const nodeID = GetNodeID(nodeReveal.path);
+		let node = GetNodeL2.Watch(nodeID);
+		let nodeL3 = GetNodeL3.Watch(nodeReveal.path);
+		// if one is null, make them both null to be consistent
+		if (node == null || nodeL3 == null) {
+			node = null;
+			nodeL3 = null;
+		}
+
+		const displayText = Watch(() => (node && nodeL3 ? GetNodeDisplayText(node, nodeReveal.path) : `(Node no longer exists: ${GetNodeID(nodeReveal.path)})`), [node, nodeL3, nodeReveal.path]);
 
 		const path = nodeReveal.path;
 		const backgroundColor = GetNodeColor(nodeL3 || { type: MapNodeType.Category } as any).desaturate(0.5).alpha(0.8);
+		// if (node == null || nodeL3 == null) return null;
 		return (
 			<Row key={index} mt={index === 0 ? 0 : 5}
 				style={E(

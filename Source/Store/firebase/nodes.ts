@@ -1,5 +1,5 @@
 import { CachedTransform, IsNaN, emptyArray, ToJSON, AsObj } from 'js-vextensions';
-import { GetData, SplitStringBySlash_Cached, SlicePath, GetDataAsync, CachedTransform_WithStore, StoreAccessor } from 'Utils/FrameworkOverrides';
+import { GetData, SplitStringBySlash_Cached, SlicePath, GetDataAsync, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { PathSegmentToNodeID } from 'Store/main/mapViews';
 import { GetNodeL2, GetNodeL3 } from './nodes/$node';
 import { MapNode, MapNodeL2, MapNodeL3, globalRootNodeID } from './nodes/@MapNode';
@@ -21,10 +21,10 @@ export function GetNodes(): MapNode[] {
 	const nodeMap = GetNodeMap();
 	return CachedTransform('GetNodes', [], nodeMap, () => (nodeMap ? nodeMap.VValues(true) : []));
 }
-export function GetNodesL2(): MapNodeL2[] {
+export const GetNodesL2 = StoreAccessor((): MapNodeL2[] => {
 	const nodes = GetNodes();
 	return CachedTransform('GetNodes', [], nodes, () => nodes.map(a => GetNodeL2(a)));
-}
+});
 /* export function GetNodes_Enhanced(): MapNode[] {
 	let nodeMap = GetNodeMap();
 	return CachedTransform("GetNodes_Enhanced", [], nodeMap, ()=>nodeMap ? nodeMap.VValues(true) : []);
@@ -86,14 +86,14 @@ export function GetNodeParents(node: MapNode) {
 export async function GetNodeParentsAsync(node: MapNode) {
 	return await Promise.all(node.parents.VKeys(true).map(parentID => GetDataAsync('nodes', parentID))) as MapNode[];
 }
-export function GetNodeParentsL2(node: MapNode) {
+export const GetNodeParentsL2 = StoreAccessor((node: MapNode) => {
 	const parentsL2 = GetNodeParents(node).map(parent => (parent ? GetNodeL2(parent) : null));
 	return CachedTransform('GetNodeParentsL2', [], parentsL2, () => parentsL2);
-}
-export function GetNodeParentsL3(node: MapNode, path: string) {
+});
+export const GetNodeParentsL3 = StoreAccessor((node: MapNode, path: string) => {
 	const parentsL3 = GetNodeParents(node).map(parent => (parent ? GetNodeL3(SlicePath(path, 1)) : null));
 	return CachedTransform('GetNodeParentsL3', [path], parentsL3, () => parentsL3);
-}
+});
 
 /* export function GetNodeChildIDs(nodeID: string) {
 	let node = GetNode(nodeID);
@@ -102,24 +102,26 @@ export function GetNodeParentsL3(node: MapNode, path: string) {
 		node.VSet("@childIDs", (node.children || {}).VKeys(true).map(id=>parseInt(id)), {prop: {}});
 	return node["@childIDs"];
 } */
-export function GetNodeChildren(node: MapNode) {
+export const GetNodeChildren = StoreAccessor((node: MapNode) => {
 	// special case, for demo map
 	if (node.children && node.children[0] instanceof MapNode) {
 		return node.children as any as MapNode[];
 	}
 
 	const children = (node.children || {}).VKeys(true).map(id => GetNode(id));
-	return CachedTransform('GetNodeChildren', [node._key], children, () => children);
-}
+	// return CachedTransform('GetNodeChildren', [node._key], children, () => children);
+	return children;
+});
 export async function GetNodeChildrenAsync(node: MapNode) {
 	return await Promise.all(node.children.VKeys(true).map(id => GetDataAsync('nodes', id))) as MapNode[];
 }
 
-export function GetNodeChildrenL2(node: MapNode) {
+export const GetNodeChildrenL2 = StoreAccessor((node: MapNode) => {
 	const nodeChildren = GetNodeChildren(node);
 	const nodeChildrenL2 = nodeChildren.map(child => (child ? GetNodeL2(child) : null));
-	return CachedTransform('GetNodeChildrenL2', [], nodeChildrenL2, () => nodeChildrenL2);
-}
+	// return CachedTransform('GetNodeChildrenL2', [], nodeChildrenL2, () => nodeChildrenL2);
+	return nodeChildrenL2;
+});
 export const GetNodeChildrenL3 = StoreAccessor((node: MapNode, path?: string, filterForPath = false): MapNodeL3[] => {
 	if (node == null) return emptyArray;
 	// return CachedTransform_WithStore('GetNodeChildrenL3', [node._key, path, filterForPath], node.children, () => {

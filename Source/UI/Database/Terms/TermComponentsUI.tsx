@@ -1,8 +1,8 @@
 import { CachedTransform, Clone, ToJSON, WaitXThenRun } from 'js-vextensions';
 import { Button, Column, Div, Pre, Row, TextInput } from 'react-vcomponents';
-import { BaseComponent, RenderSource } from 'react-vextensions';
+import { BaseComponent, RenderSource, BaseComponentPlus } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
-import { Connect } from 'Utils/FrameworkOverrides';
+import { Connect, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { DeleteTermComponent } from '../../../Server/Commands/DeleteTermComponent';
 import { UpdateTermComponentData } from '../../../Server/Commands/UpdateTermComponentData';
@@ -15,19 +15,14 @@ import { RootState } from '../../../Store/index';
 
 const componentsPlaceholder = [];
 
-type Props = {term: Term, editing: boolean, inMap?: boolean, style?} & Partial<{components: TermComponent[]}>;
-@Connect((state: RootState, { term }: Props) => {
-	const termComponents = GetTermComponents(term);
-	return {
-		// components: GetTermComponents(props.term),
-		// only pass components when all are loaded
-		components: CachedTransform('components_transform1', [term._key], termComponents, () => (termComponents.every(a => a != null) ? termComponents : componentsPlaceholder)),
-		// selectedTermComponent: GetSelectedTermComponent(),
-	};
-})
-export class TermComponentsUI extends BaseComponent<Props, {}> {
+export class TermComponentsUI extends BaseComponentPlus({} as {term: Term, editing: boolean, inMap?: boolean, style?}, {}) {
 	render() {
-		const { term, editing, inMap, style, components } = this.props;
+		const { term, editing, inMap, style } = this.props;
+		const components = Watch(() => {
+			// only pass components when all are loaded
+			const result = GetTermComponents(term);
+			return CachedTransform('components_transform1', [term._key], result, () => (result.every(a => a != null) ? result : componentsPlaceholder));
+		}, [term]);
 
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), term);
 

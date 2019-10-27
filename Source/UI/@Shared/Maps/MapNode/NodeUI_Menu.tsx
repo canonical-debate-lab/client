@@ -1,5 +1,5 @@
 import { E } from 'js-vextensions';
-import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
+import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { VMenuStub } from 'react-vmenu';
 import { VMenuItem } from 'react-vmenu/dist/VMenu';
 import { ShowMessageBox } from 'react-vmessagebox';
@@ -9,7 +9,7 @@ import { UnlinkNode } from 'Server/Commands/UnlinkNode';
 import { GetParentNodeID, HolderType } from 'Store/firebase/nodes';
 import { ACTSetLastAcknowledgementTime, GetCopiedNodePath, GetOpenMapID } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
-import { State, Connect, ActionSet, ACTSet, SlicePath, ExpensiveComponent } from 'Utils/FrameworkOverrides';
+import { State, Connect, ActionSet, ACTSet, SlicePath, ExpensiveComponent, Watch } from 'Utils/FrameworkOverrides';
 import { styles } from '../../../../Utils/UI/GlobalStyles';
 import { DeleteNode } from '../../../../Server/Commands/DeleteNode';
 import { RootState } from '../../../../Store';
@@ -38,53 +38,33 @@ export class NodeUI_Menu_Stub extends BaseComponent<Props, {}> {
 
 type Props = {map?: Map, node: MapNodeL3, path: string, inList?: boolean, holderType?: HolderType};
 type SharedProps = Props & Partial<{combinedWithParentArg: boolean, copiedNode: MapNodeL3, copiedNodePath: string, copiedNode_asCut: boolean}> & {};
-const connector = (_: RootState, { map, node, path, holderType }: Props) => {
-	let pathsToChangedInSubtree;
-	if (map) {
-		const sinceTime = GetTimeFromWhichToShowChangedNodes(map._key);
-		const pathsToChangedNodes = GetPathsToNodesChangedSinceX(map._key, sinceTime);
-		pathsToChangedInSubtree = pathsToChangedNodes.filter(a => a == path || a.startsWith(`${path}/`)); // also include self, for this
-	}
-	const parent = GetParentNodeL3(path);
 
-	const copiedNode = GetCopiedNode();
-	const copiedNodePath = GetCopiedNodePath();
-
-	// if we're copying a (single-premise) argument into a place where it's supposed to be a claim, we have to paste just that inner claim
-	/* if (copiedNode && copiedNode.type == MapNodeType.Argument && IsMultiPremiseArgument(node) && holderType == null) {
-		copiedNode = GetNodeChildrenL3(copiedNode)[0];
-		copiedNodePath = copiedNode ? `${copiedNodePath}/${copiedNode._id}` : null;
-		// todo: ms old wrapper is also deleted (probably)
-	} */
-
-	// if we're copying a claim into a place where it's supposed to be an argument, pretend we had actually copied the parent-arg of it
-	/* if (copiedNode && copiedNode.type == MapNodeType.Claim && holderType != null) {
-		copiedNode = GetNodeL3(SlicePath(copiedNodePath, 1));
-		copiedNodePath = SlicePath(copiedNodePath, 1);
-	} */
-
-	return {
-		_: (ForUnlink_GetError(MeID(), node), ForDelete_GetError(MeID(), node)),
-		// userID: MeID(), // not needed in Connect(), since permissions already watches its data
-		permissions: GetUserPermissionGroups(MeID()),
-		parent,
-		// nodeChildren: GetNodeChildrenL3(node, path),
-		nodeChildren: GetNodeChildrenL3(node, path),
-		combinedWithParentArg: IsPremiseOfSinglePremiseArgument(node, parent),
-		copiedNode,
-		copiedNodePath,
-		copiedNode_asCut: State(a => a.main.copiedNodePath_asCut),
-		pathsToChangedInSubtree,
-	};
-};
-@Connect(connector)
 @ExpensiveComponent
-export class NodeUI_Menu extends BaseComponentWithConnector(connector, {}) {
+export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 	render() {
-		const { map, node, path, inList, holderType,
-			permissions, parent, nodeChildren, combinedWithParentArg, copiedNode, copiedNodePath, copiedNode_asCut, pathsToChangedInSubtree } = this.props;
+		const { map, node, path, inList, holderType } = this.props;
+
+		const pathsToChangedInSubtree = Watch(() => {
+			if (map == null) return null;
+
+			const sinceTime = GetTimeFromWhichToShowChangedNodes(map._key);
+			const pathsToChangedNodes = GetPathsToNodesChangedSinceX(map._key, sinceTime);
+			return pathsToChangedNodes.filter(a => a == path || a.startsWith(`${path}/`)); // also include self, for this
+		}, [map, path]);
+		const parent = GetParentNodeL3.Watch(path);
+
+		const copiedNode = GetCopiedNode.Watch();
+		const copiedNodePath = GetCopiedNodePath.Watch();
+
+		const _ = Watch(() => (ForUnlink_GetError(MeID(), node), ForDelete_GetError(MeID(), node)), [node]);
+		const userID = MeID.Watch();
+		const permissions = GetUserPermissionGroups.Watch(userID);
+		// nodeChildren: GetNodeChildrenL3(node, path),
+		const nodeChildren = GetNodeChildrenL3.Watch(node, path);
+		const combinedWithParentArg = IsPremiseOfSinglePremiseArgument.Watch(node, parent);
+		const copiedNode_asCut = State.Watch(a => a.main.copiedNodePath_asCut);
+
 		const mapID = map ? map._key : null;
-		const userID = MeID();
 		// let validChildTypes = MapNodeType_Info.for[node.type].childTypes;
 		let validChildTypes = GetValidNewChildTypes(node, holderType, permissions);
 		const componentBox = holderType != null;

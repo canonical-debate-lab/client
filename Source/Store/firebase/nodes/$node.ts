@@ -110,7 +110,7 @@ export function AsNodeL2(node: MapNode, currentRevision: MapNodeRevision) {
 	delete result['link'];
 	return result;
 }
-export function GetNodeL2(nodeID: string | MapNode, path?: string) {
+export const GetNodeL2 = StoreAccessor((nodeID: string | MapNode, path?: string) => {
 	if (IsString(nodeID)) nodeID = GetNode(nodeID);
 	if (nodeID == null) return null;
 	const node = nodeID as MapNode;
@@ -121,7 +121,7 @@ export function GetNodeL2(nodeID: string | MapNode, path?: string) {
 
 	const nodeL2 = AsNodeL2(node, currentRevision);
 	return CachedTransform('GetNodeL2', [path], nodeL2, () => nodeL2);
-}
+});
 
 export function IsNodeL3(node: MapNode): node is MapNodeL2 {
 	return node['finalPolarity'] && node['link'];
@@ -180,12 +180,12 @@ export const GetNodeForm = StoreAccessor((node: MapNodeL2 | MapNodeL3, pathOrPar
 	if (link == null) return ClaimForm.Base;
 	return link.form;
 });
-export function GetLinkUnderParent(nodeID: string, parent: MapNode): ChildEntry {
+export const GetLinkUnderParent = StoreAccessor((nodeID: string, parent: MapNode): ChildEntry => {
 	if (parent == null) return null;
 	if (parent.children == null) return null; // post-delete, parent-data might have updated before child-data
 	const link = parent.children[nodeID];
 	return link;
-}
+});
 export function GetLinkAtPath(path: string) {
 	const nodeID = GetNodeID(path);
 	const parent = GetNode(GetNodeID(SlicePath(path, 1)));
@@ -203,7 +203,7 @@ export function GetAllNodeRevisionTitles(nodeRevision: MapNodeRevision): string[
 }
 
 /** Gets the main display-text for a node. (doesn't include equation explanation, quote sources, etc.) */
-export function GetNodeDisplayText(node: MapNodeL2, path?: string, form?: ClaimForm): string {
+export const GetNodeDisplayText = StoreAccessor((node: MapNodeL2, path?: string, form?: ClaimForm): string => {
 	form = form || GetNodeForm(node, path);
 	const titles = node.current.titles || {} as TitlesMap;
 
@@ -259,7 +259,7 @@ export function GetNodeDisplayText(node: MapNodeL2, path?: string, form?: ClaimF
 		}
 	}
 	return titles.base || missingTitleStrings[0];
-}
+});
 export const missingTitleStrings = ['(base title not set)', '(negation title not set)', '(yes-no-question title not set)'];
 
 export function GetValidChildTypes(nodeType: MapNodeType, path: string) {

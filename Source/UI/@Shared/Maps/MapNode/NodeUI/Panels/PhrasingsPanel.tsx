@@ -1,5 +1,5 @@
 import { Column, Button, Row, CheckBox, Pre } from 'react-vcomponents';
-import { BaseComponentWithConnector, BaseComponent } from 'react-vextensions';
+import { BaseComponentWithConnector, BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { Connect, InfoButton } from 'Utils/FrameworkOverrides';
 import { PropNameToTitle } from 'Utils/General/Others';
 import { GetNodeDisplayText } from 'Store/firebase/nodes/$node';
@@ -16,14 +16,11 @@ import { DetailsPanel_Phrasings } from './Phrasings_SubPanels/DetailsPanel';
 const Phrasing_FakeID = 'FAKE';
 
 type Props = {node: MapNodeL2, path: string};
-const connector = (state, { node }: Props) => ({
-	phrasings: GetNodePhrasings(node._key),
-});
-@Connect(connector)
-export class PhrasingsPanel extends BaseComponentWithConnector(connector, { selectedPhrasingID: null as string }) {
+export class PhrasingsPanel extends BaseComponentPlus({} as Props, { selectedPhrasingID: null as string }) {
 	render() {
-		let { node, path, phrasings } = this.props;
+		const { node, path } = this.props;
 		const { selectedPhrasingID } = this.state;
+		let phrasings = GetNodePhrasings.Watch(node._key);
 
 		// add one fake "precise" phrasing, matching the node's current text (temp)
 		phrasings = phrasings.slice();
@@ -68,10 +65,7 @@ export class PhrasingsPanel extends BaseComponentWithConnector(connector, { sele
 	}
 }
 
-const PhrasingRow_connector = (state, { phrasing }: {phrasing: MapNodePhrasing, index: number, selected: boolean, toggleSelected: ()=>any}) => ({
-});
-@Connect(PhrasingRow_connector)
-export class PhrasingRow extends BaseComponentWithConnector(PhrasingRow_connector, {}) {
+export class PhrasingRow extends BaseComponentPlus({} as {phrasing: MapNodePhrasing, index: number, selected: boolean, toggleSelected: ()=>any}, {}) {
 	render() {
 		const { phrasing, index, selected, toggleSelected } = this.props;
 		return (
@@ -94,10 +88,7 @@ export class PhrasingRow extends BaseComponentWithConnector(PhrasingRow_connecto
 	}
 }
 
-const Phrasing_RightPanel_connector = (state, {}: {phrasing: MapNodePhrasing}) => ({
-});
-// @Connect(Phrasing_RightPanel_connector)
-class Phrasing_RightPanel extends BaseComponentWithConnector(Phrasing_RightPanel_connector, {}) {
+class Phrasing_RightPanel extends BaseComponentPlus({} as {phrasing: MapNodePhrasing}, {}) {
 	render() {
 		const { phrasing } = this.props;
 		const backgroundColor = GetNodeColor({ type: MapNodeType.Category } as any);

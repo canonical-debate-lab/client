@@ -3,7 +3,7 @@ import { SleepAsync, Vector2i, ToInt } from 'js-vextensions';
 import keycode from 'keycode';
 import Moment from 'moment';
 import { Button, Column, Pre, Row, TextInput } from 'react-vcomponents';
-import { BaseComponentWithConnector, FindReact } from 'react-vextensions';
+import { BaseComponentWithConnector, FindReact, BaseComponentPlus } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { GetSearchTerms_Advanced } from 'Server/Commands/AddNodeRevision';
 import { GetRootNodeID } from 'Store/firebase/maps';
@@ -14,7 +14,7 @@ import { GetUser } from 'Store/firebase/users';
 import { GetOpenMapID } from 'Store/main';
 import { ACTMapViewMerge } from 'Store/main/mapViews/$mapView';
 import { MapNodeView, MapView } from 'Store/main/mapViews/@MapViews';
-import { State, Connect, ACTSet, DBPath, GetAsync, ActionSet, InfoButton, ErrorBoundary } from 'Utils/FrameworkOverrides';
+import { State, Connect, ACTSet, DBPath, GetAsync, ActionSet, InfoButton, ErrorBoundary, LogWarning, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { UUID } from 'Utils/General/KeyGenerator';
 import { NodeUI_Menu_Stub } from '../Maps/MapNode/NodeUI_Menu';
@@ -22,27 +22,9 @@ import { MapUI } from '../Maps/MapUI';
 
 const columnWidths = [0.68, 0.2, 0.12];
 
-const connector = (state, {}: {}) => {
-	const searchResults_partialTerms = State(a => a.main.search.searchResults_partialTerms);
-	const searchResultIDs = State(a => a.main.search.searchResults_nodeIDs);
-
-	let results_nodeRevisions = searchResultIDs == null ? null : searchResultIDs.map(revisionID => GetNodeRevision(revisionID));
-	if (searchResults_partialTerms.length) {
-		for (const term of searchResults_partialTerms) {
-			results_nodeRevisions = results_nodeRevisions.filter(a => GetAllNodeRevisionTitles(a).find(a => a.toLowerCase().includes(term)));
-		}
-	}
-
-	const results_nodeIDs = results_nodeRevisions == null ? null : results_nodeRevisions.map(a => a && a.node).Distinct();
-	return {
-		queryStr: State(a => a.main.search.queryStr),
-		results_nodeIDs,
-	};
-};
-@Connect(connector)
-export class SearchPanel extends BaseComponentWithConnector(connector, {}) {
+export class SearchPanel extends BaseComponentPlus({} as {}, {}, {} as {queryStr: string}) {
 	async PerformSearch() {
-		let { queryStr } = this.props;
+		let { queryStr } = this.stash;
 		const unrestricted = queryStr.endsWith(' /unrestricted');
 		if (unrestricted) {
 			queryStr = queryStr.slice(0, -' /unrestricted'.length);
@@ -71,7 +53,23 @@ export class SearchPanel extends BaseComponentWithConnector(connector, {}) {
 	}
 
 	render() {
-		const { queryStr, results_nodeIDs } = this.props;
+		const searchResults_partialTerms = State.Watch(a => a.main.search.searchResults_partialTerms);
+		const searchResultIDs = State.Watch(a => a.main.search.searchResults_nodeIDs);
+
+		const results_nodeRevisions = Watch(() => {
+			let result = searchResultIDs == null ? null : searchResultIDs.map(revisionID => GetNodeRevision(revisionID));
+			if (searchResults_partialTerms.length) {
+				for (const term of searchResults_partialTerms) {
+					result = results_nodeRevisions.filter(a => GetAllNodeRevisionTitles(a).find(a => a.toLowerCase().includes(term)));
+				}
+			}
+			return result;
+		}, [searchResultIDs, searchResults_partialTerms]);
+
+		const results_nodeIDs = results_nodeRevisions == null ? null : results_nodeRevisions.map(a => a && a.node).Distinct();
+		const queryStr = State.Watch(a => a.main.search.queryStr);
+
+		this.Stash({ queryStr });
 		return (
 			<Column style={{ width: 750, padding: 5, background: 'rgba(0,0,0,.7)', borderRadius: '0 0 0 5px' }}>
 				<Row center>
@@ -136,23 +134,7 @@ export class SearchPanel extends BaseComponentWithConnector(connector, {}) {
 	}
 }
 
-const SearchResultRow_connector = (state, { nodeID }: {nodeID: string, index: number}) => {
-	const node = GetNodeL2(nodeID);
-	return {
-		node,
-		creator: node ? GetUser(node.creator) : null,
-
-		mapID: GetOpenMapID(),
-		rootNodeID: GetRootNodeID(GetOpenMapID()),
-
-		findNode_state: State(a => a.main.search.findNode_state),
-		findNode_node: State(a => a.main.search.findNode_node),
-		findNode_resultPaths: State(a => a.main.search.findNode_resultPaths),
-		findNode_currentSearchDepth: State(a => a.main.search.findNode_currentSearchDepth),
-	};
-};
-@Connect(SearchResultRow_connector)
-export class SearchResultRow extends BaseComponentWithConnector(SearchResultRow_connector, {}) {
+export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, index: number}, {}) {
 	ComponentWillReceiveProps(props) {
 		const { nodeID, rootNodeID, findNode_state, findNode_node } = props;
 		if (findNode_node === nodeID) {
@@ -208,7 +190,18 @@ export class SearchResultRow extends BaseComponentWithConnector(SearchResultRow_
 	}
 
 	render() {
-		const { nodeID, index, node, creator, mapID, findNode_state, findNode_node, findNode_resultPaths, findNode_currentSearchDepth } = this.props;
+		const { nodeID, index } = this.props;
+		const node = GetNodeL2.Watch(nodeID);
+		const creator = Watch(() => (node ? GetUser(node.creator) : null), [node]);
+
+		const mapID = GetOpenMapID.Watch();
+		const rootNodeID = GetRootNodeID.Watch(GetOpenMapID());
+
+		const findNode_state = State.Watch(a => a.main.search.findNode_state);
+		const findNode_node = State.Watch(a => a.main.search.findNode_node);
+		const findNode_resultPaths = State.Watch(a => a.main.search.findNode_resultPaths);
+		const findNode_currentSearchDepth = State.Watch(a => a.main.search.findNode_currentSearchDepth);
+
 		// if (node == null) return <Row>Loading... (#{nodeID})</Row>;
 		if (node == null) return <Row></Row>;
 

@@ -1,17 +1,12 @@
-import { BaseComponent } from 'react-vextensions';
-import { Connect, PageContainer } from 'Utils/FrameworkOverrides';
+import { BaseComponentPlus } from 'react-vextensions';
 import { globalMapID } from 'Store/firebase/nodes/@MapNode';
+import { PageContainer } from 'Utils/FrameworkOverrides';
 import { GetMap } from '../../Store/firebase/maps';
-import { Map } from '../../Store/firebase/maps/@Map';
 import { MapUI } from '../@Shared/Maps/MapUI';
 
-type Props = {} & Partial<{map: Map}>;
-@Connect(state => ({
-	map: GetMap(globalMapID),
-}))
-export class GlobalMapUI extends BaseComponent<Props, {}> {
+export class GlobalMapUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
-		const { map } = this.props;
+		const map = GetMap.Watch(globalMapID);
 		return (
 			<PageContainer fullWidth={true} fullHeight={true} style={{ margin: 0, padding: 0, background: null, filter: null }}>
 				<MapUI map={map} subNavBarWidth={/* 104 */ 54}/>

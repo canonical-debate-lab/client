@@ -1,5 +1,5 @@
 import { Button, Column, DropDown, DropDownContent, DropDownTrigger, Pre, Row } from 'react-vcomponents';
-import { BaseComponentWithConnector } from 'react-vextensions';
+import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { DeleteTimeline } from 'Server/Commands/DeleteTimeline';
 import { ACTMap_SelectedTimelineSet, GetSelectedTimeline, GetTimelineOpenSubpanel } from 'Store/main/maps/$map';
@@ -11,17 +11,13 @@ import { Map } from 'Store/firebase/maps/@Map';
 import { GetMapTimelines, GetTimelineSteps } from 'Store/firebase/timelines';
 import { MeID } from 'Store/firebase/users';
 
-const CollectionSubpanel_connector = (state, { map }: {map: Map}) => {
-	return {
-		timelines: GetMapTimelines(map),
-		timeline: GetSelectedTimeline(map._key),
-	};
-};
-@Connect(CollectionSubpanel_connector)
-export class CollectionSubpanel extends BaseComponentWithConnector(CollectionSubpanel_connector, {}) {
+export class CollectionSubpanel extends BaseComponentPlus({} as {map: Map}, {}) {
 	timelineSelect: DropDown;
 	render() {
-		const { map, timelines, timeline } = this.props;
+		const { map } = this.props;
+		const timelines = GetMapTimelines.Watch(map);
+		const timeline = GetSelectedTimeline.Watch(map._key);
+
 		return (
 			<Row style={{ height: 40, padding: 10 }}>
 				<DropDown ref={c => this.timelineSelect = c}>

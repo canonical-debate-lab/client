@@ -1,39 +1,38 @@
 import { CachedTransform } from 'js-vextensions';
 import { Button, Column, Row } from 'react-vcomponents';
-import { BaseComponent } from 'react-vextensions';
-import { GetCurrentURL, Link, Connect } from 'Utils/FrameworkOverrides';
+import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
+import { GetCurrentURL, Link, Connect, Watch } from 'Utils/FrameworkOverrides';
 import { TermComponentsUI } from 'UI/Database/Terms/TermComponentsUI';
-import {Fragment} from 'react';
+import { Fragment } from 'react';
 import { ParseSegmentsForPatterns } from '../../../../../../Utils/General/RegexHelpers';
 import { GetNodeDisplayText } from '../../../../../../Store/firebase/nodes/$node';
-import { MapNode } from '../../../../../../Store/firebase/nodes/@MapNode';
+import { MapNode, MapNodeL2 } from '../../../../../../Store/firebase/nodes/@MapNode';
 import { GetTerm, GetTermVariantNumber } from '../../../../../../Store/firebase/terms';
 import { Term } from '../../../../../../Store/firebase/terms/@Term';
 
 const termsPlaceholder = [];
 
-@Connect((state, { node, path, hoverTermID, openTermID }) => {
-	const displayText = GetNodeDisplayText(node, path);
-	// let segments = ParseSegmentsFromNodeDisplayText(displayText);
-	const segments = ParseSegmentsForPatterns(displayText, [
-		{ name: 'term', regex: /{(.+?)\}\[(.+?)\]/ },
-	]);
-	const terms = segments.filter(a => a.patternMatched == 'term').map(a => GetTerm(a.textParts[2]));
-	const terms_variantNumbers = terms.map(a => (a ? GetTermVariantNumber(a) : 1));
-	return {
-		// only pass terms when all are loaded
-		terms: CachedTransform('terms_transform1', [path], terms, () => (terms.every(a => a != null) ? terms : termsPlaceholder)),
-		terms_variantNumbers: CachedTransform('terms_variantNumbers_transform1', [path], terms_variantNumbers, () => terms_variantNumbers),
-		hoverTerm: hoverTermID ? GetTerm(hoverTermID) : null,
-		clickTerm: openTermID ? GetTerm(openTermID) : null,
-	};
-})
-export class DefinitionsPanel extends BaseComponent
-		<{node: MapNode, path: string, hoverTermID?: string, openTermID?: string, onHoverTerm?: (termID: string)=>void, onClickTerm?: (termID: string)=>void}
-			& Partial<{terms: Term[], terms_variantNumbers: number[], hoverTerm: Term, clickTerm: Term}>,
-		{/* localHoverTerm: Term, localClickTerm: Term */}> {
+export class DefinitionsPanel extends BaseComponentPlus(
+	{} as {node: MapNodeL2, path: string, hoverTermID?: string, openTermID?: string, onHoverTerm?: (termID: string)=>void, onClickTerm?: (termID: string)=>void},
+	{/* localHoverTerm: Term, localClickTerm: Term */},
+) {
 	render() {
-		const { node, path, terms, terms_variantNumbers, hoverTerm, clickTerm, onHoverTerm, onClickTerm } = this.props;
+		const { node, path, hoverTermID, openTermID, onHoverTerm, onClickTerm } = this.props;
+
+		const displayText = GetNodeDisplayText.Watch(node, path);
+		// let segments = ParseSegmentsFromNodeDisplayText(displayText);
+		const segments = ParseSegmentsForPatterns(displayText, [
+			{ name: 'term', regex: /{(.+?)\}\[(.+?)\]/ },
+		]);
+		const terms = Watch(() => {
+			const result = segments.filter(a => a.patternMatched == 'term').map(a => GetTerm(a.textParts[2]));
+			// only pass terms when all are loaded
+			return result.every(a => a != null) ? result : termsPlaceholder;
+		}, [segments]);
+		const terms_variantNumbers = Watch(() => terms.map(a => (a ? GetTermVariantNumber(a) : 1)), [terms]);
+		const hoverTerm = Watch(() => (hoverTermID ? GetTerm(hoverTermID) : null), [hoverTermID]);
+		const clickTerm = Watch(() => (openTermID ? GetTerm(openTermID) : null), [openTermID]);
+
 		// let {localHoverTerm, localClickTerm} = this.state;
 		// let term = localClickTerm || localHoverTerm || clickTerm || hoverTerm;
 		const term = hoverTerm || clickTerm;

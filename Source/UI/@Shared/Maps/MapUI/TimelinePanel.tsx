@@ -1,5 +1,5 @@
 import { Button, Column, Row } from 'react-vcomponents';
-import { BaseComponentWithConnector } from 'react-vextensions';
+import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { MeID } from 'Store/firebase/users';
 import { ACTMap_TimelineOpenSubpanelSet, GetSelectedTimeline, GetTimelineOpenSubpanel, TimelineSubpanel } from 'Store/main/maps/$map';
 import { Connect } from 'Utils/FrameworkOverrides';
@@ -9,17 +9,13 @@ import { CollectionSubpanel } from './TimelinePanel/CollectionSubpanel';
 import { EditorSubpanel } from './TimelinePanel/EditorSubpanel';
 import { PlayingSubpanel } from './TimelinePanel/PlayingSubpanel';
 
-const connector = (state, { map }: {map: Map}) => {
-	const timeline = GetSelectedTimeline(map._key);
-	return {
-		subpanel: GetTimelineOpenSubpanel(map._key),
-	};
-};
-@Connect(connector)
-export class TimelinePanel extends BaseComponentWithConnector(connector, {}) {
+export class TimelinePanel extends BaseComponentPlus({} as {map: Map}, {}) {
 	render() {
-		const { map, subpanel } = this.props;
-		const creatorOrMod = IsUserCreatorOrMod(MeID(), map);
+		const { map } = this.props;
+		const timeline = GetSelectedTimeline.Watch(map._key);
+		const subpanel = GetTimelineOpenSubpanel.Watch(map._key);
+		const creatorOrMod = IsUserCreatorOrMod.Watch(MeID.Watch(), map);
+
 		return (
 			<Row style={{ height: '100%', alignItems: 'flex-start' }}>
 				<Column className="clickThrough" style={{ width: 600, height: '100%', background: 'rgba(0,0,0,.7)' /* borderRadius: "10px 10px 0 0" */}}>

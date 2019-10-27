@@ -9,6 +9,7 @@ import { NodeChildHolder } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolder'
 import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolderBox';
 import { ExpensiveComponent, MaybeLog, ShouldLog, SlicePath, State, Watch } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
+import { useState, useMemo } from 'react';
 import { GetSubnodesInEnabledLayersEnhanced } from '../../../../Store/firebase/layers';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetNodeChildrenL3, GetParentNodeL2, GetParentNodeL3, IsRootNode } from '../../../../Store/firebase/nodes';
@@ -153,6 +154,11 @@ export class NodeUI extends BaseComponentPlus(null as Props, { expectedBoxWidth:
 		if (playingTimeline && playingTimeline_currentStepIndex < playingTimeline.steps.length - 1) {
 			nodeChildrenToShow = nodeChildrenToShow.filter(child => playingTimelineVisibleNodes.Contains(`${path}/${child._key}`));
 		}
+
+		/* this.Stash({ nodeChildren, nodeChildrenToShow, lengthThing: nodeChildrenToShow.length }); // for debugging
+		if (node._key.startsWith('wEKp')) {
+			Log('NodeChildrenToShow_length:' + nodeChildrenToShow.length);
+		} */
 
 		// if the premise of a single-premise argument
 		const parent = GetParentNodeL3(path);

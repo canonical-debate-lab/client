@@ -1,5 +1,5 @@
 import { Button, CheckBox, Column, DropDown, DropDownContent, DropDownTrigger, Row } from 'react-vcomponents';
-import { BaseComponent, GetInnerComp, BaseComponentWithConnector } from 'react-vextensions';
+import { BaseComponent, GetInnerComp, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
 import { Layer } from 'Store/firebase/layers/@Layer';
@@ -8,7 +8,7 @@ import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { GetUser, MeID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
-import { GetUpdates, GetAsync, Connect, State, HSLA } from 'Utils/FrameworkOverrides';
+import { GetUpdates, GetAsync, Connect, State, HSLA, Watch } from 'Utils/FrameworkOverrides';
 import { GetTimelinePanelOpen, ACTMap_TimelinePanelOpenSet } from 'Store/main/maps/$map';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { Button_GAD } from 'UI/@GAD/GADButton';
@@ -28,14 +28,13 @@ import { ACTPersonalMapSelect } from '../../../../Store/main/personal';
 import { ShowAddLayerDialog } from '../Layers/AddLayerDialog';
 import { MapDetailsUI } from '../MapDetailsUI';
 
-const connector = (state, { map }: {map: Map, subNavBarWidth: number}) => ({
-	_: IsUserCreatorOrMod(MeID(), map),
-	timelinePanelOpen: GetTimelinePanelOpen(map._key),
-});
-@Connect(connector)
-export class ActionBar_Left extends BaseComponentWithConnector(connector, {}) {
+export class ActionBar_Left extends BaseComponentPlus({} as {map: Map, subNavBarWidth: number}, {}) {
 	render() {
-		const { map, subNavBarWidth, timelinePanelOpen } = this.props;
+		const { map, subNavBarWidth } = this.props;
+		const userID = MeID.Watch();
+		IsUserCreatorOrMod.Watch(userID, map);
+		const timelinePanelOpen = GetTimelinePanelOpen.Watch(map._key);
+
 		return (
 			<nav style={{
 				position: 'absolute', zIndex: 1, left: 0, width: `calc(50% - ${subNavBarWidth / 2}px)`, top: 0, textAlign: 'center',
@@ -127,16 +126,13 @@ export class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: strin
 
 export const columnWidths = [0.5, 0.3, 0.1, 0.1];
 
-type LayersDropDownProps = {map: Map} & Partial<{layers: Layer[]}>;
-@Connect((state, { map }: LayersDropDownProps) => ({
-	// layers: GetLayersForMap(map),
-	layers: GetLayers(),
-}))
-class LayersDropDown extends BaseComponent<LayersDropDownProps, {}> {
+type LayersDropDownProps = {map: Map};
+class LayersDropDown extends BaseComponentPlus({} as LayersDropDownProps, {}) {
 	render() {
-		const { map, layers } = this.props;
-		const userID = MeID();
-		const creatorOrMod = IsUserCreatorOrMod(userID, map);
+		const { map } = this.props;
+		const userID = MeID.Watch();
+		const layers = GetLayers.Watch();
+		const creatorOrMod = IsUserCreatorOrMod.Watch(userID, map);
 		return (
 			<DropDown>
 				<DropDownTrigger><Button ml={5} text="Layers"/></DropDownTrigger>
@@ -194,16 +190,14 @@ class LayersDropDown extends BaseComponent<LayersDropDownProps, {}> {
 	}
 }
 
-type LayerUIProps = {index: number, last: boolean, map: Map, layer: Layer} & Partial<{creator: User, userLayerState: boolean}>;
-@Connect((state, { map, layer }: LayerUIProps) => ({
-	creator: layer && GetUser(layer.creator),
-	userLayerState: GetUserLayerStateForMap(MeID(), map._key, layer._key),
-}))
-class LayerUI extends BaseComponent<LayerUIProps, {}> {
+class LayerUI extends BaseComponentPlus({} as {index: number, last: boolean, map: Map, layer: Layer}, {}) {
 	render() {
-		const { index, last, map, layer, creator, userLayerState } = this.props;
-		const creatorOrMod = IsUserCreatorOrMod(MeID(), map);
-		const deleteLayerError = ForDeleteLayer_GetError(MeID(), layer);
+		const { index, last, map, layer } = this.props;
+		const userID = MeID.Watch();
+		const creator = Watch(() => layer && GetUser(layer.creator), [layer]);
+		const userLayerState = GetUserLayerStateForMap.Watch(userID, map._key, layer._key);
+		const creatorOrMod = IsUserCreatorOrMod.Watch(userID, map);
+		const deleteLayerError = ForDeleteLayer_GetError.Watch(userID, layer);
 		return (
 			<Column p="7px 10px" style={E(
 				{ background: index % 2 == 0 ? 'rgba(30,30,30,.7)' : 'rgba(0,0,0,.7)' },

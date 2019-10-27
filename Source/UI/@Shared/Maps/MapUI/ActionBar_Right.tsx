@@ -1,5 +1,5 @@
 import { Pre, Row, Select } from 'react-vcomponents';
-import { BaseComponentWithConnector } from 'react-vextensions';
+import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { ShowChangesSinceType } from 'Store/main/maps/@MapInfo';
 import { ShareDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Right/ShareDropDown';
 import { State, Connect, ActionSet, ACTSet, HSLA } from 'Utils/FrameworkOverrides';
@@ -18,15 +18,13 @@ for (let offset = 1; offset <= 5; offset++) {
 }
 changesSince_options.push({ name: 'All unclicked changes', value: `${ShowChangesSinceType.AllUnseenChanges}_null` });
 
-const connector = (state, { map }: {map: Map, subNavBarWidth: number}) => ({
-	showChangesSince_type: State(`main/maps/${map._key}/showChangesSince_type`) as ShowChangesSinceType,
-	showChangesSince_visitOffset: State(`main/maps/${map._key}/showChangesSince_visitOffset`) as number,
-	weighting: State(a => a.main.weighting),
-});
-@Connect(connector)
-export class ActionBar_Right extends BaseComponentWithConnector(connector, {}) {
+export class ActionBar_Right extends BaseComponentPlus({} as {map: Map, subNavBarWidth: number}, {}) {
 	render() {
-		const { map, subNavBarWidth, showChangesSince_type, showChangesSince_visitOffset, weighting } = this.props;
+		const { map, subNavBarWidth } = this.props;
+		const showChangesSince_type = State.Watch(`main/maps/${map._key}/showChangesSince_type`) as ShowChangesSinceType;
+		const showChangesSince_visitOffset = State.Watch(`main/maps/${map._key}/showChangesSince_visitOffset`) as number;
+		const weighting = State.Watch(a => a.main.weighting);
+
 		const tabBarWidth = 104;
 		return (
 			<nav style={{

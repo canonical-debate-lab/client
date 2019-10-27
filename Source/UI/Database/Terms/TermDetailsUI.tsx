@@ -3,9 +3,9 @@ import { User } from 'Store/firebase/users/@User';
 import { GetErrorMessagesUnderElement, GetEntries, Clone } from 'js-vextensions';
 import Moment from 'moment';
 import { CheckBox, Column, Pre, Row, RowLR, Select, TextInput } from 'react-vcomponents';
-import { BaseComponent, GetDOM } from 'react-vextensions';
+import { BaseComponent, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
-import { InfoButton, Connect } from 'Utils/FrameworkOverrides';
+import { InfoButton, Connect, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
 import { AddTerm } from '../../../Server/Commands/AddTerm';
@@ -15,13 +15,10 @@ import { Term, TermType, Term_disambiguationFormat, Term_nameFormat } from '../.
 import { GetUser } from '../../../Store/firebase/users';
 import { GetNiceNameForTermType } from '../../Database/TermsUI';
 
-type Props = {baseData: Term, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: Term, error: string)=>void}
-	& Partial<{creator: User, variantNumber: number}>;
-@Connect((state, { baseData, forNew }: Props) => ({
-	creator: !forNew && GetUser(baseData.creator),
-	variantNumber: !forNew && GetTermVariantNumber(baseData),
-}))
-export class TermDetailsUI extends BaseComponent<Props, {newData: Term, dataError: string, selectedTermComponent: TermComponent}> {
+export class TermDetailsUI extends BaseComponentPlus(
+	{} as {baseData: Term, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: Term, error: string)=>void},
+	{} as {newData: Term, dataError: string, selectedTermComponent: TermComponent},
+) {
 	ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.baseData != this.props.baseData) { // if base-data changed
 			this.SetState({ newData: Clone(props.baseData) });
@@ -36,8 +33,11 @@ export class TermDetailsUI extends BaseComponent<Props, {newData: Term, dataErro
 	}
 
 	render() {
-		const { forNew, enabled, style, onChange, creator, variantNumber } = this.props;
+		const { baseData, forNew, enabled, style, onChange } = this.props;
 		const { newData, selectedTermComponent } = this.state;
+		const creator = Watch(() => !forNew && GetUser(baseData.creator), [baseData.creator, forNew]);
+		const variantNumber = Watch(() => !forNew && GetTermVariantNumber(baseData), [baseData, forNew]);
+
 		const Change = _ => this.OnChange();
 
 		const splitAt = 170; const width = 600;

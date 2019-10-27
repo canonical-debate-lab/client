@@ -1,22 +1,20 @@
 import { VURL } from 'js-vextensions';
 import Moment from 'moment';
 import { Column, Div, Row } from 'react-vcomponents';
-import { BaseComponentWithConnector } from 'react-vextensions';
+import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { columnWidths } from 'UI/Debates';
-import { Connect, Link, HSLA } from 'Utils/FrameworkOverrides';
+import { Connect, Link, HSLA, Watch } from 'Utils/FrameworkOverrides';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { Map, MapType } from '../../../Store/firebase/maps/@Map';
 import { GetUser } from '../../../Store/firebase/users';
 import { ACTDebateMapSelect } from '../../../Store/main/debates';
 import { ACTPersonalMapSelect } from '../../../Store/main/personal';
 
-const connector = (state, { map }: {index: number, last: boolean, map: Map}) => ({
-	creator: map && GetUser(map.creator),
-});
-@Connect(connector)
-export class MapEntryUI extends BaseComponentWithConnector(connector, {}) {
+export class MapEntryUI extends BaseComponentPlus({} as {index: number, last: boolean, map: Map}, {}) {
 	render() {
-		const { index, last, map, creator } = this.props;
+		const { index, last, map } = this.props;
+		const creator = Watch(() => map && GetUser(map.creator), [map]);
+
 		const toURL = new VURL(null, [map.type == MapType.Personal ? 'personal' : 'debates', `${map._key}`]);
 		return (
 			<Column p="7px 10px" style={E(

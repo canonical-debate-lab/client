@@ -1,19 +1,14 @@
 import { GetErrorMessagesUnderElement, Clone } from 'js-vextensions';
 import Moment from 'moment';
 import { CheckBox, Column, Pre, RowLR, Spinner, TextInput } from 'react-vcomponents';
-import { BaseComponentWithConnector } from 'react-vextensions';
-import { Connect } from 'Utils/FrameworkOverrides';
+import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
+import { Connect, Watch } from 'Utils/FrameworkOverrides';
 import { Map, Map_namePattern } from '../../../Store/firebase/maps/@Map';
 import { GetUser } from '../../../Store/firebase/users';
 import { IDAndCreationInfoUI } from '../CommonPropUIs/IDAndCreationInfoUI';
 
 type Props = {baseData: Map, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: Map, ui: MapDetailsUI)=>void};
-const connector = (state, { baseData, forNew }: Props) => ({
-	creator: !forNew && GetUser(baseData.creator),
-});
-@Connect(connector)
-export class MapDetailsUI extends BaseComponentWithConnector(connector, { newData: null as Map }) {
-	static defaultProps = { enabled: true };
+export class MapDetailsUI extends BaseComponentPlus({ enabled: true } as Props, { newData: null as Map }) {
 	ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.baseData != this.props.baseData) { // if base-data changed
 			this.SetState({ newData: Clone(props.baseData) });
@@ -21,8 +16,9 @@ export class MapDetailsUI extends BaseComponentWithConnector(connector, { newDat
 	}
 
 	render() {
-		const { forNew, enabled, style, onChange, creator } = this.props;
+		const { baseData, forNew, enabled, style, onChange } = this.props;
 		const { newData } = this.state;
+		const creator = Watch(() => !forNew && GetUser(baseData.creator), [baseData.creator, forNew]);
 		const Change = (_) => {
 			if (onChange) onChange(this.GetNewData(), this);
 			this.Update();

@@ -1,22 +1,13 @@
-import { BaseComponent } from 'react-vextensions';
-import { Connect } from 'Utils/FrameworkOverrides';
+import { BaseComponentPlus } from 'react-vextensions';
+import { Watch } from 'Utils/FrameworkOverrides';
 import { GetTerm, GetTermVariantNumber } from '../../../../../Store/firebase/terms';
-import { Term } from '../../../../../Store/firebase/terms/@Term';
 
-@Connect((state, { termID }) => {
-	const term = GetTerm(termID);
-	return {
-		term,
-		termVariantNumber: term ? GetTermVariantNumber(term) : null,
-	};
-})
-export class TermPlaceholder extends BaseComponent
-		<{refText: string, termID: string, showVariantNumber?: boolean, onHover: (hovered: boolean)=>void, onClick: ()=>void}
-			& Partial<{term: Term, termVariantNumber: number}>,
-		{}> {
-	static defaultProps = { showVariantNumber: true };
+export class TermPlaceholder extends BaseComponentPlus({ showVariantNumber: true } as {refText: string, termID: string, showVariantNumber?: boolean, onHover: (hovered: boolean)=>void, onClick: ()=>void}, {}) {
 	render() {
-		const { refText, termID, showVariantNumber, onHover, onClick, term, termVariantNumber } = this.props;
+		const { refText, termID, showVariantNumber, onHover, onClick } = this.props;
+		const term = GetTerm.Watch(termID);
+		const termVariantNumber = Watch(() => (term ? GetTermVariantNumber(term) : null), [term]);
+
 		// if (term == null) return <a>...</a>;
 		// if (term == null) return <a>{refText}</a>;
 		return (

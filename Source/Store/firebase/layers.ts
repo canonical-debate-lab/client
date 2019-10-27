@@ -7,10 +7,10 @@ import { AsNodeL3, GetNodeL2 } from './nodes/$node';
 import { GetUserLayerStatesForMap } from './userMapInfo';
 import { MapNodeL3 } from './nodes/@MapNode';
 
-export function GetLayers(): Layer[] {
+export const GetLayers = StoreAccessor((): Layer[] => {
 	const layersMap = GetData({ collection: true }, 'layers');
 	return CachedTransform('GetLayers', [], layersMap, () => (layersMap ? layersMap.VValues(true) : []));
-}
+});
 export function GetLayer(id: string): Layer {
 	if (id == null) return null;
 	return GetData('layers', id);
@@ -70,6 +70,6 @@ export const GetSubnodesInEnabledLayersEnhanced = StoreAccessor((userID: string,
 	return CachedTransform('GetSubnodesInEnabledLayersEnhanced', [map._key, userID, anchorNodeID], subnodesL3, () => subnodesL3);
 });
 
-export function ForDeleteLayer_GetError(userID: string, layer: Layer) {
+export const ForDeleteLayer_GetError = StoreAccessor((userID: string, layer: Layer) => {
 	if ((layer.nodeSubnodes || {}).VKeys(true).length) return 'Cannot delete layer until all the subnodes within it are deleted.';
-}
+});

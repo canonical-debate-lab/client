@@ -1,5 +1,5 @@
 import { Switch } from 'react-vcomponents';
-import { BaseComponent } from 'react-vextensions';
+import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { Connect, State } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { ACTUserSelect, ACTTermSelect, ACTImageSelect } from 'Store/main/database';
@@ -8,13 +8,9 @@ import { ImagesUI } from './Database/ImagesUI';
 import { TermsUI } from './Database/TermsUI';
 import { UsersUI } from './Database/Users';
 
-type Props = {} & Partial<{currentSubpage: string}>;
-@Connect(state => ({
-	currentSubpage: State(a => a.main.database.subpage),
-}))
-export class DatabaseUI extends BaseComponent<Props, {}> {
+export class DatabaseUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
-		const { currentSubpage } = this.props;
+		const currentSubpage = State.Watch(a => a.main.database.subpage);
 		const page = 'database';
 		return (
 			<>

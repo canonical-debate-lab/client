@@ -3,7 +3,7 @@ import { Vector2i, VURL, FromJSON } from 'js-vextensions';
 import * as ReactColor from 'react-color';
 import { Provider } from 'react-redux';
 import { ColorPickerBox, Column, Button, Row, Pre } from 'react-vcomponents';
-import { BaseComponent, BaseComponentWithConnector, ShallowChanged } from 'react-vextensions';
+import { BaseComponent, BaseComponentWithConnector, ShallowChanged, BaseComponentPlus } from 'react-vextensions';
 import { VMenuLayer } from 'react-vmenu';
 import { MessageBoxUI, ShowMessageBox } from 'react-vmessagebox';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -215,17 +215,13 @@ declare global {
 g.mousePos = new Vector2i(undefined, undefined);
 G({ ctrlDown: false, shiftDown: false, altDown: false });
 
-const connector = (state, {}: {}) => ({
-	currentPage: State(a => a.main.page),
-});
-@Connect(connector)
-class RootUI extends BaseComponentWithConnector(connector, {}) {
+class RootUI extends BaseComponentPlus({} as {}, {}) {
 	/* shouldComponentUpdate(newProps, newState) {
 		// ignore change of 'router' prop -- we don't use it
 		return ShallowChanged(newProps.Excluding('router'), this.props.Excluding('router')) || ShallowChanged(newState, this.state);
 	} */
 	render() {
-		// let {currentPage} = this.props;
+		// const currentPage = State.Watch(a => a.main.page);
 		const background = GetUserBackground(MeID());
 		return (
 			<Column className='background'/* 'unselectable' */ style={{ height: '100%' }}>

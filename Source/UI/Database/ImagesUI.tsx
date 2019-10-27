@@ -1,8 +1,8 @@
 import { Button, Column, Div, Pre, Row, Span } from 'react-vcomponents';
-import { BaseComponent } from 'react-vextensions';
+import { BaseComponent, BaseComponentPlus, UseEffect } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
-import { Connect, RemoveHelpers } from 'Utils/FrameworkOverrides';
+import { Connect, RemoveHelpers, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { DeleteImage } from '../../Server/Commands/DeleteImage';
 import { UpdateImageData, UpdateImageData_allowedPropUpdates } from '../../Server/Commands/UpdateImageData';
@@ -16,29 +16,23 @@ import { ShowSignInPopup } from '../@Shared/NavBar/UserPanel';
 import { ShowAddImageDialog } from './Images/AddImageDialog';
 import { ImageDetailsUI } from './Images/ImageDetailsUI';
 
-@Connect(() => ({
-	images: GetImages(),
-	selectedImage: GetSelectedImage(),
-	permissions: GetUserPermissionGroups(MeID()),
-}))
-export class ImagesUI extends BaseComponent
-		<{} & Partial<{images: Image[], selectedImage: Image, permissions: PermissionGroupSet}>,
-		{selectedImage_newData: Image, selectedImage_newDataError: string}> {
-	ComponentWillReceiveProps(props) {
-		if (props.selectedImage != this.props.selectedImage) {
-			this.SetState({ selectedImage_newData: null, selectedImage_newDataError: null });
-		}
-	}
-
+export class ImagesUI extends BaseComponentPlus({} as {}, {} as { selectedImage_newData: Image, selectedImage_newDataError: string }) {
 	scrollView: ScrollView;
 	render() {
-		const { images, selectedImage, permissions } = this.props;
-		if (images == null) return <div>Loading images...</div>;
-		const userID = MeID();
 		const { selectedImage_newData, selectedImage_newDataError } = this.state;
 
-		const creatorOrMod = selectedImage != null && IsUserCreatorOrMod(userID, selectedImage);
+		const userID = MeID();
+		const images = GetImages.Watch();
+		const selectedImage = GetSelectedImage.Watch();
+		const permissions = GetUserPermissionGroups.Watch(userID);
+		const creatorOrMod = Watch(() => selectedImage != null && IsUserCreatorOrMod(userID, selectedImage), [selectedImage, userID]);
 
+		// whenever selectedImage changes, reset the derivative states (there's probably a better way to do this, but I don't know how yet)
+		UseEffect(() => {
+			this.SetState({ selectedImage_newData: null, selectedImage_newDataError: null });
+		}, [selectedImage]);
+
+		if (images == null) return <div>Loading images...</div>;
 		return (
 			<Row plr={7} style={{ height: '100%', alignItems: 'flex-start' }}>
 				<Column mtb={10} style={{

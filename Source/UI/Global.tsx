@@ -1,20 +1,13 @@
-import { BaseComponent, BaseProps } from 'react-vextensions';
-import { Column } from 'react-vcomponents';
 import { Switch } from 'react-vcomponents';
-import { State, Connect } from 'Utils/FrameworkOverrides';
-import { ES } from 'Utils/UI/GlobalStyles';
-import { SubNavBar } from './@Shared/SubNavBar';
-import { SubNavBarButton } from './@Shared/SubNavBar';
-import { GlobalMapUI } from './Global/GlobalMapUI';
+import { BaseComponentPlus } from 'react-vextensions';
+import { State } from 'Utils/FrameworkOverrides';
+import { SubNavBar, SubNavBarButton } from './@Shared/SubNavBar';
 import { GlobalListUI } from './Global/GlobalListUI';
+import { GlobalMapUI } from './Global/GlobalMapUI';
 
-type Props = {} & Partial<{currentSubpage: string}>;
-@Connect(state => ({
-	currentSubpage: State(a => a.main.global.subpage),
-}))
-export class GlobalUI extends BaseComponent<Props, {}> {
+export class GlobalUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
-		const { currentSubpage } = this.props;
+		const currentSubpage = State.Watch(a => a.main.global.subpage);
 		const page = 'global';
 		return (
 			<>

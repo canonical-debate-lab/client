@@ -1,12 +1,12 @@
 import { StandardCompProps } from 'Utils/UI/General';
 import { DeepGet, E, SleepAsync, Timer, Vector2i, FindDOMAll, Assert, FromJSON, ToJSON } from 'js-vextensions';
 import { Column, Row } from 'react-vcomponents';
-import { BaseComponentWithConnector, FindReact, GetDOM } from 'react-vextensions';
+import { BaseComponentWithConnector, FindReact, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { VMenuStub } from 'react-vmenu';
 import { VMenuItem } from 'react-vmenu/dist/VMenu';
 import { ScrollView } from 'react-vscrollview';
 import { TimelinePlayerUI } from 'UI/@Shared/Maps/MapUI/TimelinePlayerUI';
-import { State, Connect, GetDistanceBetweenRectAndPoint, inFirefox } from 'Utils/FrameworkOverrides';
+import { State, Connect, GetDistanceBetweenRectAndPoint, inFirefox, Watch } from 'Utils/FrameworkOverrides';
 import { GetTimelinePanelOpen } from 'Store/main/maps/$map';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { ActionBar_Left_GAD } from 'UI/@GAD/ActionBar_Left_GAD';
@@ -62,37 +62,14 @@ type Props = {
 	padding?: {left: number, right: number, top: number, bottom: number},
 	subNavBarWidth?: number,
 } & React.HTMLProps<HTMLDivElement>;
-const connector = (state: RootState, { map, rootNode }: Props) => {
-	if (rootNode == null && map && map.rootNode) {
-		rootNode = GetNodeL3(`${map.rootNode}`);
-	}
-
-	if (map) {
-		const nodeID = State('main', 'mapViews', map._key, 'bot_currentNodeID');
-		if (isBot && nodeID) {
-			rootNode = GetNodeL3(`${nodeID}`);
-		}
-	}
-
-	return {
-		rootNode,
-		/* focusNode: GetMapView(state, {map}) ? GetMapView(state, {map}).focusNode : null,
-		viewOffset: GetMapView(state, {map}) ? GetMapView(state, {map}).viewOffset : null, */
-		/* focusNode_available: (GetMapView(state, {map}) && GetMapView(state, {map}).focusNode) != null,
-		viewOffset_available: (GetMapView(state, {map}) && GetMapView(state, {map}).viewOffset) != null, */
-		timelinePanelOpen: map ? GetTimelinePanelOpen(map._key) : null,
-	};
-};
-@Connect(connector)
-export class MapUI extends BaseComponentWithConnector(connector, {}) {
+export class MapUI extends BaseComponentPlus({
+	// padding: {left: 2000, right: 2000, top: 1000, bottom: 1000}
+	padding: { left: screen.availWidth, right: screen.availWidth, top: screen.availHeight, bottom: screen.availHeight },
+	subNavBarWidth: 0,
+} as Props, {}) {
 	private static currentMapUI: MapUI;
 	static get CurrentMapUI() { return MapUI.currentMapUI && MapUI.currentMapUI.mounted ? MapUI.currentMapUI : null; }
 
-	// static defaultProps = {padding: {left: 2000, right: 2000, top: 1000, bottom: 1000}};
-	static defaultProps = {
-		padding: { left: screen.availWidth, right: screen.availWidth, top: screen.availHeight, bottom: screen.availHeight },
-		subNavBarWidth: 0,
-	};
 	static ValidateProps(props) {
 		const { rootNode } = props;
 		if (rootNode) {
@@ -105,7 +82,22 @@ export class MapUI extends BaseComponentWithConnector(connector, {}) {
 	mapUI: HTMLDivElement;
 	downPos: Vector2i;
 	render() {
-		const { map, rootNode, withinPage, padding, subNavBarWidth, timelinePanelOpen, ...rest } = this.props;
+		const { map, rootNode: rootNode_passed, withinPage, padding, subNavBarWidth, ...rest } = this.props;
+		const rootNode = Watch(() => {
+			let result = rootNode_passed;
+			if (result == null && map && map.rootNode) {
+				result = GetNodeL3(`${map.rootNode}`);
+			}
+			if (map) {
+				const nodeID = State('main', 'mapViews', map._key, 'bot_currentNodeID');
+				if (isBot && nodeID) {
+					result = GetNodeL3(`${nodeID}`);
+				}
+			}
+			return result;
+		}, [map, rootNode_passed]);
+		const timelinePanelOpen = Watch(() => (map ? GetTimelinePanelOpen(map._key) : null), [map]);
+
 		if (map == null) {
 			return <div style={ES({ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, fontSize: 25 })}>Loading map...</div>;
 		}

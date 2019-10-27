@@ -1,6 +1,6 @@
 import { Assert } from 'js-vextensions';
 import { Button, Column, Div, Pre, Row, Span } from 'react-vcomponents';
-import { BaseComponent } from 'react-vextensions';
+import { BaseComponent, BaseComponentPlus, UseEffect } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
 import { RemoveHelpers, Connect } from 'Utils/FrameworkOverrides';
@@ -18,27 +18,22 @@ import { ShowAddTermDialog, TermDetailsUI } from './Terms/TermDetailsUI';
 import { ShowAddTermComponentDialog } from './Terms/AddTermComponentDialog';
 import { TermComponentsUI } from './Terms/TermComponentsUI';
 
-type Props = {} & Partial<{terms: Term[], selectedTerm: Term, permissions: PermissionGroupSet}>;
-@Connect(state => ({
-	terms: GetTerms(),
-	selectedTerm: GetSelectedTerm(),
-	permissions: GetUserPermissionGroups(MeID()),
-}))
-export class TermsUI extends BaseComponent<Props, {selectedTerm_newData: Term, selectedTerm_newDataError: string}> {
-	ComponentWillReceiveProps(props) {
-		if (props.selectedTerm != this.props.selectedTerm) {
-			this.SetState({ selectedTerm_newData: null, selectedTerm_newDataError: null });
-		}
-	}
-
+export class TermsUI extends BaseComponentPlus({} as {}, {} as {selectedTerm_newData: Term, selectedTerm_newDataError: string}) {
 	render() {
-		const { terms, selectedTerm, permissions } = this.props;
-		if (terms == null) return <div>Loading terms...</div>;
-		const userID = MeID();
 		const { selectedTerm_newData, selectedTerm_newDataError } = this.state;
 
+		const userID = MeID();
+		const terms = GetTerms.Watch();
+		const selectedTerm = GetSelectedTerm.Watch();
+		const permissions = GetUserPermissionGroups.Watch(userID);
 		const creatorOrMod = selectedTerm != null && IsUserCreatorOrMod(userID, selectedTerm);
 
+		// whenever selectedTerm changes, reset the derivative states (there's probably a better way to do this, but I don't know how yet)
+		UseEffect(() => {
+			this.SetState({ selectedTerm_newData: null, selectedTerm_newDataError: null });
+		}, [selectedTerm]);
+
+		if (terms == null) return <div>Loading terms...</div>;
 		return (
 			<Row plr={7} style={{ height: '100%', alignItems: 'flex-start' }}>
 				<Column mtb={10} style={{
@@ -138,13 +133,10 @@ function GetHelperTextForTermType(term: Term) {
 	Assert(false);
 }
 
-type TermUI_Props = {term: Term, first: boolean, selected: boolean} & Partial<{variantNumber: number}>;
-@Connect((state, props: TermUI_Props) => ({
-	variantNumber: GetTermVariantNumber(props.term),
-}))
-export class TermUI extends BaseComponent<TermUI_Props, {}> {
+export class TermUI extends BaseComponentPlus({} as {term: Term, first: boolean, selected: boolean}, {}) {
 	render() {
-		const { term, first, selected, variantNumber } = this.props;
+		const { term, first, selected } = this.props;
+		const variantNumber = GetTermVariantNumber.Watch(term);
 		return (
 			<Row mt={first ? 0 : 5} className="cursorSet"
 				style={E(

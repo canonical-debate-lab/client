@@ -1,7 +1,7 @@
 import chroma from 'chroma-js';
 import { E } from 'js-vextensions';
 import { Button, Span } from 'react-vcomponents';
-import { BaseComponent, BaseComponentWithConnector } from 'react-vextensions';
+import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { MeID } from 'Store/firebase/users';
 import { Connect, SlicePath } from 'Utils/FrameworkOverrides';
@@ -21,42 +21,18 @@ type Props = {
 	backgroundColor: chroma.Color, asHover: boolean, inList?: boolean, style?,
 	onPanelButtonHover: (panel: string)=>void, onPanelButtonClick: (panel: string)=>void,
 };
-const connector = (state, { node, path }: Props) => {
-	const parentNode = GetParentNodeL3(path);
-
-	// probably temp; used to solve impact-rating-not-updating-in-ui issue
-	// ==========
-	/* let parent = GetNodeL3(SlicePath(path, 1));
-	let combineWithParentArgument = ShouldNodeBeCombinedWithParent(node, parent);
-	//let ratingReversed = ShouldRatingTypeBeReversed(node);
-
-	if (combineWithParentArgument) {
-		let ratingNode = parent;
-		let ratingNodePath = SlicePath(path, 1);
-		var impactRating_average = GetRatingAverage_AtPath(ratingNode, "impact");
-		var impactRating_fillPercent = GetFillPercentForRatingType(ratingNode, ratingNodePath, "impact");
-		//Log(`Node: ${node} Avg: ${impactRating_average} FillPercent: ${impactRating_fillPercent}`);
-	} */
-	// ==========
-
-	return {
-		form: GetNodeForm(node, path),
-		parentNode,
-		/* impactRating_average,
-		impactRating_fillPercent, */
-	};
-};
-@Connect(connector)
-export class MapNodeUI_LeftBox extends BaseComponentWithConnector(connector, {}) {
-	static defaultProps = { panelPosition: 'left' };
+export class MapNodeUI_LeftBox extends BaseComponentPlus({ panelPosition: 'left' } as Props, {}) {
 	render() {
 		const {
 			map, path, node, nodeView, ratingsRoot,
 			panelPosition, local_openPanel,
 			backgroundColor, asHover, inList, onPanelButtonHover, onPanelButtonClick, style,
-			form, parentNode, children,
+			children,
 		} = this.props;
 		const openPanel = local_openPanel || nodeView.openPanel;
+
+		const form = GetNodeForm.Watch(node, path);
+		const parentNode = GetParentNodeL3.Watch(path);
 
 		const nodeReversed = form == ClaimForm.Negation;
 		const nodeTypeInfo = MapNodeType_Info.for[node.type];
