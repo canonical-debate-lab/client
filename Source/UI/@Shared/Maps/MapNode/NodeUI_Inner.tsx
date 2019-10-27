@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { DoNothing, Timer, ToJSON, Vector2i, VRect, WaitXThenRun, IsNumber, Assert, A } from 'js-vextensions';
 import { Draggable } from 'react-beautiful-dnd';
 import ReactDOM from 'react-dom';
-import { BaseComponent, BaseComponentWithConnector, GetDOM, Handle, UseEffect, UseState, SimpleShouldUpdate, UseCallback, WarnOfTransientObjectProps } from 'react-vextensions';
+import { BaseComponent, BaseComponentWithConnector, GetDOM, Handle, UseEffect, UseState, SimpleShouldUpdate, UseCallback, WarnOfTransientObjectProps, BaseComponentPlus } from 'react-vextensions';
 import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthScoreComposite, RS_GetAllValues } from 'Store/firebase/nodeRatings/ReasonScore';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
@@ -72,8 +72,12 @@ type Props = {
 		index: indexInNodeList,
 	};
 }) */
+
 @ExpensiveComponent
-export class NodeUI_Inner extends BaseComponent<Props, {}, {setHovered}> {
+export class NodeUI_Inner extends BaseComponentPlus(
+	{ panelPosition: 'left' } as Props,
+	{ hovered: false, hoverPanel: null as string, hoverTermID: null as string, local_openPanel: null as string, lastWidthWhenNotPreview: 0 },
+) {
 	static defaultProps = { panelPosition: 'left' };
 	// static warnOfTransientObjectProps = true;
 
@@ -82,8 +86,6 @@ export class NodeUI_Inner extends BaseComponent<Props, {}, {setHovered}> {
 	// titlePanel: Handle<typeof TitlePanel>;
 
 	checkStillHoveredTimer = new Timer(100, () => {
-		const { setHovered } = this.stash;
-
 		const dom = GetDOM(this.root);
 		if (dom == null) {
 			this.checkStillHoveredTimer.Stop();
@@ -97,11 +99,12 @@ export class NodeUI_Inner extends BaseComponent<Props, {}, {setHovered}> {
 		const mouseRect = new VRect(mousePos, new Vector2i(1, 1));
 		const intersectsOne = mouseRect.Intersects(mainRect) || (leftBoxRect && mouseRect.Intersects(leftBoxRect));
 		// Log(`Main: ${mainRect} Mouse:${mousePos} Intersects one?:${intersectsOne}`);
-		setHovered(intersectsOne);
+		this.SetState({ hovered: intersectsOne });
 	});
 
 	render() {
 		const { indexInNodeList, map, node, nodeView, path, width, widthOverride, panelPosition, useLocalPanelState, style } = this.props;
+		let { hovered, hoverPanel, hoverTermID, local_openPanel, lastWidthWhenNotPreview } = this.state;
 
 		// connector part
 		// ==========
@@ -155,12 +158,6 @@ export class NodeUI_Inner extends BaseComponent<Props, {}, {setHovered}> {
 		// the rest
 		// ==========
 
-		let [hovered, setHovered] = UseState(false);
-		const [hoverPanel, setHoverPanel] = UseState(null as string);
-		const [hoverTermID, setHoverTermID] = UseState(null as string);
-		let [local_openPanel, setLocal_openPanel] = UseState(null as string);
-		const [lastWidthWhenNotPreview, setLastWidthWhenNotPreview] = UseState(0);
-
 		UseEffect(() => {
 			/* const { dragInfo } = this.props;
 			const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
@@ -168,7 +165,7 @@ export class NodeUI_Inner extends BaseComponent<Props, {}, {setHovered}> {
 			// setDragActive(this.root.DOM.getBoundingClientRect().width);
 			if (this.root && this.root.DOM) {
 				if (this.root.DOM.getBoundingClientRect().width != lastWidthWhenNotPreview) {
-					setLastWidthWhenNotPreview(this.root.DOM.getBoundingClientRect().width);
+					this.SetState({ lastWidthWhenNotPreview: this.root.DOM.getBoundingClientRect().width });
 				}
 			}
 		});
@@ -224,13 +221,13 @@ export class NodeUI_Inner extends BaseComponent<Props, {}, {setHovered}> {
 		const expanded = nodeView && nodeView.expanded;
 
 		const onMouseEnter = UseCallback(() => {
-			setHovered(true);
+			this.SetState({ hovered: true });
 			this.checkStillHoveredTimer.Start();
-		}, [setHovered]);
+		}, []);
 		const onMouseLeave = UseCallback(() => {
-			setHovered(false);
+			this.SetState({ hovered: false });
 			this.checkStillHoveredTimer.Stop();
-		}, [setHovered]);
+		}, []);
 		const onClick = UseCallback((e) => {
 			if ((e.nativeEvent as any).ignore) return;
 			/* if (useLocalPanelState) {
@@ -280,11 +277,10 @@ export class NodeUI_Inner extends BaseComponent<Props, {}, {setHovered}> {
 					beforeChildren={<>
 						{leftPanelShow &&
 						<MapNodeUI_LeftBox {...{ map, path, node, nodeView, ratingsRoot, panelPosition, local_openPanel, backgroundColor }} asHover={hovered}
-							onPanelButtonHover={panel => setHoverPanel(panel)}
+							onPanelButtonHover={panel => this.SetState({ hoverPanel: panel })}
 							onPanelButtonClick={(panel) => {
 								if (useLocalPanelState) {
-									setLocal_openPanel(panel);
-									setHoverPanel(null);
+									this.SetState({ local_openPanel: panel, hoverPanel: null });
 									return;
 								}
 
@@ -292,7 +288,7 @@ export class NodeUI_Inner extends BaseComponent<Props, {}, {setHovered}> {
 									store.dispatch(new ACTMapNodePanelOpen({ mapID: map._key, path, panel }));
 								} else {
 									store.dispatch(new ACTMapNodePanelOpen({ mapID: map._key, path, panel: null }));
-									setHoverPanel(null);
+									this.SetState({ hoverPanel: null });
 								}
 							}}>
 							{/* fixes click-gap */}
@@ -318,7 +314,7 @@ export class NodeUI_Inner extends BaseComponent<Props, {}, {setHovered}> {
 					afterChildren={<>
 						{bottomPanelShow
 							&& <NodeUI_BottomPanel {...{ map, node, nodeView, path, parent, width, widthOverride, panelPosition, panelToShow, hovered, backgroundColor }}
-								hoverTermID={hoverTermID} onTermHover={termID => setHoverTermID(termID)}/>}
+								hoverTermID={hoverTermID} onTermHover={termID => this.SetState({ hoverTermID: termID })}/>}
 						{reasonScoreValues && showReasonScoreValues
 							&& <ReasonScoreValueMarkers {...{ node, combinedWithParentArgument, reasonScoreValues }}/>}
 					</>}
@@ -330,8 +326,6 @@ export class NodeUI_Inner extends BaseComponent<Props, {}, {setHovered}> {
 			return ReactDOM.createPortal(result, portal);
 		} */
 		// return result;
-
-		this.Stash({ setHovered });
 
 		const GetDNDProps = () => {
 			if (!IsUserCreatorOrMod(MeID(), node)) return null;

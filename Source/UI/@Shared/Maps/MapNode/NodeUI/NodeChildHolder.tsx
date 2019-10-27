@@ -1,6 +1,6 @@
-import { CachedTransform, Vector2i, emptyObj, nl, Assert, ToJSON, Timer, VRect, WaitXThenRun, Vector3i, Clone } from 'js-vextensions';
+import { CachedTransform, Vector2i, emptyObj, nl, Assert, ToJSON, Timer, VRect, WaitXThenRun, Vector3i } from 'js-vextensions';
 import { Button, Column, Div, Row } from 'react-vcomponents';
-import { BaseComponentWithConnector, GetInnerComp, RenderSource, GetDOM, UseState, BaseComponent, UseEffect, SimpleShouldUpdate, UseCallback, BaseComponentPlus } from 'react-vextensions';
+import { BaseComponentWithConnector, GetInnerComp, RenderSource, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { GetFillPercent_AtPath } from 'Store/firebase/nodeRatings';
 import { GetNodeChildrenL3, HolderType, GetParentNodeL3, GetHolderType, GetParentNodeID } from 'Store/firebase/nodes';
 import { MapNodeL3, ClaimForm } from 'Store/firebase/nodes/@MapNode';
@@ -15,8 +15,6 @@ import { ES } from 'Utils/UI/GlobalStyles';
 import { DroppableInfo } from 'Utils/UI/DNDStructures';
 import * as React from 'react';
 import { DroppableProvided, Droppable, DroppableStateSnapshot } from 'react-beautiful-dnd';
-import { GetPathsToNodesChangedSinceX } from 'Store/firebase/mapNodeEditTimes';
-import { useMemo, useCallback } from 'react';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { IsMultiPremiseArgument } from '../../../../../Store/firebase/nodes/$node';
 import { Polarity } from '../../../../../Store/firebase/nodes/@MapNode';
@@ -28,52 +26,33 @@ type Props = {
 	separateChildren: boolean, showArgumentsControlBar: boolean, linkSpawnPoint: number, vertical?: boolean, minWidth?: number,
 	onHeightOrDividePointChange?: (dividePoint: number)=>void,
 };
+const initialState = {
+	childrenWidthOverride: null as number,
+	oldChildBoxOffsets: null as {[key: number]: Vector2i},
+	placeholderRect: null as VRect,
+};
 
-export type NodeChildHolder_InstanceStash = {CheckForChanges};
-
-@SimpleShouldUpdate
-export class NodeChildHolder extends BaseComponent<Props, {}, {nodeChildrenToShow, nodeChildren_fillPercents, UpdateChildrenWidthOverride, UpdateChildBoxOffsets, onHeightOrDividePointChange}> {
-	static defaultProps = { minWidth: 0 };
+export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props, initialState, {} as {nodeChildren_fillPercents: number[]}) {
 	/* static ValidateProps(props) {
 		let {node, path} = props;
 		//Assert(SplitStringBySlash_Cached(path).Distinct().length == SplitStringBySlash_Cached(path).length, `Node path contains a circular link! (${path})`);
 	} */
 
 	childBoxes: {[key: number]: NodeUI} = {};
-	instanceStash: NodeChildHolder_InstanceStash;
 	render() {
 		const { map, node, nodeView, path, nodeChildrenToShow, type, separateChildren, showArgumentsControlBar, linkSpawnPoint, vertical, minWidth, onHeightOrDividePointChange } = this.props;
+		let { childrenWidthOverride, oldChildBoxOffsets, placeholderRect } = this.state;
+		childrenWidthOverride = (childrenWidthOverride | 0).KeepAtLeast(minWidth);
 
-		// test; attaching stuff to instanceStash is the equivalent of attaching stuff to the component-instance
-		// (resolving callback dependency-regression, without requiring usage of "this" -- and letting you use redux/selector data directly, from within those callbacks)
-		/* const [instanceStash, _] = UseState({} as {CheckForChanges});
-		this.instanceStash = instanceStash; */
-
-		const initialChildLimit = Watch(() => State(a => a.main.initialChildLimit), []);
-
-		/* let nodeChildren_sortValues = IsSpecialEmptyArray(nodeChildrenToShow) ? emptyObj : nodeChildrenToShow.filter(a=>a).ToMap(child=>child._id+"", child=> {
-			return GetRatingAverage_AtPath(child, GetSortByRatingType(child));
-		});
-		let nodeChildren_sortValues = CachedTransform("nodeChildren_sortValues_transform1", [node._id], nodeChildren_sortValues, ()=>nodeChildren_sortValues); */
 		const nodeChildren_fillPercents = Watch(() => {
-			const early = IsSpecialEmptyArray(nodeChildrenToShow) ? emptyObj : nodeChildrenToShow.filter(a => a).ToMap(child => `${child._key}`, (child) => {
+			return IsSpecialEmptyArray(nodeChildrenToShow) ? emptyObj : nodeChildrenToShow.filter(a => a).ToMap(child => `${child._key}`, (child) => {
 				return GetFillPercent_AtPath(child, `${path}/${child._key}`);
 			});
-			return CachedTransform('nodeChildren_fillPercents_transform1', [node._key], early, () => early);
-		}, [node._key, nodeChildrenToShow, path]);
-		const currentNodeBeingAdded_path = Watch(() => State(a => a.main.currentNodeBeingAdded_path), []);
+		}, [nodeChildrenToShow, path]);
+		this.Stash({nodeChildren_fillPercents});
 
-		// rest (not Connect part)
-		// ==========
-
-		let [childrenWidthOverride, setChildrenWidthOverride] = UseState(null as number);
-		const [oldChildBoxOffsets, setOldChildBoxOffsets] = UseState(null as {[key: number]: Vector2i});
-		const [placeholderRect, setPlaceholderRect] = UseState(null as VRect);
-
-		const expandKey = type ? `expanded_${HolderType[type].toLowerCase()}` : 'expanded';
-		const expanded = nodeView[expandKey];
-
-		childrenWidthOverride = (childrenWidthOverride | 0).KeepAtLeast(minWidth);
+		const initialChildLimit = State.Watch(a => a.main.initialChildLimit);
+		const currentNodeBeingAdded_path = State.Watch(a => a.main.currentNodeBeingAdded_path);
 
 		let nodeChildrenToShowHere = nodeChildrenToShow;
 		let nodeChildrenToShowInRelevanceBox;
@@ -104,71 +83,6 @@ export class NodeChildHolder extends BaseComponent<Props, {}, {nodeChildrenToSho
 		const showAll = node._key == map.rootNode || node.type == MapNodeType.Argument;
 		if (showAll) [childLimit_up, childLimit_down] = [100, 100];
 
-		const StartGeneratingPositionedPlaceholder = (group: 'all' | 'up' | 'down') => {
-			const groups = { all: this.allChildHolder, up: this.upChildHolder, down: this.downChildHolder };
-			const childHolder = groups[group];
-			if (childHolder == null || !childHolder.mounted) {
-				// call again in a second, once child-holder is initialized
-				WaitXThenRun(0, () => StartGeneratingPositionedPlaceholder(group));
-				return;
-			}
-
-			const childHolderRect = VRect.FromLTWH(childHolder.DOM.getBoundingClientRect());
-			/* const match = firstOffsetInner.style.transform.match(/([0-9]+).+?([0-9]+)/);
-			const dragBoxSize = new Vector2i(match[1].ToInt(), match[2].ToInt());
-			// delete dragInfo.provided.draggableProps.style.transform; */
-			const dragBox = document.querySelector('.NodeUI_Inner.DragPreview');
-			if (dragBox == null) return; // this can happen at end of drag
-			const dragBoxRect = VRect.FromLTWH(dragBox.getBoundingClientRect());
-
-			const siblingNodeUIs = (childHolder.DOM.childNodes.ToArray() as HTMLElement[]).filter(a => a.classList.contains('NodeUI'));
-			const siblingNodeUIInnerDOMs = siblingNodeUIs.map(nodeUI => nodeUI.QuerySelector_BreadthFirst('.NodeUI_Inner')).filter(a => a != null); // entry can be null if inner-ui still loading
-			const firstOffsetInner = siblingNodeUIInnerDOMs.find(a => a && a.style.transform && a.style.transform.includes('translate('));
-
-			let placeholderRect: VRect;
-			if (firstOffsetInner) {
-				const firstOffsetInnerRect = VRect.FromLTWH(firstOffsetInner.getBoundingClientRect()).NewTop(top => top - dragBoxRect.height);
-				const firstOffsetInnerRect_relative = new VRect(firstOffsetInnerRect.Position.Minus(childHolderRect.Position), firstOffsetInnerRect.Size);
-
-				placeholderRect = firstOffsetInnerRect_relative.NewWidth(dragBoxRect.width).NewHeight(dragBoxRect.height);
-			} else {
-				if (siblingNodeUIInnerDOMs.length) {
-					const lastInner = siblingNodeUIInnerDOMs.Last();
-					const lastInnerRect = VRect.FromLTWH(lastInner.getBoundingClientRect()).NewTop(top => top - dragBoxRect.height);
-					const lastInnerRect_relative = new VRect(lastInnerRect.Position.Minus(childHolderRect.Position), lastInnerRect.Size);
-
-					placeholderRect = lastInnerRect_relative.NewWidth(dragBoxRect.width).NewHeight(dragBoxRect.height);
-					// if (dragBoxRect.Center.y > firstOffsetInnerRect.Center.y) {
-					placeholderRect.y += lastInnerRect.height;
-				} else {
-					placeholderRect = new VRect(Vector2i.zero, dragBoxRect.Size);
-				}
-			}
-
-			setPlaceholderRect(placeholderRect);
-		};
-
-		// todo: make sure we have all the dependencies included
-		const OnChildHeightOrPosChange = useCallback(() => {
-			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
-				() => `OnChildHeightOrPosChange NodeUI (${RenderSource[this.lastRender_source]}):${node._key}\ncenterY:${this.GetDividePoint()}`);
-
-			// this.OnHeightOrPosChange();
-			// wait one frame, so that if multiple calls to this method occur in the same frame, we only have to call OnHeightOrPosChange() once
-			if (!this.OnChildHeightOrPosChange_updateStateQueued) {
-				this.OnChildHeightOrPosChange_updateStateQueued = true;
-				requestAnimationFrame(() => {
-					this.OnChildHeightOrPosChange_updateStateQueued = false;
-					if (!this.mounted) return;
-					/* this.UpdateChildrenWidthOverride();
-					this.UpdateChildBoxOffsets(); */
-					this.CheckForChanges();
-				});
-			}
-		// }, []); // not sure if we need to add instanceStash as a dependency; I think not, since useMemo for func has same lifetime as useState for instanceStash (I think)
-		// }, [instanceStash, node._key]);
-		}, [node._key]);
-
 		const RenderChild = (child: MapNodeL3, index: number, collection, direction = 'down' as 'up' | 'down') => {
 			/* if (pack.node.premiseAddHelper) {
 				return <PremiseAddHelper mapID={map._id} parentNode={node} parentPath={path}/>;
@@ -179,7 +93,7 @@ export class NodeChildHolder extends BaseComponent<Props, {}, {nodeChildrenToSho
 				// <ErrorBoundary errorUI={props=>props.defaultUI(E(props, {style: {width: 500, height: 300}}))}>
 				<ErrorBoundary key={child._key} errorUIStyle={{ width: 500, height: 300 }}>
 					<NodeUI key={child._key} ref={c => this.childBoxes[child._key] = c} indexInNodeList={index} map={map} node={child}
-						path={`${path}/${child._key}`} widthOverride={childrenWidthOverride} onHeightOrPosChange={OnChildHeightOrPosChange}>
+						path={`${path}/${child._key}`} widthOverride={childrenWidthOverride} onHeightOrPosChange={this.OnChildHeightOrPosChange}>
 						{index == (direction == 'down' ? childLimit - 1 : 0) && !showAll && (collection.length > childLimit || childLimit != initialChildLimit) &&
 							<ChildLimitBar {...{ map, path, childrenWidthOverride, childLimit }} direction={direction} childCount={collection.length}/>}
 					</NodeUI>
@@ -204,7 +118,7 @@ export class NodeChildHolder extends BaseComponent<Props, {}, {nodeChildrenToSho
 					{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => {
 						const dragIsOverDropArea = provided.placeholder.props['on'] != null;
 						if (dragIsOverDropArea) {
-							WaitXThenRun(0, () => StartGeneratingPositionedPlaceholder(group));
+							WaitXThenRun(0, () => this.StartGeneratingPositionedPlaceholder(group));
 						}
 
 						return (
@@ -229,62 +143,6 @@ export class NodeChildHolder extends BaseComponent<Props, {}, {nodeChildrenToSho
 				</Droppable>
 			);
 		};
-
-		const UpdateChildrenWidthOverride = (forceUpdate = false) => {
-			if (!expanded) return;
-
-			const childBoxes = this.childBoxes.VValues().filter(a => a != null);
-
-			const newChildrenWidthOverride = childBoxes.map(comp => comp.GetMeasurementInfo().width).concat(0).Max(null, true);
-			if (forceUpdate || ToJSON(newChildrenWidthOverride) != ToJSON(childrenWidthOverride)) {
-				const changedState = setChildrenWidthOverride(newChildrenWidthOverride);
-				// Log(`Changed state? (${this.props.node._id}): ` + changedState);
-			}
-		};
-
-		const UpdateChildBoxOffsets = (forceUpdate = false) => {
-			const childHolder = $(this);
-			const upChildHolder = childHolder.children('.upChildHolder');
-			const downChildHolder = childHolder.children('.downChildHolder');
-			const argumentsControlBar = childHolder.children('.argumentsControlBar');
-
-			const childBoxes = this.childBoxes.VValues().filter(a => a != null);
-
-			let newChildBoxOffsets = Clone(oldChildBoxOffsets); // make different, so that if forceUpdate is true, equality-check fails and we cause ui refresh (not sure if needed, but done to preserve logic when updating to react-hooks)
-
-			const showAddArgumentButtons = false; // node.type == MapNodeType.Claim && expanded && nodeChildren != emptyArray_forLoading; // && nodeChildren.length > 0;
-			// if (this.lastRender_source == RenderSource.SetState && this.refs.childHolder) {
-			if (expanded && this.childHolder) {
-				const holderRect = VRect.FromLTWH(this.childHolder.DOM.getBoundingClientRect());
-
-				const oldChildBoxOffsets = this.childBoxes.Props().filter(pair => pair.value != null).ToMap(pair => pair.name, (pair) => {
-					// let childBox = FindDOM_(pair.value).find("> div:first-child > div"); // get inner-box of child
-					// let childBox = $(GetDOM(pair.value)).find(".NodeUI_Inner").first(); // get inner-box of child
-					// not sure why this is needed... (bad sign!)
-					if (pair.value.NodeUIForDisplayedNode.innerUI == null) return null;
-
-					const childBox = pair.value.NodeUIForDisplayedNode.innerUI.DOM;
-					// Assert(childBox.length, 'Could not find inner-ui of child-box.');
-					if (childBox == null) return null; // if can't find child-node's box, don't draw line for it (can happen if dragging child-node)
-					if (childBox.matches('.DragPreview')) return null; // don't draw line to node-box being dragged
-
-					let childBoxOffset = VRect.FromLTWH(childBox.getBoundingClientRect()).Position.Minus(holderRect.Position);
-					Assert(childBoxOffset.x < 100, 'Something is wrong. X-offset should never be more than 100.');
-					childBoxOffset = childBoxOffset.Plus(new Vector2i(0, childBox.getBoundingClientRect().height / 2));
-					return childBoxOffset;
-				});
-				newChildBoxOffsets = oldChildBoxOffsets;
-			}
-
-			if (forceUpdate || ToJSON(newChildBoxOffsets) != ToJSON(oldChildBoxOffsets)) {
-				const changedState = setOldChildBoxOffsets(newChildBoxOffsets);
-				// Log(`Changed state? (${this.props.node._id}): ` + changedState);
-			}
-		};
-
-		// instanceStash.CheckForChanges = CheckForChanges;
-
-		this.Stash({ UpdateChildBoxOffsets, UpdateChildrenWidthOverride, nodeChildrenToShow, nodeChildren_fillPercents, onHeightOrDividePointChange });
 
 		const droppableInfo = new DroppableInfo({ type: 'NodeChildHolder', parentPath: path });
 		this.childBoxes = {};
@@ -311,7 +169,7 @@ export class NodeChildHolder extends BaseComponent<Props, {}, {nodeChildrenToSho
 					<NodeChildHolderBox {...{ map, node, path, nodeView }} type={HolderType.Relevance} widthOverride={childrenWidthOverride}
 						widthOfNode={childrenWidthOverride}
 						nodeChildren={GetNodeChildrenL3(node, path)} nodeChildrenToShow={nodeChildrenToShowInRelevanceBox}
-						onHeightOrDividePointChange={UseCallback(dividePoint => this.CheckForChanges(), [])}/>}
+						onHeightOrDividePointChange={dividePoint => this.CheckForChanges()}/>}
 				{!separateChildren &&
 					RenderGroup('all')}
 				{separateChildren &&
@@ -329,45 +187,116 @@ export class NodeChildHolder extends BaseComponent<Props, {}, {nodeChildrenToSho
 	downChildHolder: Column;
 	argumentsControlBar: ArgumentsControlBar;
 
+	StartGeneratingPositionedPlaceholder(group: 'all' | 'up' | 'down') {
+		const groups = { all: this.allChildHolder, up: this.upChildHolder, down: this.downChildHolder };
+		const childHolder = groups[group];
+		if (childHolder == null || !childHolder.mounted) {
+			// call again in a second, once child-holder is initialized
+			WaitXThenRun(0, () => this.StartGeneratingPositionedPlaceholder(group));
+			return;
+		}
+
+		const childHolderRect = VRect.FromLTWH(childHolder.DOM.getBoundingClientRect());
+		/* const match = firstOffsetInner.style.transform.match(/([0-9]+).+?([0-9]+)/);
+		const dragBoxSize = new Vector2i(match[1].ToInt(), match[2].ToInt());
+		// delete dragInfo.provided.draggableProps.style.transform; */
+		const dragBox = document.querySelector('.NodeUI_Inner.DragPreview');
+		if (dragBox == null) return; // this can happen at end of drag
+		const dragBoxRect = VRect.FromLTWH(dragBox.getBoundingClientRect());
+
+		const siblingNodeUIs = (childHolder.DOM.childNodes.ToArray() as HTMLElement[]).filter(a => a.classList.contains('NodeUI'));
+		const siblingNodeUIInnerDOMs = siblingNodeUIs.map(nodeUI => nodeUI.QuerySelector_BreadthFirst('.NodeUI_Inner')).filter(a => a != null); // entry can be null if inner-ui still loading
+		const firstOffsetInner = siblingNodeUIInnerDOMs.find(a => a && a.style.transform && a.style.transform.includes('translate('));
+
+		let placeholderRect: VRect;
+		if (firstOffsetInner) {
+			const firstOffsetInnerRect = VRect.FromLTWH(firstOffsetInner.getBoundingClientRect()).NewTop(top => top - dragBoxRect.height);
+			const firstOffsetInnerRect_relative = new VRect(firstOffsetInnerRect.Position.Minus(childHolderRect.Position), firstOffsetInnerRect.Size);
+
+			placeholderRect = firstOffsetInnerRect_relative.NewWidth(dragBoxRect.width).NewHeight(dragBoxRect.height);
+		} else {
+			if (siblingNodeUIInnerDOMs.length) {
+				const lastInner = siblingNodeUIInnerDOMs.Last();
+				const lastInnerRect = VRect.FromLTWH(lastInner.getBoundingClientRect()).NewTop(top => top - dragBoxRect.height);
+				const lastInnerRect_relative = new VRect(lastInnerRect.Position.Minus(childHolderRect.Position), lastInnerRect.Size);
+
+				placeholderRect = lastInnerRect_relative.NewWidth(dragBoxRect.width).NewHeight(dragBoxRect.height);
+				// if (dragBoxRect.Center.y > firstOffsetInnerRect.Center.y) {
+				placeholderRect.y += lastInnerRect.height;
+			} else {
+				placeholderRect = new VRect(Vector2i.zero, dragBoxRect.Size);
+			}
+		}
+
+		this.SetState({ placeholderRect });
+	}
+
+	get Expanded() {
+		const { type, nodeView } = this.props;
+		const expandKey = type ? `expanded_${HolderType[type].toLowerCase()}` : 'expanded';
+		return nodeView[expandKey];
+	}
+
+	get ChildOrderStr() {
+		const { nodeChildrenToShow, nodeChildren_fillPercents } = this.PropsStash;
+		return nodeChildrenToShow.OrderBy(a => nodeChildren_fillPercents[a._key]).map(a => a._key).join(',');
+	}
+
+	PostRender() {
+		this.CheckForChanges();
+	}
+
 	lastHeight = 0;
 	lastDividePoint = 0;
 	lastOrderStr = null;
-
-	OnChildHeightOrPosChange_updateStateQueued = false;
-
-	CheckForChanges = () => {
-		const { node, nodeChildrenToShow, nodeChildren_fillPercents, UpdateChildrenWidthOverride, UpdateChildBoxOffsets, onHeightOrDividePointChange } = this.PropsStateStash;
-
-		const ChildOrderStr = () => {
-			return nodeChildrenToShow.OrderBy(a => nodeChildren_fillPercents[a._key]).map(a => a._key).join(',');
-		};
-
+	CheckForChanges() {
 		// if (this.lastRender_source == RenderSource.SetState) return;
+		const { node, onHeightOrDividePointChange } = this.props;
 
 		const height = $(GetDOM(this)).outerHeight();
 		const dividePoint = this.GetDividePoint();
 		if (height != this.lastHeight || dividePoint != this.lastDividePoint) {
 			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
-				() => `OnHeightChange NodeChildHolder (${RenderSource[this.lastRender_source]}):${node._key}${nl
+				() => `OnHeightChange NodeChildHolder (${RenderSource[this.lastRender_source]}):${this.props.node._key}${nl
 				}dividePoint:${dividePoint}`);
 
 			// this.UpdateState(true);
-			UpdateChildrenWidthOverride();
-			UpdateChildBoxOffsets();
+			this.UpdateChildrenWidthOverride();
+			this.UpdateChildBoxOffsets();
 			if (onHeightOrDividePointChange) onHeightOrDividePointChange(dividePoint);
 		}
 		this.lastHeight = height;
 		this.lastDividePoint = dividePoint;
 
-		const orderStr = ChildOrderStr();
+		const orderStr = this.ChildOrderStr;
 		if (orderStr != this.lastOrderStr) {
 			// this.OnChildHeightOrPosOrOrderChange();
 			// this.UpdateChildrenWidthOverride();
-			UpdateChildBoxOffsets();
+			this.UpdateChildBoxOffsets();
 			// this.ReportDividePointChange();
 		}
 		this.lastOrderStr = orderStr;
-	};
+	}
+
+	OnChildHeightOrPosChange_updateStateQueued = false;
+	OnChildHeightOrPosChange() {
+		const { node } = this.props;
+		MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
+			() => `OnChildHeightOrPosChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._key}\ncenterY:${this.GetDividePoint()}`);
+
+		// this.OnHeightOrPosChange();
+		// wait one frame, so that if multiple calls to this method occur in the same frame, we only have to call OnHeightOrPosChange() once
+		if (!this.OnChildHeightOrPosChange_updateStateQueued) {
+			this.OnChildHeightOrPosChange_updateStateQueued = true;
+			requestAnimationFrame(() => {
+				this.OnChildHeightOrPosChange_updateStateQueued = false;
+				if (!this.mounted) return;
+				/* this.UpdateChildrenWidthOverride();
+				this.UpdateChildBoxOffsets(); */
+				this.CheckForChanges();
+			});
+		}
+	}
 
 	GetDividePoint() {
 		if (this.argumentsControlBar) {
@@ -379,14 +308,67 @@ export class NodeChildHolder extends BaseComponent<Props, {}, {nodeChildrenToSho
 		// return childHolder.css("display") != "none" ? childHolder.outerHeight() / 2 : 0,
 		return this.childHolder && (this.childHolder.DOM as HTMLElement).style.visibility != 'hidden' ? $(this.childHolder.DOM).GetScreenRect().height / 2 : 0;
 	}
+
+	UpdateChildrenWidthOverride(forceUpdate = false) {
+		const { map, node, path, children, nodeView, linkSpawnPoint } = this.props;
+		if (!this.Expanded) return;
+
+		const childBoxes = this.childBoxes.VValues().filter(a => a != null);
+
+		const cancelIfStateSame = !forceUpdate;
+		const changedState = this.SetState({
+			childrenWidthOverride: childBoxes.map(comp => comp.GetMeasurementInfo().width).concat(0).Max(null, true),
+		}, null, cancelIfStateSame, true);
+		// Log(`Changed state? (${this.props.node._id}): ` + changedState);
+	}
+	UpdateChildBoxOffsets(forceUpdate = false) {
+		const { map, node, path, children, nodeView, linkSpawnPoint } = this.props;
+		const childHolder = $(this);
+		const upChildHolder = childHolder.children('.upChildHolder');
+		const downChildHolder = childHolder.children('.downChildHolder');
+		const argumentsControlBar = childHolder.children('.argumentsControlBar');
+
+		const childBoxes = this.childBoxes.VValues().filter(a => a != null);
+		const newState = {} as any;
+
+		const showAddArgumentButtons = false; // node.type == MapNodeType.Claim && expanded && nodeChildren != emptyArray_forLoading; // && nodeChildren.length > 0;
+		// if (this.lastRender_source == RenderSource.SetState && this.refs.childHolder) {
+		if (this.Expanded && this.childHolder) {
+			const holderRect = VRect.FromLTWH(this.childHolder.DOM.getBoundingClientRect());
+
+			const oldChildBoxOffsets = this.childBoxes.Props().filter(pair => pair.value != null).ToMap(pair => pair.name, (pair) => {
+				// let childBox = FindDOM_(pair.value).find("> div:first-child > div"); // get inner-box of child
+				// let childBox = $(GetDOM(pair.value)).find(".NodeUI_Inner").first(); // get inner-box of child
+				// not sure why this is needed... (bad sign!)
+				if (pair.value.NodeUIForDisplayedNode.innerUI == null) return null;
+
+				const childBox = pair.value.NodeUIForDisplayedNode.innerUI.DOM;
+				// Assert(childBox.length, 'Could not find inner-ui of child-box.');
+				if (childBox == null) return null; // if can't find child-node's box, don't draw line for it (can happen if dragging child-node)
+				if (childBox.matches('.DragPreview')) return null; // don't draw line to node-box being dragged
+
+				let childBoxOffset = VRect.FromLTWH(childBox.getBoundingClientRect()).Position.Minus(holderRect.Position);
+				Assert(childBoxOffset.x < 100, 'Something is wrong. X-offset should never be more than 100.');
+				childBoxOffset = childBoxOffset.Plus(new Vector2i(0, childBox.getBoundingClientRect().height / 2));
+				return childBoxOffset;
+			});
+			newState.oldChildBoxOffsets = oldChildBoxOffsets;
+		}
+
+		const cancelIfStateSame = !forceUpdate;
+		const changedState = this.SetState(newState, null, cancelIfStateSame, true);
+		// Log(`Changed state? (${this.props.node._id}): ` + changedState);
+	}
 }
 
-export class ChildLimitBar extends BaseComponentPlus({} as {map: Map, path: string, childrenWidthOverride: number, direction: 'up' | 'down', childCount: number, childLimit: number}, {}) {
+const ChildLimitBar_connector = (state, props: {map: Map, path: string, childrenWidthOverride: number, direction: 'up' | 'down', childCount: number, childLimit: number}) => ({
+	initialChildLimit: State(a => a.main.initialChildLimit),
+});
+@Connect(ChildLimitBar_connector)
+export class ChildLimitBar extends BaseComponentWithConnector(ChildLimitBar_connector, {}) {
 	static HEIGHT = 36;
 	render() {
-		const { map, path, childrenWidthOverride, direction, childCount, childLimit } = this.props;
-		const initialChildLimit = State.Watch(a => a.main.initialChildLimit);
-
+		const { map, path, childrenWidthOverride, direction, childCount, childLimit, initialChildLimit } = this.props;
 		return (
 			<Row style={{
 				// position: "absolute", marginTop: -30,
