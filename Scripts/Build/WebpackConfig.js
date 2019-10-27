@@ -243,6 +243,13 @@ AddStringReplacement(/\.jsx?$/, [
 			return `${sub1}("${sub2.replace(/\./g, '/')}")`;
 		},
 	},
+	// make function-names of store-accessors accessible to watcher debug-info, for react-devtools
+	{
+		pattern: /export const ([a-zA-Z_$]+?) = StoreAccessor\(\(/g,
+		replacement(match, sub1, offset, string) {
+			return `export const ${sub1} = StoreAccessor("${sub1}", (`;
+		},
+	},
 	/* {
 		pattern: /State\(function \(a\) {\s+return a.([a-zA-Z_.]+);\s+}\)/g,
 		replacement: function(match, sub1, offset, string) {
