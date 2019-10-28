@@ -26,7 +26,7 @@ export const GetNodeRatingsRoot = StoreAccessor((nodeID: string) => {
 });
 
 // path is needed if you want
-export function GetRatingSet(nodeID: string, ratingType: RatingType, path?: string) {
+export const GetRatingSet = StoreAccessor((nodeID: string, ratingType: RatingType, path?: string) => {
 	if (ratingType == 'impact') {
 		const node = GetNodeL2(nodeID);
 		if (node == null) return null;
@@ -37,9 +37,9 @@ export function GetRatingSet(nodeID: string, ratingType: RatingType, path?: stri
 	}
 	const ratingsRoot = GetNodeRatingsRoot(nodeID);
 	return ratingsRoot ? ratingsRoot[ratingType] : null;
-}
+});
 // export function GetRatings(nodeID: string, ratingType: RatingType, thesisForm?: ThesisForm): Rating[] {
-export function GetRatings(nodeID: string, ratingType: RatingType, filter?: RatingFilter): Rating[] {
+export const GetRatings = StoreAccessor((nodeID: string, ratingType: RatingType, filter?: RatingFilter): Rating[] => {
 	/* let ratingSet = GetRatingSet(nodeID, ratingType, null);
 	return CachedTransform("GetRatings", [nodeID, ratingType].concat((filter || {}).VValues()), {ratingSet},
 		()=>ratingSet ? FilterRatings(ratingSet.VValues(true), filter) : []); */
@@ -49,17 +49,17 @@ export function GetRatings(nodeID: string, ratingType: RatingType, filter?: Rati
 	if (ratingSet == null) return [];
 	return FilterRatings(ratingSet.VValues(true), filter);
 	// });
-}
-export function GetRating(nodeID: string, ratingType: RatingType, userID: string) {
+});
+export const GetRating = StoreAccessor((nodeID: string, ratingType: RatingType, userID: string) => {
 	const ratingSet = GetRatingSet(nodeID, ratingType);
 	if (ratingSet == null) return null;
 	return ratingSet[userID];
-}
-export function GetRatingValue(nodeID: string, ratingType: RatingType, userID: string, resultIfNoData = null): number {
+});
+export const GetRatingValue = StoreAccessor((nodeID: string, ratingType: RatingType, userID: string, resultIfNoData = null): number => {
 	const rating = GetRating(nodeID, ratingType, userID);
 	return rating ? rating.value : resultIfNoData;
-}
-export function GetRatingAverage(nodeID: string, ratingType: RatingType, filter?: RatingFilter, resultIfNoData = null): number {
+});
+export const GetRatingAverage = StoreAccessor((nodeID: string, ratingType: RatingType, filter?: RatingFilter, resultIfNoData = null): number => {
 	// if voting disabled, always show full bar
 	/* let node = GetNodeL2(nodeID);
 	if (node && node.current.votingDisabled) return 100;
@@ -76,14 +76,14 @@ export function GetRatingAverage(nodeID: string, ratingType: RatingType, filter?
 	if (ratings.length == 0) return resultIfNoData as any;
 	return ratings.map(a => a.value).Average().RoundTo(1);
 	// });
-}
-export function GetRatingAverage_AtPath(node: MapNodeL3, ratingType: RatingType, filter?: RatingFilter, resultIfNoData = null): number {
+});
+export const GetRatingAverage_AtPath = StoreAccessor((node: MapNodeL3, ratingType: RatingType, filter?: RatingFilter, resultIfNoData = null): number => {
 	let result = GetRatingAverage(node._key, ratingType, filter, resultIfNoData);
 	if (ShouldRatingTypeBeReversed(node, ratingType)) {
 		result = 100 - result;
 	}
 	return result;
-}
+});
 
 const rsCompatibleNodeTypes = [MapNodeType.Argument, MapNodeType.Claim];
 // export const GetFillPercent_AtPath = StoreAccessor('GetFillPercent_AtPath', (node: MapNodeL3, path: string, boxType?: HolderType, ratingType?: RatingType, filter?: RatingFilter, resultIfNoData = null) => {
