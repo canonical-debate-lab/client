@@ -23,7 +23,7 @@ const root = path.join(__dirname, '..', '..');
 debug('Creating configuration.');
 const webpackConfig = {
 	name: 'client',
-	mode: 'development',
+	mode: PROD && !QUICK ? 'production' : 'development',
 	optimization: {
 		namedModules: true, // we have path-info anyway (and causes problems when inconsistent between bundles)
 		noEmitOnErrors: true,
@@ -129,7 +129,7 @@ webpackConfig.plugins = [
 		new webpack.NoEmitOnErrorsPlugin(),
 		// new webpack.NamedModulesPlugin()
 	);
-} else */ if (PROD && !QUICK) {
+} else  if (PROD && !QUICK) {
 	debug('Enable plugins for production (OccurenceOrder, Dedupe & UglifyJS).');
 	webpackConfig.plugins.push(
 		// new webpack.optimize.OccurrenceOrderPlugin(),
@@ -147,7 +147,7 @@ webpackConfig.plugins = [
 			sourceMap: true,
 		}),
 	);
-}
+} */
 
 // rules
 // ==========
