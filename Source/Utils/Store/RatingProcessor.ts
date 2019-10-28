@@ -15,7 +15,7 @@ export function GetArgumentImpactPseudoRating(argument: MapNodeL2, premises: Map
 		let ratingValue = GetRatingValue(premise._key, ratingType, userID, null);
 		// if user didn't rate this premise, just use the average rating
 		if (ratingValue == null) {
-			ratingValue = GetRatingAverage(premise._key, ratingType, null, 0);
+			ratingValue = GetRatingAverage(premise._key, ratingType, null) || 0;
 		}
 
 		const form = GetNodeForm(premise, argument);
@@ -36,7 +36,7 @@ export function GetArgumentImpactPseudoRating(argument: MapNodeL2, premises: Map
 	let relevance = GetRatingValue(argument._key, 'relevance', userID, null);
 	// if user didn't rate the relevance, just use the average rating
 	if (relevance == null) {
-		relevance = GetRatingAverage(argument._key, 'relevance', null, 0);
+		relevance = GetRatingAverage(argument._key, 'relevance', null) || 0;
 	}
 	// let strengthForType = adjustment.Distance(50) / 50;
 	const result = combinedTruthOfPremises * (relevance / 100);

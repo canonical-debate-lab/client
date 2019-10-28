@@ -1,5 +1,5 @@
-import { Lerp, emptyObj } from 'js-vextensions';
-import { GetData, State, StoreAccessor } from 'Utils/FrameworkOverrides';
+import { Lerp, emptyObj, ToJSON } from 'js-vextensions';
+import { GetData, State, StoreAccessor, SubWatch } from 'Utils/FrameworkOverrides';
 import { GetArgumentImpactPseudoRatingSet } from '../../Utils/Store/RatingProcessor';
 import { RatingType, ratingTypes } from '../../Store/firebase/nodeRatings/@RatingType';
 import { WeightingType } from '../main';
@@ -26,17 +26,19 @@ export const GetNodeRatingsRoot = StoreAccessor((nodeID: string) => {
 });
 
 // path is needed if you want
-export const GetRatingSet = StoreAccessor((nodeID: string, ratingType: RatingType, path?: string) => {
-	if (ratingType == 'impact') {
-		const node = GetNodeL2(nodeID);
-		if (node == null) return null;
-		const nodeChildren = GetNodeChildrenL2(node);
-		if (nodeChildren.Any(a => a == null)) return emptyObj;
-		const premises = nodeChildren.filter(a => a == null || a.type == MapNodeType.Claim);
-		return GetArgumentImpactPseudoRatingSet(node, premises);
-	}
-	const ratingsRoot = GetNodeRatingsRoot(nodeID);
-	return ratingsRoot ? ratingsRoot[ratingType] : null;
+export const GetRatingSet = StoreAccessor((nodeID: string, ratingType: RatingType) => {
+	return SubWatch('GetRatingSet', [nodeID, ratingType], () => {
+		if (ratingType == 'impact') {
+			const node = GetNodeL2(nodeID);
+			if (node == null) return null;
+			const nodeChildren = GetNodeChildrenL2(node);
+			if (nodeChildren.Any(a => a == null)) return emptyObj;
+			const premises = nodeChildren.filter(a => a == null || a.type == MapNodeType.Claim);
+			return GetArgumentImpactPseudoRatingSet(node, premises);
+		}
+		const ratingsRoot = GetNodeRatingsRoot(nodeID);
+		return ratingsRoot ? ratingsRoot[ratingType] : null;
+	});
 });
 // export function GetRatings(nodeID: string, ratingType: RatingType, thesisForm?: ThesisForm): Rating[] {
 export const GetRatings = StoreAccessor((nodeID: string, ratingType: RatingType, filter?: RatingFilter): Rating[] => {
@@ -45,7 +47,7 @@ export const GetRatings = StoreAccessor((nodeID: string, ratingType: RatingType,
 		()=>ratingSet ? FilterRatings(ratingSet.VValues(true), filter) : []); */
 
 	// return CachedTransform_WithStore('GetRatings', [nodeID, ratingType].concat((filter || {}).VValues()), {}, () => {
-	const ratingSet = GetRatingSet(nodeID, ratingType, null);
+	const ratingSet = GetRatingSet(nodeID, ratingType);
 	if (ratingSet == null) return [];
 	return FilterRatings(ratingSet.VValues(true), filter);
 	// });
@@ -59,26 +61,27 @@ export const GetRatingValue = StoreAccessor((nodeID: string, ratingType: RatingT
 	const rating = GetRating(nodeID, ratingType, userID);
 	return rating ? rating.value : resultIfNoData;
 });
-export const GetRatingAverage = StoreAccessor((nodeID: string, ratingType: RatingType, filter?: RatingFilter, resultIfNoData = null): number => {
-	// if voting disabled, always show full bar
-	/* let node = GetNodeL2(nodeID);
-	if (node && node.current.votingDisabled) return 100;
-
-	let ratings = GetRatings(nodeID, ratingType, filter);
-	if (ratings.length == 0) return resultIfNoData as any;
-	return CachedTransform("GetRatingAverage", [nodeID, ratingType].concat((filter || {}).VValues()), {ratings},
-		()=>ratings.map(a=>a.value).Average().RoundTo(1)); */
+export const GetRatingAverage = StoreAccessor((nodeID: string, ratingType: RatingType, filter?: RatingFilter): number => {
 	// return CachedTransform_WithStore('GetRatingAverage', [nodeID, ratingType, resultIfNoData].concat((filter || {}).VValues()), {}, () => {
-	const node = GetNodeL2(nodeID);
-	if (node && node.current.votingDisabled) return 100;
+	return SubWatch('GetRatingAverage', [nodeID, ratingType, ToJSON(filter)], () => {
+		// if voting disabled, always show full bar
+		/* let node = GetNodeL2(nodeID);
+		if (node && node.current.votingDisabled) return 100;
 
-	const ratings = GetRatings(nodeID, ratingType, filter);
-	if (ratings.length == 0) return resultIfNoData as any;
-	return ratings.map(a => a.value).Average().RoundTo(1);
-	// });
+		let ratings = GetRatings(nodeID, ratingType, filter);
+		if (ratings.length == 0) return resultIfNoData as any; */
+
+		const node = GetNodeL2(nodeID);
+		if (node && node.current.votingDisabled) return 100;
+
+		const ratings = GetRatings(nodeID, ratingType, filter);
+		if (ratings.length == 0) return null;
+		return ratings.map(a => a.value).Average().RoundTo(1);
+	});
 });
 export const GetRatingAverage_AtPath = StoreAccessor((node: MapNodeL3, ratingType: RatingType, filter?: RatingFilter, resultIfNoData = null): number => {
-	let result = GetRatingAverage(node._key, ratingType, filter, resultIfNoData);
+	let result = GetRatingAverage(node._key, ratingType, filter);
+	if (result == null) return resultIfNoData;
 	if (ShouldRatingTypeBeReversed(node, ratingType)) {
 		result = 100 - result;
 	}
