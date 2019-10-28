@@ -1,5 +1,5 @@
 import { RootState } from 'Store';
-import {StoreAccessor} from 'vwebapp-framework/Source';
+import { StoreAccessor } from 'vwebapp-framework/Source';
 import { CreateState, CreateACTSet, CreateSimpleReducer, CreateShouldLog, CreateMaybeLog, LogTypes_Base } from '.';
 
 export class LogTypes extends LogTypes_Base {
@@ -14,7 +14,7 @@ export class LogTypes extends LogTypes_Base {
 }
 
 // export const State = CreateState<RootState>();
-export const State = StoreAccessor(CreateState<RootState>());
+export const State = StoreAccessor('State', CreateState<RootState>());
 // State() actually also returns the root-state (if no data-getter is supplied), but we don't reveal that in type-info (as its only to be used in console)
 G({ State });
 export const ACTSet = CreateACTSet<RootState>();

@@ -93,7 +93,7 @@ export const GetFillPercent_AtPath = StoreAccessor((node: MapNodeL3, path: strin
 		return GetRatingAverage_AtPath(node, ratingType, filter, resultIfNoData);
 	}
 
-	const { argTruthScoreComposite, argWeightMultiplier, claimTruthScore } = RS_GetAllValues(node, path);
+	const { argTruthScoreComposite, argWeightMultiplier, claimTruthScore } = RS_GetAllValues(node._key, path);
 
 	// if (State(a=>a.main.weighting) == WeightingType.ReasonScore) {
 	let result: number;

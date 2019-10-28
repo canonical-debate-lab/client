@@ -139,7 +139,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		const mainRating_mine = Watch(() => GetRatingAverage_AtPath(ratingNode, mainRatingType, new RatingFilter({ includeUser: MeID() }))); */
 
 		const useReasonScoreValuesForThisNode = State.Watch(a => a.main.weighting) == WeightingType.ReasonScore && (node.type == MapNodeType.Argument || node.type == MapNodeType.Claim);
-		const reasonScoreValues = Watch(() => useReasonScoreValuesForThisNode && RS_GetAllValues.Watch(node, path, true) as ReasonScoreValues_RSPrefix, [node, path, useReasonScoreValuesForThisNode]);
+		const reasonScoreValues = Watch(() => useReasonScoreValuesForThisNode && RS_GetAllValues(node._key, path, true) as ReasonScoreValues_RSPrefix, [node, path, useReasonScoreValuesForThisNode]);
 
 		// const backgroundFillPercent = Watch(() => GetFillPercent_AtPath(ratingNode, ratingNodePath, null));
 		// const markerPercent = Watch(() => GetMarkerPercent_AtPath(ratingNode, ratingNodePath, null));
@@ -431,7 +431,7 @@ class NodeUI_BottomPanel extends BaseComponentPlus(
 class ReasonScoreValueMarkers extends BaseComponent<{node: MapNodeL3, reasonScoreValues: ReasonScoreValues_RSPrefix, combinedWithParentArgument: boolean}, {}> {
 	render() {
 		const { node, reasonScoreValues, combinedWithParentArgument } = this.props;
-		const mainScore = node.type == MapNodeType.Argument ? RS_CalculateTruthScoreComposite(node) : RS_CalculateTruthScore(node);
+		const mainScore = node.type == MapNodeType.Argument ? RS_CalculateTruthScoreComposite(node._key) : RS_CalculateTruthScore(node._key);
 		const { rs_argTruthScoreComposite, rs_argWeightMultiplier, rs_argWeight, rs_claimTruthScore, rs_claimBaseWeight } = reasonScoreValues;
 		return (
 			<div className="clickThrough" style={{ position: 'absolute', top: '100%', width: '100%', zIndex: 1, textAlign: 'center', fontSize: 14 }}>

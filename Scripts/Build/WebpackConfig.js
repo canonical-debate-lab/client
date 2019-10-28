@@ -239,7 +239,7 @@ AddStringReplacement(/\.jsx?$/, [
 	// optimization; replace `State(a=>a.some.thing)` with `State("some", "thing")`
 	// (faster for the State function to consume, and supplies primitives instead of a function, meaning State.Watch(...) does not view the call-args as changed each render)
 	{
-		pattern: /(State|State_Base)\(a ?=> ?a\.([a-zA-Z_.]+)\)/g,
+		pattern: /(State|State_Base)\(a ?=> ?a\.([a-zA-Z0-9_.]+)\)/g,
 		replacement(match, sub1, sub2, offset, string) {
 			const pathStr = sub2.replace(/\./g, '/');
 			// return `${sub1}("${pathStr}")`;
@@ -249,13 +249,13 @@ AddStringReplacement(/\.jsx?$/, [
 	},
 	// make function-names of store-accessors accessible to watcher debug-info, for react-devtools
 	{
-		pattern: /export const ([a-zA-Z_$]+?) = StoreAccessor\(\(/g,
+		pattern: /export const ([a-zA-Z0-9_$]+?) = StoreAccessor\(\(/g,
 		replacement(match, sub1, offset, string) {
 			return `export const ${sub1} = StoreAccessor("${sub1}", (`;
 		},
 	},
 	/* {
-		pattern: /State\(function \(a\) {\s+return a.([a-zA-Z_.]+);\s+}\)/g,
+		pattern: /State\(function \(a\) {\s+return a.([a-zA-Z0-9_.]+);\s+}\)/g,
 		replacement: function(match, sub1, offset, string) {
 			Log("Replacing...");
 			return `State("${sub1.replace(/\./g, "/")}")`;
