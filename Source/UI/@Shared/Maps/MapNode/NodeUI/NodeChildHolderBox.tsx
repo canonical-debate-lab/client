@@ -10,7 +10,7 @@ import { ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView/rootNodeView
 import { MapNodeView } from 'Store/main/mapViews/@MapViews';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { emptyArray_forLoading, emptyArray, AssertWarn } from 'js-vextensions';
-import { Connect, HSLA } from 'Utils/FrameworkOverrides';
+import { Connect, HSLA, ExpensiveComponent } from 'Utils/FrameworkOverrides';
 import { GADDemo } from 'UI/@GAD/GAD';
 import chroma from 'chroma-js';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
@@ -28,6 +28,8 @@ type Props = {
 	map: Map, node: MapNodeL3, path: string, nodeView: MapNodeView, nodeChildren: MapNodeL3[], nodeChildrenToShow: MapNodeL3[],
 	type: HolderType, widthOfNode: number, widthOverride?: number, onHeightOrDividePointChange?: (dividePoint: number)=>void,
 };
+
+@ExpensiveComponent
 export class NodeChildHolderBox extends BaseComponentPlus({} as Props, { innerBoxOffset: 0, lineHolderHeight: 0, hovered: false, hovered_button: false }) {
 	static ValidateProps(props: Props) {
 		const { node, nodeChildren } = props;

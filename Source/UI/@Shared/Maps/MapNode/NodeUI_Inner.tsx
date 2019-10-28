@@ -1,23 +1,22 @@
 import chroma from 'chroma-js';
 import classNames from 'classnames';
-import { DoNothing, Timer, ToJSON, Vector2i, VRect, WaitXThenRun, IsNumber, Assert, A } from 'js-vextensions';
+import { DoNothing, Timer, ToJSON, Vector2i, VRect, WaitXThenRun } from 'js-vextensions';
 import { Draggable } from 'react-beautiful-dnd';
 import ReactDOM from 'react-dom';
-import { BaseComponent, BaseComponentWithConnector, GetDOM, Handle, UseEffect, UseState, SimpleShouldUpdate, UseCallback, WarnOfTransientObjectProps, BaseComponentPlus } from 'react-vextensions';
+import { BaseComponent, BaseComponentPlus, GetDOM, UseCallback, UseEffect } from 'react-vextensions';
 import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthScoreComposite, RS_GetAllValues } from 'Store/firebase/nodeRatings/ReasonScore';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
 import { GetPathNodeIDs } from 'Store/main/mapViews';
 import { GADDemo } from 'UI/@GAD/GAD';
-import { Connect, DragInfo, ErrorBoundary, HSLA, IsDoubleClick, SlicePath, State, ExpensiveComponent, Watch } from 'Utils/FrameworkOverrides';
+import { DragInfo, EB_ShowError, EB_StoreError, ExpensiveComponent, HSLA, IsDoubleClick, SlicePath, State, Watch } from 'Utils/FrameworkOverrides';
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
-import { useCallback, useEffect } from 'react';
 import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
-import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatingAverage_AtPath, GetRatings, RatingFilter } from '../../../../Store/firebase/nodeRatings';
+import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatings } from '../../../../Store/firebase/nodeRatings';
 import { RatingType, ratingTypes } from '../../../../Store/firebase/nodeRatings/@RatingType';
-import { GetParentNodeL3, IsNodeSubnode } from '../../../../Store/firebase/nodes';
+import { IsNodeSubnode } from '../../../../Store/firebase/nodes';
 import { GetMainRatingType, GetNodeForm, GetNodeL3, GetPaddingForNode, IsPremiseOfSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
 import { ClaimForm, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
 import { GetNodeColor, MapNodeType, MapNodeType_Info } from '../../../../Store/firebase/nodes/@MapNodeType';
@@ -139,10 +138,8 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		// let mainRating_mine = GetRatingValue(ratingNode._id, mainRatingType, MeID());
 		const mainRating_mine = Watch(() => GetRatingAverage_AtPath(ratingNode, mainRatingType, new RatingFilter({ includeUser: MeID() }))); */
 
-		const useReasonScoreValuesForThisNode = Watch(() => State(a => a.main.weighting) == WeightingType.ReasonScore && (node.type == MapNodeType.Argument || node.type == MapNodeType.Claim), [node.type]);
-		if (useReasonScoreValuesForThisNode) {
-			var reasonScoreValues = RS_GetAllValues.Watch(node, path, true) as ReasonScoreValues_RSPrefix;
-		}
+		const useReasonScoreValuesForThisNode = State.Watch(a => a.main.weighting) == WeightingType.ReasonScore && (node.type == MapNodeType.Argument || node.type == MapNodeType.Claim);
+		const reasonScoreValues = Watch(() => useReasonScoreValuesForThisNode && RS_GetAllValues.Watch(node, path, true) as ReasonScoreValues_RSPrefix, [node, path, useReasonScoreValuesForThisNode]);
 
 		// const backgroundFillPercent = Watch(() => GetFillPercent_AtPath(ratingNode, ratingNodePath, null));
 		// const markerPercent = Watch(() => GetMarkerPercent_AtPath(ratingNode, ratingNodePath, null));
@@ -153,7 +150,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		const form = GetNodeForm.Watch(node, path);
 		// const ratingsRoot = Watch(() => GetNodeRatingsRoot(node._key));
 		const ratingsRoot = GetNodeRatingsRoot.Watch(node._key);
-		const showReasonScoreValues = Watch(() => State(a => a.main.showReasonScoreValues), []);
+		const showReasonScoreValues = State.Watch(a => a.main.showReasonScoreValues);
 
 		// the rest
 		// ==========
@@ -380,49 +377,52 @@ WaitXThenRun(0, () => {
 	document.body.appendChild(portal);
 });
 
-class NodeUI_BottomPanel extends BaseComponent
-		<{
-			map: Map, node: MapNodeL3, nodeView: MapNodeView, path: string, parent: MapNodeL3,
-			width: number, widthOverride: number, panelPosition: 'left' | 'below', panelToShow: string, hovered: boolean, hoverTermID: string, onTermHover: (id: string)=>void,
-			backgroundColor: Color,
-		}, {hoverTermID: string}> {
+class NodeUI_BottomPanel extends BaseComponentPlus(
+	{} as {
+		map: Map, node: MapNodeL3, nodeView: MapNodeView, path: string, parent: MapNodeL3,
+		width: number, widthOverride: number, panelPosition: 'left' | 'below', panelToShow: string, hovered: boolean, hoverTermID: string, onTermHover: (id: string)=>void,
+		backgroundColor: Color,
+	},
+	{ hoverTermID: null as string },
+) {
+	componentDidCatch(message, info) { EB_StoreError(this, message, info); }
 	render() {
+		if (this.state['error']) return EB_ShowError(this.state['error']);
 		const {
 			map, node, nodeView, path, parent,
 			width, widthOverride, panelPosition, panelToShow, hovered, hoverTermID, onTermHover,
 			backgroundColor,
 		} = this.props;
 		return (
-			<ErrorBoundary>
-				<div style={{
-					position: 'absolute', left: panelPosition == 'below' ? 130 + 1 : 0, top: 'calc(100% + 1px)',
-					width, minWidth: (widthOverride | 0).KeepAtLeast(550), zIndex: hovered ? 6 : 5,
-					padding: 5, background: backgroundColor.css(), borderRadius: 5, boxShadow: 'rgba(0,0,0,1) 0px 0px 2px',
-				}}>
-					{ratingTypes.Contains(panelToShow) && (() => {
-						if (['impact', 'relevance'].Contains(panelToShow) && node.type == MapNodeType.Claim) {
-							const argumentNode = parent;
-							const argumentPath = SlicePath(path, 1);
-							const ratings = GetRatings(argumentNode._key, panelToShow as RatingType);
-							return <RatingsPanel node={argumentNode} path={argumentPath} ratingType={panelToShow as RatingType} ratings={ratings}/>;
-						}
-						const ratings = GetRatings(node._key, panelToShow as RatingType);
-						return <RatingsPanel node={node} path={path} ratingType={panelToShow as RatingType} ratings={ratings}/>;
-					})()}
-					{panelToShow == 'definitions' &&
-						<DefinitionsPanel ref={c => this.definitionsPanel = c} {...{ node, path, hoverTermID }}
-							openTermID={nodeView.openTermID}
-							onHoverTerm={termID => onTermHover(termID)}
-							onClickTerm={termID => store.dispatch(new ACTMapNodeTermOpen({ mapID: map._key, path, termID }))}/>}
-					{panelToShow == 'phrasings' && <PhrasingsPanel node={node} path={path}/>}
-					{panelToShow == 'discussion' && <DiscussionPanel/>}
-					{panelToShow == 'social' && <SocialPanel/>}
-					{panelToShow == 'tags' && <TagsPanel/>}
-					{panelToShow == 'details' && <DetailsPanel map={map} node={node} path={path}/>}
-					{panelToShow == 'history' && <HistoryPanel map={map} node={node} path={path}/>}
-					{panelToShow == 'others' && <OthersPanel map={map} node={node} path={path}/>}
-				</div>
-			</ErrorBoundary>
+			// <ErrorBoundary>
+			<div style={{
+				position: 'absolute', left: panelPosition == 'below' ? 130 + 1 : 0, top: 'calc(100% + 1px)',
+				width, minWidth: (widthOverride | 0).KeepAtLeast(550), zIndex: hovered ? 6 : 5,
+				padding: 5, background: backgroundColor.css(), borderRadius: 5, boxShadow: 'rgba(0,0,0,1) 0px 0px 2px',
+			}}>
+				{ratingTypes.Contains(panelToShow) && (() => {
+					if (['impact', 'relevance'].Contains(panelToShow) && node.type == MapNodeType.Claim) {
+						const argumentNode = parent;
+						const argumentPath = SlicePath(path, 1);
+						const ratings = GetRatings(argumentNode._key, panelToShow as RatingType);
+						return <RatingsPanel node={argumentNode} path={argumentPath} ratingType={panelToShow as RatingType} ratings={ratings}/>;
+					}
+					const ratings = GetRatings(node._key, panelToShow as RatingType);
+					return <RatingsPanel node={node} path={path} ratingType={panelToShow as RatingType} ratings={ratings}/>;
+				})()}
+				{panelToShow == 'definitions' &&
+					<DefinitionsPanel ref={c => this.definitionsPanel = c} {...{ node, path, hoverTermID }}
+						openTermID={nodeView.openTermID}
+						onHoverTerm={termID => onTermHover(termID)}
+						onClickTerm={termID => store.dispatch(new ACTMapNodeTermOpen({ mapID: map._key, path, termID }))}/>}
+				{panelToShow == 'phrasings' && <PhrasingsPanel node={node} path={path}/>}
+				{panelToShow == 'discussion' && <DiscussionPanel/>}
+				{panelToShow == 'social' && <SocialPanel/>}
+				{panelToShow == 'tags' && <TagsPanel/>}
+				{panelToShow == 'details' && <DetailsPanel map={map} node={node} path={path}/>}
+				{panelToShow == 'history' && <HistoryPanel map={map} node={node} path={path}/>}
+				{panelToShow == 'others' && <OthersPanel map={map} node={node} path={path}/>}
+			</div>
 		);
 	}
 	definitionsPanel: DefinitionsPanel;

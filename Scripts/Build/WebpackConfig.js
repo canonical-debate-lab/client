@@ -236,11 +236,15 @@ function AddStringReplacement(fileRegex, replacements, minCallCount = 1, verifyP
 }
 
 AddStringReplacement(/\.jsx?$/, [
-	// optimization; replace `State(a=>a.some.thing)` with `State("some/thing")`
+	// optimization; replace `State(a=>a.some.thing)` with `State("some", "thing")`
+	// (faster for the State function to consume, and supplies primitives instead of a function, meaning State.Watch(...) does not view the call-args as changed each render)
 	{
 		pattern: /(State|State_Base)\(a ?=> ?a\.([a-zA-Z_.]+)\)/g,
 		replacement(match, sub1, sub2, offset, string) {
-			return `${sub1}("${sub2.replace(/\./g, '/')}")`;
+			const pathStr = sub2.replace(/\./g, '/');
+			// return `${sub1}("${pathStr}")`;
+			const pathSegments = pathStr.split('/');
+			return `${sub1}("${pathSegments.join('", "')}")`;
 		},
 	},
 	// make function-names of store-accessors accessible to watcher debug-info, for react-devtools

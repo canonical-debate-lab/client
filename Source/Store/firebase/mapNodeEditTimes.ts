@@ -56,6 +56,7 @@ export function GetNodeIDsChangedSinceX(mapID: string, sinceTime: number, includ
 }
 export const GetPathsToNodesChangedSinceX = StoreAccessor((mapID: string, time: number, includeAcknowledgement = true) => {
 	// return CachedTransform_WithStore('GetPathsToNodesChangedSinceX', [mapID, time, includeAcknowledgement], {}, () => {
+	// return SubWatch('GetPathsToNodesChangedSinceX', [mapID, time, includeAcknowledgement], {}, () => {
 	const nodeIDs = GetNodeIDsChangedSinceX(mapID, time, includeAcknowledgement);
 	const mapRootNodeID = GetRootNodeID(mapID);
 	if (mapRootNodeID == null) return emptyArray;

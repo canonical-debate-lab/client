@@ -7,7 +7,7 @@ import { MeID } from 'Store/firebase/users';
 import { GetPlayingTimelineAppliedStepRevealNodes } from 'Store/main/maps/$map';
 import { NodeChildHolder } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolder';
 import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolderBox';
-import { ExpensiveComponent, MaybeLog, ShouldLog, SlicePath, State, Watch } from 'Utils/FrameworkOverrides';
+import { ExpensiveComponent, MaybeLog, ShouldLog, SlicePath, State, Watch, EB_StoreError, EB_ShowError } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
 import { useState, useMemo } from 'react';
 import { GetSubnodesInEnabledLayersEnhanced } from '../../../../Store/firebase/layers';
@@ -74,9 +74,13 @@ export class NodeUI extends BaseComponentPlus(null as Props, { expectedBoxWidth:
 
 	nodeUI: HTMLDivElement;
 	innerUI: NodeUI_Inner;
+	componentDidCatch(message, info) { EB_StoreError(this, message, info); }
 	render() {
+		if (this.state['error']) return EB_ShowError(this.state['error']);
 		let { indexInNodeList, map, node, path, asSubnode, widthOverride, style, onHeightOrPosChange, children } = this.props;
 		const { expectedBoxWidth, expectedBoxHeight, dividePoint, selfHeight } = this.state;
+
+		performance.mark('NodeUI_1');
 
 		g.nodeUIRenderCount = (g.nodeUIRenderCount | 0) + 1;
 
@@ -111,7 +115,7 @@ export class NodeUI extends BaseComponentPlus(null as Props, { expectedBoxWidth:
 		// const parentNodeView = (GetParentNodeL3.Watch(path) && GetNodeView.Watch(map._key, SlicePath(path, 1))) || new MapNodeView();
 		const parentNodeView = GetNodeView.Watch(map._key, GetParentPath(path)) || new MapNodeView();
 
-		const initialChildLimit = Watch(() => State(a => a.main.initialChildLimit), []);
+		const initialChildLimit = State.Watch(a => a.main.initialChildLimit);
 		const form = GetNodeForm.Watch(node, GetParentNodeL2.Watch(path));
 		const nodeView_early = GetNodeView.Watch(map._key, path) || new MapNodeView();
 		const nodeView = CachedTransform('nodeView_transform1', [map._key, path], nodeView_early.Excluding('focused', 'viewOffset', 'children'), () => nodeView_early);
@@ -126,6 +130,8 @@ export class NodeUI extends BaseComponentPlus(null as Props, { expectedBoxWidth:
 		const playingTimelineShowableNodes = GetPlayingTimelineRevealNodes.Watch(map._key);
 		const playingTimelineVisibleNodes = GetPlayingTimelineAppliedStepRevealNodes.Watch(map._key, true);
 		const playingTimeline_currentStepRevealNodes = GetPlayingTimelineCurrentStepRevealNodes.Watch(map._key);
+
+		performance.mark('NodeUI_2');
 
 		if (ShouldLog(a => a.nodeRenders)) {
 			if (logTypes.nodeRenders_for) {
@@ -299,6 +305,10 @@ export class NodeUI extends BaseComponentPlus(null as Props, { expectedBoxWidth:
 					&& nodeChildHolder_direct}
 			</div>
 		);
+
+		performance.mark('NodeUI_3');
+		performance.measure('NodeUI_Part1', 'NodeUI_1', 'NodeUI_2');
+		performance.measure('NodeUI_Part2', 'NodeUI_2', 'NodeUI_3');
 
 		// useEffect(() => CheckForChanges());
 

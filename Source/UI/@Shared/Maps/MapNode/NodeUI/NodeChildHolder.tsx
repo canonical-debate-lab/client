@@ -1,20 +1,20 @@
-import { CachedTransform, Vector2i, emptyObj, nl, Assert, ToJSON, Timer, VRect, WaitXThenRun, Vector3i } from 'js-vextensions';
+import { Assert, emptyObj, nl, ToJSON, Vector2i, VRect, WaitXThenRun } from 'js-vextensions';
+import * as React from 'react';
+import { Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 import { Button, Column, Div, Row } from 'react-vcomponents';
-import { BaseComponentWithConnector, GetInnerComp, RenderSource, GetDOM, BaseComponentPlus } from 'react-vextensions';
+import { BaseComponentPlus, BaseComponentWithConnector, GetDOM, RenderSource } from 'react-vextensions';
 import { GetFillPercent_AtPath } from 'Store/firebase/nodeRatings';
-import { GetNodeChildrenL3, HolderType, GetParentNodeL3, GetHolderType, GetParentNodeID } from 'Store/firebase/nodes';
-import { MapNodeL3, ClaimForm } from 'Store/firebase/nodes/@MapNode';
+import { GetNodeChildrenL3, HolderType } from 'Store/firebase/nodes';
+import { MapNodeL3 } from 'Store/firebase/nodes/@MapNode';
 import { ArgumentType } from 'Store/firebase/nodes/@MapNodeRevision';
-import { MapNodeType, MapNodeType_Info, GetMapNodeTypeDisplayName } from 'Store/firebase/nodes/@MapNodeType';
+import { MapNodeType, MapNodeType_Info } from 'Store/firebase/nodes/@MapNodeType';
 import { ACTMapNodeChildLimitSet } from 'Store/main/mapViews/$mapView/rootNodeViews';
 import { MapNodeView } from 'Store/main/mapViews/@MapViews';
 import { NodeConnectorBackground } from 'UI/@Shared/Maps/MapNode/NodeConnectorBackground';
 import { NodeUI } from 'UI/@Shared/Maps/MapNode/NodeUI';
-import { IsSpecialEmptyArray, State, Connect, MaybeLog, Icon, ErrorBoundary, Watch } from 'Utils/FrameworkOverrides';
-import { ES } from 'Utils/UI/GlobalStyles';
+import { Connect, ExpensiveComponent, Icon, IsSpecialEmptyArray, MaybeLog, State, Watch } from 'Utils/FrameworkOverrides';
 import { DroppableInfo } from 'Utils/UI/DNDStructures';
-import * as React from 'react';
-import { DroppableProvided, Droppable, DroppableStateSnapshot } from 'react-beautiful-dnd';
+import { ES } from 'Utils/UI/GlobalStyles';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { IsMultiPremiseArgument } from '../../../../../Store/firebase/nodes/$node';
 import { Polarity } from '../../../../../Store/firebase/nodes/@MapNode';
@@ -32,6 +32,7 @@ const initialState = {
 	placeholderRect: null as VRect,
 };
 
+@ExpensiveComponent
 export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props, initialState, {} as {nodeChildren_fillPercents: number[]}) {
 	/* static ValidateProps(props) {
 		let {node, path} = props;
@@ -49,7 +50,7 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 				return GetFillPercent_AtPath(child, `${path}/${child._key}`);
 			});
 		}, [nodeChildrenToShow, path]);
-		this.Stash({nodeChildren_fillPercents});
+		this.Stash({ nodeChildren_fillPercents });
 
 		const initialChildLimit = State.Watch(a => a.main.initialChildLimit);
 		const currentNodeBeingAdded_path = State.Watch(a => a.main.currentNodeBeingAdded_path);
@@ -91,13 +92,12 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 			const childLimit = direction == 'down' ? childLimit_down : childLimit_up;
 			return (
 				// <ErrorBoundary errorUI={props=>props.defaultUI(E(props, {style: {width: 500, height: 300}}))}>
-				<ErrorBoundary key={child._key} errorUIStyle={{ width: 500, height: 300 }}>
-					<NodeUI key={child._key} ref={c => this.childBoxes[child._key] = c} indexInNodeList={index} map={map} node={child}
-						path={`${path}/${child._key}`} widthOverride={childrenWidthOverride} onHeightOrPosChange={this.OnChildHeightOrPosChange}>
-						{index == (direction == 'down' ? childLimit - 1 : 0) && !showAll && (collection.length > childLimit || childLimit != initialChildLimit) &&
+				// <ErrorBoundary key={child._key} errorUIStyle={{ width: 500, height: 300 }}>
+				<NodeUI key={child._key} ref={c => this.childBoxes[child._key] = c} indexInNodeList={index} map={map} node={child}
+					path={`${path}/${child._key}`} widthOverride={childrenWidthOverride} onHeightOrPosChange={this.OnChildHeightOrPosChange}>
+					{index == (direction == 'down' ? childLimit - 1 : 0) && !showAll && (collection.length > childLimit || childLimit != initialChildLimit) &&
 							<ChildLimitBar {...{ map, path, childrenWidthOverride, childLimit }} direction={direction} childCount={collection.length}/>}
-					</NodeUI>
-				</ErrorBoundary>
+				</NodeUI>
 			);
 		};
 

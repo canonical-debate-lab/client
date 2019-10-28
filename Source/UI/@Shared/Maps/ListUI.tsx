@@ -39,13 +39,13 @@ export class ListUI extends BaseComponent<Props, {panelToShow?: string}> {
 		const { map } = this.props;
 		const selectedNodeL1 = GetSelectedNode_InList.Watch(map._key);
 		const selectedNode = Watch(() => (selectedNodeL1 ? GetNodeL3(selectedNodeL1._key) : null), [selectedNodeL1]);
-		let page = Watch(() => State('main', 'maps', map._key, 'list_page'), [map._key]);
+		let page = State.Watch('main', 'maps', map._key, 'list_page');
 		// nodes: GetNodes({limitToFirst: entriesPerPage * (page + 1)}).Skip(page * entriesPerPage).Take(entriesPerPage),
 		let nodes = GetNodesL2.Watch();
 		nodes = nodes.Any(a => a == null) ? emptyArray : nodes; // only pass nodes when all are loaded
 
-		const sortBy = Watch(() => State('main', 'maps', map._key, 'list_sortBy'), [map._key]);
-		const filter = Watch(() => State('main', 'maps', map._key, 'list_filter'), [map._key]);
+		const sortBy = State.Watch('main', 'maps', map._key, 'list_sortBy');
+		const filter = State.Watch('main', 'maps', map._key, 'list_filter');
 
 		const nodesSorted = nodes.OrderBy((node) => {
 			if (sortBy == SortType.CreatorID) return node.creator;

@@ -171,8 +171,8 @@ type NavBarPanelButton_Props = {text: string, panel: string, corner: 'top-left' 
 export class NavBarPanelButton extends BaseComponent<NavBarPanelButton_Props, {}, {active: boolean}> {
 	render() {
 		const { text, panel, corner } = this.props;
-		const topLeftOpenPanel = Watch(() => State(a => a.main.topLeftOpenPanel), []);
-		const topRightOpenPanel = Watch(() => State(a => a.main.topRightOpenPanel), []);
+		const topLeftOpenPanel = State.Watch(a => a.main.topLeftOpenPanel);
+		const topRightOpenPanel = State.Watch(a => a.main.topRightOpenPanel);
 		const active = (corner == 'top-left' ? topLeftOpenPanel : topRightOpenPanel) == panel;
 
 		this.Stash({ active });
