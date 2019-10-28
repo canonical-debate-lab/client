@@ -157,7 +157,7 @@ context('MapUI', () => {
 			const timerID = setInterval(() => {
 				if (win['RR'] == null) return;
 				clearInterval(timerID);
-				LoadImports(win['RR']);
+				LoadImports(win['RR'].all);
 				// console.log('Setting SeedDB');
 				// win['SeedDB'] = SeedDB;
 				SeedDB(win['store'].firebase);
