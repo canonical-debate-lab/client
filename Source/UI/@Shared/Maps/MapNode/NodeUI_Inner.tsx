@@ -95,8 +95,11 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		const leftBoxDOM = dom.querySelector('.NodeUI_LeftBox');
 		const leftBoxRect = leftBoxDOM ? VRect.FromLTWH(leftBoxDOM.getBoundingClientRect()) : null;
 
+		const bottomPanelDOM = dom.querySelector('.NodeUI_BottomPanel');
+		const bottomPanelRect = bottomPanelDOM ? VRect.FromLTWH(bottomPanelDOM.getBoundingClientRect()) : null;
+
 		const mouseRect = new VRect(mousePos, new Vector2i(1, 1));
-		const intersectsOne = mouseRect.Intersects(mainRect) || (leftBoxRect && mouseRect.Intersects(leftBoxRect));
+		const intersectsOne = mouseRect.Intersects(mainRect) || (leftBoxRect && mouseRect.Intersects(leftBoxRect)) || (bottomPanelRect && mouseRect.Intersects(bottomPanelRect));
 		// Log(`Main: ${mainRect} Mouse:${mousePos} Intersects one?:${intersectsOne}`);
 		this.SetState({ hovered: intersectsOne });
 	});
@@ -395,7 +398,7 @@ class NodeUI_BottomPanel extends BaseComponentPlus(
 		} = this.props;
 		return (
 			// <ErrorBoundary>
-			<div style={{
+			<div className="NodeUI_BottomPanel" style={{
 				position: 'absolute', left: panelPosition == 'below' ? 130 + 1 : 0, top: 'calc(100% + 1px)',
 				width, minWidth: (widthOverride | 0).KeepAtLeast(550), zIndex: hovered ? 6 : 5,
 				padding: 5, background: backgroundColor.css(), borderRadius: 5, boxShadow: 'rgba(0,0,0,1) 0px 0px 2px',

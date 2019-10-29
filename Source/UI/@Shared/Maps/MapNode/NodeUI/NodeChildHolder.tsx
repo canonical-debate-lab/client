@@ -65,9 +65,9 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 		let upChildren = separateChildren ? nodeChildrenToShowHere.filter(a => a.finalPolarity == Polarity.Supporting) : [];
 		let downChildren = separateChildren ? nodeChildrenToShowHere.filter(a => a.finalPolarity == Polarity.Opposing) : [];
 
-		// apply sorting
+		// apply sorting (regardless of direction, both are ordered by score/priority; "up" reordering is applied on the *child-ui list*, not the child-node list)
 		if (separateChildren) {
-			upChildren = upChildren.OrderBy(child => nodeChildren_fillPercents[child._key]);
+			upChildren = upChildren.OrderByDescending(child => nodeChildren_fillPercents[child._key]);
 			downChildren = downChildren.OrderByDescending(child => nodeChildren_fillPercents[child._key]);
 		} else {
 			nodeChildrenToShowHere = nodeChildrenToShowHere.OrderByDescending(child => nodeChildren_fillPercents[child._key]);
@@ -90,13 +90,15 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 			} */
 
 			const childLimit = direction == 'down' ? childLimit_down : childLimit_up;
+			// const isFarthestChildFromDivider = index == (direction == 'down' ? childLimit - 1 : 0);
+			const isFarthestChildFromDivider = index == childLimit - 1;
 			return (
 				// <ErrorBoundary errorUI={props=>props.defaultUI(E(props, {style: {width: 500, height: 300}}))}>
 				// <ErrorBoundary key={child._key} errorUIStyle={{ width: 500, height: 300 }}>
 				<NodeUI key={child._key} ref={c => this.childBoxes[child._key] = c} indexInNodeList={index} map={map} node={child}
 					path={`${path}/${child._key}`} widthOverride={childrenWidthOverride} onHeightOrPosChange={this.OnChildHeightOrPosChange}>
-					{index == (direction == 'down' ? childLimit - 1 : 0) && !showAll && (collection.length > childLimit || childLimit != initialChildLimit) &&
-							<ChildLimitBar {...{ map, path, childrenWidthOverride, childLimit }} direction={direction} childCount={collection.length}/>}
+					{isFarthestChildFromDivider && !showAll && (collection.length > childLimit || childLimit != initialChildLimit) &&
+						<ChildLimitBar {...{ map, path, childrenWidthOverride, childLimit }} direction={direction} childCount={collection.length}/>}
 				</NodeUI>
 			);
 		};
@@ -106,6 +108,11 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 			const refName = `${group}ChildHolder`;
 			const childLimit = group == 'up' ? childLimit_up : childLimit_down; // "all" and "down" share a child-limit
 			const childrenHere = group == 'all' ? nodeChildrenToShowHere : group == 'up' ? upChildren : downChildren;
+			const childrenHereUIs = childrenHere.slice(0, childLimit).map((pack, index) => {
+				return RenderChild(pack, index, childrenHere, direction);
+			});
+			// if direction is up, we need to have the first-in-children-array/highest-fill-percent entries show at the *bottom*, so reverse the children-uis array
+			if (direction == 'up') childrenHereUIs.reverse();
 
 			const dragBox = document.querySelector('.NodeUI_Inner.DragPreview');
 			const dragBoxRect = dragBox && VRect.FromLTWH(dragBox.getBoundingClientRect());
@@ -129,9 +136,7 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 									childrenHere.length == 0 && { position: 'absolute', top: group == 'down' ? '100%' : 0, width: MapNodeType_Info.for[MapNodeType.Claim].minWidth, height: 100 },
 								)}>
 								{/* childrenHere.length == 0 && <div style={{ position: 'absolute', top: '100%', width: '100%', height: 200 }}/> */}
-								{childrenHere.slice(0, childLimit).map((pack, index) => {
-									return RenderChild(pack, index, childrenHere, direction);
-								})}
+								{childrenHereUIs}
 								{provided.placeholder}
 								{dragIsOverDropArea && placeholderRect &&
 									<div style={{
