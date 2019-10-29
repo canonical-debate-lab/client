@@ -34,15 +34,6 @@ export function SetNodeUILocked(nodeID: string, locked: boolean, maxWait = 10000
 	}
 } */
 
-g.dispatchProfileTimer = new Timer(5000, () => {
-	DoSomething();
-}).Start();
-function DoSomething() {
-	for (let i = 0; i < 1000; i++) {
-		store.dispatch({ type: 'SDFSDFDSF' });
-	}
-}
-
 // @SimpleShouldUpdate
 // export class NodeUI extends BaseComponent<Props, {}, {CheckForChanges}> {
 // @ExpensiveComponent({ simpleShouldUpdate_call: false })
