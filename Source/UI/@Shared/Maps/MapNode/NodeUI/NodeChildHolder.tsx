@@ -261,12 +261,11 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 		// if (this.lastRender_source == RenderSource.SetState) return;
 		const { node, onHeightOrDividePointChange } = this.props;
 
-		const height = this.DOM.scrollHeight;
+		const height = this.DOM_HTML.offsetHeight;
 		const dividePoint = this.GetDividePoint();
 		if (height != this.lastHeight || dividePoint != this.lastDividePoint) {
 			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
-				() => `OnHeightChange NodeChildHolder (${RenderSource[this.lastRender_source]}):${this.props.node._key}${nl
-				}dividePoint:${dividePoint}`);
+				() => `OnHeightChange NodeChildHolder (${RenderSource[this.lastRender_source]}):${this.props.node._key}${nl}dividePoint:${dividePoint}`);
 
 			// this.UpdateState(true);
 			this.UpdateChildrenWidthOverride();

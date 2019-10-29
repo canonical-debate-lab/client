@@ -327,7 +327,10 @@ export class NodeUI extends BaseComponentPlus(
 
 		// if (this.lastRender_source == RenderSource.SetState) return;
 
-		const height = this.DOM.scrollHeight;
+		// offsetHeight: How much of the parent's "relative positioning" space is taken up by the element. (ie. it ignores the element's position: absolute descendents) [we want this one]
+		// clientHeight: Same as offset-height, except it excludes the element's own border, margin, and the height of its horizontal scroll-bar (if it has one).
+		// scrollHeight: How much space is needed to see all of the element's content/descendents (including position: absolute ones) without scrolling.
+		const height = this.DOM_HTML.offsetHeight;
 		if (height != this.lastHeight) {
 			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
 				() => `OnHeightChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._key}${nl}NewHeight:${height}`);
@@ -338,7 +341,7 @@ export class NodeUI extends BaseComponentPlus(
 		}
 		this.lastHeight = height;
 
-		const selfHeight = this.innerUI ? this.innerUI.DOM.scrollHeight : 0;
+		const selfHeight = this.innerUI ? this.innerUI.DOM_HTML.offsetHeight : 0;
 		if (selfHeight != this.lastSelfHeight) {
 			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
 				() => `OnSelfHeightChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._key}${nl}NewSelfHeight:${selfHeight}`);
