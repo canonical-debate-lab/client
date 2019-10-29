@@ -102,6 +102,7 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 		};
 
 		const RenderGroup = (group: 'all' | 'up' | 'down') => {
+			const direction = group == 'up' ? 'up' : 'down';
 			const refName = `${group}ChildHolder`;
 			const childLimit = group == 'up' ? childLimit_up : childLimit_down; // "all" and "down" share a child-limit
 			const childrenHere = group == 'all' ? nodeChildrenToShowHere : group == 'up' ? upChildren : downChildren;
@@ -129,7 +130,7 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 								)}>
 								{/* childrenHere.length == 0 && <div style={{ position: 'absolute', top: '100%', width: '100%', height: 200 }}/> */}
 								{childrenHere.slice(0, childLimit).map((pack, index) => {
-									return RenderChild(pack, index, childrenHere);
+									return RenderChild(pack, index, childrenHere, direction);
 								})}
 								{provided.placeholder}
 								{dragIsOverDropArea && placeholderRect &&

@@ -40,7 +40,10 @@ export class AddChildHelper {
 			this.subNode = new MapNode({ type: MapNodeType.Claim, creator: userID });
 			this.subNode_revision = new MapNodeRevision({ titles: { base: title } });
 		} else {
-			const usedTitleKey = ClaimForm[this.node_link.form].replace(/^./, ch => ch.toLowerCase());
+			let usedTitleKey = 'base';
+			if (childType == MapNodeType.Claim) {
+				usedTitleKey = ClaimForm[this.node_link.form].replace(/^./, ch => ch.toLowerCase());
+			}
 			this.node_revision.titles[usedTitleKey] = title;
 		}
 	}
