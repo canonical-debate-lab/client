@@ -29,7 +29,7 @@ export class HistoryPanel extends BaseComponentPlus({} as {map?: Map, node: MapN
 		const creator = GetUser.Watch(node.creator);
 		let revisions = GetNodeRevisions.Watch(node._key);
 		// we want the newest ones listed first
-		revisions = revisions.OrderByDescending(a => a._key);
+		revisions = revisions.OrderByDescending(a => a.createdAt);
 
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), node);
 		return (

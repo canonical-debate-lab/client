@@ -37,7 +37,7 @@ export class NodeUI_Menu_Stub extends BaseComponent<Props, {}> {
 }
 
 type Props = {map?: Map, node: MapNodeL3, path: string, inList?: boolean, holderType?: HolderType};
-type SharedProps = Props & Partial<{combinedWithParentArg: boolean, copiedNode: MapNodeL3, copiedNodePath: string, copiedNode_asCut: boolean}> & {};
+type SharedProps = Props & {combinedWithParentArg: boolean, copiedNode: MapNodeL3, copiedNodePath: string, copiedNode_asCut: boolean};
 
 @ExpensiveComponent
 export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
@@ -78,7 +78,7 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 
 		const nodeText = GetNodeDisplayText(node, path);
 
-		const sharedProps = this.props;
+		const sharedProps: SharedProps = E(this.props, { combinedWithParentArg, copiedNode, copiedNodePath, copiedNode_asCut });
 		return (
 			<div>
 				{CanGetBasicPermissions(userID) && !inList && validChildTypes.map((childType) => {
@@ -315,7 +315,7 @@ class PasteAsLink_MenuItem extends BaseComponent<SharedProps, {}> {
 	}
 }
 
-class UnlinkContainerArgument_MenuItem extends BaseComponent<SharedProps, {}> {
+class UnlinkContainerArgument_MenuItem extends BaseComponentPlus({} as SharedProps, {}) {
 	render() {
 		const { map, node, path, holderType, combinedWithParentArg } = this.props;
 		if (!combinedWithParentArg) return <div/>;
