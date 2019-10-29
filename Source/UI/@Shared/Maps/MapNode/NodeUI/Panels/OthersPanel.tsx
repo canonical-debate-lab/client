@@ -83,7 +83,7 @@ export class OthersPanel extends BaseComponentPlus({} as {map?: Map, node: MapNo
 						}}/>
 					</Row>}
 				{node.type == MapNodeType.Claim && convertToTypes.length > 0 &&
-					<Row>
+					<Row center>
 						<Pre>Convert to: </Pre>
 						<Select options={convertToTypes} value={convertToType} onChange={val => this.SetState({ convertToType: val })}/>
 						<Button ml={5} text="Convert" onClick={() => {

@@ -1,4 +1,4 @@
-import { Assert, CachedTransform, E, emptyArray, emptyArray_forLoading, IsNaN, nl, ToJSON } from 'js-vextensions';
+import { Assert, CachedTransform, E, emptyArray, emptyArray_forLoading, IsNaN, nl, ToJSON, Timer } from 'js-vextensions';
 import { Column } from 'react-vcomponents';
 import { BaseComponentPlus, GetDOM, GetInnerComp, RenderSource, ShallowEquals, UseCallback } from 'react-vextensions';
 import { ChangeType, GetPathsToChangedDescendantNodes_WithChangeTypes } from 'Store/firebase/mapNodeEditTimes';
@@ -9,11 +9,11 @@ import { NodeChildHolder } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolder'
 import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolderBox';
 import { ExpensiveComponent, MaybeLog, ShouldLog, SlicePath, State, Watch, EB_StoreError, EB_ShowError } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo, ClassAttributes } from 'react';
 import { GetSubnodesInEnabledLayersEnhanced } from '../../../../Store/firebase/layers';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetNodeChildrenL3, GetParentNodeL2, GetParentNodeL3, IsRootNode } from '../../../../Store/firebase/nodes';
-import { GetNodeForm, IsMultiPremiseArgument, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
+import { GetNodeForm, IsMultiPremiseArgument, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument, IsPremiseOfMultiPremiseArgument } from '../../../../Store/firebase/nodes/$node';
 import { AccessLevel, MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
 import { GetPlayingTimeline, GetPlayingTimelineCurrentStepRevealNodes, GetPlayingTimelineRevealNodes, GetPlayingTimelineStepIndex, GetTimeFromWhichToShowChangedNodes } from '../../../../Store/main/maps/$map';
@@ -34,12 +34,26 @@ export function SetNodeUILocked(nodeID: string, locked: boolean, maxWait = 10000
 	}
 } */
 
-type Props = {indexInNodeList: number, map: Map, node: MapNodeL3, path?: string, asSubnode?: boolean, widthOverride?: number, style?, onHeightOrPosChange?: ()=>void};
+g.dispatchProfileTimer = new Timer(5000, () => {
+	DoSomething();
+}).Start();
+function DoSomething() {
+	for (let i = 0; i < 1000; i++) {
+		store.dispatch({ type: 'SDFSDFDSF' });
+	}
+}
+
 // @SimpleShouldUpdate
 // export class NodeUI extends BaseComponent<Props, {}, {CheckForChanges}> {
 // @ExpensiveComponent({ simpleShouldUpdate_call: false })
 @ExpensiveComponent
-export class NodeUI extends BaseComponentPlus(null as Props, { expectedBoxWidth: 0, expectedBoxHeight: 0, dividePoint: null as number, selfHeight: 0 }) {
+export class NodeUI extends BaseComponentPlus(
+	{} as {
+		indexInNodeList: number, map: Map, node: MapNodeL3, path?: string, asSubnode?: boolean, widthOverride?: number, style?,
+		onHeightOrPosChange?: ()=>void
+	},
+	{ expectedBoxWidth: 0, expectedBoxHeight: 0, dividePoint: null as number, selfHeight: 0 },
+) {
 	static renderCount = 0;
 	static lastRenderTime = -1;
 	static ValidateProps(props) {
@@ -81,50 +95,31 @@ export class NodeUI extends BaseComponentPlus(null as Props, { expectedBoxWidth:
 		const { expectedBoxWidth, expectedBoxHeight, dividePoint, selfHeight } = this.state;
 
 		performance.mark('NodeUI_1');
-
-		g.nodeUIRenderCount = (g.nodeUIRenderCount | 0) + 1;
-
 		path = path || node._key.toString();
 
-		// Log("Calling NodeUI connect func.");
-
-		// const nodeChildren = Watch(() => GetNodeChildrenL3(node, path, true));
 		const nodeChildren = GetNodeChildrenL3.Watch(node, path, true);
-		// if (node.currentRevision && node.current.titles.base == 'Test1') Log('NodeChildren:', nodeChildren);
-
 		let nodeChildrenToShow: MapNodeL3[] = nodeChildren.Any(a => a == null) ? emptyArray_forLoading : nodeChildren; // only pass nodeChildren when all are loaded
-		// nodeChildren = nodeChildren.filter(a=>a);
-		/* let nodeChildren_finalTypes = nodeChildren == emptyArray ? emptyArray : nodeChildren.map(child=> {
-			return GetFinalNodeTypeAtPath(child, path + "/" + child._id);
-		}); */
 
 		let subnodes = GetSubnodesInEnabledLayersEnhanced.Watch(MeID(), map, node._key);
 		subnodes = subnodes.Any(a => a == null) ? emptyArray : subnodes; // only pass subnodes when all are loaded
 
 		const sinceTime = GetTimeFromWhichToShowChangedNodes.Watch(map._key);
-
-		/* const pathsToChangedNodes = GetPathsToNodesChangedSinceX.Watch(map._key, sinceTime);
-		const pathsToChangedDescendantNodes = pathsToChangedNodes.filter(a => a.startsWith(`${path}/`));
-		// const changeTypesOfChangedDescendantNodes = pathsToChangedDescendantNodes.map(path => GetNodeChangeType.Watch(GetNode.Watch(GetNodeID(path)), sinceTime));
-		const changeTypesOfChangedDescendantNodes = Watch(() => pathsToChangedDescendantNodes.map(path => GetNodeChangeType(GetNode(GetNodeID(path)), sinceTime))); */
 		const pathsToChangedDescendantNodes_withChangeTypes = GetPathsToChangedDescendantNodes_WithChangeTypes.Watch(map._key, sinceTime, path);
-
 		const addedDescendants = pathsToChangedDescendantNodes_withChangeTypes.filter(a => a == ChangeType.Add).length;
 		const editedDescendants = pathsToChangedDescendantNodes_withChangeTypes.filter(a => a == ChangeType.Edit).length;
 
-		// const parentNodeView = (GetParentNodeL3.Watch(path) && GetNodeView.Watch(map._key, SlicePath(path, 1))) || new MapNodeView();
-		const parentNodeView = GetNodeView.Watch(map._key, GetParentPath(path)) || new MapNodeView();
+		const parent = GetParentNodeL3(path);
+		const parentPath = GetParentPath(path);
+		const parentNodeView = GetNodeView.Watch(map._key, parentPath) || new MapNodeView();
 
 		const initialChildLimit = State.Watch(a => a.main.initialChildLimit);
 		const form = GetNodeForm.Watch(node, GetParentNodeL2.Watch(path));
 		const nodeView_early = GetNodeView.Watch(map._key, path) || new MapNodeView();
 		const nodeView = CachedTransform('nodeView_transform1', [map._key, path], nodeView_early.Excluding('focused', 'viewOffset', 'children'), () => nodeView_early);
-		// const nodeView = nodeView_early;
 
 		const isSinglePremiseArgument = IsSinglePremiseArgument.Watch(node);
 		const isMultiPremiseArgument = IsMultiPremiseArgument.Watch(node);
 
-		// userViewedNodes: GetUserViewedNodes(MeID(), { useUndefinedForInProgress: true });
 		const playingTimeline = GetPlayingTimeline.Watch(map._key);
 		const playingTimeline_currentStepIndex = GetPlayingTimelineStepIndex.Watch(map._key);
 		const playingTimelineShowableNodes = GetPlayingTimelineRevealNodes.Watch(map._key);
@@ -132,18 +127,13 @@ export class NodeUI extends BaseComponentPlus(null as Props, { expectedBoxWidth:
 		const playingTimeline_currentStepRevealNodes = GetPlayingTimelineCurrentStepRevealNodes.Watch(map._key);
 
 		performance.mark('NodeUI_2');
-
 		if (ShouldLog(a => a.nodeRenders)) {
 			if (logTypes.nodeRenders_for) {
 				if (logTypes.nodeRenders_for == node._key) {
-					Log(`Updating NodeUI (${RenderSource[this.lastRender_source]}):${node._key}${nl
-					}PropsChanged:${ToJSON(this.GetPropChanges())}${nl
-					}StateChanged:${ToJSON(this.GetStateChanges())}`);
+					Log(`Updating NodeUI (${RenderSource[this.lastRender_source]}):${node._key}`, '\nPropsChanged:', this.GetPropChanges(), '\nStateChanged:', this.GetStateChanges());
 				}
 			} else {
-				Log(`Updating NodeUI (${RenderSource[this.lastRender_source]}):${node._key}${nl
-				}PropsChanged:${this.GetPropChanges().map(a => a.key)}${nl
-				}StateChanged:${this.GetStateChanges().map(a => a.key)}`);
+				Log(`Updating NodeUI (${RenderSource[this.lastRender_source]}):${node._key}`, '\nPropsChanged:', this.GetPropChanges().map(a => a.key), '\nStateChanged:', this.GetStateChanges().map(a => a.key));
 			}
 		}
 		NodeUI.renderCount++;
@@ -166,13 +156,13 @@ export class NodeUI extends BaseComponentPlus(null as Props, { expectedBoxWidth:
 			Log('NodeChildrenToShow_length:' + nodeChildrenToShow.length);
 		} */
 
-		// if the premise of a single-premise argument
-		const parent = GetParentNodeL3(path);
-		const parentPath = SlicePath(path, 1);
 		const isPremiseOfSinglePremiseArg = IsPremiseOfSinglePremiseArgument(node, parent);
 		if (isPremiseOfSinglePremiseArg) {
 			var relevanceArguments = GetNodeChildrenL3(parent, SlicePath(path, 1)).filter(a => a && a.type == MapNodeType.Argument);
 			// Assert(!relevanceArguments.Any(a=>a.type == MapNodeType.Claim), "Single-premise argument has more than one premise!");
+		}
+		if (IsPremiseOfMultiPremiseArgument(node, parent)) {
+			widthOverride -= 20; // remove 20px, to align our right-edge with the parent argument
 		}
 
 		const showArgumentsControlBar = (node.type == MapNodeType.Claim || isSinglePremiseArgument) && nodeView.expanded && nodeChildrenToShow != emptyArray_forLoading;
@@ -346,11 +336,10 @@ export class NodeUI extends BaseComponentPlus(null as Props, { expectedBoxWidth:
 
 		// if (this.lastRender_source == RenderSource.SetState) return;
 
-		const height = $(GetDOM(this)).outerHeight();
+		const height = this.DOM.scrollHeight;
 		if (height != this.lastHeight) {
 			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
-				() => `OnHeightChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._key}${nl
-				}NewHeight:${height}`);
+				() => `OnHeightChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._key}${nl}NewHeight:${height}`);
 
 			// this.UpdateState(true);
 			// this.UpdateState();
@@ -358,11 +347,10 @@ export class NodeUI extends BaseComponentPlus(null as Props, { expectedBoxWidth:
 		}
 		this.lastHeight = height;
 
-		const selfHeight = $(GetDOM(this.innerUI)).outerHeight();
+		const selfHeight = this.innerUI ? this.innerUI.DOM.scrollHeight : 0;
 		if (selfHeight != this.lastSelfHeight) {
 			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
-				() => `OnSelfHeightChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._key}${nl
-				}NewSelfHeight:${selfHeight}`);
+				() => `OnSelfHeightChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._key}${nl}NewSelfHeight:${selfHeight}`);
 
 			// this.UpdateState(true);
 			// this.UpdateState();
@@ -407,11 +395,12 @@ export class NodeUI extends BaseComponentPlus(null as Props, { expectedBoxWidth:
 	GetMeasurementInfo() {
 		if (this.proxyDisplayedNodeUI) return this.proxyDisplayedNodeUI.GetMeasurementInfo();
 
-		const props_used = this.props.Including('map', 'node', 'path', 'subnodes', 'nodeChildren') as any;
+		const { props } = this;
+		const props_used = this.props.Including('map', 'node', 'path', 'subnodes', 'nodeChildren') as typeof props;
 		// Log("Checking whether should remeasure info for: " + props_used.node._id);
 		if (this.measurementInfo_cache && ShallowEquals(this.measurementInfo_cache_lastUsedProps, props_used)) return this.measurementInfo_cache;
 
-		const { map, node, path } = props_used as Props;
+		const { map, node, path } = props_used;
 		const subnodes = GetSubnodesInEnabledLayersEnhanced(MeID(), map, node._key);
 		let { expectedBoxWidth, width, expectedHeight } = GetMeasurementInfoForNode(node, path);
 

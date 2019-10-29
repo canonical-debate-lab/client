@@ -169,7 +169,7 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 					<NodeChildHolderBox {...{ map, node, path, nodeView }} type={HolderType.Relevance} widthOverride={childrenWidthOverride}
 						widthOfNode={childrenWidthOverride}
 						nodeChildren={GetNodeChildrenL3(node, path)} nodeChildrenToShow={nodeChildrenToShowInRelevanceBox}
-						onHeightOrDividePointChange={dividePoint => this.CheckForChanges()}/>}
+						onHeightOrDividePointChange={dividePoint => this.CheckForLocalChanges()}/>}
 				{!separateChildren &&
 					RenderGroup('all')}
 				{separateChildren &&
@@ -243,17 +243,19 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 	}
 
 	PostRender() {
-		this.CheckForChanges();
+		this.CheckForLocalChanges();
 	}
 
 	lastHeight = 0;
 	lastDividePoint = 0;
 	lastOrderStr = null;
-	CheckForChanges() {
+	// Checks for at-our-level state that may require us to update our width or child-box-offsets (for positioning our lines to child nodes).
+	// Note that there are other pathways by which our width/child-box-offsets may be updated. (eg. if child box repositions, an update is triggered through OnChildHeightOrPosChange)
+	CheckForLocalChanges() {
 		// if (this.lastRender_source == RenderSource.SetState) return;
 		const { node, onHeightOrDividePointChange } = this.props;
 
-		const height = $(GetDOM(this)).outerHeight();
+		const height = this.DOM.scrollHeight;
 		const dividePoint = this.GetDividePoint();
 		if (height != this.lastHeight || dividePoint != this.lastDividePoint) {
 			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
@@ -279,7 +281,7 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 	}
 
 	OnChildHeightOrPosChange_updateStateQueued = false;
-	OnChildHeightOrPosChange() {
+	OnChildHeightOrPosChange = () => {
 		const { node } = this.props;
 		MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
 			() => `OnChildHeightOrPosChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._key}\ncenterY:${this.GetDividePoint()}`);
@@ -291,12 +293,12 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 			requestAnimationFrame(() => {
 				this.OnChildHeightOrPosChange_updateStateQueued = false;
 				if (!this.mounted) return;
-				/* this.UpdateChildrenWidthOverride();
-				this.UpdateChildBoxOffsets(); */
-				this.CheckForChanges();
+				this.UpdateChildrenWidthOverride();
+				this.UpdateChildBoxOffsets();
+				this.CheckForLocalChanges();
 			});
 		}
-	}
+	};
 
 	GetDividePoint() {
 		if (this.argumentsControlBar) {
@@ -310,7 +312,6 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 	}
 
 	UpdateChildrenWidthOverride(forceUpdate = false) {
-		const { map, node, path, children, nodeView, linkSpawnPoint } = this.props;
 		if (!this.Expanded) return;
 
 		const childBoxes = this.childBoxes.VValues().filter(a => a != null);
@@ -322,12 +323,6 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 		// Log(`Changed state? (${this.props.node._id}): ` + changedState);
 	}
 	UpdateChildBoxOffsets(forceUpdate = false) {
-		const { map, node, path, children, nodeView, linkSpawnPoint } = this.props;
-		const childHolder = $(this);
-		const upChildHolder = childHolder.children('.upChildHolder');
-		const downChildHolder = childHolder.children('.downChildHolder');
-		const argumentsControlBar = childHolder.children('.argumentsControlBar');
-
 		const childBoxes = this.childBoxes.VValues().filter(a => a != null);
 		const newState = {} as any;
 
@@ -336,7 +331,7 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 		if (this.Expanded && this.childHolder) {
 			const holderRect = VRect.FromLTWH(this.childHolder.DOM.getBoundingClientRect());
 
-			const oldChildBoxOffsets = this.childBoxes.Props().filter(pair => pair.value != null).ToMap(pair => pair.name, (pair) => {
+			const oldChildBoxOffsets = this.childBoxes.Pairs().filter(pair => pair.value != null).ToMap(pair => pair.key, (pair) => {
 				// let childBox = FindDOM_(pair.value).find("> div:first-child > div"); // get inner-box of child
 				// let childBox = $(GetDOM(pair.value)).find(".NodeUI_Inner").first(); // get inner-box of child
 				// not sure why this is needed... (bad sign!)
