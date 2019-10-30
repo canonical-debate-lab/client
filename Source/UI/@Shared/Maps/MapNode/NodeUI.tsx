@@ -341,7 +341,7 @@ export class NodeUI extends BaseComponentPlus(
 		}
 		this.lastHeight = height;
 
-		const selfHeight = this.innerUI ? this.innerUI.DOM_HTML.offsetHeight : 0;
+		const selfHeight = this.SafeGet(a => a.innerUI.DOM_HTML.offsetHeight, 0);
 		if (selfHeight != this.lastSelfHeight) {
 			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
 				() => `OnSelfHeightChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._key}${nl}NewSelfHeight:${selfHeight}`);
