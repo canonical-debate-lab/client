@@ -15,8 +15,8 @@ AddUpgradeFunc(newVersion, (oldData: FirebaseData)=> {
 		// add contentNode
 		let contentNode = new ContentNode();
 		contentNode.content = oldQuote.text;
-		delete contentNode.sourceChains[0][0]; // clear first (and only) source in first source-chain
-		
+		delete contentNode.sourceChains[0].sources[0]; // clear first (and only) source in first source-chain
+
 		// eg: "some-doc (author-name) <- some-doc-2 (author-name-2) <- example.com"
 		let newSourceStrings = oldSource.name.split(" <- ");
 		for (let sourceStr of newSourceStrings) {
@@ -40,4 +40,4 @@ AddUpgradeFunc(newVersion, (oldData: FirebaseData)=> {
 	}
 
 	return data;
-});*/
+}); */

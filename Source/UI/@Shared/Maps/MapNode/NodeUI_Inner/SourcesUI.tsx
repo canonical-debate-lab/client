@@ -1,6 +1,6 @@
 import { BaseComponent } from 'react-vextensions';
 import { SourceChain, Source } from 'Store/firebase/contentNodes/@SourceChain';
-import { Row } from 'react-vcomponents';
+import { Row, Text } from 'react-vcomponents';
 import { Column } from 'react-vcomponents';
 import { VURL } from 'js-vextensions';
 import { Link } from 'Utils/FrameworkOverrides';
@@ -29,9 +29,14 @@ export class SourcesUI extends BaseComponent<{sourceChains: SourceChain[]}, {}> 
 						}
 						return (source.name || '') + (source.author ? ` (${source.author})` : '');
 					}).join(' <- ');
+
+					const { link } = chain.sources.Last();
 					return (
 						<Row key={index}>
-							<Link text={linkTitle} to={chain.sources.Last().link} style={{ wordBreak: 'break-word' }} onContextMenu={e => e.nativeEvent['passThrough'] = true}/>
+							{link &&
+							<Link text={linkTitle} to={link} style={{ wordBreak: 'break-word' }} onContextMenu={e => e.nativeEvent['passThrough'] = true}/>}
+							{!link &&
+							<Text style={{ wordBreak: 'break-word' }}>{linkTitle}</Text>}
 						</Row>
 					);
 				})}

@@ -31,6 +31,7 @@ export enum SourceType {
 }
 AddSchema('SourceType', { oneOf: GetValues_ForSchema(SourceType) });
 
+export const Source_linkURLPattern = '^https?\\://[^\\s/$.?#]+\\.[^\\s]+$';
 export class Source {
 	type = SourceType.Writing;
 	name: string;
@@ -42,7 +43,9 @@ AddSchema('Source', {
 		type: { $ref: 'SourceType' },
 		name: { pattern: '\\S.*' },
 		author: { pattern: '\\S.*' },
-		link: { format: 'uri' },
+		link: { type: 'string' }, // allow overriding url pattern; it just highlights possible mistakes
+		// link: { format: 'uri' },
+		// link: { pattern: Source_linkURLPattern },
 	},
 	// required: ["name", "author", "link"],
 	/* anyOf: [

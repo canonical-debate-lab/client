@@ -35,12 +35,13 @@ export class Image {
 	createdAt: number;
 }
 export const Image_namePattern = '^[a-zA-Z0-9 ,\'"%\\-()\\/]+$';
-export const Image_urlPattern = '^https?://[^\\s/$.?#]+\\.[^\\s]+\.(jpg|jpeg|gif|png)$';
+export const Image_urlPattern = '^https?\\://[^\\s/$.?#]+\\.[^\\s]+\\.(jpg|jpeg|gif|png)$';
 AddSchema('Image', {
 	properties: {
 		name: { type: 'string', pattern: Image_namePattern },
 		type: { $ref: 'ImageType' },
-		url: { type: 'string' },
+		// url: { pattern: Image_urlPattern },
+		url: { type: 'string' }, // allow overriding url pattern; it just highlights possible mistakes
 		description: { type: 'string' },
 		previewWidth: { type: ['number', 'null'] },
 

@@ -234,7 +234,8 @@ export const GetNodeDisplayText = StoreAccessor((node: MapNodeL2, path?: string,
 			return result;
 		}
 		if (node.current.contentNode) {
-			const firstSource = node.current.contentNode.sourceChains[0][0];
+			const firstSource = node.current.contentNode.sourceChains[0].sources[0];
+			// if (PROD && firstSource == null) return '(first source is null)'; // defensive
 			return `The statement below was made${ // (as shown)
 				firstSource.name ? ` in "${firstSource.name}"` : ''}${
 				firstSource.author ? ` by ${firstSource.author}` : ''}${
@@ -245,7 +246,7 @@ export const GetNodeDisplayText = StoreAccessor((node: MapNodeL2, path?: string,
 			const image = GetImage(node.current.image.id);
 			if (image == null) return '...';
 			// if (image.sourceChains == null) return `The ${GetNiceNameForImageType(image.type)} below is unmodified.`; // temp
-			const firstSource = node.current.contentNode.sourceChains[0][0];
+			const firstSource = node.current.contentNode.sourceChains[0].sources[0];
 			return `The ${GetNiceNameForImageType(image.type)} below was published${ // (as shown)`
 				firstSource.name ? ` in "${firstSource.name}"` : ''}${
 				firstSource.author ? ` by ${firstSource.author}` : ''}${
