@@ -152,9 +152,9 @@ export class NodeUI extends BaseComponentPlus(
 			var relevanceArguments = GetNodeChildrenL3(parent, SlicePath(path, 1)).filter(a => a && a.type == MapNodeType.Argument);
 			// Assert(!relevanceArguments.Any(a=>a.type == MapNodeType.Claim), "Single-premise argument has more than one premise!");
 		}
-		if (IsPremiseOfMultiPremiseArgument(node, parent)) {
+		/* if (IsPremiseOfMultiPremiseArgument(node, parent)) {
 			widthOverride -= 20; // remove 20px, to align our right-edge with the parent argument
-		}
+		} */
 
 		const showArgumentsControlBar = (node.type == MapNodeType.Claim || isSinglePremiseArgument) && nodeView.expanded && nodeChildrenToShow != emptyArray_forLoading;
 
