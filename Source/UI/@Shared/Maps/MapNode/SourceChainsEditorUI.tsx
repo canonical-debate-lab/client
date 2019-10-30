@@ -33,7 +33,7 @@ export class SourceChainsEditorUI extends BaseComponent<Props, {newData: SourceC
 		};
 
 		const splitAt = 100; // , width = 600;
-		// const urlRegex = new RegExp('^https?\\://[^\\s/$.?#]+\\.[^\\s]+$');
+		// const urlRegex = new RegExp('^https?://[^\\s/$.?#]+\\.[^\\s]+$');
 		return (
 			<Column style={ES({ flex: 1 })}>
 				{newData.map((chain, chainIndex) => {

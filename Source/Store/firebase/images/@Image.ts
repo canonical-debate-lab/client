@@ -35,7 +35,7 @@ export class Image {
 	createdAt: number;
 }
 export const Image_namePattern = '^[a-zA-Z0-9 ,\'"%\\-()\\/]+$';
-export const Image_urlPattern = '^https?\\://[^\\s/$.?#]+\\.[^\\s]+\\.(jpg|jpeg|gif|png)$';
+export const Image_urlPattern = '^https?://[^\\s/$.?#]+\\.[^\\s]+\\.(jpg|jpeg|gif|png)$';
 AddSchema('Image', {
 	properties: {
 		name: { type: 'string', pattern: Image_namePattern },

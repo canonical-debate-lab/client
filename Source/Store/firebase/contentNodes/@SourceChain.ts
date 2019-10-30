@@ -31,7 +31,7 @@ export enum SourceType {
 }
 AddSchema('SourceType', { oneOf: GetValues_ForSchema(SourceType) });
 
-export const Source_linkURLPattern = '^https?\\://[^\\s/$.?#]+\\.[^\\s]+$';
+export const Source_linkURLPattern = '^https?://[^\\s/$.?#]+\\.[^\\s]+$';
 export class Source {
 	type = SourceType.Writing;
 	name: string;
