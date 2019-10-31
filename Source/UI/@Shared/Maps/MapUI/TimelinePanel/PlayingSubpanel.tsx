@@ -1,14 +1,15 @@
-import { BaseComponentWithConnector, BaseComponent, BaseComponentPlus } from 'react-vextensions';
-import { Connect, YoutubePlayer, YoutubePlayerUI, VReactMarkdown_Remarkable, YoutubePlayerState } from 'Utils/FrameworkOverrides';
-import { Map } from 'Store/firebase/maps/@Map';
-import { GetSelectedTimeline } from 'Store/main/maps/$map';
-import { GetTimelineSteps, GetTimelineStep } from 'Store/firebase/timelines';
-import { Column, Row, Pre, Div } from 'react-vcomponents';
-import { ScrollView } from 'react-vscrollview';
-import { ES } from 'Utils/UI/GlobalStyles';
-import { Timeline } from 'Store/firebase/timelines/@Timeline';
-import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import ReactList from 'react-list';
+import { Column, Div, Row } from 'react-vcomponents';
+import { BaseComponentPlus } from 'react-vextensions';
+import { ScrollView } from 'react-vscrollview';
+import { Map } from 'Store/firebase/maps/@Map';
+import { GetTimelineStep } from 'Store/firebase/timelines';
+import { Timeline } from 'Store/firebase/timelines/@Timeline';
+import { GetSelectedTimeline } from 'Store/main/maps/$map';
+import { HSLA, UseSize, VReactMarkdown_Remarkable, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, Icon } from 'Utils/FrameworkOverrides';
+import { ES } from 'Utils/UI/GlobalStyles';
+import { useEffect } from 'react';
+import { ToNumber } from 'js-vextensions';
 import { PositionOptionsEnum } from './EditorSubpanel';
 
 export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} as { timeline: Timeline }) {
@@ -18,23 +19,47 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} 
 		const timeline = GetSelectedTimeline.Watch(map._key);
 		// timelineSteps: timeline && GetTimelineSteps(timeline);
 
+		/* const [ref, { width, height }] = UseSize();
+		useEffect(() => ref(this.DOM), [ref]); */
+		const [videoRef, { height: videoHeight }] = UseSize();
+
 		this.Stash({ timeline });
 		if (timeline == null) return null;
 		return (
 			<Column style={{ height: '100%' }}>
 				{timeline.videoID &&
-				<YoutubePlayerUI videoID={timeline.videoID} startTime={timeline.videoStartTime} heightVSWidthPercent={timeline.videoHeightVSWidthPercent}
+				<YoutubePlayerUI ref={c => c && videoRef(c.DOM)} videoID={timeline.videoID} startTime={timeline.videoStartTime} heightVSWidthPercent={timeline.videoHeightVSWidthPercent}
 					onPlayerInitialized={(player) => {
 						this.player = player;
 						player.GetPlayerUI().style.position = 'absolute';
 						this.Update();
 					}}/>}
-				<ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, position: 'relative', padding: 7, filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)' })}>
-					{/* timelineSteps && timelineSteps.map((step, index) => <StepUI key={index} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>) */}
+				{/* <ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, position: 'relative', padding: 7, filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)' })}>
+					{/* timelineSteps && timelineSteps.map((step, index) => <StepUI key={index} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>) *#/}
 					<ReactList type='variable' length={timeline.steps.length}
 						// pageSize={20} threshold={300}
+						itemsRenderer={(items, ref) => {
+							return <div ref={ref}>
+								<Column style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 20, background: HSLA(0, 0, 0, 1) }}>
+								</Column>
+								{items}
+							</div>;
+						}}
 						itemSizeEstimator={this.EstimateStepHeight} itemRenderer={this.RenderStep}/>
-				</ScrollView>
+				</ScrollView> */}
+				<Row style={{ height: `calc(100% - ${ToNumber(videoHeight, 0)}px)` }}>
+					<Column style={{ position: 'relative', width: 20, background: HSLA(0, 0, 0, 1) }}>
+						<div style={{ position: 'absolute', top: 100 }}>
+							<Icon icon="arrow-right" size={20}/>
+						</div>
+					</Column>
+					<ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, position: 'relative', padding: 7, filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)' })}>
+						{/* timelineSteps && timelineSteps.map((step, index) => <StepUI key={index} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>) */}
+						<ReactList type='variable' length={timeline.steps.length}
+							// pageSize={20} threshold={300}
+							itemSizeEstimator={this.EstimateStepHeight} itemRenderer={this.RenderStep}/>
+					</ScrollView>
+				</Row>
 			</Column>
 		);
 	}

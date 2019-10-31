@@ -37,7 +37,7 @@ export class CollectionSubpanel extends BaseComponentPlus({} as {map: Map}, {}) 
 											)}
 											onClick={() => {
 												store.dispatch(new ACTMap_SelectedTimelineSet({ mapID: map._key, selectedTimeline: timeline._key }));
-												this.timelineSelect.hide();
+												this.timelineSelect.Hide();
 											}}>
 											<Row>
 												<Pre>{timeline.name} </Pre><span style={{ fontSize: 11 }}>(id: {timeline._key})</span>
