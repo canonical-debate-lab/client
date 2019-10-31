@@ -361,14 +361,11 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 	}
 }
 
-const ChildLimitBar_connector = (state, props: {map: Map, path: string, childrenWidthOverride: number, direction: 'up' | 'down', childCount: number, childLimit: number}) => ({
-	initialChildLimit: State(a => a.main.initialChildLimit),
-});
-@Connect(ChildLimitBar_connector)
-export class ChildLimitBar extends BaseComponentWithConnector(ChildLimitBar_connector, {}) {
+export class ChildLimitBar extends BaseComponentPlus({} as {map: Map, path: string, childrenWidthOverride: number, direction: 'up' | 'down', childCount: number, childLimit: number}, {}) {
 	static HEIGHT = 36;
 	render() {
-		const { map, path, childrenWidthOverride, direction, childCount, childLimit, initialChildLimit } = this.props;
+		const { map, path, childrenWidthOverride, direction, childCount, childLimit } = this.props;
+		const initialChildLimit = State.Watch(a => a.main.initialChildLimit);
 		return (
 			<Row style={{
 				// position: "absolute", marginTop: -30,

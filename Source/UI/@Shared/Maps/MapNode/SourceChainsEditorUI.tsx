@@ -1,5 +1,5 @@
 import { SourceType, SourceChain, Source, Source_linkURLPattern } from 'Store/firebase/contentNodes/@SourceChain';
-import { BaseComponent, GetDOM } from 'react-vextensions';
+import { BaseComponent, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { Button } from 'react-vcomponents';
 import { Column } from 'react-vcomponents';
 import { Row } from 'react-vcomponents';
@@ -11,22 +11,22 @@ import { ES } from 'Utils/UI/GlobalStyles';
 import { Image_urlPattern } from 'Store/firebase/images/@Image';
 import { GetSourceNamePlaceholderText, GetSourceAuthorPlaceholderText } from '../../../../Store/firebase/contentNodes/$contentNode';
 
-type Props = {baseData: SourceChain[], enabled?: boolean, style?, onChange?: (newData: SourceChain[])=>void};
-// & Partial<{creator: User, variantNumber: number}>;
-/* @Connect((state, {baseData, creating}: Props)=>({
-	creator: !creating && GetUser(baseData.creator),
-	variantNumber: !creating && GetTermVariantNumber(baseData),
-})) */
-export class SourceChainsEditorUI extends BaseComponent<Props, {newData: SourceChain[]}> {
-	static defaultProps = { enabled: true };
+export class SourceChainsEditorUI extends BaseComponentPlus(
+	{ enabled: true } as {baseData: SourceChain[], enabled?: boolean, style?, onChange?: (newData: SourceChain[])=>void},
+	{ newData: null as SourceChain[] },
+) {
 	ComponentWillMountOrReceiveProps(props, forMount) {
-		if (forMount || props.baseData != this.props.baseData) // if base-data changed
-		{ this.SetState({ newData: Clone(props.baseData) }); }
+		if (forMount || props.baseData != this.props.baseData) { // if base-data changed
+			this.SetState({ newData: Clone(props.baseData) });
+		}
 	}
 
 	render() {
 		const { enabled, style, onChange } = this.props;
 		const { newData } = this.state;
+		/* creator: !creating && GetUser.Watch(baseData.creator);
+		variantNumber: !creating && GetTermVariantNumber.Watch(baseData); */
+
 		const Change = (_) => {
 			if (onChange) onChange(this.GetNewData());
 			this.Update();
