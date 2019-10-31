@@ -28,7 +28,7 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} 
 		return (
 			<Column style={{ height: '100%' }}>
 				{timeline.videoID &&
-				<YoutubePlayerUI ref={c => c && videoRef(c.DOM)} videoID={timeline.videoID} startTime={timeline.videoStartTime} heightVSWidthPercent={timeline.videoHeightVSWidthPercent}
+				<YoutubePlayerUI ref={videoRef} videoID={timeline.videoID} startTime={timeline.videoStartTime} heightVSWidthPercent={timeline.videoHeightVSWidthPercent}
 					onPlayerInitialized={(player) => {
 						this.player = player;
 						player.GetPlayerUI().style.position = 'absolute';
