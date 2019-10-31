@@ -1,4 +1,5 @@
-import {SortType} from "./$map";
+import {UUID} from 'Utils/General/KeyGenerator';
+import { SortType, TimelineSubpanel } from './$map';
 
 export enum ShowChangesSinceType {
 	None = 10,
@@ -12,8 +13,11 @@ export class MapInfo {
 	list_page: number;
 	list_selectedNodeID: string;
 	list_selectedNode_openPanel: string;
-	selectedTimeline: number;
-	playingTimeline: number;
+
+	timelinePanelOpen: boolean;
+	timelineOpenSubpanel: TimelineSubpanel;
+	selectedTimeline: string;
+	// playingTimeline: number;
 	playingTimeline_step: number;
 	playingTimeline_appliedStep: number;
 

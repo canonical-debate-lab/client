@@ -4,8 +4,8 @@ import { Map } from 'Store/firebase/maps/@Map';
 import { GetTimelineStep } from 'Store/firebase/timelines';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { VReactMarkdown_Remarkable, YoutubePlayer, YoutubePlayerState } from 'Utils/FrameworkOverrides';
-import {TimelineStep} from 'Store/firebase/timelineSteps/@TimelineStep';
-import { PositionOptionsEnum } from '../EditorSubpanel';
+import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
+import { PositionOptionsEnum } from '../EditorSubpanel/StepEditorUI';
 
 export class StepUI extends BaseComponentPlus(
 	{} as {index: number, last: boolean, map: Map, timeline: Timeline, stepID: string, player: YoutubePlayer, jumpToStep: (step: TimelineStep)=>any},
@@ -38,7 +38,8 @@ export class StepUI extends BaseComponentPlus(
 							}
 							player.SetPosition(step.videoTime);
 						}
-					}}>
+					}}
+				>
 					<Div sel p="7px 10px">
 						<Row style={{ float: 'right', fontSize: 16 }}>{index + 1}</Row>
 						<VReactMarkdown_Remarkable addMarginsForDanglingNewLines={true}

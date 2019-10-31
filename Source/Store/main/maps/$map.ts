@@ -1,6 +1,6 @@
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
-import { ShowChangesSinceType } from 'Store/main/maps/@MapInfo';
+import { ShowChangesSinceType, MapInfo } from 'Store/main/maps/@MapInfo';
 import { emptyArray, GetValues, FromJSON } from 'js-vextensions';
 import { Action, CombineReducers, SimpleReducer, State, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { GetMap } from '../../firebase/maps';
@@ -72,10 +72,11 @@ export const MapInfoReducer = mapID => CombineReducers({
 		if (action.Is(ACTMap_SelectedTimelineSet)) return action.payload.selectedTimeline;
 		return state;
 	},
-	playingTimeline: (state = null, action) => {
+	/* playingTimeline: (state = null, action) => {
+		if (action.Is(ACTMap_SelectedTimelineSet)) return action.payload.selectedTimeline; // maybe temp
 		if (action.Is(ACTMap_PlayingTimelineSet)) return action.payload.timelineID;
 		return state;
-	},
+	}, */
 	playingTimeline_step: (state = null, action) => {
 		if (action.Is(ACTMap_PlayingTimelineStepSet)) return action.payload.stepIndex;
 		return state;
@@ -116,7 +117,10 @@ export const GetSelectedTimeline = StoreAccessor((mapID: string): Timeline => {
 });
 export const GetPlayingTimeline = StoreAccessor((mapID: string): Timeline => {
 	if (mapID == null) return null;
-	const timelineID = State('main', 'maps', mapID, 'playingTimeline');
+	const mapInfo = State('main', 'maps', mapID) as MapInfo;
+	// const timelineID = State('main', 'maps', mapID, 'playingTimeline');
+	if (mapInfo == null || !mapInfo.timelinePanelOpen || mapInfo.timelineOpenSubpanel != TimelineSubpanel.Playing) return null;
+	const timelineID = mapInfo.selectedTimeline;
 	return GetTimeline(timelineID);
 });
 export const GetPlayingTimelineStepIndex = StoreAccessor((mapID: string): number => {
@@ -136,6 +140,14 @@ export const GetPlayingTimelineCurrentStepRevealNodes = StoreAccessor((mapID: st
 	return GetNodesRevealedInSteps([playingTimeline_currentStep]);
 });
 
+export const GetPlayingTimelineRevealNodes_All = StoreAccessor((mapID: string): string[] => {
+	const map = GetMap(mapID);
+	if (!map) return emptyArray;
+
+	const steps = GetPlayingTimelineSteps(mapID);
+	return [`${map.rootNode}`].concat(GetNodesRevealedInSteps(steps));
+});
+
 export const GetPlayingTimelineAppliedStepIndex = StoreAccessor((mapID: string): number => {
 	if (mapID == null) return null;
 	return State('main', 'maps', mapID, 'playingTimeline_appliedStep');
@@ -153,7 +165,7 @@ export function GetPlayingTimelineAppliedSteps(mapID: string, excludeAfterCurren
 	if (steps.Any(a => a == null)) return emptyArray;
 	return steps;
 }
-export const GetPlayingTimelineAppliedStepRevealNodes = StoreAccessor((mapID: string, excludeAfterCurrentStep = false): string[] => {
+export const GetPlayingTimelineRevealNodes_UpToAppliedStep = StoreAccessor((mapID: string, excludeAfterCurrentStep = false): string[] => {
 	const map = GetMap(mapID);
 	if (!map) return emptyArray;
 
@@ -195,13 +207,6 @@ export function GetNodesRevealedInSteps(steps: TimelineStep[]): string[] {
 	}
 	return result.VKeys();
 }
-export const GetPlayingTimelineRevealNodes = StoreAccessor((mapID: string, excludeAfterCurrentStep = false): string[] => {
-	const map = GetMap(mapID);
-	if (!map) return emptyArray;
-
-	const steps = GetPlayingTimelineSteps(mapID);
-	return [`${map.rootNode}`].concat(GetNodesRevealedInSteps(steps));
-});
 
 export const GetTimeFromWhichToShowChangedNodes = StoreAccessor((mapID: string) => {
 	const type = State(`main/maps/${mapID}/showChangesSince_type`) as ShowChangesSinceType;

@@ -4,7 +4,7 @@ import { BaseComponentPlus, GetDOM, GetInnerComp, RenderSource, ShallowEquals, U
 import { ChangeType, GetPathsToChangedDescendantNodes_WithChangeTypes } from 'Store/firebase/mapNodeEditTimes';
 import { GetParentPath, HolderType } from 'Store/firebase/nodes';
 import { MeID } from 'Store/firebase/users';
-import { GetPlayingTimelineAppliedStepRevealNodes } from 'Store/main/maps/$map';
+import { GetPlayingTimelineRevealNodes_UpToAppliedStep } from 'Store/main/maps/$map';
 import { NodeChildHolder } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolder';
 import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolderBox';
 import { ExpensiveComponent, MaybeLog, ShouldLog, SlicePath, State, Watch, EB_StoreError, EB_ShowError } from 'Utils/FrameworkOverrides';
@@ -16,7 +16,7 @@ import { GetNodeChildrenL3, GetParentNodeL2, GetParentNodeL3, IsRootNode } from 
 import { GetNodeForm, IsMultiPremiseArgument, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument, IsPremiseOfMultiPremiseArgument } from '../../../../Store/firebase/nodes/$node';
 import { AccessLevel, MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
-import { GetPlayingTimeline, GetPlayingTimelineCurrentStepRevealNodes, GetPlayingTimelineRevealNodes, GetPlayingTimelineStepIndex, GetTimeFromWhichToShowChangedNodes } from '../../../../Store/main/maps/$map';
+import { GetPlayingTimeline, GetPlayingTimelineCurrentStepRevealNodes, GetPlayingTimelineRevealNodes_All, GetPlayingTimelineStepIndex, GetTimeFromWhichToShowChangedNodes } from '../../../../Store/main/maps/$map';
 import { GetNodeView } from '../../../../Store/main/mapViews';
 import { MapNodeView } from '../../../../Store/main/mapViews/@MapViews';
 import { NodeChangesMarker } from './NodeUI/NodeChangesMarker';
@@ -113,8 +113,8 @@ export class NodeUI extends BaseComponentPlus(
 
 		const playingTimeline = GetPlayingTimeline.Watch(map._key);
 		const playingTimeline_currentStepIndex = GetPlayingTimelineStepIndex.Watch(map._key);
-		const playingTimelineShowableNodes = GetPlayingTimelineRevealNodes.Watch(map._key);
-		const playingTimelineVisibleNodes = GetPlayingTimelineAppliedStepRevealNodes.Watch(map._key, true);
+		// const playingTimelineShowableNodes = GetPlayingTimelineRevealNodes_All.Watch(map._key);
+		const playingTimelineVisibleNodes = GetPlayingTimelineRevealNodes_UpToAppliedStep.Watch(map._key, true);
 		const playingTimeline_currentStepRevealNodes = GetPlayingTimelineCurrentStepRevealNodes.Watch(map._key);
 
 		performance.mark('NodeUI_2');
@@ -276,7 +276,7 @@ export class NodeUI extends BaseComponentPlus(
 
 				{nodeChildrenToShow == emptyArray_forLoading &&
 					<div style={{ margin: 'auto 0 auto 10px' }}>...</div>}
-				{IsRootNode(node) && nodeChildrenToShow != emptyArray_forLoading && nodeChildrenToShow.length == 0 &&
+				{IsRootNode(node) && nodeChildrenToShow != emptyArray_forLoading && nodeChildrenToShow.length == 0 && playingTimeline == null &&
 					<div style={{ margin: 'auto 0 auto 10px', background: 'rgba(0,0,0,.7)', padding: 5, borderRadius: 5 }}>To add a node, right click on the root node.</div>}
 				{!nodeView.expanded &&
 					<NodeChildCountMarker {...{ limitBarPos }} childCount={nodeChildrenToShow.length + (relevanceArguments ? relevanceArguments.length : 0)}/>}

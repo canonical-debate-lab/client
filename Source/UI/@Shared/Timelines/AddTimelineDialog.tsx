@@ -8,7 +8,7 @@ import { MeID } from '../../../Store/firebase/users';
 import { TimelineDetailsUI } from './TimelineDetailsUI';
 
 const defaultIntroMessage = `
-Welcome to the Debate Map platform.
+Welcome to the Canonical Debate platform.
 
 The purpose of this site is to "map" debates and discussions into a tree-based format, where it's easier to analyze the logic behind each argument.
 

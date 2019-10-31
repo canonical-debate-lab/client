@@ -4,10 +4,11 @@ import { firestoreReducer } from 'redux-firestore';
 import { DeepGet, DeepSet, IsString, Assert } from 'js-vextensions';
 import { CombineReducers_Advanced, bufferedActions, HandleError, manager, LogWarning } from 'Utils/FrameworkOverrides';
 import { FeedbackReducer } from 'firebase-feedback';
-import { persistReducer, createTransform } from 'redux-persist';
+import { persistReducer, createTransform, createMigrate } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import { omit } from 'lodash';
 import { MainReducer, MainState } from './main';
+import { migrations } from './@Migrations/Main';
 
 // class is used only for initialization
 export class RootState {
@@ -54,7 +55,7 @@ export function MakeRootReducer(pureOnly = false) {
 			feedback: FeedbackReducer,
 			...manager.GetExtraReducers(),
 		},
-		actionSendInclusions: {
+		actionSendFilters: {
 			/* '@@reactReduxFirebase/START': ['firebase'],
 			'@@reactReduxFirebase/SET': ['firebase'], */
 			'ACTSet_main/search/queryStr': ['main'],
@@ -115,6 +116,8 @@ export function MakeRootReducer(pureOnly = false) {
 				return omit(inboundState as any, ...blacklistPaths_forKey);
 			}, null),
 		],
+		version: 1,
+		migrate: createMigrate(migrations as any, { debug: true }),
 	};
 	return persistReducer(persistConfig, outerReducer_prePersist);
 }

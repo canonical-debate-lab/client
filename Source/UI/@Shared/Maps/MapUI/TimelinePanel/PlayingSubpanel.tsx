@@ -5,12 +5,11 @@ import { ScrollView } from 'react-vscrollview';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetTimelineStep, GetTimelineSteps } from 'Store/firebase/timelines';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
-import { GetSelectedTimeline } from 'Store/main/maps/$map';
+import { GetSelectedTimeline, GetPlayingTimelineAppliedStepIndex, ACTMap_PlayingTimelineAppliedStepSet } from 'Store/main/maps/$map';
 import { HSLA, UseSize, VReactMarkdown_Remarkable, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, Icon, GetScreenRect } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { useEffect } from 'react';
 import { ToNumber, VRect, Lerp, GetPercentFromXToY, IsNaN, Assert, Timer } from 'js-vextensions';
-import { PositionOptionsEnum } from './EditorSubpanel';
 import { StepUI } from './PlayingSubpanel/StepUI';
 
 export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targetTime: 0, listY: 0 }) {
@@ -21,12 +20,36 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 
 	// temp value for timer to apply
 	newTargetTime = 0;
+	timer = new Timer(100, () => {
+		if (this.listRootEl == null) return;
+		this.SetState({ listY: GetScreenRect(this.listRootEl).y, targetTime: this.newTargetTime });
+		// Log(`Setting...${  GetScreenRect(this.listRootEl).y}`);
+
+		const { map } = this.props;
+		const { targetTime } = this.state;
+		const timeline = GetSelectedTimeline(map._key);
+		const targetStepIndex = GetPlayingTimelineAppliedStepIndex(map._key);
+
+		const firstStep = GetTimelineStep(timeline ? timeline.steps[0] : null);
+		if (timeline) {
+			// const steps = timeline ? GetTimelineSteps.Watch(timeline, true) : null;
+			const steps = GetTimelineSteps(timeline, true);
+			const targetStep = steps.LastOrX(a => a && a.videoTime <= targetTime, firstStep);
+			if (targetStep) {
+				const newTargetStepIndex = timeline.steps.indexOf(targetStep._key);
+				if (newTargetStepIndex != targetStepIndex) {
+					store.dispatch(new ACTMap_PlayingTimelineAppliedStepSet({ mapID: map._key, stepIndex: newTargetStepIndex }));
+				}
+			}
+		}
+	});
 
 	render() {
 		const { map } = this.props;
 		const { targetTime } = this.state;
 		const timeline = GetSelectedTimeline.Watch(map._key);
 		// timelineSteps: timeline && GetTimelineSteps(timeline);
+		// const targetStepIndex = GetPlayingTimelineAppliedStepIndex.Watch(map._key);
 
 		/* const [ref, { width, height }] = UseSize();
 		useEffect(() => ref(this.DOM), [ref]); */
@@ -34,12 +57,8 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 
 		// update some stuff based on timer (since user may have scrolled)
 		useEffect(() => {
-			const timer = new Timer(100, () => {
-				if (this.listRootEl == null) return;
-				this.SetState({ listY: GetScreenRect(this.listRootEl).y, targetTime: this.newTargetTime });
-				// Log(`Setting...${  GetScreenRect(this.listRootEl).y}`);
-			}).Start();
-			return () => timer.Stop();
+			this.timer.Start();
+			return () => this.timer.Stop();
 		}, []);
 
 		const firstStep = GetTimelineStep.Watch(timeline ? timeline.steps[0] : null);
@@ -50,10 +69,10 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 			const targetStep = steps.LastOrX(a => a && a.videoTime <= targetTime, firstStep);
 			if (targetStep) {
 				const targetStepIndex = timeline.steps.indexOf(targetStep._key);
+				const targetStep_rect = this.stepRects[targetStepIndex];
 				const postTargetStepIndex = targetStepIndex + 1 < timeline.steps.length ? targetStepIndex + 1 : -1;
 				const postTargetStep = GetTimelineStep(timeline.steps[postTargetStepIndex]);
-				if (postTargetStep) {
-					const targetStep_rect = this.stepRects[targetStepIndex];
+				if (postTargetStep && targetStep_rect) {
 					// const postTargetStep_rect = this.stepRects[postTargetStepIndex];
 					/* const targetTime_screenY = Lerp(targetStep_rect.Top, targetStep_rect.Bottom, GetPercentFromXToY(targetStep.videoTime, postTargetStep.videoTime, targetTime));
 					targetTime_yInParent = targetTime_screenY - GetScreenRect(this.sideBarEl).y; */
@@ -112,6 +131,7 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 								return 50; // keep at just 50; apparently if set significantly above the actual height of enough items, it causes a gap to sometimes appear at the bottom of the viewport
 							}}
 							itemRenderer={(index: number, key: any) => {
+								if (index == 0) return <div key={key}/>; // atm, hide first step, since just intro message
 								const stepID = timeline.steps[index];
 								return <StepUI key={key} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} stepID={stepID} player={this.player}
 									jumpToStep={() => {

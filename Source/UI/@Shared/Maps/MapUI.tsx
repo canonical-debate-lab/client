@@ -7,7 +7,7 @@ import { VMenuItem } from 'react-vmenu/dist/VMenu';
 import { ScrollView } from 'react-vscrollview';
 import { TimelinePlayerUI } from 'UI/@Shared/Maps/MapUI/TimelinePlayerUI';
 import { State, Connect, GetDistanceBetweenRectAndPoint, inFirefox, Watch } from 'Utils/FrameworkOverrides';
-import { GetTimelinePanelOpen } from 'Store/main/maps/$map';
+import { GetTimelinePanelOpen, GetPlayingTimelineRevealNodes_All, GetPlayingTimeline } from 'Store/main/maps/$map';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { ActionBar_Left_GAD } from 'UI/@GAD/ActionBar_Left_GAD';
 import { ActionBar_Right_GAD } from 'UI/@GAD/ActionBar_Right_GAD';
@@ -25,6 +25,7 @@ import { NodeUI_Inner } from './MapNode/NodeUI_Inner';
 import { ActionBar_Left } from './MapUI/ActionBar_Left';
 import { ActionBar_Right } from './MapUI/ActionBar_Right';
 import { TimelinePanel } from './MapUI/TimelinePanel';
+import { TimelineIntroBox } from './MapUI/TimelineIntroBox';
 
 
 export function GetNodeBoxForPath(path: string) {
@@ -97,6 +98,7 @@ export class MapUI extends BaseComponentPlus({
 			return result;
 		}, [map, rootNode_passed]);
 		const timelinePanelOpen = Watch(() => (map ? GetTimelinePanelOpen(map._key) : null), [map]);
+		const playingTimeline = GetPlayingTimeline.Watch(map._key);
 
 		if (map == null) {
 			return <div style={ES({ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, fontSize: 25 })}>Loading map...</div>;
@@ -109,7 +111,6 @@ export class MapUI extends BaseComponentPlus({
 		if (isBot) {
 			return <NodeUI_ForBots map={map} node={rootNode}/>;
 		}
-
 		const ActionBar_Left_Final = GADDemo ? ActionBar_Left_GAD : ActionBar_Left;
 		const ActionBar_Right_Final = GADDemo ? ActionBar_Right_GAD : ActionBar_Right;
 		return (
@@ -139,15 +140,20 @@ export class MapUI extends BaseComponentPlus({
 						onScrollEnd={(pos) => {
 							// if (withinPage) return;
 							UpdateFocusNodeAndViewOffset(map._key);
-						}}>
+						}}
+					>
 						<style>{`
-						.MapUI { display: inline-flex; flex-wrap: wrap; }
+						.MapUI {
+							display: inline-flex;
+							//flex-wrap: wrap;
+						}
 						.MapUI.scrolling > * { pointer-events: none; }
 						`}</style>
 						<div className="MapUI" ref={c => this.mapUI = c}
 							style={{
 								position: 'relative', /* display: "flex", */ whiteSpace: 'nowrap',
 								padding: `${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px`,
+								alignItems: 'center',
 								filter: GADDemo ? 'drop-shadow(rgba(0,0,0,.7) 0px 0px 10px)' : 'drop-shadow(rgba(0,0,0,1) 0px 0px 10px)',
 							}}
 							onMouseDown={(e) => {
@@ -169,7 +175,10 @@ export class MapUI extends BaseComponentPlus({
 							onContextMenu={(e) => {
 								if (e.nativeEvent['passThrough']) return true;
 								e.preventDefault();
-							}}>
+							}}
+						>
+							{playingTimeline != null &&
+							<TimelineIntroBox timeline={playingTimeline}/>}
 							<NodeUI indexInNodeList={0} map={map} node={rootNode} path={(Assert(rootNode._key != null), rootNode._key.toString())}/>
 							{/* <ReactResizeDetector handleWidth handleHeight onResize={()=> { */}
 							{/* <ResizeSensor ref="resizeSensor" onResize={()=> {
