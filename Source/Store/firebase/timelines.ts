@@ -8,10 +8,10 @@ import { TimelineStep } from './timelineSteps/@TimelineStep';
 	let timelinesMap = GetData({collection: true}, "timelines");
 	return CachedTransform("GetTimelines", [], timelinesMap, ()=>timelinesMap ? timelinesMap.VValues(true) : []);
 } */
-export function GetTimeline(id: string): Timeline {
+export const GetTimeline = StoreAccessor((id: string): Timeline => {
 	if (id == null) return null;
 	return GetData('timelines', id);
-}
+});
 
 export function GetMapTimelineIDs(map: Map) {
 	return (map.timelines || {}).VKeys(true);
@@ -26,8 +26,8 @@ export const GetTimelineStep = StoreAccessor((id: string): TimelineStep => {
 	if (id == null) return null;
 	return GetData('timelineSteps', id);
 });
-export function GetTimelineSteps(timeline: Timeline, allowStillLoading = false): TimelineStep[] {
+export const GetTimelineSteps = StoreAccessor((timeline: Timeline, allowStillLoading = false): TimelineStep[] => {
 	const steps = (timeline.steps || []).map(id => GetTimelineStep(id));
 	if (!allowStillLoading && steps.Any(a => a == null)) return emptyArray;
 	return CachedTransform('GetTimelineSteps', [timeline._key], steps, () => steps);
-}
+});
