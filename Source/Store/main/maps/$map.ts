@@ -27,6 +27,7 @@ export class ACTMap_List_SelectedNode_OpenPanelSet extends Action<{mapID: string
 
 export class ACTMap_TimelinePanelOpenSet extends Action<{mapID: string, open: boolean}> {}
 export class ACTMap_TimelineOpenSubpanelSet extends Action<{mapID: string, subpanel: TimelineSubpanel}> {}
+export class ACTMap_TimelineShowDetailsSet extends Action<{mapID: string, showDetails: boolean}> {}
 export class ACTMap_SelectedTimelineSet extends Action<{mapID: string, selectedTimeline: string}> {}
 export class ACTMap_PlayingTimelineSet extends Action<{mapID: string, timelineID: string}> {}
 export class ACTMap_PlayingTimelineStepSet extends Action<{mapID: string, stepIndex: number}> {}
@@ -66,6 +67,10 @@ export const MapInfoReducer = mapID => CombineReducers({
 	},
 	timelineOpenSubpanel: (state = null, action) => {
 		if (action.Is(ACTMap_TimelineOpenSubpanelSet)) return action.payload.subpanel;
+		return state;
+	},
+	showTimelineDetails: (state = null, action) => {
+		if (action.Is(ACTMap_TimelineShowDetailsSet)) return action.payload.showDetails;
 		return state;
 	},
 	selectedTimeline: (state = null, action) => {
@@ -109,6 +114,10 @@ export const GetTimelinePanelOpen = StoreAccessor((mapID: string): boolean => {
 export const GetTimelineOpenSubpanel = StoreAccessor((mapID: string): TimelineSubpanel => {
 	if (mapID == null) return null;
 	return State('main', 'maps', mapID, 'timelineOpenSubpanel');
+});
+export const GetShowTimelineDetails = StoreAccessor((mapID: string): boolean => {
+	if (mapID == null) return null;
+	return State('main', 'maps', mapID, 'showTimelineDetails');
 });
 export const GetSelectedTimeline = StoreAccessor((mapID: string): Timeline => {
 	if (mapID == null) return null;

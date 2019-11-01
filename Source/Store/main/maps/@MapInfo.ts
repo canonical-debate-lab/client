@@ -1,4 +1,4 @@
-import {UUID} from 'Utils/General/KeyGenerator';
+import { UUID } from 'Utils/General/KeyGenerator';
 import { SortType, TimelineSubpanel } from './$map';
 
 export enum ShowChangesSinceType {
@@ -16,6 +16,7 @@ export class MapInfo {
 
 	timelinePanelOpen: boolean;
 	timelineOpenSubpanel: TimelineSubpanel;
+	showTimelineDetails: boolean;
 	selectedTimeline: string;
 	// playingTimeline: number;
 	playingTimeline_step: number;
