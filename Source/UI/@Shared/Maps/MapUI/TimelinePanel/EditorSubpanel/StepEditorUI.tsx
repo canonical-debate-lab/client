@@ -6,7 +6,7 @@ import { ShowMessageBox } from 'react-vmessagebox';
 import { DeleteTimelineStep } from 'Server/Commands/DeleteTimelineStep';
 import { UpdateTimelineStep } from 'Server/Commands/UpdateTimelineStep';
 import { Map } from 'Store/firebase/maps/@Map';
-import { GetNodeID } from 'Store/firebase/nodes';
+import { GetNodeID, GetNode } from 'Store/firebase/nodes';
 import { GetNodeDisplayText, GetNodeL2, GetNodeL3 } from 'Store/firebase/nodes/$node';
 import { GetNodeColor, MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { GetTimelineStep } from 'Store/firebase/timelines';
@@ -16,6 +16,7 @@ import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { MeID } from 'Store/firebase/users';
 import { DragInfo, MakeDraggable, Watch } from 'Utils/FrameworkOverrides';
 import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
+import { GetPathNodes } from 'Store/main/mapViews';
 
 export enum PositionOptionsEnum {
 	Full = null,
@@ -60,7 +61,10 @@ export class StepEditorUI extends BaseComponentPlus({} as StepEditorUIProps, { p
 		const { placeholderRect } = this.state;
 		const step = GetTimelineStep.Watch(stepID);
 		const creatorOrMod = IsUserCreatorOrMod.Watch(MeID.Watch(), map);
-		if (step == null) return <div style={{ height: 100 }} {...(dragInfo && dragInfo.provided.draggableProps)} {...(dragInfo && dragInfo.provided.dragHandleProps)}/>;
+
+		if (step == null) {
+			return <div style={{ height: 100 }} {...(dragInfo && dragInfo.provided.draggableProps)} {...(dragInfo && dragInfo.provided.dragHandleProps)}/>;
+		}
 
 		const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
 		const result = (
@@ -202,18 +206,28 @@ export class StepEditorUI extends BaseComponentPlus({} as StepEditorUIProps, { p
 export class NodeRevealUI extends BaseComponentPlus({} as {step: TimelineStep, nodeReveal: NodeReveal, index: number}, {}) {
 	render() {
 		const { step, nodeReveal, index } = this.props;
-		const nodeID = GetNodeID(nodeReveal.path);
+		const { path } = nodeReveal;
+		const nodeID = GetNodeID(path);
 		let node = GetNodeL2.Watch(nodeID);
-		let nodeL3 = GetNodeL3.Watch(nodeReveal.path);
+		let nodeL3 = GetNodeL3.Watch(path);
 		// if one is null, make them both null to be consistent
 		if (node == null || nodeL3 == null) {
 			node = null;
 			nodeL3 = null;
 		}
 
+		const pathValid = Watch(() => {
+			const pathNodes = GetPathNodes(path);
+			const mapNodes = pathNodes.map(a => GetNode(a));
+			// path is valid if every node in path, has the previous node as a parent
+			return mapNodes.every((node, index) => {
+				const parent = mapNodes[index - 1];
+				return index == 0 || (node && parent && parent.children[node._key] != null);
+			});
+		}, [path]);
+
 		const displayText = Watch(() => (node && nodeL3 ? GetNodeDisplayText(node, nodeReveal.path) : `(Node no longer exists: ${GetNodeID(nodeReveal.path)})`), [node, nodeL3, nodeReveal.path]);
 
-		const path = nodeReveal.path;
 		const backgroundColor = GetNodeColor(nodeL3 || { type: MapNodeType.Category } as any).desaturate(0.5).alpha(0.8);
 		// if (node == null || nodeL3 == null) return null;
 		return (
@@ -226,7 +240,7 @@ export class NodeRevealUI extends BaseComponentPlus({} as {step: TimelineStep, n
 					if (e.button !== 2) return false;
 					// this.SetState({ menuOpened: true });
 				}}>
-				<span>{displayText}</span>
+				<span>{!pathValid ? '[path invalid] ' : ''}{displayText}</span>
 				{/* <NodeUI_Menu_Helper {...{map, node}}/> */}
 				{/* <NodeUI_Menu_Stub {...{ node: nodeL3, path: `${node._key}`, inList: true }}/> */}
 				<Button ml="auto" text="X" style={{ margin: -3, padding: '3px 10px' }} onClick={() => {
