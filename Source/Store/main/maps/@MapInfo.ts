@@ -19,8 +19,8 @@ export class MapInfo {
 	showTimelineDetails: boolean;
 	selectedTimeline: string;
 	// playingTimeline: number;
-	playingTimeline_step: number;
-	playingTimeline_appliedStep: number;
+	playingTimeline_step: number; // step currently scrolled to
+	playingTimeline_appliedStep: number; // max step scrolled to
 
 	showChangesSince_type: ShowChangesSinceType;
 	showChangesSince_visitOffset: number;

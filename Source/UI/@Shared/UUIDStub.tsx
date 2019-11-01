@@ -1,5 +1,7 @@
-import { BaseComponent } from 'react-vextensions';
+import { BaseComponent, BaseComponentPlus, ApplyBasicStyles } from 'react-vextensions';
 import { Text, Row } from 'react-vcomponents';
+import { Fragment } from 'react';
+import { SplitStringBySlash_Cached } from 'Utils/FrameworkOverrides';
 
 export class UUIDStub extends BaseComponent<{id: string}, {}> {
 	render() {
@@ -13,5 +15,21 @@ export class UUIDStub extends BaseComponent<{id: string}, {}> {
 				<Text style={{ fontSize: 1, width: 0, opacity: 0 }}> </Text>
 			</Row>
 		);
+	}
+}
+
+@ApplyBasicStyles
+export class UUIDPathStub extends BaseComponentPlus({} as {path: string}) {
+	render() {
+		const { path } = this.props;
+		const pathIDs = SplitStringBySlash_Cached(path);
+		return <Row>
+			{pathIDs.map((id, index) => {
+				return <Fragment key={index}>
+					{index != 0 && <Text>/</Text>}
+					<UUIDStub id={id}/>
+				</Fragment>;
+			})}
+		</Row>;
 	}
 }

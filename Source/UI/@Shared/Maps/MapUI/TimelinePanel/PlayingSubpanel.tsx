@@ -5,8 +5,8 @@ import { ScrollView } from 'react-vscrollview';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetTimelineStep, GetTimelineSteps } from 'Store/firebase/timelines';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
-import { GetSelectedTimeline, GetPlayingTimelineAppliedStepIndex, ACTMap_PlayingTimelineAppliedStepSet } from 'Store/main/maps/$map';
-import { HSLA, UseSize, VReactMarkdown_Remarkable, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, Icon, GetScreenRect } from 'Utils/FrameworkOverrides';
+import { GetSelectedTimeline, GetPlayingTimelineAppliedStepIndex, ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimelineStepIndex } from 'Store/main/maps/$map';
+import { HSLA, UseSize, VReactMarkdown_Remarkable, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, Icon, GetScreenRect, ActionSet } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { useEffect } from 'react';
 import { ToNumber, VRect, Lerp, GetPercentFromXToY, IsNaN, Assert, Timer } from 'js-vextensions';
@@ -28,7 +28,8 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 		const { map } = this.props;
 		const { targetTime } = this.state;
 		const timeline = GetSelectedTimeline(map._key);
-		const targetStepIndex = GetPlayingTimelineAppliedStepIndex(map._key);
+		const targetStepIndex = GetPlayingTimelineStepIndex(map._key);
+		// const maxTargetStepIndex = GetPlayingTimelineAppliedStepIndex(map._key);
 
 		const firstStep = GetTimelineStep(timeline ? timeline.steps[0] : null);
 		if (timeline) {
@@ -37,8 +38,12 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 			const targetStep = steps.LastOrX(a => a && a.videoTime <= targetTime, firstStep);
 			if (targetStep) {
 				const newTargetStepIndex = timeline.steps.indexOf(targetStep._key);
+				const newMaxTargetStepIndex = newTargetStepIndex.KeepAtLeast(targetStepIndex);
 				if (newTargetStepIndex != targetStepIndex) {
-					store.dispatch(new ACTMap_PlayingTimelineAppliedStepSet({ mapID: map._key, stepIndex: newTargetStepIndex }));
+					store.dispatch(new ActionSet(
+						new ACTMap_PlayingTimelineStepSet({ mapID: map._key, stepIndex: newTargetStepIndex }),
+						new ACTMap_PlayingTimelineAppliedStepSet({ mapID: map._key, stepIndex: newMaxTargetStepIndex }),
+					));
 				}
 			}
 		}

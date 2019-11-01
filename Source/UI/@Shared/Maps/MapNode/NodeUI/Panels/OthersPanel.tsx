@@ -8,7 +8,7 @@ import { Icon, InfoButton, SlicePath, Connect, SplitStringBySlash_Cached } from 
 import { GetEntries } from 'js-vextensions';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
-import { UUIDStub } from 'UI/@Shared/UUIDStub';
+import { UUIDStub, UUIDPathStub } from 'UI/@Shared/UUIDStub';
 import { Fragment } from 'react';
 import { CanConvertFromClaimTypeXToY, ChangeClaimType } from '../../../../../../Server/Commands/ChangeClaimType';
 import { ReverseArgumentPolarity } from '../../../../../../Server/Commands/ReverseArgumentPolarity';
@@ -111,18 +111,12 @@ class AtThisLocation extends BaseComponent<{node: MapNodeL3, path: string}, {}> 
 			canSetAsSeriesAnchor = claimType === ClaimType.Equation && !node.current.equation.isStep; // && !creating;
 		}
 
-		const pathIDs = SplitStringBySlash_Cached(path);
 		return (
 			<Column mt={10}>
 				<Row style={{ fontWeight: 'bold' }}>At this location:</Row>
 				<Row style={{ whiteSpace: 'normal' }}>
 					<Text>Path: </Text>
-					{pathIDs.map((id, index) => {
-						return <Fragment key={index}>
-							{index != 0 && <Text>/</Text>}
-							<UUIDStub id={id}/>
-						</Fragment>;
-					})}
+					<UUIDPathStub path={path}/>
 				</Row>
 				{canSetAsNegation &&
 					<Row style={{ display: 'flex', alignItems: 'center' }}>

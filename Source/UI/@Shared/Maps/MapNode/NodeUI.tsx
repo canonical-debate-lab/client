@@ -114,7 +114,9 @@ export class NodeUI extends BaseComponentPlus(
 		const playingTimeline = GetPlayingTimeline.Watch(map._key);
 		const playingTimeline_currentStepIndex = GetPlayingTimelineStepIndex.Watch(map._key);
 		// const playingTimelineShowableNodes = GetPlayingTimelineRevealNodes_All.Watch(map._key);
-		const playingTimelineVisibleNodes = GetPlayingTimelineRevealNodes_UpToAppliedStep.Watch(map._key, true);
+		// const playingTimelineVisibleNodes = GetPlayingTimelineRevealNodes_UpToAppliedStep.Watch(map._key, true);
+		// if users scrolls to step X and expands this node, keep expanded even if user goes back to a previous step
+		const playingTimelineVisibleNodes = GetPlayingTimelineRevealNodes_UpToAppliedStep.Watch(map._key);
 		const playingTimeline_currentStepRevealNodes = GetPlayingTimelineCurrentStepRevealNodes.Watch(map._key);
 
 		performance.mark('NodeUI_2');
@@ -149,8 +151,13 @@ export class NodeUI extends BaseComponentPlus(
 
 		const isPremiseOfSinglePremiseArg = IsPremiseOfSinglePremiseArgument(node, parent);
 		if (isPremiseOfSinglePremiseArg) {
-			var relevanceArguments = GetNodeChildrenL3(parent, SlicePath(path, 1)).filter(a => a && a.type == MapNodeType.Argument);
+			const argument = parent;
+			const argumentPath = SlicePath(path, 1);
+			var relevanceArguments = GetNodeChildrenL3(argument, argumentPath).filter(a => a && a.type == MapNodeType.Argument);
 			// Assert(!relevanceArguments.Any(a=>a.type == MapNodeType.Claim), "Single-premise argument has more than one premise!");
+			if (playingTimeline && playingTimeline_currentStepIndex < playingTimeline.steps.length - 1) {
+				relevanceArguments = relevanceArguments.filter(child => playingTimelineVisibleNodes.Contains(`${argumentPath}/${child._key}`));
+			}
 		}
 		/* if (IsPremiseOfMultiPremiseArgument(node, parent)) {
 			widthOverride -= 20; // remove 20px, to align our right-edge with the parent argument
@@ -173,9 +180,10 @@ export class NodeUI extends BaseComponentPlus(
 		// this.Stash({ dividePoint, setSelfHeight });
 
 		// maybe temp
-		const combineWithChildClaim = isSinglePremiseArgument;
-		const premises = nodeChildrenToShow.filter(a => a.type == MapNodeType.Claim);
-		if (combineWithChildClaim && premises.length == 1) {
+		// const combineWithChildClaim = isSinglePremiseArgument;
+		const premises = nodeChildren.filter(a => a && a.type == MapNodeType.Claim);
+		// if (combineWithChildClaim && premises.length == 1) {
+		if (isSinglePremiseArgument) {
 			// Assert(premises.length == 1, `Single-premise argument #${node._id} has more than one premise! (${premises.map(a=>a._id).join(",")})`);
 
 			const childLimit_up = ((nodeView || {}).childLimit_up || initialChildLimit).KeepAtLeast(initialChildLimit);
@@ -186,7 +194,7 @@ export class NodeUI extends BaseComponentPlus(
 			const index = 0;
 			const direction = 'down' as any;
 			const premise = premises[0];
-			// if (child == null) return <div/>; // child data not loaded yet
+			if (premise == null) return <div/>; // child data not loaded yet
 			// let collection = nodeChildren;
 			const childLimit = direction == 'down' ? childLimit_down : childLimit_up;
 
@@ -237,7 +245,8 @@ export class NodeUI extends BaseComponentPlus(
 				style={E(
 					{ position: 'relative', display: 'flex', alignItems: 'flex-start', padding: '5px 0', opacity: widthOverride != 0 ? 1 : 0 },
 					style,
-				)}>
+				)}
+			>
 				<div ref="innerBoxAndSuchHolder" className="innerBoxAndSuchHolder clickThrough" style={E(
 					{ position: 'relative' },
 					/* useAutoOffset && {display: "flex", height: "100%", flexDirection: "column", justifyContent: "center"},
@@ -247,12 +256,12 @@ export class NodeUI extends BaseComponentPlus(
 				)}>
 					{limitBar_above && children}
 					{asSubnode &&
-						<div style={{ position: 'absolute', left: 2, right: 2, top: -3, height: 3, borderRadius: '3px 3px 0 0', background: 'rgba(255,255,0,.7)' }}/>}
+					<div style={{ position: 'absolute', left: 2, right: 2, top: -3, height: 3, borderRadius: '3px 3px 0 0', background: 'rgba(255,255,0,.7)' }}/>}
 					<Column ref="innerBoxHolder" className="innerBoxHolder clickThrough" style={{ position: 'relative' }}>
 						{node.current.accessLevel != AccessLevel.Basic &&
-							<div style={{ position: 'absolute', right: 'calc(100% + 5px)', top: 0, bottom: 0, display: 'flex', fontSize: 10 }}>
-								<span style={{ margin: 'auto 0' }}>{AccessLevel[node.current.accessLevel][0].toUpperCase()}</span>
-							</div>}
+						<div style={{ position: 'absolute', right: 'calc(100% + 5px)', top: 0, bottom: 0, display: 'flex', fontSize: 10 }}>
+							<span style={{ margin: 'auto 0' }}>{AccessLevel[node.current.accessLevel][0].toUpperCase()}</span>
+						</div>}
 						{nodeChildHolderBox_truth}
 						<NodeUI_Inner
 							ref={c => this.innerUI = GetInnerComp(c)}
@@ -290,6 +299,7 @@ export class NodeUI extends BaseComponentPlus(
 		performance.mark('NodeUI_3');
 		performance.measure('NodeUI_Part1', 'NodeUI_1', 'NodeUI_2');
 		performance.measure('NodeUI_Part2', 'NodeUI_2', 'NodeUI_3');
+		this.Stash({ nodeChildrenToShow }); // for debugging
 
 		// useEffect(() => CheckForChanges());
 

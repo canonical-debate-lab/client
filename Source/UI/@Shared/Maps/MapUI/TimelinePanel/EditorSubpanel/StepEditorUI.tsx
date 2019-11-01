@@ -1,6 +1,6 @@
-import { ToJSON, Vector2i, VRect, WaitXThenRun, GetEntries } from 'js-vextensions';
+import { ToJSON, Vector2i, VRect, WaitXThenRun, GetEntries, Clone } from 'js-vextensions';
 import { Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
-import { Button, CheckBox, Column, Pre, Row, Select, TextArea, TimeSpanInput } from 'react-vcomponents';
+import { Button, CheckBox, Column, Pre, Row, Select, Text, TextArea, TimeSpanInput } from 'react-vcomponents';
 import { BaseComponentPlus, GetDOM } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { DeleteTimelineStep } from 'Server/Commands/DeleteTimelineStep';
@@ -14,9 +14,11 @@ import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { NodeReveal, TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { MeID } from 'Store/firebase/users';
-import { DragInfo, MakeDraggable, Watch } from 'Utils/FrameworkOverrides';
+import { DragInfo, MakeDraggable, Watch, GetAsync } from 'Utils/FrameworkOverrides';
 import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
 import { GetPathNodes } from 'Store/main/mapViews';
+import { UUIDPathStub } from 'UI/@Shared/UUIDStub';
+import { GetShortestPathFromRootToNode } from 'Utils/Store/PathFinder';
 
 export enum PositionOptionsEnum {
 	Full = null,
@@ -137,7 +139,7 @@ export class StepEditorUI extends BaseComponentPlus({} as StepEditorUIProps, { p
 									{(step.nodeReveals == null || step.nodeReveals.length == 0) && !dragIsOverDropArea &&
 									<div style={{ fontSize: 11, opacity: 0.7, textAlign: 'center' }}>Drag nodes here to have them display when the playback reaches this step.</div>}
 									{step.nodeReveals && step.nodeReveals.map((nodeReveal, index) => {
-										return <NodeRevealUI key={index} step={step} nodeReveal={nodeReveal} index={index}/>;
+										return <NodeRevealUI key={index} map={map} step={step} nodeReveal={nodeReveal} index={index}/>;
 									})}
 									{provided.placeholder}
 									{dragIsOverDropArea && placeholderRect &&
@@ -203,9 +205,11 @@ export class StepEditorUI extends BaseComponentPlus({} as StepEditorUIProps, { p
 	}
 }
 
-export class NodeRevealUI extends BaseComponentPlus({} as {step: TimelineStep, nodeReveal: NodeReveal, index: number}, {}) {
+export class NodeRevealUI extends BaseComponentPlus({} as {map: Map, step: TimelineStep, nodeReveal: NodeReveal, index: number}, { detailsOpen: false }) {
 	render() {
-		const { step, nodeReveal, index } = this.props;
+		const { map, step, nodeReveal, index } = this.props;
+		const { detailsOpen } = this.state;
+
 		const { path } = nodeReveal;
 		const nodeID = GetNodeID(path);
 		let node = GetNodeL2.Watch(nodeID);
@@ -226,28 +230,49 @@ export class NodeRevealUI extends BaseComponentPlus({} as {step: TimelineStep, n
 			});
 		}, [path]);
 
-		const displayText = Watch(() => (node && nodeL3 ? GetNodeDisplayText(node, nodeReveal.path) : `(Node no longer exists: ${GetNodeID(nodeReveal.path)})`), [node, nodeL3, nodeReveal.path]);
+		let displayText = Watch(() => (node && nodeL3 ? GetNodeDisplayText(node, nodeReveal.path) : `(Node no longer exists: ${GetNodeID(nodeReveal.path)})`), [node, nodeL3, nodeReveal.path]);
+		if (!pathValid) {
+			displayText = `[path invalid] ${displayText}`;
+		}
 
 		const backgroundColor = GetNodeColor(nodeL3 || { type: MapNodeType.Category } as any).desaturate(0.5).alpha(0.8);
 		// if (node == null || nodeL3 == null) return null;
 		return (
-			<Row key={index} mt={index === 0 ? 0 : 5}
-				style={E(
-					{ width: '100%', padding: 5, background: backgroundColor.css(), borderRadius: 5, /* cursor: 'pointer', */ border: '1px solid rgba(0,0,0,.5)' },
-					// selected && { background: backgroundColor.brighten(0.3).alpha(1).css() },
-				)}
-				onMouseDown={(e) => {
-					if (e.button !== 2) return false;
-					// this.SetState({ menuOpened: true });
-				}}>
-				<span>{!pathValid ? '[path invalid] ' : ''}{displayText}</span>
-				{/* <NodeUI_Menu_Helper {...{map, node}}/> */}
-				{/* <NodeUI_Menu_Stub {...{ node: nodeL3, path: `${node._key}`, inList: true }}/> */}
-				<Button ml="auto" text="X" style={{ margin: -3, padding: '3px 10px' }} onClick={() => {
-					const newNodeReveals = step.nodeReveals.Except(nodeReveal);
-					new UpdateTimelineStep({ stepID: step._key, stepUpdates: { nodeReveals: newNodeReveals } }).Run();
-				}}/>
-			</Row>
+			<>
+				<Row key={index} sel mt={index === 0 ? 0 : 5}
+					style={E(
+						{ width: '100%', padding: 5, background: backgroundColor.css(), borderRadius: 5, cursor: 'pointer', border: '1px solid rgba(0,0,0,.5)' },
+						// selected && { background: backgroundColor.brighten(0.3).alpha(1).css() },
+					)}
+					onMouseDown={(e) => {
+						if (e.button !== 2) return false;
+						// this.SetState({ menuOpened: true });
+					}}
+					onClick={() => this.SetState({ detailsOpen: !detailsOpen })}
+				>
+					<span>{displayText}</span>
+					{/* <NodeUI_Menu_Helper {...{map, node}}/> */}
+					{/* <NodeUI_Menu_Stub {...{ node: nodeL3, path: `${node._key}`, inList: true }}/> */}
+					<Button ml="auto" text="X" style={{ margin: -3, padding: '3px 10px' }} onClick={() => {
+						const newNodeReveals = step.nodeReveals.Except(nodeReveal);
+						new UpdateTimelineStep({ stepID: step._key, stepUpdates: { nodeReveals: newNodeReveals } }).Run();
+					}}/>
+				</Row>
+				{detailsOpen &&
+				<Column sel mt={5}>
+					<Row>
+						<Text>Path: </Text>
+						<UUIDPathStub path={path}/>
+						{!pathValid &&
+						<Button ml="auto" text="Fix path" onClick={async () => {
+							const newPath = await GetAsync(() => GetShortestPathFromRootToNode(map.rootNode, node));
+							const newNodeReveals = Clone(step.nodeReveals) as NodeReveal[];
+							newNodeReveals[index].path = newPath;
+							new UpdateTimelineStep({ stepID: step._key, stepUpdates: { nodeReveals: newNodeReveals } }).Run();
+						}}/>}
+					</Row>
+				</Column>}
+			</>
 		);
 	}
 }
