@@ -132,71 +132,12 @@ export class NodeUI extends BaseComponentPlus(
 		NodeUI.renderCount++;
 		NodeUI.lastRenderTime = Date.now();
 
-		/* if (node.type == MapNodeType.Argument && nodeChildren.length == 1 && MeID() == node.creator) {
-			let fakeChild = AsNodeL3(AsNodeL2(new MapNode({type: MapNodeType.Claim}), new MapNodeRevision({})));
-			fakeChild.premiseAddHelper = true;
-			nodeChildren = [...nodeChildren, fakeChild];
-		} */
-
-		const separateChildren = node.type == MapNodeType.Claim;
-		// let nodeChildren_filtered = nodeChildren;
-		if (playingTimeline && playingTimeline_currentStepIndex < playingTimeline.steps.length - 1) {
-			nodeChildrenToShow = nodeChildrenToShow.filter(child => playingTimelineVisibleNodes.Contains(`${path}/${child._key}`));
-		}
-
-		/* this.Stash({ nodeChildren, nodeChildrenToShow, lengthThing: nodeChildrenToShow.length }); // for debugging
-		if (node._key.startsWith('wEKp')) {
-			Log('NodeChildrenToShow_length:' + nodeChildrenToShow.length);
-		} */
-
-		const isPremiseOfSinglePremiseArg = IsPremiseOfSinglePremiseArgument(node, parent);
-		if (isPremiseOfSinglePremiseArg) {
-			const argument = parent;
-			const argumentPath = SlicePath(path, 1);
-			var relevanceArguments = GetNodeChildrenL3(argument, argumentPath).filter(a => a && a.type == MapNodeType.Argument);
-			// Assert(!relevanceArguments.Any(a=>a.type == MapNodeType.Claim), "Single-premise argument has more than one premise!");
-			if (playingTimeline && playingTimeline_currentStepIndex < playingTimeline.steps.length - 1) {
-				relevanceArguments = relevanceArguments.filter(child => playingTimelineVisibleNodes.Contains(`${argumentPath}/${child._key}`));
-			}
-		}
-		/* if (IsPremiseOfMultiPremiseArgument(node, parent)) {
-			widthOverride -= 20; // remove 20px, to align our right-edge with the parent argument
-		} */
-
-		const showArgumentsControlBar = (node.type == MapNodeType.Claim || isSinglePremiseArgument) && nodeView.expanded && nodeChildrenToShow != emptyArray_forLoading;
-
-		const { width, expectedHeight } = this.GetMeasurementInfo();
-		/* let innerBoxOffset = this.GetInnerBoxOffset(expectedHeight, showAddArgumentButtons, childrenCenterY);
-		if (!expanded) innerBoxOffset = 0; */
-
-		const showLimitBar = !!children; // the only type of child we ever pass into NodeUI is a LimitBar
-		const argumentNode = node.type == MapNodeType.Argument ? node : isPremiseOfSinglePremiseArg ? parent : null;
-		const limitBar_above = argumentNode && argumentNode.finalPolarity == Polarity.Supporting;
-		const limitBarPos = showLimitBar ? (limitBar_above ? LimitBarPos.Above : LimitBarPos.Below) : LimitBarPos.None;
-		// if (IsReversedArgumentNode(node)) limitBar_above = !limitBar_above;
-		/* let minChildCount = GetMinChildCountToBeVisibleToNonModNonCreators(node, nodeChildren);
-		let showBelowMessage = nodeChildren.length > 0 && nodeChildren.length < minChildCount; */
-
-		// this.Stash({ dividePoint, setSelfHeight });
-
-		// maybe temp
-		// const combineWithChildClaim = isSinglePremiseArgument;
-		const premises = nodeChildren.filter(a => a && a.type == MapNodeType.Claim);
-		// if (combineWithChildClaim && premises.length == 1) {
+		// if single-premise arg, combine arg and premise into one box, by rendering premise box directly (it will add-in this argument's child relevance-arguments)
 		if (isSinglePremiseArgument) {
 			// Assert(premises.length == 1, `Single-premise argument #${node._id} has more than one premise! (${premises.map(a=>a._id).join(",")})`);
-
-			const childLimit_up = ((nodeView || {}).childLimit_up || initialChildLimit).KeepAtLeast(initialChildLimit);
-			const childLimit_down = ((nodeView || {}).childLimit_down || initialChildLimit).KeepAtLeast(initialChildLimit);
-			const showAll = node._key == map.rootNode || node.type == MapNodeType.Argument;
-			// return <ChildPackUI {...{map, path, childrenWidthOverride, childLimit_up, childLimit_down, showAll}} pack={pack} index={0} collection={childPacks}/>;*#/
-
-			const index = 0;
-			const direction = 'down' as any;
+			const premises = nodeChildren.filter(a => a && a.type == MapNodeType.Claim);
 			const premise = premises[0];
 			if (premise == null) return <div/>; // child data not loaded yet
-			// let collection = nodeChildren;
-			const childLimit = direction == 'down' ? childLimit_down : childLimit_up;
 
 			// if has child-limit bar, correct its path
 			const firstChildComp = this.FlattenedChildren[0] as any;
@@ -211,11 +152,35 @@ export class NodeUI extends BaseComponentPlus(
 			);
 		}
 
+		const separateChildren = node.type == MapNodeType.Claim;
+		if (playingTimeline && playingTimeline_currentStepIndex < playingTimeline.steps.length - 1) {
+			nodeChildrenToShow = nodeChildrenToShow.filter(child => playingTimelineVisibleNodes.Contains(`${path}/${child._key}`));
+		}
+
+		const isPremiseOfSinglePremiseArg = IsPremiseOfSinglePremiseArgument(node, parent);
+		if (isPremiseOfSinglePremiseArg) {
+			const argument = parent;
+			const argumentPath = SlicePath(path, 1);
+			var relevanceArguments = GetNodeChildrenL3(argument, argumentPath).filter(a => a && a.type == MapNodeType.Argument);
+			// Assert(!relevanceArguments.Any(a=>a.type == MapNodeType.Claim), "Single-premise argument has more than one premise!");
+			if (playingTimeline && playingTimeline_currentStepIndex < playingTimeline.steps.length - 1) {
+				relevanceArguments = relevanceArguments.filter(child => playingTimelineVisibleNodes.Contains(`${argumentPath}/${child._key}`));
+			}
+		}
+
+		const showArgumentsControlBar = (node.type == MapNodeType.Claim || isSinglePremiseArgument) && nodeView.expanded && nodeChildrenToShow != emptyArray_forLoading;
+
+		const { width, expectedHeight } = this.GetMeasurementInfo();
+
+		const showLimitBar = !!children; // the only type of child we ever pass into NodeUI is a LimitBar
+		const argumentNode = node.type == MapNodeType.Argument ? node : isPremiseOfSinglePremiseArg ? parent : null;
+		const limitBar_above = argumentNode && argumentNode.finalPolarity == Polarity.Supporting;
+		const limitBarPos = showLimitBar ? (limitBar_above ? LimitBarPos.Above : LimitBarPos.Below) : LimitBarPos.None;
+
 		const nodeChildHolder_direct = !isPremiseOfSinglePremiseArg && nodeView.expanded &&
 			<NodeChildHolder {...{ map, node, path, nodeView, nodeChildren, nodeChildrenToShow, separateChildren, showArgumentsControlBar }}
 				// type={node.type == MapNodeType.Claim && node._id != demoRootNodeID ? HolderType.Truth : null}
 				type={null}
-				// linkSpawnPoint={innerBoxOffset + expectedHeight / 2}
 				linkSpawnPoint={dividePoint || (selfHeight / 2)}
 				vertical={isMultiPremiseArgument}
 				minWidth={isMultiPremiseArgument && widthOverride ? widthOverride - 20 : 0}
@@ -240,13 +205,34 @@ export class NodeUI extends BaseComponentPlus(
 
 		const hasExtraWrapper = subnodes.length || isMultiPremiseArgument;
 
-		const nodeUIResult_withoutSubnodes = (
-			<div ref={c => this.nodeUI = c} className="NodeUI clickThrough"
-				style={E(
-					{ position: 'relative', display: 'flex', alignItems: 'flex-start', padding: '5px 0', opacity: widthOverride != 0 ? 1 : 0 },
-					style,
-				)}
-			>
+		performance.mark('NodeUI_3');
+		performance.measure('NodeUI_Part1', 'NodeUI_1', 'NodeUI_2');
+		performance.measure('NodeUI_Part2', 'NodeUI_2', 'NodeUI_3');
+		this.Stash({ nodeChildrenToShow }); // for debugging
+
+		// useEffect(() => CheckForChanges());
+
+		/* return (
+			<>
+				{...}
+				{hasExtraWrapper && <>
+					{subnodes.map((subnode, index) => (
+						<NodeUI key={index} indexInNodeList={index} map={map} node={subnode} asSubnode={true} style={E({ marginTop: -5 })}
+							path={`${path}/L${subnode._key}`} widthOverride={widthOverride} onHeightOrPosChange={onHeightOrPosChange}/>
+					))}
+					<div className="clickThrough" style={E({ marginTop: -5 })}>
+						{isMultiPremiseArgument
+							&& nodeChildHolder_direct}
+					</div>
+					{!limitBar_above && children}
+				</>}
+			</>
+		); */
+		return (
+			<div ref={c => this.nodeUI = c} className="NodeUI clickThrough" style={E(
+				{ position: 'relative', display: 'flex', alignItems: 'flex-start', padding: '5px 0', opacity: widthOverride != 0 ? 1 : 0 },
+				style,
+			)}>
 				<div ref="innerBoxAndSuchHolder" className="innerBoxAndSuchHolder clickThrough" style={E(
 					{ position: 'relative' },
 					/* useAutoOffset && {display: "flex", height: "100%", flexDirection: "column", justifyContent: "center"},
@@ -257,28 +243,17 @@ export class NodeUI extends BaseComponentPlus(
 					{limitBar_above && children}
 					{asSubnode &&
 					<div style={{ position: 'absolute', left: 2, right: 2, top: -3, height: 3, borderRadius: '3px 3px 0 0', background: 'rgba(255,255,0,.7)' }}/>}
-					<Column ref="innerBoxHolder" className="innerBoxHolder clickThrough" style={{ position: 'relative' }}>
+					<Column className="innerBoxHolder clickThrough" style={{ position: 'relative' }}>
 						{node.current.accessLevel != AccessLevel.Basic &&
 						<div style={{ position: 'absolute', right: 'calc(100% + 5px)', top: 0, bottom: 0, display: 'flex', fontSize: 10 }}>
 							<span style={{ margin: 'auto 0' }}>{AccessLevel[node.current.accessLevel][0].toUpperCase()}</span>
 						</div>}
 						{nodeChildHolderBox_truth}
-						<NodeUI_Inner
-							ref={c => this.innerUI = GetInnerComp(c)}
-							// ref={c => this.innerUI = c ? c['getDecoratedComponentInstance']() : null}
-							{...{ indexInNodeList, map, node, nodeView, path, width, widthOverride }}
+						<NodeUI_Inner ref={c => this.innerUI = GetInnerComp(c)} {...{ indexInNodeList, map, node, nodeView, path, width, widthOverride }}
 							style={E(
 								playingTimeline_currentStepRevealNodes.Contains(path) && { boxShadow: 'rgba(255,255,0,1) 0px 0px 7px, rgb(0, 0, 0) 0px 0px 2px' },
 							)}/>
 						{nodeChildHolderBox_relevance}
-						{/* showBelowMessage &&
-							<Div ct style={{
-								//whiteSpace: "normal", position: "absolute", left: 0, right: 0, top: "100%", fontSize: 12
-								marginTop: 5, fontSize: 12,
-								width: 0, // fixes that link-lines would have gap on left
-							}}>
-								Needs 2 premises to be visible.
-							</Div> */}
 					</Column>
 					{!limitBar_above && !hasExtraWrapper && children}
 				</div>
@@ -293,31 +268,6 @@ export class NodeUI extends BaseComponentPlus(
 					<NodeChangesMarker {...{ addedDescendants, editedDescendants, limitBarPos }}/>}
 				{!isMultiPremiseArgument
 					&& nodeChildHolder_direct}
-			</div>
-		);
-
-		performance.mark('NodeUI_3');
-		performance.measure('NodeUI_Part1', 'NodeUI_1', 'NodeUI_2');
-		performance.measure('NodeUI_Part2', 'NodeUI_2', 'NodeUI_3');
-		this.Stash({ nodeChildrenToShow }); // for debugging
-
-		// useEffect(() => CheckForChanges());
-
-		if (!hasExtraWrapper) {
-			return nodeUIResult_withoutSubnodes;
-		}
-		return (
-			<div className="clickThrough" style={{ display: 'flex', flexDirection: 'column' }}>
-				{nodeUIResult_withoutSubnodes}
-				{subnodes.map((subnode, index) => (
-					<NodeUI key={index} indexInNodeList={index} map={map} node={subnode} asSubnode={true} style={E({ marginTop: -5 })}
-						path={`${path}/L${subnode._key}`} widthOverride={widthOverride} onHeightOrPosChange={onHeightOrPosChange}/>
-				))}
-				<div className="clickThrough" style={E({ marginTop: -5 })}>
-					{isMultiPremiseArgument
-						&& nodeChildHolder_direct}
-				</div>
-				{!limitBar_above && children}
 			</div>
 		);
 	}
