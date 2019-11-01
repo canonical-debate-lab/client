@@ -80,7 +80,7 @@ export class MapUI extends BaseComponentPlus({
 	}
 
 	scrollView: ScrollView;
-	mapUI: HTMLDivElement;
+	mapUIEl: HTMLDivElement;
 	downPos: Vector2i;
 	render() {
 		const { map, rootNode: rootNode_passed, withinPage, padding, subNavBarWidth, ...rest } = this.props;
@@ -127,7 +127,7 @@ export class MapUI extends BaseComponentPlus({
 					{!withinPage && timelinePanelOpen &&
 						<TimelinePanel map={map}/>}
 					<ScrollView {...rest.Excluding(...StandardCompProps())} ref={c => this.scrollView = c}
-						backgroundDrag={true} backgroundDragMatchFunc={a => a == GetDOM(this.scrollView.content) || a == this.mapUI}
+						backgroundDrag={true} backgroundDragMatchFunc={a => a == GetDOM(this.scrollView.content) || a == this.mapUIEl}
 						style={ES({ height: '100%' }, withinPage && { overflow: 'visible' })}
 						scrollHBarStyle={E({ height: 10 }, withinPage && { display: 'none' })} scrollVBarStyle={E({ width: 10 }, withinPage && { display: 'none' })}
 						contentStyle={E(
@@ -149,7 +149,7 @@ export class MapUI extends BaseComponentPlus({
 						}
 						.MapUI.scrolling > * { pointer-events: none; }
 						`}</style>
-						<div className="MapUI" ref={c => this.mapUI = c}
+						<div className="MapUI" ref={c => this.mapUIEl = c}
 							style={{
 								position: 'relative', /* display: "flex", */ whiteSpace: 'nowrap',
 								padding: `${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px`,
@@ -158,13 +158,13 @@ export class MapUI extends BaseComponentPlus({
 							}}
 							onMouseDown={(e) => {
 								this.downPos = new Vector2i(e.clientX, e.clientY);
-								if (e.button == 2) { $(this.mapUI).addClass('scrolling'); }
+								if (e.button == 2) { $(this.mapUIEl).addClass('scrolling'); }
 							}}
 							onMouseUp={(e) => {
-								$(this.mapUI).removeClass('scrolling');
+								$(this.mapUIEl).removeClass('scrolling');
 							}}
 							onClick={(e) => {
-								if (e.target != this.mapUI) return;
+								if (e.target != this.mapUIEl) return;
 								if (this.downPos && new Vector2i(e.clientX, e.clientY).DistanceTo(this.downPos) >= 3) return;
 								const mapView = GetMapView(GetOpenMapID());
 								if (GetSelectedNodePath(map._key)) {
@@ -315,7 +315,7 @@ export class MapUI extends BaseComponentPlus({
 
 		const focusNodeBox = this.FindNodeBox(nodePath, true);
 		if (focusNodeBox == null) return;
-		const focusNodeBoxPos = $(GetDOM(focusNodeBox)).GetScreenRect().Center.Minus($(this.mapUI).GetScreenRect().Position);
+		const focusNodeBoxPos = $(GetDOM(focusNodeBox)).GetScreenRect().Center.Minus($(this.mapUIEl).GetScreenRect().Position);
 		this.ScrollToPosition_Center(focusNodeBoxPos.Plus(viewOffset_target));
 	}
 	ScrollToPosition_Center(posInContainer: Vector2i) {
@@ -331,6 +331,7 @@ export class MapUI extends BaseComponentPlus({
 
 		/* if (nextPathTry == nodePath)
 			this.hasLoadedScroll = true; */
+		Log('Loading scroll:', newScroll);
 	}
 }
 

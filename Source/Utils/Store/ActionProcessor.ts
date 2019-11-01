@@ -8,7 +8,7 @@ import { GetNodeChildrenL2, GetNodeID } from 'Store/firebase/nodes';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { ACTMapViewMerge } from 'Store/main/mapViews/$mapView';
-import { Action, ActionSet, DBPath, GetAsync, GetCurrentURL, GetDataAsync, LoadURL, MaybeLog, State } from 'Utils/FrameworkOverrides';
+import { Action, ActionSet, DBPath, GetAsync, GetCurrentURL, GetDataAsync, LoadURL, MaybeLog, State, GetScreenRect } from 'Utils/FrameworkOverrides';
 import { GetCurrentURL_SimplifiedForPageViewTracking } from 'Utils/URL/URLs';
 import { GetOpenMapID } from 'Store/main';
 import { Map } from '../../Store/firebase/maps/@Map';
@@ -243,7 +243,7 @@ async function ExpandToAndFocusOnNodes(mapID: string, paths: string[]) {
 
 	let nodeBoxPositionSum = new Vector2i(0, 0);
 	for (const box of nodeBoxes) {
-		const boxPos = $(GetDOM(box)).GetScreenRect().Center.Minus($(mapUI.DOM).GetScreenRect().Position);
+		const boxPos = GetScreenRect(GetDOM(box) as any).Center.Minus(GetScreenRect(mapUI.mapUIEl).Position);
 		nodeBoxPositionSum = nodeBoxPositionSum.Plus(boxPos);
 	}
 	const nodeBoxPositionAverage = nodeBoxPositionSum.Times(1 / paths.length);
