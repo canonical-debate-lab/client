@@ -121,12 +121,12 @@ export class NodeUI_Inner extends BaseComponentPlus(
 
 		const parentPath = SlicePath(path, 1);
 		const parent = GetNodeL3.Watch(parentPath);
-		const combinedWithParentArg = IsPremiseOfSinglePremiseArgument.Watch(node, parent);
+		const combinedWithParentArgument = IsPremiseOfSinglePremiseArgument.Watch(node, parent);
 
 		let mainRatingType = GetMainRatingType.Watch(node);
 		let ratingNode = node;
 		let ratingNodePath = path;
-		if (combinedWithParentArg) {
+		if (combinedWithParentArgument) {
 			mainRatingType = 'impact';
 			ratingNode = parent;
 			ratingNodePath = parentPath;
@@ -147,7 +147,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 
 		const playingTimeline_currentStepRevealNodes = GetPlayingTimelineCurrentStepRevealNodes.Watch(map._key);
 		let revealedByCurrentTimelineStep = playingTimeline_currentStepRevealNodes.Contains(path);
-		if (combinedWithParentArg) {
+		if (combinedWithParentArgument) {
 			revealedByCurrentTimelineStep = revealedByCurrentTimelineStep || playingTimeline_currentStepRevealNodes.Contains(parentPath);
 		}
 
@@ -177,7 +177,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 
 		// Log(`${node._key} -- ${dragInfo && dragInfo.snapshot.isDragging}; ${dragInfo && dragInfo.snapshot.draggingOver}`);
 
-		if (combinedWithParentArg) {
+		if (combinedWithParentArgument) {
 			backgroundColor = GetNodeColor(parent);
 		}
 
@@ -214,11 +214,11 @@ export class NodeUI_Inner extends BaseComponentPlus(
 			}
 		}, [map._key, nodeView, path]);
 		const onDirectClick = UseCallback((e) => {
-			if (combinedWithParentArg) {
+			if (combinedWithParentArgument) {
 				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: parent && parent._key, time: Date.now() }));
 			}
 			store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._key, time: Date.now() }));
-		}, [combinedWithParentArg, node._key, parent]);
+		}, [combinedWithParentArgument, node._key, parent]);
 		const onTextHolderClick = UseCallback(e => IsDoubleClick(e) && this.titlePanel && this.titlePanel.OnDoubleClick(), []);
 		const toggleExpanded = UseCallback((e) => {
 			store.dispatch(new ACTMapNodeExpandedSet({ mapID: map._key, path, expanded: !expanded, recursive: expanded && e.altKey }));

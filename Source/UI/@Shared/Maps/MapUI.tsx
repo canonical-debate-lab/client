@@ -6,14 +6,15 @@ import { VMenuStub } from 'react-vmenu';
 import { VMenuItem } from 'react-vmenu/dist/VMenu';
 import { ScrollView } from 'react-vscrollview';
 import { TimelinePlayerUI } from 'UI/@Shared/Maps/MapUI/TimelinePlayerUI';
-import { State, Connect, GetDistanceBetweenRectAndPoint, inFirefox, Watch } from 'Utils/FrameworkOverrides';
+import { State, Connect, GetDistanceBetweenRectAndPoint, inFirefox, Watch, GetScreenRect } from 'Utils/FrameworkOverrides';
 import { GetTimelinePanelOpen, GetPlayingTimelineRevealNodes_All, GetPlayingTimeline } from 'Store/main/maps/$map';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { ActionBar_Left_GAD } from 'UI/@GAD/ActionBar_Left_GAD';
 import { ActionBar_Right_GAD } from 'UI/@GAD/ActionBar_Right_GAD';
+import { GetParentNodeL3, GetParentPath } from 'Store/firebase/nodes';
 import { styles, ES } from '../../../Utils/UI/GlobalStyles';
 import { Map } from '../../../Store/firebase/maps/@Map';
-import { GetNodeL3, IsNodeL2, IsNodeL3 } from '../../../Store/firebase/nodes/$node';
+import { GetNodeL3, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument } from '../../../Store/firebase/nodes/$node';
 import { MapNodeL3 } from '../../../Store/firebase/nodes/@MapNode';
 import { RootState } from '../../../Store/index';
 import { GetOpenMapID } from '../../../Store/main';
@@ -26,6 +27,7 @@ import { ActionBar_Left } from './MapUI/ActionBar_Left';
 import { ActionBar_Right } from './MapUI/ActionBar_Right';
 import { TimelinePanel } from './MapUI/TimelinePanel';
 import { TimelineIntroBox } from './MapUI/TimelineIntroBox';
+import { ExpandableBox } from './MapNode/ExpandableBox';
 
 
 export function GetNodeBoxForPath(path: string) {
@@ -290,24 +292,32 @@ export class MapUI extends BaseComponentPlus({
 	}
 
 	FindNodeBox(nodePath: string, ifMissingFindAncestor = false) {
-		let focusNodeBox;
+		const nodeUIs = document.querySelectorAll('.NodeUI_Inner').ToArray().map((nodeUI_boxEl) => {
+			const boxEl = FindReact(nodeUI_boxEl) as ExpandableBox;
+			const result = boxEl.props.parent as NodeUI_Inner;
+			Assert(result instanceof NodeUI_Inner);
+			return result;
+		});
+
+		let targetNodeUI: NodeUI_Inner;
 		let nextPathTry = nodePath;
-		while (focusNodeBox == null) {
-			focusNodeBox = $('.NodeUI_Inner').ToList().FirstOrX((nodeBox) => {
-				// let comp = FindReact(nodeBox[0]) as NodeUI_Inner;
-				const comp = FindReact(nodeBox[0]).props.parent as NodeUI_Inner;
-				// if comp is null, just ignore (an error must have occured, but we don't want to handle it here)
-				if (comp == null) return false;
-				return comp.props.path == nextPathTry;
+		while (targetNodeUI == null) {
+			targetNodeUI = nodeUIs.FirstOrX((nodeUI) => {
+				const { node, path } = nodeUI.props;
+				const parentPath = GetParentPath(path);
+				const parent = GetParentNodeL3(path);
+				const isPremiseOfSinglePremiseArg = IsPremiseOfSinglePremiseArgument(node, parent);
+				return path == nextPathTry || (isPremiseOfSinglePremiseArg && parentPath == nextPathTry);
 			});
+			// if finding ancestors is disabled, or there are no ancestors left, stop up-search
 			if (!ifMissingFindAncestor || !nextPathTry.Contains('/')) break;
 			nextPathTry = nextPathTry.substr(0, nextPathTry.lastIndexOf('/'));
 		}
-		if (focusNodeBox == null) return null;
-		return FindReact(focusNodeBox[0]).props.parent as NodeUI_Inner;
+		// if (targetNodeUI == null) Log(`Failed to find node-box for: ${nodePath}`);
+		return targetNodeUI;
 	}
 	ScrollToNode(nodePath: string) {
-		const { map, rootNode, withinPage } = this.props;
+		const { map } = this.props;
 
 		const viewOffset_target = GetViewOffset(GetMapView(map._key)); // || new Vector2i(200, 0);
 		// Log(`LoadingScroll:${nodePath};${ToJSON(viewOffset_target)}`);
@@ -315,23 +325,23 @@ export class MapUI extends BaseComponentPlus({
 
 		const focusNodeBox = this.FindNodeBox(nodePath, true);
 		if (focusNodeBox == null) return;
-		const focusNodeBoxPos = $(GetDOM(focusNodeBox)).GetScreenRect().Center.Minus($(this.mapUIEl).GetScreenRect().Position);
+		const focusNodeBoxPos = GetScreenRect(GetDOM(focusNodeBox)).Center.Minus(GetScreenRect(this.mapUIEl).Position);
 		this.ScrollToPosition_Center(focusNodeBoxPos.Plus(viewOffset_target));
 	}
 	ScrollToPosition_Center(posInContainer: Vector2i) {
-		const { map, rootNode, withinPage } = this.props;
+		const { withinPage } = this.props;
 
 		const oldScroll = this.scrollView.GetScroll();
 		const newScroll = new Vector2i(posInContainer.x - (window.innerWidth / 2), posInContainer.y - (window.innerHeight / 2));
 		if (withinPage) { // if within a page, don't apply stored vertical-scroll
 			newScroll.y = oldScroll.y;
 		}
+		Log('Loading scroll:', newScroll);
 		this.scrollView.SetScroll(newScroll);
 		// Log("Scrolling to position: " + newScroll);
 
 		/* if (nextPathTry == nodePath)
 			this.hasLoadedScroll = true; */
-		Log('Loading scroll:', newScroll);
 	}
 }
 

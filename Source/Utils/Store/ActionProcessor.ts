@@ -8,9 +8,10 @@ import { GetNodeChildrenL2, GetNodeID } from 'Store/firebase/nodes';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { ACTMapViewMerge } from 'Store/main/mapViews/$mapView';
-import { Action, ActionSet, DBPath, GetAsync, GetCurrentURL, GetDataAsync, LoadURL, MaybeLog, State, GetScreenRect } from 'Utils/FrameworkOverrides';
+import { Action, ActionSet, DBPath, GetAsync, GetCurrentURL, GetDataAsync, LoadURL, MaybeLog, State, GetScreenRect, SlicePath } from 'Utils/FrameworkOverrides';
 import { GetCurrentURL_SimplifiedForPageViewTracking } from 'Utils/URL/URLs';
 import { GetOpenMapID } from 'Store/main';
+import { NodeUI_Inner } from 'UI/@Shared/Maps/MapNode/NodeUI_Inner';
 import { Map } from '../../Store/firebase/maps/@Map';
 import { RootState } from '../../Store/index';
 import { ACTDebateMapSelect, ACTDebateMapSelect_WithData } from '../../Store/main/debates';
@@ -217,33 +218,46 @@ export async function PostDispatchAction(action: Action<any>) {
 
 	if (action.Is(ACTMap_PlayingTimelineStepSet) || action.Is(ACTMap_PlayingTimelineAppliedStepSet)) {
 		const newlyRevealedNodes = await GetAsync(() => GetPlayingTimelineCurrentStepRevealNodes(action.payload.mapID));
-		// stats=>Log("Requested paths:\n==========\n" + stats.requestedPaths.VKeys().join("\n") + "\n\n"));
-		ExpandToAndFocusOnNodes(action.payload.mapID, newlyRevealedNodes);
+		if (newlyRevealedNodes.length) {
+			// stats=>Log("Requested paths:\n==========\n" + stats.requestedPaths.VKeys().join("\n") + "\n\n"));
+			ExpandToAndFocusOnNodes(action.payload.mapID, newlyRevealedNodes);
+		}
 	}
 }
 
 async function ExpandToAndFocusOnNodes(mapID: string, paths: string[]) {
 	const { UpdateFocusNodeAndViewOffset } = require('../../UI/@Shared/Maps/MapUI'); // eslint-disable-line
 
+	const actions = [];
 	for (const path of paths) {
-		const parentPath = path.split('/').slice(0, -1).join('/');
-		store.dispatch(new ACTMapNodeExpandedSet({ mapID, path: parentPath, expanded: true, recursive: false }));
+		const parentPath = SlicePath(path, 1);
+		actions.push(new ACTMapNodeExpandedSet({ mapID, path: parentPath, expanded: true, recursive: false }));
+	}
+	store.dispatch(new ActionSet(...actions));
+
+	let mapUI: MapUI;
+	for (let i = 0; i < 30 && mapUI == null; i++) {
+		mapUI = MapUI.CurrentMapUI;
+		await SleepAsync(100);
+	}
+	if (mapUI == null) {
+		Log('Failed to find MapUI to apply scroll to.');
+		return;
 	}
 
-	for (let i = 0; i < 30 && $('.MapUI').length == 0; i++) { await SleepAsync(100); }
-	/* const mapUIEl = $('.MapUI');
-	if (mapUIEl.length == 0) return;
-	const mapUI = FindReact(mapUIEl[0]) as MapUI; */
-	const mapUI = MapUI.CurrentMapUI;
-	if (mapUI == null) return;
-
-	for (let i = 0; i < 30 && paths.map(path => mapUI.FindNodeBox(path)).Any(a => a == null); i++) { await SleepAsync(100); }
-	const nodeBoxes = paths.map(path => mapUI.FindNodeBox(path)).filter(a => a != null);
-	if (nodeBoxes.length == 0) return;
+	let nodeBoxes: NodeUI_Inner[] = [];
+	for (let i = 0; i < 30 && nodeBoxes.length < paths.length; i++) {
+		nodeBoxes = paths.map(path => mapUI.FindNodeBox(path)).filter(a => a != null);
+		await SleepAsync(100);
+	}
+	if (nodeBoxes.length == 0) {
+		Log('Failed to find any of the NodeBoxes to apply scroll to. Paths:', paths);
+		return;
+	}
 
 	let nodeBoxPositionSum = new Vector2i(0, 0);
 	for (const box of nodeBoxes) {
-		const boxPos = GetScreenRect(GetDOM(box) as any).Center.Minus(GetScreenRect(mapUI.mapUIEl).Position);
+		const boxPos = GetScreenRect(GetDOM(box)).Center.Minus(GetScreenRect(mapUI.mapUIEl).Position);
 		nodeBoxPositionSum = nodeBoxPositionSum.Plus(boxPos);
 	}
 	const nodeBoxPositionAverage = nodeBoxPositionSum.Times(1 / paths.length);

@@ -82,6 +82,7 @@ module.exports = {
 		"no-lonely-if": "off",
 		"no-void": "off",
 		"consistent-return": "off",
+		"no-loop-func": "off",
 
 		// plugins
 		"react-hooks/rules-of-hooks": "error",
