@@ -1,22 +1,22 @@
-import { Assert, CachedTransform, E, emptyArray, emptyArray_forLoading, IsNaN, nl, ToJSON, Timer } from 'js-vextensions';
+import { Assert, CachedTransform, E, emptyArray, emptyArray_forLoading, IsNaN, nl } from 'js-vextensions';
+import React from 'react';
 import { Column } from 'react-vcomponents';
-import { BaseComponentPlus, GetDOM, GetInnerComp, RenderSource, ShallowEquals, UseCallback } from 'react-vextensions';
+import { BaseComponentPlus, GetInnerComp, RenderSource, ShallowEquals, UseCallback } from 'react-vextensions';
 import { ChangeType, GetPathsToChangedDescendantNodes_WithChangeTypes } from 'Store/firebase/mapNodeEditTimes';
 import { GetParentPath, HolderType } from 'Store/firebase/nodes';
 import { MeID } from 'Store/firebase/users';
 import { GetPlayingTimelineRevealNodes_UpToAppliedStep } from 'Store/main/maps/$map';
 import { NodeChildHolder } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolder';
 import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolderBox';
-import { ExpensiveComponent, MaybeLog, ShouldLog, SlicePath, State, Watch, EB_StoreError, EB_ShowError } from 'Utils/FrameworkOverrides';
+import { EB_ShowError, EB_StoreError, ExpensiveComponent, MaybeLog, ShouldLog, SlicePath, State } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
-import React, { useState, useMemo, ClassAttributes } from 'react';
 import { GetSubnodesInEnabledLayersEnhanced } from '../../../../Store/firebase/layers';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetNodeChildrenL3, GetParentNodeL2, GetParentNodeL3, IsRootNode } from '../../../../Store/firebase/nodes';
-import { GetNodeForm, IsMultiPremiseArgument, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument, IsPremiseOfMultiPremiseArgument } from '../../../../Store/firebase/nodes/$node';
+import { GetNodeForm, IsMultiPremiseArgument, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
 import { AccessLevel, MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
-import { GetPlayingTimeline, GetPlayingTimelineCurrentStepRevealNodes, GetPlayingTimelineRevealNodes_All, GetPlayingTimelineStepIndex, GetTimeFromWhichToShowChangedNodes } from '../../../../Store/main/maps/$map';
+import { GetPlayingTimeline, GetPlayingTimelineCurrentStepRevealNodes, GetPlayingTimelineStepIndex, GetTimeFromWhichToShowChangedNodes } from '../../../../Store/main/maps/$map';
 import { GetNodeView } from '../../../../Store/main/mapViews';
 import { MapNodeView } from '../../../../Store/main/mapViews/@MapViews';
 import { NodeChangesMarker } from './NodeUI/NodeChangesMarker';
@@ -24,19 +24,6 @@ import { NodeChildCountMarker } from './NodeUI/NodeChildCountMarker';
 import { GetMeasurementInfoForNode } from './NodeUI/NodeMeasurer';
 import { NodeUI_Inner } from './NodeUI_Inner';
 
-// removed this system, since it doesn't work reliably (now that we use react-hooks, which can trigger updates that shouldComponentUpdate can't stop)
-//		(a possible replacement is using StartBufferingActions() and StopBufferingActions(), however then you stop *all* ui updates, which is not what we want -- during async operations anyway)
-/* const nodesLocked = {};
-export function SetNodeUILocked(nodeID: string, locked: boolean, maxWait = 10000) {
-	nodesLocked[nodeID] = locked;
-	if (locked) {
-		setTimeout(() => SetNodeUILocked(nodeID, false), maxWait);
-	}
-} */
-
-// @SimpleShouldUpdate
-// export class NodeUI extends BaseComponent<Props, {}, {CheckForChanges}> {
-// @ExpensiveComponent({ simpleShouldUpdate_call: false })
 @ExpensiveComponent
 export class NodeUI extends BaseComponentPlus(
 	{} as {
@@ -56,26 +43,6 @@ export class NodeUI extends BaseComponentPlus(
 		const { dividePoint, selfHeight } = state;
 		Assert(!IsNaN(dividePoint) && !IsNaN(selfHeight));
 	}
-
-	// for SetNodeUILocked() function above
-	/* waitForUnlockTimer: Timer;
-	shouldComponentUpdate(newProps, newState) {
-		const changed = ShallowChanged(this.props, newProps) || ShallowChanged(this.state, newState);
-		// Log('Changes: ', this.GetPropChanges());
-		const { node } = this.props;
-		if (!nodesLocked[node._key]) return changed;
-
-		// node-ui is locked, so wait until it gets unlocked, then update the ui
-		if (this.waitForUnlockTimer == null) {
-			this.waitForUnlockTimer = new Timer(100, () => {
-				if (nodesLocked[node._key]) return;
-				this.waitForUnlockTimer.Stop();
-				delete this.waitForUnlockTimer;
-				this.Update();
-			}).Start();
-		}
-		return false;
-	} */
 
 	nodeUI: HTMLDivElement;
 	innerUI: NodeUI_Inner;
@@ -117,7 +84,6 @@ export class NodeUI extends BaseComponentPlus(
 		// const playingTimelineVisibleNodes = GetPlayingTimelineRevealNodes_UpToAppliedStep.Watch(map._key, true);
 		// if users scrolls to step X and expands this node, keep expanded even if user goes back to a previous step
 		const playingTimelineVisibleNodes = GetPlayingTimelineRevealNodes_UpToAppliedStep.Watch(map._key);
-		const playingTimeline_currentStepRevealNodes = GetPlayingTimelineCurrentStepRevealNodes.Watch(map._key);
 
 		performance.mark('NodeUI_2');
 		if (ShouldLog(a => a.nodeRenders)) {
@@ -233,7 +199,7 @@ export class NodeUI extends BaseComponentPlus(
 				{ position: 'relative', display: 'flex', alignItems: 'flex-start', padding: '5px 0', opacity: widthOverride != 0 ? 1 : 0 },
 				style,
 			)}>
-				<div ref="innerBoxAndSuchHolder" className="innerBoxAndSuchHolder clickThrough" style={E(
+				<div className="innerBoxAndSuchHolder clickThrough" style={E(
 					{ position: 'relative' },
 					/* useAutoOffset && {display: "flex", height: "100%", flexDirection: "column", justifyContent: "center"},
 					!useAutoOffset && {paddingTop: innerBoxOffset}, */
@@ -249,10 +215,7 @@ export class NodeUI extends BaseComponentPlus(
 							<span style={{ margin: 'auto 0' }}>{AccessLevel[node.current.accessLevel][0].toUpperCase()}</span>
 						</div>}
 						{nodeChildHolderBox_truth}
-						<NodeUI_Inner ref={c => this.innerUI = GetInnerComp(c)} {...{ indexInNodeList, map, node, nodeView, path, width, widthOverride }}
-							style={E(
-								playingTimeline_currentStepRevealNodes.Contains(path) && { boxShadow: 'rgba(255,255,0,1) 0px 0px 7px, rgb(0, 0, 0) 0px 0px 2px' },
-							)}/>
+						<NodeUI_Inner ref={c => this.innerUI = GetInnerComp(c)} {...{ indexInNodeList, map, node, nodeView, path, width, widthOverride }}/>
 						{nodeChildHolderBox_relevance}
 					</Column>
 					{!limitBar_above && !hasExtraWrapper && children}

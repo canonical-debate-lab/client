@@ -7,7 +7,7 @@ import { BaseComponent, BaseComponentPlus, GetDOM, UseCallback, UseEffect } from
 import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthScoreComposite, RS_GetAllValues } from 'Store/firebase/nodeRatings/ReasonScore';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
-import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
+import { GetTimeFromWhichToShowChangedNodes, GetPlayingTimelineCurrentStepRevealNodes } from 'Store/main/maps/$map';
 import { GetPathNodeIDs } from 'Store/main/mapViews';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { DragInfo, EB_ShowError, EB_StoreError, ExpensiveComponent, HSLA, IsDoubleClick, SlicePath, State, Watch } from 'Utils/FrameworkOverrides';
@@ -77,12 +77,8 @@ export class NodeUI_Inner extends BaseComponentPlus(
 	{ panelPosition: 'left' } as Props,
 	{ hovered: false, hoverPanel: null as string, hoverTermID: null as string, local_openPanel: null as string, lastWidthWhenNotPreview: 0 },
 ) {
-	static defaultProps = { panelPosition: 'left' };
-	// static warnOfTransientObjectProps = true;
-
 	root: ExpandableBox;
 	titlePanel: TitlePanel;
-	// titlePanel: Handle<typeof TitlePanel>;
 
 	checkStillHoveredTimer = new Timer(100, () => {
 		const dom = GetDOM(this.root);
@@ -123,19 +119,17 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		if (node.createdAt > sinceTime) changeType = ChangeType.Add;
 		else if (node.current.createdAt > sinceTime) changeType = ChangeType.Edit;
 
-		// const parent = Watch(() => GetNodeL3(SlicePath(path, 1)));
-		// const parent = GetNodeL3(SlicePath(path, 1)); // removed UseSelector on this for now, since it somehow causes refresh of node when changing rating (which is bad for current testing)
-		const parent = GetNodeL3.Watch(SlicePath(path, 1));
-		const combineWithParentArgument = IsPremiseOfSinglePremiseArgument.Watch(node, parent);
-		// let ratingReversed = ShouldRatingTypeBeReversed(node);
+		const parentPath = SlicePath(path, 1);
+		const parent = GetNodeL3.Watch(parentPath);
+		const combinedWithParentArg = IsPremiseOfSinglePremiseArgument.Watch(node, parent);
 
 		let mainRatingType = GetMainRatingType.Watch(node);
 		let ratingNode = node;
 		let ratingNodePath = path;
-		if (combineWithParentArgument) {
+		if (combinedWithParentArg) {
 			mainRatingType = 'impact';
 			ratingNode = parent;
-			ratingNodePath = SlicePath(path, 1);
+			ratingNodePath = parentPath;
 		}
 		/* const mainRating_average = Watch(() => GetRatingAverage_AtPath(ratingNode, mainRatingType));
 		// let mainRating_mine = GetRatingValue(ratingNode._id, mainRatingType, MeID());
@@ -144,16 +138,18 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		const useReasonScoreValuesForThisNode = State.Watch(a => a.main.weighting) == WeightingType.ReasonScore && (node.type == MapNodeType.Argument || node.type == MapNodeType.Claim);
 		const reasonScoreValues = Watch(() => useReasonScoreValuesForThisNode && RS_GetAllValues(node._key, path, true) as ReasonScoreValues_RSPrefix, [node, path, useReasonScoreValuesForThisNode]);
 
-		// const backgroundFillPercent = Watch(() => GetFillPercent_AtPath(ratingNode, ratingNodePath, null));
-		// const markerPercent = Watch(() => GetMarkerPercent_AtPath(ratingNode, ratingNodePath, null));
-		// const backgroundFillPercent = Watch(() => GetFillPercent_AtPath(ratingNode, ratingNodePath, null));
-		const backgroundFillPercent = /* A.NonNull = */ GetFillPercent_AtPath.Watch(ratingNode, ratingNodePath, null);
+		const backgroundFillPercent = GetFillPercent_AtPath.Watch(ratingNode, ratingNodePath, null);
 		const markerPercent = GetMarkerPercent_AtPath.Watch(ratingNode, ratingNodePath, null);
 
 		const form = GetNodeForm.Watch(node, path);
-		// const ratingsRoot = Watch(() => GetNodeRatingsRoot(node._key));
 		const ratingsRoot = GetNodeRatingsRoot.Watch(node._key);
 		const showReasonScoreValues = State.Watch(a => a.main.showReasonScoreValues);
+
+		const playingTimeline_currentStepRevealNodes = GetPlayingTimelineCurrentStepRevealNodes.Watch(map._key);
+		let revealedByCurrentTimelineStep = playingTimeline_currentStepRevealNodes.Contains(path);
+		if (combinedWithParentArg) {
+			revealedByCurrentTimelineStep = revealedByCurrentTimelineStep || playingTimeline_currentStepRevealNodes.Contains(parentPath);
+		}
 
 		// the rest
 		// ==========
@@ -181,9 +177,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 
 		// Log(`${node._key} -- ${dragInfo && dragInfo.snapshot.isDragging}; ${dragInfo && dragInfo.snapshot.draggingOver}`);
 
-		// const parent = GetParentNodeL3(path);
-		const combinedWithParentArgument = IsPremiseOfSinglePremiseArgument(node, parent);
-		if (combinedWithParentArgument) {
+		if (combinedWithParentArg) {
 			backgroundColor = GetNodeColor(parent);
 		}
 
@@ -191,26 +185,6 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		const barSize = 5;
 		const pathNodeIDs = GetPathNodeIDs(path);
 		const isSubnode = IsNodeSubnode(node);
-
-		/* let backgroundFillPercent = mainRating_average || 0;
-		let markerPercent = mainRating_mine;
-		if (reasonScoreValues) {
-			var {rs_argTruthScoreComposite, rs_argWeightMultiplier, rs_argWeight, rs_claimTruthScore, rs_claimBaseWeight} = reasonScoreValues;
-			if (node.type == MapNodeType.Claim) {
-				backgroundFillPercent = rs_claimTruthScore * 100;
-				markerPercent = null;
-			} else if (node.type == MapNodeType.Argument) {
-				//backgroundFillPercent = Lerp(0, 100, GetPercentFromXToY(0, 2, rs_argWeightMultiplier));
-				//backgroundFillPercent = Lerp(0, 100, GetPercentFromXToY(0, 2, rs_argWeight));
-				backgroundFillPercent = rs_argTruthScoreComposite * 100;
-				markerPercent = null;
-			}
-
-			// if background-fill-percent is 0, the data must still be loading
-			if (IsNaN(backgroundFillPercent)) {
-				backgroundFillPercent = 0;
-			}
-		} */
 
 		const nodeReversed = form == ClaimForm.Negation;
 
@@ -240,11 +214,11 @@ export class NodeUI_Inner extends BaseComponentPlus(
 			}
 		}, [map._key, nodeView, path]);
 		const onDirectClick = UseCallback((e) => {
-			if (combinedWithParentArgument) {
+			if (combinedWithParentArg) {
 				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: parent && parent._key, time: Date.now() }));
 			}
 			store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._key, time: Date.now() }));
-		}, [combinedWithParentArgument, node._key, parent]);
+		}, [combinedWithParentArg, node._key, parent]);
 		const onTextHolderClick = UseCallback(e => IsDoubleClick(e) && this.titlePanel && this.titlePanel.OnDoubleClick(), []);
 		const toggleExpanded = UseCallback((e) => {
 			store.dispatch(new ACTMapNodeExpandedSet({ mapID: map._key, path, expanded: !expanded, recursive: expanded && e.altKey }));
@@ -267,6 +241,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 					onMouseLeave={onMouseLeave}
 					{...(dragInfo && dragInfo.provided.draggableProps)} // {...(dragInfo && dragInfo.provided.dragHandleProps)} // drag-handle is attached to just the TitlePanel, below
 					style={E(
+						revealedByCurrentTimelineStep && { boxShadow: 'rgba(255,255,0,1) 0px 0px 7px, rgb(0, 0, 0) 0px 0px 2px' },
 						style,
 						dragInfo && dragInfo.provided.draggableProps.style,
 						asDragPreview && { zIndex: 10 },
@@ -301,7 +276,6 @@ export class NodeUI_Inner extends BaseComponentPlus(
 					text={<>
 						<TitlePanel {...{ indexInNodeList, parent: this, map, node, nodeView, path }} {...(dragInfo && dragInfo.provided.dragHandleProps)}
 							ref={c => this.titlePanel = c}
-							// exposer={a => this.titlePanel = a}
 							style={E(GADDemo && { color: HSLA(222, 0.33, 0.25, 1), fontFamily: 'TypoPRO Bebas Neue', fontSize: 15, letterSpacing: 1 })}/>
 						{subPanelShow && <SubPanel node={node}/>}
 						<NodeUI_Menu_Stub {...{ map, node, path }}/>
@@ -360,18 +334,6 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		);
 	}
 	definitionsPanel: DefinitionsPanel;
-	/* ComponentDidMount() {
-		// we have to use native/jquery hover/mouseenter+mouseleave, to fix that in-equation term-placeholders would cause "mouseleave" to be triggered
-		const dom = $(GetDOM(this));
-		// dom.off("mouseenter mouseleave");
-		$(dom).hover(() => {
-			if ($('.scrolling').length == 0) {
-				this.SetState({ hovered: true });
-			}
-		}, () => {
-			this.SetState({ hovered: false });
-		});
-	} */
 }
 
 let portal: HTMLElement;
