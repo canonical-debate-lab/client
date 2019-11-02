@@ -14,7 +14,7 @@ import { GetUser } from 'Store/firebase/users';
 import { GetOpenMapID } from 'Store/main';
 import { ACTMapViewMerge } from 'Store/main/mapViews/$mapView';
 import { MapNodeView, MapView } from 'Store/main/mapViews/@MapViews';
-import { State, Connect, ACTSet, DBPath, GetAsync, ActionSet, InfoButton, ErrorBoundary, LogWarning, Watch } from 'Utils/FrameworkOverrides';
+import { State, Connect, ACTSet, DBPath, GetAsync, ActionSet, InfoButton, ErrorBoundary, LogWarning, Watch, EB_StoreError, EB_ShowError } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { UUID } from 'Utils/General/KeyGenerator';
 import { NodeUI_Menu_Stub } from '../Maps/MapNode/NodeUI_Menu';
@@ -121,11 +121,10 @@ export class SearchPanel extends BaseComponentPlus({} as {}, {}, {} as {queryStr
 				}}>
 					{results_nodeIDs == null && 'Search in progress...'}
 					{results_nodeIDs && results_nodeIDs.filter(a => a).length == 0 && 'No search results.'}
-					{results_nodeIDs && results_nodeIDs.map((nodeID, index) => {
+					{results_nodeIDs && results_nodeIDs.filter(a => a).length && results_nodeIDs.map((nodeID, index) => {
 						return (
-							<ErrorBoundary key={nodeID}>
-								<SearchResultRow nodeID={nodeID} index={index}/>
-							</ErrorBoundary>
+							// <ErrorBoundary key={nodeID}>
+							<SearchResultRow key={nodeID} nodeID={nodeID} index={index}/>
 						);
 					})}
 				</ScrollView>
@@ -135,7 +134,7 @@ export class SearchPanel extends BaseComponentPlus({} as {}, {}, {} as {queryStr
 }
 
 export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, index: number}, {}) {
-	ComponentWillReceiveProps(props) {
+	/* ComponentWillReceiveProps(props) {
 		const { nodeID, rootNodeID, findNode_state, findNode_node } = props;
 		if (findNode_node === nodeID) {
 			if (findNode_state === 'activating') {
@@ -143,7 +142,7 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 				this.StartFindingPathsFromXToY(rootNodeID, nodeID);
 			}
 		}
-	}
+	} */
 	async StartFindingPathsFromXToY(rootNodeX: UUID, targetNodeY: UUID) {
 		const searchDepth = 100;
 
@@ -189,7 +188,9 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 		store.dispatch(new ACTSet(a => a.main.search.findNode_state, 'inactive'));
 	}
 
+	componentDidCatch(message, info) { EB_StoreError(this, message, info); }
 	render() {
+		if (this.state['error']) return EB_ShowError(this.state['error']);
 		const { nodeID, index } = this.props;
 		const node = GetNodeL2.Watch(nodeID);
 		const creator = Watch(() => (node ? GetUser(node.creator) : null), [node]);
@@ -198,6 +199,10 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 		const rootNodeID = GetRootNodeID.Watch(GetOpenMapID());
 
 		const findNode_state = State.Watch(a => a.main.search.findNode_state);
+		if (findNode_state === 'activating') {
+			store.dispatch(new ACTSet(a => a.main.search.findNode_state, 'active'));
+			this.StartFindingPathsFromXToY(rootNodeID, nodeID);
+		}
 		const findNode_node = State.Watch(a => a.main.search.findNode_node);
 		const findNode_resultPaths = State.Watch(a => a.main.search.findNode_resultPaths);
 		const findNode_currentSearchDepth = State.Watch(a => a.main.search.findNode_currentSearchDepth);
@@ -242,16 +247,15 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 							));
 						}}/>
 					</Row>}
-				{findNode_node === nodeID && findNode_resultPaths.length > 0
-					&& findNode_resultPaths.map((resultPath) => {
-						return (
-							<Row key={resultPath}>
-								<Button mr="auto" text={`Jump to ${resultPath}`} onClick={() => {
-									JumpToNode(mapID, resultPath);
-								}}/>
-							</Row>
-						);
-					})}
+				{findNode_node === nodeID && findNode_resultPaths.length > 0 && findNode_resultPaths.map((resultPath) => {
+					return (
+						<Row key={resultPath}>
+							<Button mr="auto" text={`Jump to ${resultPath}`} onClick={() => {
+								JumpToNode(mapID, resultPath);
+							}}/>
+						</Row>
+					);
+				})}
 			</Column>
 		);
 	}

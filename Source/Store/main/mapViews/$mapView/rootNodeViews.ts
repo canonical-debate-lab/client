@@ -100,9 +100,9 @@ function MapNodeViewReducer(state = new MapNodeView(), action: Action<any>, path
 					}
 				}
 			} */
-		} else { // if past target-node
+		} /* else { // if past target-node
 			state = { ...state, expanded: false, expanded_truth: false, expanded_relevance: false };
-		}
+		} */
 
 		if (action.payload.recursive) {
 			state.children = { ...state.children };

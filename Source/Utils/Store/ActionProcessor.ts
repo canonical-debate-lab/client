@@ -1,4 +1,4 @@
-import { SleepAsync, Vector2i, VURL, ToJSON, Clone } from 'js-vextensions';
+import { SleepAsync, Vector2i, VURL, ToJSON, Clone, VRect } from 'js-vextensions';
 import { hasHotReloaded } from 'Main';
 import Raven from 'raven-js';
 import ReactGA from 'react-ga';
@@ -158,7 +158,7 @@ export async function PostDispatchAction(action: Action<any>) {
 		// const mapUI = FindReact($('.MapUI')[0]) as MapUI;
 		const mapUI = MapUI.CurrentMapUI;
 		if (mapUI) {
-			mapUI.LoadScroll();
+			mapUI.LoadStoredScroll();
 		}
 	}
 
@@ -237,8 +237,8 @@ async function ExpandToAndFocusOnNodes(mapID: string, paths: string[]) {
 
 	let mapUI: MapUI;
 	for (let i = 0; i < 30 && mapUI == null; i++) {
+		if (i > 0) await SleepAsync(100);
 		mapUI = MapUI.CurrentMapUI;
-		await SleepAsync(100);
 	}
 	if (mapUI == null) {
 		Log('Failed to find MapUI to apply scroll to.');
@@ -247,22 +247,24 @@ async function ExpandToAndFocusOnNodes(mapID: string, paths: string[]) {
 
 	let nodeBoxes: NodeUI_Inner[] = [];
 	for (let i = 0; i < 30 && nodeBoxes.length < paths.length; i++) {
-		nodeBoxes = paths.map(path => mapUI.FindNodeBox(path)).filter(a => a != null);
-		await SleepAsync(100);
+		if (i > 0) await SleepAsync(100);
+		nodeBoxes = paths.map(path => mapUI.FindNodeBox(path)).filter(a => a != null && GetDOM(a));
 	}
 	if (nodeBoxes.length == 0) {
 		Log('Failed to find any of the NodeBoxes to apply scroll to. Paths:', paths);
 		return;
 	}
 
-	let nodeBoxPositionSum = new Vector2i(0, 0);
+	let nodeBoxesMerged: VRect;
 	for (const box of nodeBoxes) {
-		const boxPos = GetScreenRect(GetDOM(box)).Center.Minus(GetScreenRect(mapUI.mapUIEl).Position);
-		nodeBoxPositionSum = nodeBoxPositionSum.Plus(boxPos);
+		// const boxPos = GetScreenRect(GetDOM(box)).Center.Minus(GetScreenRect(mapUI.mapUIEl).Position);
+		const boxRect = GetScreenRect(GetDOM(box)).NewPosition(a => a.Minus(GetScreenRect(mapUI.mapUIEl).Position));
+		nodeBoxesMerged = nodeBoxesMerged ? nodeBoxesMerged.Encapsulating(boxRect) : boxRect;
 	}
-	const nodeBoxPositionAverage = nodeBoxPositionSum.Times(1 / paths.length);
+	/* const nodeBoxPositionAverage = nodeBoxPositionSum.Times(1 / paths.length);
 	// mapUI.ScrollToPosition(new Vector2i((nodeBoxPositionAverage.x - 100).KeepAtLeast(0), nodeBoxPositionAverage.y));
-	mapUI.ScrollToPosition_Center(nodeBoxPositionAverage.Plus(-250, 0));
+	mapUI.ScrollToPosition_Center(nodeBoxPositionAverage.Plus(-250, 0)); */
+	mapUI.ScrollToMakeRectVisible(nodeBoxesMerged, 100);
 	UpdateFocusNodeAndViewOffset(mapID);
 }
 

@@ -1,5 +1,5 @@
 import { StandardCompProps } from 'Utils/UI/General';
-import { DeepGet, E, SleepAsync, Timer, Vector2i, FindDOMAll, Assert, FromJSON, ToJSON } from 'js-vextensions';
+import { DeepGet, E, SleepAsync, Timer, Vector2i, FindDOMAll, Assert, FromJSON, ToJSON, VRect } from 'js-vextensions';
 import { Column, Row } from 'react-vcomponents';
 import { BaseComponentWithConnector, FindReact, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { VMenuStub } from 'react-vmenu';
@@ -214,60 +214,38 @@ export class MapUI extends BaseComponentPlus({
 		MapUI.currentMapUI = null;
 	}
 
-	StartLoadingScroll() {
+	lastFoundPath: string;
+	loadFocusedNodeTimer = new Timer(100, () => {
+		if (!this.mounted) return this.loadFocusedNodeTimer.Stop();
+
 		const { map } = this.props;
-
-		/* let playingTimeline = await GetAsync(()=>GetPlayingTimeline(map._id));
-		if (!playingTimeline) { */ // only load-scroll if not playing timeline; timeline gets priority, to focus on its latest-revealed nodes
-
-		/*
-		let timer = new Timer(100, ()=> {
-			if (!this.mounted) return timer.Stop();
-
-			// if more nodes have been rendered (ie, new nodes have come in)
-			if (NodeUI.renderCount > lastRenderCount) {
-				this.LoadScroll();
-			}
-			lastRenderCount = NodeUI.renderCount;
-
-			let timeSinceLastNodeUIRender = Date.now() - NodeUI.lastRenderTime;
-			if (NodeUI.renderCount > 0 && timeSinceLastNodeUIRender >= 1500) {
-				this.OnLoadComplete();
-				timer.Stop();
-			}
-		}).Start(); */
-
 		const focusNodePath = GetFocusedNodePath(map._key);
 
-		let lastFoundPath = '';
-		const timer = new Timer(100, () => {
-			if (!this.mounted) return timer.Stop();
+		// if more nodes have been rendered, along the path to the focus-node
+		const foundBox = this.FindNodeBox(focusNodePath, true);
+		const foundPath = foundBox ? foundBox.props.path : '';
+		if (foundPath.length > this.lastFoundPath.length) {
+			this.LoadStoredScroll();
+		}
+		this.lastFoundPath = foundPath;
 
-			// if more nodes have been rendered, along the path to the focus-node
-			const foundBox = this.FindNodeBox(focusNodePath, true);
-			const foundPath = foundBox ? foundBox.props.path : '';
-			if (foundPath.length > lastFoundPath.length) {
-				this.LoadScroll();
-			}
-			lastFoundPath = foundPath;
-
-			if (foundPath == focusNodePath && this.scrollView) {
-				this.OnLoadComplete();
-				timer.Stop();
-			}
-		}).Start();
-		// }
-
-		// start scroll at root // (this doesn't actually look as good)
-		/* if (this.scrollView)
-			this.scrollView.ScrollBy({x: MapUI.padding.leftAndRight, y: MapUI.padding.topAndBottom}); */
+		if (foundPath == focusNodePath && this.scrollView) {
+			this.OnLoadComplete();
+			return this.loadFocusedNodeTimer.Stop();
+		}
+	});
+	StartLoadingScroll() {
+		/* let playingTimeline = await GetAsync(()=>GetPlayingTimeline(map._id));
+		if (!playingTimeline) { */ // only load-scroll if not playing timeline; timeline gets priority, to focus on its latest-revealed nodes
+		this.lastFoundPath = '';
+		this.loadFocusedNodeTimer.Start();
 	}
 	OnLoadComplete() {
 		console.log(`
 			NodeUI render count: ${NodeUI.renderCount} (${NodeUI.renderCount / $('.NodeUI').length} per visible node)
 			TimeSincePageLoad: ${Date.now() - performance.timing.domComplete}ms
 		`.AsMultiline(0));
-		this.LoadScroll();
+		this.LoadStoredScroll();
 		// UpdateURL(false);
 	}
 
@@ -282,7 +260,7 @@ export class MapUI extends BaseComponentPlus({
 	}
 
 	// load scroll from store
-	LoadScroll() {
+	LoadStoredScroll() {
 		const { map, rootNode, withinPage } = this.props;
 		if (this.scrollView == null) return;
 		if (this.scrollView.state.scrollOp_bar) return; // if user is already scrolling manually, don't interrupt
@@ -342,6 +320,30 @@ export class MapUI extends BaseComponentPlus({
 
 		/* if (nextPathTry == nodePath)
 			this.hasLoadedScroll = true; */
+	}
+
+	ScrollToMakeRectVisible(targetRect: VRect, padding = 0, stopLoadingStoredScroll = true) {
+		if (padding != 0) targetRect = targetRect.Grow(padding);
+
+		const mapUIBackgroundRect = GetScreenRect(this.mapUIEl);
+		const oldScroll = this.scrollView.GetScroll();
+		const viewportRect = GetScreenRect(GetDOM(this.scrollView.content)).NewPosition(a => a.Minus(mapUIBackgroundRect));
+
+		const newViewportRect = viewportRect.Clone();
+		if (targetRect.Left < newViewportRect.Left) newViewportRect.x = targetRect.x; // if target-rect extends further left, reposition left
+		if (targetRect.Right > newViewportRect.Right) newViewportRect.x = targetRect.Right - newViewportRect.width; // if target-rect extends further right, reposition right
+		if (targetRect.Top < newViewportRect.Top) newViewportRect.y = targetRect.y; // if target-rect extends further up, reposition up
+		if (targetRect.Bottom > newViewportRect.Bottom) newViewportRect.y = targetRect.Bottom - newViewportRect.height; // if target-rect extends further down, reposition down
+
+		const scrollNeededToEnactNewViewportRect = newViewportRect.Position.Minus(viewportRect.Position);
+		const newScroll = new Vector2i(oldScroll).Plus(scrollNeededToEnactNewViewportRect);
+		Log('Loading scroll:', newScroll, '@TargetRect', targetRect);
+		this.scrollView.SetScroll(newScroll);
+
+		// the loadFocusedNodeTimer keeps running until it scrolls to the stored "focused node"
+		// if timeline is playing, focused-node is concealed, so timer keeps running
+		// this conflicts with the timeline's scrolling, so cancel the load-stored-focused-node timer
+		if (stopLoadingStoredScroll) this.loadFocusedNodeTimer.Stop();
 	}
 }
 

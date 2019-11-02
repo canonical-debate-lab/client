@@ -120,17 +120,22 @@ export class NodeUI extends BaseComponentPlus(
 
 		const separateChildren = node.type == MapNodeType.Claim;
 		if (playingTimeline && playingTimeline_currentStepIndex < playingTimeline.steps.length - 1) {
-			nodeChildrenToShow = nodeChildrenToShow.filter(child => playingTimelineVisibleNodes.Contains(`${path}/${child._key}`));
+			// nodeChildrenToShow = nodeChildrenToShow.filter(child => playingTimelineVisibleNodes.Contains(`${path}/${child._key}`));
+			// if this node (or a descendent) is marked to be revealed by a currently-applied timeline-step, reveal this node
+			nodeChildrenToShow = nodeChildrenToShow.filter(child => playingTimelineVisibleNodes.Any(a => a.startsWith(`${path}/${child._key}`)));
 		}
 
-		const isPremiseOfSinglePremiseArg = IsPremiseOfSinglePremiseArgument(node, parent);
+		const isPremiseOfSinglePremiseArg = IsPremiseOfSinglePremiseArgument.Watch(node, parent);
+		const parentChildren = GetNodeChildrenL3.Watch(parent, parentPath);
 		if (isPremiseOfSinglePremiseArg) {
 			const argument = parent;
 			const argumentPath = SlicePath(path, 1);
-			var relevanceArguments = GetNodeChildrenL3(argument, argumentPath).filter(a => a && a.type == MapNodeType.Argument);
+			var relevanceArguments = parentChildren.filter(a => a && a.type == MapNodeType.Argument);
 			// Assert(!relevanceArguments.Any(a=>a.type == MapNodeType.Claim), "Single-premise argument has more than one premise!");
 			if (playingTimeline && playingTimeline_currentStepIndex < playingTimeline.steps.length - 1) {
-				relevanceArguments = relevanceArguments.filter(child => playingTimelineVisibleNodes.Contains(`${argumentPath}/${child._key}`));
+				// relevanceArguments = relevanceArguments.filter(child => playingTimelineVisibleNodes.Contains(`${argumentPath}/${child._key}`));
+				// if this node (or a descendent) is marked to be revealed by a currently-applied timeline-step, reveal this node
+				relevanceArguments = relevanceArguments.filter(child => playingTimelineVisibleNodes.Any(a => a.startsWith(`${argumentPath}/${child._key}`)));
 			}
 		}
 
@@ -169,7 +174,7 @@ export class NodeUI extends BaseComponentPlus(
 				nodeChildren={GetNodeChildrenL3(parent, parentPath)} nodeChildrenToShow={relevanceArguments}
 				onHeightOrDividePointChange={UseCallback(dividePoint => this.CheckForChanges(), [])}/>;
 
-		const hasExtraWrapper = subnodes.length || isMultiPremiseArgument;
+		// const hasExtraWrapper = subnodes.length || isMultiPremiseArgument;
 
 		performance.mark('NodeUI_3');
 		performance.measure('NodeUI_Part1', 'NodeUI_1', 'NodeUI_2');
@@ -217,8 +222,10 @@ export class NodeUI extends BaseComponentPlus(
 						{nodeChildHolderBox_truth}
 						<NodeUI_Inner ref={c => this.innerUI = GetInnerComp(c)} {...{ indexInNodeList, map, node, nodeView, path, width, widthOverride }}/>
 						{nodeChildHolderBox_relevance}
+						{isMultiPremiseArgument &&
+							nodeChildHolder_direct}
 					</Column>
-					{!limitBar_above && !hasExtraWrapper && children}
+					{!limitBar_above && children}
 				</div>
 
 				{nodeChildrenToShow == emptyArray_forLoading &&
@@ -229,8 +236,8 @@ export class NodeUI extends BaseComponentPlus(
 					<NodeChildCountMarker {...{ limitBarPos }} childCount={nodeChildrenToShow.length + (relevanceArguments ? relevanceArguments.length : 0)}/>}
 				{!nodeView.expanded && (addedDescendants > 0 || editedDescendants > 0) &&
 					<NodeChangesMarker {...{ addedDescendants, editedDescendants, limitBarPos }}/>}
-				{!isMultiPremiseArgument
-					&& nodeChildHolder_direct}
+				{!isMultiPremiseArgument &&
+					nodeChildHolder_direct}
 			</div>
 		);
 	}
