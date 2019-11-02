@@ -59,7 +59,7 @@ export class DefinitionsPanel extends BaseComponentPlus(
 					})}
 				</Row> */}
 				{term && <TermDefinitionPanel term={term} termVariantNumber={terms_variantNumbers[terms.indexOf(term)]}/>}
-				{!term && !!terms.length &&
+				{!term && terms.length > 0 &&
 					<div style={{ fontSize: 12, whiteSpace: 'initial' }}>Select a highlighted term above to see the definition for it here.</div>}
 				{!term && terms.length == 0 &&
 					<div style={{ fontSize: 12, whiteSpace: 'initial' }}>This node does not currently have any term definitions attached.</div>}
@@ -90,7 +90,7 @@ class TermDefinitionPanel extends BaseComponent<{term: Term, termVariantNumber: 
 			<Column sel mt={5} style={{ whiteSpace: 'normal' }}>
 				<Row>Term: {term.name}{term.disambiguation ? ` (${term.disambiguation})` : ''} (variant #{termVariantNumber}) (id: {term._key})</Row>
 				<Row mt={5}>Short description: {term.shortDescription_current}</Row>
-				{term.components && term.components.VKeys(true).length &&
+				{term.components && term.components.VKeys(true).length > 0 &&
 					<Fragment>
 						<Row mt={5}>Components:</Row>
 						<TermComponentsUI term={term} editing={false} inMap={true} style={{ padding: '5px 0' }}/>

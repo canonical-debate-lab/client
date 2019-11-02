@@ -133,6 +133,7 @@ export class EditorSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} a
 	};
 	RenderStep = (index: number, key: any) => {
 		const { map, timeline } = this.PropsStash;
-		return <StepEditorUI key={key} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} stepID={timeline.steps[index]}/>;
+		const stepID = timeline.steps[index];
+		return <StepEditorUI key={stepID} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} stepID={stepID}/>;
 	};
 }

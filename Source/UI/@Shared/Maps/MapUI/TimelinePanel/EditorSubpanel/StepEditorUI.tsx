@@ -139,7 +139,7 @@ export class StepEditorUI extends BaseComponentPlus({} as StepEditorUIProps, { p
 									{(step.nodeReveals == null || step.nodeReveals.length == 0) && !dragIsOverDropArea &&
 									<div style={{ fontSize: 11, opacity: 0.7, textAlign: 'center' }}>Drag nodes here to have them display when the playback reaches this step.</div>}
 									{step.nodeReveals && step.nodeReveals.map((nodeReveal, index) => {
-										return <NodeRevealUI key={index} map={map} step={step} nodeReveal={nodeReveal} index={index}/>;
+										return <NodeRevealUI key={index} map={map} step={step} nodeReveal={nodeReveal} editing={true} index={index}/>;
 									})}
 									{provided.placeholder}
 									{dragIsOverDropArea && placeholderRect &&
@@ -205,9 +205,9 @@ export class StepEditorUI extends BaseComponentPlus({} as StepEditorUIProps, { p
 	}
 }
 
-export class NodeRevealUI extends BaseComponentPlus({} as {map: Map, step: TimelineStep, nodeReveal: NodeReveal, index: number}, { detailsOpen: false }) {
+export class NodeRevealUI extends BaseComponentPlus({} as {map: Map, step: TimelineStep, nodeReveal: NodeReveal, editing: boolean, index: number}, { detailsOpen: false }) {
 	render() {
-		const { map, step, nodeReveal, index } = this.props;
+		const { map, step, nodeReveal, editing, index } = this.props;
 		const { detailsOpen } = this.state;
 
 		const { path } = nodeReveal;
@@ -253,17 +253,18 @@ export class NodeRevealUI extends BaseComponentPlus({} as {map: Map, step: Timel
 					<span>{displayText}</span>
 					{/* <NodeUI_Menu_Helper {...{map, node}}/> */}
 					{/* <NodeUI_Menu_Stub {...{ node: nodeL3, path: `${node._key}`, inList: true }}/> */}
+					{editing &&
 					<Button ml="auto" text="X" style={{ margin: -3, padding: '3px 10px' }} onClick={() => {
 						const newNodeReveals = step.nodeReveals.Except(nodeReveal);
 						new UpdateTimelineStep({ stepID: step._key, stepUpdates: { nodeReveals: newNodeReveals } }).Run();
-					}}/>
+					}}/>}
 				</Row>
 				{detailsOpen &&
 				<Column sel mt={5}>
 					<Row>
 						<Text>Path: </Text>
 						<UUIDPathStub path={path}/>
-						{!pathValid &&
+						{!pathValid && editing &&
 						<Button ml="auto" text="Fix path" onClick={async () => {
 							const newPath = await GetAsync(() => GetShortestPathFromRootToNode(map.rootNode, node));
 							const newNodeReveals = Clone(step.nodeReveals) as NodeReveal[];

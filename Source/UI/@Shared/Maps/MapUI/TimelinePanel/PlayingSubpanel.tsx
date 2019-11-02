@@ -138,7 +138,7 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 							itemRenderer={(index: number, key: any) => {
 								if (index == 0) return <div key={key}/>; // atm, hide first step, since just intro message
 								const stepID = timeline.steps[index];
-								return <StepUI key={key} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} stepID={stepID} player={this.player}
+								return <StepUI key={stepID} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} stepID={stepID} player={this.player}
 									jumpToStep={() => {
 										/* const { player } = this;
 										const step = GetTimelineStep(stepID);
