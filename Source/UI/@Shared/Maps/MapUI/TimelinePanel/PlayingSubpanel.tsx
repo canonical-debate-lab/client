@@ -23,7 +23,7 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 	timer = new Timer(100, () => {
 		if (this.listRootEl == null) return;
 		this.SetState({ listY: GetScreenRect(this.listRootEl).y, targetTime: this.newTargetTime });
-		// Log(`Setting...${  GetScreenRect(this.listRootEl).y}`);
+		// Log(`Setting...${GetScreenRect(this.listRootEl).y} @Time:${this.newTargetTime}`);
 
 		const { map } = this.props;
 		const { targetTime } = this.state;
