@@ -1,19 +1,19 @@
 import ReactList from 'react-list';
 import { Column, Div, Row, Button } from 'react-vcomponents';
 import { BaseComponentPlus, GetDOM, UseCallback } from 'react-vextensions';
-import { ScrollView } from 'react-vscrollview';
+import { ScrollView, ScrollSource } from 'react-vscrollview';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetTimelineStep, GetTimelineSteps } from 'Store/firebase/timelines';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { GetSelectedTimeline, GetPlayingTimelineAppliedStepIndex, ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimelineStepIndex } from 'Store/main/maps/$map';
 import { HSLA, UseSize, VReactMarkdown_Remarkable, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, Icon, GetScreenRect, ActionSet } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { useEffect } from 'react';
-import { ToNumber, VRect, Lerp, GetPercentFromXToY, IsNaN, Assert, Timer } from 'js-vextensions';
+import React, { useEffect } from 'react';
+import { ToNumber, VRect, Lerp, GetPercentFromXToY, IsNaN, Assert, Timer, WaitXThenRun, Vector2i } from 'js-vextensions';
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { StepUI } from './PlayingSubpanel/StepUI';
 
-export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targetTime: 0, listY: 0 }) {
+export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targetTime: 0, listY: 0, autoScroll: true }, { messageAreaHeight: 0 }) {
 	player: YoutubePlayer;
 	listRootEl: HTMLDivElement;
 	sideBarEl: HTMLDivElement;
@@ -27,7 +27,7 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 		// Log(`Setting...${GetScreenRect(this.listRootEl).y} @Time:${this.newTargetTime}`);
 
 		const { map } = this.props;
-		const { targetTime } = this.state;
+		const { targetTime, autoScroll } = this.state;
 		const timeline = GetSelectedTimeline(map._key);
 		const targetStepIndex = GetPlayingTimelineStepIndex(map._key);
 		// const maxTargetStepIndex = GetPlayingTimelineAppliedStepIndex(map._key);
@@ -45,37 +45,29 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 						new ACTMap_PlayingTimelineStepSet({ mapID: map._key, stepIndex: newTargetStepIndex }),
 						new ACTMap_PlayingTimelineAppliedStepSet({ mapID: map._key, stepIndex: newMaxTargetStepIndex }),
 					));
+
+					if (autoScroll) {
+						// jump one further down, so that the target point *within* the target step is visible (and with enough space for the arrow button itself)
+						// this.list.scrollAround(newTargetStepIndex + 1);
+						// jump X further down, so that we see some of the upcoming text (also for if video-time data is off some)
+						this.list.scrollAround(newTargetStepIndex + 3);
+						WaitXThenRun(0, () => this.list.scrollAround(newTargetStepIndex)); // make sure target box itself is still visible, however
+					}
 				}
 			}
 		}
 	});
 
-	list: ReactList;
-	render() {
-		const { map } = this.props;
-		const { targetTime } = this.state;
-		const timeline = GetSelectedTimeline.Watch(map._key);
-		// timelineSteps: timeline && GetTimelineSteps(timeline);
-		// const targetStepIndex = GetPlayingTimelineAppliedStepIndex.Watch(map._key);
+	GetTargetInfo = (timeline: Timeline, firstNormalStep: TimelineStep) => {
+		const { targetTime, autoScroll } = this.state;
+		const { messageAreaHeight } = this.stash;
 
-		/* const [ref, { width, height }] = UseSize();
-		useEffect(() => ref(this.DOM), [ref]); */
-		const [videoRef, { height: videoHeight }] = UseSize();
-		const [messageAreaRef, { height: messageAreaHeight }] = UseSize();
-
-		// update some stuff based on timer (since user may have scrolled)
-		useEffect(() => {
-			this.timer.Start();
-			return () => this.timer.Stop();
-		}, []);
-
-		const firstStep = GetTimelineStep.Watch(timeline ? timeline.steps[0] : null);
 		let targetStepIndex: number;
 		let targetTime_yInMessageArea: number;
 		if (timeline) {
 			// const steps = timeline ? GetTimelineSteps.Watch(timeline, true) : null;
 			const steps = GetTimelineSteps(timeline, true);
-			const targetStep = steps.LastOrX(a => a && a.videoTime <= targetTime, firstStep);
+			const targetStep = steps.Skip(1).LastOrX(a => a && a.videoTime <= targetTime, firstNormalStep);
 			if (targetStep) {
 				targetStepIndex = timeline.steps.indexOf(targetStep._key);
 				const targetStep_rect = this.stepRects[targetStepIndex];
@@ -100,6 +92,56 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 		const targetTimeDirection = targetTime_yInMessageArea < 0 ? 'up' :
 			targetTime_yInMessageArea >= messageAreaHeight - 20 ? 'down' :
 				'right';
+		/* let distanceOffScreen: number;
+		if (targetTimeDirection == 'up') distanceOffScreen = -targetTime_yInMessageArea;
+		else if (targetTimeDirection == 'down') distanceOffScreen = targetTime_yInMessageArea - (messageAreaHeight - 20); */
+
+		return { targetStepIndex, targetTime_yInMessageArea, targetTimeDirection };
+	};
+
+	// autoScrollDisabling = true;
+	// ignoreNextScrollEvent = false;
+	OnScroll = (e: React.UIEvent<HTMLDivElement>, source: ScrollSource, pos: Vector2i) => {
+		// if (!this.autoScrollDisabling) return;
+		/* if (this.ignoreNextScrollEvent) {
+			this.ignoreNextScrollEvent = false;
+			return;
+		} */
+
+		// we only change auto-scroll status if the user initiated the scroll
+		if (source == ScrollSource.Code) return;
+
+		const { map } = this.props;
+		const timeline = GetSelectedTimeline(map._key);
+		const firstNormalStep = GetTimelineStep(timeline ? timeline.steps[1] : null);
+		const { targetTimeDirection } = this.GetTargetInfo(timeline, firstNormalStep);
+		if (targetTimeDirection != 'right') {
+			this.SetState({ autoScroll: false });
+		}
+	};
+
+	list: ReactList;
+	render() {
+		const { map } = this.props;
+		const { targetTime, autoScroll } = this.state;
+		const timeline = GetSelectedTimeline.Watch(map._key);
+		// timelineSteps: timeline && GetTimelineSteps(timeline);
+		// const targetStepIndex = GetPlayingTimelineAppliedStepIndex.Watch(map._key);
+
+		/* const [ref, { width, height }] = UseSize();
+		useEffect(() => ref(this.DOM), [ref]); */
+		const [videoRef, { height: videoHeight }] = UseSize();
+		const [messageAreaRef, { height: messageAreaHeight }] = UseSize();
+		this.Stash({ messageAreaHeight });
+
+		// update some stuff based on timer (since user may have scrolled)
+		useEffect(() => {
+			this.timer.Start();
+			return () => this.timer.Stop();
+		}, []);
+
+		const firstNormalStep = GetTimelineStep.Watch(timeline ? timeline.steps[1] : null);
+		const { targetStepIndex, targetTime_yInMessageArea, targetTimeDirection } = this.GetTargetInfo(timeline, firstNormalStep);
 
 		if (timeline == null) return null;
 		return (
@@ -136,17 +178,28 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 							style={{
 								background: 'none', padding: 0,
 								position: 'absolute', top: targetTime_yInMessageArea ? targetTime_yInMessageArea.KeepBetween(0, messageAreaHeight - 20) : 0,
+								// opacity: autoScroll ? 1 : 0.7,
+								filter: autoScroll ? 'sepia(1) saturate(15) hue-rotate(55deg)' : null,
 							}}
 							onClick={UseCallback(() => {
 								if (this.list == null || targetStepIndex == null) return;
-								if (targetTimeDirection == 'down') {
-									this.list.scrollAround(targetStepIndex + 1); // jump one further down, so that the target point *within* the target step is visible (and with enough space for the arrow button itself)
-								} else {
-									this.list.scrollAround(targetStepIndex);
+								const targetOffScreen = targetTimeDirection != 'right';
+								if (targetOffScreen) {
+									if (targetTimeDirection == 'down') {
+										this.list.scrollAround(targetStepIndex + 1); // jump one further down, so that the target point *within* the target step is visible (and with enough space for the arrow button itself)
+									} else {
+										this.list.scrollAround(targetStepIndex);
+									}
 								}
-							}, [targetStepIndex, targetTimeDirection])}/>
+
+								// const newAutoScroll = targetOffScreen;
+								const newAutoScroll = !autoScroll;
+								/* this.autoScrollDisabling = false;
+								this.SetState({ autoScroll: newAutoScroll }, () => WaitXThenRun(0, () => this.autoScrollDisabling = true)); */
+								this.SetState({ autoScroll: newAutoScroll });
+							}, [autoScroll, targetStepIndex, targetTimeDirection])}/>
 					</Column>
-					<ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, position: 'relative', padding: 7, filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)' })}>
+					<ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, position: 'relative', padding: 7, filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)' })} onScroll={this.OnScroll}>
 						{/* timelineSteps && timelineSteps.map((step, index) => <StepUI key={index} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>) */}
 						<ReactList type='variable' length={timeline.steps.length}
 							ref={(c) => {
@@ -162,7 +215,7 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 								const stepID = timeline.steps[index];
 								return <StepUI key={stepID} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} stepID={stepID} player={this.player}
 									jumpToStep={() => {
-										/* const { player } = this;
+										const { player } = this;
 										const step = GetTimelineStep(stepID);
 										if (player && step.videoTime != null) {
 											// this shouldn't be necessary, but apparently is
@@ -172,9 +225,10 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 													await player.WaitTillState(YoutubePlayerState.PLAYING);
 												}
 												player.SetPosition(step.videoTime);
-												this.SetState({ targetTime: step.videoTime });
+												// this.SetState({ targetTime: step.videoTime, autoScroll: true });
+												this.SetState({ autoScroll: true });
 											})();
-										} */
+										}
 									}}
 									ref={(c) => {
 										if (!c || c.DOM_HTML == null) return;

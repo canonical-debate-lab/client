@@ -83,6 +83,7 @@ module.exports = {
 		"no-void": "off",
 		"consistent-return": "off",
 		"no-loop-func": "off",
+		"no-nested-ternary": "off",
 
 		// plugins
 		"react-hooks/rules-of-hooks": "error",

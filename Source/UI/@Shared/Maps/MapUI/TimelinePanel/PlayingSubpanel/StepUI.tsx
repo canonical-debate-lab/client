@@ -32,8 +32,8 @@ export class StepUI extends BaseComponentPlus(
 					)}
 				>
 					<Div sel p="7px 10px"
-						// onClick={() => jumpToStep()}
-						onClick={async () => {
+						onClick={() => jumpToStep(step)}
+						/* onClick={async () => {
 							if (player && step.videoTime != null) {
 								// this shouldn't be necessary, but apparently is
 								if (player.state == YoutubePlayerState.CUED) {
@@ -42,7 +42,7 @@ export class StepUI extends BaseComponentPlus(
 								}
 								player.SetPosition(step.videoTime);
 							}
-						}}
+						}} */
 					>
 						<Row style={{ float: 'right', fontSize: 16 }}>{index + 1}</Row>
 						<VReactMarkdown_Remarkable addMarginsForDanglingNewLines={true}
