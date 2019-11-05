@@ -1,8 +1,5 @@
-import { Vector2i } from 'js-vextensions';
 import { GetNode } from 'Store/firebase/nodes';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
-import { GetPathNodes } from '../../Store/main/mapViews';
-import { MapNodeView, MapView } from '../../Store/main/mapViews/@MapViews';
 
 // todo: probably merge this function with the StartFindingPathsFromXToY function in SearchPanel.tsx
 export function GetShortestPathFromRootToNode(rootNodeID: string, node: MapNode): string {
@@ -35,7 +32,7 @@ export function GetShortestPathFromRootToNode(rootNodeID: string, node: MapNode)
 	// });
 }
 
-export function CreateMapViewForPath(path: string): MapView {
+/* export function CreateMapViewForPath(path: string): MapView {
 	const pathNodes = GetPathNodes(path);
 	const result = new MapView();
 	result.rootNodeViews[pathNodes[0]] = CreateNodeViewForPath(pathNodes.Skip(1));
@@ -57,4 +54,4 @@ export function CreateNodeViewForPath(pathFromSelfToDescendent: string[]): MapNo
 	}
 
 	return result;
-}
+} */

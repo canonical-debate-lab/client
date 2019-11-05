@@ -50,7 +50,7 @@ export class ActionBar_Right extends BaseComponentPlus({} as {map: Map, subNavBa
 						}}/>
 					</Row>
 					{/* <ShareDropDown map={map}/> // disabled for now, till we re-implement shareable map-views using json-based approach */}
-					<LayoutDropDown/>
+					<LayoutDropDown map={map}/>
 				</Row>
 			</nav>
 		);

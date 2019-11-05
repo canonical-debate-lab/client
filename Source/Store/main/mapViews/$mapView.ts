@@ -10,8 +10,12 @@ import { MapView } from './@MapViews';
 }); */
 
 export class ACTMapViewMerge extends Action<{mapID: string, mapView: MapView}> {}
+export class ACTClearMapView extends Action<{mapID: string}> {}
 
-export function MapViewReducer(state = new MapView(), action: Action<any>, mapID: string) {
+export function MapViewReducer(state, action: Action<any>, mapID: string) {
+	if (action.Is(ACTClearMapView) && action.payload.mapID == mapID) {
+		return new MapView();
+	}
 	if (action.Is(ACTMapViewMerge) && action.payload.mapID == mapID) {
 		let newState = state;
 

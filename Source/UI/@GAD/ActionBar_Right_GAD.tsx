@@ -29,7 +29,7 @@ export class ActionBar_Right_GAD extends BaseComponentWithConnector(connector, {
 						// filter: 'drop-shadow(rgba(0,0,0,.5) 0px 0px 10px)',
 					},
 				)}>
-					<LayoutDropDown/>
+					<LayoutDropDown map={map}/>
 				</Row>
 			</nav>
 		);
