@@ -1,6 +1,6 @@
 import ReactList from 'react-list';
-import { Column, Div, Row } from 'react-vcomponents';
-import { BaseComponentPlus, GetDOM } from 'react-vextensions';
+import { Column, Div, Row, Button } from 'react-vcomponents';
+import { BaseComponentPlus, GetDOM, UseCallback } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetTimelineStep, GetTimelineSteps } from 'Store/firebase/timelines';
@@ -10,6 +10,7 @@ import { HSLA, UseSize, VReactMarkdown_Remarkable, YoutubePlayer, YoutubePlayerS
 import { ES } from 'Utils/UI/GlobalStyles';
 import { useEffect } from 'react';
 import { ToNumber, VRect, Lerp, GetPercentFromXToY, IsNaN, Assert, Timer } from 'js-vextensions';
+import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { StepUI } from './PlayingSubpanel/StepUI';
 
 export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targetTime: 0, listY: 0 }) {
@@ -49,6 +50,7 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 		}
 	});
 
+	list: ReactList;
 	render() {
 		const { map } = this.props;
 		const { targetTime } = this.state;
@@ -59,6 +61,7 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 		/* const [ref, { width, height }] = UseSize();
 		useEffect(() => ref(this.DOM), [ref]); */
 		const [videoRef, { height: videoHeight }] = UseSize();
+		const [messageAreaRef, { height: messageAreaHeight }] = UseSize();
 
 		// update some stuff based on timer (since user may have scrolled)
 		useEffect(() => {
@@ -67,13 +70,14 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 		}, []);
 
 		const firstStep = GetTimelineStep.Watch(timeline ? timeline.steps[0] : null);
+		let targetStepIndex: number;
 		let targetTime_yInMessageArea: number;
 		if (timeline) {
 			// const steps = timeline ? GetTimelineSteps.Watch(timeline, true) : null;
 			const steps = GetTimelineSteps(timeline, true);
 			const targetStep = steps.LastOrX(a => a && a.videoTime <= targetTime, firstStep);
 			if (targetStep) {
-				const targetStepIndex = timeline.steps.indexOf(targetStep._key);
+				targetStepIndex = timeline.steps.indexOf(targetStep._key);
 				const targetStep_rect = this.stepRects[targetStepIndex];
 				const postTargetStepIndex = targetStepIndex + 1 < timeline.steps.length ? targetStepIndex + 1 : -1;
 				const postTargetStep = GetTimelineStep(timeline.steps[postTargetStepIndex]);
@@ -92,6 +96,10 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 				}
 			}
 		}
+
+		const targetTimeDirection = targetTime_yInMessageArea < 0 ? 'up' :
+			targetTime_yInMessageArea >= messageAreaHeight - 20 ? 'down' :
+				'right';
 
 		if (timeline == null) return null;
 		return (
@@ -122,15 +130,29 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 						}}
 						itemSizeEstimator={this.EstimateStepHeight} itemRenderer={this.RenderStep}/>
 				</ScrollView> */}
-				<Row style={{ height: `calc(100% - ${ToNumber(videoHeight, 0)}px)` }}>
+				<Row ref={messageAreaRef} style={{ height: `calc(100% - ${ToNumber(videoHeight, 0)}px)` }}>
 					<Column ref={c => this.sideBarEl = c ? c.DOM as any : null} style={{ position: 'relative', width: 20, background: HSLA(0, 0, 0, 1) }}>
-						<div style={{ position: 'absolute', top: targetTime_yInMessageArea }}>
-							<Icon icon="arrow-right" size={20}/>
-						</div>
+						<Button text={<Icon icon={`arrow-${targetTimeDirection}`} size={20}/>} /* enabled={targetTime_yInMessageArea < 0 || targetTime_yInMessageArea >= messageAreaHeight - 20} */
+							style={{
+								background: 'none', padding: 0,
+								position: 'absolute', top: targetTime_yInMessageArea ? targetTime_yInMessageArea.KeepBetween(0, messageAreaHeight - 20) : 0,
+							}}
+							onClick={UseCallback(() => {
+								if (this.list == null || targetStepIndex == null) return;
+								if (targetTimeDirection == 'down') {
+									this.list.scrollAround(targetStepIndex + 1); // jump one further down, so that the target point *within* the target step is visible (and with enough space for the arrow button itself)
+								} else {
+									this.list.scrollAround(targetStepIndex);
+								}
+							}, [targetStepIndex, targetTimeDirection])}/>
 					</Column>
 					<ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, position: 'relative', padding: 7, filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)' })}>
 						{/* timelineSteps && timelineSteps.map((step, index) => <StepUI key={index} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>) */}
-						<ReactList ref={c => c && (this.listRootEl = GetDOM(c) as any)} type='variable' length={timeline.steps.length}
+						<ReactList type='variable' length={timeline.steps.length}
+							ref={(c) => {
+								this.list = c;
+								if (c) this.listRootEl = GetDOM(c) as any;
+							}}
 							// pageSize={20} threshold={300}
 							itemSizeEstimator={(index: number, cache: any) => {
 								return 50; // keep at just 50; apparently if set significantly above the actual height of enough items, it causes a gap to sometimes appear at the bottom of the viewport
