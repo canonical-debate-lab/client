@@ -2,7 +2,6 @@ import { Assert, CachedTransform, GetTreeNodesInObjTree, IsNumberString, Vector2
 import { ShallowChanged } from 'react-vextensions';
 import { Action, DBPath, SplitStringBySlash_Cached, State, DoesActionSetFirestoreData, GetFirestoreDataSetterActionPath, Validate, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { UUID } from 'Utils/General/KeyGenerator';
-import { MapNodeLinkType } from 'Store/firebase/nodes/@MapNodeType';
 import { ACTDebateMapSelect_WithData } from './debates';
 import { ACTMapViewMerge, MapViewReducer } from './mapViews/$mapView';
 import { MapNodeView, MapView, MapViews } from './mapViews/@MapViews';
@@ -28,7 +27,7 @@ export function MapViewsReducer(state = new MapViews(), action: Action<any>) {
 				// newState[mapID] = new MapView();
 				newState[mapID] = {
 					rootNodeViews: {
-						[action.payload.data.rootNode]: new MapNodeView(MapNodeLinkType.Simple).VSet({ expanded: true, focused: true, viewOffset: new Vector2i(200, 0) }),
+						[action.payload.data.rootNode]: new MapNodeView().VSet({ expanded: true, focused: true, viewOffset: new Vector2i(200, 0) }),
 					},
 				};
 			}
@@ -39,7 +38,7 @@ export function MapViewsReducer(state = new MapViews(), action: Action<any>) {
 			// newState[action.payload.id] = new MapView();
 			newState[action.payload.id] = {
 				rootNodeViews: {
-					[action.payload.map.rootNode]: new MapNodeView(MapNodeLinkType.Simple).VSet({ expanded: true, focused: true, viewOffset: new Vector2i(200, 0) }),
+					[action.payload.map.rootNode]: new MapNodeView().VSet({ expanded: true, focused: true, viewOffset: new Vector2i(200, 0) }),
 				},
 			};
 		}

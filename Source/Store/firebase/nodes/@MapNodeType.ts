@@ -1,15 +1,11 @@
-import chroma from 'chroma-js';
 import { Assert } from 'js-vextensions';
-import { ClaimForm, MapNode, MapNodeL3, Polarity } from './@MapNode';
-
-export enum MapNodeLinkType {
-	/* Simple = 10, // for Categories, Packages, MultiChoiceQuestions, some Arguments (ie. under claim, as truth argument), and some Claims (ie. under category, as question)
-	Premise = 20, // for some Claims (ie. under argument, as premise)
-	RelevanceArgument = 30, // for some Arguments (ie. under argument, as relevance argument) */
-	// None = 10, // for root node
-	Simple = 10, // for Categories, Packages, MultiChoiceQuestions, some Arguments (ie. under claim, as truth argument), and Claims
-	RelevanceArgument = 20, // for Arguments (ie. under argument, as relevance argument)
-}
+import chroma from 'chroma-js';
+import { GADDemo } from 'UI/@GAD/GAD';
+import { HSLA } from 'Utils/FrameworkOverrides';
+import { RatingType } from '../nodeRatings/@RatingType';
+import { MapNode, MapNodeL2, ClaimForm, MapNodeL3, Polarity } from './@MapNode';
+import { IsPremiseOfSinglePremiseArgument } from './$node';
+import { GetParentNodeL2 } from '../nodes';
 
 export enum MapNodeType {
 	Category = 10,

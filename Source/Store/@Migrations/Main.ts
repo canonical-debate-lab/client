@@ -10,9 +10,4 @@ export const migrations = {
 		}
 		return newState;
 	},
-	2: (state) => {
-		const newState = Clone(state) as RootState;
-		delete newState.main.mapViews;
-		return newState;
-	},
 };

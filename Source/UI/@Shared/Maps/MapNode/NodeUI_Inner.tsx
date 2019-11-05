@@ -10,7 +10,7 @@ import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes, GetPlayingTimelineCurrentStepRevealNodes } from 'Store/main/maps/$map';
 import { GetPathNodeIDs, GetNodeView } from 'Store/main/mapViews';
 import { GADDemo } from 'UI/@GAD/GAD';
-import { DragInfo, EB_ShowError, EB_StoreError, ExpensiveComponent, HSLA, IsDoubleClick, SlicePath, State, Watch, ActionSet } from 'Utils/FrameworkOverrides';
+import { DragInfo, EB_ShowError, EB_StoreError, ExpensiveComponent, HSLA, IsDoubleClick, SlicePath, State, Watch } from 'Utils/FrameworkOverrides';
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
 import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
@@ -192,13 +192,13 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		const panelToShow = hoverPanel || local_openPanel || (nodeView && nodeView.openPanel);
 		const subPanelShow = node.type == MapNodeType.Claim && (node.current.contentNode || node.current.image);
 		const bottomPanelShow = leftPanelShow && panelToShow;
-		let boxExpanded = nodeView && nodeView.expanded_main;
+		let expanded = nodeView && nodeView.expanded;
 
 		// const parentNodeView = GetNodeView.Watch(map._key, parentPath);
 		const parentNodeView = Watch(() => parentPath && GetNodeView(map._key, parentPath), [map._key, parentPath]);
 		// if combined with parent arg (ie. premise of single-premise arg), use parent's expansion state for this box
 		if (combinedWithParentArgument) {
-			boxExpanded = parentNodeView && parentNodeView.expanded_main;
+			expanded = parentNodeView && parentNodeView.expanded;
 		}
 
 		const onMouseEnter = UseCallback(() => {
@@ -236,37 +236,17 @@ export class NodeUI_Inner extends BaseComponentPlus(
 			store.dispatch(new ACTMapNodeExpandedSet({ mapID: map._key, path: pathToApplyTo, expanded: !expanded, recursive: expanded && e.altKey })); */
 
 			// if collapsing subtree, and this node is premise of single-premise arg, start collapsing from parent (the argument node), so that its relevance args are collapsed as well
-			const newBoxExpanded = !boxExpanded;
-			const recursivelyCollapsing = !newBoxExpanded && e.altKey;
-			if (combinedWithParentArgument) {
-				store.dispatch(new ActionSet(
-					new ACTMapNodeExpandedSet(E(
-						{
-							mapID: map._key, path: parentPath,
-							expanded_main: newBoxExpanded, expanded_relevance: newBoxExpanded || null, recursive: recursivelyCollapsing,
-						},
-						// recursivelyCollapsing && { expanded_relevance: false },
-					)),
-					// if expanding, and premise node-view expansion-state is just null, make expanded true
-					newBoxExpanded && nodeView.expanded_main == null && new ACTMapNodeExpandedSet(E(
-						{
-							mapID: map._key, path,
-							expanded_main: newBoxExpanded,
-						},
-					)),
-				));
-			} else {
-				store.dispatch(new ACTMapNodeExpandedSet(E(
-					{
-						mapID: map._key, path,
-						expanded_main: newBoxExpanded, recursive: recursivelyCollapsing,
-					},
-					// recursivelyCollapsing && { expanded_relevance: false },
-				)));
-			}
+			const recursivelyCollapsing = expanded && e.altKey;
+			store.dispatch(new ACTMapNodeExpandedSet(E(
+				{
+					mapID: map._key, path: combinedWithParentArgument ? parentPath : path,
+					expanded: !expanded, recursive: recursivelyCollapsing,
+				},
+				recursivelyCollapsing && { expanded_relevance: false },
+			)));
 			e.nativeEvent['ignore'] = true; // for some reason, "return false" isn't working
 			// return false;
-		}, [boxExpanded, combinedWithParentArgument, map._key, parentPath, nodeView.expanded_main, path]);
+		}, [combinedWithParentArgument, expanded, map._key, parentPath, path]);
 
 		const renderInner = (dragInfo) => {
 			const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
@@ -277,7 +257,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 			}
 			return (
 				<ExpandableBox ref={c => DoNothing(dragInfo && dragInfo.provided.innerRef(GetDOM(c) as any), this.root = c)}
-					{...{ width, widthOverride, outlineColor, expanded: boxExpanded }} parent={this}
+					{...{ width, widthOverride, outlineColor, expanded }} parent={this}
 					className={classNames('NodeUI_Inner', asDragPreview && 'DragPreview', { root: pathNodeIDs.length == 0 })}
 					onMouseEnter={onMouseEnter}
 					onMouseLeave={onMouseLeave}

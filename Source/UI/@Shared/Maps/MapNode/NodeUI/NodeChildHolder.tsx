@@ -239,8 +239,7 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 
 	get Expanded() {
 		const { type, nodeView } = this.props;
-		// const expandKey = type ? `expanded_${HolderType[type].toLowerCase()}` : 'expanded';
-		const expandKey = type == HolderType.Relevance ? 'expanded_relevance' : 'expanded_main';
+		const expandKey = type ? `expanded_${HolderType[type].toLowerCase()}` : 'expanded';
 		return nodeView[expandKey];
 	}
 

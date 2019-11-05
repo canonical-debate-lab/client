@@ -8,8 +8,8 @@ import { ScrollView } from 'react-vscrollview';
 import { GetSearchTerms_Advanced } from 'Server/Commands/AddNodeRevision';
 import { GetRootNodeID } from 'Store/firebase/maps';
 import { GetNodeRevision } from 'Store/firebase/nodeRevisions';
-import { AsNodeL3, GetAllNodeRevisionTitles, GetNodeDisplayText, GetNodeL2, GetNodeLinkType } from 'Store/firebase/nodes/$node';
-import { GetNodeColor, MapNodeType_Info, MapNodeLinkType } from 'Store/firebase/nodes/@MapNodeType';
+import { AsNodeL3, GetAllNodeRevisionTitles, GetNodeDisplayText, GetNodeL2 } from 'Store/firebase/nodes/$node';
+import { GetNodeColor, MapNodeType_Info } from 'Store/firebase/nodes/@MapNodeType';
 import { GetUser } from 'Store/firebase/users';
 import { GetOpenMapID } from 'Store/main';
 import { ACTMapViewMerge } from 'Store/main/mapViews/$mapView';
@@ -265,17 +265,14 @@ export function JumpToNode(mapID: string, path: string) {
 	const pathNodeIDs = path.split('/');
 
 	const mapView = new MapView();
-	const rootNodeView = new MapNodeView(MapNodeLinkType.Simple);
+	const rootNodeView = new MapNodeView();
 	mapView.rootNodeViews[pathNodeIDs[0]] = rootNodeView;
 
 	let currentParentView = rootNodeView;
-	let pathSoFar = pathNodeIDs[0];
 	for (const childID of pathNodeIDs.Skip(1)) {
-		pathSoFar = `${pathSoFar}/${childID}`;
-		// currentParentView.expanded_main = true;
+		currentParentView.expanded = true;
 
-		const childLinkType = GetNodeLinkType(pathSoFar);
-		const childView = new MapNodeView(childLinkType);
+		const childView = new MapNodeView();
 		currentParentView.children[childID] = childView;
 		currentParentView = childView;
 	}

@@ -61,11 +61,8 @@ export class NodeChildHolderBox extends BaseComponentPlus({} as Props, { innerBo
 
 		const lineOffset = 50.0.KeepAtMost(innerBoxOffset);
 		// let expandKey = type == HolderType.Truth ? "expanded_truth" : "expanded_relevance";
-		/* const holderTypeStr = HolderType[type].toLowerCase();
-		const expandKey = `expanded_${holderTypeStr}`;
-		const expanded = nodeView[expandKey]; // this.Expanded */
 		const holderTypeStr = HolderType[type].toLowerCase();
-		const expandKey = type == HolderType.Relevance ? 'expanded_relevance' : 'expanded_main';
+		const expandKey = `expanded_${holderTypeStr}`;
 		const expanded = nodeView[expandKey]; // this.Expanded
 
 		const separateChildren = node.type == MapNodeType.Claim || IsSinglePremiseArgument(node);
@@ -155,8 +152,7 @@ export class NodeChildHolderBox extends BaseComponentPlus({} as Props, { innerBo
 
 	get Expanded() {
 		const { type, nodeView } = this.props;
-		// const expandKey = `expanded_${HolderType[type].toLowerCase()}`;
-		const expandKey = type == HolderType.Relevance ? 'expanded_relevance' : 'expanded_main';
+		const expandKey = `expanded_${HolderType[type].toLowerCase()}`;
 		return nodeView[expandKey];
 	}
 

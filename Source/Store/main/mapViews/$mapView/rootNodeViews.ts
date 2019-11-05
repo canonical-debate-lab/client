@@ -1,6 +1,6 @@
-import { GetTreeNodesInObjTree, Vector2i, Assert } from 'js-vextensions';
+import { GetTreeNodesInObjTree, Vector2i } from 'js-vextensions';
 import u from 'updeep';
-import { MapNodeType, MapNodeLinkType } from 'Store/firebase/nodes/@MapNodeType';
+import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { Action, SplitStringBySlash_Cached } from '../../../../Utils/FrameworkOverrides';
 import { MapNodeView } from '../@MapViews';
 import { RootNodeViews } from './rootNodeViews/@RootNodeViews';
@@ -8,10 +8,8 @@ import { RootNodeViews } from './rootNodeViews/@RootNodeViews';
 export class ACTMapNodeSelect extends Action<{mapID: string, path: string}> {}
 export class ACTMapNodePanelOpen extends Action<{mapID: string, path: string, panel: string}> {}
 export class ACTMapNodeExpandedSet extends Action<{
-	mapID: string, path: string,
-	expanded_main?: boolean, expanded_relevance?: boolean,
-	// recurse_main: boolean, recurse_relevance: boolean,
-	recursive?: boolean,
+	mapID: string, path: string, recursive: boolean
+	expanded?: boolean, expanded_truth?: boolean, expanded_relevance?: boolean
 }> {}
 export class ACTMapNodeChildLimitSet extends Action<{mapID: string, path: string, direction: 'down' | 'up', value: number}> {}
 export class ACTMapNodeTermOpen extends Action<{mapID: string, path: string, termID: string}> {}
@@ -63,8 +61,7 @@ function GetTargetPath(action: Action<any>) {
 	return action.Is(ACTViewCenterChange) ? action.payload.focusNodePath : action.payload.path;
 }
 
-function MapNodeViewReducer(state: MapNodeView, action: Action<any>, pathSoFar: string) { // , autoExpand = false) {
-	Assert(state != null, 'Map node-view state cannot be null in reducer.');
+function MapNodeViewReducer(state = new MapNodeView(), action: Action<any>, pathSoFar: string, autoExpand = false) {
 	const targetPath = GetTargetPath(action);
 	const atTargetNode = targetPath == pathSoFar;
 	const pastTargetNode = pathSoFar.length > targetPath.length;
@@ -76,9 +73,9 @@ function MapNodeViewReducer(state: MapNodeView, action: Action<any>, pathSoFar: 
 		return u.updateIn(`children.${nextNodeIDInPath}`, MapNodeViewReducer((state.children || {})[nextNodeIDInPath], action, `${pathSoFar}/${nextNodeIDInPath}`), state);
 	}
 
-	/* if (autoExpand) {
-		state = { ...state, expanded_main: true };
-	} */
+	if (autoExpand) {
+		state = { ...state, expanded: true };
+	}
 
 	if (action.Is(ACTMapNodeSelect)) {
 		state = { ...state, selected: true };
@@ -87,8 +84,7 @@ function MapNodeViewReducer(state: MapNodeView, action: Action<any>, pathSoFar: 
 	} else if (action.Is(ACTMapNodeTermOpen)) {
 		state = { ...state, openTermID: action.payload.termID };
 	} else if (action.Is(ACTMapNodeExpandedSet)) {
-		// const expandKeysPresent = ['expanded', 'expanded_truth', 'expanded_relevance'].filter(key => action.payload[key] != null);
-		const expandKeysPresent = ['expanded_main', 'expanded_relevance'].filter(key => action.payload[key] != null);
+		const expandKeysPresent = ['expanded', 'expanded_truth', 'expanded_relevance'].filter(key => action.payload[key] != null);
 		if (atTargetNode) {
 			// state = { ...state, [expandKey]: action.payload[expandKey] };
 			state = { ...state, ...action.payload.Including(...expandKeysPresent) };
@@ -111,33 +107,23 @@ function MapNodeViewReducer(state: MapNodeView, action: Action<any>, pathSoFar: 
 		else {
 			// and action is recursive (ie. supposed to apply past target-node), with expansion being set to false
 			if (action.payload.recursive && action.payload.Including(...expandKeysPresent).VValues().every(newVal => newVal == false)) {
-				state = { ...state, expanded_main: false, expanded_relevance: false }; // set all expansion keys to false (key might be different on clicked node than descendants)
+				state = { ...state, expanded: false, expanded_truth: false, expanded_relevance: false }; // set all expansion keys to false (key might be different on clicked node than descendants)
 				// state = { ...state, ...action.payload.Including(...expandKeysPresent) };
 			}
 		}
 
 		if (action.payload.recursive) {
 			state.children = { ...state.children };
+			const childrenToRecurseInto = state.children.Pairs(true);
 			/* let childrenToRecurseInto = state.children.Pairs(true).filter(pair=> {
 				if (levelsPastTargetNode == 0) {
 					//if (pair.value.linkType == "relevance argument") return action.payload
 					if (pair.value.type == MapNodeType.) return action.payload
 				}
 				return true;
-			});
+			}); */
 			for (const childID of childrenToRecurseInto.map(a => a.key)) {
 				state.children[childID] = MapNodeViewReducer(state.children[childID], action, `${pathSoFar}/${childID}`);
-			} */
-			const mainChildren = state.children.Pairs(true).filter(a => a.value.linkType == MapNodeLinkType.Simple);
-			const relevanceChildren = state.children.Pairs(true).filter(a => a.value.linkType == MapNodeLinkType.RelevanceArgument);
-			if (levelsPastTargetNode == 0 && action.payload.expanded_relevance == false) {
-				for (const child of relevanceChildren) {
-					state.children[child.key] = MapNodeViewReducer(child.value, action, `${pathSoFar}/${child.key}`);
-				}
-			} else {
-				for (const child of mainChildren.concat(relevanceChildren)) {
-					state.children[child.key] = MapNodeViewReducer(child.value, action, `${pathSoFar}/${child.key}`);
-				}
 			}
 		}
 	} else if (action.Is(ACTMapNodeChildLimitSet)) {

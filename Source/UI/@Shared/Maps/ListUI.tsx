@@ -211,7 +211,7 @@ class NodeColumn extends BaseComponentPlus({} as NodeColumn_Props, { width: null
 		const path = `${node._key}`;
 		const nodeTypeInfo = MapNodeType_Info.for[node.type];
 		const backgroundColor = GetNodeColor(nodeL3);
-		const nodeView = new MapNodeView(null); // todo: make sure okay
+		const nodeView = new MapNodeView();
 		nodeView.openPanel = openPanel;
 
 		let panelToShow = hoverPanel || openPanel;

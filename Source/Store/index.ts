@@ -116,7 +116,7 @@ export function MakeRootReducer(pureOnly = false) {
 				return omit(inboundState as any, ...blacklistPaths_forKey);
 			}, null),
 		],
-		version: 2,
+		version: 1,
 		migrate: createMigrate(migrations as any, { debug: true }),
 	};
 	return persistReducer(persistConfig, outerReducer_prePersist);

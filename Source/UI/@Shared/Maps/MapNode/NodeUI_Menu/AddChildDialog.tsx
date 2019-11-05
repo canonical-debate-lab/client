@@ -73,10 +73,9 @@ export class AddChildHelper {
 			}).Run();
 
 			if (expandSelf) {
-				store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.argumentNodeID}`, expanded_main: true, recursive: false }));
-				/* store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.argumentNodeID}/${info.claimNodeID}`, expanded_main: true,
-					expanded_truth: expandTruthAndRelevance, expanded_relevance: expandTruthAndRelevance, recursive: false })); */
-				store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.argumentNodeID}/${info.claimNodeID}`, expanded_main: true, expanded_relevance: expandTruthAndRelevance, recursive: false }));
+				store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.argumentNodeID}`, expanded: true, recursive: false }));
+				store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.argumentNodeID}/${info.claimNodeID}`, expanded: true,
+					expanded_truth: expandTruthAndRelevance, expanded_relevance: expandTruthAndRelevance, recursive: false }));
 				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.argumentNodeID, time: Date.now() }));
 				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.claimNodeID, time: Date.now() }));
 			}
@@ -86,9 +85,8 @@ export class AddChildHelper {
 			}).Run();
 
 			if (expandSelf) {
-				/* store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.nodeID}`, expanded: true,
-					expanded_truth: expandTruthAndRelevance, expanded_relevance: expandTruthAndRelevance, recursive: false })); */
-				store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.nodeID}`, expanded_main: true, expanded_relevance: expandTruthAndRelevance, recursive: false }));
+				store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.nodeID}`, expanded: true,
+					expanded_truth: expandTruthAndRelevance, expanded_relevance: expandTruthAndRelevance, recursive: false }));
 				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.nodeID, time: Date.now() }));
 			}
 		}
