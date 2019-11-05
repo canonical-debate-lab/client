@@ -119,7 +119,7 @@ export async function PostDispatchAction(action: Action<any>) {
 					const nodeID = path.split('/').Last();
 					const node = await GetAsync(() => GetNodeL2(nodeID));
 					if (GetNodeView(map._key, path) == null) {
-						store.dispatch(new ACTMapNodeExpandedSet({ mapID: map._key, path, expanded: true, recursive: false }));
+						store.dispatch(new ACTMapNodeExpandedSet({ mapID: map._key, path, expanded_main: true, expanded_relevance: true, recursive: false }));
 					}
 					if (node.children) {
 						newPathsToExpand.push(...node.children.VKeys(true).map(childID => `${path}/${childID}`));
@@ -129,11 +129,12 @@ export async function PostDispatchAction(action: Action<any>) {
 			}
 		}
 	}
-	if (action.Is(ACTMapNodeExpandedSet)) {
+	/* if (action.Is(ACTMapNodeExpandedSet)) {
 		const { path } = action.payload;
 		const nodeID = GetNodeID(path);
 		const node = GetNodeL2(nodeID) || await GetAsync(() => GetNodeL2(nodeID));
-		const expandKey = ['expanded', 'expanded_truth', 'expanded_relevance'].find(key => action.payload[key] != null);
+		// const expandKey = ['expanded', 'expanded_truth', 'expanded_relevance'].find(key => action.payload[key] != null);
+		const expandKey = ['expanded_main', 'expanded_relevance'].find(key => action.payload[key] != null);
 
 		// if we're expanding a claim-node, make sure any untouched truth-arguments start expanded
 		if (node.type == MapNodeType.Claim && action.payload[expandKey]) {
@@ -142,16 +143,16 @@ export async function PostDispatchAction(action: Action<any>) {
 			for (const child of children) {
 				const childPath = `${action.payload.path}/${child._key}`;
 				const childNodeView = (GetNodeView(action.payload.mapID, childPath) || await GetAsync(() => GetNodeView(action.payload.mapID, childPath))) || {};
-				if (child && child.type == MapNodeType.Argument && childNodeView.expanded == null) {
-					actions.push(new ACTMapNodeExpandedSet({ mapID: action.payload.mapID, path: childPath, expanded: true, recursive: false }));
+				if (child && child.type == MapNodeType.Argument && childNodeView.expanded_main == null) {
+					actions.push(new ACTMapNodeExpandedSet({ mapID: action.payload.mapID, path: childPath, expanded_main: true, recursive: false }));
 				}
 			}
 			store.dispatch(new ActionSet(...actions));
 		}
 		// if we're expanding an argument-node, make sure any untouched relevance-arguments start expanded
 		/* else if (node.type == MapNodeType.Argument) {
-		} */
-	}
+		} *#/
+	} */
 
 	const loadingMapView = action.Is(ACTMapViewMerge);
 	if (loadingMapView) {
@@ -231,7 +232,7 @@ async function ExpandToAndFocusOnNodes(mapID: string, paths: string[]) {
 	const actions = [];
 	for (const path of paths) {
 		const parentPath = SlicePath(path, 1);
-		actions.push(new ACTMapNodeExpandedSet({ mapID, path: parentPath, expanded: true, recursive: false }));
+		actions.push(new ACTMapNodeExpandedSet({ mapID, path: parentPath, expanded_main: true, recursive: false }));
 	}
 	store.dispatch(new ActionSet(...actions));
 

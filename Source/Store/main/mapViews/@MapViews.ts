@@ -1,4 +1,6 @@
 import { Vector2i } from 'js-vextensions';
+import { MapNodeType, MapNodeLinkType } from 'Store/firebase/nodes/@MapNodeType';
+import { MapNode } from 'Store/firebase/nodes/@MapNode';
 
 export class MapViews {
 	[key: number]: MapView;
@@ -18,19 +20,31 @@ export class MapNodeView {
 	/* constructor() {
 		this.childLimit = State(a=>a.main.initialChildLimit);
 	} */
+	constructor(linkType: MapNodeLinkType, autoExpandMain = false, autoExpandRelevance = false) {
+		this.linkType = linkType;
+		/* if (type == MapNodeType.Claim) {
+			this.expanded_main = true;
+		} */
+		/* if (linkType == MapNodeLinkType.Simple) {
+			this.expanded_main = true;
+		} else if (linkType == MapNodeLinkType.RelevanceArgument) {
+			this.expanded_relevance = true;
+		} */
+		if (autoExpandMain) this.expanded_main = true;
+		if (autoExpandRelevance) this.expanded_relevance = true;
+	}
 
-	expanded?: boolean;
-	/* expanded_truth?: boolean;
-	expanded_relevance?: boolean; */
-	expanded_truth? = true;
-	expanded_relevance? = true;
+	// type: MapNodeType;
+	linkType?: MapNodeLinkType;
 	selected?: boolean;
 	focused?: boolean;
-	/** Offset of view-center from self (since we're the focus-node). */
+	/** Offset of view-center from self (for when we're the focus-node) */
 	viewOffset?: Vector2i;
 	openPanel?: string;
 	openTermID?: string;
 
+	expanded_main?: boolean;
+	expanded_relevance?: boolean;
 	children? = {} as {[key: string]: MapNodeView};
 	childLimit_up?: number;
 	childLimit_down?: number;

@@ -5,7 +5,7 @@ import { GetValues } from 'js-vextensions';
 import { GetImage } from '../images';
 import { MapNode, MapNodeL2, ClaimForm, ChildEntry, ClaimType, MapNodeL3, Polarity } from './@MapNode';
 import { RatingType } from '../nodeRatings/@RatingType';
-import { MapNodeType } from './@MapNodeType';
+import { MapNodeType, MapNodeLinkType } from './@MapNodeType';
 import { GetParentNode, IsNodeSubnode, GetNode, GetParentNodeL2, GetNodeChildrenL2, GetNodeChildren, GetNodeID, HolderType, ForNewLink_GetError, ForLink_GetError } from '../nodes';
 import { PermissionGroupSet } from '../userExtras/@UserExtraInfo';
 import { ImageType, GetNiceNameForImageType } from '../images/@Image';
@@ -283,6 +283,16 @@ export function GetClaimType(node: MapNodeL2) {
 					: ClaimType.Normal
 	);
 }
+
+export const GetNodeLinkType = StoreAccessor((path: string) => {
+	if (path == null) return null;
+	const node = GetNode(GetNodeID(path));
+	if (node == null) return null;
+	if (node.type != MapNodeType.Argument) return MapNodeLinkType.Simple;
+	const parent = GetParentNode(path);
+	if (parent.type == MapNodeType.Claim) return MapNodeLinkType.Simple;
+	return MapNodeLinkType.RelevanceArgument;
+});
 
 /** Returns whether the node provided is an argument, and marked as single-premise. */
 export const IsSinglePremiseArgument = StoreAccessor((node: MapNode) => {

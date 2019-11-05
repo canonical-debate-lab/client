@@ -13,7 +13,7 @@ import { logTypes } from 'Utils/General/Logging';
 import { GetSubnodesInEnabledLayersEnhanced } from '../../../../Store/firebase/layers';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetNodeChildrenL3, GetParentNodeL2, GetParentNodeL3, IsRootNode } from '../../../../Store/firebase/nodes';
-import { GetNodeForm, IsMultiPremiseArgument, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
+import { GetNodeForm, IsMultiPremiseArgument, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument, GetNodeLinkType } from '../../../../Store/firebase/nodes/$node';
 import { AccessLevel, MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
 import { GetPlayingTimeline, GetPlayingTimelineCurrentStepRevealNodes, GetPlayingTimelineStepIndex, GetTimeFromWhichToShowChangedNodes } from '../../../../Store/main/maps/$map';
@@ -68,7 +68,8 @@ export class NodeUI extends BaseComponentPlus(
 
 		const parent = GetParentNodeL3(path);
 		const parentPath = GetParentPath(path);
-		const parentNodeView = GetNodeView.Watch(map._key, parentPath) || new MapNodeView();
+		const parentLinkType = GetNodeLinkType.Watch(parentPath);
+		const nodeLinkType = GetNodeLinkType.Watch(path);
 
 		const isSinglePremiseArgument = IsSinglePremiseArgument.Watch(node);
 		const isPremiseOfSinglePremiseArg = IsPremiseOfSinglePremiseArgument.Watch(node, parent);
@@ -79,8 +80,23 @@ export class NodeUI extends BaseComponentPlus(
 		const form = GetNodeForm.Watch(node, GetParentNodeL2.Watch(path)); */
 		/* const nodeView_early = GetNodeView.Watch(map._key, path) || new MapNodeView();
 		const nodeView = CachedTransform('nodeView_transform1', [map._key, path], nodeView_early.Excluding('focused', 'viewOffset', 'children'), () => nodeView_early); */
-		const nodeView = Watch(() => GetNodeView(map._key, path) || new MapNodeView(), [map._key, path]);
-		const boxExpanded = isPremiseOfSinglePremiseArg ? parentNodeView.expanded : nodeView.expanded;
+
+		// approach 1
+		/* let parentNodeView = GetNodeView.Watch(map._key, parentPath); // || new MapNodeView(parentLinkType);
+		// let parentNodeView = Watch(() => GetNodeView(map._key, parentPath) || new MapNodeView(parentLinkType, false, ), [map._key, parentLinkType, parentPath]);
+		let nodeView = GetNodeView.Watch(map._key, path); // || new MapNodeView(nodeLinkType);
+		const boxExpanded = isPremiseOfSinglePremiseArg ? (parentNodeView ? parentNodeView.expanded_main : false) : (nodeView ? nodeView.expanded_main : false);
+		if (parentNodeView == null) parentNodeView = new MapNodeView(parentLinkType, false, boxExpanded);
+		if (nodeView == null) nodeView = new MapNodeView(nodeLinkType, boxExpanded, false); */
+		// approach 2
+		const parentNodeView = Watch(() => GetNodeView(map._key, parentPath) || new MapNodeView(parentLinkType), [map._key, parentLinkType, parentPath]);
+		const nodeView = Watch(() => GetNodeView(map._key, path) || new MapNodeView(nodeLinkType), [map._key, nodeLinkType, path]);
+		const boxExpanded = isPremiseOfSinglePremiseArg ? parentNodeView.expanded_main : nodeView.expanded_main;
+		// approach 3
+		/* const parentNodeView = GetNodeView.Watch(map._key, parentPath);
+		const nodeView = GetNodeView.Watch(map._key, path);
+		Assert((parentPath == null || parentNodeView != null) && nodeView != null, "A node's view-state must be initialized before its NodeUI renders.");
+		const boxExpanded = isPremiseOfSinglePremiseArg ? parentNodeView.expanded_main : nodeView.expanded_main; */
 
 		const playingTimeline = GetPlayingTimeline.Watch(map._key);
 		const playingTimeline_currentStepIndex = GetPlayingTimelineStepIndex.Watch(map._key);
