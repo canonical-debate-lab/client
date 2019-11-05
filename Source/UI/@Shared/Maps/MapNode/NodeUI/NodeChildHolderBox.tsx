@@ -115,18 +115,18 @@ export class NodeChildHolderBox extends BaseComponentPlus({} as Props, { innerBo
 							const recursivelyCollapsing = !newExpanded && e.altKey;
 							if (type == HolderType.Truth) {
 								store.dispatch(new ACTMapNodeExpandedSet({
-									mapID: map._key, path, recursive: recursivelyCollapsing,
+									mapID: map._key, path, resetSubtree: recursivelyCollapsing,
 									[expandKey]: newExpanded,
 								}));
 							} else {
 								store.dispatch(new ActionSet(
 									new ACTMapNodeExpandedSet({
-										mapID: map._key, path, recursive: false,
+										mapID: map._key, path, resetSubtree: false,
 										[expandKey]: newExpanded,
 									}),
 									...(!recursivelyCollapsing ? [] : nodeChildrenToShow.map((child) => {
 										return new ACTMapNodeExpandedSet({
-											mapID: map._key, path: `${path}/${child._key}`, recursive: true,
+											mapID: map._key, path: `${path}/${child._key}`, resetSubtree: true,
 											[expandKey]: newExpanded,
 										});
 									})),

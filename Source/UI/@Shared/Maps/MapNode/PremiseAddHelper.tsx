@@ -49,7 +49,7 @@ export class PremiseAddHelper extends BaseComponentPlus({} as {mapID: string, pa
 
 		// SetNodeUILocked(parentNode._key, true);
 		const info = await new AddChildNode({ mapID, parentID: parentNode._key, node: newNode, revision: newRevision, link: newLink }).Run();
-		store.dispatch(new ACTMapNodeExpandedSet({ mapID, path: `${parentPath}/${info.nodeID}`, expanded: true, recursive: false }));
+		store.dispatch(new ACTMapNodeExpandedSet({ mapID, path: `${parentPath}/${info.nodeID}`, expanded: true, resetSubtree: false }));
 		store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.nodeID, time: Date.now() }));
 
 		// await WaitTillPathDataIsReceiving(`nodeRevisions/${info.revisionID}`);

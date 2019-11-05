@@ -12,10 +12,11 @@ import { Action, ActionSet, DBPath, GetAsync, GetCurrentURL, GetDataAsync, LoadU
 import { GetCurrentURL_SimplifiedForPageViewTracking } from 'Utils/URL/URLs';
 import { GetOpenMapID } from 'Store/main';
 import { NodeUI_Inner } from 'UI/@Shared/Maps/MapNode/NodeUI_Inner';
+import { GetTimelineStep } from 'Store/firebase/timelines';
 import { Map } from '../../Store/firebase/maps/@Map';
 import { RootState } from '../../Store/index';
 import { ACTDebateMapSelect, ACTDebateMapSelect_WithData } from '../../Store/main/debates';
-import { ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimelineCurrentStepRevealNodes } from '../../Store/main/maps/$map';
+import { ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimelineCurrentStepRevealNodes, GetPlayingTimeline, GetNodesRevealedInSteps } from '../../Store/main/maps/$map';
 import { GetNodeView, GetMapView } from '../../Store/main/mapViews';
 import { ACTMapNodeExpandedSet } from '../../Store/main/mapViews/$mapView/rootNodeViews';
 import { ACTPersonalMapSelect, ACTPersonalMapSelect_WithData } from '../../Store/main/personal';
@@ -119,7 +120,7 @@ export async function PostDispatchAction(action: Action<any>) {
 					const nodeID = path.split('/').Last();
 					const node = await GetAsync(() => GetNodeL2(nodeID));
 					if (GetNodeView(map._key, path) == null) {
-						store.dispatch(new ACTMapNodeExpandedSet({ mapID: map._key, path, expanded: true, recursive: false }));
+						store.dispatch(new ACTMapNodeExpandedSet({ mapID: map._key, path, expanded: true, resetSubtree: false }));
 					}
 					if (node.children) {
 						newPathsToExpand.push(...node.children.VKeys(true).map(childID => `${path}/${childID}`));
@@ -217,7 +218,15 @@ export async function PostDispatchAction(action: Action<any>) {
 	} */
 
 	if (action.Is(ACTMap_PlayingTimelineStepSet) || action.Is(ACTMap_PlayingTimelineAppliedStepSet)) {
-		const newlyRevealedNodes = await GetAsync(() => GetPlayingTimelineCurrentStepRevealNodes(action.payload.mapID));
+		// const newlyRevealedNodes = await GetAsync(() => GetPlayingTimelineCurrentStepRevealNodes(action.payload.mapID));
+		// we have to break it into parts, otherwise the current-step might change while we're doing the processing, short-circuiting the expansion
+		const step = await GetAsync(() => {
+			// const playingTimeline_currentStep = GetPlayingTimelineStep(mapID);
+			const timeline = GetPlayingTimeline(action.payload.mapID);
+			const stepID = timeline.steps[action.payload.stepIndex];
+			return GetTimelineStep(stepID);
+		});
+		const newlyRevealedNodes = await GetAsync(() => GetNodesRevealedInSteps([step]));
 		if (newlyRevealedNodes.length) {
 			// stats=>Log("Requested paths:\n==========\n" + stats.requestedPaths.VKeys().join("\n") + "\n\n"));
 			ExpandToAndFocusOnNodes(action.payload.mapID, newlyRevealedNodes);
@@ -231,7 +240,7 @@ async function ExpandToAndFocusOnNodes(mapID: string, paths: string[]) {
 	const actions = [];
 	for (const path of paths) {
 		const parentPath = SlicePath(path, 1);
-		actions.push(new ACTMapNodeExpandedSet({ mapID, path: parentPath, expanded: true, recursive: false }));
+		actions.push(new ACTMapNodeExpandedSet({ mapID, path: parentPath, expanded: true, expandAncestors: true }));
 	}
 	store.dispatch(new ActionSet(...actions));
 
