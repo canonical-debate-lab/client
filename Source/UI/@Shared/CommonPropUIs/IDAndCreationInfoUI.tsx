@@ -1,5 +1,5 @@
 import Moment from 'moment';
-import { Column, Pre, Row } from 'react-vcomponents';
+import { Column, Pre, Row, Text } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
 import { ACTSetPage, ACTSetSubpage } from 'Store/main';
 import { ACTUserSelect } from 'Store/main/database';
@@ -13,10 +13,10 @@ export class IDAndCreationInfoUI extends BaseComponent<{id: string | number, cre
 			<Column sel>
 				<Row>ID: {id}</Row>
 				<Row>
-					<Pre>Created at: {Moment(createdAt).format('YYYY-MM-DD HH:mm:ss')} (by: </Pre>
+					<Text>Created at: {Moment(createdAt).format('YYYY-MM-DD HH:mm:ss')} (by: </Text>
 					<Link text={creator == null ? 'n/a' : creator.displayName}
 						actions={creator == null ? [] : [new ACTSetPage('database'), new ACTSetSubpage({ page: 'database', subpage: 'users' }), new ACTUserSelect({ id: creator._key })]} />
-					<Pre>)</Pre>
+					<Text>)</Text>
 				</Row>
 			</Column>
 		);

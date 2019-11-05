@@ -2,7 +2,7 @@ import { AsNodeL1, GetFinalPolarity } from 'Store/firebase/nodes/$node';
 import { GetUserAccessLevel, MeID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
 import { GetErrorMessagesUnderElement, GetEntries, Clone, WaitXThenRun } from 'js-vextensions';
-import { CheckBox, Column, Div, Pre, Row, Select, Spinner, TextArea, TextInput } from 'react-vcomponents';
+import { CheckBox, Column, Div, Pre, Row, Select, Spinner, TextArea, TextInput, Text } from 'react-vcomponents';
 import { BaseComponent, RenderSource, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { HasAdminPermissions } from 'Store/firebase/userExtras';
 import { Connect, Watch } from 'Utils/FrameworkOverrides';
@@ -74,7 +74,7 @@ export class NodeDetailsUI extends BaseComponentPlus({ enabled: true } as Props,
 				{newData.type == MapNodeType.Argument &&
 					<ArgumentInfo {...sharedProps}/>}
 				<Row mt={5}>
-					<Pre>Note: </Pre>
+					<Text>Note: </Text>
 					<TextInput enabled={enabled} style={{ width: '100%' }}
 						value={newRevisionData.note} onChange={val => Change(newRevisionData.note = val)}/>
 				</Row>
@@ -120,8 +120,8 @@ class Title_Base extends BaseComponent<SharedProps, {}> {
 
 		return (
 			<div>
-				<Row style={{ display: 'flex', alignItems: 'center' }}>
-					<Pre>Title (base): </Pre>
+				<Row center>
+					<Text>Title (base): </Text>
 					{/* <TextInput enabled={enabled} style={ES({flex: 1})} required={!hasOtherTitlesEntered && !willUseYesNoTitleHere}
 						ref={a=>a && forNew && this.lastRender_source == RenderSource.Mount && WaitXThenRun(0, ()=>a.DOM.focus())}
 						value={newRevisionData.titles["base"]} onChange={val=>Change(newRevisionData.titles["base"] = val)}/> */}

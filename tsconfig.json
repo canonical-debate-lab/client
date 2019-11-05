@@ -18,7 +18,11 @@
 				//"node_modules/@types/*", // prefer "/node_modules/@types" over "/node_modules/[something]/node_modules/@types" (eg, when using npm link)
 				"../node_modules/@types/*", // prefer "/node_modules/@types" over "/node_modules/[something]/node_modules/@types" (eg, when using npm link)
 				"*"
-			]
+			],
+			// remove @types/react/global.d.ts, as it breaks the auto-import-finder for react-vcomponents/Text
+			"react/global.d.ts": ["Typings/empty.d.ts"],
+			"react-vextensions/node_modules/react/global.d.ts": ["Typings/empty.d.ts"],
+			"react-vcomponents/node_modules/react/global.d.ts": ["Typings/empty.d.ts"]
 		},
 		//"skipLibCheck": true,
 

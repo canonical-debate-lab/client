@@ -1,6 +1,6 @@
 import { GetErrorMessagesUnderElement, Clone } from 'js-vextensions';
 import Moment from 'moment';
-import { Column, Pre, RowLR, TextInput } from 'react-vcomponents';
+import { Column, Pre, RowLR, TextInput, Text } from 'react-vcomponents';
 import { BaseComponent, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { User } from 'Store/firebase/users/@User';
@@ -32,7 +32,7 @@ export class LayerDetailsUI extends BaseComponentPlus({ enabled: true } as Props
 				{!forNew &&
 					<IDAndCreationInfoUI id={newData._key} creator={creator} createdAt={newData.createdAt}/>}
 				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
-					<Pre>Name: </Pre>
+					<Text>Name: </Text>
 					<TextInput required enabled={enabled} style={{ width: '100%' }}
 						value={newData.name} onChange={val => Change(newData.name = val)}/>
 				</RowLR>

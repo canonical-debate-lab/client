@@ -121,7 +121,7 @@ export class SearchPanel extends BaseComponentPlus({} as {}, {}, {} as {queryStr
 				}}>
 					{results_nodeIDs == null && 'Search in progress...'}
 					{results_nodeIDs && results_nodeIDs.filter(a => a).length == 0 && 'No search results.'}
-					{results_nodeIDs && results_nodeIDs.filter(a => a).length && results_nodeIDs.map((nodeID, index) => {
+					{results_nodeIDs && results_nodeIDs.filter(a => a).length > 0 && results_nodeIDs.map((nodeID, index) => {
 						return (
 							// <ErrorBoundary key={nodeID}>
 							<SearchResultRow key={nodeID} nodeID={nodeID} index={index}/>
