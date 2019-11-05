@@ -28,7 +28,7 @@ export class LayoutDropDown extends BaseComponentPlus({} as {map: Map}, {}) {
 						<Pre>Show Reason Score values: </Pre>
 						<CheckBox checked={showReasonScoreValues} onChange={val => store.dispatch(new ACTSet(a => a.main.showReasonScoreValues, val))}/>
 					</RowLR>
-					<Row>
+					<Row mt={5}>
 						<Button text="Clear map-view state" onClick={() => {
 							store.dispatch(new ACTClearMapView({ mapID: map._key }));
 						}}/>

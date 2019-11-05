@@ -8,7 +8,7 @@ import { RootNodeViews } from './rootNodeViews/@RootNodeViews';
 export class ACTMapNodeSelect extends Action<{mapID: string, path: string}> {}
 export class ACTMapNodePanelOpen extends Action<{mapID: string, path: string, panel: string}> {}
 export class ACTMapNodeExpandedSet extends Action<{
-	mapID: string, path: string, recursive: boolean
+	mapID: string, path: string, recursive?: boolean,
 	expanded?: boolean, expanded_truth?: boolean, expanded_relevance?: boolean
 }> {}
 export class ACTMapNodeChildLimitSet extends Action<{mapID: string, path: string, direction: 'down' | 'up', value: number}> {}
@@ -61,7 +61,7 @@ function GetTargetPath(action: Action<any>) {
 	return action.Is(ACTViewCenterChange) ? action.payload.focusNodePath : action.payload.path;
 }
 
-function MapNodeViewReducer(state = new MapNodeView(), action: Action<any>, pathSoFar: string, autoExpand = false) {
+function MapNodeViewReducer(state = new MapNodeView(), action: Action<any>, pathSoFar: string) { // , autoExpand = false) {
 	const targetPath = GetTargetPath(action);
 	const atTargetNode = targetPath == pathSoFar;
 	const pastTargetNode = pathSoFar.length > targetPath.length;
@@ -73,9 +73,9 @@ function MapNodeViewReducer(state = new MapNodeView(), action: Action<any>, path
 		return u.updateIn(`children.${nextNodeIDInPath}`, MapNodeViewReducer((state.children || {})[nextNodeIDInPath], action, `${pathSoFar}/${nextNodeIDInPath}`), state);
 	}
 
-	if (autoExpand) {
+	/* if (autoExpand) {
 		state = { ...state, expanded: true };
-	}
+	} */
 
 	if (action.Is(ACTMapNodeSelect)) {
 		state = { ...state, selected: true };
@@ -107,7 +107,10 @@ function MapNodeViewReducer(state = new MapNodeView(), action: Action<any>, path
 		else {
 			// and action is recursive (ie. supposed to apply past target-node), with expansion being set to false
 			if (action.payload.recursive && action.payload.Including(...expandKeysPresent).VValues().every(newVal => newVal == false)) {
-				state = { ...state, expanded: false, expanded_truth: false, expanded_relevance: false }; // set all expansion keys to false (key might be different on clicked node than descendants)
+				// set all expansion keys to false (key might be different on clicked node than descendants)
+				// state = { ...state, expanded: false, expanded_truth: false, expanded_relevance: false };
+				// if recursively collapsing, collapse the main node box itself, but reset the [truth/relevance]-box expansions to their default state (of expanded)
+				state = { ...state, expanded: false, expanded_truth: true, expanded_relevance: true };
 				// state = { ...state, ...action.payload.Including(...expandKeysPresent) };
 			}
 		}

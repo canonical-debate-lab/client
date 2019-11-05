@@ -242,7 +242,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 					mapID: map._key, path: combinedWithParentArgument ? parentPath : path,
 					expanded: !expanded, recursive: recursivelyCollapsing,
 				},
-				recursivelyCollapsing && { expanded_relevance: false },
+				// recursivelyCollapsing && { expanded_relevance: false },
 			)));
 			e.nativeEvent['ignore'] = true; // for some reason, "return false" isn't working
 			// return false;

@@ -10,7 +10,7 @@ import { ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView/rootNodeView
 import { MapNodeView } from 'Store/main/mapViews/@MapViews';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { emptyArray_forLoading, emptyArray, AssertWarn } from 'js-vextensions';
-import { Connect, HSLA, ExpensiveComponent } from 'Utils/FrameworkOverrides';
+import { Connect, HSLA, ExpensiveComponent, ActionSet } from 'Utils/FrameworkOverrides';
 import { GADDemo } from 'UI/@GAD/GAD';
 import chroma from 'chroma-js';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
@@ -111,16 +111,33 @@ export class NodeChildHolderBox extends BaseComponentPlus({} as Props, { innerBo
 							GADDemo && { backgroundFillPercent: 100, backgroundColor: chroma(HSLA(0, 0, 1)) as Color },
 						)}
 						toggleExpanded={UseCallback((e) => {
-							store.dispatch(new ACTMapNodeExpandedSet({
-								mapID: map._key, path, recursive: nodeView[expandKey] && e.altKey,
-								[expandKey]: !nodeView[expandKey],
-							}));
+							const newExpanded = !nodeView[expandKey];
+							const recursivelyCollapsing = !newExpanded && e.altKey;
+							if (type == HolderType.Truth) {
+								store.dispatch(new ACTMapNodeExpandedSet({
+									mapID: map._key, path, recursive: recursivelyCollapsing,
+									[expandKey]: newExpanded,
+								}));
+							} else {
+								store.dispatch(new ActionSet(
+									new ACTMapNodeExpandedSet({
+										mapID: map._key, path, recursive: false,
+										[expandKey]: newExpanded,
+									}),
+									...(!recursivelyCollapsing ? [] : nodeChildrenToShow.map((child) => {
+										return new ACTMapNodeExpandedSet({
+											mapID: map._key, path: `${path}/${child._key}`, recursive: true,
+											[expandKey]: newExpanded,
+										});
+									})),
+								));
+							}
 							e.nativeEvent['ignore'] = true; // for some reason, "return false" isn't working
 							// return false;
 							if (nodeView[expandKey]) {
 								this.CheckForChanges();
 							}
-						}, [expandKey, map._key, nodeView, path])}
+						}, [expandKey, map._key, nodeChildrenToShow, nodeView, path, type])}
 						afterChildren={<>
 							{ratingPanelShow &&
 								<div ref={c => this.ratingPanelHolder = c} style={{

@@ -136,7 +136,7 @@ export async function PostDispatchAction(action: Action<any>) {
 		const expandKey = ['expanded', 'expanded_truth', 'expanded_relevance'].find(key => action.payload[key] != null);
 
 		// if we're expanding a claim-node, make sure any untouched truth-arguments start expanded
-		if (node.type == MapNodeType.Claim && action.payload[expandKey]) {
+		/* if (node.type == MapNodeType.Claim && action.payload[expandKey]) {
 			const children = GetNodeChildrenL2(node).every(a => a != null) ? GetNodeChildrenL2(node) : await GetAsync(() => GetNodeChildrenL2(node));
 			const actions = [];
 			for (const child of children) {
@@ -147,7 +147,7 @@ export async function PostDispatchAction(action: Action<any>) {
 				}
 			}
 			store.dispatch(new ActionSet(...actions));
-		}
+		} */
 		// if we're expanding an argument-node, make sure any untouched relevance-arguments start expanded
 		/* else if (node.type == MapNodeType.Argument) {
 		} */

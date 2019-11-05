@@ -68,7 +68,8 @@ export class NodeUI extends BaseComponentPlus(
 
 		const parent = GetParentNodeL3(path);
 		const parentPath = GetParentPath(path);
-		const parentNodeView = GetNodeView.Watch(map._key, parentPath) || new MapNodeView();
+		// const parentNodeView = GetNodeView.Watch(map._key, parentPath) || new MapNodeView();
+		const parentNodeView = Watch(() => GetNodeView(map._key, parentPath) || new MapNodeView(), [map._key, parentPath]);
 
 		const isSinglePremiseArgument = IsSinglePremiseArgument.Watch(node);
 		const isPremiseOfSinglePremiseArg = IsPremiseOfSinglePremiseArgument.Watch(node, parent);
