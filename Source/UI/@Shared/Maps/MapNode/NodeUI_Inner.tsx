@@ -240,7 +240,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 			store.dispatch(new ACTMapNodeExpandedSet(E(
 				{
 					mapID: map._key, path: combinedWithParentArgument ? parentPath : path,
-					expanded: !expanded, recursive: recursivelyCollapsing,
+					expanded: !expanded, resetSubtree: recursivelyCollapsing,
 				},
 				// recursivelyCollapsing && { expanded_relevance: false },
 			)));
