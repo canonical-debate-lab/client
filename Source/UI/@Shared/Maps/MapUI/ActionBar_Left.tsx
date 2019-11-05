@@ -194,7 +194,8 @@ class LayerUI extends BaseComponentPlus({} as {index: number, last: boolean, map
 	render() {
 		const { index, last, map, layer } = this.props;
 		const userID = MeID.Watch();
-		const creator = Watch(() => layer && GetUser(layer.creator), [layer]);
+		// const creator = GetUser.Watch({if: layer}, layer.creator); // todo
+		const creator = GetUser.Watch(layer ? layer.creator : null);
 		const userLayerState = GetUserLayerStateForMap.Watch(userID, map._key, layer._key);
 		const creatorOrMod = IsUserCreatorOrMod.Watch(userID, map);
 		const deleteLayerError = ForDeleteLayer_GetError.Watch(userID, layer);

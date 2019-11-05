@@ -8,7 +8,7 @@ import { MeID } from 'Store/firebase/users';
 import { GetPlayingTimelineRevealNodes_UpToAppliedStep } from 'Store/main/maps/$map';
 import { NodeChildHolder } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolder';
 import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolderBox';
-import { EB_ShowError, EB_StoreError, ExpensiveComponent, MaybeLog, ShouldLog, SlicePath, State } from 'Utils/FrameworkOverrides';
+import { EB_ShowError, EB_StoreError, ExpensiveComponent, MaybeLog, ShouldLog, SlicePath, State, Watch } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
 import { GetSubnodesInEnabledLayersEnhanced } from '../../../../Store/firebase/layers';
 import { Map } from '../../../../Store/firebase/maps/@Map';
@@ -58,8 +58,8 @@ export class NodeUI extends BaseComponentPlus(
 		const nodeChildren = GetNodeChildrenL3.Watch(node, path, true);
 		let nodeChildrenToShow: MapNodeL3[] = nodeChildren.Any(a => a == null) ? emptyArray_forLoading : nodeChildren; // only pass nodeChildren when all are loaded
 
-		let subnodes = GetSubnodesInEnabledLayersEnhanced.Watch(MeID(), map, node._key);
-		subnodes = subnodes.Any(a => a == null) ? emptyArray : subnodes; // only pass subnodes when all are loaded
+		/* let subnodes = GetSubnodesInEnabledLayersEnhanced.Watch(MeID(), map, node._key);
+		subnodes = subnodes.Any(a => a == null) ? emptyArray : subnodes; // only pass subnodes when all are loaded */
 
 		const sinceTime = GetTimeFromWhichToShowChangedNodes.Watch(map._key);
 		const pathsToChangedDescendantNodes_withChangeTypes = GetPathsToChangedDescendantNodes_WithChangeTypes.Watch(map._key, sinceTime, path);
@@ -70,13 +70,17 @@ export class NodeUI extends BaseComponentPlus(
 		const parentPath = GetParentPath(path);
 		const parentNodeView = GetNodeView.Watch(map._key, parentPath) || new MapNodeView();
 
-		const initialChildLimit = State.Watch(a => a.main.initialChildLimit);
-		const form = GetNodeForm.Watch(node, GetParentNodeL2.Watch(path));
-		const nodeView_early = GetNodeView.Watch(map._key, path) || new MapNodeView();
-		const nodeView = CachedTransform('nodeView_transform1', [map._key, path], nodeView_early.Excluding('focused', 'viewOffset', 'children'), () => nodeView_early);
-
 		const isSinglePremiseArgument = IsSinglePremiseArgument.Watch(node);
+		const isPremiseOfSinglePremiseArg = IsPremiseOfSinglePremiseArgument.Watch(node, parent);
 		const isMultiPremiseArgument = IsMultiPremiseArgument.Watch(node);
+		const argumentNode = node.type == MapNodeType.Argument ? node : isPremiseOfSinglePremiseArg ? parent : null;
+
+		/* const initialChildLimit = State.Watch(a => a.main.initialChildLimit);
+		const form = GetNodeForm.Watch(node, GetParentNodeL2.Watch(path)); */
+		/* const nodeView_early = GetNodeView.Watch(map._key, path) || new MapNodeView();
+		const nodeView = CachedTransform('nodeView_transform1', [map._key, path], nodeView_early.Excluding('focused', 'viewOffset', 'children'), () => nodeView_early); */
+		const nodeView = Watch(() => GetNodeView(map._key, path) || new MapNodeView(), [map._key, path]);
+		const boxExpanded = isPremiseOfSinglePremiseArg ? parentNodeView.expanded : nodeView.expanded;
 
 		const playingTimeline = GetPlayingTimeline.Watch(map._key);
 		const playingTimeline_currentStepIndex = GetPlayingTimelineStepIndex.Watch(map._key);
@@ -125,7 +129,6 @@ export class NodeUI extends BaseComponentPlus(
 			nodeChildrenToShow = nodeChildrenToShow.filter(child => playingTimelineVisibleNodes.Any(a => a.startsWith(`${path}/${child._key}`)));
 		}
 
-		const isPremiseOfSinglePremiseArg = IsPremiseOfSinglePremiseArgument.Watch(node, parent);
 		const parentChildren = GetNodeChildrenL3.Watch(parent, parentPath);
 		if (isPremiseOfSinglePremiseArg) {
 			const argument = parent;
@@ -139,17 +142,16 @@ export class NodeUI extends BaseComponentPlus(
 			}
 		}
 
-		const showArgumentsControlBar = (node.type == MapNodeType.Claim || isSinglePremiseArgument) && nodeView.expanded && nodeChildrenToShow != emptyArray_forLoading;
-
 		const { width, expectedHeight } = this.GetMeasurementInfo();
 
 		const showLimitBar = !!children; // the only type of child we ever pass into NodeUI is a LimitBar
-		const argumentNode = node.type == MapNodeType.Argument ? node : isPremiseOfSinglePremiseArg ? parent : null;
 		const limitBar_above = argumentNode && argumentNode.finalPolarity == Polarity.Supporting;
 		const limitBarPos = showLimitBar ? (limitBar_above ? LimitBarPos.Above : LimitBarPos.Below) : LimitBarPos.None;
 
-		const nodeChildHolder_direct = !isPremiseOfSinglePremiseArg && nodeView.expanded &&
-			<NodeChildHolder {...{ map, node, path, nodeView, nodeChildren, nodeChildrenToShow, separateChildren, showArgumentsControlBar }}
+		let nodeChildHolder_direct: JSX.Element;
+		if (!isPremiseOfSinglePremiseArg && boxExpanded) {
+			const showArgumentsControlBar = (node.type == MapNodeType.Claim || isSinglePremiseArgument) && boxExpanded && nodeChildrenToShow != emptyArray_forLoading;
+			nodeChildHolder_direct = <NodeChildHolder {...{ map, node, path, nodeView, nodeChildren, nodeChildrenToShow, separateChildren, showArgumentsControlBar }}
 				// type={node.type == MapNodeType.Claim && node._id != demoRootNodeID ? HolderType.Truth : null}
 				type={null}
 				linkSpawnPoint={dividePoint || (selfHeight / 2)}
@@ -163,12 +165,13 @@ export class NodeUI extends BaseComponentPlus(
 					}
 					this.SetState({ dividePoint });
 				}, [isMultiPremiseArgument])}/>;
-		const nodeChildHolderBox_truth = isPremiseOfSinglePremiseArg && nodeView.expanded &&
+		}
+		const nodeChildHolderBox_truth = isPremiseOfSinglePremiseArg && boxExpanded &&
 			<NodeChildHolderBox {...{ map, node, path, nodeView }} type={HolderType.Truth}
 				widthOfNode={widthOverride || width}
 				nodeChildren={nodeChildren} nodeChildrenToShow={nodeChildrenToShow}
 				onHeightOrDividePointChange={UseCallback(dividePoint => this.CheckForChanges(), [])}/>;
-		const nodeChildHolderBox_relevance = isPremiseOfSinglePremiseArg && nodeView.expanded &&
+		const nodeChildHolderBox_relevance = isPremiseOfSinglePremiseArg && boxExpanded &&
 			<NodeChildHolderBox {...{ map, node: parent, path: parentPath, nodeView: parentNodeView }} type={HolderType.Relevance}
 				widthOfNode={widthOverride || width}
 				nodeChildren={GetNodeChildrenL3(parent, parentPath)} nodeChildrenToShow={relevanceArguments}
@@ -209,7 +212,7 @@ export class NodeUI extends BaseComponentPlus(
 					/* useAutoOffset && {display: "flex", height: "100%", flexDirection: "column", justifyContent: "center"},
 					!useAutoOffset && {paddingTop: innerBoxOffset}, */
 					// {paddingTop: innerBoxOffset},
-					{ marginTop: nodeView.expanded && !isMultiPremiseArgument ? (dividePoint - (selfHeight / 2)).NaNTo(0).KeepAtLeast(0) : 0 },
+					{ marginTop: boxExpanded && !isMultiPremiseArgument ? (dividePoint - (selfHeight / 2)).NaNTo(0).KeepAtLeast(0) : 0 },
 				)}>
 					{limitBar_above && children}
 					{asSubnode &&
@@ -232,9 +235,9 @@ export class NodeUI extends BaseComponentPlus(
 					<div style={{ margin: 'auto 0 auto 10px' }}>...</div>}
 				{IsRootNode(node) && nodeChildrenToShow != emptyArray_forLoading && nodeChildrenToShow.length == 0 && playingTimeline == null &&
 					<div style={{ margin: 'auto 0 auto 10px', background: 'rgba(0,0,0,.7)', padding: 5, borderRadius: 5 }}>To add a node, right click on the root node.</div>}
-				{!nodeView.expanded &&
+				{!boxExpanded &&
 					<NodeChildCountMarker {...{ limitBarPos }} childCount={nodeChildrenToShow.length + (relevanceArguments ? relevanceArguments.length : 0)}/>}
-				{!nodeView.expanded && (addedDescendants > 0 || editedDescendants > 0) &&
+				{!boxExpanded && (addedDescendants > 0 || editedDescendants > 0) &&
 					<NodeChangesMarker {...{ addedDescendants, editedDescendants, limitBarPos }}/>}
 				{!isMultiPremiseArgument &&
 					nodeChildHolder_direct}

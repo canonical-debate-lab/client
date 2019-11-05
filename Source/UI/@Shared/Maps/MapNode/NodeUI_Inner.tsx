@@ -8,7 +8,7 @@ import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthSc
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes, GetPlayingTimelineCurrentStepRevealNodes } from 'Store/main/maps/$map';
-import { GetPathNodeIDs } from 'Store/main/mapViews';
+import { GetPathNodeIDs, GetNodeView } from 'Store/main/mapViews';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { DragInfo, EB_ShowError, EB_StoreError, ExpensiveComponent, HSLA, IsDoubleClick, SlicePath, State, Watch } from 'Utils/FrameworkOverrides';
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
@@ -192,7 +192,14 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		const panelToShow = hoverPanel || local_openPanel || (nodeView && nodeView.openPanel);
 		const subPanelShow = node.type == MapNodeType.Claim && (node.current.contentNode || node.current.image);
 		const bottomPanelShow = leftPanelShow && panelToShow;
-		const expanded = nodeView && nodeView.expanded;
+		let expanded = nodeView && nodeView.expanded;
+
+		// const parentNodeView = GetNodeView.Watch(map._key, parentPath);
+		const parentNodeView = Watch(() => parentPath && GetNodeView(map._key, parentPath), [map._key, parentPath]);
+		// if combined with parent arg (ie. premise of single-premise arg), use parent's expansion state for this box
+		if (combinedWithParentArgument) {
+			expanded = parentNodeView && parentNodeView.expanded;
+		}
 
 		const onMouseEnter = UseCallback(() => {
 			this.SetState({ hovered: true });
@@ -221,10 +228,25 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		}, [combinedWithParentArgument, node._key, parent]);
 		const onTextHolderClick = UseCallback(e => IsDoubleClick(e) && this.titlePanel && this.titlePanel.OnDoubleClick(), []);
 		const toggleExpanded = UseCallback((e) => {
-			store.dispatch(new ACTMapNodeExpandedSet({ mapID: map._key, path, expanded: !expanded, recursive: expanded && e.altKey }));
+			/* let pathToApplyTo = path;
+			// if collapsing subtree, and this node is premise of single-premise arg, start collapsing from parent (the argument node), so that its relevance args are collapsed as well
+			if (expanded && e.altKey && combinedWithParentArgument) {
+				pathToApplyTo = parentPath;
+			}
+			store.dispatch(new ACTMapNodeExpandedSet({ mapID: map._key, path: pathToApplyTo, expanded: !expanded, recursive: expanded && e.altKey })); */
+
+			// if collapsing subtree, and this node is premise of single-premise arg, start collapsing from parent (the argument node), so that its relevance args are collapsed as well
+			const recursivelyCollapsing = expanded && e.altKey;
+			store.dispatch(new ACTMapNodeExpandedSet(E(
+				{
+					mapID: map._key, path: combinedWithParentArgument ? parentPath : path,
+					expanded: !expanded, recursive: recursivelyCollapsing,
+				},
+				recursivelyCollapsing && { expanded_relevance: false },
+			)));
 			e.nativeEvent['ignore'] = true; // for some reason, "return false" isn't working
 			// return false;
-		}, [expanded, map._key, path]);
+		}, [combinedWithParentArgument, expanded, map._key, parentPath, path]);
 
 		const renderInner = (dragInfo) => {
 			const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;

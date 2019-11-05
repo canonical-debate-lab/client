@@ -1,5 +1,6 @@
 import { GetTreeNodesInObjTree, Vector2i } from 'js-vextensions';
 import u from 'updeep';
+import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { Action, SplitStringBySlash_Cached } from '../../../../Utils/FrameworkOverrides';
 import { MapNodeView } from '../@MapViews';
 import { RootNodeViews } from './rootNodeViews/@RootNodeViews';
@@ -64,6 +65,7 @@ function MapNodeViewReducer(state = new MapNodeView(), action: Action<any>, path
 	const targetPath = GetTargetPath(action);
 	const atTargetNode = targetPath == pathSoFar;
 	const pastTargetNode = pathSoFar.length > targetPath.length;
+	const levelsPastTargetNode = pathSoFar.length - targetPath.length;
 
 	if (!atTargetNode && !pastTargetNode) {
 		const nextNodeIDInPath = SplitStringBySlash_Cached(targetPath.substr(pathSoFar.length + 1))[0];
@@ -82,10 +84,10 @@ function MapNodeViewReducer(state = new MapNodeView(), action: Action<any>, path
 	} else if (action.Is(ACTMapNodeTermOpen)) {
 		state = { ...state, openTermID: action.payload.termID };
 	} else if (action.Is(ACTMapNodeExpandedSet)) {
-		// const expandKeys = ['expanded', 'expanded_truth', 'expanded_relevance'].filter(key => action.payload[key] != null);
+		const expandKeysPresent = ['expanded', 'expanded_truth', 'expanded_relevance'].filter(key => action.payload[key] != null);
 		if (atTargetNode) {
 			// state = { ...state, [expandKey]: action.payload[expandKey] };
-			state = { ...state, ...action.payload.Including('expanded', 'expanded_truth', 'expanded_relevance') };
+			state = { ...state, ...action.payload.Including(...expandKeysPresent) };
 
 			// if we're expanding the current node, and it's a claim, then auto-expand any argument children it has (assuming no expand state set yet)
 			/* let currentNode = GetNodeL2(SplitStringBySlash_Cached(pathSoFar).Last().ToInt());
@@ -100,13 +102,27 @@ function MapNodeViewReducer(state = new MapNodeView(), action: Action<any>, path
 					}
 				}
 			} */
-		} /* else { // if past target-node
-			state = { ...state, expanded: false, expanded_truth: false, expanded_relevance: false };
-		} */
+		}
+		// if past target-node
+		else {
+			// and action is recursive (ie. supposed to apply past target-node), with expansion being set to false
+			if (action.payload.recursive && action.payload.Including(...expandKeysPresent).VValues().every(newVal => newVal == false)) {
+				state = { ...state, expanded: false, expanded_truth: false, expanded_relevance: false }; // set all expansion keys to false (key might be different on clicked node than descendants)
+				// state = { ...state, ...action.payload.Including(...expandKeysPresent) };
+			}
+		}
 
 		if (action.payload.recursive) {
 			state.children = { ...state.children };
-			for (const childID of state.children.VKeys(true)) {
+			const childrenToRecurseInto = state.children.Pairs(true);
+			/* let childrenToRecurseInto = state.children.Pairs(true).filter(pair=> {
+				if (levelsPastTargetNode == 0) {
+					//if (pair.value.linkType == "relevance argument") return action.payload
+					if (pair.value.type == MapNodeType.) return action.payload
+				}
+				return true;
+			}); */
+			for (const childID of childrenToRecurseInto.map(a => a.key)) {
 				state.children[childID] = MapNodeViewReducer(state.children[childID], action, `${pathSoFar}/${childID}`);
 			}
 		}

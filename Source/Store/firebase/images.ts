@@ -2,10 +2,10 @@ import { CachedTransform, IsNaN } from 'js-vextensions';
 import { GetData, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { Image } from './images/@Image';
 
-export function GetImage(id: string) {
+export const GetImage = StoreAccessor((id: string) => {
 	if (id == null || IsNaN(id)) return null;
 	return GetData('images', id) as Image;
-}
+});
 /* export async function GetImageAsync(id: string) {
 	return await GetDataAsync(`images/${id}`) as Image;
 } */

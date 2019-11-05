@@ -1,4 +1,4 @@
-import { BaseComponent } from 'react-vextensions';
+import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { VReactMarkdown_Remarkable, Connect, Watch } from 'Utils/FrameworkOverrides';
 import { MapNode, ImageAttachment, MapNodeL2 } from '../../../../../Store/firebase/nodes/@MapNode';
 import { GetFontSizeForNode } from '../../../../../Store/firebase/nodes/$node';
@@ -48,11 +48,11 @@ export class SubPanel_Quote extends BaseComponent<{contentNode: ContentNode, fon
 		);
 	}
 }
-type SubPanel_ImageProps = {imageAttachment: ImageAttachment};
-export class SubPanel_Image extends BaseComponent<SubPanel_ImageProps, {}> {
+
+export class SubPanel_Image extends BaseComponentPlus({} as {imageAttachment: ImageAttachment}, {}) {
 	render() {
 		const { imageAttachment } = this.props;
-		const image = Watch(() => GetImage(imageAttachment.id), [imageAttachment.id]);
+		const image = GetImage.Watch(imageAttachment.id);
 		if (image == null) return <div/>;
 		return (
 			<div style={{ position: 'relative' }}>

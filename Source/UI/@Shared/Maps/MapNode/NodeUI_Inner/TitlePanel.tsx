@@ -69,7 +69,7 @@ export class TitlePanel extends BaseComponentPlus(
 		const latex = node.current.equation && node.current.equation.latex;
 		const isSubnode = IsNodeSubnode(node);
 
-		const displayText = Watch(() => GetNodeDisplayText(node, path), [node, path]);
+		const displayText = GetNodeDisplayText.Watch(node, path);
 		const equationNumber = Watch(() => (node.current.equation ? GetEquationStepNumber(path) : null), [node, path]);
 
 		newTitle = newTitle != null ? newTitle : displayText;

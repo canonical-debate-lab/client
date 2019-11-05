@@ -99,12 +99,15 @@ module.exports = {
 		window: true,
 		document: true,
 
+		// some globals (allowed for quick debugging/testing without needing to add imports)
 		React: true,
-		State: true,
-		Assert: true,
 		Log: true,
-		store: true,
+		Assert: true,
 		ToJSON: true,
 		FromJSON: true,
+		State: true,
+		// other globals (kept to avoid circular import-chains, and/or for convenience)
+		store: true,
+		E: true,
 	},
 };
