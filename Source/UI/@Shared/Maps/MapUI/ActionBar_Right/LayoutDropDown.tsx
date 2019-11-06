@@ -17,7 +17,7 @@ export class LayoutDropDown extends BaseComponentPlus({} as {map: Map}, {}) {
 		const splitAt = 230;
 		return (
 			<DropDown>
-				<DropDownTrigger><Button_Final text="Layout"/></DropDownTrigger>
+				<DropDownTrigger><Button_Final text="Layout" style={{ height: '100%' }}/></DropDownTrigger>
 				<DropDownContent style={{ right: 0, width: 320 }}><Column>
 					<RowLR splitAt={splitAt}>
 						<Pre>Initial child limit: </Pre>

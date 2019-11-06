@@ -53,7 +53,7 @@ export class ActionBar_Left extends BaseComponentPlus({} as {map: Map, subNavBar
 					},
 				)}>
 					{IsUserMap(map) &&
-						<Button text="Back" onClick={() => {
+						<Button text="Back" style={{ height: '100%' }} onClick={() => {
 							store.dispatch(new (map.type == MapType.Personal ? ACTPersonalMapSelect : ACTDebateMapSelect)({ id: null }));
 						}}/>}
 					{IsUserMap(map) && <DetailsDropDown map={map}/>}
@@ -61,7 +61,7 @@ export class ActionBar_Left extends BaseComponentPlus({} as {map: Map, subNavBar
 					{IsUserMap(map) && HasModPermissions(MeID()) && <LayersDropDown map={map}/>} */}
 					{/* IsUserMap(map) && HasModPermissions(MeID()) && <TimelineDropDown map={map}/> */}
 					{IsUserMap(map) && !GADDemo &&
-						<Button ml={5} text="Timelines" onClick={() => {
+						<Button ml={5} text="Timelines" style={{ height: '100%' }} onClick={() => {
 							store.dispatch(new ACTMap_TimelinePanelOpenSet({ mapID: map._key, open: !timelinePanelOpen }));
 						}}/>}
 				</Row>
@@ -80,7 +80,7 @@ export class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: strin
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), map);
 		return (
 			<DropDown>
-				<DropDownTrigger><Button_Final ml={5} text="Details"/></DropDownTrigger>
+				<DropDownTrigger><Button_Final ml={5} style={{ height: '100%' }} text="Details"/></DropDownTrigger>
 				<DropDownContent style={{ left: 0 }}><Column>
 					<MapDetailsUI ref={c => this.detailsUI = c} baseData={map}
 						forNew={false} enabled={creatorOrMod}

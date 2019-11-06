@@ -174,10 +174,10 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 						}}
 						itemSizeEstimator={this.EstimateStepHeight} itemRenderer={this.RenderStep}/>
 				</ScrollView> */}
-				<Row style={{ background: 'rgba(0,0,0,.7)' }}>
+				<Row style={{ height: 30, background: 'rgba(0,0,0,.7)' }}>
 					<Row ml="auto" style={{ position: 'relative' }}>
 						<DropDown>
-							<DropDownTrigger><Button text="Options"/></DropDownTrigger>
+							<DropDownTrigger><Button text="Options" style={{ height: '100%' }}/></DropDownTrigger>
 							<DropDownContent style={{ right: 0, width: 300, zIndex: 11 }}><Column>
 								<Row>
 									<Text>Node-reveal highlight time:</Text>
@@ -187,7 +187,7 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 						</DropDown>
 					</Row>
 				</Row>
-				<Row ref={messageAreaRef} style={{ height: `calc(100% - ${ToNumber(videoHeight, 0)}px)` }}>
+				<Row ref={messageAreaRef} style={{ height: `calc(100% - 30px - ${ToNumber(videoHeight, 0)}px)` }}>
 					<Column ref={c => this.sideBarEl = c ? c.DOM as any : null} style={{ position: 'relative', width: 20, background: HSLA(0, 0, 0, 1) }}>
 						<Button text={<Icon icon={`arrow-${targetTimeDirection}`} size={20}/>} /* enabled={targetTime_yInMessageArea < 0 || targetTime_yInMessageArea >= messageAreaHeight - 20} */
 							style={{
