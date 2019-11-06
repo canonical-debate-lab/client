@@ -1,12 +1,12 @@
 import ReactList from 'react-list';
-import { Column, Div, Row, Button } from 'react-vcomponents';
+import { Column, Div, Row, Button, DropDown, DropDownTrigger, DropDownContent, Text, Spinner } from 'react-vcomponents';
 import { BaseComponentPlus, GetDOM, UseCallback } from 'react-vextensions';
 import { ScrollView, ScrollSource } from 'react-vscrollview';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetTimelineStep, GetTimelineSteps } from 'Store/firebase/timelines';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
-import { GetSelectedTimeline, GetPlayingTimelineAppliedStepIndex, ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimelineStepIndex } from 'Store/main/maps/$map';
-import { HSLA, UseSize, VReactMarkdown_Remarkable, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, Icon, GetScreenRect, ActionSet } from 'Utils/FrameworkOverrides';
+import { GetSelectedTimeline, GetPlayingTimelineAppliedStepIndex, ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimelineStepIndex, GetNodeRevealHighlightTime } from 'Store/main/maps/$map';
+import { HSLA, UseSize, VReactMarkdown_Remarkable, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, Icon, GetScreenRect, ActionSet, ACTSet } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import React, { useEffect } from 'react';
 import { ToNumber, VRect, Lerp, GetPercentFromXToY, IsNaN, Assert, Timer, WaitXThenRun, Vector2i } from 'js-vextensions';
@@ -140,6 +140,8 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 			return () => this.timer.Stop();
 		}, []);
 
+		const nodeRevealHighlightTime = GetNodeRevealHighlightTime.Watch();
+
 		const firstNormalStep = GetTimelineStep.Watch(timeline ? timeline.steps[1] : null);
 		const { targetStepIndex, targetTime_yInMessageArea, targetTimeDirection } = this.GetTargetInfo(timeline, firstNormalStep);
 
@@ -172,6 +174,19 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 						}}
 						itemSizeEstimator={this.EstimateStepHeight} itemRenderer={this.RenderStep}/>
 				</ScrollView> */}
+				<Row style={{ background: 'rgba(0,0,0,.7)' }}>
+					<Row ml="auto" style={{ position: 'relative' }}>
+						<DropDown>
+							<DropDownTrigger><Button text="Options"/></DropDownTrigger>
+							<DropDownContent style={{ right: 0, width: 300, zIndex: 11 }}><Column>
+								<Row>
+									<Text>Node-reveal highlight time:</Text>
+									<Spinner ml={5} min={0} value={nodeRevealHighlightTime} onChange={val => store.dispatch(new ACTSet(a => a.main.nodeRevealHighlightTime, val))}/>
+								</Row>
+							</Column></DropDownContent>
+						</DropDown>
+					</Row>
+				</Row>
 				<Row ref={messageAreaRef} style={{ height: `calc(100% - ${ToNumber(videoHeight, 0)}px)` }}>
 					<Column ref={c => this.sideBarEl = c ? c.DOM as any : null} style={{ position: 'relative', width: 20, background: HSLA(0, 0, 0, 1) }}>
 						<Button text={<Icon icon={`arrow-${targetTimeDirection}`} size={20}/>} /* enabled={targetTime_yInMessageArea < 0 || targetTime_yInMessageArea >= messageAreaHeight - 20} */

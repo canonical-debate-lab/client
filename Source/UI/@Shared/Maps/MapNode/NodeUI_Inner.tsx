@@ -1,22 +1,22 @@
 import chroma from 'chroma-js';
 import classNames from 'classnames';
-import { DoNothing, Timer, ToJSON, Vector2i, VRect, WaitXThenRun } from 'js-vextensions';
+import { DoNothing, Timer, ToJSON, Vector2i, VRect, WaitXThenRun, ToNumber } from 'js-vextensions';
 import { Draggable } from 'react-beautiful-dnd';
 import ReactDOM from 'react-dom';
 import { BaseComponent, BaseComponentPlus, GetDOM, UseCallback, UseEffect } from 'react-vextensions';
 import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthScoreComposite, RS_GetAllValues } from 'Store/firebase/nodeRatings/ReasonScore';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
-import { GetTimeFromWhichToShowChangedNodes, GetPlayingTimelineCurrentStepRevealNodes } from 'Store/main/maps/$map';
+import { GetTimeFromWhichToShowChangedNodes, GetPlayingTimelineCurrentStepRevealNodes, GetNodeRevealHighlightTime, GetTimeSinceNodeRevealedByPlayingTimeline } from 'Store/main/maps/$map';
 import { GetPathNodeIDs, GetNodeView } from 'Store/main/mapViews';
 import { GADDemo } from 'UI/@GAD/GAD';
-import { DragInfo, EB_ShowError, EB_StoreError, ExpensiveComponent, HSLA, IsDoubleClick, SlicePath, State, Watch } from 'Utils/FrameworkOverrides';
+import { DragInfo, EB_ShowError, EB_StoreError, ExpensiveComponent, HSLA, IsDoubleClick, SlicePath, State, Watch, SplitStringBySlash_Cached } from 'Utils/FrameworkOverrides';
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
 import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatings } from '../../../../Store/firebase/nodeRatings';
 import { RatingType, ratingTypes } from '../../../../Store/firebase/nodeRatings/@RatingType';
-import { IsNodeSubnode } from '../../../../Store/firebase/nodes';
+import { IsNodeSubnode, GetNodeID } from '../../../../Store/firebase/nodes';
 import { GetMainRatingType, GetNodeForm, GetNodeL3, GetPaddingForNode, IsPremiseOfSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
 import { ClaimForm, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
 import { GetNodeColor, MapNodeType, MapNodeType_Info } from '../../../../Store/firebase/nodes/@MapNodeType';
@@ -145,10 +145,17 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		const ratingsRoot = GetNodeRatingsRoot.Watch(node._key);
 		const showReasonScoreValues = State.Watch(a => a.main.showReasonScoreValues);
 
-		const playingTimeline_currentStepRevealNodes = GetPlayingTimelineCurrentStepRevealNodes.Watch(map._key);
+		/* const playingTimeline_currentStepRevealNodes = GetPlayingTimelineCurrentStepRevealNodes.Watch(map._key);
 		let revealedByCurrentTimelineStep = playingTimeline_currentStepRevealNodes.Contains(path);
 		if (combinedWithParentArgument) {
 			revealedByCurrentTimelineStep = revealedByCurrentTimelineStep || playingTimeline_currentStepRevealNodes.Contains(parentPath);
+		} */
+		const nodeRevealHighlightTime = GetNodeRevealHighlightTime.Watch();
+		const timeSinceRevealedByTimeline_self = GetTimeSinceNodeRevealedByPlayingTimeline.Watch(node._key);
+		const timeSinceRevealedByTimeline_parent = GetTimeSinceNodeRevealedByPlayingTimeline.Watch(GetNodeID(parentPath));
+		let timeSinceRevealedByTimeline = timeSinceRevealedByTimeline_self;
+		if (combinedWithParentArgument && timeSinceRevealedByTimeline_parent != null) {
+			timeSinceRevealedByTimeline = timeSinceRevealedByTimeline != null ? Math.min(timeSinceRevealedByTimeline, timeSinceRevealedByTimeline_parent) : timeSinceRevealedByTimeline_parent;
 		}
 
 		// the rest
@@ -263,7 +270,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 					onMouseLeave={onMouseLeave}
 					{...(dragInfo && dragInfo.provided.draggableProps)} // {...(dragInfo && dragInfo.provided.dragHandleProps)} // drag-handle is attached to just the TitlePanel, below
 					style={E(
-						revealedByCurrentTimelineStep && { boxShadow: 'rgba(255,255,0,1) 0px 0px 7px, rgb(0, 0, 0) 0px 0px 2px' },
+						timeSinceRevealedByTimeline <= nodeRevealHighlightTime && { boxShadow: `rgba(255,255,0,${timeSinceRevealedByTimeline / nodeRevealHighlightTime}) 0px 0px 7px, rgb(0, 0, 0) 0px 0px 2px` },
 						style,
 						dragInfo && dragInfo.provided.draggableProps.style,
 						asDragPreview && { zIndex: 10 },

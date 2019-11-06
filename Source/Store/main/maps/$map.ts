@@ -217,6 +217,13 @@ export function GetNodesRevealedInSteps(steps: TimelineStep[]): string[] {
 	return result.VKeys();
 }
 
+export const GetNodeRevealHighlightTime = StoreAccessor(() => {
+	return State(a => a.main.nodeRevealHighlightTime);
+});
+export const GetTimeSinceNodeRevealedByPlayingTimeline = StoreAccessor((nodeID: string): number => {
+	// break point
+});
+
 export const GetTimeFromWhichToShowChangedNodes = StoreAccessor((mapID: string) => {
 	const type = State(`main/maps/${mapID}/showChangesSince_type`) as ShowChangesSinceType;
 	if (type == ShowChangesSinceType.None) return Number.MAX_SAFE_INTEGER; // from end of time (nothing)

@@ -77,6 +77,9 @@ export class MainState {
 	initialChildLimit: number;
 	showReasonScoreValues: boolean;
 	weighting: WeightingType;
+
+	// timelines
+	nodeRevealHighlightTime: number;
 }
 export class ACTSetPage extends Action<string> {}
 export class ACTSetSubpage extends Action<{page: string, subpage: string}> {}
@@ -219,6 +222,9 @@ export const MainReducer = CombineReducers({
 	initialChildLimit: SimpleReducer(a => a.main.initialChildLimit, 5),
 	showReasonScoreValues: SimpleReducer(a => a.main.showReasonScoreValues, false),
 	weighting: SimpleReducer(a => a.main.weighting, WeightingType.Votes),
+
+	// timelines
+	nodeRevealHighlightTime: SimpleReducer(a => a.main.nodeRevealHighlightTime, 10),
 });
 
 // selectors
