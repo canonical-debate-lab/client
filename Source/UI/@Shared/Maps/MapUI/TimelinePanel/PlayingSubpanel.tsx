@@ -5,7 +5,7 @@ import { ScrollView, ScrollSource } from 'react-vscrollview';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetTimelineStep, GetTimelineSteps } from 'Store/firebase/timelines';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
-import { GetSelectedTimeline, GetPlayingTimelineAppliedStepIndex, ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimelineStepIndex, GetNodeRevealHighlightTime } from 'Store/main/maps/$map';
+import { GetSelectedTimeline, GetPlayingTimelineAppliedStepIndex, ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimelineStepIndex, GetNodeRevealHighlightTime, GetPlayingTimelineTime, ACTMap_PlayingTimelineTimeSet } from 'Store/main/maps/$map';
 import { HSLA, UseSize, VReactMarkdown_Remarkable, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, Icon, GetScreenRect, ActionSet, ACTSet } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import React, { useEffect } from 'react';
@@ -34,6 +34,12 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 
 		const firstStep = GetTimelineStep(timeline ? timeline.steps[0] : null);
 		if (timeline) {
+			const targetTime_floored = GetPlayingTimelineTime(map._key);
+			const newTargetTime_floored = this.newTargetTime.FloorTo(1);
+			if (newTargetTime_floored != targetTime_floored) {
+				store.dispatch(new ACTMap_PlayingTimelineTimeSet({ mapID: map._key, time: newTargetTime_floored }));
+			}
+
 			// const steps = timeline ? GetTimelineSteps.Watch(timeline, true) : null;
 			const steps = GetTimelineSteps(timeline, true);
 			const targetStep = steps.LastOrX(a => a && a.videoTime <= targetTime, firstStep);

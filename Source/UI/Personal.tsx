@@ -2,7 +2,7 @@ import { ToNumber } from 'js-vextensions';
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponentPlus, UseCallback } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
-import { GetMaps } from 'Store/firebase/maps';
+import { GetMaps, GetMaps_Personal } from 'Store/firebase/maps';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
 import { GetSelectedPersonalMap } from 'Store/main/personal';
@@ -19,8 +19,8 @@ export class PersonalUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
 		const userID = MeID();
 		const permissions = GetUserPermissionGroups.Watch(userID);
-		let maps = Watch(() => GetMaps().filter(a => a && a.type == MapType.Personal), []);
-		maps = maps.OrderByDescending(a => ToNumber(a.edits, 0));
+		const maps = GetMaps_Personal.Watch(true);
+		// maps = maps.OrderByDescending(a => ToNumber(a.edits, 0));
 		const selectedMap = GetSelectedPersonalMap.Watch();
 
 		if (selectedMap) {

@@ -224,7 +224,7 @@ export const MainReducer = CombineReducers({
 	weighting: SimpleReducer(a => a.main.weighting, WeightingType.Votes),
 
 	// timelines
-	nodeRevealHighlightTime: SimpleReducer(a => a.main.nodeRevealHighlightTime, 10),
+	nodeRevealHighlightTime: SimpleReducer(a => a.main.nodeRevealHighlightTime, 20),
 });
 
 // selectors

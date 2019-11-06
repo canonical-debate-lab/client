@@ -3,7 +3,7 @@ import React from 'react';
 import { Column } from 'react-vcomponents';
 import { BaseComponentPlus, GetInnerComp, RenderSource, ShallowEquals, UseCallback } from 'react-vextensions';
 import { ChangeType, GetPathsToChangedDescendantNodes_WithChangeTypes } from 'Store/firebase/mapNodeEditTimes';
-import { GetParentPath, HolderType } from 'Store/firebase/nodes';
+import { GetParentPath, HolderType, GetNodeChildrenL3_Advanced } from 'Store/firebase/nodes';
 import { MeID } from 'Store/firebase/users';
 import { GetPlayingTimelineRevealNodes_UpToAppliedStep } from 'Store/main/maps/$map';
 import { NodeChildHolder } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolder';
@@ -55,8 +55,9 @@ export class NodeUI extends BaseComponentPlus(
 		performance.mark('NodeUI_1');
 		path = path || node._key.toString();
 
-		const nodeChildren = GetNodeChildrenL3.Watch(node, path, true);
-		let nodeChildrenToShow: MapNodeL3[] = nodeChildren.Any(a => a == null) ? emptyArray_forLoading : nodeChildren; // only pass nodeChildren when all are loaded
+		const nodeChildren = GetNodeChildrenL3.Watch(node, path);
+		// let nodeChildrenToShow: MapNodeL3[] = nodeChildren.Any(a => a == null) ? emptyArray_forLoading : nodeChildren; // only pass nodeChildren when all are loaded
+		const nodeChildrenToShow = GetNodeChildrenL3_Advanced.Watch(node, path, map._key, true, true, true);
 
 		/* let subnodes = GetSubnodesInEnabledLayersEnhanced.Watch(MeID(), map, node._key);
 		subnodes = subnodes.Any(a => a == null) ? emptyArray : subnodes; // only pass subnodes when all are loaded */
@@ -124,11 +125,6 @@ export class NodeUI extends BaseComponentPlus(
 		}
 
 		const separateChildren = node.type == MapNodeType.Claim;
-		if (playingTimeline && playingTimeline_currentStepIndex < playingTimeline.steps.length - 1) {
-			// nodeChildrenToShow = nodeChildrenToShow.filter(child => playingTimelineVisibleNodes.Contains(`${path}/${child._key}`));
-			// if this node (or a descendent) is marked to be revealed by a currently-applied timeline-step, reveal this node
-			nodeChildrenToShow = nodeChildrenToShow.filter(child => playingTimelineVisibleNodes.Any(a => a.startsWith(`${path}/${child._key}`)));
-		}
 
 		const parentChildren = GetNodeChildrenL3.Watch(parent, parentPath);
 		if (isPremiseOfSinglePremiseArg) {

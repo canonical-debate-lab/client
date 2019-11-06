@@ -2,7 +2,7 @@ import { ToNumber } from 'js-vextensions';
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
-import { GetMaps } from 'Store/firebase/maps';
+import { GetMaps, GetMaps_Debate } from 'Store/firebase/maps';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
 import { HSLA, PageContainer, Watch } from 'Utils/FrameworkOverrides';
@@ -21,7 +21,8 @@ export class DebatesUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
 		const userID = MeID();
 		const permissions = GetUserPermissionGroups.Watch(userID);
-		let maps = Watch(() => GetMaps().filter(a => a && a.type == MapType.Debate), []);
+		const maps = GetMaps_Debate.Watch(true);
+		// maps = maps.OrderByDescending(a => ToNumber(a.edits, 0));
 		const selectedMap = GetSelectedDebateMap.Watch();
 
 		if (selectedMap) {
@@ -32,7 +33,6 @@ export class DebatesUI extends BaseComponentPlus({} as {}, {}) {
 			);
 		}
 
-		maps = maps.OrderByDescending(a => ToNumber(a.edits, 0));
 
 		return (
 			<PageContainer style={E({ margin: '20px auto 20px auto', padding: 0, background: null }, GADDemo && { filter: 'drop-shadow(rgba(0,0,0,.5) 0px 0px 10px)' })}>

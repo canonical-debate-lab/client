@@ -1,7 +1,7 @@
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { ShowChangesSinceType, MapInfo } from 'Store/main/maps/@MapInfo';
-import { emptyArray, GetValues, FromJSON } from 'js-vextensions';
+import { emptyArray, GetValues, FromJSON, ToNumber } from 'js-vextensions';
 import { Action, CombineReducers, SimpleReducer, State, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { GetMap } from '../../firebase/maps';
 import { GetNode, GetNodeChildren } from '../../firebase/nodes';
@@ -30,6 +30,7 @@ export class ACTMap_TimelineOpenSubpanelSet extends Action<{mapID: string, subpa
 export class ACTMap_TimelineShowDetailsSet extends Action<{mapID: string, showDetails: boolean}> {}
 export class ACTMap_SelectedTimelineSet extends Action<{mapID: string, selectedTimeline: string}> {}
 export class ACTMap_PlayingTimelineSet extends Action<{mapID: string, timelineID: string}> {}
+export class ACTMap_PlayingTimelineTimeSet extends Action<{mapID: string, time: number}> {}
 export class ACTMap_PlayingTimelineStepSet extends Action<{mapID: string, stepIndex: number}> {}
 export class ACTMap_PlayingTimelineAppliedStepSet extends Action<{mapID: string, stepIndex: number}> {}
 
@@ -82,6 +83,10 @@ export const MapInfoReducer = mapID => CombineReducers({
 		if (action.Is(ACTMap_PlayingTimelineSet)) return action.payload.timelineID;
 		return state;
 	}, */
+	playingTimeline_time: (state = null, action) => {
+		if (action.Is(ACTMap_PlayingTimelineTimeSet)) return action.payload.time;
+		return state;
+	},
 	playingTimeline_step: (state = null, action) => {
 		if (action.Is(ACTMap_PlayingTimelineStepSet)) return action.payload.stepIndex;
 		return state;
@@ -131,6 +136,10 @@ export const GetPlayingTimeline = StoreAccessor((mapID: string): Timeline => {
 	if (mapInfo == null || !mapInfo.timelinePanelOpen || mapInfo.timelineOpenSubpanel != TimelineSubpanel.Playing) return null;
 	const timelineID = mapInfo.selectedTimeline;
 	return GetTimeline(timelineID);
+});
+export const GetPlayingTimelineTime = StoreAccessor((mapID: string): number => {
+	if (mapID == null) return null;
+	return State('main', 'maps', mapID, 'playingTimeline_time');
 });
 export const GetPlayingTimelineStepIndex = StoreAccessor((mapID: string): number => {
 	if (mapID == null) return null;
@@ -189,11 +198,17 @@ export function GetPlayingTimelineSteps(mapID: string): TimelineStep[] {
 	if (steps.Any(a => a == null)) return emptyArray;
 	return steps;
 }
-export function GetNodesRevealedInSteps(steps: TimelineStep[]): string[] {
-	const result = {};
-	for (const step of steps) {
+export function GetNodeRevealTimesInSteps(steps: TimelineStep[], baseOnLastReveal = false) {
+	const nodeRevealTimes = {} as {[key: string]: number};
+	for (const [index, step] of steps.entries()) {
 		for (const reveal of step.nodeReveals || []) {
-			result[reveal.path] = true;
+			const stepTime_safe = step.videoTime != null ? step.videoTime : steps.slice(0, index).map(a => a.videoTime).LastOrX(a => a != null);
+			if (baseOnLastReveal) {
+				nodeRevealTimes[reveal.path] = Math.max(stepTime_safe, ToNumber(nodeRevealTimes[reveal.path], 0));
+			} else {
+				nodeRevealTimes[reveal.path] = Math.min(stepTime_safe, ToNumber(nodeRevealTimes[reveal.path], Number.MAX_SAFE_INTEGER));
+			}
+
 			const node = GetNode(reveal.path.split('/').Last());
 			if (node == null) continue;
 			let currentChildren = GetNodeChildren(node).map(child => ({ node: child, path: child && `${reveal.path}/${child._key}` }));
@@ -202,7 +217,11 @@ export function GetNodesRevealedInSteps(steps: TimelineStep[]): string[] {
 			for (let childrenDepth = 1; childrenDepth <= reveal.revealDepth; childrenDepth++) {
 				const nextChildren = [];
 				for (const child of currentChildren) {
-					result[child.path] = true;
+					if (baseOnLastReveal) {
+						nodeRevealTimes[child.path] = Math.max(stepTime_safe, ToNumber(nodeRevealTimes[child.path], 0));
+					} else {
+						nodeRevealTimes[child.path] = Math.min(stepTime_safe, ToNumber(nodeRevealTimes[child.path], Number.MAX_SAFE_INTEGER));
+					}
 					// if there's another loop/depth after this one
 					if (childrenDepth < reveal.revealDepth) {
 						const childChildren = GetNodeChildren(child.node).map(child2 => ({ node: child2, path: child2 && `${child.path}/${child2._key}` }));
@@ -214,14 +233,28 @@ export function GetNodesRevealedInSteps(steps: TimelineStep[]): string[] {
 			}
 		}
 	}
-	return result.VKeys();
+	return nodeRevealTimes;
+}
+export function GetNodesRevealedInSteps(steps: TimelineStep[]) {
+	return GetNodeRevealTimesInSteps(steps).VKeys();
 }
 
 export const GetNodeRevealHighlightTime = StoreAccessor(() => {
 	return State(a => a.main.nodeRevealHighlightTime);
 });
-export const GetTimeSinceNodeRevealedByPlayingTimeline = StoreAccessor((nodeID: string): number => {
-	// break point
+export const GetTimeSinceNodeRevealedByPlayingTimeline = StoreAccessor((mapID: string, nodePath: string, timeSinceLastReveal = false, limitToJustPastHighlightRange = false): number => {
+	const appliedSteps = GetPlayingTimelineAppliedSteps(mapID, true);
+	const nodeRevealTimes = GetNodeRevealTimesInSteps(appliedSteps, timeSinceLastReveal);
+	const nodeRevealTime = nodeRevealTimes[nodePath];
+	if (nodeRevealTime == null) return null;
+
+	const timelineTime = GetPlayingTimelineTime(mapID);
+	let result = timelineTime - nodeRevealTime;
+	if (limitToJustPastHighlightRange) {
+		result = result.RoundTo(1); // round, to prevent unnecessary re-renders
+		result = result.KeepBetween(0, GetNodeRevealHighlightTime() + 1); // cap to 0 through [highlight-time]+1, to prevent unneeded re-renders after X+1
+	}
+	return result;
 });
 
 export const GetTimeFromWhichToShowChangedNodes = StoreAccessor((mapID: string) => {

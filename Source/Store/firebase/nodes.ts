@@ -1,6 +1,7 @@
-import { CachedTransform, IsNaN, emptyArray, ToJSON, AsObj } from 'js-vextensions';
-import { GetData, SplitStringBySlash_Cached, SlicePath, GetDataAsync, StoreAccessor } from 'Utils/FrameworkOverrides';
+import { CachedTransform, IsNaN, emptyArray, ToJSON, AsObj, emptyArray_forLoading } from 'js-vextensions';
+import { GetData, SplitStringBySlash_Cached, SlicePath, GetDataAsync, StoreAccessor, SubWatch } from 'Utils/FrameworkOverrides';
 import { PathSegmentToNodeID } from 'Store/main/mapViews';
+import { GetPlayingTimelineRevealNodes_UpToAppliedStep, GetPlayingTimelineStepIndex, GetPlayingTimeline } from 'Store/main/maps/$map';
 import { GetNodeL2, GetNodeL3 } from './nodes/$node';
 import { MapNode, MapNodeL2, MapNodeL3, globalRootNodeID } from './nodes/@MapNode';
 import { MapNodeType, MapNodeType_Info } from './nodes/@MapNodeType';
@@ -109,40 +110,74 @@ export const GetNodeChildren = StoreAccessor((node: MapNode) => {
 		return node.children as any as MapNode[];
 	}
 
-	const children = (node.children || {}).VKeys(true).map(id => GetNode(id));
-	// return CachedTransform('GetNodeChildren', [node._key], children, () => children);
-	return children;
+	return SubWatch('GetNodeChildren', [node._key], () => {
+		const children = (node.children || {}).VKeys(true).map(id => GetNode(id));
+		// return CachedTransform('GetNodeChildren', [node._key], children, () => children);
+		return children;
+	});
 });
 export async function GetNodeChildrenAsync(node: MapNode) {
 	return await Promise.all(node.children.VKeys(true).map(id => GetDataAsync('nodes', id))) as MapNode[];
 }
 
 export const GetNodeChildrenL2 = StoreAccessor((node: MapNode) => {
-	const nodeChildren = GetNodeChildren(node);
-	const nodeChildrenL2 = nodeChildren.map(child => (child ? GetNodeL2(child) : null));
-	// return CachedTransform('GetNodeChildrenL2', [], nodeChildrenL2, () => nodeChildrenL2);
-	return nodeChildrenL2;
+	return SubWatch('GetNodeChildrenL2', [node._key], () => {
+		const nodeChildren = GetNodeChildren(node);
+		const nodeChildrenL2 = nodeChildren.map(child => (child ? GetNodeL2(child) : null));
+		// return CachedTransform('GetNodeChildrenL2', [], nodeChildrenL2, () => nodeChildrenL2);
+		return nodeChildrenL2;
+	});
 });
-export const GetNodeChildrenL3 = StoreAccessor((node: MapNode, path?: string, filterForPath = false): MapNodeL3[] => {
+export const GetNodeChildrenL3 = StoreAccessor((node: MapNode, path?: string): MapNodeL3[] => {
 	if (node == null) return emptyArray;
 	// return CachedTransform_WithStore('GetNodeChildrenL3', [node._key, path, filterForPath], node.children, () => {
-	path = path || `${node._key}`;
+	return SubWatch('GetNodeChildrenL3', [node._key], () => {
+		path = path || `${node._key}`;
 
-	const nodeChildrenL2 = GetNodeChildrenL2(node);
-	let nodeChildrenL3 = nodeChildrenL2.map(child => (child ? GetNodeL3(`${path}/${child._key}`) : null));
-	if (filterForPath) {
-		nodeChildrenL3 = nodeChildrenL3.filter((child) => {
-			// if null, keep (so receiver knows there's an entry here, but it's still loading)
-			if (child == null) return true;
-			// filter out any nodes whose access-level is higher than our own
-			if (child.current.accessLevel > GetUserAccessLevel(MeID())) return false;
-			// hide nodes that don't have the required premise-count
-			// if (!IsNodeVisibleToNonModNonCreators(child, GetNodeChildren(child)) && !IsUserCreatorOrMod(MeID(), child)) return false;
-			return true;
-		});
-	}
-	return nodeChildrenL3;
-	// });
+		const nodeChildrenL2 = GetNodeChildrenL2(node);
+		const nodeChildrenL3 = nodeChildrenL2.map(child => (child ? GetNodeL3(`${path}/${child._key}`) : null));
+		return nodeChildrenL3;
+	});
+	// return CachedTransform('GetNodeChildrenL3', [node, path, filterForPath], [], () => nodeChildrenL3);
+});
+export const GetNodeChildrenL3_Advanced = StoreAccessor((node: MapNode, path: string, mapID: string, applyAccessLevels = false, applyTimeline = false, requireFullyLoaded = false): MapNodeL3[] => {
+	if (node == null) return emptyArray;
+	// return CachedTransform_WithStore('GetNodeChildrenL3', [node._key, path, filterForPath], node.children, () => {
+	return SubWatch('GetNodeChildrenL3_Advanced', [node._key, path, mapID, applyAccessLevels, applyTimeline, requireFullyLoaded], () => {
+		path = path || `${node._key}`;
+
+		const nodeChildrenL2 = GetNodeChildrenL2(node);
+		let nodeChildrenL3 = nodeChildrenL2.map(child => (child ? GetNodeL3(`${path}/${child._key}`) : null));
+		if (applyAccessLevels) {
+			nodeChildrenL3 = nodeChildrenL3.filter((child) => {
+				// if null, keep (so receiver knows there's an entry here, but it's still loading)
+				if (child == null) return true;
+				// filter out any nodes whose access-level is higher than our own
+				if (child.current.accessLevel > GetUserAccessLevel(MeID())) return false;
+				// hide nodes that don't have the required premise-count
+				// if (!IsNodeVisibleToNonModNonCreators(child, GetNodeChildren(child)) && !IsUserCreatorOrMod(MeID(), child)) return false;
+				return true;
+			});
+		}
+		if (applyTimeline) {
+			const playingTimeline = GetPlayingTimeline(mapID);
+			const playingTimeline_currentStepIndex = GetPlayingTimelineStepIndex(mapID);
+			// const playingTimelineShowableNodes = GetPlayingTimelineRevealNodes_All.Watch(map._key);
+			// const playingTimelineVisibleNodes = GetPlayingTimelineRevealNodes_UpToAppliedStep.Watch(map._key, true);
+			// if users scrolls to step X and expands this node, keep expanded even if user goes back to a previous step
+			const playingTimelineVisibleNodes = GetPlayingTimelineRevealNodes_UpToAppliedStep(mapID);
+			if (playingTimeline && playingTimeline_currentStepIndex < playingTimeline.steps.length - 1) {
+				// nodeChildrenToShow = nodeChildrenToShow.filter(child => playingTimelineVisibleNodes.Contains(`${path}/${child._key}`));
+				// if this node (or a descendent) is marked to be revealed by a currently-applied timeline-step, reveal this node
+				nodeChildrenL3 = nodeChildrenL3.filter(child => child != null && playingTimelineVisibleNodes.Any(a => a.startsWith(`${path}/${child._key}`)));
+			}
+		}
+		if (requireFullyLoaded) {
+			nodeChildrenL3 = nodeChildrenL3.Any(a => a == null) ? emptyArray_forLoading : nodeChildrenL3; // only pass nodeChildren when all are loaded
+		}
+		return nodeChildrenL3;
+	});
+	// return CachedTransform('GetNodeChildrenL3', [node, path, filterForPath], [], () => nodeChildrenL3);
 });
 
 export function GetHolderType(childType: MapNodeType, parentType: MapNodeType) {

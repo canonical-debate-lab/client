@@ -151,8 +151,8 @@ export class NodeUI_Inner extends BaseComponentPlus(
 			revealedByCurrentTimelineStep = revealedByCurrentTimelineStep || playingTimeline_currentStepRevealNodes.Contains(parentPath);
 		} */
 		const nodeRevealHighlightTime = GetNodeRevealHighlightTime.Watch();
-		const timeSinceRevealedByTimeline_self = GetTimeSinceNodeRevealedByPlayingTimeline.Watch(node._key);
-		const timeSinceRevealedByTimeline_parent = GetTimeSinceNodeRevealedByPlayingTimeline.Watch(GetNodeID(parentPath));
+		const timeSinceRevealedByTimeline_self = GetTimeSinceNodeRevealedByPlayingTimeline.Watch(map._key, path, true, true);
+		const timeSinceRevealedByTimeline_parent = GetTimeSinceNodeRevealedByPlayingTimeline.Watch(map._key, parentPath, true, true);
 		let timeSinceRevealedByTimeline = timeSinceRevealedByTimeline_self;
 		if (combinedWithParentArgument && timeSinceRevealedByTimeline_parent != null) {
 			timeSinceRevealedByTimeline = timeSinceRevealedByTimeline != null ? Math.min(timeSinceRevealedByTimeline, timeSinceRevealedByTimeline_parent) : timeSinceRevealedByTimeline_parent;
@@ -270,7 +270,8 @@ export class NodeUI_Inner extends BaseComponentPlus(
 					onMouseLeave={onMouseLeave}
 					{...(dragInfo && dragInfo.provided.draggableProps)} // {...(dragInfo && dragInfo.provided.dragHandleProps)} // drag-handle is attached to just the TitlePanel, below
 					style={E(
-						timeSinceRevealedByTimeline <= nodeRevealHighlightTime && { boxShadow: `rgba(255,255,0,${timeSinceRevealedByTimeline / nodeRevealHighlightTime}) 0px 0px 7px, rgb(0, 0, 0) 0px 0px 2px` },
+						timeSinceRevealedByTimeline != null && timeSinceRevealedByTimeline <= nodeRevealHighlightTime &&
+							{ boxShadow: `rgba(255,255,0,${1 - (timeSinceRevealedByTimeline / nodeRevealHighlightTime)}) 0px 0px 7px, rgb(0, 0, 0) 0px 0px 2px` },
 						style,
 						dragInfo && dragInfo.provided.draggableProps.style,
 						asDragPreview && { zIndex: 10 },

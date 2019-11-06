@@ -1,11 +1,29 @@
-import { CachedTransform } from 'js-vextensions';
-import { GetData, StoreAccessor } from 'Utils/FrameworkOverrides';
+import { CachedTransform, emptyArray_forLoading, ToNumber } from 'js-vextensions';
+import { GetData, StoreAccessor, SubWatch } from 'Utils/FrameworkOverrides';
 import { Map, MapType } from './maps/@Map';
 
-export function GetMaps(): Map[] {
-	const mapsMap = GetData({ collection: true }, 'maps');
-	return CachedTransform('GetMaps', [], mapsMap, () => (mapsMap ? mapsMap.VValues(true) : []));
-}
+export const GetMaps = StoreAccessor((orderByEdits = false): Map[] => {
+	/* const mapsMap = GetData({ collection: true }, 'maps');
+	return CachedTransform('GetMaps', [], mapsMap, () => (mapsMap ? mapsMap.VValues(true) : [])); */
+	return SubWatch('GetMaps', [orderByEdits], () => {
+		const mapsMap = GetData({ collection: true }, 'maps');
+		if (!mapsMap) return emptyArray_forLoading;
+		let result = mapsMap.VValues(true);
+		if (orderByEdits) result = result.OrderByDescending(a => ToNumber(a && a.edits, 0));
+		return result;
+	});
+});
+export const GetMaps_Personal = StoreAccessor((orderByEdits = false) => {
+	return SubWatch('GetMaps_Personal', [orderByEdits], () => {
+		return GetMaps(orderByEdits).filter(a => a && a.type == MapType.Personal);
+	});
+});
+export const GetMaps_Debate = StoreAccessor((orderByEdits = false) => {
+	return SubWatch('GetMaps_Debate', [orderByEdits], () => {
+		return GetMaps(orderByEdits).filter(a => a && a.type == MapType.Debate);
+	});
+});
+
 /* export function GetMapsOfType(type: MapType): Map[] {
 	const mapsMap = GetData({ collection: true }, 'maps');
 	return CachedTransform('GetMaps', [type], mapsMap, () => (mapsMap ? mapsMap.VValues(true).filter(a => a && a.type == type) : []));
