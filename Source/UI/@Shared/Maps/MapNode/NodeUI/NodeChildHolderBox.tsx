@@ -7,7 +7,7 @@ import { IsSinglePremiseArgument } from 'Store/firebase/nodes/$node';
 import { MapNodeL3 } from 'Store/firebase/nodes/@MapNode';
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView/rootNodeViews';
-import { MapNodeView } from 'Store/main/mapViews/@MapViews';
+import { MapNodeView, MapNodeView_SelfOnly } from 'Store/main/mapViews/@MapViews';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { emptyArray_forLoading, emptyArray, AssertWarn } from 'js-vextensions';
 import { Connect, HSLA, ExpensiveComponent, ActionSet } from 'Utils/FrameworkOverrides';
@@ -25,7 +25,7 @@ import { NodeChildHolder } from './NodeChildHolder';
 import { RatingsPanel } from './Panels/RatingsPanel';
 
 type Props = {
-	map: Map, node: MapNodeL3, path: string, nodeView: MapNodeView, nodeChildren: MapNodeL3[], nodeChildrenToShow: MapNodeL3[],
+	map: Map, node: MapNodeL3, path: string, nodeView: MapNodeView_SelfOnly, nodeChildren: MapNodeL3[], nodeChildrenToShow: MapNodeL3[],
 	type: HolderType, widthOfNode: number, widthOverride?: number, onHeightOrDividePointChange?: (dividePoint: number)=>void,
 };
 

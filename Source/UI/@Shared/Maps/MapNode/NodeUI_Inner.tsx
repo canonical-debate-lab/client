@@ -8,7 +8,7 @@ import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthSc
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes, GetPlayingTimelineCurrentStepRevealNodes, GetNodeRevealHighlightTime, GetTimeSinceNodeRevealedByPlayingTimeline } from 'Store/main/maps/$map';
-import { GetPathNodeIDs, GetNodeView } from 'Store/main/mapViews';
+import { GetPathNodeIDs, GetNodeView, GetNodeView_SelfOnly } from 'Store/main/mapViews';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { DragInfo, EB_ShowError, EB_StoreError, ExpensiveComponent, HSLA, IsDoubleClick, SlicePath, State, Watch, SplitStringBySlash_Cached } from 'Utils/FrameworkOverrides';
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
@@ -23,7 +23,7 @@ import { GetNodeColor, MapNodeType, MapNodeType_Info } from '../../../../Store/f
 import { MeID } from '../../../../Store/firebase/users';
 import { GetLastAcknowledgementTime, WeightingType } from '../../../../Store/main';
 import { ACTMapNodeExpandedSet, ACTMapNodePanelOpen, ACTMapNodeSelect, ACTMapNodeTermOpen } from '../../../../Store/main/mapViews/$mapView/rootNodeViews';
-import { MapNodeView } from '../../../../Store/main/mapViews/@MapViews';
+import { MapNodeView, MapNodeView_SelfOnly } from '../../../../Store/main/mapViews/@MapViews';
 import { ExpandableBox } from './ExpandableBox';
 import { DefinitionsPanel } from './NodeUI/Panels/DefinitionsPanel';
 import { DetailsPanel } from './NodeUI/Panels/DetailsPanel';
@@ -58,7 +58,7 @@ import { NodeUI_Menu_Stub } from './NodeUI_Menu';
 // export type NodeHoverExtras = {panel?: string, term?: number};
 
 type Props = {
-	indexInNodeList: number, map: Map, node: MapNodeL3, nodeView: MapNodeView, path: string, width: number, widthOverride?: number,
+	indexInNodeList: number, map: Map, node: MapNodeL3, nodeView: MapNodeView_SelfOnly, path: string, width: number, widthOverride?: number,
 	panelPosition?: 'left' | 'below', useLocalPanelState?: boolean, style?,
 } & {dragInfo?: DragInfo};
 
@@ -202,7 +202,8 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		let expanded = nodeView && nodeView.expanded;
 
 		// const parentNodeView = GetNodeView.Watch(map._key, parentPath);
-		const parentNodeView = Watch(() => parentPath && GetNodeView(map._key, parentPath), [map._key, parentPath]);
+		// const parentNodeView = Watch(() => parentPath && GetNodeView_SelfOnly(map._key, parentPath), [map._key, parentPath]);
+		const parentNodeView = GetNodeView_SelfOnly.Watch(map._key, parentPath);
 		// if combined with parent arg (ie. premise of single-premise arg), use parent's expansion state for this box
 		if (combinedWithParentArgument) {
 			expanded = parentNodeView && parentNodeView.expanded;

@@ -199,7 +199,6 @@ export class MapUI extends BaseComponentPlus({
 	async ComponentDidMount() {
 		MapUI.currentMapUI = this;
 
-
 		NodeUI.renderCount = 0;
 		/* NodeUI.lastRenderTime = Date.now();
 		let lastRenderCount = 0; */

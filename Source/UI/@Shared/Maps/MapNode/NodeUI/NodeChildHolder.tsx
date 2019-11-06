@@ -9,7 +9,7 @@ import { MapNodeL3 } from 'Store/firebase/nodes/@MapNode';
 import { ArgumentType } from 'Store/firebase/nodes/@MapNodeRevision';
 import { MapNodeType, MapNodeType_Info } from 'Store/firebase/nodes/@MapNodeType';
 import { ACTMapNodeChildLimitSet } from 'Store/main/mapViews/$mapView/rootNodeViews';
-import { MapNodeView } from 'Store/main/mapViews/@MapViews';
+import { MapNodeView, MapNodeView_SelfOnly } from 'Store/main/mapViews/@MapViews';
 import { NodeConnectorBackground } from 'UI/@Shared/Maps/MapNode/NodeConnectorBackground';
 import { NodeUI } from 'UI/@Shared/Maps/MapNode/NodeUI';
 import { Connect, ExpensiveComponent, Icon, IsSpecialEmptyArray, MaybeLog, State, Watch } from 'Utils/FrameworkOverrides';
@@ -22,7 +22,7 @@ import { ArgumentsControlBar } from '../ArgumentsControlBar';
 import { NodeChildHolderBox } from './NodeChildHolderBox';
 
 type Props = {
-	map: Map, node: MapNodeL3, path: string, nodeView: MapNodeView, nodeChildrenToShow: MapNodeL3[], type: HolderType,
+	map: Map, node: MapNodeL3, path: string, nodeView: MapNodeView_SelfOnly, nodeChildrenToShow: MapNodeL3[], type: HolderType,
 	separateChildren: boolean, showArgumentsControlBar: boolean, linkSpawnPoint: number, vertical?: boolean, minWidth?: number,
 	onHeightOrDividePointChange?: (dividePoint: number)=>void,
 };

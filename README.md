@@ -48,3 +48,7 @@ VSCode extensions:
 ### Troubleshooting
 
 * If you get an odd compile error or the CSS does not seem to be loading for the site (when recompiling), try deleting the cache at "node_modules/.cache/hard-source".
+
+### Other documentation
+
+* [Performance](/Docs/Performance.md)

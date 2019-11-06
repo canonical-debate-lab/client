@@ -17,7 +17,7 @@ import { GetNodeForm, IsMultiPremiseArgument, IsNodeL2, IsNodeL3, IsPremiseOfSin
 import { AccessLevel, MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
 import { GetPlayingTimeline, GetPlayingTimelineCurrentStepRevealNodes, GetPlayingTimelineStepIndex, GetTimeFromWhichToShowChangedNodes } from '../../../../Store/main/maps/$map';
-import { GetNodeView } from '../../../../Store/main/mapViews';
+import { GetNodeView, GetNodeView_SelfOnly } from '../../../../Store/main/mapViews';
 import { MapNodeView } from '../../../../Store/main/mapViews/@MapViews';
 import { NodeChangesMarker } from './NodeUI/NodeChangesMarker';
 import { NodeChildCountMarker } from './NodeUI/NodeChildCountMarker';
@@ -32,8 +32,8 @@ export class NodeUI extends BaseComponentPlus(
 	},
 	{ expectedBoxWidth: 0, expectedBoxHeight: 0, dividePoint: null as number, selfHeight: 0 },
 ) {
-	static renderCount = 0;
-	static lastRenderTime = -1;
+	/* static renderCount = 0;
+	static lastRenderTime = -1; */
 	static ValidateProps(props) {
 		const { node } = props;
 		Assert(IsNodeL2(node), 'Node supplied to NodeUI is not level-2!');
@@ -70,7 +70,8 @@ export class NodeUI extends BaseComponentPlus(
 		const parent = GetParentNodeL3(path);
 		const parentPath = GetParentPath(path);
 		// const parentNodeView = GetNodeView.Watch(map._key, parentPath) || new MapNodeView();
-		const parentNodeView = Watch(() => GetNodeView(map._key, parentPath) || new MapNodeView(), [map._key, parentPath]);
+		// const parentNodeView = Watch(() => GetNodeView(map._key, parentPath) || new MapNodeView(), [map._key, parentPath]);
+		const parentNodeView = GetNodeView_SelfOnly.Watch(map._key, parentPath, true);
 
 		const isSinglePremiseArgument = IsSinglePremiseArgument.Watch(node);
 		const isPremiseOfSinglePremiseArg = IsPremiseOfSinglePremiseArgument.Watch(node, parent);
@@ -81,7 +82,8 @@ export class NodeUI extends BaseComponentPlus(
 		const form = GetNodeForm.Watch(node, GetParentNodeL2.Watch(path)); */
 		/* const nodeView_early = GetNodeView.Watch(map._key, path) || new MapNodeView();
 		const nodeView = CachedTransform('nodeView_transform1', [map._key, path], nodeView_early.Excluding('focused', 'viewOffset', 'children'), () => nodeView_early); */
-		const nodeView = Watch(() => GetNodeView(map._key, path) || new MapNodeView(), [map._key, path]);
+		// const nodeView = Watch(() => GetNodeView(map._key, path) || new MapNodeView(), [map._key, path]);
+		const nodeView = GetNodeView_SelfOnly.Watch(map._key, path, true);
 		const boxExpanded = isPremiseOfSinglePremiseArg ? parentNodeView.expanded : nodeView.expanded;
 
 		const playingTimeline = GetPlayingTimeline.Watch(map._key);
@@ -101,8 +103,8 @@ export class NodeUI extends BaseComponentPlus(
 				Log(`Updating NodeUI (${RenderSource[this.lastRender_source]}):${node._key}`, '\nPropsChanged:', this.GetPropChanges().map(a => a.key), '\nStateChanged:', this.GetStateChanges().map(a => a.key));
 			}
 		}
-		NodeUI.renderCount++;
-		NodeUI.lastRenderTime = Date.now();
+		// NodeUI.renderCount++;
+		// NodeUI.lastRenderTime = Date.now();
 
 		// if single-premise arg, combine arg and premise into one box, by rendering premise box directly (it will add-in this argument's child relevance-arguments)
 		if (isSinglePremiseArgument) {

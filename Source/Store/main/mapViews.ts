@@ -1,10 +1,10 @@
 import { Assert, CachedTransform, GetTreeNodesInObjTree, IsNumberString, Vector2i, IsNumber, IsString } from 'js-vextensions';
 import { ShallowChanged } from 'react-vextensions';
-import { Action, DBPath, SplitStringBySlash_Cached, State, DoesActionSetFirestoreData, GetFirestoreDataSetterActionPath, Validate, StoreAccessor } from 'Utils/FrameworkOverrides';
+import { Action, DBPath, SplitStringBySlash_Cached, State, DoesActionSetFirestoreData, GetFirestoreDataSetterActionPath, Validate, StoreAccessor, SubWatch } from 'Utils/FrameworkOverrides';
 import { UUID } from 'Utils/General/KeyGenerator';
 import { ACTDebateMapSelect_WithData } from './debates';
 import { ACTMapViewMerge, MapViewReducer } from './mapViews/$mapView';
-import { MapNodeView, MapView, MapViews } from './mapViews/@MapViews';
+import { MapNodeView, MapView, MapViews, emptyNodeView, MapNodeView_SelfOnly, MapNodeView_SelfOnly_props } from './mapViews/@MapViews';
 import { ACTPersonalMapSelect_WithData } from './personal';
 
 export function MapViewsReducer(state = new MapViews(), action: Action<any>) {
@@ -152,6 +152,23 @@ export const GetNodeView = StoreAccessor((mapID: string, path: string): MapNodeV
 	if (path == null) return null;
 	const dataPath = GetNodeViewDataPath(mapID, path);
 	return State(...dataPath) as any;
+});
+export const GetNodeView_SelfOnly = StoreAccessor((mapID: string, path: string, returnEmptyNodeViewIfNull = false) => {
+	return SubWatch('GetNodeView_SelfOnly', [mapID, path, returnEmptyNodeViewIfNull], () => {
+		/* const nodeView = GetNodeView(mapID, path);
+		if (nodeView == null && returnEmptyNodeViewIfNull) return emptyNodeView; */
+
+		// access each prop separately, so that changes to the "children" prop do not trigger this sub-watcher to re-run
+		if (path == null) return null;
+		const dataPath = GetNodeViewDataPath(mapID, path);
+		const nodeView = {};
+		for (const prop of MapNodeView_SelfOnly_props) {
+			nodeView[prop] = State(...dataPath, prop);
+		}
+
+		if (nodeView.VKeys().length == 0 && returnEmptyNodeViewIfNull) return emptyNodeView;
+		return nodeView.Excluding('children') as MapNodeView_SelfOnly;
+	});
 });
 export function GetViewOffset(mapView: MapView): Vector2i {
 	if (mapView == null) return null;

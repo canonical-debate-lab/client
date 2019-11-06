@@ -1,16 +1,13 @@
-import { GetErrorMessagesUnderElement, Clone } from 'js-vextensions';
-import Moment from 'moment';
-import { Column, Pre, RowLR, TextInput, Row, Button } from 'react-vcomponents';
-import { BaseComponent, GetDOM, BaseComponentPlus } from 'react-vextensions';
-import { Timeline } from 'Store/firebase/timelines/@Timeline';
-import { User } from 'Store/firebase/users/@User';
-import { Connect, Watch, GetUpdates } from 'Utils/FrameworkOverrides';
+import { Clone, GetErrorMessagesUnderElement } from 'js-vextensions';
+import { Button, Column, Pre, Row, RowLR, TextInput } from 'react-vcomponents';
+import { BaseComponentPlus, GetDOM } from 'react-vextensions';
 import { UpdateTimeline } from 'Server/Commands/UpdateTimeline';
+import { Timeline } from 'Store/firebase/timelines/@Timeline';
+import { GetUpdates, Watch } from 'Utils/FrameworkOverrides';
 import { GetUser } from '../../../Store/firebase/users';
 import { IDAndCreationInfoUI } from '../CommonPropUIs/IDAndCreationInfoUI';
 
 export class TimelineDetailsUI extends BaseComponentPlus({ enabled: true } as {baseData: Timeline, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: Timeline, ui: TimelineDetailsUI)=>void}, {} as { newData: Timeline }) {
-	static defaultProps = { enabled: true };
 	ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.baseData != this.props.baseData) { // if base-data changed
 			this.SetState({ newData: Clone(props.baseData) });
