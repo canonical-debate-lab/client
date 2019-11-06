@@ -131,10 +131,13 @@ export const GetSelectedTimeline = StoreAccessor((mapID: string): Timeline => {
 });
 export const GetPlayingTimeline = StoreAccessor((mapID: string): Timeline => {
 	if (mapID == null) return null;
-	const mapInfo = State('main', 'maps', mapID) as MapInfo;
+	/* const mapInfo = State('main', 'maps', mapID) as MapInfo;
 	// const timelineID = State('main', 'maps', mapID, 'playingTimeline');
 	if (mapInfo == null || !mapInfo.timelinePanelOpen || mapInfo.timelineOpenSubpanel != TimelineSubpanel.Playing) return null;
 	const timelineID = mapInfo.selectedTimeline;
+	return GetTimeline(timelineID); */
+	if (!State('main', 'maps', mapID, 'timelinePanelOpen') || State('main', 'maps', mapID, 'timelineOpenSubpanel') != TimelineSubpanel.Playing) return null;
+	const timelineID = State('main', 'maps', mapID, 'selectedTimeline');
 	return GetTimeline(timelineID);
 });
 export const GetPlayingTimelineTime = StoreAccessor((mapID: string): number => {
