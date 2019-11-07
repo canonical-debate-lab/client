@@ -84,6 +84,7 @@ module.exports = {
 		"consistent-return": "off",
 		"no-loop-func": "off",
 		"no-nested-ternary": "off",
+		"no-use-before-define": "off", // for store-accessors that call each other
 
 		// plugins
 		"react-hooks/rules-of-hooks": "error",

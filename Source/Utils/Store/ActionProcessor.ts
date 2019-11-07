@@ -227,6 +227,7 @@ export async function PostDispatchAction(action: Action<any>) {
 			return GetTimelineStep(stepID);
 		});
 		const newlyRevealedNodes = await GetAsync(() => GetNodesRevealedInSteps([step]));
+		// Log(`@Step(${step._key}) @NewlyRevealedNodes(${newlyRevealedNodes})`);
 		if (newlyRevealedNodes.length) {
 			// stats=>Log("Requested paths:\n==========\n" + stats.requestedPaths.VKeys().join("\n") + "\n\n"));
 			ExpandToAndFocusOnNodes(action.payload.mapID, newlyRevealedNodes);
