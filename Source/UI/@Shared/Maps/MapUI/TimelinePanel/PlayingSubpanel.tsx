@@ -13,28 +13,42 @@ import { ToNumber, VRect, Lerp, GetPercentFromXToY, IsNaN, Assert, Timer, WaitXT
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { StepUI } from './PlayingSubpanel/StepUI';
 
-export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targetTime: 0, listY: 0, autoScroll: true }, { messageAreaHeight: 0 }) {
+export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targetTime: null as number, listY: 0, autoScroll: true }, { messageAreaHeight: 0 }) {
 	player: YoutubePlayer;
 	listRootEl: HTMLDivElement;
 	sideBarEl: HTMLDivElement;
-	stepRects = [] as VRect[];
+	// stepRects = [] as VRect[];
+	// stepComps = [] as StepUI[];
+	stepElements = [] as HTMLDivElement[];
+
+	// there are three "target time" fields: reduxState.main.maps.$mapID.playingTimeline_time, this.state.targetTime, this.newTargetTime
+	// #1 is for persistence between sessions and sharing with node-uis (updates once per second), #2 is for this comp's arrow (frequent updates), #3 is just a helper for updating #1 and #2
 
 	// temp value for timer to apply
-	newTargetTime = 0;
+	newTargetTime: number;
 	timer = new Timer(100, () => {
-		if (this.listRootEl == null) return;
-		this.SetState({ listY: GetScreenRect(this.listRootEl).y, targetTime: this.newTargetTime });
-		// Log(`Setting...${GetScreenRect(this.listRootEl).y} @Time:${this.newTargetTime}`);
-
 		const { map } = this.props;
 		const { targetTime, autoScroll } = this.state;
+
+		const targetTime_floored = GetPlayingTimelineTime(map._key); // from redux store
+
+		if (this.newTargetTime == null && targetTime == null) {
+			this.newTargetTime = targetTime_floored;
+		}
+		// Log('Applying this.newTargetTime:', this.newTargetTime, ';', targetTime_floored);
+		this.SetState({ targetTime: this.newTargetTime });
+
+		if (this.listRootEl != null) {
+			this.SetState({ listY: GetScreenRect(this.listRootEl).y });
+			// Log(`Setting...${GetScreenRect(this.listRootEl).y}`);
+		}
+
 		const timeline = GetSelectedTimeline(map._key);
 		const targetStepIndex = GetPlayingTimelineStepIndex(map._key);
 		// const maxTargetStepIndex = GetPlayingTimelineAppliedStepIndex(map._key);
 
 		const firstStep = GetTimelineStep(timeline ? timeline.steps[0] : null);
 		if (timeline) {
-			const targetTime_floored = GetPlayingTimelineTime(map._key);
 			const newTargetTime_floored = this.newTargetTime.FloorTo(1);
 			if (newTargetTime_floored != targetTime_floored) {
 				store.dispatch(new ACTMap_PlayingTimelineTimeSet({ mapID: map._key, time: newTargetTime_floored }));
@@ -76,10 +90,21 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 			const targetStep = steps.Skip(1).LastOrX(a => a && a.videoTime <= targetTime, firstNormalStep);
 			if (targetStep) {
 				targetStepIndex = timeline.steps.indexOf(targetStep._key);
-				const targetStep_rect = this.stepRects[targetStepIndex];
 				const postTargetStepIndex = targetStepIndex + 1 < timeline.steps.length ? targetStepIndex + 1 : -1;
 				const postTargetStep = GetTimelineStep(timeline.steps[postTargetStepIndex]);
-				if (postTargetStep && targetStep_rect) {
+
+				// const targetStep_rect = this.stepRects[targetStepIndex];
+				/* const targetStep_comp = this.stepComps[targetStepIndex];
+				if (postTargetStep && targetStep_comp) {
+					const listRoot = targetStep_comp.DOM_HTML.parentElement.parentElement.parentElement; */
+				const targetStep_el = this.stepElements[targetStepIndex];
+				if (postTargetStep && targetStep_el && document.body.contains(targetStep_el)) {
+					const listRoot = targetStep_el.parentElement.parentElement.parentElement;
+					const listRect = GetScreenRect(listRoot);
+					const targetStep_rect = GetScreenRect(targetStep_el);
+					targetStep_rect.Position = targetStep_rect.Position.Minus(listRect.Position);
+					// Log('Target step rect:', targetStep_rect);
+
 					// const postTargetStep_rect = this.stepRects[postTargetStepIndex];
 					/* const targetTime_screenY = Lerp(targetStep_rect.Top, targetStep_rect.Bottom, GetPercentFromXToY(targetStep.videoTime, postTargetStep.videoTime, targetTime));
 					targetTime_yInParent = targetTime_screenY - GetScreenRect(this.sideBarEl).y; */
@@ -102,6 +127,7 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 		if (targetTimeDirection == 'up') distanceOffScreen = -targetTime_yInMessageArea;
 		else if (targetTimeDirection == 'down') distanceOffScreen = targetTime_yInMessageArea - (messageAreaHeight - 20); */
 
+		this.Stash({ targetStepIndex, targetTime_yInMessageArea, targetTimeDirection } as any); // for debugging
 		return { targetStepIndex, targetTime_yInMessageArea, targetTimeDirection };
 	};
 
@@ -146,6 +172,8 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 			return () => this.timer.Stop();
 		}, []);
 
+		const targetTime_floored = GetPlayingTimelineTime(map._key); // no need to watch, since only used as start-pos for video, if in initial mount
+
 		const nodeRevealHighlightTime = GetNodeRevealHighlightTime.Watch();
 
 		const firstNormalStep = GetTimelineStep.Watch(timeline ? timeline.steps[1] : null);
@@ -155,16 +183,18 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 		return (
 			<Column style={{ height: '100%' }}>
 				{timeline.videoID &&
-				<YoutubePlayerUI ref={videoRef} videoID={timeline.videoID} startTime={timeline.videoStartTime} heightVSWidthPercent={timeline.videoHeightVSWidthPercent}
+				<YoutubePlayerUI ref={videoRef} videoID={timeline.videoID} startTime={targetTime_floored || timeline.videoStartTime} heightVSWidthPercent={timeline.videoHeightVSWidthPercent}
 					onPlayerInitialized={(player) => {
 						this.player = player;
 						player.GetPlayerUI().style.position = 'absolute';
 						this.Update();
 					}}
 					onPosChanged={(pos) => {
+						if (pos == 0) return; // ignore "pos 0" event; this just happens when the video first loads (even if seek-to time set otherwise)
 						// this.SetState({ targetTime: pos });
 						// just set state directly, because the timer above will handle the refreshing
 						// this.state['targetTime'] = pos;
+						// if (pos == timeline.videoStartTime && this.newTargetTime == null) return; // don't set newTargetTime
 						this.newTargetTime = pos;
 					}}/>}
 				{/* <ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, position: 'relative', padding: 7, filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)' })}>
@@ -252,15 +282,17 @@ export class PlayingSubpanel extends BaseComponentPlus({} as {map: Map}, { targe
 										}
 									}}
 									ref={(c) => {
-										if (!c || c.DOM_HTML == null) return;
-										const listRoot = c.DOM_HTML.parentElement.parentElement.parentElement;
+										if (c == null || c.DOM_HTML == null) return;
+										/* const listRoot = c.DOM_HTML.parentElement.parentElement.parentElement;
 										const listRect = GetScreenRect(listRoot);
 
 										const el = c.DOM_HTML;
 										const rect = GetScreenRect(el);
 										rect.Position = rect.Position.Minus(listRect.Position);
 										// this.SetState({ [`step${index}_rect`]: rect }, null, null, true);
-										this.stepRects[index] = rect;
+										this.stepRects[index] = rect; */
+										// this.stepComps[index] = c;
+										this.stepElements[index] = c.DOM_HTML as any;
 									}}/>;
 							}}/>
 					</ScrollView>
