@@ -98,6 +98,10 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		const intersectsOne = mouseRect.Intersects(mainRect) || (leftBoxRect && mouseRect.Intersects(leftBoxRect)) || (bottomPanelRect && mouseRect.Intersects(bottomPanelRect));
 		// Log(`Main: ${mainRect} Mouse:${mousePos} Intersects one?:${intersectsOne}`);
 		this.SetState({ hovered: intersectsOne });
+
+		if (!intersectsOne) {
+			this.checkStillHoveredTimer.Stop();
+		}
 	});
 
 	render() {
