@@ -10,8 +10,9 @@ import { ACTSetLastAcknowledgementTime } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes, GetPlayingTimelineCurrentStepRevealNodes, GetNodeRevealHighlightTime, GetTimeSinceNodeRevealedByPlayingTimeline } from 'Store/main/maps/$map';
 import { GetPathNodeIDs, GetNodeView, GetNodeView_SelfOnly } from 'Store/main/mapViews';
 import { GADDemo } from 'UI/@GAD/GAD';
-import { DragInfo, EB_ShowError, EB_StoreError, ExpensiveComponent, HSLA, IsDoubleClick, SlicePath, State, Watch, SplitStringBySlash_Cached } from 'Utils/FrameworkOverrides';
+import { DragInfo, EB_ShowError, EB_StoreError, ExpensiveComponent, HSLA, IsDoubleClick, SlicePath, State, Watch, Observer } from 'Utils/FrameworkOverrides';
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
+import { GetPlayingTimelineTime } from 'StoreM/main/maps/$map';
 import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatings } from '../../../../Store/firebase/nodeRatings';
@@ -72,7 +73,8 @@ type Props = {
 	};
 }) */
 
-@ExpensiveComponent
+// @ExpensiveComponent
+@Observer
 export class NodeUI_Inner extends BaseComponentPlus(
 	{ panelPosition: 'left' } as Props,
 	{ hovered: false, hoverPanel: null as string, hoverTermID: null as string, local_openPanel: null as string, lastWidthWhenNotPreview: 0 },

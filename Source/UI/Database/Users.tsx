@@ -23,6 +23,7 @@ export class UsersUI extends BaseComponentPlus({} as {}, {}) {
 			return <UserProfileUI profileUser={selectedUser}/>;
 		}
 
+		users = users.filter(a => a);
 		users = users.OrderBy(a => (userExtraInfoMap[a._key] ? userExtraInfoMap[a._key].joinDate : Number.MAX_SAFE_INTEGER));
 		users = users.OrderByDescending(a => (userExtraInfoMap[a._key] ? (userExtraInfoMap[a._key].edits | 0) : Number.MIN_SAFE_INTEGER));
 		return (

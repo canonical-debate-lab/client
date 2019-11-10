@@ -4,6 +4,8 @@ import { ShowChangesSinceType, MapInfo } from 'Store/main/maps/@MapInfo';
 import { emptyArray, GetValues, FromJSON, ToNumber } from 'js-vextensions';
 import { Action, CombineReducers, SimpleReducer, State, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { ReversePolarity } from 'Store/firebase/nodes/$node';
+import { storeM } from 'StoreM/StoreM';
+import {GetPlayingTimelineTime} from 'StoreM/main/maps/$map';
 import { GetMap } from '../../firebase/maps';
 import { GetNode, GetNodeChildren } from '../../firebase/nodes';
 import { GetTimeline, GetTimelineStep } from '../../firebase/timelines';
@@ -31,7 +33,7 @@ export class ACTMap_TimelineOpenSubpanelSet extends Action<{mapID: string, subpa
 export class ACTMap_TimelineShowDetailsSet extends Action<{mapID: string, showDetails: boolean}> {}
 export class ACTMap_SelectedTimelineSet extends Action<{mapID: string, selectedTimeline: string}> {}
 export class ACTMap_PlayingTimelineSet extends Action<{mapID: string, timelineID: string}> {}
-export class ACTMap_PlayingTimelineTimeSet extends Action<{mapID: string, time: number}> {}
+// export class ACTMap_PlayingTimelineTimeSet extends Action<{mapID: string, time: number}> {}
 export class ACTMap_PlayingTimelineStepSet extends Action<{mapID: string, stepIndex: number}> {}
 export class ACTMap_PlayingTimelineAppliedStepSet extends Action<{mapID: string, stepIndex: number}> {}
 
@@ -84,10 +86,10 @@ export const MapInfoReducer = mapID => CombineReducers({
 		if (action.Is(ACTMap_PlayingTimelineSet)) return action.payload.timelineID;
 		return state;
 	}, */
-	playingTimeline_time: (state = null, action) => {
+	/* playingTimeline_time: (state = null, action) => {
 		if (action.Is(ACTMap_PlayingTimelineTimeSet)) return action.payload.time;
 		return state;
-	},
+	}, */
 	playingTimeline_step: (state = null, action) => {
 		if (action.Is(ACTMap_PlayingTimelineStepSet)) return action.payload.stepIndex;
 		return state;
@@ -141,10 +143,10 @@ export const GetPlayingTimeline = StoreAccessor((mapID: string): Timeline => {
 	const timelineID = State('main', 'maps', mapID, 'selectedTimeline');
 	return GetTimeline(timelineID);
 });
-export const GetPlayingTimelineTime = StoreAccessor((mapID: string): number => {
+/* export const GetPlayingTimelineTime = StoreAccessor((mapID: string): number => {
 	if (mapID == null) return null;
 	return State('main', 'maps', mapID, 'playingTimeline_time');
-});
+}); */
 export const GetPlayingTimelineStepIndex = StoreAccessor((mapID: string): number => {
 	if (mapID == null) return null;
 	return State('main', 'maps', mapID, 'playingTimeline_step');
@@ -262,6 +264,7 @@ export const GetTimeSinceNodeRevealedByPlayingTimeline = StoreAccessor((mapID: s
 	if (nodeRevealTime == null) return null;
 
 	const timelineTime = GetPlayingTimelineTime(mapID);
+	// const timelineTime = storeM.main.maps.get(mapID).playingTimeline_time;
 	let result = timelineTime - nodeRevealTime;
 	if (limitToJustPastHighlightRange) {
 		result = result.RoundTo(1); // round, to prevent unnecessary re-renders

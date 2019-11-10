@@ -100,7 +100,7 @@ export class MapUI extends BaseComponentPlus({
 			return result;
 		}, [map, rootNode_passed]);
 		const timelinePanelOpen = Watch(() => (map ? GetTimelinePanelOpen(map._key) : null), [map]);
-		const playingTimeline = GetPlayingTimeline.Watch(map._key);
+		const playingTimeline = GetPlayingTimeline.Watch(map ? map._key : null);
 
 		if (map == null) {
 			return <div style={ES({ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, fontSize: 25 })}>Loading map...</div>;

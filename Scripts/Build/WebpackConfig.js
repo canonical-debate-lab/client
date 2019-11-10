@@ -254,6 +254,13 @@ AddStringReplacement(/\.jsx?$/, [
 			return `export const ${sub1} = StoreAccessor("${sub1}", (`;
 		},
 	},
+	// make function-names of store-actions accessible at runtime
+	{
+		pattern: /export const ([a-zA-Z0-9_$]+?) = StoreAction\(\(/g,
+		replacement(match, sub1, offset, string) {
+			return `export const ${sub1} = StoreAction("${sub1}", (`;
+		},
+	},
 	/* {
 		pattern: /State\(function \(a\) {\s+return a.([a-zA-Z0-9_.]+);\s+}\)/g,
 		replacement: function(match, sub1, offset, string) {

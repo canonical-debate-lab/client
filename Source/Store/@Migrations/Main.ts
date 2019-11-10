@@ -10,4 +10,11 @@ export const migrations = {
 		}
 		return newState;
 	},
+	2: (state) => {
+		const newState = Clone(state) as RootState;
+		for (const map of newState.main.maps.VValues(true)) {
+			delete map['playingTimeline_time'];
+		}
+		return newState;
+	},
 };

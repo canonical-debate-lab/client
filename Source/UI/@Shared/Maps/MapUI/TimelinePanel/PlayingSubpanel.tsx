@@ -5,13 +5,15 @@ import { ScrollView, ScrollSource } from 'react-vscrollview';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetTimelineStep, GetTimelineSteps } from 'Store/firebase/timelines';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
-import { GetSelectedTimeline, GetPlayingTimelineAppliedStepIndex, ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimelineStepIndex, GetNodeRevealHighlightTime, GetPlayingTimelineTime, ACTMap_PlayingTimelineTimeSet } from 'Store/main/maps/$map';
+import { GetSelectedTimeline, GetPlayingTimelineAppliedStepIndex, ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimelineStepIndex, GetNodeRevealHighlightTime } from 'Store/main/maps/$map';
 import { HSLA, UseSize, VReactMarkdown_Remarkable, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, Icon, GetScreenRect, ActionSet, ACTSet, RunWithRenderingBatched } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import React, { useEffect } from 'react';
 import { ToNumber, VRect, Lerp, GetPercentFromXToY, IsNaN, Assert, Timer, WaitXThenRun, Vector2i } from 'js-vextensions';
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import _ from 'lodash';
+import { GetPlayingTimelineTime, ACTSetPlayingTimelineTime } from 'StoreM/main/maps/$map';
+import { storeM } from 'StoreM/StoreM';
 import { StepUI } from './PlayingSubpanel/StepUI';
 
 export class PlayingSubpanel extends BaseComponentPlus(
@@ -50,7 +52,9 @@ export class PlayingSubpanel extends BaseComponentPlus(
 			targetTime = this.newTargetTime; // maybe temp
 			const newTargetTime_floored = this.newTargetTime.FloorTo(1);
 			if (newTargetTime_floored != targetTime_fromRedux) {
-				store.dispatch(new ACTMap_PlayingTimelineTimeSet({ mapID: map._key, time: newTargetTime_floored }));
+				// store.dispatch(new ACTMap_PlayingTimelineTimeSet({ mapID: map._key, time: newTargetTime_floored }));
+				// storeM.main.maps.get(map._key).playingTimeline_time = newTargetTime_floored;
+				ACTSetPlayingTimelineTime(map._key, newTargetTime_floored);
 			}
 		}
 
@@ -147,7 +151,7 @@ export class PlayingSubpanel extends BaseComponentPlus(
 			if (targetTime_yInMessageArea < 0) targetTimeDirection = 'up';
 			else if (targetTime_yInMessageArea >= messageAreaHeight - 20) targetTimeDirection = 'down';
 			else targetTimeDirection = 'right';
-		} else {
+		} else if (this.list) {
 			const [firstVisibleIndex, lastVisibleIndex] = this.list.getVisibleRange();
 			targetTimeDirection = targetStepIndex <= firstVisibleIndex ? 'up' : 'down';
 			targetTime_yInMessageArea = targetTimeDirection == 'up' ? 0 : messageAreaHeight - 20;

@@ -13,6 +13,7 @@ import { GetCurrentURL_SimplifiedForPageViewTracking } from 'Utils/URL/URLs';
 import { GetOpenMapID } from 'Store/main';
 import { NodeUI_Inner } from 'UI/@Shared/Maps/MapNode/NodeUI_Inner';
 import { GetTimelineStep } from 'Store/firebase/timelines';
+import { ACTEnsureMapStateInit } from 'StoreM/main/maps/$map';
 import { Map } from '../../Store/firebase/maps/@Map';
 import { RootState } from '../../Store/index';
 import { ACTDebateMapSelect, ACTDebateMapSelect_WithData } from '../../Store/main/debates';
@@ -40,6 +41,10 @@ export function MidDispatchAction(action: Action<any>, newState: RootState) {
 		if (action['key'] == 'root_key') {
 			ProcessRehydrateData(action.payload);
 		}
+	}
+
+	if (action.Is(ACTPersonalMapSelect) || action.Is(ACTDebateMapSelect)) {
+		ACTEnsureMapStateInit(action.payload.id);
 	}
 }
 

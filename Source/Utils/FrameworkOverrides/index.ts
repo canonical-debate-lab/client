@@ -21,11 +21,5 @@ export * from './TypedReExports';
 
 /* export function OnAccessPath(path: string) {
 	Log(`Accessing-path Stage1: ${path}`);
-	accessedStorePaths[path] = true;
-	if (activeStoreAccessCollectors) {
-		for (const collector of activeStoreAccessCollectors) {
-			collector.storePathsRequested.push(path);
-		}
-	}
 }
 VWAF_OverrideExport(OnAccessPath); */

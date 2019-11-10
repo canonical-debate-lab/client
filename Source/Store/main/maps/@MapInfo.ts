@@ -19,7 +19,7 @@ export class MapInfo {
 	showTimelineDetails: boolean;
 	selectedTimeline: string;
 	// playingTimeline: number;
-	playingTimeline_time: number;
+	// playingTimeline_time: number; // moved to MobX
 	playingTimeline_step: number; // step currently scrolled to
 	playingTimeline_appliedStep: number; // max step scrolled to
 

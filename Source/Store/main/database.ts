@@ -42,7 +42,7 @@ export function GetSelectedUserID() {
 }
 export const GetSelectedUser = StoreAccessor(() => {
 	const selectedID = GetSelectedUserID();
-	return (GetUsers() || []).find(a => a._key == selectedID);
+	return (GetUsers() || []).find(a => a && a._key == selectedID);
 });
 
 export const GetSelectedTermID = StoreAccessor(() => {
@@ -51,7 +51,7 @@ export const GetSelectedTermID = StoreAccessor(() => {
 export const GetSelectedTerm = StoreAccessor(() => {
 	const selectedID = GetSelectedTermID();
 	// return GetData(`terms/${selectedID}`);
-	return (GetTerms() || []).find(a => a._key == selectedID);
+	return (GetTerms() || []).find(a => a && a._key == selectedID);
 });
 /* export function GetSelectedTermComponent() {
 	let selectedID = State().main.selectedTermComponent;
@@ -64,5 +64,5 @@ export const GetSelectedImageID = StoreAccessor(() => {
 export const GetSelectedImage = StoreAccessor(() => {
 	const selectedID = GetSelectedImageID();
 	// return GetData(`terms/${selectedID}`);
-	return (GetImages() || []).find(a => a._key == selectedID);
+	return (GetImages() || []).find(a => a && a._key == selectedID);
 });
