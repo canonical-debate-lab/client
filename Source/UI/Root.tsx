@@ -30,6 +30,8 @@ import { GetParentNode, GetParentPath, GetNode, GetNodeID } from 'Store/firebase
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { UpdateTimelineStepOrder } from 'Server/Commands/UpdateTimelineStepOrder';
 import ReactDOM from 'react-dom';
+import { AsyncTrunk, date } from 'mobx-sync';
+import {storeM} from 'StoreM/StoreM';
 import { GetUserBackground } from '../Store/firebase/users';
 import { NavBar } from '../UI/@Shared/NavBar';
 import { GlobalUI } from '../UI/Global';
@@ -48,7 +50,7 @@ import { HomeUI_GAD } from './@GAD/Home_GAD';
 
 ColorPickerBox.Init(ReactColor, chroma);
 
-export class RootUIWrapper extends BaseComponent<{store}, {}> {
+export class RootUIWrapper extends BaseComponentPlus({} as {store}, { mobxStoreReady: false }) {
 	/* ComponentWillMount() {
 		let startVal = g.storeRehydrated;
 		// wrap storeRehydrated property, so we know when it's set (from CreateStore.ts callback)
@@ -61,10 +63,18 @@ export class RootUIWrapper extends BaseComponent<{store}, {}> {
 		// trigger setter right now (in case value is already true)
 		g.storeRehydrated = startVal;
 	} */
+	ComponentWillMount() {
+		const trunk = new AsyncTrunk(storeM, { storage: localStorage });
+		trunk.init().then(() => {
+			this.SetState({ mobxStoreReady: true });
+		});
+	}
 
 	render() {
 		const { store } = this.props;
+		const { mobxStoreReady } = this.state;
 		// if (!g.storeRehydrated) return <div/>;
+		if (!mobxStoreReady) return null;
 
 		return (
 			<Provider store={store}>

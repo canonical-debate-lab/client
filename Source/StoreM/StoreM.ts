@@ -9,4 +9,4 @@ export class StoreM {
 }
 
 export const storeM = new StoreM();
-declare global { const storeM: StoreM; } G({ storeM });
+/* declare global { const storeM: StoreM; } */ G({ storeM });

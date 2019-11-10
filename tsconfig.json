@@ -19,6 +19,8 @@
 				"../node_modules/@types/*", // prefer "/node_modules/@types" over "/node_modules/[something]/node_modules/@types" (eg, when using npm link)
 				"*"
 			],
+			// remove @types/node and such (conflicts with typescript web definitions)
+			"@types/node": ["Typings/empty.d.ts"],
 			// remove @types/react/global.d.ts, as it breaks the auto-import-finder for react-vcomponents/Text
 			"react/global.d.ts": ["Typings/empty.d.ts"],
 			"react-vextensions/node_modules/react/global.d.ts": ["Typings/empty.d.ts"],

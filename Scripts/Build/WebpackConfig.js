@@ -37,7 +37,11 @@ const webpackConfig = {
 			paths.client(),
 		],
 		// extensions: [".js", ".jsx", ".json"].concat(USE_TSLOADER ? [".ts", ".tsx"] : []),
-		extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'], // always accept ts[x], because there might be some in node_modules (eg. vwebapp-framework)
+		extensions: [
+			'.js', '.jsx', '.json',
+			'.ts', '.tsx', // always accept ts[x], because there might be some in node_modules (eg. vwebapp-framework)
+			'.mjs', // needed for mobx-sync
+		],
 		alias: {
 			// "react": __dirname + "/node_modules/react/",
 			react: paths.base('node_modules', 'react'),
@@ -152,7 +156,7 @@ webpackConfig.plugins = [
 // rules
 // ==========
 
-// JavaScript / JSON
+// JavaScript
 webpackConfig.module.rules = [
 	{
 		test: /\.(jsx?|tsx?)$/,
@@ -180,6 +184,9 @@ webpackConfig.module.rules = [
 // webpackConfig.module.rules.push({test: /\.tsx?$/, use: "awesome-typescript-loader"});
 // webpackConfig.module.rules.push({test: /\.tsx?$/, loader: "ts-loader", options: {include: [paths.client()]}});
 webpackConfig.module.rules.push({ test: /\.tsx?$/, loader: 'ts-loader' });
+
+// for mobx-sync
+webpackConfig.module.rules.push({ test: /\.mjs$/, type: 'javascript/auto' });
 
 // file text-replacements
 // ==========

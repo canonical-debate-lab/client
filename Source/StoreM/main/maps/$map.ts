@@ -25,14 +25,16 @@ export class MapState {
 }
 
 export const ACTEnsureMapStateInit = StoreAction((mapID: string) => {
-	if (storeM.main.maps.get(mapID)) return;
-	storeM.main.maps.set(mapID, new MapState());
+	/* if (storeM.main.maps.get(mapID)) return;
+	storeM.main.maps.set(mapID, new MapState()); */
+	if (storeM.main.maps[mapID]) return;
+	storeM.main.maps[mapID] = new MapState();
 });
 
 export const GetPlayingTimelineTime = StoreAccessor((mapID: string): number => {
 	if (mapID == null) return null;
-	return storeM.main.maps.get(mapID).playingTimeline_time;
+	return storeM.main.maps[mapID].playingTimeline_time;
 });
 export const ACTSetPlayingTimelineTime = StoreAction((mapID: string, time: number) => {
-	storeM.main.maps.get(mapID).playingTimeline_time = time;
+	storeM.main.maps[mapID].playingTimeline_time = time;
 });
