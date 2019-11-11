@@ -1,5 +1,5 @@
 import chroma from 'chroma-js';
-import { Vector2i, VURL, FromJSON } from 'js-vextensions';
+import { Vector2i, VURL, FromJSON, WaitXThenRun, Clone } from 'js-vextensions';
 import * as ReactColor from 'react-color';
 import { Provider } from 'react-redux';
 import { ColorPickerBox, Column, Button, Row, Pre } from 'react-vcomponents';
@@ -11,7 +11,7 @@ import { MeID, Me } from 'Store/firebase/users';
 import '../../Source/Utils/Styles/Main.scss'; // keep absolute-ish, since scss file not copied to Source_JS folder
 import '../Utils/UI/JQueryExtensions';
 import keycode from 'keycode';
-import { State, Connect, Route, browserHistory, AddressBarWrapper, ErrorBoundary } from 'Utils/FrameworkOverrides';
+import { State, Connect, Route, browserHistory, AddressBarWrapper, ErrorBoundary, CreateStore } from 'Utils/FrameworkOverrides';
 import { NormalizeURL } from 'Utils/URL/URLs';
 import { ConnectedRouter } from 'connected-react-router';
 import { ES } from 'Utils/UI/GlobalStyles';
@@ -31,7 +31,8 @@ import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { UpdateTimelineStepOrder } from 'Server/Commands/UpdateTimelineStepOrder';
 import ReactDOM from 'react-dom';
 import { AsyncTrunk, date } from 'mobx-sync';
-import {storeM} from 'StoreM/StoreM';
+import { storeM, InitStore } from 'StoreM/StoreM';
+import { onSnapshot, getSnapshot, applySnapshot } from 'mobx-state-tree';
 import { GetUserBackground } from '../Store/firebase/users';
 import { NavBar } from '../UI/@Shared/NavBar';
 import { GlobalUI } from '../UI/Global';
@@ -50,7 +51,7 @@ import { HomeUI_GAD } from './@GAD/Home_GAD';
 
 ColorPickerBox.Init(ReactColor, chroma);
 
-export class RootUIWrapper extends BaseComponentPlus({} as {store}, { mobxStoreReady: false }) {
+export class RootUIWrapper extends BaseComponentPlus({}, {} as { store: ProjectStore }) {
 	/* ComponentWillMount() {
 		let startVal = g.storeRehydrated;
 		// wrap storeRehydrated property, so we know when it's set (from CreateStore.ts callback)
@@ -64,17 +65,48 @@ export class RootUIWrapper extends BaseComponentPlus({} as {store}, { mobxStoreR
 		g.storeRehydrated = startVal;
 	} */
 	ComponentWillMount() {
-		const trunk = new AsyncTrunk(storeM, { storage: localStorage });
+		InitStore();
+
+		const storeM_mirror = getSnapshot(storeM);
+		const trunk = new AsyncTrunk(storeM_mirror, { storage: localStorage });
+		/* const storeM_temp = {};
+		const trunk = new AsyncTrunk(storeM_temp, { storage: localStorage }); */
+		// const trunk = new AsyncTrunk(storeM, { storage: localStorage });
 		trunk.init().then(() => {
-			this.SetState({ mobxStoreReady: true });
+			// const loadedState = storeM_mirror;
+
+			applySnapshot(storeM, Clone(storeM_mirror));
+			Log('Loaded state:', storeM_mirror);
+			// applySnapshot(storeM, Clone(storeM_temp));
+			/* const snapshotToApply = getSnapshot(storeM);
+			applySnapshot(storeM, snapshotToApply);
+			Log('Loaded state:', snapshotToApply); */
+			onSnapshot(storeM, (snapshot) => {
+				/* storeM_mirror = snapshot;
+				trunk.updateStore(storeM_mirror);
+				Log('Setting:', storeM_mirror, 'Loaded state:', loadedState); */
+				trunk.updateStore(snapshot);
+			});
+
+			// mobx-state-tree needs time to flush applySnapshot call, I guess?
+			WaitXThenRun(0, () => {
+				// init redux store
+				// Log('Loaded. Mirror:', storeM_mirror, 'Main:', getSnapshot(storeM), 'Finally:', getSnapshot(storeM.main, false), 'Maps:', getSnapshot(storeM.main.maps, false));
+				const { store: reduxStore, persister } = CreateStore(g.__InitialState__);
+				G({ store: reduxStore, persister });
+				const firestoreDB = store.firebase['firestore']();
+				G({ firestoreDB });
+
+				// this.SetState({ storeReady: true });
+				this.SetState({ store: reduxStore });
+			});
 		});
 	}
 
 	render() {
-		const { store } = this.props;
-		const { mobxStoreReady } = this.state;
+		const { store } = this.state;
 		// if (!g.storeRehydrated) return <div/>;
-		if (!mobxStoreReady) return null;
+		if (store == null) return null;
 
 		return (
 			<Provider store={store}>

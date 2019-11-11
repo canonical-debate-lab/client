@@ -12,18 +12,16 @@ import { RootState } from './Store/index';
 JustBeforeInitLibs_listeners.forEach(a => a());
 require('./InitLibs').InitLibs();
 
-const { store: store_, persister } = CreateStore(g.__InitialState__);
+// just declare store; we set it in RootUIWrapper.ComponentWillMount
 declare global {
 	type ProjectStore = Store<RootState> & {firebase: FirebaseApp, firestore: any, reducer: (state: RootState, action: Action<any>)=>RootState};
 	var store: ProjectStore;
-} G({ store: store_ });
-declare global { var persister: Persister; } G({ persister });
-
-const firestoreDB = store.firebase['firestore']();
-G({ firestoreDB }); declare global { var firestoreDB: any; } // set in CreateStore.ts
+	var persister: Persister;
+	var firestoreDB: any; // set in CreateStore.ts
+}
 
 JustBeforeUI_listeners.forEach(a => a());
 const mountNode = document.getElementById('root');
 const { RootUIWrapper } = require('./UI/Root');
 
-ReactDOM.render(<RootUIWrapper store={store}/>, mountNode);
+ReactDOM.render(<RootUIWrapper/>, mountNode);

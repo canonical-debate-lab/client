@@ -1,40 +1,35 @@
-import { observable } from 'mobx';
-import { StoreAccessor, StoreAction } from 'Utils/FrameworkOverrides';
-import { storeM } from 'StoreM/StoreM';
+import { types } from 'mobx-state-tree';
 
-export class MapState {
-	/* list_sortBy: SortType;
-	list_filter: string;
-	list_page: number;
-	list_selectedNodeID: string;
-	list_selectedNode_openPanel: string;
-
-	timelinePanelOpen: boolean;
-	timelineOpenSubpanel: TimelineSubpanel;
-	showTimelineDetails: boolean;
-	selectedTimeline: string;
-	// playingTimeline: number;
-	playingTimeline_time: number;
-	playingTimeline_step: number; // step currently scrolled to
-	playingTimeline_appliedStep: number; // max step scrolled to
-
-	showChangesSince_type: ShowChangesSinceType;
-	showChangesSince_visitOffset: number; */
-
+/* export class MapState {
 	@observable playingTimeline_time: number;
-}
+} */
+export const MapState = types.model('MapState', {
+	// playingTimeline_time: types.optional(types.number, null),
+	playingTimeline_time: types.maybeNull(types.number),
+}).actions((self) => {
+	return {
+		playingTimeline_time_set: (val: number) => self.playingTimeline_time = val,
+	};
+});
 
-export const ACTEnsureMapStateInit = StoreAction((mapID: string) => {
+/* export const ACTEnsureMapStateInit = StoreAction((mapID: string) => {
 	/* if (storeM.main.maps.get(mapID)) return;
-	storeM.main.maps.set(mapID, new MapState()); */
-	if (storeM.main.maps[mapID]) return;
-	storeM.main.maps[mapID] = new MapState();
-});
+	storeM.main.maps.set(mapID, new MapState()); *#/
+	// if (storeM.main.maps[mapID]) return;
+	if (storeM.main.maps.get(mapID)) return;
+	// storeM.main.maps[mapID] = new MapState();
+	// storeM.main.maps[mapID] = MapState.create();
+	// storeM.main.maps[mapID] = {};
+	storeM.main.maps.set(mapID, {});
+}) as any; */
 
-export const GetPlayingTimelineTime = StoreAccessor((mapID: string): number => {
+/* export const GetPlayingTimelineTime = StoreAccessor((mapID: string): number => {
 	if (mapID == null) return null;
-	return storeM.main.maps[mapID].playingTimeline_time;
+	// return storeM.main.maps[mapID].playingTimeline_time;
+	return storeM.main.maps.get(mapID).playingTimeline_time;
 });
-export const ACTSetPlayingTimelineTime = StoreAction((mapID: string, time: number) => {
-	storeM.main.maps[mapID].playingTimeline_time = time;
-});
+export const ACTSetPlayingTimelineTime = StoreAction(s => (mapID: string, time: number) => {
+	// storeM.main.maps[mapID].playingTimeline_time = time;
+	// storeM.main.maps.get(mapID).playingTimeline_time = time;
+	s.main.maps.get(mapID).playingTimeline_time = time;
+}); */

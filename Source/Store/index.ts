@@ -89,9 +89,10 @@ export function MakeRootReducer(pureOnly = false) {
 		];
 		for (const path of ignorePaths) {
 			const data = DeepGet(result, path);
-			if (data != null && data['toJSON'] == null) {
+			// temp removed (Object.freeze makes it error)
+			/* if (data != null && data['toJSON'] == null) {
 				data['toJSON'] = () => '[IGNORED]';
-			}
+			} */
 		}
 
 		return result;

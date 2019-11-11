@@ -12,7 +12,6 @@ import React, { useEffect } from 'react';
 import { ToNumber, VRect, Lerp, GetPercentFromXToY, IsNaN, Assert, Timer, WaitXThenRun, Vector2i } from 'js-vextensions';
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import _ from 'lodash';
-import { GetPlayingTimelineTime, ACTSetPlayingTimelineTime } from 'StoreM/main/maps/$map';
 import { storeM } from 'StoreM/StoreM';
 import { StepUI } from './PlayingSubpanel/StepUI';
 
@@ -43,18 +42,23 @@ export class PlayingSubpanel extends BaseComponentPlus(
 		const { map } = this.props;
 		let { targetTime, autoScroll } = this.state;
 		const oldTargetTime = targetTime;
+		const mapInfo = storeM.main.maps.get(map._key);
 
 		// Log('Checking');
-		const targetTime_fromRedux = GetPlayingTimelineTime(map._key); // from redux store
+		// const targetTime_fromRedux = GetPlayingTimelineTime(map._key); // from redux store
+		const targetTime_fromStore = mapInfo.playingTimeline_time;
 		if (this.newTargetTime != null) {
 			// Log('Applying this.newTargetTime:', this.newTargetTime, '@targetTime_fromRedux:', targetTime_fromRedux);
 			this.SetState({ targetTime: this.newTargetTime });
 			targetTime = this.newTargetTime; // maybe temp
 			const newTargetTime_floored = this.newTargetTime.FloorTo(1);
-			if (newTargetTime_floored != targetTime_fromRedux) {
+			if (newTargetTime_floored != targetTime_fromStore) {
 				// store.dispatch(new ACTMap_PlayingTimelineTimeSet({ mapID: map._key, time: newTargetTime_floored }));
 				// storeM.main.maps.get(map._key).playingTimeline_time = newTargetTime_floored;
-				ACTSetPlayingTimelineTime(map._key, newTargetTime_floored);
+				// ACTSetPlayingTimelineTime(map._key, newTargetTime_floored);
+				// storeM.ACTSetPlayingTimelineTime(map._key, newTargetTime_floored);
+				// storeM.main.maps.get(map._key).playingTimeline_time_set(newTargetTime_floored);
+				mapInfo.playingTimeline_time_set(newTargetTime_floored);
 			}
 		}
 
@@ -212,11 +216,13 @@ export class PlayingSubpanel extends BaseComponentPlus(
 
 	ComponentDidMount() {
 		const { map } = this.props;
+		const mapInfo = storeM.main.maps.get(map._key);
 
 		// on component mount, load timeline-time from redux-store
-		const targetTime_fromRedux = GetPlayingTimelineTime(map._key);
+		/* const targetTime_fromRedux = GetPlayingTimelineTime(map._key);
 		// this.SetState({ targetTime: targetTime_fromRedux });
-		this.newTargetTime = targetTime_fromRedux; // actually gets applied to state by timer
+		this.newTargetTime = targetTime_fromRedux; // actually gets applied to state by timer */
+		this.newTargetTime = mapInfo.playingTimeline_time;
 	}
 
 	// autoScrollDisabling = true;
@@ -248,6 +254,7 @@ export class PlayingSubpanel extends BaseComponentPlus(
 	render() {
 		const { map } = this.props;
 		const { targetTime, autoScroll, targetTime_yInMessageArea, targetTimeDirection } = this.state;
+		const mapInfo = storeM.main.maps.get(map._key);
 		const timeline = GetSelectedTimeline.Watch(map._key);
 		// timelineSteps: timeline && GetTimelineSteps(timeline);
 		const targetStepIndex = GetPlayingTimelineAppliedStepIndex.Watch(map._key);
@@ -258,7 +265,8 @@ export class PlayingSubpanel extends BaseComponentPlus(
 		const [messageAreaRef, { height: messageAreaHeight }] = UseSize();
 		this.Stash({ messageAreaHeight });
 
-		const targetTime_floored = GetPlayingTimelineTime(map._key); // no need to watch, since only used as start-pos for video, if in initial mount
+		// const targetTime_floored = GetPlayingTimelineTime(map._key); // no need to watch, since only used as start-pos for video, if in initial mount
+		const targetTime_floored = mapInfo.playingTimeline_time;
 		const nodeRevealHighlightTime = GetNodeRevealHighlightTime.Watch();
 		const firstNormalStep = GetTimelineStep.Watch(timeline ? timeline.steps[1] : null); // just watch for PostRender->UpdateTargetInfo code
 

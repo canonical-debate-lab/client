@@ -5,7 +5,6 @@ import { emptyArray, GetValues, FromJSON, ToNumber } from 'js-vextensions';
 import { Action, CombineReducers, SimpleReducer, State, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { ReversePolarity } from 'Store/firebase/nodes/$node';
 import { storeM } from 'StoreM/StoreM';
-import {GetPlayingTimelineTime} from 'StoreM/main/maps/$map';
 import { GetMap } from '../../firebase/maps';
 import { GetNode, GetNodeChildren } from '../../firebase/nodes';
 import { GetTimeline, GetTimelineStep } from '../../firebase/timelines';
@@ -263,8 +262,8 @@ export const GetTimeSinceNodeRevealedByPlayingTimeline = StoreAccessor((mapID: s
 	const nodeRevealTime = nodeRevealTimes[nodePath];
 	if (nodeRevealTime == null) return null;
 
-	const timelineTime = GetPlayingTimelineTime(mapID);
-	// const timelineTime = storeM.main.maps.get(mapID).playingTimeline_time;
+	// const timelineTime = GetPlayingTimelineTime(mapID);
+	const timelineTime = storeM.main.maps.get(mapID).playingTimeline_time;
 	let result = timelineTime - nodeRevealTime;
 	if (limitToJustPastHighlightRange) {
 		result = result.RoundTo(1); // round, to prevent unnecessary re-renders
