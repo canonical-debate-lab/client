@@ -33,6 +33,7 @@ import ReactDOM from 'react-dom';
 import { AsyncTrunk, date } from 'mobx-sync';
 import { storeM, InitStore } from 'StoreM/StoreM';
 import { onSnapshot, getSnapshot, applySnapshot } from 'mobx-state-tree';
+import { persist } from 'mst-persist';
 import { GetUserBackground } from '../Store/firebase/users';
 import { NavBar } from '../UI/@Shared/NavBar';
 import { GlobalUI } from '../UI/Global';
@@ -67,39 +68,24 @@ export class RootUIWrapper extends BaseComponentPlus({}, {} as { store: ProjectS
 	ComponentWillMount() {
 		InitStore();
 
-		const storeM_mirror = getSnapshot(storeM);
-		const trunk = new AsyncTrunk(storeM_mirror, { storage: localStorage });
-		/* const storeM_temp = {};
-		const trunk = new AsyncTrunk(storeM_temp, { storage: localStorage }); */
-		// const trunk = new AsyncTrunk(storeM, { storage: localStorage });
-		trunk.init().then(() => {
-			// const loadedState = storeM_mirror;
+		// temp fix for "Illegal invocation" error in mst-persist
+		window.localStorage.getItem = window.localStorage.getItem.bind(window.localStorage);
+		window.localStorage.setItem = window.localStorage.setItem.bind(window.localStorage);
+		persist('some', storeM, {
+			// jsonify: false,
+			// whitelist: ['name']
+			blacklist: [],
+		}).then(() => {
+			Log('Loaded state:', getSnapshot(storeM));
 
-			applySnapshot(storeM, Clone(storeM_mirror));
-			Log('Loaded state:', storeM_mirror);
-			// applySnapshot(storeM, Clone(storeM_temp));
-			/* const snapshotToApply = getSnapshot(storeM);
-			applySnapshot(storeM, snapshotToApply);
-			Log('Loaded state:', snapshotToApply); */
-			onSnapshot(storeM, (snapshot) => {
-				/* storeM_mirror = snapshot;
-				trunk.updateStore(storeM_mirror);
-				Log('Setting:', storeM_mirror, 'Loaded state:', loadedState); */
-				trunk.updateStore(snapshot);
-			});
+			// init redux store
+			const { store: reduxStore, persister } = CreateStore(g.__InitialState__);
+			G({ store: reduxStore, persister });
+			const firestoreDB = store.firebase['firestore']();
+			G({ firestoreDB });
 
-			// mobx-state-tree needs time to flush applySnapshot call, I guess?
-			WaitXThenRun(0, () => {
-				// init redux store
-				// Log('Loaded. Mirror:', storeM_mirror, 'Main:', getSnapshot(storeM), 'Finally:', getSnapshot(storeM.main, false), 'Maps:', getSnapshot(storeM.main.maps, false));
-				const { store: reduxStore, persister } = CreateStore(g.__InitialState__);
-				G({ store: reduxStore, persister });
-				const firestoreDB = store.firebase['firestore']();
-				G({ firestoreDB });
-
-				// this.SetState({ storeReady: true });
-				this.SetState({ store: reduxStore });
-			});
+			// this.SetState({ storeReady: true });
+			this.SetState({ store: reduxStore });
 		});
 	}
 

@@ -5,6 +5,7 @@ import { types } from 'mobx-state-tree';
 } */
 export const MapState = types.model('MapState', {
 	// playingTimeline_time: types.optional(types.number, null),
+	// playingTimeline_time: types.maybeNull(types.number).WithMeta({version: 1}),
 	playingTimeline_time: types.maybeNull(types.number),
 }).actions((self) => {
 	return {
