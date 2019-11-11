@@ -1,6 +1,5 @@
-import { observable, ObservableMap } from 'mobx';
-import { types, getSnapshot } from 'mobx-state-tree';
-import { model, ref, map } from 'mst-decorators';
+import { ObservableMap } from 'mobx';
+import { map, model } from 'mst-decorators';
 import { MapState, MapState_ } from './main/maps/$map';
 
 /* export class MainStateM {
@@ -28,9 +27,6 @@ export class MainStateM {
 	@map(MapState_) maps = {} as ObservableMap<string, MapState>;
 	ACTEnsureMapStateInit(mapID: string) {
 		if (this.maps.get(mapID)) return;
-		// if (getSnapshot(self.maps)[mapID]) return;
-		debugger;
-		// this.maps.set(mapID, {});
 		this.maps.set(mapID, new MapState());
 	}
 }

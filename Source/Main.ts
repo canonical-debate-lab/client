@@ -9,7 +9,6 @@ import './Utils/PreRunners/Start_1';
 import 'codemirror';
 import 'codemirror/addon/scroll/simplescrollbars';
 import './Utils/UI/CodeMirrorConfig';
-import 'react-universal-hooks';
 
 import ReactDOM from 'react-dom';
 // import Promise from "bluebird";

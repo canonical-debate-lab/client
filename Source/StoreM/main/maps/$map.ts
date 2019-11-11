@@ -22,17 +22,6 @@ export class MapState {
 }
 export const MapState_ = model(MapState);
 
-/* export const ACTEnsureMapStateInit = StoreAction((mapID: string) => {
-	/* if (storeM.main.maps.get(mapID)) return;
-	storeM.main.maps.set(mapID, new MapState()); *#/
-	// if (storeM.main.maps[mapID]) return;
-	if (storeM.main.maps.get(mapID)) return;
-	// storeM.main.maps[mapID] = new MapState();
-	// storeM.main.maps[mapID] = MapState.create();
-	// storeM.main.maps[mapID] = {};
-	storeM.main.maps.set(mapID, {});
-}) as any; */
-
 /* export const GetPlayingTimelineTime = StoreAccessor((mapID: string): number => {
 	if (mapID == null) return null;
 	// return storeM.main.maps[mapID].playingTimeline_time;

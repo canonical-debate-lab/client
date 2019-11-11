@@ -4,7 +4,11 @@ import ReactDOM from 'react-dom';
 import { Persister } from 'redux-persist/src/types';
 import { JustBeforeUI_listeners, JustBeforeInitLibs_listeners } from 'Main';
 import { CreateStore, FirebaseApp, Action } from 'Utils/FrameworkOverrides';
+import { supportReactDevTools } from 'react-universal-hooks';
 import { RootState } from './Store/index';
+
+// supportReactDevTools({ active: DEV });
+supportReactDevTools({ active: true });
 
 // uncomment this if you want to load the source-maps and such ahead of time (making-so the first actual call can get it synchronously)
 // StackTrace.get();

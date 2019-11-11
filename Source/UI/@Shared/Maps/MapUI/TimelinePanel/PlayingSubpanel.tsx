@@ -1,28 +1,32 @@
 import ReactList from 'react-list';
 import { Column, Div, Row, Button, DropDown, DropDownTrigger, DropDownContent, Text, Spinner } from 'react-vcomponents';
-import { BaseComponentPlus, GetDOM, UseCallback, UseState } from 'react-vextensions';
+import { BaseComponentPlus, GetDOM, UseCallback, UseState, BaseComponent } from 'react-vextensions';
 import { ScrollView, ScrollSource } from 'react-vscrollview';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetTimelineStep, GetTimelineSteps } from 'Store/firebase/timelines';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { GetSelectedTimeline, GetPlayingTimelineAppliedStepIndex, ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimelineStepIndex, GetNodeRevealHighlightTime } from 'Store/main/maps/$map';
-import { HSLA, UseSize, VReactMarkdown_Remarkable, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, Icon, GetScreenRect, ActionSet, ACTSet, RunWithRenderingBatched } from 'Utils/FrameworkOverrides';
+import { HSLA, UseSize, VReactMarkdown_Remarkable, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, Icon, GetScreenRect, ActionSet, ACTSet, RunWithRenderingBatched, Observer } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import React, { useEffect } from 'react';
 import { ToNumber, VRect, Lerp, GetPercentFromXToY, IsNaN, Assert, Timer, WaitXThenRun, Vector2i } from 'js-vextensions';
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import _ from 'lodash';
 import { storeM } from 'StoreM/StoreM';
+import { observable, computed, runInAction } from 'mobx';
 import { StepUI } from './PlayingSubpanel/StepUI';
 
-export class PlayingSubpanel extends BaseComponentPlus(
+/* export class PlayingSubpanel extends BaseComponentPlus(
 	{} as {map: Map},
-	{
-		targetTime: null as number, autoScroll: true,
-		/* targetStepIndex: null as number, */ targetTime_yInMessageArea: null as number, targetTimeDirection: 'down' as 'down' | 'up' | 'right',
-	},
+	{},
 	{ messageAreaHeight: 0 },
-) {
+) { */
+
+@Observer
+export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageAreaHeight: number }> {
+// export class PlayingSubpanel extends React.Component<{map: Map}, {}, { messageAreaHeight: number }> {
+	// initialStash = { messageAreaHeight: 0 };
+
 	player: YoutubePlayer;
 	listRootEl: HTMLDivElement;
 	sideBarEl: HTMLDivElement;
@@ -34,90 +38,28 @@ export class PlayingSubpanel extends BaseComponentPlus(
 	// there are three "target time" fields: reduxState.main.maps.$mapID.playingTimeline_time, this.state.targetTime, this.newTargetTime
 	// #1 is for persistence between sessions and sharing with node-uis (updates once per second), #2 is for this comp's arrow (frequent updates), #3 is just a helper for updating #1 and #2
 
-	lastListY = -1;
+	@observable listY: number;
+	@observable messageAreaHeight = 0;
 
-	// temp value for timer to apply
-	newTargetTime: number;
-	timer = new Timer(100, () => RunWithRenderingBatched.Go = () => {
+	@observable targetTime: number;
+	@observable autoScroll = true;
+	// targetStepIndex = null as number;
+
+	@computed get SharedInfo() {
 		const { map } = this.props;
-		let { targetTime, autoScroll } = this.state;
-		const oldTargetTime = targetTime;
-		const mapInfo = storeM.main.maps.get(map._key);
-
-		// Log('Checking');
-		// const targetTime_fromRedux = GetPlayingTimelineTime(map._key); // from redux store
-		const targetTime_fromStore = mapInfo.playingTimeline_time;
-		if (this.newTargetTime != null) {
-			// Log('Applying this.newTargetTime:', this.newTargetTime, '@targetTime_fromRedux:', targetTime_fromRedux);
-			this.SetState({ targetTime: this.newTargetTime });
-			targetTime = this.newTargetTime; // maybe temp
-			const newTargetTime_floored = this.newTargetTime.FloorTo(1);
-			if (newTargetTime_floored != targetTime_fromStore) {
-				// store.dispatch(new ACTMap_PlayingTimelineTimeSet({ mapID: map._key, time: newTargetTime_floored }));
-				// storeM.main.maps.get(map._key).playingTimeline_time = newTargetTime_floored;
-				// ACTSetPlayingTimelineTime(map._key, newTargetTime_floored);
-				// storeM.ACTSetPlayingTimelineTime(map._key, newTargetTime_floored);
-				// storeM.main.maps.get(map._key).playingTimeline_time_set(newTargetTime_floored);
-				mapInfo.playingTimeline_time_set(newTargetTime_floored);
-			}
-		}
-
-		/* if (this.listRootEl != null) {
-			// this.SetState({ listY: GetScreenRect(this.listRootEl).y });
-			// Log(`Setting...${GetScreenRect(this.listRootEl).y}`);
-			const listY = GetScreenRect(this.listRootEl).y;
-			if (listY != this.lastListY) {
-				this.UpdateTargetInfo();
-				this.lastListY = listY;
-			}
-		} */
-
-		const listY = this.listRootEl ? GetScreenRect(this.listRootEl).y : null;
-		if (targetTime != oldTargetTime || listY != this.lastListY) {
-			this.UpdateTargetInfo();
-			this.lastListY = listY;
-		}
-
+		// const mapInfo = storeM.main.maps.get(map._key);
 		const timeline = GetSelectedTimeline(map._key);
-		const targetStepIndex = GetPlayingTimelineStepIndex(map._key);
-		// const maxTargetStepIndex = GetPlayingTimelineAppliedStepIndex(map._key);
-		const firstStep = GetTimelineStep(timeline ? timeline.steps[0] : null);
-		if (timeline && targetTime != null) {
-			// const steps = timeline ? GetTimelineSteps.Watch(timeline, true) : null;
-			const steps = GetTimelineSteps(timeline, true);
-			const targetStep = steps.LastOrX(a => a && a.videoTime <= targetTime, firstStep);
-			if (targetStep) {
-				const newTargetStepIndex = timeline.steps.indexOf(targetStep._key);
-				const newMaxTargetStepIndex = newTargetStepIndex.KeepAtLeast(targetStepIndex);
-				if (newTargetStepIndex != targetStepIndex) {
-					Log('Target-step changing @Old:', targetStepIndex, '@New:', newTargetStepIndex, '@Time:', targetTime);
-					store.dispatch(new ActionSet(
-						new ACTMap_PlayingTimelineStepSet({ mapID: map._key, stepIndex: newTargetStepIndex }),
-						new ACTMap_PlayingTimelineAppliedStepSet({ mapID: map._key, stepIndex: newMaxTargetStepIndex }),
-					));
+		// const { targetTime, autoScroll } = this.state;
+		// const { messageAreaHeight } = this.stash;
 
-					if (autoScroll) {
-						// jump one further down, so that the target point *within* the target step is visible (and with enough space for the arrow button itself)
-						// this.list.scrollAround(newTargetStepIndex + 1);
-						// jump X further down, so that we see some of the upcoming text (also for if video-time data is off some)
-						this.list.scrollAround(newTargetStepIndex + 3);
-						WaitXThenRun(0, () => this.list.scrollAround(newTargetStepIndex)); // make sure target box itself is still visible, however
-					}
-				}
-			}
-		}
-	});
-
-	GetTargetInfo = (timeline: Timeline, firstNormalStep: TimelineStep) => {
-		const { targetTime, autoScroll } = this.state;
-		const { messageAreaHeight } = this.stash;
+		const firstNormalStep = GetTimelineStep(timeline ? timeline.steps[1] : null);
 
 		let targetStepIndex: number;
 		let targetTime_yInMessageArea: number;
 		if (timeline) {
 			// const steps = timeline ? GetTimelineSteps.Watch(timeline, true) : null;
 			const steps = GetTimelineSteps(timeline, true);
-			const targetStep = steps.Skip(1).LastOrX(a => a && a.videoTime <= targetTime, firstNormalStep);
+			const targetStep = steps.Skip(1).LastOrX(a => a && a.videoTime <= this.targetTime, firstNormalStep);
 			if (targetStep) {
 				targetStepIndex = timeline.steps.indexOf(targetStep._key);
 				const postTargetStepIndex = targetStepIndex + 1 < timeline.steps.length ? targetStepIndex + 1 : -1;
@@ -138,12 +80,12 @@ export class PlayingSubpanel extends BaseComponentPlus(
 					// const postTargetStep_rect = this.stepRects[postTargetStepIndex];
 					/* const targetTime_screenY = Lerp(targetStep_rect.Top, targetStep_rect.Bottom, GetPercentFromXToY(targetStep.videoTime, postTargetStep.videoTime, targetTime));
 					targetTime_yInParent = targetTime_screenY - GetScreenRect(this.sideBarEl).y; */
-					const percentThroughStep = GetPercentFromXToY(targetStep.videoTime, postTargetStep.videoTime, targetTime);
+					const percentThroughStep = GetPercentFromXToY(targetStep.videoTime, postTargetStep.videoTime, this.targetTime);
 					const targetTime_yInList = Lerp(targetStep_rect.Top, targetStep_rect.Bottom, percentThroughStep);
-					const listY = GetScreenRect(this.listRootEl).y;
+					// const listY = GetScreenRect(this.listRootEl).y;
 					// const { listY } = this.state;
 					const messageAreaY = GetScreenRect(this.sideBarEl).y;
-					const messageAreaYDiffFromListY = messageAreaY - listY;
+					const messageAreaYDiffFromListY = messageAreaY - this.listY;
 					targetTime_yInMessageArea = targetTime_yInList - messageAreaYDiffFromListY;
 					Assert(!IsNaN(targetTime_yInMessageArea));
 				}
@@ -153,37 +95,98 @@ export class PlayingSubpanel extends BaseComponentPlus(
 		let targetTimeDirection;
 		if (targetTime_yInMessageArea != null) {
 			if (targetTime_yInMessageArea < 0) targetTimeDirection = 'up';
-			else if (targetTime_yInMessageArea >= messageAreaHeight - 20) targetTimeDirection = 'down';
+			else if (targetTime_yInMessageArea >= this.messageAreaHeight - 20) targetTimeDirection = 'down';
 			else targetTimeDirection = 'right';
 		} else if (this.list) {
 			const [firstVisibleIndex, lastVisibleIndex] = this.list.getVisibleRange();
 			targetTimeDirection = targetStepIndex <= firstVisibleIndex ? 'up' : 'down';
-			targetTime_yInMessageArea = targetTimeDirection == 'up' ? 0 : messageAreaHeight - 20;
+			targetTime_yInMessageArea = targetTimeDirection == 'up' ? 0 : this.messageAreaHeight - 20;
 		}
 
 		/* let distanceOffScreen: number;
 		if (targetTimeDirection == 'up') distanceOffScreen = -targetTime_yInMessageArea;
 		else if (targetTimeDirection == 'down') distanceOffScreen = targetTime_yInMessageArea - (messageAreaHeight - 20); */
 
-		this.Stash({ targetTime_yInMessageArea, targetTimeDirection } as any); // for debugging
+		// this.Stash({ targetTime_yInMessageArea, targetTimeDirection } as any); // for debugging
 		return { targetTime_yInMessageArea, targetTimeDirection };
-	};
-	UpdateTargetInfo = () => {
-		const { map } = this.props;
-		const timeline = GetSelectedTimeline(map._key);
-		const firstNormalStep = GetTimelineStep(timeline ? timeline.steps[1] : null);
-		const { targetTime_yInMessageArea, targetTimeDirection } = this.GetTargetInfo(timeline, firstNormalStep);
-		this.SetState({ targetTime_yInMessageArea, targetTimeDirection });
-		/* this.SetState(E(
-			{ targetStepIndex },
-			// only update targetTime_yInMessageArea (and derivative direction) if we were able to obtain its new value (ie. if box still visible)
-			targetTime_yInMessageArea != null && {
-				targetTime_yInMessageArea,
-				targetTimeDirection: targetTimeDirection as any,
-			},
-		)); */
 	}
-	// UpdateTargetInfo_Throttled = _.throttle(this.UpdateTargetInfo, 100);
+	@computed get targetTime_yInMessageArea() {
+		return this.SharedInfo.targetTime_yInMessageArea;
+	}
+	@computed get targetTimeDirection(): 'down' | 'up' | 'right' {
+		return this.SharedInfo.targetTimeDirection || 'down';
+	}
+
+	timer = new Timer(100, () => RunWithRenderingBatched.Go = () => {
+		const { map } = this.props;
+		// const { targetTime, autoScroll } = this.state;
+		const oldTargetTime = this.targetTime;
+		const mapInfo = storeM.main.maps.get(map._key);
+
+		// Log('Checking');
+		// const targetTime_fromRedux = GetPlayingTimelineTime(map._key); // from redux store
+		/* const targetTime_fromStore = mapInfo.playingTimeline_time;
+		if (this.newTargetTime != null) {
+			// Log('Applying this.newTargetTime:', this.newTargetTime, '@targetTime_fromRedux:', targetTime_fromRedux);
+			this.SetState({ targetTime: this.newTargetTime });
+			targetTime = this.newTargetTime; // maybe temp
+			const newTargetTime_floored = this.newTargetTime.FloorTo(1);
+			if (newTargetTime_floored != targetTime_fromStore) {
+				// store.dispatch(new ACTMap_PlayingTimelineTimeSet({ mapID: map._key, time: newTargetTime_floored }));
+				// storeM.main.maps.get(map._key).playingTimeline_time = newTargetTime_floored;
+				// ACTSetPlayingTimelineTime(map._key, newTargetTime_floored);
+				// storeM.ACTSetPlayingTimelineTime(map._key, newTargetTime_floored);
+				// storeM.main.maps.get(map._key).playingTimeline_time_set(newTargetTime_floored);
+				mapInfo.playingTimeline_time_set(newTargetTime_floored);
+			}
+		} */
+
+		/* if (this.listRootEl != null) {
+			// this.SetState({ listY: GetScreenRect(this.listRootEl).y });
+			// Log(`Setting...${GetScreenRect(this.listRootEl).y}`);
+			const listY = GetScreenRect(this.listRootEl).y;
+			if (listY != this.lastListY) {
+				this.UpdateTargetInfo();
+				this.lastListY = listY;
+			}
+		} */
+
+		/* const listY = this.listRootEl ? GetScreenRect(this.listRootEl).y : null;
+		if (this.targetTime != oldTargetTime || listY != this.lastListY) {
+			this.UpdateTargetInfo();
+			this.lastListY = listY;
+		} */
+		this.listY = GetScreenRect(this.listRootEl).y;
+
+		const timeline = GetSelectedTimeline(map._key);
+		const targetStepIndex = GetPlayingTimelineStepIndex(map._key);
+		// const maxTargetStepIndex = GetPlayingTimelineAppliedStepIndex(map._key);
+		const firstStep = GetTimelineStep(timeline ? timeline.steps[0] : null);
+		if (timeline && this.targetTime != null) {
+			// const steps = timeline ? GetTimelineSteps.Watch(timeline, true) : null;
+			const steps = GetTimelineSteps(timeline, true);
+			const targetStep = steps.LastOrX(a => a && a.videoTime <= this.targetTime, firstStep);
+			if (targetStep) {
+				const newTargetStepIndex = timeline.steps.indexOf(targetStep._key);
+				const newMaxTargetStepIndex = newTargetStepIndex.KeepAtLeast(targetStepIndex);
+				if (newTargetStepIndex != targetStepIndex) {
+					Log('Target-step changing @Old:', targetStepIndex, '@New:', newTargetStepIndex, '@Time:', this.targetTime);
+					store.dispatch(new ActionSet(
+						new ACTMap_PlayingTimelineStepSet({ mapID: map._key, stepIndex: newTargetStepIndex }),
+						new ACTMap_PlayingTimelineAppliedStepSet({ mapID: map._key, stepIndex: newMaxTargetStepIndex }),
+					));
+
+					if (this.autoScroll) {
+						// jump one further down, so that the target point *within* the target step is visible (and with enough space for the arrow button itself)
+						// this.list.scrollAround(newTargetStepIndex + 1);
+						// jump X further down, so that we see some of the upcoming text (also for if video-time data is off some)
+						this.list.scrollAround(newTargetStepIndex + 3);
+						WaitXThenRun(0, () => this.list.scrollAround(newTargetStepIndex)); // make sure target box itself is still visible, however
+					}
+				}
+			}
+		}
+	});
 
 	/* PostSelfOrTargetStepRender() {
 		this.UpdateTargetInfo();
@@ -216,13 +219,13 @@ export class PlayingSubpanel extends BaseComponentPlus(
 
 	ComponentDidMount() {
 		const { map } = this.props;
-		const mapInfo = storeM.main.maps.get(map._key);
+		// const mapInfo = storeM.main.maps.get(map._key);
 
 		// on component mount, load timeline-time from redux-store
 		/* const targetTime_fromRedux = GetPlayingTimelineTime(map._key);
 		// this.SetState({ targetTime: targetTime_fromRedux });
 		this.newTargetTime = targetTime_fromRedux; // actually gets applied to state by timer */
-		this.newTargetTime = mapInfo.playingTimeline_time;
+		// this.newTargetTime = mapInfo.playingTimeline_time;
 	}
 
 	// autoScrollDisabling = true;
@@ -242,9 +245,10 @@ export class PlayingSubpanel extends BaseComponentPlus(
 		const timeline = GetSelectedTimeline(map._key);
 		const firstNormalStep = GetTimelineStep(timeline ? timeline.steps[1] : null);
 		// const { targetTimeDirection } = this.GetTargetInfo(timeline, firstNormalStep);
-		const { targetTimeDirection } = this.state;
-		if (targetTimeDirection != 'right') {
-			this.SetState({ autoScroll: false });
+		// const { targetTimeDirection } = this.state;
+		if (this.targetTimeDirection != 'right') {
+			// this.SetState({ autoScroll: false });
+			this.autoScroll = false;
 		}
 
 		// this.UpdateTargetInfo_Throttled();
@@ -253,7 +257,7 @@ export class PlayingSubpanel extends BaseComponentPlus(
 	list: ReactList;
 	render() {
 		const { map } = this.props;
-		const { targetTime, autoScroll, targetTime_yInMessageArea, targetTimeDirection } = this.state;
+		// const { targetTime, autoScroll, targetTime_yInMessageArea, targetTimeDirection } = this.state;
 		const mapInfo = storeM.main.maps.get(map._key);
 		const timeline = GetSelectedTimeline.Watch(map._key);
 		// timelineSteps: timeline && GetTimelineSteps(timeline);
@@ -263,12 +267,14 @@ export class PlayingSubpanel extends BaseComponentPlus(
 		useEffect(() => ref(this.DOM), [ref]); */
 		const [videoRef, { height: videoHeight }] = UseSize();
 		const [messageAreaRef, { height: messageAreaHeight }] = UseSize();
-		this.Stash({ messageAreaHeight });
+		// this.Stash({ messageAreaHeight });
+		this.messageAreaHeight = messageAreaHeight; // set for other observers
 
 		// const targetTime_floored = GetPlayingTimelineTime(map._key); // no need to watch, since only used as start-pos for video, if in initial mount
-		const targetTime_floored = mapInfo.playingTimeline_time;
 		const nodeRevealHighlightTime = GetNodeRevealHighlightTime.Watch();
 		const firstNormalStep = GetTimelineStep.Watch(timeline ? timeline.steps[1] : null); // just watch for PostRender->UpdateTargetInfo code
+
+		Log('Rendering...');
 
 		/* (useEffect as any)(() => {
 			const targetTime_fromRedux = GetPlayingTimelineTime(map._key); // from redux store
@@ -309,11 +315,12 @@ export class PlayingSubpanel extends BaseComponentPlus(
 		return (
 			<Column style={{ height: '100%' }}>
 				{timeline.videoID &&
-				<YoutubePlayerUI ref={videoRef} videoID={timeline.videoID} startTime={targetTime_floored || timeline.videoStartTime} heightVSWidthPercent={timeline.videoHeightVSWidthPercent}
+				<YoutubePlayerUI ref={videoRef} videoID={timeline.videoID} startTime={mapInfo.playingTimeline_time || timeline.videoStartTime} heightVSWidthPercent={timeline.videoHeightVSWidthPercent}
 					onPlayerInitialized={(player) => {
 						this.player = player;
 						player.GetPlayerUI().style.position = 'absolute';
-						this.Update();
+						// this.Update();
+						this.forceUpdate();
 					}}
 					onPosChanged={(pos) => {
 						if (pos == 0) return; // ignore "pos 0" event; this just happens when the video first loads (even if seek-to time set otherwise)
@@ -321,7 +328,14 @@ export class PlayingSubpanel extends BaseComponentPlus(
 						// just set state directly, because the timer above will handle the refreshing
 						// this.state['targetTime'] = pos;
 						// if (pos == timeline.videoStartTime && this.newTargetTime == null) return; // don't set newTargetTime
-						this.newTargetTime = pos;
+						// this.newTargetTime = pos;
+						// this.SetState({ targetTime: pos });
+						this.targetTime = pos;
+						// runInAction('PlayingSubpanel_targetTime_set', () => this.targetTime = pos);
+						Log(`Setting:${this.targetTime}`);
+						if (pos.FloorTo(1) != mapInfo.playingTimeline_time) {
+							mapInfo.playingTimeline_time_set(pos.FloorTo(1));
+						}
 					}}/>}
 				{/* <ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, position: 'relative', padding: 7, filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)' })}>
 					{/* timelineSteps && timelineSteps.map((step, index) => <StepUI key={index} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>) *#/}
@@ -351,18 +365,18 @@ export class PlayingSubpanel extends BaseComponentPlus(
 				</Row>
 				<Row ref={messageAreaRef} style={{ height: `calc(100% - 30px - ${ToNumber(videoHeight, 0)}px)` }}>
 					<Column ref={c => this.sideBarEl = c ? c.DOM as any : null} style={{ position: 'relative', width: 20, background: HSLA(0, 0, 0, 1) }}>
-						<Button text={<Icon icon={`arrow-${targetTimeDirection}`} size={20}/>} /* enabled={targetTime_yInMessageArea < 0 || targetTime_yInMessageArea >= messageAreaHeight - 20} */
+						<Button text={<Icon icon={`arrow-${this.targetTimeDirection}`} size={20}/>} /* enabled={targetTime_yInMessageArea < 0 || targetTime_yInMessageArea >= messageAreaHeight - 20} */
 							style={{
 								background: 'none', padding: 0,
-								position: 'absolute', top: targetTime_yInMessageArea ? targetTime_yInMessageArea.KeepBetween(0, messageAreaHeight - 20) : 0,
+								position: 'absolute', top: this.targetTime_yInMessageArea ? this.targetTime_yInMessageArea.KeepBetween(0, messageAreaHeight - 20) : 0,
 								// opacity: autoScroll ? 1 : 0.7,
-								filter: autoScroll ? 'sepia(1) saturate(15) hue-rotate(55deg)' : null,
+								filter: this.autoScroll ? 'sepia(1) saturate(15) hue-rotate(55deg)' : null,
 							}}
 							onClick={UseCallback(() => {
 								if (this.list == null || targetStepIndex == null) return;
-								const targetOffScreen = targetTimeDirection != 'right';
+								const targetOffScreen = this.targetTimeDirection != 'right';
 								if (targetOffScreen) {
-									if (targetTimeDirection == 'down') {
+									if (this.targetTimeDirection == 'down') {
 										this.list.scrollAround(targetStepIndex + 1); // jump one further down, so that the target point *within* the target step is visible (and with enough space for the arrow button itself)
 									} else {
 										this.list.scrollAround(targetStepIndex);
@@ -370,11 +384,12 @@ export class PlayingSubpanel extends BaseComponentPlus(
 								}
 
 								// const newAutoScroll = targetOffScreen;
-								const newAutoScroll = !autoScroll;
+								const newAutoScroll = !this.autoScroll;
 								/* this.autoScrollDisabling = false;
 								this.SetState({ autoScroll: newAutoScroll }, () => WaitXThenRun(0, () => this.autoScrollDisabling = true)); */
-								this.SetState({ autoScroll: newAutoScroll });
-							}, [autoScroll, targetStepIndex, targetTimeDirection])}/>
+								// this.SetState({ autoScroll: newAutoScroll });
+								this.autoScroll = newAutoScroll;
+							}, [targetStepIndex])}/>
 					</Column>
 					<ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, position: 'relative', padding: 7, filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)' })} onScroll={this.OnScroll}>
 						{/* timelineSteps && timelineSteps.map((step, index) => <StepUI key={index} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>) */}
@@ -409,7 +424,8 @@ export class PlayingSubpanel extends BaseComponentPlus(
 												}
 												player.SetPosition(step.videoTime);
 												// this.SetState({ targetTime: step.videoTime, autoScroll: true });
-												this.SetState({ autoScroll: true });
+												// this.SetState({ autoScroll: true });
+												this.autoScroll = true;
 											})();
 										}
 									}}
@@ -441,7 +457,7 @@ export class PlayingSubpanel extends BaseComponentPlus(
 
 										// for the next X seconds, check if we are the target-step; if so, check if our rect needs updating (no need to do this if video playing though, as that triggers UpdateTargetInfo on its own)
 										// if (this.player.state == YoutubePlayerState.CUED) {
-										if (this.player && this.player.state != YoutubePlayerState.PLAYING) {
+										/* if (this.player && this.player.state != YoutubePlayerState.PLAYING) {
 											new Timer(200, () => {
 												if (!document.body.contains(c.DOM_HTML)) return;
 												if (index == targetStepIndex) {
@@ -449,7 +465,7 @@ export class PlayingSubpanel extends BaseComponentPlus(
 													this.UpdateTargetInfo();
 												}
 											}, 5).Start();
-										}
+										} */
 									}}/>;
 							}}/>
 					</ScrollView>

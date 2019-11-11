@@ -1,13 +1,9 @@
-import { configure, observable } from 'mobx';
-import { types, unprotect, onSnapshot, flow, applySnapshot } from 'mobx-state-tree';
 import makeInspectable from 'mobx-devtools-mst';
-import { WaitXThenRun } from 'js-vextensions';
-import { ref, model } from 'mst-decorators';
+import { model } from 'mst-decorators';
 import { MainStateM, MainStateM_ } from './main';
-import * as mapExports from './main/maps/$map';
 
 // configure({ enforceActions: 'always' });
-configure({ enforceActions: 'observed' });
+// configure({ enforceActions: 'observed' });
 
 /* export class StoreM {
 	@observable main = new MainStateM();
