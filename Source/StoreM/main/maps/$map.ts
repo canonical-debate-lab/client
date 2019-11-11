@@ -1,9 +1,11 @@
 import { types } from 'mobx-state-tree';
+import { model, view, ref, bool, array, map, maybe, num, id, str, jsonDate } from 'mst-decorators';
 
 /* export class MapState {
 	@observable playingTimeline_time: number;
 } */
-export const MapState = types.model('MapState', {
+
+/* export const MapState = types.model('MapState', {
 	// playingTimeline_time: types.optional(types.number, null),
 	// playingTimeline_time: types.maybeNull(types.number).WithMeta({version: 1}),
 	playingTimeline_time: types.maybeNull(types.number),
@@ -11,7 +13,14 @@ export const MapState = types.model('MapState', {
 	return {
 		playingTimeline_time_set: (val: number) => self.playingTimeline_time = val,
 	};
-});
+}); */
+
+export class MapState {
+	// @observable playingTimeline_time: number;
+	@maybe(num) playingTimeline_time: number;
+	playingTimeline_time_set(val: number) { this.playingTimeline_time = val; }
+}
+export const MapState_ = model(MapState);
 
 /* export const ACTEnsureMapStateInit = StoreAction((mapID: string) => {
 	/* if (storeM.main.maps.get(mapID)) return;

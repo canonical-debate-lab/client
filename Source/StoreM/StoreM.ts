@@ -2,7 +2,8 @@ import { configure, observable } from 'mobx';
 import { types, unprotect, onSnapshot, flow, applySnapshot } from 'mobx-state-tree';
 import makeInspectable from 'mobx-devtools-mst';
 import { WaitXThenRun } from 'js-vextensions';
-import { MainStateM } from './main';
+import { ref, model } from 'mst-decorators';
+import { MainStateM, MainStateM_ } from './main';
 import * as mapExports from './main/maps/$map';
 
 // configure({ enforceActions: 'always' });
@@ -17,7 +18,7 @@ export const storeM = new StoreM();
 
 // type GetPropsOfType<T, K extends keyof any> = Pick<T, Extract<keyof T, K>>;
 
-const StoreM = types.model('StoreM', {
+/* const StoreM = types.model('StoreM', {
 	main: MainStateM,
 }).actions((self) => {
 	// const mapActions = mapExports.VValues().filter(a => a instanceof Function && a['Watch'] != null);
@@ -34,20 +35,25 @@ const StoreM = types.model('StoreM', {
 	return actions; *#/
 	return {
 		...mapActions,
-	}; */
+	}; *$/
 	return {
 		/* afterCreate: flow(function* () {
 			yield ;
 			applySnapshot().testSnap = JSON.stringify(getSnapshot(self));
-		}), */
+		}), *$/
 	};
-});
+}); */
+
+export class StoreM {
+	@MainStateM_ main: MainStateM;
+}
+export const StoreM_ = model(StoreM);
 
 export let storeM: ReturnType<typeof InitStore>;
 
 /* declare global { const storeM: StoreM; } */
 export function InitStore() {
-	const result = StoreM.create({
+	const result = StoreM_.create({
 		main: {
 			maps: {},
 		},
