@@ -25,7 +25,9 @@ const webpackConfig = {
 	name: 'client',
 	mode: PROD && !QUICK ? 'production' : 'development',
 	optimization: {
-		namedModules: true, // we have path-info anyway (and causes problems when inconsistent between bundles)
+		// use paths as runtime identifiers for webpack modules (easier debugging)
+    	// namedModules: true, // commented; not needed, since "output.pathinfo=true" (and, before at least, would cause problems when inconsistent between bundles)
+    	namedModules: true,
 		noEmitOnErrors: true,
 	},
 	target: 'web',
@@ -164,7 +166,7 @@ webpackConfig.module.rules = [
 		// include: [paths.client(), paths.base("node_modules", "vwebapp-framework")],
 		include: [paths.client(), fs.realpathSync(paths.base('node_modules', 'vwebapp-framework'))],
 		loader: 'babel-loader',
-		query: {
+		options: {
 			presets: [
 				[
 					'@babel/env',

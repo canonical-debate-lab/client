@@ -1,19 +1,16 @@
+import { Assert, GetPercentFromXToY, IsNaN, Lerp, Timer, ToNumber, Vector2i, WaitXThenRun } from 'js-vextensions';
+import { computed, observable } from 'mobx';
+import React, { useEffect } from 'react';
 import ReactList from 'react-list';
-import { Column, Div, Row, Button, DropDown, DropDownTrigger, DropDownContent, Text, Spinner } from 'react-vcomponents';
-import { BaseComponentPlus, GetDOM, UseCallback, UseState, BaseComponent } from 'react-vextensions';
-import { ScrollView, ScrollSource } from 'react-vscrollview';
+import { Button, Column, DropDown, DropDownContent, DropDownTrigger, Row, Spinner, Text } from 'react-vcomponents';
+import { BaseComponent, GetDOM, UseCallback } from 'react-vextensions';
+import { ScrollSource, ScrollView } from 'react-vscrollview';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetTimelineStep, GetTimelineSteps } from 'Store/firebase/timelines';
-import { Timeline } from 'Store/firebase/timelines/@Timeline';
-import { GetSelectedTimeline, GetPlayingTimelineAppliedStepIndex, ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimelineStepIndex, GetNodeRevealHighlightTime } from 'Store/main/maps/$map';
-import { HSLA, UseSize, VReactMarkdown_Remarkable, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, Icon, GetScreenRect, ActionSet, ACTSet, RunWithRenderingBatched, Observer } from 'Utils/FrameworkOverrides';
-import { ES } from 'Utils/UI/GlobalStyles';
-import React, { useEffect } from 'react';
-import { ToNumber, VRect, Lerp, GetPercentFromXToY, IsNaN, Assert, Timer, WaitXThenRun, Vector2i } from 'js-vextensions';
-import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
-import _ from 'lodash';
+import { ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetNodeRevealHighlightTime, GetPlayingTimelineAppliedStepIndex, GetPlayingTimelineStepIndex, GetSelectedTimeline } from 'Store/main/maps/$map';
 import { storeM } from 'StoreM/StoreM';
-import { observable, computed, runInAction } from 'mobx';
+import { ActionSet, ACTSet, GetScreenRect, HSLA, Icon, Observer, RunWithRenderingBatched, UseSize, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, ClassHooks } from 'Utils/FrameworkOverrides';
+import { ES } from 'Utils/UI/GlobalStyles';
 import { StepUI } from './PlayingSubpanel/StepUI';
 
 /* export class PlayingSubpanel extends BaseComponentPlus(
@@ -23,6 +20,7 @@ import { StepUI } from './PlayingSubpanel/StepUI';
 ) { */
 
 @Observer
+// @ClassHooks
 export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageAreaHeight: number }> {
 // export class PlayingSubpanel extends React.Component<{map: Map}, {}, { messageAreaHeight: number }> {
 	// initialStash = { messageAreaHeight: 0 };
@@ -474,3 +472,26 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 		);
 	}
 }
+
+// example of how to copy mobx administration object, to prevent leak/persistence of comp's MobX reaction
+/* @observer
+class Test1 extends Component<{}, {}> {
+	render() {
+		return <div/>;
+	}
+	componentDidMount() {
+		setTimeout(()=>this.swapRenderFunction(), 1000); // simulate delay
+	}
+	swapRenderFunction() {
+		const oldRender = this.render;
+		this.render = function () {
+			// <<< add wrapper code here
+			return oldRender.apply(this, arguments);
+		};
+
+		// copy over mobx administration object
+		for (const symbol of Object.getOwnPropertySymbols(oldRender)) {
+			this.render[symbol] = oldRender[symbol];
+		}
+	}
+} */
