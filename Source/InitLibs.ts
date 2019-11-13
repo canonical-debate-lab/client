@@ -37,6 +37,7 @@ export function InitLibs() {
 		dbVersion,
 		HasHotReloaded: () => hasHotReloaded,
 		logTypes,
+		mobxCompatMode: true,
 
 		startURL,
 		routerLocationPathInStore: ['router', 'location'],
