@@ -11,20 +11,23 @@
 		"moduleResolution": "node",
 		//"rootDir": ".",
 		"rootDir": "Source",
-		//"baseUrl": ".",
 		"baseUrl": "Source",
+		//"baseUrl": ".", // we need it at root so we can apply path-overrides, even when requester is outside of Source folder
 		"paths": { // ("paths" is relative to "baseUrl")
-			"*": [
+			// only enable this (by removing the _disabled part), while using npm link (which should be only temporary, while focus-developing another module for use in this project)
+			"*_disabled": [
 				//"node_modules/@types/*", // prefer "/node_modules/@types" over "/node_modules/[something]/node_modules/@types" (eg, when using npm link)
 				"../node_modules/@types/*", // prefer "/node_modules/@types" over "/node_modules/[something]/node_modules/@types" (eg, when using npm link)
 				"*"
 			],
 			// remove @types/node and such (conflicts with typescript web definitions)
-			"@types/node": ["Typings/empty.d.ts"],
+			"@types/node": ["../Typings/empty.d.ts"],
 			// remove @types/react/global.d.ts, as it breaks the auto-import-finder for react-vcomponents/Text
-			"react/global.d.ts": ["Typings/empty.d.ts"],
-			"react-vextensions/node_modules/react/global.d.ts": ["Typings/empty.d.ts"],
-			"react-vcomponents/node_modules/react/global.d.ts": ["Typings/empty.d.ts"]
+			"react/global.d.ts": ["../Typings/empty.d.ts"],
+			"react-vextensions/node_modules/react/global.d.ts": ["../Typings/empty.d.ts"],
+			"react-vcomponents/node_modules/react/global.d.ts": ["../Typings/empty.d.ts"],
+			// temp removals (lib definitions need updating)
+			"mst-decorators": ["../Typings/empty.d.ts"],
 		},
 		//"skipLibCheck": true,
 
@@ -46,7 +49,6 @@
 		"experimentalDecorators": true,
 		"allowSyntheticDefaultImports": true
 	},
-	"files": ["Source/Main.ts"],
 	"include": [
 		"Typings/**/*.d.ts",
 		//"Typings/globals/**/*.d.ts",
@@ -54,16 +56,6 @@
 		"Source/**/*.tsx"
 		//"Source/**/*.js",
 		//"Source/**/*.jsx"
-	],
-	"exclude": [
-		"Build",
-		"Tests",
-		"node_modules"
-
-		/*"Typings/main",
-		"Typings/main.d.ts",
-		"Typings/browser",
-		"Typings/browser.d.ts",*/
 	],
 	"compileOnSave": true
 }

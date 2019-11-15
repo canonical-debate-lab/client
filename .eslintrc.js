@@ -15,11 +15,12 @@ module.exports = {
 		}
 	},
 	plugins: [
+		"@typescript-eslint",
 		"import",
 		"react",
+		"react-hooks",
 		//"jsx-a11y", // warns about accessibility concerns
 		//"babel",
-		"react-hooks",
 		"only-warn"
 	],
 	settings: {

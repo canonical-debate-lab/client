@@ -1,3 +1,5 @@
+// @ts-check_disabled
+
 const webpack = require('webpack');
 const cssnano = require('cssnano');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -8,8 +10,8 @@ const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const StringReplacePlugin = require('string-replace-webpack-plugin');
 const SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
-const config = require('../Config');
 const { CyclicDependencyChecker } = require('webpack-dependency-tools');
+const config = require('../Config');
 // const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 // const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 // const AutoDllPlugin = require("autodll-webpack-plugin");
@@ -197,7 +199,7 @@ const onReplacementPhaseDone_listeners = [];
 function AddStringReplacement(fileRegex, replacements, minCallCount = 1, verifyPerFile = true) {
 	const replacementCallCounts = replacements.map(() => 0);
 	function VerifyReplacementsCalled() {
-		const undercalledIndex = replacementCallCounts.findIndex(callCount => callCount < minCallCount);
+		const undercalledIndex = replacementCallCounts.findIndex((callCount) => callCount < minCallCount);
 		const undercalledReplacement = replacements[undercalledIndex];
 		if (undercalledIndex != -1) {
 			throw new Error(`
@@ -370,7 +372,7 @@ AddStringReplacement(/wrapMapToProps.js/, [
 	// make WrappedComponent (the class) accessible as "this.WrappedComponent" from within Connect (FirebaseConnect.ts), and Connect functions
 	{
 		pattern: 'proxy.dependsOnOwnProps = true;',
-		replacement: match => `${match} proxy.WrappedComponent = _ref.WrappedComponent;`,
+		replacement: (match) => `${match} proxy.WrappedComponent = _ref.WrappedComponent;`,
 	},
 ]);
 
@@ -382,11 +384,11 @@ AddStringReplacement(/redux.js/, [
 	// 2) if an action has a "dontTriggerSubscribers" prop, store subscribers/listeners will not be notified after that action's dispatch (needed for ActionSet system)
 	{
 		pattern: 'currentState = currentReducer(currentState, action)',
-		replacement: match => `var oldState = currentState; ${match}`,
+		replacement: (match) => `var oldState = currentState; ${match}`,
 	},
 	{
 		pattern: 'for (var i = 0; i < listeners.length; i++) {',
-		replacement: match => `if (currentState !== oldState && !action.dontTriggerSubscribers) ${match}`,
+		replacement: (match) => `if (currentState !== oldState && !action.dontTriggerSubscribers) ${match}`,
 	},
 ]);
 
@@ -434,7 +436,7 @@ webpackConfig.plugins.push({
 		}); */
 		compiler.hooks.emit.tap('AddStringReplacement_Verify', (compilation) => {
 			console.log('\n=== Verifying replacements called (global)... ===\n');
-			onReplacementPhaseDone_listeners.forEach(a => a());
+			onReplacementPhaseDone_listeners.forEach((a) => a());
 		});
 	},
 });
@@ -550,7 +552,7 @@ if (OUTPUT_STATS) {
 						timings,
 					};
 				});
-				modules_justTimings = SortArrayDescending(modules_justTimings, a => a.totalTime);
+				modules_justTimings = SortArrayDescending(modules_justTimings, (a) => a.totalTime);
 
 				const modules_justTimings_asMap = {};
 				for (const mod of modules_justTimings) {
@@ -608,7 +610,7 @@ function StableSort(array, compareFunc) { // needed for Chrome
 		const r = compareFunc(a.item, b.item, a.index, b.index);
 		return r != 0 ? r : Compare(a.index, b.index);
 	});
-	return array2.map(pack => pack.item);
+	return array2.map((pack) => pack.item);
 }
 function Compare(a, b, caseSensitive = true) {
 	if (!caseSensitive && typeof a == 'string' && typeof b == 'string') {
