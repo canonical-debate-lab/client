@@ -14,10 +14,11 @@
 		"baseUrl": "Source",
 		//"baseUrl": ".", // we need it at root so we can apply path-overrides, even when requester is outside of Source folder
 		"paths": { // ("paths" is relative to "baseUrl")
-			// only enable this (by removing the _disabled part), while using npm link (which should be only temporary, while focus-developing another module for use in this project)
-			"*_disabled": [
+			// old: only enable this (by removing the _disabled part), while using npm link (which should be only temporary, while focus-developing another module for use in this project)
+			"*": [
 				//"node_modules/@types/*", // prefer "/node_modules/@types" over "/node_modules/[something]/node_modules/@types" (eg, when using npm link)
-				"../node_modules/@types/*", // prefer "/node_modules/@types" over "/node_modules/[something]/node_modules/@types" (eg, when using npm link)
+				//"../node_modules/@types/*", // prefer "/node_modules/@types" over "/node_modules/[something]/node_modules/@types" (eg, when using npm link)
+				"../node_modules/*", // prefer "/node_modules/X" over "/node_modules/[something]/node_modules/X" (eg, when using npm link)
 				"*"
 			],
 			// remove @types/node and such (conflicts with typescript web definitions)
