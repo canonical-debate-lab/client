@@ -288,7 +288,7 @@ class RootUI extends BaseComponentPlus({} as {}, {}) {
 						<Route path='/forum'><ForumUI/></Route>
 						<Route path='/feedback'><FeedbackUI/></Route>
 						<Route path='/more'><MoreUI/></Route>
-						<Route withConditions={useCallback(url => NormalizeURL(VURL.FromLocationObject(url)).pathNodes[0] == 'home', [])}>
+						<Route withConditions={useCallback((url) => NormalizeURL(VURL.FromLocationObject(url)).pathNodes[0] == 'home', [])}>
 							{!GADDemo && <HomeUI/>}
 							{GADDemo && <HomeUI_GAD/>}
 						</Route>

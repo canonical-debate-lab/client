@@ -8,7 +8,7 @@ import { manager as manager_feedback } from 'firebase-feedback';
 import { replace, push } from 'connected-react-router';
 import Raven from 'raven-js';
 import { version, dbVersion, hasHotReloaded, firebaseConfig } from 'Main';
-import { Link, GetData, GetDataAsync, GetAsync, ApplyDBUpdates, VReactMarkdown_Remarkable, Connect, State, DBPath, ExposeModuleExports, manager as manager_framework } from 'Utils/FrameworkOverrides';
+import { Log, Link, GetData, GetDataAsync, GetAsync, ApplyDBUpdates, VReactMarkdown_Remarkable, Connect, State, DBPath, ExposeModuleExports, manager as manager_framework } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
 import { GetLoadActionsForURL, GetNewURL } from 'Utils/URL/URLs';
 import { MakeRootReducer } from 'Store';
@@ -26,6 +26,9 @@ context.keys().forEach((filename) => {
 });
 
 export function InitLibs() {
+	// set some globals
+	G({ Log });
+
 	ColorPickerBox.Init(react_color, chroma_js);
 
 	manager_framework.Populate({

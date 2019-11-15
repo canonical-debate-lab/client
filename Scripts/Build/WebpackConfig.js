@@ -1,13 +1,13 @@
 // @ts-check_disabled
 
 const webpack = require('webpack');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CSSNano = require('cssnano');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const debug = require('debug')('app:webpack:config');
 const path = require('path');
 const fs = require('fs');
 const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const StringReplacePlugin = require('string-replace-webpack-plugin');
 const SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
 const { CyclicDependencyChecker } = require('webpack-dependency-tools');
@@ -38,7 +38,7 @@ const webpackConfig = {
 		modules: [
 			// 'node_modules', // commented; thus we ignore the closest-to-import-statement node_modules folder, instead we: [...]
 			paths.base('node_modules'), // [...] always get libraries from the root node_modules folder
-			paths.client(),
+			paths.source(),
 		],
 		// extensions: [".js", ".jsx", ".json"].concat(USE_TSLOADER ? [".ts", ".tsx"] : []),
 		extensions: [
@@ -63,7 +63,7 @@ const webpackConfig = {
 // entry points
 // ==========
 
-const APP_ENTRY = paths.client(USE_TSLOADER ? 'Main.ts' : 'Main.js');
+const APP_ENTRY = paths.source(USE_TSLOADER ? 'Main.ts' : 'Main.js');
 
 webpackConfig.entry = {
 	app: DEV && config.useHotReloading
@@ -164,8 +164,8 @@ webpackConfig.module.rules = [
 	{
 		test: /\.(jsx?|tsx?)$/,
 		// we have babel ignore most node_modules (ie. include them raw), but we tell it to transpile the vwebapp-framework typescript files
-		// include: [paths.client(), paths.base("node_modules", "vwebapp-framework")],
-		include: [paths.client(), fs.realpathSync(paths.base('node_modules', 'vwebapp-framework'))],
+		// include: [paths.source(), paths.base("node_modules", "vwebapp-framework")],
+		include: [paths.source(), fs.realpathSync(paths.base('node_modules', 'vwebapp-framework'))],
 		loader: 'babel-loader',
 		options: {
 			presets: [
@@ -185,7 +185,7 @@ webpackConfig.module.rules = [
 // most ts files will be transpiled by tsc into Source_JS, but the remainder (in node_modules), use ts-loader for
 // if (USE_TSLOADER) {
 // webpackConfig.module.rules.push({test: /\.tsx?$/, use: "awesome-typescript-loader"});
-// webpackConfig.module.rules.push({test: /\.tsx?$/, loader: "ts-loader", options: {include: [paths.client()]}});
+// webpackConfig.module.rules.push({test: /\.tsx?$/, loader: "ts-loader", options: {include: [paths.source()]}});
 webpackConfig.module.rules.push({ test: /\.tsx?$/, loader: 'ts-loader' });
 
 // for mobx-sync
@@ -443,29 +443,7 @@ webpackConfig.plugins.push({
 // css loaders
 // ==========
 
-webpackConfig.module.rules.push({
-	test: /\.scss$/,
-	use: [
-		MiniCssExtractPlugin.loader,
-		{
-			loader: 'css-loader',
-			// options: { minimize: false }, // cssnano already minifies
-		},
-		/* {
-			loader: 'postcss-loader',
-			options: {}
-		}, */
-		{
-			// loader: "sass-loader?sourceMap",
-			loader: 'sass-loader',
-			options: {
-				sassOptions: {
-					includePaths: [paths.client('styles')],
-				},
-			},
-		},
-	],
-});
+webpackConfig.plugins.push(new MiniCssExtractPlugin());
 webpackConfig.module.rules.push({
 	test: /\.css$/,
 	use: [
@@ -476,27 +454,45 @@ webpackConfig.module.rules.push({
 		},
 	],
 });
-
-webpackConfig.plugins.push(new CSSNano({
-	autoprefixer: {
-		add: true,
-		remove: true,
-		browsers: ['last 2 versions'],
-	},
-	discardComments: {
-		removeAll: true,
-	},
-	discardUnused: false,
-	mergeIdents: false,
-	reduceIdents: false,
-	safe: true,
-	// sourcemap: true
-}));
-webpackConfig.plugins.push(new MiniCssExtractPlugin({
-	// Options similar to the same options in webpackOptions.output. Both options are optional.
-	filename: '[name].css',
-	chunkFilename: '[id].css',
-}));
+webpackConfig.module.rules.push({
+	test: /\.scss$/,
+	use: [
+		MiniCssExtractPlugin.loader,
+		{
+			loader: 'css-loader',
+			// options: { minimize: false }, // cssnano already minifies
+		},
+		{
+			loader: 'postcss-loader',
+			options: {
+				ident: 'postcss',
+				plugins: (loader) => [
+					PROD && CSSNano({
+						autoprefixer: {
+							add: true,
+							remove: true,
+							browsers: ['last 2 versions'],
+						},
+						discardComments: { removeAll: true },
+						discardUnused: false,
+						mergeIdents: false,
+						reduceIdents: false,
+						safe: true,
+						// sourcemap: true
+					}),
+				].filter((a) => a),
+			},
+		},
+		{
+			loader: 'sass-loader',
+			options: {
+				sassOptions: {
+					includePaths: [paths.source()],
+				},
+			},
+		},
+	],
+});
 
 // file loaders
 // ==========

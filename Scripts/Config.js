@@ -18,7 +18,7 @@ Object.assign(config, {
 	// project structure
 	// ----------
 	path_base: path.resolve(__dirname, '..'),
-	dir_client: USE_TSLOADER ? 'Source' : 'Source_JS',
+	dir_source: USE_TSLOADER ? 'Source' : 'Source_JS',
 	dir_dist: 'Dist',
 	dir_server: 'Scripts/Server',
 	dir_test: 'Tests',
@@ -138,7 +138,7 @@ Object.assign(config.globals, {
 
 config.utils_paths = {
 	base: (...extra) => path.resolve(config.path_base, ...extra),
-	client: (...extra) => path.resolve(config.path_base, config.dir_client, ...extra),
+	source: (...extra) => path.resolve(config.path_base, config.dir_source, ...extra),
 	dist: (...extra) => path.resolve(config.path_base, config.dir_dist, ...extra),
 };
 
