@@ -15,20 +15,20 @@ module.exports = {
 		}
 	},
 	plugins: [
-		"@typescript-eslint",
+		/*"@typescript-eslint",
 		"import",
 		"react",
 		"react-hooks",
 		//"jsx-a11y", // warns about accessibility concerns
-		//"babel",
+		//"babel",*/
 		"only-warn"
 	],
 	settings: {
 		//"import/extensions": [".js", ".jsx", ".ts", ".tsx"],
 		"import/resolver": {
-			"webpack": {
+			/*"webpack": {
 				"config": "./Scripts/Build/WebpackConfig.js",
-			},
+			},*/
 			"node": {
 				"paths": ["Source"],
 				"extensions": [
@@ -87,6 +87,7 @@ module.exports = {
 		"no-loop-func": "off",
 		"no-nested-ternary": "off",
 		"no-use-before-define": "off", // for store-accessors that call each other
+		"max-classes-per-file": "off",
 
 		// plugins
 		"react-hooks/rules-of-hooks": "error",

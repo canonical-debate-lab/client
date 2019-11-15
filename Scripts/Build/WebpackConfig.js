@@ -1,7 +1,7 @@
 // @ts-check_disabled
 
 const webpack = require('webpack');
-const cssnano = require('cssnano');
+const CSSNano = require('cssnano');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const debug = require('debug')('app:webpack:config');
 const path = require('path');
@@ -55,9 +55,8 @@ const webpackConfig = {
 	},
 	module: {},
 	externals: {
-		// needed for firebase-mock (code-path not actually used, so it's okay)
-		// 'fs',
-		fs: 'root React', // just redirect to some other module
+		// temp; fix for firebase-mock in browser (code-path not actually used, so it's okay)
+		fs: 'root location', // redirect to some global-variable, eg. window.location
 	},
 };
 
@@ -444,38 +443,25 @@ webpackConfig.plugins.push({
 // css loaders
 // ==========
 
-// We use cssnano with the postcss loader, so we tell css-loader not to duplicate minimization.
-// const BASE_CSS_LOADER = "css-loader?sourceMap&-minimize"
-const BASE_CSS_LOADER = 'css-loader?-minimize';
-
 webpackConfig.module.rules.push({
 	test: /\.scss$/,
 	use: [
 		MiniCssExtractPlugin.loader,
-		BASE_CSS_LOADER,
 		{
-			loader: 'postcss-loader',
-			options: cssnano({
-				autoprefixer: {
-					add: true,
-					remove: true,
-					browsers: ['last 2 versions'],
-				},
-				discardComments: {
-					removeAll: true,
-				},
-				discardUnused: false,
-				mergeIdents: false,
-				reduceIdents: false,
-				safe: true,
-				// sourcemap: true
-			}),
+			loader: 'css-loader',
+			// options: { minimize: false }, // cssnano already minifies
 		},
+		/* {
+			loader: 'postcss-loader',
+			options: {}
+		}, */
 		{
 			// loader: "sass-loader?sourceMap",
 			loader: 'sass-loader',
 			options: {
-				includePaths: [paths.client('styles')],
+				sassOptions: {
+					includePaths: [paths.client('styles')],
+				},
 			},
 		},
 	],
@@ -484,18 +470,37 @@ webpackConfig.module.rules.push({
 	test: /\.css$/,
 	use: [
 		MiniCssExtractPlugin.loader,
-		'css-loader',
+		{
+			loader: 'css-loader',
+			// options: { minimize: false }, // cssnano already minifies
+		},
 	],
 });
 
+webpackConfig.plugins.push(new CSSNano({
+	autoprefixer: {
+		add: true,
+		remove: true,
+		browsers: ['last 2 versions'],
+	},
+	discardComments: {
+		removeAll: true,
+	},
+	discardUnused: false,
+	mergeIdents: false,
+	reduceIdents: false,
+	safe: true,
+	// sourcemap: true
+}));
 webpackConfig.plugins.push(new MiniCssExtractPlugin({
 	// Options similar to the same options in webpackOptions.output. Both options are optional.
 	filename: '[name].css',
 	chunkFilename: '[id].css',
 }));
 
+// file loaders
+// ==========
 
-// File loaders
 /* eslint-disable */
 webpackConfig.module.rules.push(
 	{test: /\.woff(\?.*)?$/, use: "url-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=application/font-woff"},
@@ -508,7 +513,7 @@ webpackConfig.module.rules.push(
 )
 /* eslint-enable */
 
-// Finalize Configuration
+// finalize configuration
 // ==========
 
 webpackConfig.plugins.push(

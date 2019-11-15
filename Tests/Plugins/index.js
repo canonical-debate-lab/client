@@ -56,7 +56,7 @@ module.exports = (on, config) => {
 				],
 			},
 			externals: {
-				// needed for firebase-mock in browser (code-path not actually used, so it's okay)
+				// temp; fix for firebase-mock in browser (code-path not actually used, so it's okay)
 				fs: 'root location', // redirect to some global-variable, eg. window.location
 			},
 		},
