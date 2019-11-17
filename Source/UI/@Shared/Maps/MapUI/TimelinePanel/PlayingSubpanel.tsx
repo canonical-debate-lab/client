@@ -1,5 +1,5 @@
 import { Assert, GetPercentFromXToY, IsNaN, Lerp, Timer, ToNumber, Vector2i, WaitXThenRun } from 'js-vextensions';
-import { computed, observable } from 'mobx';
+import { computed, observable, runInAction } from 'mobx';
 import React, { useEffect } from 'react';
 import ReactList from 'react-list';
 import { Button, Column, DropDown, DropDownContent, DropDownTrigger, Row, Spinner, Text } from 'react-vcomponents';
@@ -51,6 +51,9 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 		// const { messageAreaHeight } = this.stash;
 
 		const firstNormalStep = GetTimelineStep(timeline ? timeline.steps[1] : null);
+
+		// temp; tell mobx to track these (redux data + if statement breaks the auto-tracking)
+		this.targetTime;
 
 		let targetStepIndex: number;
 		let targetTime_yInMessageArea: number;
@@ -266,13 +269,16 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 		const [videoRef, { height: videoHeight }] = UseSize();
 		const [messageAreaRef, { height: messageAreaHeight }] = UseSize();
 		// this.Stash({ messageAreaHeight });
-		this.messageAreaHeight = messageAreaHeight; // set for other observers
+		// todo: make sure this is correct
+		useEffect(() => {
+			this.messageAreaHeight = messageAreaHeight; // set for other observers
+		});
 
 		// const targetTime_floored = GetPlayingTimelineTime(map._key); // no need to watch, since only used as start-pos for video, if in initial mount
 		const nodeRevealHighlightTime = GetNodeRevealHighlightTime.Watch();
 		const firstNormalStep = GetTimelineStep.Watch(timeline ? timeline.steps[1] : null); // just watch for PostRender->UpdateTargetInfo code
 
-		Log('Rendering...');
+		// Log('Rendering...');
 
 		/* (useEffect as any)(() => {
 			const targetTime_fromRedux = GetPlayingTimelineTime(map._key); // from redux store
@@ -330,9 +336,12 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 						// this.SetState({ targetTime: pos });
 						this.targetTime = pos;
 						// runInAction('PlayingSubpanel_targetTime_set', () => this.targetTime = pos);
-						Log(`Setting:${this.targetTime}`);
+						// Log(`Setting:${this.targetTime}`);
 						if (pos.FloorTo(1) != mapInfo.playingTimeline_time) {
-							mapInfo.playingTimeline_time_set(pos.FloorTo(1));
+							// mapInfo.playingTimeline_time_set(pos.FloorTo(1));
+							runInAction('VideoPlayer.onPosChanged: set playingTimeline_time', () => {
+								mapInfo.playingTimeline_time = pos.FloorTo(1);
+							});
 						}
 					}}/>}
 				{/* <ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, position: 'relative', padding: 7, filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)' })}>

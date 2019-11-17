@@ -18,7 +18,7 @@ import { model, view, ref, bool, array, map, maybe, num, id, str, jsonDate } fro
 export class MapState {
 	// @observable playingTimeline_time: number;
 	@maybe(num) playingTimeline_time: number;
-	playingTimeline_time_set(val: number) { this.playingTimeline_time = val; }
+	// playingTimeline_time_set(val: number) { this.playingTimeline_time = val; }
 }
 export const MapState_ = model(MapState);
 
