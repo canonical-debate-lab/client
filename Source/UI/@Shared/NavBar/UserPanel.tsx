@@ -7,7 +7,9 @@ import { E } from 'js-vextensions';
 import { ShowMessageBox, BoxController } from 'react-vmessagebox';
 import { IsAuthValid } from 'Store/firebase';
 import { Connect, State, Link, HandleError } from 'Utils/FrameworkOverrides';
-import { ACTSetPage, ACTTopRightOpenPanelSet } from '../../../Store/main';
+import { storeM } from 'StoreM/StoreM';
+import {runInAction} from 'mobx';
+import { ACTSetPage } from '../../../Store/main';
 import { MeID } from '../../../Store/firebase/users';
 
 export class UserPanel extends BaseComponentPlus({} as {auth?}, {}) {
@@ -16,7 +18,7 @@ export class UserPanel extends BaseComponentPlus({} as {auth?}, {}) {
 
 		// authError: pathToJS(state.firebase, "authError"),
 		// auth: helpers.pathToJS(state.firebase, "auth"),
-		const auth = State.Watch(a => a.firebase.auth);
+		const auth = State.Watch((a) => a.firebase.auth);
 		// account: helpers.pathToJS(state.firebase, "profile")
 
 		if (!IsAuthValid(auth)) {
@@ -39,9 +41,12 @@ export class UserPanel extends BaseComponentPlus({} as {auth?}, {}) {
 						<CheckBox value={State().main.
 					</Row> */}
 				<Row mt={5}>
-					<Link ml="auto" mr={5} actions={[new ACTSetPage('profile')]} onContextMenu={e => e.nativeEvent['passThrough'] = true}>
+					<Link ml="auto" mr={5} actions={[new ACTSetPage('profile')]} onContextMenu={(e) => e.nativeEvent['passThrough'] = true}>
 						<Button text="Edit profile" style={{ width: 100 }} onClick={() => {
-							store.dispatch(new ACTTopRightOpenPanelSet(null));
+							// store.dispatch(new ACTTopRightOpenPanelSet(null));
+							runInAction('EditProfile_click', () => {
+								storeM.main.topRightOpenPanel = null;
+							});
 						}}/>
 					</Link>
 					<Button ml={5} text="Sign out" style={{ width: 100 }} onClick={() => {

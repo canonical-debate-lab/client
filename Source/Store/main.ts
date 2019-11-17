@@ -3,7 +3,7 @@ import { VURL } from 'js-vextensions';
 import { ShallowChanged } from 'react-vextensions';
 import { MapInfoReducer } from '../Store/main/maps/$map';
 import { MapInfo } from '../Store/main/maps/@MapInfo';
-import { Personal } from '../Store/main/personal';
+import { Personal, ACTPersonalMapSelect, PersonalReducer } from '../Store/main/personal';
 import { Action, CombineReducers, SimpleReducer, State, StoreAccessor } from '../Utils/FrameworkOverrides';
 import { rootPageDefaultChilds } from '../Utils/URL/URLs';
 import { GetNodeL3 } from './firebase/nodes/$node';
@@ -14,7 +14,7 @@ import { Database, DatabaseReducer } from './main/database';
 import { ACTDebateMapSelect, Debates, DebatesReducer } from './main/debates';
 import { MapViewsReducer } from './main/mapViews';
 import { MapViews } from './main/mapViews/@MapViews';
-import { ACTPersonalMapSelect, PersonalReducer } from './main/personal';
+
 import { RatingUIReducer, RatingUIState } from './main/ratingUI';
 import { SearchReducer, SearchStorage } from './main/search';
 
@@ -34,8 +34,8 @@ export class MainState {
 	dbVersionOverride: string;
 
 	analyticsEnabled: boolean;
-	topLeftOpenPanel: string;
-	topRightOpenPanel: string;
+	// topLeftOpenPanel: string;
+	// topRightOpenPanel: string;
 	ratingUI: RatingUIState;
 	notificationMessages: NotificationMessage[];
 
@@ -83,8 +83,8 @@ export class MainState {
 }
 export class ACTSetPage extends Action<string> {}
 export class ACTSetSubpage extends Action<{page: string, subpage: string}> {}
-export class ACTTopLeftOpenPanelSet extends Action<string> {}
-export class ACTTopRightOpenPanelSet extends Action<string> {}
+/* export class ACTTopLeftOpenPanelSet extends Action<string> {}
+export class ACTTopRightOpenPanelSet extends Action<string> {} */
 // export class ACTOpenMapSet extends Action<number> {}
 export class ACTNodeCopy extends Action<{path: string, asCut: boolean}> {}
 export class ACTSetInitialChildLimit extends Action<{value: number}> {}
@@ -113,7 +113,7 @@ export const MainReducer = CombineReducers({
 		return state;
 	},
 
-	lastDBVersion: SimpleReducer(a => a.main.lastDBVersion), // tracks the last db-version the client started with, so we can know when we need to upgrade the store-data
+	lastDBVersion: SimpleReducer((a) => a.main.lastDBVersion), // tracks the last db-version the client started with, so we can know when we need to upgrade the store-data
 	envOverride: (state = null, action) => {
 		if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload.location).GetQueryVar('env')) {
 			let newVal = VURL.FromLocationObject(action.payload.location).GetQueryVar('env');
@@ -142,14 +142,14 @@ export const MainReducer = CombineReducers({
 		if (action.type == LOCATION_CHANGE && VURL.FromLocationObject(action.payload.location).GetQueryVar('analytics') == 'true') { return true; }
 		return state;
 	},
-	topLeftOpenPanel: (state = null, action) => {
+	/* topLeftOpenPanel: (state = null, action) => {
 		if (action.Is(ACTTopLeftOpenPanelSet)) { return action.payload; }
 		return state;
 	},
 	topRightOpenPanel: (state = null, action) => {
 		if (action.Is(ACTTopRightOpenPanelSet)) { return action.payload; }
 		return state;
-	},
+	}, */
 	ratingUI: RatingUIReducer,
 
 	// pages (and nav-bar panels)
@@ -201,7 +201,7 @@ export const MainReducer = CombineReducers({
 		}
 		return state;
 	},
-	currentNodeBeingAdded_path: SimpleReducer(a => a.main.currentNodeBeingAdded_path),
+	currentNodeBeingAdded_path: SimpleReducer((a) => a.main.currentNodeBeingAdded_path),
 
 	/* openMap: (state = null, action)=> {
 		if (action.Is(ACTSetPage) && action.payload == "global") return globalMapID;
@@ -218,13 +218,13 @@ export const MainReducer = CombineReducers({
 		return state;
 	},
 
-	lockMapScrolling: SimpleReducer(a => a.main.lockMapScrolling, true),
-	initialChildLimit: SimpleReducer(a => a.main.initialChildLimit, 5),
-	showReasonScoreValues: SimpleReducer(a => a.main.showReasonScoreValues, false),
-	weighting: SimpleReducer(a => a.main.weighting, WeightingType.Votes),
+	lockMapScrolling: SimpleReducer((a) => a.main.lockMapScrolling, true),
+	initialChildLimit: SimpleReducer((a) => a.main.initialChildLimit, 5),
+	showReasonScoreValues: SimpleReducer((a) => a.main.showReasonScoreValues, false),
+	weighting: SimpleReducer((a) => a.main.weighting, WeightingType.Votes),
 
 	// timelines
-	nodeRevealHighlightTime: SimpleReducer(a => a.main.nodeRevealHighlightTime, 20),
+	nodeRevealHighlightTime: SimpleReducer((a) => a.main.nodeRevealHighlightTime, 20),
 });
 
 // selectors
@@ -232,16 +232,16 @@ export const MainReducer = CombineReducers({
 
 export const GetOpenMapID = StoreAccessor(() => {
 	// return State(a=>a.main.openMap);
-	const page = State(a => a.main.page);
+	const page = State((a) => a.main.page);
 	// if (page == 'home') return demoMap._id;
-	if (page == 'personal') return State(a => a.main.personal.selectedMapID);
-	if (page == 'debates') return State(a => a.main.debates.selectedMapID);
+	if (page == 'personal') return State((a) => a.main.personal.selectedMapID);
+	if (page == 'debates') return State((a) => a.main.debates.selectedMapID);
 	if (page == 'global') return globalMapID;
 	return null;
 });
 
 export function GetPage() {
-	return State(a => a.main.page) || 'home';
+	return State((a) => a.main.page) || 'home';
 }
 export function GetSubpage() {
 	const page = GetPage();
@@ -258,7 +258,7 @@ export const GetLastAcknowledgementTime = StoreAccessor((nodeID: string) => {
 }); */
 
 export const GetCopiedNodePath = StoreAccessor(() => {
-	return State(a => a.main.copiedNodePath);
+	return State((a) => a.main.copiedNodePath);
 });
 export const GetCopiedNode = StoreAccessor(() => {
 	const path = GetCopiedNodePath();

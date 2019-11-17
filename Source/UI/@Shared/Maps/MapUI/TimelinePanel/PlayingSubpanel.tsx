@@ -57,7 +57,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 		if (timeline) {
 			// const steps = timeline ? GetTimelineSteps.Watch(timeline, true) : null;
 			const steps = GetTimelineSteps(timeline, true);
-			const targetStep = steps.Skip(1).LastOrX(a => a && a.videoTime <= this.targetTime, firstNormalStep);
+			const targetStep = steps.Skip(1).LastOrX((a) => a && a.videoTime <= this.targetTime, firstNormalStep);
 			if (targetStep) {
 				targetStepIndex = timeline.steps.indexOf(targetStep._key);
 				const postTargetStepIndex = targetStepIndex + 1 < timeline.steps.length ? targetStepIndex + 1 : -1;
@@ -163,7 +163,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 		if (timeline && this.targetTime != null) {
 			// const steps = timeline ? GetTimelineSteps.Watch(timeline, true) : null;
 			const steps = GetTimelineSteps(timeline, true);
-			const targetStep = steps.LastOrX(a => a && a.videoTime <= this.targetTime, firstStep);
+			const targetStep = steps.LastOrX((a) => a && a.videoTime <= this.targetTime, firstStep);
 			if (targetStep) {
 				const newTargetStepIndex = timeline.steps.indexOf(targetStep._key);
 				const newMaxTargetStepIndex = newTargetStepIndex.KeepAtLeast(targetStepIndex);
@@ -355,14 +355,14 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 							<DropDownContent style={{ right: 0, width: 300, zIndex: 11 }}><Column>
 								<Row>
 									<Text>Node-reveal highlight time:</Text>
-									<Spinner ml={5} min={0} value={nodeRevealHighlightTime} onChange={val => store.dispatch(new ACTSet(a => a.main.nodeRevealHighlightTime, val))}/>
+									<Spinner ml={5} min={0} value={nodeRevealHighlightTime} onChange={(val) => store.dispatch(new ACTSet((a) => a.main.nodeRevealHighlightTime, val))}/>
 								</Row>
 							</Column></DropDownContent>
 						</DropDown>
 					</Row>
 				</Row>
 				<Row ref={messageAreaRef} style={{ height: `calc(100% - 30px - ${ToNumber(videoHeight, 0)}px)` }}>
-					<Column ref={c => this.sideBarEl = c ? c.DOM as any : null} style={{ position: 'relative', width: 20, background: HSLA(0, 0, 0, 1) }}>
+					<Column ref={(c) => this.sideBarEl = c ? c.DOM as any : null} style={{ position: 'relative', width: 20, background: HSLA(0, 0, 0, 1) }}>
 						<Button text={<Icon icon={`arrow-${this.targetTimeDirection}`} size={20}/>} /* enabled={targetTime_yInMessageArea < 0 || targetTime_yInMessageArea >= messageAreaHeight - 20} */
 							style={{
 								background: 'none', padding: 0,

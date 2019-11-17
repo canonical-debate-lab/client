@@ -28,7 +28,7 @@
 			"react-vextensions/node_modules/react/global.d.ts": ["../Typings/empty.d.ts"],
 			"react-vcomponents/node_modules/react/global.d.ts": ["../Typings/empty.d.ts"],
 			// temp removals (lib definitions need updating)
-			"mst-decorators": ["../Typings/empty.d.ts"],
+			//"mst-decorators": ["../Typings/empty.d.ts"],
 		},
 		//"skipLibCheck": true,
 

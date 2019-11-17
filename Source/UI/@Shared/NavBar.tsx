@@ -5,12 +5,14 @@ import { ShowMessageBox } from 'react-vmessagebox';
 import { ACTDebateMapSelect } from 'Store/main/debates';
 import { ResetCurrentDBRoot } from 'UI/More/Admin/ResetCurrentDBRoot';
 import { dbVersion } from 'Main';
-import { Connect, State, Action, Link, GetData, Watch } from 'Utils/FrameworkOverrides';
+import { Connect, State, Action, Link, GetData, Watch, Observer } from 'Utils/FrameworkOverrides';
 import { ACTUserSelect } from 'Store/main/database';
 import { ACTProposalSelect } from 'firebase-feedback';
 import { useMemo, useCallback } from 'react';
+import { storeM } from 'StoreM/StoreM';
+import { runInAction } from 'mobx';
 import { colors } from '../../Utils/UI/GlobalStyles';
-import { ACTSetPage, ACTSetSubpage, ACTTopLeftOpenPanelSet, ACTTopRightOpenPanelSet } from '../../Store/main';
+import { ACTSetPage, ACTSetSubpage } from '../../Store/main';
 import { ACTPersonalMapSelect } from '../../Store/main/personal';
 import { ChatPanel } from './NavBar/ChatPanel';
 import { GuidePanel } from './NavBar/GuidePanel';
@@ -33,11 +35,14 @@ const avatarStyles = {
 	wrapper: { marginTop: 45 - avatarSize },
 };
 
+// @Observer({ classHooks: false })
+@Observer
 export class NavBar extends BaseComponentPlus({} as {}, {}) {
 	render() {
-		const topLeftOpenPanel = State.Watch(a => a.main.topLeftOpenPanel);
-		const topRightOpenPanel = State.Watch(a => a.main.topRightOpenPanel);
-		const auth = State.Watch(a => a.firebase.auth);
+		// const topLeftOpenPanel = State.Watch((a) => a.main.topLeftOpenPanel);
+		// const topRightOpenPanel = State.Watch(a => a.main.topRightOpenPanel);
+		const { topLeftOpenPanel, topRightOpenPanel } = storeM.main;
+		const auth = State.Watch((a) => a.firebase.auth);
 		const dbNeedsInit = Watch(() => GetData({ collection: true, useUndefinedForInProgress: true }, 'maps') === null, []); // use maps because it won't cause too much data to be downloaded-and-watched; improve this later
 		return (
 			<nav style={{
@@ -123,7 +128,7 @@ export class NavBarPageButton extends BaseComponentPlus(
 		// let {_radiumStyleState} = this.state as any;
 		const { hovered } = this.state;
 
-		const currentPage = State.Watch(a => a.main.page);
+		const currentPage = State.Watch((a) => a.main.page);
 		active = active != null ? active : page == currentPage;
 
 		const finalStyle = E(
@@ -143,7 +148,7 @@ export class NavBarPageButton extends BaseComponentPlus(
 				actions.push(new ACTSetSubpage({ page, subpage: null }));
 				if (page == 'database') {
 					// if our default subpage is already active, then perform that subpage's action-if-already-active
-					if ([null, 'users'].Contains(State(a => a.main.database.subpage))) {
+					if ([null, 'users'].Contains(State((a) => a.main.database.subpage))) {
 						actions.push(new ACTUserSelect({ id: null }));
 					}
 				} else if (page == 'feedback') {
@@ -167,12 +172,11 @@ export class NavBarPageButton extends BaseComponentPlus(
 	}
 }
 
-type NavBarPanelButton_Props = {text: string, panel: string, corner: 'top-left' | 'top-right'};
-export class NavBarPanelButton extends BaseComponent<NavBarPanelButton_Props, {}, {active: boolean}> {
+@Observer
+export class NavBarPanelButton extends BaseComponentPlus({} as {text: string, panel: string, corner: 'top-left' | 'top-right'}, {}, { active: false }) {
 	render() {
 		const { text, panel, corner } = this.props;
-		const topLeftOpenPanel = State.Watch(a => a.main.topLeftOpenPanel);
-		const topRightOpenPanel = State.Watch(a => a.main.topRightOpenPanel);
+		const { topLeftOpenPanel, topRightOpenPanel } = storeM.main;
 		const active = (corner == 'top-left' ? topLeftOpenPanel : topRightOpenPanel) == panel;
 
 		this.Stash({ active });
@@ -183,10 +187,14 @@ export class NavBarPanelButton extends BaseComponent<NavBarPanelButton_Props, {}
 	OnClick = (e: MouseEvent) => {
 		e.preventDefault();
 		const { corner, panel, active } = this.PropsStateStash;
-		if (corner == 'top-left') {
-			store.dispatch(new ACTTopLeftOpenPanelSet(active ? null : panel));
-		} else {
-			store.dispatch(new ACTTopRightOpenPanelSet(active ? null : panel));
-		}
+		runInAction('NavBarPanelButton_OnClick', () => {
+			if (corner == 'top-left') {
+				// store.dispatch(new ACTTopLeftOpenPanelSet(active ? null : panel));
+				storeM.main.topLeftOpenPanel = active ? null : panel;
+			} else {
+				// store.dispatch(new ACTTopRightOpenPanelSet(active ? null : panel));
+				storeM.main.topRightOpenPanel = active ? null : panel;
+			}
+		});
 	};
 }

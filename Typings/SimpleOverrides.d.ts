@@ -1,1 +1,1 @@
-declare module 'mst-decorators';
+// declare module 'mst-decorators';

@@ -1,5 +1,5 @@
 import { ObservableMap } from 'mobx';
-import { map, model } from 'mst-decorators';
+import { map, model, string, maybe, maybeNull } from 'mst-decorators';
 import { MapState, MapState_ } from './main/maps/$map';
 
 /* export class MainStateM {
@@ -21,6 +21,11 @@ import { MapState, MapState_ } from './main/maps/$map';
 }); */
 
 export class MainStateM {
+	@maybeNull(string) topLeftOpenPanel: string;
+	// set topLeftOpenPanel_set(val) { this.topLeftOpenPanel = val; }
+	@maybeNull(string) topRightOpenPanel: string;
+	// set topRightOpenPanel_set(val) { this.topRightOpenPanel = val; }
+
 	// @observable maps = observable.map<string, MapState>();
 	// @ref(MapState_) maps = {} as {[key: string]: MapState};
 	// @map(MapState_) maps = observable.map<string, MapState>();

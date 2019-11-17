@@ -1,5 +1,6 @@
 import makeInspectable from 'mobx-devtools-mst';
 import { model } from 'mst-decorators';
+import {unprotect} from 'mobx-state-tree';
 import { MainStateM, MainStateM_ } from './main';
 
 // configure({ enforceActions: 'always' });
@@ -54,7 +55,7 @@ export function InitStore() {
 			maps: {},
 		},
 	});
-	// unprotect(result);
+	unprotect(result);
 	makeInspectable(result);
 
 	// listen to new snapshots
