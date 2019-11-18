@@ -5,16 +5,16 @@ import { ShowMessageBox } from 'react-vmessagebox';
 import { Area, AreaChart, CartesianGrid, ReferenceLine, Tooltip, XAxis, YAxis } from 'recharts';
 import { SetNodeRating } from 'Server/Commands/SetNodeRating';
 import { SlicePath, Connect } from 'Utils/FrameworkOverrides';
-import { ShouldRatingTypeBeReversed, TransformRatingForContext } from '../../../../../../Store/firebase/nodeRatings';
-import { GetRatingTypeInfo, RatingType } from '../../../../../../Store/firebase/nodeRatings/@RatingType';
-import { Rating } from '../../../../../../Store/firebase/nodeRatings/@RatingsRoot';
-import { GetNodeChildren } from '../../../../../../Store/firebase/nodes';
-import { GetNodeForm, GetNodeL3 } from '../../../../../../Store/firebase/nodes/$node';
-import { ClaimForm, MapNode, MapNodeL3 } from '../../../../../../Store/firebase/nodes/@MapNode';
-import { GetMapNodeTypeDisplayName } from '../../../../../../Store/firebase/nodes/@MapNodeType';
-import { MeID } from '../../../../../../Store/firebase/users';
-import { RootState } from '../../../../../../Store/index';
-import { ACTRatingUISmoothnessSet, GetRatingUISmoothing } from '../../../../../../Store/main/ratingUI';
+import { ShouldRatingTypeBeReversed, TransformRatingForContext } from '../../../../../../Store_Old/firebase/nodeRatings';
+import { GetRatingTypeInfo, RatingType } from '../../../../../../Store_Old/firebase/nodeRatings/@RatingType';
+import { Rating } from '../../../../../../Store_Old/firebase/nodeRatings/@RatingsRoot';
+import { GetNodeChildren } from '../../../../../../Store_Old/firebase/nodes';
+import { GetNodeForm, GetNodeL3 } from '../../../../../../Store_Old/firebase/nodes/$node';
+import { ClaimForm, MapNode, MapNodeL3 } from '../../../../../../Store_Old/firebase/nodes/@MapNode';
+import { GetMapNodeTypeDisplayName } from '../../../../../../Store_Old/firebase/nodes/@MapNodeType';
+import { MeID } from '../../../../../../Store_Old/firebase/users';
+import { RootState } from '../../../../../../Store_Old/index';
+import { ACTRatingUISmoothnessSet, GetRatingUISmoothing } from '../../../../../../Store_Old/main/ratingUI';
 import { ShowSignInPopup } from '../../../../NavBar/UserPanel';
 
 /* let sampleData = [
@@ -45,20 +45,20 @@ export class RatingsPanel extends BaseComponentPlus({} as RatingsPanel_Props, { 
 		const { labels, values } = ratingTypeInfo;
 		function GetValueForLabel(label) { return values[labels.indexOf(label)]; }
 		function GetLabelForValue(value) { return labels[values.indexOf(value)]; }
-		const myRating = TransformRatingForContext((ratings.find(a => a._key == userID) || {} as any).value, reverseRatings);
+		const myRating = TransformRatingForContext((ratings.find((a) => a._key == userID) || {} as any).value, reverseRatings);
 
 		const smoothingOptions = [1, 2, 4, 5, 10, 20, 25, 50, 100]; // .concat(labels.Max(null, true) == 200 ? [200] : []);
 		const minLabel = labels.Min(null, true); const maxLabel = labels.Max(null, true); const
 			range = maxLabel - minLabel;
 		smoothing = smoothing.KeepAtMost(labels.Max(null, true)); // smoothing might have been set higher, from when on another rating-type
-		const ticksForChart = labels.Select(a => a.RoundTo(smoothing)).Distinct();
+		const ticksForChart = labels.Select((a) => a.RoundTo(smoothing)).Distinct();
 		const dataFinal = ticksForChart.Select((tick) => {
 			const rating = tick;
 			return { label: tick, value: GetValueForLabel(tick), count: 0 };
 		});
 		for (const entry of ratings) {
 			const ratingVal = TransformRatingForContext(entry.value, reverseRatings);
-			const closestRatingSlot = dataFinal.OrderBy(a => a.value.Distance(ratingVal)).First();
+			const closestRatingSlot = dataFinal.OrderBy((a) => a.value.Distance(ratingVal)).First();
 			closestRatingSlot.count++;
 		}
 
@@ -88,7 +88,7 @@ export class RatingsPanel extends BaseComponentPlus({} as RatingsPanel_Props, { 
 					const posOnChart = new Vector2i(e.pageX - chart.offset().left, e.pageY - chart.offset().top);
 					const percentOnChart = posOnChart.x / chart.width();
 					const ratingOnChart_exact = minLabel + (percentOnChart * range);
-					const closestRatingSlot = dataFinal.OrderBy(a => a.label.Distance(ratingOnChart_exact)).First();
+					const closestRatingSlot = dataFinal.OrderBy((a) => a.label.Distance(ratingOnChart_exact)).First();
 					let newRating_label = closestRatingSlot.label;
 
 					// let finalRating = GetRatingForForm(rating, form);
@@ -97,7 +97,7 @@ export class RatingsPanel extends BaseComponentPlus({} as RatingsPanel_Props, { 
 						message: () => (
 							<div style={{ padding: '10px 0' }}>
 									Rating: <Spinner min={minLabel} max={maxLabel} style={{ width: 60 }}
-									value={newRating_label} onChange={val => DN(newRating_label = val, boxController.UpdateUI())}/>
+									value={newRating_label} onChange={(val) => DN(newRating_label = val, boxController.UpdateUI())}/>
 							</div>
 						),
 						onOK: () => {
@@ -130,7 +130,7 @@ export class RatingsPanel extends BaseComponentPlus({} as RatingsPanel_Props, { 
 							: 'Click to rate. Right-click to remove rating.'}
 					</Pre>
 					{/* Smoothing: <Spinner value={smoothing} onChange={val=>store.dispatch(new ACTRatingUISmoothnessSet(val))}/> */}
-					<Pre>Smoothing: </Pre><Select options={smoothingOptions} value={smoothing} onChange={val => store.dispatch(new ACTRatingUISmoothnessSet(val))}/>
+					<Pre>Smoothing: </Pre><Select options={smoothingOptions} value={smoothing} onChange={(val) => store.dispatch(new ACTRatingUISmoothnessSet(val))}/>
 				</div>
 				{this.lastRender_source == RenderSource.SetState &&
 					<AreaChart ref="chart" width={size.x} height={250} data={dataFinal}
@@ -183,7 +183,7 @@ class CustomTooltip extends BaseComponent<{active?, payload?, external?, label?}
 			color: 'black',
 		};
 
-		const currData = external.filter(entry => entry.label === label)[0];
+		const currData = external.filter((entry) => entry.label === label)[0];
 		return (
 			<div className="area-chart-tooltip" style={style}>
 				<p className="ignoreBaseCSS">Rating: <em className="ignoreBaseCSS">{currData.label}%</em></p>

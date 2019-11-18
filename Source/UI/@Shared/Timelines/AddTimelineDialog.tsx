@@ -1,10 +1,10 @@
 import { Column, Row } from 'react-vcomponents';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { AddTimelineStep } from 'Server/Commands/AddTimelineStep';
-import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
+import { TimelineStep } from 'Store_Old/firebase/timelineSteps/@TimelineStep';
 import { AddTimeline } from '../../../Server/Commands/AddTimeline';
-import { Timeline } from '../../../Store/firebase/timelines/@Timeline';
-import { MeID } from '../../../Store/firebase/users';
+import { Timeline } from '../../../Store_Old/firebase/timelines/@Timeline';
+import { MeID } from '../../../Store_Old/firebase/users';
 import { TimelineDetailsUI } from './TimelineDetailsUI';
 
 const defaultIntroMessage = `

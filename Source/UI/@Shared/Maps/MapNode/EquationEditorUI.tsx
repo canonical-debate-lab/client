@@ -1,7 +1,7 @@
 import { GetErrorMessagesUnderElement, Clone } from 'js-vextensions';
 import { CheckBox, Column, Pre, Row, RowLR, TextArea, TextInput } from 'react-vcomponents';
 import { BaseComponent, GetDOM } from 'react-vextensions';
-import { Equation } from '../../../../Store/firebase/nodes/@Equation';
+import { Equation } from '../../../../Store_Old/firebase/nodes/@Equation';
 
 type Props = {baseData: Equation, creating: boolean, editing?: boolean, style?, onChange?: (newData: Equation)=>void};
 // & Partial<{creator: User, variantNumber: number}>;
@@ -30,24 +30,24 @@ export class EquationEditorUI extends BaseComponent<Props, {newData: Equation}> 
 				<RowLR splitAt={splitAt}>
 					<Pre>LaTeX: </Pre>
 					<CheckBox enabled={creating || editing} style={{ width: '100%' }}
-						checked={newData.latex} onChange={val => Change(val ? newData.latex = true : delete newData.latex)}/>
+						checked={newData.latex} onChange={(val) => Change(val ? newData.latex = true : delete newData.latex)}/>
 				</RowLR>
 				<RowLR mt={5} splitAt={splitAt}>
 					<Pre>Text: </Pre>
 					<TextArea required enabled={creating || editing} allowLineBreaks={newData.latex} autoSize={true} style={{ width: '100%' }}
-						value={newData.text} onChange={val => Change(newData.text = val)}/>
+						value={newData.text} onChange={(val) => Change(newData.text = val)}/>
 				</RowLR>
 				<Row mt={5} style={{ display: 'flex', alignItems: 'center' }}>
 					<Pre>Step in series: </Pre>
 					<CheckBox enabled={editing} checked={newData.isStep}
 						// onChange={val=>Change(val ? newLinkData.isStep = true : delete newLinkData.isStep)}/>
-						onChange={val => Change(newData.isStep = val || null)}/>
+						onChange={(val) => Change(newData.isStep = val || null)}/>
 				</Row>
 				{newData.isStep &&
 					<RowLR mt={5} splitAt={splitAt}>
 						<Pre>Explanation: </Pre>
 						<TextInput enabled={creating || editing} style={{ width: '100%' }}
-							value={newData.explanation} onChange={val => Change(newData.explanation = val)}/>
+							value={newData.explanation} onChange={(val) => Change(newData.explanation = val)}/>
 					</RowLR>}
 			</Column>
 		);

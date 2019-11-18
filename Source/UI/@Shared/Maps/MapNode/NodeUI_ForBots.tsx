@@ -2,12 +2,12 @@ import { Pre, Row } from 'react-vcomponents';
 import { BaseComponent, GetInnerComp, BaseComponentPlus } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { Link, ACTSet, Connect } from 'Utils/FrameworkOverrides';
-import { RootState } from '../../../../Store';
-import { Map } from '../../../../Store/firebase/maps/@Map';
-import { GetRatings } from '../../../../Store/firebase/nodeRatings';
-import { GetNodeChildrenL2, GetNodeParentsL2, GetParentNodeL2 } from '../../../../Store/firebase/nodes';
-import { AsNodeL3, GetNodeDisplayText, GetRatingTypesForNode } from '../../../../Store/firebase/nodes/$node';
-import { MapNodeL2 } from '../../../../Store/firebase/nodes/@MapNode';
+import { RootState } from '../../../../Store_Old';
+import { Map } from '../../../../Store_Old/firebase/maps/@Map';
+import { GetRatings } from '../../../../Store_Old/firebase/nodeRatings';
+import { GetNodeChildrenL2, GetNodeParentsL2, GetParentNodeL2 } from '../../../../Store_Old/firebase/nodes';
+import { AsNodeL3, GetNodeDisplayText, GetRatingTypesForNode } from '../../../../Store_Old/firebase/nodes/$node';
+import { MapNodeL2 } from '../../../../Store_Old/firebase/nodes/@MapNode';
 import { DefinitionsPanel } from './NodeUI/Panels/DefinitionsPanel';
 import { DetailsPanel } from './NodeUI/Panels/DetailsPanel';
 import { DiscussionPanel } from './NodeUI/Panels/DiscussionPanel';
@@ -25,7 +25,7 @@ export class NodeUI_ForBots extends BaseComponentPlus({} as Props, {}) {
 		const { map, node } = this.props;
 		const nodeParents = GetNodeParentsL2.Watch(node);
 		const nodeChildren = GetNodeChildrenL2.Watch(node);
-		if (nodeParents.Any(a => a == null) || nodeChildren.Any(a => a == null)) return <div/>;
+		if (nodeParents.Any((a) => a == null) || nodeChildren.Any((a) => a == null)) return <div/>;
 
 		// just list one of the parents as the "current parent", so code relying on a parent doesn't error
 		const path = `${nodeParents.length ? `${nodeParents[0]._key}/` : ''}${node._key}`;
@@ -64,7 +64,7 @@ export class NodeUI_ForBots extends BaseComponentPlus({} as Props, {}) {
 					<Row>Title: {GetNodeDisplayText(node)}</Row> */}
 					Main box:
 					<NodeUI_Inner
-						ref={c => this.innerUI = GetInnerComp(c)}
+						ref={(c) => this.innerUI = GetInnerComp(c)}
 						// ref={c => this.innerUI = c ? c['getDecoratedComponentInstance']() : null}
 						indexInNodeList={0} map={map} node={nodeL3} nodeView={{}} path={path} width={null} widthOverride={null}/>
 					Panels:

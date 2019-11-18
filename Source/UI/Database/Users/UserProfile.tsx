@@ -1,7 +1,7 @@
 import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { Column, Row, Pre, Button, TextInput, Div, CheckBox, Select, ColorPickerBox } from 'react-vcomponents';
-import { GetUser, MeID, GetUserPermissionGroups } from 'Store/firebase/users';
-import { User } from 'Store/firebase/users/@User';
+import { GetUser, MeID, GetUserPermissionGroups } from 'Store_Old/firebase/users';
+import { User } from 'Store_Old/firebase/users/@User';
 import { UpdateProfile } from 'Server/Commands/UpdateProfile';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { presetBackgrounds, defaultPresetBackground } from 'Utils/UI/PresetBackgrounds';

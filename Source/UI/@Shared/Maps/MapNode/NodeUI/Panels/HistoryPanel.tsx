@@ -1,4 +1,4 @@
-import { User } from 'Store/firebase/users/@User';
+import { User } from 'Store_Old/firebase/users/@User';
 import Moment from 'moment';
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
@@ -6,15 +6,15 @@ import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
 import { Connect } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { GetNodeRevisions } from 'Store/firebase/nodeRevisions';
+import { GetNodeRevisions } from 'Store_Old/firebase/nodeRevisions';
 import { UUIDStub } from 'UI/@Shared/UUIDStub';
-import { Map } from '../../../../../../Store/firebase/maps/@Map';
-import { GetParentNodeL3 } from '../../../../../../Store/firebase/nodes';
-import { GetLinkUnderParent } from '../../../../../../Store/firebase/nodes/$node';
-import { ChildEntry, MapNodeL3 } from '../../../../../../Store/firebase/nodes/@MapNode';
-import { MapNodeRevision } from '../../../../../../Store/firebase/nodes/@MapNodeRevision';
-import { IsUserCreatorOrMod } from '../../../../../../Store/firebase/userExtras';
-import { GetUser, MeID } from '../../../../../../Store/firebase/users';
+import { Map } from '../../../../../../Store_Old/firebase/maps/@Map';
+import { GetParentNodeL3 } from '../../../../../../Store_Old/firebase/nodes';
+import { GetLinkUnderParent } from '../../../../../../Store_Old/firebase/nodes/$node';
+import { ChildEntry, MapNodeL3 } from '../../../../../../Store_Old/firebase/nodes/@MapNode';
+import { MapNodeRevision } from '../../../../../../Store_Old/firebase/nodes/@MapNodeRevision';
+import { IsUserCreatorOrMod } from '../../../../../../Store_Old/firebase/userExtras';
+import { GetUser, MeID } from '../../../../../../Store_Old/firebase/users';
 import { NodeDetailsUI } from '../../NodeDetailsUI';
 
 export const columnWidths = [0.15, 0.3, 0.35, 0.2];
@@ -29,7 +29,7 @@ export class HistoryPanel extends BaseComponentPlus({} as {map?: Map, node: MapN
 		const creator = GetUser.Watch(node.creator);
 		let revisions = GetNodeRevisions.Watch(node._key);
 		// we want the newest ones listed first
-		revisions = revisions.OrderByDescending(a => a.createdAt);
+		revisions = revisions.OrderByDescending((a) => a.createdAt);
 
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), node);
 		return (

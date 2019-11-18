@@ -7,12 +7,12 @@ import { RemoveHelpers, Connect } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { DeleteTerm } from '../../Server/Commands/DeleteTerm';
 import { UpdateTermData } from '../../Server/Commands/UpdateTermData';
-import { GetFullNameP, GetTermVariantNumber, GetTerms } from '../../Store/firebase/terms';
-import { Term, TermType } from '../../Store/firebase/terms/@Term';
-import { IsUserCreatorOrMod, CanGetBasicPermissions } from '../../Store/firebase/userExtras';
-import { PermissionGroupSet } from '../../Store/firebase/userExtras/@UserExtraInfo';
-import { MeID, GetUserPermissionGroups } from '../../Store/firebase/users';
-import { ACTTermSelect, GetSelectedTerm } from '../../Store/main/database';
+import { GetFullNameP, GetTermVariantNumber, GetTerms } from '../../Store_Old/firebase/terms';
+import { Term, TermType } from '../../Store_Old/firebase/terms/@Term';
+import { IsUserCreatorOrMod, CanGetBasicPermissions } from '../../Store_Old/firebase/userExtras';
+import { PermissionGroupSet } from '../../Store_Old/firebase/userExtras/@UserExtraInfo';
+import { MeID, GetUserPermissionGroups } from '../../Store_Old/firebase/users';
+import { ACTTermSelect, GetSelectedTerm } from '../../Store_Old/main/database';
 import { ShowSignInPopup } from '../@Shared/NavBar/UserPanel';
 import { ShowAddTermDialog, TermDetailsUI } from './Terms/TermDetailsUI';
 import { ShowAddTermComponentDialog } from './Terms/AddTermComponentDialog';
@@ -98,7 +98,7 @@ export class TermsUI extends BaseComponentPlus({} as {}, {} as {selectedTerm_new
 					</Column>
 					<Column mt={10} style={{ position: 'relative', background: 'rgba(0,0,0,.5)', borderRadius: 10 }}>
 						<Row style={{ height: 40, justifyContent: 'center', background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' }}>
-							<Div style={{/* fontSize: 17, */ fontWeight: 500 }}>
+							<Div style={{ /* fontSize: 17, */ fontWeight: 500 }}>
 								{/* Components */}
 								{selectedTerm ? GetHelperTextForTermType(selectedTerm) : null}
 							</Div>
@@ -159,5 +159,5 @@ export class TermUI extends BaseComponentPlus({} as {term: Term, first: boolean,
 
 export function GetNiceNameForTermType(type: TermType) {
 	if (type == TermType.Action) return 'action/process';
-	return TermType[type].replace(/.([A-Z])/g, m => `${m[0]} ${m[1]}`).toLowerCase();
+	return TermType[type].replace(/.([A-Z])/g, (m) => `${m[0]} ${m[1]}`).toLowerCase();
 }

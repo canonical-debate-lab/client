@@ -1,7 +1,7 @@
 import { MapEdit, UserEdit } from 'Server/CommandMacros';
-import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
+import { MapNodeRevision } from 'Store_Old/firebase/nodes/@MapNodeRevision';
 import { Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
-import { ChildEntry, MapNode } from '../../Store/firebase/nodes/@MapNode';
+import { ChildEntry, MapNode } from '../../Store_Old/firebase/nodes/@MapNode';
 import { AddChildNode } from './AddChildNode';
 
 type Payload = {

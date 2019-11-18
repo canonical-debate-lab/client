@@ -5,18 +5,18 @@ import { BaseComponentPlus, GetDOM } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { DeleteTimelineStep } from 'Server/Commands/DeleteTimelineStep';
 import { UpdateTimelineStep } from 'Server/Commands/UpdateTimelineStep';
-import { Map } from 'Store/firebase/maps/@Map';
-import { GetNodeID, GetNode } from 'Store/firebase/nodes';
-import { GetNodeDisplayText, GetNodeL2, GetNodeL3 } from 'Store/firebase/nodes/$node';
-import { GetNodeColor, MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
-import { GetTimelineStep } from 'Store/firebase/timelines';
-import { Timeline } from 'Store/firebase/timelines/@Timeline';
-import { NodeReveal, TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
-import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
-import { MeID } from 'Store/firebase/users';
+import { Map } from 'Store_Old/firebase/maps/@Map';
+import { GetNodeID, GetNode } from 'Store_Old/firebase/nodes';
+import { GetNodeDisplayText, GetNodeL2, GetNodeL3 } from 'Store_Old/firebase/nodes/$node';
+import { GetNodeColor, MapNodeType } from 'Store_Old/firebase/nodes/@MapNodeType';
+import { GetTimelineStep } from 'Store_Old/firebase/timelines';
+import { Timeline } from 'Store_Old/firebase/timelines/@Timeline';
+import { NodeReveal, TimelineStep } from 'Store_Old/firebase/timelineSteps/@TimelineStep';
+import { IsUserCreatorOrMod } from 'Store_Old/firebase/userExtras';
+import { MeID } from 'Store_Old/firebase/users';
 import { DragInfo, MakeDraggable, Watch, GetAsync } from 'Utils/FrameworkOverrides';
 import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
-import { GetPathNodes } from 'Store/main/mapViews';
+import { GetPathNodes } from 'Store_Old/main/mapViews';
 import { UUIDPathStub } from 'UI/@Shared/UUIDStub';
 import { GetShortestPathFromRootToNode } from 'Utils/Store/PathFinder';
 
@@ -94,7 +94,7 @@ export class StepEditorUI extends BaseComponentPlus({} as StepEditorUIProps, { p
 										}
 									}}/>
 									<TimeSpanInput mr={5} style={{ width: 60 }} enabled={step.videoTime != null} delayChangeTillDefocus={true} value={step.videoTime}
-										onChange={val => new UpdateTimelineStep({ stepID: step._key, stepUpdates: { videoTime: val } }).Run()}/>
+										onChange={(val) => new UpdateTimelineStep({ stepID: step._key, stepUpdates: { videoTime: val } }).Run()}/>
 								</>}
 							{/* <Pre>Speaker: </Pre>
 							<Select value={} onChange={val=> {}}/> */}
@@ -176,20 +176,20 @@ export class StepEditorUI extends BaseComponentPlus({} as StepEditorUIProps, { p
 		if (dragBox == null) return; // this can happen at end of drag
 		const dragBoxRect = VRect.FromLTWH(dragBox.getBoundingClientRect());
 
-		const siblingNodeUIs = (this.nodeHolder.DOM.childNodes.ToArray() as HTMLElement[]).filter(a => a.classList.contains('NodeUI'));
-		const siblingNodeUIInnerDOMs = siblingNodeUIs.map(nodeUI => nodeUI.QuerySelector_BreadthFirst('.NodeUI_Inner')).filter(a => a != null); // entry can be null if inner-ui still loading
-		const firstOffsetInner = siblingNodeUIInnerDOMs.find(a => a && a.style.transform && a.style.transform.includes('translate('));
+		const siblingNodeUIs = (this.nodeHolder.DOM.childNodes.ToArray() as HTMLElement[]).filter((a) => a.classList.contains('NodeUI'));
+		const siblingNodeUIInnerDOMs = siblingNodeUIs.map((nodeUI) => nodeUI.QuerySelector_BreadthFirst('.NodeUI_Inner')).filter((a) => a != null); // entry can be null if inner-ui still loading
+		const firstOffsetInner = siblingNodeUIInnerDOMs.find((a) => a && a.style.transform && a.style.transform.includes('translate('));
 
 		let placeholderRect: VRect;
 		if (firstOffsetInner) {
-			const firstOffsetInnerRect = VRect.FromLTWH(firstOffsetInner.getBoundingClientRect()).NewTop(top => top - dragBoxRect.height);
+			const firstOffsetInnerRect = VRect.FromLTWH(firstOffsetInner.getBoundingClientRect()).NewTop((top) => top - dragBoxRect.height);
 			const firstOffsetInnerRect_relative = new VRect(firstOffsetInnerRect.Position.Minus(nodeHolderRect.Position), firstOffsetInnerRect.Size);
 
 			placeholderRect = firstOffsetInnerRect_relative.NewWidth(dragBoxRect.width).NewHeight(dragBoxRect.height);
 		} else {
 			if (siblingNodeUIInnerDOMs.length) {
 				const lastInner = siblingNodeUIInnerDOMs.Last();
-				const lastInnerRect = VRect.FromLTWH(lastInner.getBoundingClientRect()).NewTop(top => top - dragBoxRect.height);
+				const lastInnerRect = VRect.FromLTWH(lastInner.getBoundingClientRect()).NewTop((top) => top - dragBoxRect.height);
 				const lastInnerRect_relative = new VRect(lastInnerRect.Position.Minus(nodeHolderRect.Position), lastInnerRect.Size);
 
 				placeholderRect = lastInnerRect_relative.NewWidth(dragBoxRect.width).NewHeight(dragBoxRect.height);
@@ -222,7 +222,7 @@ export class NodeRevealUI extends BaseComponentPlus({} as {map: Map, step: Timel
 
 		const pathValid = Watch(() => {
 			const pathNodes = GetPathNodes(path);
-			const mapNodes = pathNodes.map(a => GetNode(a));
+			const mapNodes = pathNodes.map((a) => GetNode(a));
 			// path is valid if every node in path, has the previous node as a parent
 			return mapNodes.every((node, index) => {
 				const parent = mapNodes[index - 1];

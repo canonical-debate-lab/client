@@ -5,11 +5,11 @@ import ReactList from 'react-list';
 import { Button, Column, DropDown, DropDownContent, DropDownTrigger, Row, Spinner, Text } from 'react-vcomponents';
 import { BaseComponent, GetDOM, UseCallback } from 'react-vextensions';
 import { ScrollSource, ScrollView } from 'react-vscrollview';
-import { Map } from 'Store/firebase/maps/@Map';
-import { GetTimelineStep, GetTimelineSteps } from 'Store/firebase/timelines';
-import { ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetNodeRevealHighlightTime, GetPlayingTimelineAppliedStepIndex, GetPlayingTimelineStepIndex, GetSelectedTimeline } from 'Store/main/maps/$map';
-import { rootState } from 'StoreM/StoreM';
-import { ActionSet, ACTSet, GetScreenRect, HSLA, Icon, Observer, RunWithRenderingBatched, UseSize, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, ClassHooks } from 'Utils/FrameworkOverrides';
+import { Map } from 'Store_Old/firebase/maps/@Map';
+import { GetTimelineStep, GetTimelineSteps } from 'Store_Old/firebase/timelines';
+import { ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetNodeRevealHighlightTime, GetPlayingTimelineAppliedStepIndex, GetPlayingTimelineStepIndex, GetSelectedTimeline } from 'Store_Old/main/maps/$map';
+import { store } from 'Store';
+import { ACTSet, GetScreenRect, HSLA, Icon, Observer, RunWithRenderingBatched, UseSize, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, ClassHooks } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { StepUI } from './PlayingSubpanel/StepUI';
 
@@ -122,7 +122,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 		const { map } = this.props;
 		// const { targetTime, autoScroll } = this.state;
 		const oldTargetTime = this.targetTime;
-		const mapInfo = rootState.main.maps.get(map._key);
+		const mapInfo = store.main.maps.get(map._key);
 
 		// Log('Checking');
 		// const targetTime_fromRedux = GetPlayingTimelineTime(map._key); // from redux store
@@ -157,36 +157,42 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 			this.UpdateTargetInfo();
 			this.lastListY = listY;
 		} */
-		this.listY = GetScreenRect(this.listRootEl).y;
+		runInAction('PlayingSubpanel_timer', () => {
+			this.listY = GetScreenRect(this.listRootEl).y;
 
-		const timeline = GetSelectedTimeline(map._key);
-		const targetStepIndex = GetPlayingTimelineStepIndex(map._key);
-		// const maxTargetStepIndex = GetPlayingTimelineAppliedStepIndex(map._key);
-		const firstStep = GetTimelineStep(timeline ? timeline.steps[0] : null);
-		if (timeline && this.targetTime != null) {
-			// const steps = timeline ? GetTimelineSteps.Watch(timeline, true) : null;
-			const steps = GetTimelineSteps(timeline, true);
-			const targetStep = steps.LastOrX((a) => a && a.videoTime <= this.targetTime, firstStep);
-			if (targetStep) {
-				const newTargetStepIndex = timeline.steps.indexOf(targetStep._key);
-				const newMaxTargetStepIndex = newTargetStepIndex.KeepAtLeast(targetStepIndex);
-				if (newTargetStepIndex != targetStepIndex) {
-					Log('Target-step changing @Old:', targetStepIndex, '@New:', newTargetStepIndex, '@Time:', this.targetTime);
-					store.dispatch(new ActionSet(
-						new ACTMap_PlayingTimelineStepSet({ mapID: map._key, stepIndex: newTargetStepIndex }),
-						new ACTMap_PlayingTimelineAppliedStepSet({ mapID: map._key, stepIndex: newMaxTargetStepIndex }),
-					));
+			const mapState = store.main.maps.get(map._key);
 
-					if (this.autoScroll) {
-						// jump one further down, so that the target point *within* the target step is visible (and with enough space for the arrow button itself)
-						// this.list.scrollAround(newTargetStepIndex + 1);
-						// jump X further down, so that we see some of the upcoming text (also for if video-time data is off some)
-						this.list.scrollAround(newTargetStepIndex + 3);
-						WaitXThenRun(0, () => this.list.scrollAround(newTargetStepIndex)); // make sure target box itself is still visible, however
+			const timeline = GetSelectedTimeline(map._key);
+			const targetStepIndex = GetPlayingTimelineStepIndex(map._key);
+			// const maxTargetStepIndex = GetPlayingTimelineAppliedStepIndex(map._key);
+			const firstStep = GetTimelineStep(timeline ? timeline.steps[0] : null);
+			if (timeline && this.targetTime != null) {
+				// const steps = timeline ? GetTimelineSteps.Watch(timeline, true) : null;
+				const steps = GetTimelineSteps(timeline, true);
+				const targetStep = steps.LastOrX((a) => a && a.videoTime <= this.targetTime, firstStep);
+				if (targetStep) {
+					const newTargetStepIndex = timeline.steps.indexOf(targetStep._key);
+					const newMaxTargetStepIndex = newTargetStepIndex.KeepAtLeast(targetStepIndex);
+					if (newTargetStepIndex != targetStepIndex) {
+						Log('Target-step changing @Old:', targetStepIndex, '@New:', newTargetStepIndex, '@Time:', this.targetTime);
+						/* store.dispatch(new ActionSet(
+							new ACTMap_PlayingTimelineStepSet({ mapID: map._key, stepIndex: newTargetStepIndex }),
+							new ACTMap_PlayingTimelineAppliedStepSet({ mapID: map._key, stepIndex: newMaxTargetStepIndex }),
+						)); */
+						mapState.playingTimeline_step = newTargetStepIndex;
+						mapState.playingTimeline_appliedStep = newMaxTargetStepIndex;
+
+						if (this.autoScroll) {
+							// jump one further down, so that the target point *within* the target step is visible (and with enough space for the arrow button itself)
+							// this.list.scrollAround(newTargetStepIndex + 1);
+							// jump X further down, so that we see some of the upcoming text (also for if video-time data is off some)
+							this.list.scrollAround(newTargetStepIndex + 3);
+							WaitXThenRun(0, () => this.list.scrollAround(newTargetStepIndex)); // make sure target box itself is still visible, however
+						}
 					}
 				}
 			}
-		}
+		});
 	});
 
 	/* PostSelfOrTargetStepRender() {
@@ -259,7 +265,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 	render() {
 		const { map } = this.props;
 		// const { targetTime, autoScroll, targetTime_yInMessageArea, targetTimeDirection } = this.state;
-		const mapInfo = rootState.main.maps.get(map._key);
+		const mapInfo = store.main.maps.get(map._key);
 		const timeline = GetSelectedTimeline.Watch(map._key);
 		// timelineSteps: timeline && GetTimelineSteps(timeline);
 		const targetStepIndex = GetPlayingTimelineAppliedStepIndex.Watch(map._key);

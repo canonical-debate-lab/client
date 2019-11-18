@@ -1,6 +1,6 @@
 import { BaseComponentPlus } from 'react-vextensions';
 import { Watch } from 'Utils/FrameworkOverrides';
-import { GetTerm, GetTermVariantNumber } from '../../../../../Store/firebase/terms';
+import { GetTerm, GetTermVariantNumber } from '../../../../../Store_Old/firebase/terms';
 
 export class TermPlaceholder extends BaseComponentPlus({ showVariantNumber: true } as {refText: string, termID: string, showVariantNumber?: boolean, onHover: (hovered: boolean)=>void, onClick: ()=>void}, {}) {
 	render() {
@@ -12,8 +12,8 @@ export class TermPlaceholder extends BaseComponentPlus({ showVariantNumber: true
 		// if (term == null) return <a>{refText}</a>;
 		return (
 			<a
-				onMouseEnter={e => onHover(true)}
-				onMouseLeave={e => onHover(false)}
+				onMouseEnter={(e) => onHover(true)}
+				onMouseLeave={(e) => onHover(false)}
 				onClick={(e) => {
 					/* if (this.definitionsPanel == null) return;
 						GetInnerComp(this.definitionsPanel).SetState({termFromLocalClick: GetTerm(termID)}); */

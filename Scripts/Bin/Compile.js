@@ -17,8 +17,6 @@ const compile = () => {
 			debug('Copying resources to Dist folder.');
 			// fs.copySync(paths.source("Resources"), paths.dist());
 			fs.copySync(paths.base('Resources'), paths.dist());
-			fs.copySync(paths.base('Scripts/Config/dll/dll.vendor.js'), paths.dist('dll.vendor.js'));
-			fs.copySync(paths.base('Scripts/Config/dll/dll.vendor.js.map'), paths.dist('dll.vendor.js.map'));
 		})
 		.then(() => {
 			debug('Compilation completed successfully.');

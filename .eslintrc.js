@@ -88,6 +88,7 @@ module.exports = {
 		"no-nested-ternary": "off",
 		"no-use-before-define": "off", // for store-accessors that call each other
 		"max-classes-per-file": "off",
+		"prefer-destructuring": "off", // too many false positives (eg. vars *meant* as single-field access/alias)
 
 		// plugins
 		"react-hooks/rules-of-hooks": "error",

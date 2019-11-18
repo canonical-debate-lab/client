@@ -357,40 +357,6 @@ module.exports =
 	},
 ]); */
 
-// react-redux
-AddStringReplacement(/(connectAdvanced|useSelector).js/, [
-	// remove try-catch blocks // todo: maybe only have this occur for dev compilation
-	{ pattern: /try {/g, replacement: () => '//try {' },
-	{
-		pattern: /} catch(.+?){/g,
-		replacement: (match, p1) => `//} catch${p1}{
-			if (0) {`,
-	},
-]);
-AddStringReplacement(/wrapMapToProps.js/, [
-	// make WrappedComponent (the class) accessible as "this.WrappedComponent" from within Connect (FirebaseConnect.ts), and Connect functions
-	{
-		pattern: 'proxy.dependsOnOwnProps = true;',
-		replacement: (match) => `${match} proxy.WrappedComponent = _ref.WrappedComponent;`,
-	},
-]);
-
-// redux
-// AddStringReplacement(/createStore.js/, [
-AddStringReplacement(/redux.js/, [
-	// optimize redux so that:
-	// 1) if a reducer does not change the state at all, then the store-subscribers are not notified
-	// 2) if an action has a "dontTriggerSubscribers" prop, store subscribers/listeners will not be notified after that action's dispatch (needed for ActionSet system)
-	{
-		pattern: 'currentState = currentReducer(currentState, action)',
-		replacement: (match) => `var oldState = currentState; ${match}`,
-	},
-	{
-		pattern: 'for (var i = 0; i < listeners.length; i++) {',
-		replacement: (match) => `if (currentState !== oldState && !action.dontTriggerSubscribers) ${match}`,
-	},
-]);
-
 // make all Object.defineProperty calls leave the property configurable (probably better to just wrap the Object.defineProperty function)
 /* AddStringReplacement(/index\.js$/, [
 	{

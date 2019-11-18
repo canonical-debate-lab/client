@@ -1,13 +1,13 @@
 import { Pre, Row, Select } from 'react-vcomponents';
 import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
-import { ShowChangesSinceType } from 'Store/main/maps/@MapInfo';
+import { ShowChangesSinceType } from 'Store_Old/main/maps/@MapInfo';
 import { ShareDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Right/ShareDropDown';
 import { State, Connect, ActionSet, ACTSet, HSLA } from 'Utils/FrameworkOverrides';
 import { GetEntries, FromJSON } from 'js-vextensions';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { colors } from '../../../../Utils/UI/GlobalStyles';
-import { Map } from '../../../../Store/firebase/maps/@Map';
-import { WeightingType } from '../../../../Store/main';
+import { Map } from '../../../../Store_Old/firebase/maps/@Map';
+import { WeightingType } from '../../../../Store_Old/main';
 import { LayoutDropDown } from './ActionBar_Right/LayoutDropDown';
 
 const changesSince_options = [];
@@ -23,7 +23,7 @@ export class ActionBar_Right extends BaseComponentPlus({} as {map: Map, subNavBa
 		const { map, subNavBarWidth } = this.props;
 		const showChangesSince_type = State.Watch(`main/maps/${map._key}/showChangesSince_type`) as ShowChangesSinceType;
 		const showChangesSince_visitOffset = State.Watch(`main/maps/${map._key}/showChangesSince_visitOffset`) as number;
-		const weighting = State.Watch(a => a.main.weighting);
+		const weighting = State.Watch((a) => a.main.weighting);
 
 		const tabBarWidth = 104;
 		return (
@@ -45,8 +45,8 @@ export class ActionBar_Right extends BaseComponentPlus({} as {map: Map, subNavBa
 							));
 						}}/>
 						<Pre ml={5}>Weighting: </Pre>
-						<Select options={GetEntries(WeightingType, name => ({ ReasonScore: 'Reason score' })[name] || name)} value={weighting} onChange={(val) => {
-							store.dispatch(new ACTSet(a => a.main.weighting, val));
+						<Select options={GetEntries(WeightingType, (name) => ({ ReasonScore: 'Reason score' })[name] || name)} value={weighting} onChange={(val) => {
+							store.dispatch(new ACTSet((a) => a.main.weighting, val));
 						}}/>
 					</Row>
 					{/* <ShareDropDown map={map}/> // disabled for now, till we re-implement shareable map-views using json-based approach */}

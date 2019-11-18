@@ -1,4 +1,4 @@
-import { MapNodePhrasing } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
+import { MapNodePhrasing } from 'Store_Old/firebase/nodePhrasings/@MapNodePhrasing';
 import { AddSchema, GetSchemaJSON, Schema, AssertValidate, GetDataAsync, Command } from 'Utils/FrameworkOverrides';
 import { UserEdit } from 'Server/CommandMacros';
 

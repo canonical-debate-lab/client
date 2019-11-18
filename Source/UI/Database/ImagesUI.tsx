@@ -6,12 +6,12 @@ import { Connect, RemoveHelpers, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { DeleteImage } from '../../Server/Commands/DeleteImage';
 import { UpdateImageData, UpdateImageData_allowedPropUpdates } from '../../Server/Commands/UpdateImageData';
-import { GetImages } from '../../Store/firebase/images';
-import { GetNiceNameForImageType, Image } from '../../Store/firebase/images/@Image';
-import { IsUserCreatorOrMod, CanGetBasicPermissions } from '../../Store/firebase/userExtras';
-import { PermissionGroupSet } from '../../Store/firebase/userExtras/@UserExtraInfo';
-import { MeID, GetUserPermissionGroups } from '../../Store/firebase/users';
-import { ACTImageSelect, GetSelectedImage } from '../../Store/main/database';
+import { GetImages } from '../../Store_Old/firebase/images';
+import { GetNiceNameForImageType, Image } from '../../Store_Old/firebase/images/@Image';
+import { IsUserCreatorOrMod, CanGetBasicPermissions } from '../../Store_Old/firebase/userExtras';
+import { PermissionGroupSet } from '../../Store_Old/firebase/userExtras/@UserExtraInfo';
+import { MeID, GetUserPermissionGroups } from '../../Store_Old/firebase/users';
+import { ACTImageSelect, GetSelectedImage } from '../../Store_Old/main/database';
 import { ShowSignInPopup } from '../@Shared/NavBar/UserPanel';
 import { ShowAddImageDialog } from './Images/AddImageDialog';
 import { ImageDetailsUI } from './Images/ImageDetailsUI';
@@ -51,14 +51,14 @@ export class ImagesUI extends BaseComponentPlus({} as {}, {} as { selectedImage_
 							Images
 						</Div>
 					</Row>
-					<ScrollView ref={c => this.scrollView = c} style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, padding: 10 })} onClick={(e) => {
+					<ScrollView ref={(c) => this.scrollView = c} style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, padding: 10 })} onClick={(e) => {
 						if (e.target != e.currentTarget) return;
 						store.dispatch(new ACTImageSelect({ id: null }));
 					}}>
 						{images.map((image, index) => <ImageUI key={index} first={index == 0} image={image} selected={selectedImage == image}/>)}
 					</ScrollView>
 				</Column>
-				<ScrollView ref={c => this.scrollView = c} style={{
+				<ScrollView ref={(c) => this.scrollView = c} style={{
 					// marginLeft: 10,
 					// flex: .6,
 					position: 'absolute', left: '60%', right: 0, height: '100%', // fix for safari

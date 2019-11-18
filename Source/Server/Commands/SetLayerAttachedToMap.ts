@@ -1,7 +1,7 @@
 import { Assert } from 'js-vextensions';
 import { MapEdit } from 'Server/CommandMacros';
 import { AddSchema, AssertValidate, Command, GetDataAsync } from 'Utils/FrameworkOverrides';
-import { Map } from '../../Store/firebase/maps/@Map';
+import { Map } from '../../Store_Old/firebase/maps/@Map';
 import { UserEdit } from '../CommandMacros';
 
 AddSchema('SetLayerAttachedToMap_payload', {

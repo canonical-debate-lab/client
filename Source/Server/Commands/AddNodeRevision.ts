@@ -1,19 +1,19 @@
-import {MapEdit, UserEdit} from 'Server/CommandMacros';
-import {GetNode} from 'Store/firebase/nodes';
-import {AssertValidate, Command, GetAsync, GetDataAsync} from 'Utils/FrameworkOverrides';
-import {MapNode} from '../../Store/firebase/nodes/@MapNode';
-import {MapNodeRevision} from '../../Store/firebase/nodes/@MapNodeRevision';
+import { MapEdit, UserEdit } from 'Server/CommandMacros';
+import { GetNode } from 'Store_Old/firebase/nodes';
+import { AssertValidate, Command, GetAsync, GetDataAsync } from 'Utils/FrameworkOverrides';
 import {GenerateUUID} from 'Utils/General/KeyGenerator';
+import {MapNode} from '../../Store_Old/firebase/nodes/@MapNode';
+import {MapNodeRevision} from '../../Store_Old/firebase/nodes/@MapNodeRevision';
 
-/** Returned terms are all lowercase. */ 
+/** Returned terms are all lowercase. */
 export function GetSearchTerms(str: string) {
 	return GetSearchTerms_Advanced(str, false).wholeTerms;
 }
 /** Returned terms are all lowercase. */
 export function GetSearchTerms_Advanced(str: string, separateTermsWithWildcard = true) {
 	const terms = str.toLowerCase().replace(/[^a-zA-Z0-9*]/g, ' ').replace(/ +/g, ' ').trim().split(' ').filter(a=>a != ""); // eslint-disable-line
-	const wholeTerms = terms.filter(a => (separateTermsWithWildcard ? !a.includes('*') : true)).map(a => a.replace(/\*/g, '')).Distinct();
-	const partialTerms = terms.filter(a => (separateTermsWithWildcard ? a.includes('*') : false)).map(a => a.replace(/\*/g, '')).Distinct();
+	const wholeTerms = terms.filter((a) => (separateTermsWithWildcard ? !a.includes('*') : true)).map((a) => a.replace(/\*/g, '')).Distinct();
+	const partialTerms = terms.filter((a) => (separateTermsWithWildcard ? a.includes('*') : false)).map((a) => a.replace(/\*/g, '')).Distinct();
 	return { wholeTerms, partialTerms };
 }
 
@@ -35,7 +35,7 @@ export class AddNodeRevision extends Command<{mapID: string, revision: MapNodeRe
 		revision.createdAt = Date.now();
 
 		const titles_joined = (revision.titles || {}).VValues(true).join(' ');
-		revision.titles.allTerms = GetSearchTerms(titles_joined).ToMap(a => a, () => true);
+		revision.titles.allTerms = GetSearchTerms(titles_joined).ToMap((a) => a, () => true);
 
 		this.node_oldData = await GetAsync(() => GetNode(revision.node));
 

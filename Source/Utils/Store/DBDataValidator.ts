@@ -1,4 +1,4 @@
-import { FirebaseData } from 'Store/firebase';
+import { FirebaseData } from 'Store_Old/firebase';
 import { AssertValidate } from 'Utils/FrameworkOverrides';
 
 export function ValidateDBData(data: FirebaseData) {

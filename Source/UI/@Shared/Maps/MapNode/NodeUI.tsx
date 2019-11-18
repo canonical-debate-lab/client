@@ -2,23 +2,23 @@ import { Assert, CachedTransform, E, emptyArray, emptyArray_forLoading, IsNaN, n
 import React from 'react';
 import { Column } from 'react-vcomponents';
 import { BaseComponentPlus, GetInnerComp, RenderSource, ShallowEquals, UseCallback } from 'react-vextensions';
-import { ChangeType, GetPathsToChangedDescendantNodes_WithChangeTypes } from 'Store/firebase/mapNodeEditTimes';
-import { GetParentPath, HolderType, GetNodeChildrenL3_Advanced } from 'Store/firebase/nodes';
-import { MeID } from 'Store/firebase/users';
-import { GetPlayingTimelineRevealNodes_UpToAppliedStep } from 'Store/main/maps/$map';
+import { ChangeType, GetPathsToChangedDescendantNodes_WithChangeTypes } from 'Store_Old/firebase/mapNodeEditTimes';
+import { GetParentPath, HolderType, GetNodeChildrenL3_Advanced } from 'Store_Old/firebase/nodes';
+import { MeID } from 'Store_Old/firebase/users';
+import { GetPlayingTimelineRevealNodes_UpToAppliedStep } from 'Store_Old/main/maps/$map';
 import { NodeChildHolder } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolder';
 import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolderBox';
 import { EB_ShowError, EB_StoreError, ExpensiveComponent, MaybeLog, ShouldLog, SlicePath, State, Watch } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
-import { GetSubnodesInEnabledLayersEnhanced } from '../../../../Store/firebase/layers';
-import { Map } from '../../../../Store/firebase/maps/@Map';
-import { GetNodeChildrenL3, GetParentNodeL2, GetParentNodeL3, IsRootNode } from '../../../../Store/firebase/nodes';
-import { GetNodeForm, IsMultiPremiseArgument, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
-import { AccessLevel, MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
-import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
-import { GetPlayingTimeline, GetPlayingTimelineCurrentStepRevealNodes, GetPlayingTimelineStepIndex, GetTimeFromWhichToShowChangedNodes } from '../../../../Store/main/maps/$map';
-import { GetNodeView, GetNodeView_SelfOnly } from '../../../../Store/main/mapViews';
-import { MapNodeView } from '../../../../Store/main/mapViews/@MapViews';
+import { GetSubnodesInEnabledLayersEnhanced } from '../../../../Store_Old/firebase/layers';
+import { Map } from '../../../../Store_Old/firebase/maps/@Map';
+import { GetNodeChildrenL3, GetParentNodeL2, GetParentNodeL3, IsRootNode } from '../../../../Store_Old/firebase/nodes';
+import { GetNodeForm, IsMultiPremiseArgument, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument } from '../../../../Store_Old/firebase/nodes/$node';
+import { AccessLevel, MapNodeL3, Polarity } from '../../../../Store_Old/firebase/nodes/@MapNode';
+import { MapNodeType } from '../../../../Store_Old/firebase/nodes/@MapNodeType';
+import { GetPlayingTimeline, GetPlayingTimelineCurrentStepRevealNodes, GetPlayingTimelineStepIndex, GetTimeFromWhichToShowChangedNodes } from '../../../../Store_Old/main/maps/$map';
+import { GetNodeView, GetNodeView_SelfOnly } from '../../../../Store_Old/main/mapViews';
+import { MapNodeView } from '../../../../Store_Old/main/mapViews/@MapViews';
 import { NodeChangesMarker } from './NodeUI/NodeChangesMarker';
 import { NodeChildCountMarker } from './NodeUI/NodeChildCountMarker';
 import { GetMeasurementInfoForNode } from './NodeUI/NodeMeasurer';
@@ -64,8 +64,8 @@ export class NodeUI extends BaseComponentPlus(
 
 		const sinceTime = GetTimeFromWhichToShowChangedNodes.Watch(map._key);
 		const pathsToChangedDescendantNodes_withChangeTypes = GetPathsToChangedDescendantNodes_WithChangeTypes.Watch(map._key, sinceTime, path);
-		const addedDescendants = pathsToChangedDescendantNodes_withChangeTypes.filter(a => a == ChangeType.Add).length;
-		const editedDescendants = pathsToChangedDescendantNodes_withChangeTypes.filter(a => a == ChangeType.Edit).length;
+		const addedDescendants = pathsToChangedDescendantNodes_withChangeTypes.filter((a) => a == ChangeType.Add).length;
+		const editedDescendants = pathsToChangedDescendantNodes_withChangeTypes.filter((a) => a == ChangeType.Edit).length;
 
 		const parent = GetParentNodeL3(path);
 		const parentPath = GetParentPath(path);
@@ -94,13 +94,13 @@ export class NodeUI extends BaseComponentPlus(
 		const playingTimelineVisibleNodes = GetPlayingTimelineRevealNodes_UpToAppliedStep.Watch(map._key);
 
 		performance.mark('NodeUI_2');
-		if (ShouldLog(a => a.nodeRenders)) {
+		if (ShouldLog((a) => a.nodeRenders)) {
 			if (logTypes.nodeRenders_for) {
 				if (logTypes.nodeRenders_for == node._key) {
 					Log(`Updating NodeUI (${RenderSource[this.lastRender_source]}):${node._key}`, '\nPropsChanged:', this.GetPropChanges(), '\nStateChanged:', this.GetStateChanges());
 				}
 			} else {
-				Log(`Updating NodeUI (${RenderSource[this.lastRender_source]}):${node._key}`, '\nPropsChanged:', this.GetPropChanges().map(a => a.key), '\nStateChanged:', this.GetStateChanges().map(a => a.key));
+				Log(`Updating NodeUI (${RenderSource[this.lastRender_source]}):${node._key}`, '\nPropsChanged:', this.GetPropChanges().map((a) => a.key), '\nStateChanged:', this.GetStateChanges().map((a) => a.key));
 			}
 		}
 		// NodeUI.renderCount++;
@@ -109,7 +109,7 @@ export class NodeUI extends BaseComponentPlus(
 		// if single-premise arg, combine arg and premise into one box, by rendering premise box directly (it will add-in this argument's child relevance-arguments)
 		if (isSinglePremiseArgument) {
 			// Assert(premises.length == 1, `Single-premise argument #${node._id} has more than one premise! (${premises.map(a=>a._id).join(",")})`);
-			const premises = nodeChildren.filter(a => a && a.type == MapNodeType.Claim);
+			const premises = nodeChildren.filter((a) => a && a.type == MapNodeType.Claim);
 			const premise = premises[0];
 			if (premise == null) return <div/>; // child data not loaded yet
 
@@ -120,7 +120,7 @@ export class NodeUI extends BaseComponentPlus(
 			}
 
 			return (
-				<NodeUI ref={c => this.proxyDisplayedNodeUI = c} {...this.props} key={premise._key} map={map} node={premise} path={`${path}/${premise._key}`}>
+				<NodeUI ref={(c) => this.proxyDisplayedNodeUI = c} {...this.props} key={premise._key} map={map} node={premise} path={`${path}/${premise._key}`}>
 					{children}
 				</NodeUI>
 			);
@@ -132,12 +132,12 @@ export class NodeUI extends BaseComponentPlus(
 		if (isPremiseOfSinglePremiseArg) {
 			const argument = parent;
 			const argumentPath = SlicePath(path, 1);
-			var relevanceArguments = parentChildren.filter(a => a && a.type == MapNodeType.Argument);
+			var relevanceArguments = parentChildren.filter((a) => a && a.type == MapNodeType.Argument);
 			// Assert(!relevanceArguments.Any(a=>a.type == MapNodeType.Claim), "Single-premise argument has more than one premise!");
 			if (playingTimeline && playingTimeline_currentStepIndex < playingTimeline.steps.length - 1) {
 				// relevanceArguments = relevanceArguments.filter(child => playingTimelineVisibleNodes.Contains(`${argumentPath}/${child._key}`));
 				// if this node (or a descendent) is marked to be revealed by a currently-applied timeline-step, reveal this node
-				relevanceArguments = relevanceArguments.filter(child => playingTimelineVisibleNodes.Any(a => a.startsWith(`${argumentPath}/${child._key}`)));
+				relevanceArguments = relevanceArguments.filter((child) => playingTimelineVisibleNodes.Any((a) => a.startsWith(`${argumentPath}/${child._key}`)));
 			}
 		}
 
@@ -169,12 +169,12 @@ export class NodeUI extends BaseComponentPlus(
 			<NodeChildHolderBox {...{ map, node, path, nodeView }} type={HolderType.Truth}
 				widthOfNode={widthOverride || width}
 				nodeChildren={nodeChildren} nodeChildrenToShow={nodeChildrenToShow}
-				onHeightOrDividePointChange={UseCallback(dividePoint => this.CheckForChanges(), [])}/>;
+				onHeightOrDividePointChange={UseCallback((dividePoint) => this.CheckForChanges(), [])}/>;
 		const nodeChildHolderBox_relevance = isPremiseOfSinglePremiseArg && boxExpanded &&
 			<NodeChildHolderBox {...{ map, node: parent, path: parentPath, nodeView: parentNodeView }} type={HolderType.Relevance}
 				widthOfNode={widthOverride || width}
 				nodeChildren={GetNodeChildrenL3(parent, parentPath)} nodeChildrenToShow={relevanceArguments}
-				onHeightOrDividePointChange={UseCallback(dividePoint => this.CheckForChanges(), [])}/>;
+				onHeightOrDividePointChange={UseCallback((dividePoint) => this.CheckForChanges(), [])}/>;
 
 		// const hasExtraWrapper = subnodes.length || isMultiPremiseArgument;
 
@@ -202,7 +202,7 @@ export class NodeUI extends BaseComponentPlus(
 			</>
 		); */
 		return (
-			<div ref={c => this.nodeUI = c} className="NodeUI clickThrough" style={E(
+			<div ref={(c) => this.nodeUI = c} className="NodeUI clickThrough" style={E(
 				{ position: 'relative', display: 'flex', alignItems: 'flex-start', padding: '5px 0', opacity: widthOverride != 0 ? 1 : 0 },
 				style,
 			)}>
@@ -222,7 +222,7 @@ export class NodeUI extends BaseComponentPlus(
 							<span style={{ margin: 'auto 0' }}>{AccessLevel[node.current.accessLevel][0].toUpperCase()}</span>
 						</div>}
 						{nodeChildHolderBox_truth}
-						<NodeUI_Inner ref={c => this.innerUI = GetInnerComp(c)} {...{ indexInNodeList, map, node, nodeView, path, width, widthOverride }}/>
+						<NodeUI_Inner ref={(c) => this.innerUI = GetInnerComp(c)} {...{ indexInNodeList, map, node, nodeView, path, width, widthOverride }}/>
 						{nodeChildHolderBox_relevance}
 						{isMultiPremiseArgument &&
 							nodeChildHolder_direct}
@@ -262,7 +262,7 @@ export class NodeUI extends BaseComponentPlus(
 		// see UseSize_Method for difference between offsetHeight and the alternatives
 		const height = this.DOM_HTML.offsetHeight;
 		if (height != this.lastHeight) {
-			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
+			MaybeLog((a) => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
 				() => `OnHeightChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._key}${nl}NewHeight:${height}`);
 
 			// this.UpdateState(true);
@@ -271,9 +271,9 @@ export class NodeUI extends BaseComponentPlus(
 		}
 		this.lastHeight = height;
 
-		const selfHeight = this.SafeGet(a => a.innerUI.DOM_HTML.offsetHeight, 0);
+		const selfHeight = this.SafeGet((a) => a.innerUI.DOM_HTML.offsetHeight, 0);
 		if (selfHeight != this.lastSelfHeight) {
-			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
+			MaybeLog((a) => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
 				() => `OnSelfHeightChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._key}${nl}NewSelfHeight:${selfHeight}`);
 
 			// this.UpdateState(true);

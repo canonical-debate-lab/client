@@ -1,5 +1,5 @@
-import {Clone} from 'js-vextensions';
-import { FirebaseData } from '../../../../Store/firebase';
+import { Clone } from 'js-vextensions';
+import { FirebaseData } from '../../../../Store_Old/firebase';
 import { AddUpgradeFunc } from '../../Admin';
 
 const newVersion = 10;

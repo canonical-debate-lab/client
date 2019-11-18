@@ -1,57 +1,53 @@
 import chroma from 'chroma-js';
-import { Vector2i, VURL, FromJSON, WaitXThenRun, Clone } from 'js-vextensions';
+import { ConnectedRouter } from 'connected-react-router';
+import { FromJSON, Vector2i, VURL } from 'js-vextensions';
+import keycode from 'keycode';
+import { getSnapshot } from 'mobx-state-tree';
+import { persist } from 'mst-persist';
+import React, { useCallback } from 'react';
+import { DragDropContext as DragDropContext_Beautiful } from 'react-beautiful-dnd';
 import * as ReactColor from 'react-color';
-import { Provider } from 'react-redux';
-import { ColorPickerBox, Column, Button, Row, Pre } from 'react-vcomponents';
-import { BaseComponent, BaseComponentWithConnector, ShallowChanged, BaseComponentPlus } from 'react-vextensions';
+import ReactDOM from 'react-dom';
+import { Button, ColorPickerBox, Column } from 'react-vcomponents';
+import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { VMenuLayer } from 'react-vmenu';
 import { MessageBoxUI, ShowMessageBox } from 'react-vmessagebox';
-import { PersistGate } from 'redux-persist/integration/react';
-import { MeID, Me } from 'Store/firebase/users';
-import '../../Source/Utils/Styles/Main.scss'; // keep absolute-ish, since scss file not copied to Source_JS folder
-import '../Utils/UI/JQueryExtensions';
-import keycode from 'keycode';
-import { State, Connect, Route, browserHistory, AddressBarWrapper, ErrorBoundary, CreateStore } from 'Utils/FrameworkOverrides';
-import { NormalizeURL } from 'Utils/URL/URLs';
-import { ConnectedRouter } from 'connected-react-router';
-import { ES } from 'Utils/UI/GlobalStyles';
-import { DragDropContext as DragDropContext_Beautiful, Droppable } from 'react-beautiful-dnd';
-import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
-import { Polarity } from 'Store/firebase/nodes/@MapNode';
-import { GetPathNodeIDs } from 'Store/main/mapViews';
 import { CreateLinkCommand as CreateLinkCommandForDND, LinkNode_HighLevel_GetCommandError } from 'Server/Commands/LinkNode_HighLevel';
-import { GetNodeDisplayText, GetNodeL3, IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument } from 'Store/firebase/nodes/$node';
-import { ACTSetLastAcknowledgementTime } from 'Store/main';
-import React, { Fragment, useMemo, useCallback } from 'react';
-import { GetTimelineStep } from 'Store/firebase/timelines';
 import { UpdateTimelineStep } from 'Server/Commands/UpdateTimelineStep';
-import { NodeReveal } from 'Store/firebase/timelineSteps/@TimelineStep';
-import { GetParentNode, GetParentPath, GetNode, GetNodeID } from 'Store/firebase/nodes';
-import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { UpdateTimelineStepOrder } from 'Server/Commands/UpdateTimelineStepOrder';
-import ReactDOM from 'react-dom';
-import { rootState, InitStore } from 'StoreM/StoreM';
-import { onSnapshot, getSnapshot, applySnapshot } from 'mobx-state-tree';
-import { persist } from 'mst-persist';
-import { GetUserBackground } from '../Store/firebase/users';
+import { InitStore, store } from 'Store';
+import { GetNode, GetNodeID, GetParentNode, GetParentPath } from 'Store_Old/firebase/nodes';
+import { GetNodeDisplayText, GetNodeL3, IsPremiseOfSinglePremiseArgument } from 'Store_Old/firebase/nodes/$node';
+import { Polarity } from 'Store_Old/firebase/nodes/@MapNode';
+import { GetTimelineStep } from 'Store_Old/firebase/timelines';
+import { NodeReveal } from 'Store_Old/firebase/timelineSteps/@TimelineStep';
+import { Me, MeID } from 'Store_Old/firebase/users';
+import { ACTSetLastAcknowledgementTime } from 'Store_Old/main';
+import { GetPathNodeIDs } from 'Store_Old/main/mapViews';
+import { AddressBarWrapper, browserHistory, ErrorBoundary, Route } from 'Utils/FrameworkOverrides';
+import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
+import { NormalizeURL } from 'Utils/URL/URLs';
+import '../../Source/Utils/Styles/Main.scss'; // keep absolute-ish, since scss file not copied to Source_JS folder
+import { GetUserBackground } from '../Store_Old/firebase/users';
 import { NavBar } from '../UI/@Shared/NavBar';
 import { GlobalUI } from '../UI/Global';
 import { HomeUI } from '../UI/Home';
 import { MoreUI } from '../UI/More';
+import '../Utils/UI/JQueryExtensions';
+import { GADDemo } from './@GAD/GAD';
+import { HomeUI_GAD } from './@GAD/Home_GAD';
+import { NavBar_GAD } from './@GAD/NavBar_GAD';
 import { DatabaseUI } from './Database';
+import { UserProfileUI } from './Database/Users/UserProfile';
 import { DebatesUI } from './Debates';
 import { FeedbackUI } from './Feedback';
 import { ForumUI } from './Forum';
 import { PersonalUI } from './Personal';
-import { UserProfileUI } from './Database/Users/UserProfile';
 import { SocialUI } from './Social';
-import { GADDemo } from './@GAD/GAD';
-import { NavBar_GAD } from './@GAD/NavBar_GAD';
-import { HomeUI_GAD } from './@GAD/Home_GAD';
 
 ColorPickerBox.Init(ReactColor, chroma);
 
-export class RootUIWrapper extends BaseComponentPlus({}, {} as { store: ProjectStore }) {
+export class RootUIWrapper extends BaseComponentPlus({}, { storeReady: false }) {
 	/* ComponentWillMount() {
 		let startVal = g.storeRehydrated;
 		// wrap storeRehydrated property, so we know when it's set (from CreateStore.ts callback)
@@ -70,39 +66,27 @@ export class RootUIWrapper extends BaseComponentPlus({}, {} as { store: ProjectS
 		// temp fix for "Illegal invocation" error in mst-persist
 		window.localStorage.getItem = window.localStorage.getItem.bind(window.localStorage);
 		window.localStorage.setItem = window.localStorage.setItem.bind(window.localStorage);
-		persist('some', rootState, {
+		persist('some', store, {
 			// jsonify: false,
 			// whitelist: ['name']
 			blacklist: [],
 		}).then(() => {
-			Log('Loaded state:', getSnapshot(rootState));
-
-			// init redux store
-			const { store: reduxStore, persister } = CreateStore(g.__InitialState__);
-			G({ store: reduxStore, persister });
-			const firestoreDB = store.firebase['firestore']();
-			G({ firestoreDB });
-
-			// this.SetState({ storeReady: true });
-			this.SetState({ store: reduxStore });
+			Log('Loaded state:', getSnapshot(store));
+			this.SetState({ storeReady: true });
 		});
 	}
 
 	render() {
-		const { store } = this.state;
+		const { storeReady } = this.state;
 		// if (!g.storeRehydrated) return <div/>;
-		if (store == null) return null;
+		if (!storeReady) return null;
 
 		return (
-			<Provider store={store}>
-				<PersistGate loading={null} persistor={persister}>
-					<ConnectedRouter history={browserHistory}>
-						<DragDropContext_Beautiful onDragEnd={this.OnDragEnd}>
-							<RootUI/>
-						</DragDropContext_Beautiful>
-					</ConnectedRouter>
-				</PersistGate>
-			</Provider>
+			<ConnectedRouter history={browserHistory}>
+				<DragDropContext_Beautiful onDragEnd={this.OnDragEnd}>
+					<RootUI/>
+				</DragDropContext_Beautiful>
+			</ConnectedRouter>
 		);
 	}
 

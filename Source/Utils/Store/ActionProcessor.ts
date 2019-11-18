@@ -3,24 +3,24 @@ import { hasHotReloaded } from 'Main';
 import Raven from 'raven-js';
 import ReactGA from 'react-ga';
 import { FindReact, GetDOM } from 'react-vextensions';
-import { GetAuth, IsAuthValid } from 'Store/firebase';
-import { GetNodeChildrenL2, GetNodeID } from 'Store/firebase/nodes';
-import { GetNodeL2 } from 'Store/firebase/nodes/$node';
-import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
-import { ACTMapViewMerge } from 'Store/main/mapViews/$mapView';
+import { GetAuth, IsAuthValid } from 'Store_Old/firebase';
+import { GetNodeChildrenL2, GetNodeID } from 'Store_Old/firebase/nodes';
+import { GetNodeL2 } from 'Store_Old/firebase/nodes/$node';
+import { MapNodeType } from 'Store_Old/firebase/nodes/@MapNodeType';
+import { ACTMapViewMerge } from 'Store_Old/main/mapViews/$mapView';
 import { Action, ActionSet, DBPath, GetAsync, GetCurrentURL, GetDataAsync, LoadURL, MaybeLog, State, GetScreenRect, SlicePath } from 'Utils/FrameworkOverrides';
 import { GetCurrentURL_SimplifiedForPageViewTracking } from 'Utils/URL/URLs';
-import { GetOpenMapID } from 'Store/main';
+import { GetOpenMapID } from 'Store_Old/main';
 import { NodeUI_Inner } from 'UI/@Shared/Maps/MapNode/NodeUI_Inner';
-import { GetTimelineStep } from 'Store/firebase/timelines';
-import { rootState } from 'StoreM/StoreM';
-import { Map } from '../../Store/firebase/maps/@Map';
-import { RootState } from '../../Store/index';
-import { ACTDebateMapSelect, ACTDebateMapSelect_WithData } from '../../Store/main/debates';
-import { ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimelineCurrentStepRevealNodes, GetPlayingTimeline, GetNodesRevealedInSteps } from '../../Store/main/maps/$map';
-import { GetNodeView, GetMapView } from '../../Store/main/mapViews';
-import { ACTMapNodeExpandedSet } from '../../Store/main/mapViews/$mapView/rootNodeViews';
-import { ACTPersonalMapSelect, ACTPersonalMapSelect_WithData } from '../../Store/main/personal';
+import { GetTimelineStep } from 'Store_Old/firebase/timelines';
+import { store } from 'Store';
+import { Map } from '../../Store_Old/firebase/maps/@Map';
+import { RootState } from '../../Store_Old/index';
+import { ACTDebateMapSelect, ACTDebateMapSelect_WithData } from '../../Store_Old/main/debates';
+import { ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimelineCurrentStepRevealNodes, GetPlayingTimeline, GetNodesRevealedInSteps } from '../../Store_Old/main/maps/$map';
+import { GetNodeView, GetMapView } from '../../Store_Old/main/mapViews';
+import { ACTMapNodeExpandedSet } from '../../Store_Old/main/mapViews/$mapView/rootNodeViews';
+import { ACTPersonalMapSelect, ACTPersonalMapSelect_WithData } from '../../Store_Old/main/personal';
 import { MapUI } from '../../UI/@Shared/Maps/MapUI';
 import { ProcessRehydrateData } from './StoreRehydrateProcessor';
 
@@ -46,7 +46,7 @@ export function MidDispatchAction(action: Action<any>, newState: RootState) {
 	if (action.Is(ACTPersonalMapSelect) || action.Is(ACTDebateMapSelect)) {
 		// ACTEnsureMapStateInit(action.payload.id);
 		// storeM.ACTEnsureMapStateInit(action.payload.id);
-		rootState.main.ACTEnsureMapStateInit(action.payload.id);
+		store.main.ACTEnsureMapStateInit(action.payload.id);
 	}
 }
 

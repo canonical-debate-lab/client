@@ -2,15 +2,15 @@ import { Column, Button, Row, CheckBox, Pre } from 'react-vcomponents';
 import { BaseComponentWithConnector, BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { Connect, InfoButton } from 'Utils/FrameworkOverrides';
 import { PropNameToTitle } from 'Utils/General/Others';
-import { GetNodeDisplayText } from 'Store/firebase/nodes/$node';
-import { MapNodePhrasing, MapNodePhrasingType } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
+import { GetNodeDisplayText } from 'Store_Old/firebase/nodes/$node';
+import { MapNodePhrasing, MapNodePhrasingType } from 'Store_Old/firebase/nodePhrasings/@MapNodePhrasing';
 import { ShowAddPhrasingDialog, PhrasingDetailsUI } from 'UI/Database/Phrasings/PhrasingDetailsUI';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
-import { GetUser, MeID } from 'Store/firebase/users';
-import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
-import { GetNodePhrasings } from 'Store/firebase/nodePhrasings';
-import { GetNodeColor, MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
-import { MapNode, MapNodeL2, MapNodeL3 } from '../../../../../../Store/firebase/nodes/@MapNode';
+import { GetUser, MeID } from 'Store_Old/firebase/users';
+import { CanGetBasicPermissions } from 'Store_Old/firebase/userExtras';
+import { GetNodePhrasings } from 'Store_Old/firebase/nodePhrasings';
+import { GetNodeColor, MapNodeType } from 'Store_Old/firebase/nodes/@MapNodeType';
+import { MapNode, MapNodeL2, MapNodeL3 } from '../../../../../../Store_Old/firebase/nodes/@MapNode';
 import { DetailsPanel_Phrasings } from './Phrasings_SubPanels/DetailsPanel';
 
 const Phrasing_FakeID = 'FAKE';
@@ -37,7 +37,7 @@ export class PhrasingsPanel extends BaseComponentPlus({} as Props, { selectedPhr
 					}}/>
 				</Row>
 				<Column ptb={5}>
-					{phrasings.filter(a => a.type == MapNodePhrasingType.Precise).map((phrasing, index) => {
+					{phrasings.filter((a) => a.type == MapNodePhrasingType.Precise).map((phrasing, index) => {
 						return <PhrasingRow key={index} phrasing={phrasing} index={index} selected={phrasing._key == selectedPhrasingID} toggleSelected={() => this.TogglePhrasingSelected(phrasing._key)}/>;
 					})}
 				</Column>
@@ -50,9 +50,9 @@ export class PhrasingsPanel extends BaseComponentPlus({} as Props, { selectedPhr
 					}}/>
 				</Row>
 				<Column ptb={5}>
-					{phrasings.filter(a => a.type == MapNodePhrasingType.Natural).length == 0 &&
+					{phrasings.filter((a) => a.type == MapNodePhrasingType.Natural).length == 0 &&
 						<Pre style={{ color: 'rgba(255,255,255,.5)' }}>No natural phrasings submitted yet.</Pre>}
-					{phrasings.filter(a => a.type == MapNodePhrasingType.Natural).map((phrasing, index) => {
+					{phrasings.filter((a) => a.type == MapNodePhrasingType.Natural).map((phrasing, index) => {
 						return <PhrasingRow key={index} phrasing={phrasing} index={index} selected={phrasing._key == selectedPhrasingID} toggleSelected={() => this.TogglePhrasingSelected(phrasing._key)}/>;
 					})}
 				</Column>

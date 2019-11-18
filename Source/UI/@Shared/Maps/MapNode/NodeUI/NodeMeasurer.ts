@@ -1,6 +1,6 @@
-import { MapNodeL3 } from 'Store/firebase/nodes/@MapNode';
-import { MapNodeType_Info } from 'Store/firebase/nodes/@MapNodeType';
-import { GetNodeDisplayText, GetFontSizeForNode } from 'Store/firebase/nodes/$node';
+import { MapNodeL3 } from 'Store_Old/firebase/nodes/@MapNode';
+import { MapNodeType_Info } from 'Store_Old/firebase/nodes/@MapNodeType';
+import { GetNodeDisplayText, GetFontSizeForNode } from 'Store_Old/firebase/nodes/$node';
 import { GetContentWidth, GetContentHeight, GetAutoElement } from 'js-vextensions';
 import { ConvertStyleObjectToCSSString } from 'react-vextensions';
 

@@ -1,8 +1,8 @@
 import { InlineMath } from 'react-katex';
 import { BaseComponent, GetDOM } from 'react-vextensions';
 import ReactDOM from 'react-dom';
-import { PreProcessLatex } from 'Store/firebase/nodes/$node';
-import {IsNaN} from 'js-vextensions';
+import { PreProcessLatex } from 'Store_Old/firebase/nodes/$node';
+import { IsNaN } from 'js-vextensions';
 import { TermPlaceholder } from './NodeUI_Inner/TermPlaceholder';
 
 // change InlineMath's generateHtml function to not break on katex parse-errors
@@ -63,7 +63,7 @@ export class NodeMathUI extends BaseComponent<{text: string, onTermHover: (termI
 
 			ReactDOM.render((
 				<TermPlaceholder {...{ store } as any} refText={refText} termID={termID} showVariantNumber={false}
-					onHover={hovered => onTermHover(termID, hovered)} onClick={() => onTermClick(termID)}/>
+					onHover={(hovered) => onTermHover(termID, hovered)} onClick={() => onTermClick(termID)}/>
 			), termUI[0]);
 		}
 	}

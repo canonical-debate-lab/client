@@ -4,11 +4,11 @@ import { Column, Pre, RowLR, Select, TextArea, TextInput, Row } from 'react-vcom
 import { BaseComponentWithConnector, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { AddPhrasing } from 'Server/Commands/AddPhrasing';
-import { MapNodePhrasing, MapNodePhrasingType } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
+import { MapNodePhrasing, MapNodePhrasingType } from 'Store_Old/firebase/nodePhrasings/@MapNodePhrasing';
 import { Connect, Link, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
-import { GetUser } from '../../../Store/firebase/users';
+import { GetUser } from '../../../Store_Old/firebase/users';
 
 export class PhrasingDetailsUI extends BaseComponentPlus(
 	{} as {baseData: MapNodePhrasing, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: MapNodePhrasing, error: string)=>void},
@@ -32,7 +32,7 @@ export class PhrasingDetailsUI extends BaseComponentPlus(
 		const { newData } = this.state;
 		const creator = Watch(() => !forNew && GetUser(baseData.creator), [baseData.creator, forNew]);
 
-		const Change = _ => this.OnChange();
+		const Change = (_) => this.OnChange();
 
 		const splitAt = 100;
 		return (
@@ -42,17 +42,17 @@ export class PhrasingDetailsUI extends BaseComponentPlus(
 				<RowLR mt={5} splitAt={splitAt} style={{ width: '100%' }}>
 					<Pre>Type: </Pre>
 					<Select options={GetEntries(MapNodePhrasingType)} enabled={false} style={ES({ flex: 1 })}
-						value={newData.type} onChange={val => Change(newData.type = val)}/>
+						value={newData.type} onChange={(val) => Change(newData.type = val)}/>
 				</RowLR>
 				<RowLR mt={5} splitAt={splitAt} style={{ width: '100%' }}>
 					<Pre>Text: </Pre>
 					<TextInput required enabled={enabled} style={ES({ flex: 1 })}
-						value={newData.text} onChange={val => Change(newData.text = val)}/>
+						value={newData.text} onChange={(val) => Change(newData.text = val)}/>
 				</RowLR>
 				<RowLR mt={5} splitAt={splitAt} style={{ width: '100%' }}>
 					<Pre>Description: </Pre>
 					<TextArea enabled={enabled} autoSize={true} style={ES({ flex: 1 })}
-						value={newData.description} onChange={val => Change(newData.description = val)}/>
+						value={newData.description} onChange={(val) => Change(newData.description = val)}/>
 				</RowLR>
 			</Column>
 		);

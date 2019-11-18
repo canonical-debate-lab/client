@@ -2,18 +2,18 @@ import chroma from 'chroma-js';
 import { E } from 'js-vextensions';
 import { Button, Span } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
-import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
-import { MeID } from 'Store/firebase/users';
+import { IsUserCreatorOrMod } from 'Store_Old/firebase/userExtras';
+import { MeID } from 'Store_Old/firebase/users';
 import { Connect, SlicePath } from 'Utils/FrameworkOverrides';
-import { Map } from '../../../../Store/firebase/maps/@Map';
-import { GetRatingAverage_AtPath, GetRatings } from '../../../../Store/firebase/nodeRatings';
-import { RatingsRoot } from '../../../../Store/firebase/nodeRatings/@RatingsRoot';
-import { GetRatingTypeInfo, RatingType } from '../../../../Store/firebase/nodeRatings/@RatingType';
-import { GetParentNodeL3 } from '../../../../Store/firebase/nodes';
-import { GetNodeForm, GetRatingTypesForNode, IsPremiseOfSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
-import { ClaimForm, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
-import { MapNodeType_Info } from '../../../../Store/firebase/nodes/@MapNodeType';
-import { MapNodeView } from '../../../../Store/main/mapViews/@MapViews';
+import { Map } from '../../../../Store_Old/firebase/maps/@Map';
+import { GetRatingAverage_AtPath, GetRatings } from '../../../../Store_Old/firebase/nodeRatings';
+import { RatingsRoot } from '../../../../Store_Old/firebase/nodeRatings/@RatingsRoot';
+import { GetRatingTypeInfo, RatingType } from '../../../../Store_Old/firebase/nodeRatings/@RatingType';
+import { GetParentNodeL3 } from '../../../../Store_Old/firebase/nodes';
+import { GetNodeForm, GetRatingTypesForNode, IsPremiseOfSinglePremiseArgument } from '../../../../Store_Old/firebase/nodes/$node';
+import { ClaimForm, MapNodeL3 } from '../../../../Store_Old/firebase/nodes/@MapNode';
+import { MapNodeType_Info } from '../../../../Store_Old/firebase/nodes/@MapNodeType';
+import { MapNodeView } from '../../../../Store_Old/main/mapViews/@MapViews';
 
 type Props = {
 	map: Map, path: string, node: MapNodeL3, nodeView?: MapNodeView, ratingsRoot: RatingsRoot,

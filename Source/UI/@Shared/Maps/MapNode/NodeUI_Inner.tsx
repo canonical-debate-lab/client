@@ -4,26 +4,26 @@ import { DoNothing, Timer, ToJSON, Vector2i, VRect, WaitXThenRun, ToNumber } fro
 import { Draggable } from 'react-beautiful-dnd';
 import ReactDOM from 'react-dom';
 import { BaseComponent, BaseComponentPlus, GetDOM, UseCallback, UseEffect } from 'react-vextensions';
-import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthScoreComposite, RS_GetAllValues } from 'Store/firebase/nodeRatings/ReasonScore';
-import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
-import { ACTSetLastAcknowledgementTime } from 'Store/main';
-import { GetTimeFromWhichToShowChangedNodes, GetPlayingTimelineCurrentStepRevealNodes, GetNodeRevealHighlightTime, GetTimeSinceNodeRevealedByPlayingTimeline } from 'Store/main/maps/$map';
-import { GetPathNodeIDs, GetNodeView, GetNodeView_SelfOnly } from 'Store/main/mapViews';
+import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthScoreComposite, RS_GetAllValues } from 'Store_Old/firebase/nodeRatings/ReasonScore';
+import { IsUserCreatorOrMod } from 'Store_Old/firebase/userExtras';
+import { ACTSetLastAcknowledgementTime } from 'Store_Old/main';
+import { GetTimeFromWhichToShowChangedNodes, GetPlayingTimelineCurrentStepRevealNodes, GetNodeRevealHighlightTime, GetTimeSinceNodeRevealedByPlayingTimeline } from 'Store_Old/main/maps/$map';
+import { GetPathNodeIDs, GetNodeView, GetNodeView_SelfOnly } from 'Store_Old/main/mapViews';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { DragInfo, EB_ShowError, EB_StoreError, ExpensiveComponent, HSLA, IsDoubleClick, SlicePath, State, Watch, Observer } from 'Utils/FrameworkOverrides';
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
-import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/mapNodeEditTimes';
-import { Map } from '../../../../Store/firebase/maps/@Map';
-import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatings } from '../../../../Store/firebase/nodeRatings';
-import { RatingType, ratingTypes } from '../../../../Store/firebase/nodeRatings/@RatingType';
-import { IsNodeSubnode, GetNodeID } from '../../../../Store/firebase/nodes';
-import { GetMainRatingType, GetNodeForm, GetNodeL3, GetPaddingForNode, IsPremiseOfSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
-import { ClaimForm, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
-import { GetNodeColor, MapNodeType, MapNodeType_Info } from '../../../../Store/firebase/nodes/@MapNodeType';
-import { MeID } from '../../../../Store/firebase/users';
-import { GetLastAcknowledgementTime, WeightingType } from '../../../../Store/main';
-import { ACTMapNodeExpandedSet, ACTMapNodePanelOpen, ACTMapNodeSelect, ACTMapNodeTermOpen } from '../../../../Store/main/mapViews/$mapView/rootNodeViews';
-import { MapNodeView, MapNodeView_SelfOnly } from '../../../../Store/main/mapViews/@MapViews';
+import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store_Old/firebase/mapNodeEditTimes';
+import { Map } from '../../../../Store_Old/firebase/maps/@Map';
+import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatings } from '../../../../Store_Old/firebase/nodeRatings';
+import { RatingType, ratingTypes } from '../../../../Store_Old/firebase/nodeRatings/@RatingType';
+import { IsNodeSubnode, GetNodeID } from '../../../../Store_Old/firebase/nodes';
+import { GetMainRatingType, GetNodeForm, GetNodeL3, GetPaddingForNode, IsPremiseOfSinglePremiseArgument } from '../../../../Store_Old/firebase/nodes/$node';
+import { ClaimForm, MapNodeL3 } from '../../../../Store_Old/firebase/nodes/@MapNode';
+import { GetNodeColor, MapNodeType, MapNodeType_Info } from '../../../../Store_Old/firebase/nodes/@MapNodeType';
+import { MeID } from '../../../../Store_Old/firebase/users';
+import { GetLastAcknowledgementTime, WeightingType } from '../../../../Store_Old/main';
+import { ACTMapNodeExpandedSet, ACTMapNodePanelOpen, ACTMapNodeSelect, ACTMapNodeTermOpen } from '../../../../Store_Old/main/mapViews/$mapView/rootNodeViews';
+import { MapNodeView, MapNodeView_SelfOnly } from '../../../../Store_Old/main/mapViews/@MapViews';
 import { ExpandableBox } from './ExpandableBox';
 import { DefinitionsPanel } from './NodeUI/Panels/DefinitionsPanel';
 import { DetailsPanel } from './NodeUI/Panels/DetailsPanel';
@@ -140,7 +140,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		// let mainRating_mine = GetRatingValue(ratingNode._id, mainRatingType, MeID());
 		const mainRating_mine = Watch(() => GetRatingAverage_AtPath(ratingNode, mainRatingType, new RatingFilter({ includeUser: MeID() }))); */
 
-		const useReasonScoreValuesForThisNode = State.Watch(a => a.main.weighting) == WeightingType.ReasonScore && (node.type == MapNodeType.Argument || node.type == MapNodeType.Claim);
+		const useReasonScoreValuesForThisNode = State.Watch((a) => a.main.weighting) == WeightingType.ReasonScore && (node.type == MapNodeType.Argument || node.type == MapNodeType.Claim);
 		const reasonScoreValues = Watch(() => useReasonScoreValuesForThisNode && RS_GetAllValues(node._key, path, true) as ReasonScoreValues_RSPrefix, [node, path, useReasonScoreValuesForThisNode]);
 
 		const backgroundFillPercent = GetFillPercent_AtPath.Watch(ratingNode, ratingNodePath, null);
@@ -148,7 +148,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 
 		const form = GetNodeForm.Watch(node, path);
 		const ratingsRoot = GetNodeRatingsRoot.Watch(node._key);
-		const showReasonScoreValues = State.Watch(a => a.main.showReasonScoreValues);
+		const showReasonScoreValues = State.Watch((a) => a.main.showReasonScoreValues);
 
 		/* const playingTimeline_currentStepRevealNodes = GetPlayingTimelineCurrentStepRevealNodes.Watch(map._key);
 		let revealedByCurrentTimelineStep = playingTimeline_currentStepRevealNodes.Contains(path);
@@ -239,7 +239,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 			}
 			store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._key, time: Date.now() }));
 		}, [combinedWithParentArgument, node._key, parent]);
-		const onTextHolderClick = UseCallback(e => IsDoubleClick(e) && this.titlePanel && this.titlePanel.OnDoubleClick(), []);
+		const onTextHolderClick = UseCallback((e) => IsDoubleClick(e) && this.titlePanel && this.titlePanel.OnDoubleClick(), []);
 		const toggleExpanded = UseCallback((e) => {
 			/* let pathToApplyTo = path;
 			// if collapsing subtree, and this node is premise of single-premise arg, start collapsing from parent (the argument node), so that its relevance args are collapsed as well
@@ -269,7 +269,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 				local_openPanel = null;
 			}
 			return (
-				<ExpandableBox ref={c => DoNothing(dragInfo && dragInfo.provided.innerRef(GetDOM(c) as any), this.root = c)}
+				<ExpandableBox ref={(c) => DoNothing(dragInfo && dragInfo.provided.innerRef(GetDOM(c) as any), this.root = c)}
 					{...{ width, widthOverride, outlineColor, expanded }} parent={this}
 					className={classNames('NodeUI_Inner', asDragPreview && 'DragPreview', { root: pathNodeIDs.length == 0 })}
 					onMouseEnter={onMouseEnter}
@@ -288,7 +288,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 					beforeChildren={<>
 						{leftPanelShow &&
 						<MapNodeUI_LeftBox {...{ map, path, node, nodeView, ratingsRoot, panelPosition, local_openPanel, backgroundColor }} asHover={hovered}
-							onPanelButtonHover={panel => this.SetState({ hoverPanel: panel })}
+							onPanelButtonHover={(panel) => this.SetState({ hoverPanel: panel })}
 							onPanelButtonClick={(panel) => {
 								if (useLocalPanelState) {
 									this.SetState({ local_openPanel: panel, hoverPanel: null });
@@ -311,7 +311,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 					onTextHolderClick={onTextHolderClick}
 					text={<>
 						<TitlePanel {...{ indexInNodeList, parent: this, map, node, nodeView, path }} {...(dragInfo && dragInfo.provided.dragHandleProps)}
-							ref={c => this.titlePanel = c}
+							ref={(c) => this.titlePanel = c}
 							style={E(GADDemo && { color: HSLA(222, 0.33, 0.25, 1), fontFamily: 'TypoPRO Bebas Neue', fontSize: 15, letterSpacing: 1 })}/>
 						{subPanelShow && <SubPanel node={node}/>}
 						<NodeUI_Menu_Stub {...{ map, node, path }}/>
@@ -324,7 +324,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 					afterChildren={<>
 						{bottomPanelShow
 							&& <NodeUI_BottomPanel {...{ map, node, nodeView, path, parent, width, widthOverride, panelPosition, panelToShow, hovered, backgroundColor }}
-								hoverTermID={hoverTermID} onTermHover={termID => this.SetState({ hoverTermID: termID })}/>}
+								hoverTermID={hoverTermID} onTermHover={(termID) => this.SetState({ hoverTermID: termID })}/>}
 						{reasonScoreValues && showReasonScoreValues
 							&& <ReasonScoreValueMarkers {...{ node, combinedWithParentArgument, reasonScoreValues }}/>}
 					</>}
@@ -412,10 +412,10 @@ class NodeUI_BottomPanel extends BaseComponentPlus(
 					return <RatingsPanel node={node} path={path} ratingType={panelToShow as RatingType} ratings={ratings}/>;
 				})()}
 				{panelToShow == 'definitions' &&
-					<DefinitionsPanel ref={c => this.definitionsPanel = c} {...{ node, path, hoverTermID }}
+					<DefinitionsPanel ref={(c) => this.definitionsPanel = c} {...{ node, path, hoverTermID }}
 						openTermID={nodeView.openTermID}
-						onHoverTerm={termID => onTermHover(termID)}
-						onClickTerm={termID => store.dispatch(new ACTMapNodeTermOpen({ mapID: map._key, path, termID }))}/>}
+						onHoverTerm={(termID) => onTermHover(termID)}
+						onClickTerm={(termID) => store.dispatch(new ACTMapNodeTermOpen({ mapID: map._key, path, termID }))}/>}
 				{panelToShow == 'phrasings' && <PhrasingsPanel node={node} path={path}/>}
 				{panelToShow == 'discussion' && <DiscussionPanel/>}
 				{panelToShow == 'social' && <SocialPanel/>}

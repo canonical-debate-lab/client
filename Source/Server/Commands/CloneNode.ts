@@ -1,8 +1,8 @@
 import { DEL, E, Clone } from 'js-vextensions';
 import { Command, GetAsync_Raw, MergeDBUpdates, RemoveHelpers, SplitStringBySlash_Cached } from 'Utils/FrameworkOverrides';
-import { GetLinkAtPath, GetNodeForm, GetNodeL2 } from '../../Store/firebase/nodes/$node';
-import { ClaimForm, MapNode, Polarity } from '../../Store/firebase/nodes/@MapNode';
-import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
+import { GetLinkAtPath, GetNodeForm, GetNodeL2 } from '../../Store_Old/firebase/nodes/$node';
+import { ClaimForm, MapNode, Polarity } from '../../Store_Old/firebase/nodes/@MapNode';
+import { MapNodeType } from '../../Store_Old/firebase/nodes/@MapNodeType';
 import { AddChildNode } from './AddChildNode';
 import { LinkNode } from './LinkNode';
 
@@ -84,7 +84,7 @@ export class CloneNode extends Command<{mapID: string, baseNodePath: string, new
 		// updates[`nodes/${this.sub_addNode.nodeID}/childrenOrder`] = this.sub_linkChildren.map(a=>a.payload.childID);
 		if (this.sub_addNode.payload.node.type == MapNodeType.Argument) {
 			const childrenOrder = [];
-			childrenOrder.push(...this.sub_linkChildren.map(a => a.payload.childID));
+			childrenOrder.push(...this.sub_linkChildren.map((a) => a.payload.childID));
 			updates[`nodes/${this.sub_addNode.sub_addNode.nodeID}`].childrenOrder = childrenOrder;
 		}
 

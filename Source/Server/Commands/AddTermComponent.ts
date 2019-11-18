@@ -1,9 +1,9 @@
 import { UserEdit } from 'Server/CommandMacros';
-import { AssertValidate } from 'Utils/FrameworkOverrides';
-import {GetDataAsync} from 'Utils/FrameworkOverrides';
-import { TermComponent } from '../../Store/firebase/termComponents/@TermComponent';
-import { Command } from 'Utils/FrameworkOverrides';
-import {GenerateUUID} from 'Utils/General/KeyGenerator';
+import { AssertValidate ,GetDataAsync, Command } from 'Utils/FrameworkOverrides';
+
+import { TermComponent } from '../../Store_Old/firebase/termComponents/@TermComponent';
+
+import { GenerateUUID } from 'Utils/General/KeyGenerator';
 
 @UserEdit
 export class AddTermComponent extends Command<{termID: string, termComponent: TermComponent}, {}> {
@@ -27,7 +27,7 @@ export class AddTermComponent extends Command<{termID: string, termComponent: Te
 	GetDBUpdates() {
 		const { termID, termComponent } = this.payload;
 		const updates = {
-			//'general/data/.lastTermComponentID': this.termComponentID,
+			// 'general/data/.lastTermComponentID': this.termComponentID,
 			[`terms/${termID}/.components/.${this.termComponentID}`]: true,
 			[`termComponents/${this.termComponentID}`]: termComponent,
 		};

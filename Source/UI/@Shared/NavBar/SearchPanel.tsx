@@ -6,14 +6,14 @@ import { Button, Column, Pre, Row, TextInput } from 'react-vcomponents';
 import { BaseComponentWithConnector, FindReact, BaseComponentPlus } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { GetSearchTerms_Advanced } from 'Server/Commands/AddNodeRevision';
-import { GetRootNodeID } from 'Store/firebase/maps';
-import { GetNodeRevision } from 'Store/firebase/nodeRevisions';
-import { AsNodeL3, GetAllNodeRevisionTitles, GetNodeDisplayText, GetNodeL2 } from 'Store/firebase/nodes/$node';
-import { GetNodeColor, MapNodeType_Info } from 'Store/firebase/nodes/@MapNodeType';
-import { GetUser } from 'Store/firebase/users';
-import { GetOpenMapID } from 'Store/main';
-import { ACTMapViewMerge } from 'Store/main/mapViews/$mapView';
-import { MapNodeView, MapView } from 'Store/main/mapViews/@MapViews';
+import { GetRootNodeID } from 'Store_Old/firebase/maps';
+import { GetNodeRevision } from 'Store_Old/firebase/nodeRevisions';
+import { AsNodeL3, GetAllNodeRevisionTitles, GetNodeDisplayText, GetNodeL2 } from 'Store_Old/firebase/nodes/$node';
+import { GetNodeColor, MapNodeType_Info } from 'Store_Old/firebase/nodes/@MapNodeType';
+import { GetUser } from 'Store_Old/firebase/users';
+import { GetOpenMapID } from 'Store_Old/main';
+import { ACTMapViewMerge } from 'Store_Old/main/mapViews/$mapView';
+import { MapNodeView, MapView } from 'Store_Old/main/mapViews/@MapViews';
 import { State, Connect, ACTSet, DBPath, GetAsync, ActionSet, InfoButton, ErrorBoundary, LogWarning, Watch, EB_StoreError, EB_ShowError } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { UUID } from 'Utils/General/KeyGenerator';
@@ -32,8 +32,8 @@ export class SearchPanel extends BaseComponentPlus({} as {}, {}, {} as {queryStr
 
 		// first clear the old results
 		store.dispatch(new ActionSet(
-			new ACTSet(a => a.main.search.searchResults_partialTerms, []),
-			new ACTSet(a => a.main.search.searchResults_nodeIDs, null),
+			new ACTSet((a) => a.main.search.searchResults_partialTerms, []),
+			new ACTSet((a) => a.main.search.searchResults_nodeIDs, null),
 		));
 
 		const searchTerms = GetSearchTerms_Advanced(queryStr);
@@ -45,29 +45,29 @@ export class SearchPanel extends BaseComponentPlus({} as {}, {}, {} as {queryStr
 
 		// perform the actual search and show the results
 		const { docs } = await query.get();
-		const docIDs = docs.map(a => a.id);
+		const docIDs = docs.map((a) => a.id);
 		store.dispatch(new ActionSet(
-			new ACTSet(a => a.main.search.searchResults_partialTerms, searchTerms.partialTerms),
-			new ACTSet(a => a.main.search.searchResults_nodeIDs, docIDs),
+			new ACTSet((a) => a.main.search.searchResults_partialTerms, searchTerms.partialTerms),
+			new ACTSet((a) => a.main.search.searchResults_nodeIDs, docIDs),
 		));
 	}
 
 	render() {
-		const searchResults_partialTerms = State.Watch(a => a.main.search.searchResults_partialTerms);
-		const searchResultIDs = State.Watch(a => a.main.search.searchResults_nodeIDs);
+		const searchResults_partialTerms = State.Watch((a) => a.main.search.searchResults_partialTerms);
+		const searchResultIDs = State.Watch((a) => a.main.search.searchResults_nodeIDs);
 
 		const results_nodeRevisions = Watch(() => {
-			let result = searchResultIDs == null ? null : searchResultIDs.map(revisionID => GetNodeRevision(revisionID));
+			let result = searchResultIDs == null ? null : searchResultIDs.map((revisionID) => GetNodeRevision(revisionID));
 			if (searchResults_partialTerms.length) {
 				for (const term of searchResults_partialTerms) {
-					result = results_nodeRevisions.filter(a => GetAllNodeRevisionTitles(a).find(a => a.toLowerCase().includes(term)));
+					result = results_nodeRevisions.filter((a) => GetAllNodeRevisionTitles(a).find((a) => a.toLowerCase().includes(term)));
 				}
 			}
 			return result;
 		}, [searchResultIDs, searchResults_partialTerms]);
 
-		const results_nodeIDs = results_nodeRevisions == null ? null : results_nodeRevisions.map(a => a && a.node).Distinct();
-		const queryStr = State.Watch(a => a.main.search.queryStr);
+		const results_nodeIDs = results_nodeRevisions == null ? null : results_nodeRevisions.map((a) => a && a.node).Distinct();
+		const queryStr = State.Watch((a) => a.main.search.queryStr);
 
 		this.Stash({ queryStr });
 		return (
@@ -75,7 +75,7 @@ export class SearchPanel extends BaseComponentPlus({} as {}, {}, {} as {queryStr
 				<Row center>
 					<TextInput style={{ flex: 1 }} value={queryStr}
 						onChange={(val) => {
-							store.dispatch(new ACTSet(a => a.main.search.queryStr, val));
+							store.dispatch(new ACTSet((a) => a.main.search.queryStr, val));
 						}}
 						onKeyDown={(e) => {
 							if (e.keyCode == keycode.codes.enter) {
@@ -120,8 +120,8 @@ export class SearchPanel extends BaseComponentPlus({} as {}, {}, {} as {queryStr
 					e.preventDefault();
 				}}>
 					{results_nodeIDs == null && 'Search in progress...'}
-					{results_nodeIDs && results_nodeIDs.filter(a => a).length == 0 && 'No search results.'}
-					{results_nodeIDs && results_nodeIDs.filter(a => a).length > 0 && results_nodeIDs.map((nodeID, index) => {
+					{results_nodeIDs && results_nodeIDs.filter((a) => a).length == 0 && 'No search results.'}
+					{results_nodeIDs && results_nodeIDs.filter((a) => a).length > 0 && results_nodeIDs.map((nodeID, index) => {
 						return (
 							// <ErrorBoundary key={nodeID}>
 							<SearchResultRow key={nodeID} nodeID={nodeID} index={index}/>
@@ -158,7 +158,7 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 					continue;
 				}
 
-				for (const parentID of (node.parents || {}).Pairs(true).map(a => a.key)) {
+				for (const parentID of (node.parents || {}).Pairs(true).map((a) => a.key)) {
 					const newUpPath = `${upPath}/${parentID}`;
 					if (parentID === rootNodeX) {
 						upPathCompletions.push(newUpPath.split('/').Reversed().join('/'));
@@ -171,21 +171,21 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 
 			// if (depth === 0 || upPathCompletions.length !== State(a => a.main.search.findNode_resultPaths).length) {
 			store.dispatch(new ActionSet(
-				new ACTSet(a => a.main.search.findNode_resultPaths, upPathCompletions.slice()),
-				new ACTSet(a => a.main.search.findNode_currentSearchDepth, depth + 1),
+				new ACTSet((a) => a.main.search.findNode_resultPaths, upPathCompletions.slice()),
+				new ACTSet((a) => a.main.search.findNode_currentSearchDepth, depth + 1),
 			));
 
 			await SleepAsync(100);
 			// if we have no more up-path-attempts to follow, or comp gets unmounted, start stopping search
 			if (upPathAttempts.length == 0 || this.mounted === false) this.StopSearch();
 			// if search is marked as "starting to stop", actually stop search here by breaking the loop
-			if (State(a => a.main.search.findNode_state) === 'inactive') break;
+			if (State((a) => a.main.search.findNode_state) === 'inactive') break;
 		}
 
 		this.StopSearch();
 	}
 	StopSearch() {
-		store.dispatch(new ACTSet(a => a.main.search.findNode_state, 'inactive'));
+		store.dispatch(new ACTSet((a) => a.main.search.findNode_state, 'inactive'));
 	}
 
 	componentDidCatch(message, info) { EB_StoreError(this, message, info); }
@@ -198,14 +198,14 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 		const mapID = GetOpenMapID.Watch();
 		const rootNodeID = GetRootNodeID.Watch(GetOpenMapID());
 
-		const findNode_state = State.Watch(a => a.main.search.findNode_state);
+		const findNode_state = State.Watch((a) => a.main.search.findNode_state);
 		if (findNode_state === 'activating') {
-			store.dispatch(new ACTSet(a => a.main.search.findNode_state, 'active'));
+			store.dispatch(new ACTSet((a) => a.main.search.findNode_state, 'active'));
 			this.StartFindingPathsFromXToY(rootNodeID, nodeID);
 		}
-		const findNode_node = State.Watch(a => a.main.search.findNode_node);
-		const findNode_resultPaths = State.Watch(a => a.main.search.findNode_resultPaths);
-		const findNode_currentSearchDepth = State.Watch(a => a.main.search.findNode_currentSearchDepth);
+		const findNode_node = State.Watch((a) => a.main.search.findNode_node);
+		const findNode_resultPaths = State.Watch((a) => a.main.search.findNode_resultPaths);
+		const findNode_currentSearchDepth = State.Watch((a) => a.main.search.findNode_currentSearchDepth);
 
 		// if (node == null) return <Row>Loading... (#{nodeID})</Row>;
 		if (node == null) return <Row></Row>;
@@ -240,10 +240,10 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 						<Button ml={5} text="Stop" enabled={findNode_state === 'active'} onClick={() => this.StopSearch()}/>
 						<Button ml={5} text="Close" onClick={() => {
 							store.dispatch(new ActionSet(
-								new ACTSet(a => a.main.search.findNode_state, 'inactive'),
-								new ACTSet(a => a.main.search.findNode_node, null),
-								new ACTSet(a => a.main.search.findNode_resultPaths, []),
-								new ACTSet(a => a.main.search.findNode_currentSearchDepth, 0),
+								new ACTSet((a) => a.main.search.findNode_state, 'inactive'),
+								new ACTSet((a) => a.main.search.findNode_node, null),
+								new ACTSet((a) => a.main.search.findNode_resultPaths, []),
+								new ACTSet((a) => a.main.search.findNode_currentSearchDepth, 0),
 							));
 						}}/>
 					</Row>}

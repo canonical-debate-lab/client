@@ -2,19 +2,19 @@ import { Assert, E, GetEntries, GetErrorMessagesUnderElement } from 'js-vextensi
 import { Column, Pre, Row, Select, TextArea } from 'react-vcomponents';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { AddArgumentAndClaim } from 'Server/Commands/AddArgumentAndClaim';
-import { GetNode } from 'Store/firebase/nodes';
-import { HasModPermissions } from 'Store/firebase/userExtras';
+import { GetNode } from 'Store_Old/firebase/nodes';
+import { HasModPermissions } from 'Store_Old/firebase/userExtras';
 import { ACTSet, Link } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { AddChildNode } from '../../../../../Server/Commands/AddChildNode';
-import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
-import { AsNodeL2, AsNodeL3, GetClaimType, GetNodeForm, GetNodeL3 } from '../../../../../Store/firebase/nodes/$node';
-import { Equation } from '../../../../../Store/firebase/nodes/@Equation';
-import { ChildEntry, ClaimForm, ClaimType, ImageAttachment, MapNode, Polarity } from '../../../../../Store/firebase/nodes/@MapNode';
-import { ArgumentType, MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../../Store/firebase/nodes/@MapNodeRevision';
-import { GetMapNodeTypeDisplayName, MapNodeType } from '../../../../../Store/firebase/nodes/@MapNodeType';
-import { ACTSetLastAcknowledgementTime } from '../../../../../Store/main';
-import { ACTMapNodeExpandedSet } from '../../../../../Store/main/mapViews/$mapView/rootNodeViews';
+import { ContentNode } from '../../../../../Store_Old/firebase/contentNodes/@ContentNode';
+import { AsNodeL2, AsNodeL3, GetClaimType, GetNodeForm, GetNodeL3 } from '../../../../../Store_Old/firebase/nodes/$node';
+import { Equation } from '../../../../../Store_Old/firebase/nodes/@Equation';
+import { ChildEntry, ClaimForm, ClaimType, ImageAttachment, MapNode, Polarity } from '../../../../../Store_Old/firebase/nodes/@MapNode';
+import { ArgumentType, MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../../Store_Old/firebase/nodes/@MapNodeRevision';
+import { GetMapNodeTypeDisplayName, MapNodeType } from '../../../../../Store_Old/firebase/nodes/@MapNodeType';
+import { ACTSetLastAcknowledgementTime } from '../../../../../Store_Old/main';
+import { ACTMapNodeExpandedSet } from '../../../../../Store_Old/main/mapViews/$mapView/rootNodeViews';
 import { NodeDetailsUI } from '../NodeDetailsUI';
 
 export class AddChildHelper {
@@ -42,7 +42,7 @@ export class AddChildHelper {
 		} else {
 			let usedTitleKey = 'base';
 			if (childType == MapNodeType.Claim) {
-				usedTitleKey = ClaimForm[this.node_link.form].replace(/^./, ch => ch.toLowerCase());
+				usedTitleKey = ClaimForm[this.node_link.form].replace(/^./, (ch) => ch.toLowerCase());
 			}
 			this.node_revision.titles[usedTitleKey] = title;
 		}
@@ -62,7 +62,7 @@ export class AddChildHelper {
 		/* if (validationError) {
 			return void setTimeout(()=>ShowMessageBox({title: `Validation error`, message: `Validation error: ${validationError}`}));
 		} */
-		store.dispatch(new ACTSet(a => a.main.currentNodeBeingAdded_path, `${this.node_parentPath}/?`));
+		store.dispatch(new ACTSet((a) => a.main.currentNodeBeingAdded_path, `${this.node_parentPath}/?`));
 
 		let info;
 		if (this.node.type == MapNodeType.Argument) {
@@ -91,7 +91,7 @@ export class AddChildHelper {
 			}
 		}
 
-		store.dispatch(new ACTSet(a => a.main.currentNodeBeingAdded_path, null));
+		store.dispatch(new ACTSet((a) => a.main.currentNodeBeingAdded_path, null));
 
 		return info;
 	}
@@ -116,12 +116,12 @@ export function ShowAddChildDialog(parentPath: string, childType: MapNodeType, c
 
 			const claimTypes = GetEntries(ClaimType);
 			if (!HasModPermissions(userID)) {
-				claimTypes.Remove(claimTypes.find(a => a.value == ClaimType.Image));
+				claimTypes.Remove(claimTypes.find((a) => a.value == ClaimType.Image));
 			}
 
 			const newNodeAsL2 = AsNodeL2(helper.node, helper.node_revision);
 			return (
-				<Column ref={c => root = c} style={{ width: 600 }}>
+				<Column ref={(c) => root = c} style={{ width: 600 }}>
 					{childType == MapNodeType.Claim &&
 						<Row>
 							<Pre>Type: </Pre>
@@ -149,7 +149,7 @@ export function ShowAddChildDialog(parentPath: string, childType: MapNodeType, c
 								}}/>
 						</Row>}
 					{childType != MapNodeType.Argument &&
-						<NodeDetailsUI ref={c => nodeEditorUI = c} style={{ padding: childType == MapNodeType.Claim ? '5px 0 0 0' : 0 }}
+						<NodeDetailsUI ref={(c) => nodeEditorUI = c} style={{ padding: childType == MapNodeType.Claim ? '5px 0 0 0' : 0 }}
 							baseData={AsNodeL3(newNodeAsL2, Polarity.Supporting, null)}
 							baseRevisionData={helper.node_revision}
 							baseLinkData={helper.node_link} forNew={true}
@@ -194,7 +194,7 @@ The details of the argument should be described within the argument's premises. 
 								<TextArea required={true} pattern={MapNodeRevision_titlePattern}
 									allowLineBreaks={false} autoSize={true} style={ES({ flex: 1 })}
 									value={helper.subNode_revision.titles['base']}
-									onChange={val => Change(helper.subNode_revision.titles['base'] = val, validationError = GetErrorMessagesUnderElement(root.DOM)[0])}/>
+									onChange={(val) => Change(helper.subNode_revision.titles['base'] = val, validationError = GetErrorMessagesUnderElement(root.DOM)[0])}/>
 							</Row>
 							<Row mt={5} style={{ fontSize: 12 }}>To add a second premise later, right click on your new argument and press "Convert to multi-premise".</Row>
 						</Column>}

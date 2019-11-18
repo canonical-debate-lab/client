@@ -1,10 +1,10 @@
 import { UserEdit } from '../../Server/CommandMacros';
 import { GenerateUUID, UUID } from '../../Utils/General/KeyGenerator';
 import { AssertValidate, Command, MergeDBUpdates } from '../../Utils/FrameworkOverrides';
-import { Map } from '../../Store/firebase/maps/@Map';
-import { MapNode } from '../../Store/firebase/nodes/@MapNode';
-import { MapNodeRevision } from '../../Store/firebase/nodes/@MapNodeRevision';
-import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
+import { Map } from '../../Store_Old/firebase/maps/@Map';
+import { MapNode } from '../../Store_Old/firebase/nodes/@MapNode';
+import { MapNodeRevision } from '../../Store_Old/firebase/nodes/@MapNodeRevision';
+import { MapNodeType } from '../../Store_Old/firebase/nodes/@MapNodeType';
 import { AddChildNode } from './AddChildNode';
 
 @UserEdit

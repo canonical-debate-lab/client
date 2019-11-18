@@ -1,7 +1,7 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { AssertValidate, Command, GetDataAsync } from 'Utils/FrameworkOverrides';
-import { Term } from '../../Store/firebase/terms/@Term';
 import {GenerateUUID} from 'Utils/General/KeyGenerator';
+import { Term } from '../../Store_Old/firebase/terms/@Term';
 
 @UserEdit
 export class AddTerm extends Command<{term: Term}, {}> {

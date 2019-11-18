@@ -3,7 +3,7 @@ import { BaseComponentWithConnector } from 'react-vextensions';
 import { Row } from 'react-vcomponents';
 import { colors } from 'Utils/UI/GlobalStyles';
 import { LayoutDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Right/LayoutDropDown';
-import { Map } from 'Store/firebase/maps/@Map';
+import { Map } from 'Store_Old/firebase/maps/@Map';
 
 const connector = (state, { map }: {map: Map, subNavBarWidth: number}) => ({
 });

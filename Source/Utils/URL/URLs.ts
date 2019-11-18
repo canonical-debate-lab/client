@@ -1,20 +1,20 @@
 import { ToInt, Vector2i, VURL, Assert, IsNumber } from 'js-vextensions';
-import { GetNodeL2 } from 'Store/firebase/nodes/$node';
-import { ACTMap_PlayingTimelineSet, ACTMap_PlayingTimelineStepSet } from 'Store/main/maps/$map';
+import { GetNodeL2 } from 'Store_Old/firebase/nodes/$node';
+import { ACTMap_PlayingTimelineSet, ACTMap_PlayingTimelineStepSet } from 'Store_Old/main/maps/$map';
 import { ACTSet, State, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { ACTProposalSelect, GetSelectedProposalID } from 'firebase-feedback';
-import { RootState } from 'StoreM/StoreM';
-import { GetMap } from '../../Store/firebase/maps';
-import { GetNodeDisplayText } from '../../Store/firebase/nodes/$node';
-import { globalMapID, MapNodeL2 } from '../../Store/firebase/nodes/@MapNode';
-import { ACTSetSubpage, GetOpenMapID, GetPage, GetSubpage } from '../../Store/main';
-import { ACTImageSelect, ACTTermSelect, ACTUserSelect, GetSelectedImageID, GetSelectedTermID, GetSelectedUserID } from '../../Store/main/database';
-import { ACTDebateMapSelect } from '../../Store/main/debates';
-import { ACTMap_PlayingTimelineAppliedStepSet } from '../../Store/main/maps/$map';
-import { GetFocusedNodeID, GetNodeView } from '../../Store/main/mapViews';
-import { ACTMapViewMerge } from '../../Store/main/mapViews/$mapView';
-import { MapNodeView, MapView } from '../../Store/main/mapViews/@MapViews';
-import { ACTPersonalMapSelect } from '../../Store/main/personal';
+import { RootState } from 'Store';
+import { GetMap } from '../../Store_Old/firebase/maps';
+import { GetNodeDisplayText } from '../../Store_Old/firebase/nodes/$node';
+import { globalMapID, MapNodeL2 } from '../../Store_Old/firebase/nodes/@MapNode';
+import { ACTSetSubpage, GetOpenMapID, GetPage, GetSubpage } from '../../Store_Old/main';
+import { ACTImageSelect, ACTTermSelect, ACTUserSelect, GetSelectedImageID, GetSelectedTermID, GetSelectedUserID } from '../../Store_Old/main/database';
+import { ACTDebateMapSelect } from '../../Store_Old/main/debates';
+import { ACTMap_PlayingTimelineAppliedStepSet } from '../../Store_Old/main/maps/$map';
+import { GetFocusedNodeID, GetNodeView } from '../../Store_Old/main/mapViews';
+import { ACTMapViewMerge } from '../../Store_Old/main/mapViews/$mapView';
+import { MapNodeView, MapView } from '../../Store_Old/main/mapViews/@MapViews';
+import { ACTPersonalMapSelect } from '../../Store_Old/main/personal';
 
 export const rootPages = [
 	'stream', 'chat', 'reputation',

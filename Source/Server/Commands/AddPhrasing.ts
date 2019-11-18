@@ -1,8 +1,8 @@
 import { UserEdit } from 'Server/CommandMacros';
-import { MapNodePhrasing } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
+import { MapNodePhrasing } from 'Store_Old/firebase/nodePhrasings/@MapNodePhrasing';
 import { AddSchema, AssertValidate, Command, GetAsync } from 'Utils/FrameworkOverrides';
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
-import { GetNode } from 'Store/firebase/nodes';
+import { GetNode } from 'Store_Old/firebase/nodes';
 import { Assert } from 'js-vextensions';
 
 /* AddSchema({

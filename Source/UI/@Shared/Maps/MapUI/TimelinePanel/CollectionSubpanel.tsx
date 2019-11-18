@@ -2,13 +2,13 @@ import { Button, Column, DropDown, DropDownContent, DropDownTrigger, Pre, Row } 
 import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { DeleteTimeline } from 'Server/Commands/DeleteTimeline';
-import { ACTMap_SelectedTimelineSet, GetSelectedTimeline, GetTimelineOpenSubpanel } from 'Store/main/maps/$map';
+import { ACTMap_SelectedTimelineSet, GetSelectedTimeline, GetTimelineOpenSubpanel } from 'Store_Old/main/maps/$map';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { ShowAddTimelineDialog } from 'UI/@Shared/Timelines/AddTimelineDialog';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { Map } from 'Store/firebase/maps/@Map';
-import { GetMapTimelines, GetTimelineSteps } from 'Store/firebase/timelines';
-import { MeID } from 'Store/firebase/users';
+import { Map } from 'Store_Old/firebase/maps/@Map';
+import { GetMapTimelines, GetTimelineSteps } from 'Store_Old/firebase/timelines';
+import { MeID } from 'Store_Old/firebase/users';
 
 export class CollectionSubpanel extends BaseComponentPlus({} as {map: Map}, {}) {
 	timelineSelect: DropDown;
@@ -19,7 +19,7 @@ export class CollectionSubpanel extends BaseComponentPlus({} as {map: Map}, {}) 
 
 		return (
 			<Row style={{ height: 40, padding: 10 }}>
-				<DropDown ref={c => this.timelineSelect = c}>
+				<DropDown ref={(c) => this.timelineSelect = c}>
 					<DropDownTrigger><Button text={timeline ? timeline.name : '[none]'} /></DropDownTrigger>
 					<DropDownContent style={{ left: 0, padding: null, background: null, borderRadius: null, zIndex: 1 }}>
 						<Row style={{ alignItems: 'flex-start' }}>

@@ -2,7 +2,7 @@ import { Switch } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { Connect, State } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { ACTUserSelect, ACTTermSelect, ACTImageSelect } from 'Store/main/database';
+import { ACTUserSelect, ACTTermSelect, ACTImageSelect } from 'Store_Old/main/database';
 import { SubNavBar, SubNavBarButton } from './@Shared/SubNavBar';
 import { ImagesUI } from './Database/ImagesUI';
 import { TermsUI } from './Database/TermsUI';
@@ -10,7 +10,7 @@ import { UsersUI } from './Database/Users';
 
 export class DatabaseUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
-		const currentSubpage = State.Watch(a => a.main.database.subpage);
+		const currentSubpage = State.Watch((a) => a.main.database.subpage);
 		const page = 'database';
 		return (
 			<>

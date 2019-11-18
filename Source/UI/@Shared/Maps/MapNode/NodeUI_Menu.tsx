@@ -1,27 +1,27 @@
 import { E } from 'js-vextensions';
 import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
-import { VMenuStub } from 'react-vmenu';
-import { VMenuItem } from 'react-vmenu/dist/VMenu';
+import { VMenuStub , VMenuItem } from 'react-vmenu';
+
 import { ShowMessageBox } from 'react-vmessagebox';
 import { LinkNode_HighLevel, LinkNode_HighLevel_GetCommandError } from 'Server/Commands/LinkNode_HighLevel';
 import { SetNodeIsMultiPremiseArgument } from 'Server/Commands/SetNodeIsMultiPremiseArgument';
 import { UnlinkNode } from 'Server/Commands/UnlinkNode';
-import { GetParentNodeID, HolderType } from 'Store/firebase/nodes';
-import { ACTSetLastAcknowledgementTime, GetCopiedNodePath, GetOpenMapID } from 'Store/main';
-import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
+import { GetParentNodeID, HolderType } from 'Store_Old/firebase/nodes';
+import { ACTSetLastAcknowledgementTime, GetCopiedNodePath, GetOpenMapID } from 'Store_Old/main';
+import { GetTimeFromWhichToShowChangedNodes } from 'Store_Old/main/maps/$map';
 import { State, Connect, ActionSet, ACTSet, SlicePath, ExpensiveComponent, Watch } from 'Utils/FrameworkOverrides';
 import { styles } from '../../../../Utils/UI/GlobalStyles';
 import { DeleteNode } from '../../../../Server/Commands/DeleteNode';
-import { RootState } from '../../../../Store';
-import { Map } from '../../../../Store/firebase/maps/@Map';
-import { GetPathsToNodesChangedSinceX } from '../../../../Store/firebase/mapNodeEditTimes';
-import { ForCopy_GetError, ForCut_GetError, ForDelete_GetError, ForUnlink_GetError, GetNodeChildrenL3, GetNodeID, GetParentNodeL3, IsNodeSubnode } from '../../../../Store/firebase/nodes';
-import { GetNodeDisplayText, GetNodeL3, GetValidNewChildTypes, IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
-import { ClaimForm, MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
-import { GetMapNodeTypeDisplayName, MapNodeType, MapNodeType_Info } from '../../../../Store/firebase/nodes/@MapNodeType';
-import { CanGetBasicPermissions, IsUserCreatorOrMod } from '../../../../Store/firebase/userExtras';
-import { MeID, GetUserPermissionGroups } from '../../../../Store/firebase/users';
-import { ACTNodeCopy, GetCopiedNode } from '../../../../Store/main';
+import { RootState } from '../../../../Store_Old';
+import { Map } from '../../../../Store_Old/firebase/maps/@Map';
+import { GetPathsToNodesChangedSinceX } from '../../../../Store_Old/firebase/mapNodeEditTimes';
+import { ForCopy_GetError, ForCut_GetError, ForDelete_GetError, ForUnlink_GetError, GetNodeChildrenL3, GetNodeID, GetParentNodeL3, IsNodeSubnode } from '../../../../Store_Old/firebase/nodes';
+import { GetNodeDisplayText, GetNodeL3, GetValidNewChildTypes, IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument } from '../../../../Store_Old/firebase/nodes/$node';
+import { ClaimForm, MapNodeL3, Polarity } from '../../../../Store_Old/firebase/nodes/@MapNode';
+import { GetMapNodeTypeDisplayName, MapNodeType, MapNodeType_Info } from '../../../../Store_Old/firebase/nodes/@MapNodeType';
+import { CanGetBasicPermissions, IsUserCreatorOrMod } from '../../../../Store_Old/firebase/userExtras';
+import { MeID, GetUserPermissionGroups } from '../../../../Store_Old/firebase/users';
+import { ACTNodeCopy, GetCopiedNode } from '../../../../Store_Old/main';
 import { ShowSignInPopup } from '../../NavBar/UserPanel';
 import { ShowAddChildDialog } from './NodeUI_Menu/AddChildDialog';
 
@@ -29,7 +29,7 @@ export class NodeUI_Menu_Stub extends BaseComponent<Props, {}> {
 	render() {
 		const { ...rest } = this.props;
 		return (
-			<VMenuStub preOpen={e => e.passThrough != true}>
+			<VMenuStub preOpen={(e) => e.passThrough != true}>
 				<NodeUI_Menu {...rest}/>
 			</VMenuStub>
 		);
@@ -49,7 +49,7 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 
 			const sinceTime = GetTimeFromWhichToShowChangedNodes(map._key);
 			const pathsToChangedNodes = GetPathsToNodesChangedSinceX(map._key, sinceTime);
-			return pathsToChangedNodes.filter(a => a == path || a.startsWith(`${path}/`)); // also include self, for this
+			return pathsToChangedNodes.filter((a) => a == path || a.startsWith(`${path}/`)); // also include self, for this
 		}, [map, path]);
 		const parent = GetParentNodeL3.Watch(path);
 
@@ -62,7 +62,7 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 		// nodeChildren: GetNodeChildrenL3(node, path),
 		const nodeChildren = GetNodeChildrenL3.Watch(node, path);
 		const combinedWithParentArg = IsPremiseOfSinglePremiseArgument.Watch(node, parent);
-		const copiedNode_asCut = State.Watch(a => a.main.copiedNodePath_asCut);
+		const copiedNode_asCut = State.Watch((a) => a.main.copiedNodePath_asCut);
 
 		const mapID = map ? map._key : null;
 		// let validChildTypes = MapNodeType_Info.for[node.type].childTypes;
@@ -131,7 +131,7 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 							await new SetNodeIsMultiPremiseArgument({ nodeID: parent._key, multiPremiseArgument: true }).Run();
 						}}/>}
 				{IsUserCreatorOrMod(userID, node) && IsMultiPremiseArgument(node)
-					&& nodeChildren.every(a => a != null) && nodeChildren.filter(a => a.type == MapNodeType.Claim).length == 1 && !componentBox &&
+					&& nodeChildren.every((a) => a != null) && nodeChildren.filter((a) => a.type == MapNodeType.Claim).length == 1 && !componentBox &&
 					<VMenuItem text="Convert to single-premise" style={styles.vMenuItem}
 						onClick={async (e) => {
 							if (e.button !== 0) return;
@@ -150,9 +150,9 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 					<VMenuItem text="Find in map" style={styles.vMenuItem}
 						onClick={(e) => {
 							store.dispatch(new ActionSet(
-								new ACTSet(a => a.main.search.findNode_state, 'activating'),
-								new ACTSet(a => a.main.search.findNode_node, node._key),
-								new ACTSet(a => a.main.search.findNode_resultPaths, []),
+								new ACTSet((a) => a.main.search.findNode_state, 'activating'),
+								new ACTSet((a) => a.main.search.findNode_node, node._key),
+								new ACTSet((a) => a.main.search.findNode_resultPaths, []),
 							));
 						}}/>}
 				{!inList && !componentBox &&

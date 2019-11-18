@@ -56,8 +56,7 @@ if (DEV) {
 	// This middleware doesn't need to be enabled outside of development since this directory will be copied into ~/Dist when the application is compiled.
 	// app.use(express.static(paths.source("Resources")));
 	app.use(express.static(paths.base('Resources')));
-	app.use(express.static(paths.base('Scripts/Config/dll'))); // enable static-loading of dll.vendor.js
-	app.use(express.static(paths.dist())); // enable static loading of files in Dist, for dll.vendor.js
+	// app.use(express.static(paths.dist())); // enable static loading of files in Dist, for dll.vendor.js
 } else {
 	debug(
 		'Server is being run outside of live development mode, meaning it will '

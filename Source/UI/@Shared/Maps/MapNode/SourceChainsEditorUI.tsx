@@ -1,15 +1,15 @@
-import { SourceType, SourceChain, Source, Source_linkURLPattern } from 'Store/firebase/contentNodes/@SourceChain';
+import { SourceType, SourceChain, Source, Source_linkURLPattern } from 'Store_Old/firebase/contentNodes/@SourceChain';
 import { BaseComponent, GetDOM, BaseComponentPlus } from 'react-vextensions';
-import { Button } from 'react-vcomponents';
-import { Column } from 'react-vcomponents';
-import { Row } from 'react-vcomponents';
-import { TextInput } from 'react-vcomponents';
-import { Select } from 'react-vcomponents';
+import { Button , Column , Row , TextInput , Select } from 'react-vcomponents';
+
+
+
+
 import { GetErrorMessagesUnderElement, GetEntries, Clone } from 'js-vextensions';
 import { Validate } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { Image_urlPattern } from 'Store/firebase/images/@Image';
-import { GetSourceNamePlaceholderText, GetSourceAuthorPlaceholderText } from '../../../../Store/firebase/contentNodes/$contentNode';
+import { Image_urlPattern } from 'Store_Old/firebase/images/@Image';
+import { GetSourceNamePlaceholderText, GetSourceAuthorPlaceholderText } from '../../../../Store_Old/firebase/contentNodes/$contentNode';
 
 export class SourceChainsEditorUI extends BaseComponentPlus(
 	{ enabled: true } as {baseData: SourceChain[], enabled?: boolean, style?, onChange?: (newData: SourceChain[])=>void},
@@ -43,18 +43,18 @@ export class SourceChainsEditorUI extends BaseComponentPlus(
 								return (
 									<Row key={sourceIndex}>
 										<Select enabled={enabled} options={GetEntries(SourceType)}
-											value={source.type} onChange={val => Change(source.type = val)}/>
+											value={source.type} onChange={(val) => Change(source.type = val)}/>
 										{source.type != SourceType.Webpage &&
 											<TextInput enabled={enabled} style={{ width: '90%' }} placeholder={GetSourceNamePlaceholderText(source.type)}
-												value={source.name} onChange={val => Change(val ? source.name = val : delete source.name)}/>}
+												value={source.name} onChange={(val) => Change(val ? source.name = val : delete source.name)}/>}
 										{source.type != SourceType.Webpage &&
 											<TextInput enabled={enabled} style={{ width: '90%' }} placeholder={GetSourceAuthorPlaceholderText(source.type)}
-												value={source.author} onChange={val => Change(val ? source.author = val : delete source.author)}/>}
+												value={source.author} onChange={(val) => Change(val ? source.author = val : delete source.author)}/>}
 										{source.type == SourceType.Webpage &&
 											<TextInput ref={`url_${chainIndex}_${sourceIndex}`} enabled={enabled} type="url"
 												// pattern="^(https?|ftp)://[^\\s/$.?#]+\\.[^\\s]+$" required style={ES({flex: 1})}
 												pattern={Source_linkURLPattern} required style={ES({ flex: 1 })}
-												value={source.link} onChange={val => Change((() => {
+												value={source.link} onChange={(val) => Change((() => {
 													if (!val) delete source.link;
 													if (val.endsWith('@bible')) {
 														var reference = val.replace('@bible', '').replace(/:/g, '.').replace(/ /g, '%20');

@@ -1,14 +1,14 @@
 import { MapEdit } from 'Server/CommandMacros';
 import { Assert, GetValues_ForSchema } from 'js-vextensions';
-import { AssertValidate, AddSchema } from 'Utils/FrameworkOverrides';
-import { GetAsync_Raw, GetDataAsync } from 'Utils/FrameworkOverrides';
-import { Command } from 'Utils/FrameworkOverrides';
-import { GetClaimType, GetNodeL2 } from './../../Store/firebase/nodes/$node';
-import { Equation } from './../../Store/firebase/nodes/@Equation';
-import { ClaimType, MapNodeL2 } from './../../Store/firebase/nodes/@MapNode';
-import { MapNodeRevision } from './../../Store/firebase/nodes/@MapNodeRevision';
-import { UserEdit } from './../CommandMacros';
+import { AssertValidate, AddSchema , GetAsync_Raw, GetDataAsync , Command } from 'Utils/FrameworkOverrides';
+
+
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
+import { GetClaimType, GetNodeL2 } from '../../Store_Old/firebase/nodes/$node';
+import { Equation } from '../../Store_Old/firebase/nodes/@Equation';
+import { ClaimType, MapNodeL2 } from '../../Store_Old/firebase/nodes/@MapNode';
+import { MapNodeRevision } from '../../Store_Old/firebase/nodes/@MapNodeRevision';
+import { UserEdit } from './../CommandMacros';
 
 export const conversionTypes = [
 	// from normal to...

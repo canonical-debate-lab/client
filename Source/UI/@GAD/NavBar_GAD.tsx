@@ -2,20 +2,20 @@ import { DeepGet, E } from 'js-vextensions';
 import { Button, Div, Row } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector, UseMemo, BaseComponentPlus } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
-import { ACTDebateMapSelect } from 'Store/main/debates';
+import { ACTDebateMapSelect } from 'Store_Old/main/debates';
 import { ResetCurrentDBRoot } from 'UI/More/Admin/ResetCurrentDBRoot';
 import { dbVersion } from 'Main';
 import { Connect, State, Action, Link, GetData, HSL, Watch, Observer } from 'Utils/FrameworkOverrides';
-import { ACTUserSelect } from 'Store/main/database';
+import { ACTUserSelect } from 'Store_Old/main/database';
 import { ACTProposalSelect } from 'firebase-feedback';
 import { NotificationsUI } from 'UI/@Shared/NavBar/NotificationsUI';
 import { SearchPanel } from 'UI/@Shared/NavBar/SearchPanel';
 import { UserPanel } from 'UI/@Shared/NavBar/UserPanel';
 import { useMemo } from 'react';
-import { rootState, RootState } from 'StoreM/StoreM';
+import { store, RootState } from 'Store';
 import { runInAction } from 'mobx';
 import { colors } from '../../Utils/UI/GlobalStyles';
-import { ACTPersonalMapSelect } from '../../Store/main/personal';
+import { ACTPersonalMapSelect } from '../../Store_Old/main/personal';
 
 // main
 // ==========
@@ -23,7 +23,7 @@ import { ACTPersonalMapSelect } from '../../Store/main/personal';
 @Observer
 export class NavBar_GAD extends BaseComponentPlus({}, {}) {
 	render() {
-		const { topRightOpenPanel } = rootState.main;
+		const { topRightOpenPanel } = store.main;
 		const auth = State.Watch((a) => a.firebase.auth);
 		const dbNeedsInit = Watch(() => GetData({ collection: true, useUndefinedForInProgress: true }, 'maps') === null, []); // use maps because it won't cause too much data to be downloaded-and-watched; improve this later
 		return (
@@ -164,7 +164,7 @@ class NavBarPageButton extends BaseComponent
 class NavBarPanelButton extends BaseComponentPlus({} as {text: string, panel: string, corner: 'top-left' | 'top-right'}, {}, { active: false }) {
 	render() {
 		const { text, panel, corner } = this.props;
-		const { topLeftOpenPanel, topRightOpenPanel } = rootState.main;
+		const { topLeftOpenPanel, topRightOpenPanel } = store.main;
 		const active = (corner == 'top-left' ? topLeftOpenPanel : topRightOpenPanel) == panel;
 		/* return (
 			<NavBarPageButton page={panel} text={text} panel={true} active={active} onClick={useCallback((e) => {
@@ -185,10 +185,10 @@ class NavBarPanelButton extends BaseComponentPlus({} as {text: string, panel: st
 		runInAction('NavBarPanelButton_OnClick', () => {
 			if (corner == 'top-left') {
 				// store.dispatch(new ACTTopLeftOpenPanelSet(active ? null : panel));
-				rootState.main.topLeftOpenPanel = active ? null : panel;
+				store.main.topLeftOpenPanel = active ? null : panel;
 			} else {
 				// store.dispatch(new ACTTopRightOpenPanelSet(active ? null : panel));
-				rootState.main.topRightOpenPanel = active ? null : panel;
+				store.main.topRightOpenPanel = active ? null : panel;
 			}
 		});
 	};

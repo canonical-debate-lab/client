@@ -3,9 +3,9 @@ import { VURL, WaitXThenRun, CopyText } from 'js-vextensions';
 import { Button, Column, DropDown, DropDownContent, DropDownTrigger, Pre, Row, RowLR, Select, TextInput } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { Connect, GetCurrentURL } from 'Utils/FrameworkOverrides';
-import { Map } from '../../../../../Store/firebase/maps/@Map';
-import { GetMapTimelines } from '../../../../../Store/firebase/timelines';
-import { Timeline } from '../../../../../Store/firebase/timelines/@Timeline';
+import { Map } from '../../../../../Store_Old/firebase/maps/@Map';
+import { GetMapTimelines } from '../../../../../Store_Old/firebase/timelines';
+import { Timeline } from '../../../../../Store_Old/firebase/timelines/@Timeline';
 
 export class ShareDropDown extends BaseComponentPlus({} as {map: Map}, { timeline: null as Timeline, justCopied: false }) {
 	render() {
@@ -39,7 +39,7 @@ export class ShareDropDown extends BaseComponentPlus({} as {map: Map}, { timelin
 						</RowLR>
 						<RowLR mt={5} splitAt={splitAt}>
 							<Pre>Show timeline: </Pre>
-							<Select options={[{ name: 'None', value: null } as any].concat(timelines)} value={timeline} onChange={val => this.SetState({ timeline: val })}/>
+							<Select options={[{ name: 'None', value: null } as any].concat(timelines)} value={timeline} onChange={(val) => this.SetState({ timeline: val })}/>
 						</RowLR>
 					</Column>
 				</DropDownContent>

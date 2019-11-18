@@ -1,10 +1,10 @@
 import { UserEdit } from 'Server/CommandMacros';
-import { Layer } from 'Store/firebase/layers/@Layer';
-import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
-import { GetAsync_Raw } from 'Utils/FrameworkOverrides';
-import { Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
-import { GetLayer } from '../../Store/firebase/layers';
-import { MapNode } from '../../Store/firebase/nodes/@MapNode';
+import { Layer } from 'Store_Old/firebase/layers/@Layer';
+import { MapNodeRevision } from 'Store_Old/firebase/nodes/@MapNodeRevision';
+import { GetAsync_Raw , Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
+
+import { GetLayer } from '../../Store_Old/firebase/layers';
+import { MapNode } from '../../Store_Old/firebase/nodes/@MapNode';
 import { AddNode } from './AddNode';
 
 @UserEdit

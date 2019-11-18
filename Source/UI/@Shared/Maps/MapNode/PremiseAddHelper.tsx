@@ -1,13 +1,13 @@
 import keycode from 'keycode';
 import { Button, Row, TextArea } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
-import { ACTSetLastAcknowledgementTime } from 'Store/main';
+import { ACTSetLastAcknowledgementTime } from 'Store_Old/main';
 import { WaitTillPathDataIsReceived } from 'Utils/FrameworkOverrides';
 import { AddChildNode } from '../../../../Server/Commands/AddChildNode';
-import { ChildEntry, ClaimForm, MapNode, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
-import { MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../Store/firebase/nodes/@MapNodeRevision';
-import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
-import { ACTMapNodeExpandedSet } from '../../../../Store/main/mapViews/$mapView/rootNodeViews';
+import { ChildEntry, ClaimForm, MapNode, MapNodeL3 } from '../../../../Store_Old/firebase/nodes/@MapNode';
+import { MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../Store_Old/firebase/nodes/@MapNodeRevision';
+import { MapNodeType } from '../../../../Store_Old/firebase/nodes/@MapNodeType';
+import { ACTMapNodeExpandedSet } from '../../../../Store_Old/main/mapViews/$mapView/rootNodeViews';
 
 export class PremiseAddHelper extends BaseComponentPlus({} as {mapID: string, parentNode: MapNodeL3, parentPath: string}, { premiseTitle: '', adding: false }) {
 	render() {
@@ -27,7 +27,7 @@ export class PremiseAddHelper extends BaseComponentPlus({} as {mapID: string, pa
 							this.CreatePremise();
 						}
 					}}
-					value={premiseTitle} onChange={val => this.SetState({ premiseTitle: val })}/>
+					value={premiseTitle} onChange={(val) => this.SetState({ premiseTitle: val })}/>
 				<Button enabled={premiseTitle.match(MapNodeRevision_titlePattern) != null} text="✔️" p="0 3px" style={{ borderRadius: '0 5px 5px 0' }}
 					onClick={() => this.CreatePremise()}/>
 			</Row>

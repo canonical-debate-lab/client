@@ -1,5 +1,5 @@
 import { AddSchema, AssertValidate, Command, GetDataAsync, GetSchemaJSON, Schema } from 'Utils/FrameworkOverrides';
-import { User } from '../../Store/firebase/users/@User';
+import { User } from '../../Store_Old/firebase/users/@User';
 
 type MainType = User;
 const MTName = 'User';

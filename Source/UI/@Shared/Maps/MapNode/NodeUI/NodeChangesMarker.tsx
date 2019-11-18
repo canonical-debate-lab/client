@@ -1,11 +1,11 @@
 import { BaseComponent } from 'react-vextensions';
 import { LimitBarPos } from 'UI/@Shared/Maps/MapNode/NodeUI';
 import { Column, Row } from 'react-vcomponents';
-import { GetChangeTypeOutlineColor, ChangeType } from 'Store/firebase/mapNodeEditTimes';
+import { GetChangeTypeOutlineColor, ChangeType } from 'Store_Old/firebase/mapNodeEditTimes';
 import { ChildLimitBar } from './NodeChildHolder';
 
 export class NodeChangesMarker extends BaseComponent<{addedDescendants: number, editedDescendants: number, textOutline?: string, limitBarPos?: LimitBarPos}, {}> {
-	static defaultProps = {textOutline: "rgba(10,10,10,1)"};
+	static defaultProps = { textOutline: 'rgba(10,10,10,1)' };
 	render() {
 		const { addedDescendants, editedDescendants, textOutline, limitBarPos } = this.props;
 		return (

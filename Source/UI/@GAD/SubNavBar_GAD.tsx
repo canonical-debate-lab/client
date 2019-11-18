@@ -2,7 +2,7 @@ import { E } from 'js-vextensions';
 import { BaseComponent } from 'react-vextensions';
 import { Connect, State, Link, Action } from 'Utils/FrameworkOverrides';
 import { rootPageDefaultChilds } from 'Utils/URL/URLs';
-import { ACTSetSubpage } from '../../Store/main';
+import { ACTSetSubpage } from '../../Store_Old/main';
 import { colors } from '../../Utils/UI/GlobalStyles';
 
 export class SubNavBar_GAD extends BaseComponent<{fullWidth?: boolean}, {}> {

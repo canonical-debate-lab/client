@@ -1,15 +1,15 @@
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
-import { ACTSetLastAcknowledgementTime } from 'Store/main';
+import { ACTSetLastAcknowledgementTime } from 'Store_Old/main';
 import { DBPath, GetUpdates, RemoveHelpers, WaitTillPathDataIsReceived } from 'Utils/FrameworkOverrides';
 import { AddNodeRevision } from '../../../../../../Server/Commands/AddNodeRevision';
 import { UpdateLink } from '../../../../../../Server/Commands/UpdateLink';
-import { Map } from '../../../../../../Store/firebase/maps/@Map';
-import { GetParentNodeID, GetParentNodeL3, IsNodeSubnode } from '../../../../../../Store/firebase/nodes';
-import { GetLinkUnderParent } from '../../../../../../Store/firebase/nodes/$node';
-import { MapNodeL3 } from '../../../../../../Store/firebase/nodes/@MapNode';
-import { IsUserCreatorOrMod } from '../../../../../../Store/firebase/userExtras';
-import { GetUser, MeID } from '../../../../../../Store/firebase/users';
+import { Map } from '../../../../../../Store_Old/firebase/maps/@Map';
+import { GetParentNodeID, GetParentNodeL3, IsNodeSubnode } from '../../../../../../Store_Old/firebase/nodes';
+import { GetLinkUnderParent } from '../../../../../../Store_Old/firebase/nodes/$node';
+import { MapNodeL3 } from '../../../../../../Store_Old/firebase/nodes/@MapNode';
+import { IsUserCreatorOrMod } from '../../../../../../Store_Old/firebase/userExtras';
+import { GetUser, MeID } from '../../../../../../Store_Old/firebase/users';
 import { NodeDetailsUI } from '../../NodeDetailsUI';
 
 export class DetailsPanel extends BaseComponentPlus({} as {map?: Map, node: MapNodeL3, path: string}, { dataError: null as string }) {
@@ -30,7 +30,7 @@ export class DetailsPanel extends BaseComponentPlus({} as {map?: Map, node: MapN
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), node);
 		return (
 			<Column style={{ position: 'relative' }}>
-				<NodeDetailsUI ref={c => this.detailsUI = c}
+				<NodeDetailsUI ref={(c) => this.detailsUI = c}
 					baseData={node} baseRevisionData={node.current} baseLinkData={link} parent={parentNode}
 					forNew={false} enabled={creatorOrMod}
 					onChange={(newData, newLinkData) => {

@@ -1,26 +1,24 @@
-import Moment from 'moment';
-import { Button, Text, CheckBox, Column, Div, Pre, Row, Select } from 'react-vcomponents';
-import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
-import { ShowMessageBox } from 'react-vmessagebox';
-import { GetParentNodeID, GetParentNodeL3 } from 'Store/firebase/nodes';
-import { GetUser, MeID, GetUserPermissionGroups } from 'Store/firebase/users';
-import { Icon, InfoButton, SlicePath, Connect, SplitStringBySlash_Cached } from 'Utils/FrameworkOverrides';
 import { GetEntries } from 'js-vextensions';
-import { ES } from 'Utils/UI/GlobalStyles';
-import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
-import { UUIDStub, UUIDPathStub } from 'UI/@Shared/UUIDStub';
 import { Fragment } from 'react';
+import { Button, CheckBox, Column, Div, Pre, Row, Select, Text } from 'react-vcomponents';
+import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
+import { ShowMessageBox } from 'react-vmessagebox';
+import { GetParentNodeID, GetParentNodeL3 } from 'Store_Old/firebase/nodes';
+import { GetUser, GetUserPermissionGroups, MeID } from 'Store_Old/firebase/users';
+import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
+import { UUIDPathStub, UUIDStub } from 'UI/@Shared/UUIDStub';
+import { Icon, SlicePath } from 'Utils/FrameworkOverrides';
+import { ES } from 'Utils/UI/GlobalStyles';
 import { CanConvertFromClaimTypeXToY, ChangeClaimType } from '../../../../../../Server/Commands/ChangeClaimType';
 import { ReverseArgumentPolarity } from '../../../../../../Server/Commands/ReverseArgumentPolarity';
 import { UpdateLink } from '../../../../../../Server/Commands/UpdateLink';
 import { UpdateNodeChildrenOrder } from '../../../../../../Server/Commands/UpdateNodeChildrenOrder';
-import { Map } from '../../../../../../Store/firebase/maps/@Map';
-import { GetClaimType, GetNodeDisplayText, GetNodeForm, GetNodeL3 } from '../../../../../../Store/firebase/nodes/$node';
-import { ClaimForm, ClaimType, MapNodeL3 } from '../../../../../../Store/firebase/nodes/@MapNode';
-import { ArgumentType } from '../../../../../../Store/firebase/nodes/@MapNodeRevision';
-import { MapNodeType } from '../../../../../../Store/firebase/nodes/@MapNodeType';
-import { IsUserCreatorOrMod } from '../../../../../../Store/firebase/userExtras';
-import { User } from '../../../../../../Store/firebase/users/@User';
+import { Map } from '../../../../../../Store_Old/firebase/maps/@Map';
+import { GetClaimType, GetNodeDisplayText, GetNodeForm, GetNodeL3 } from '../../../../../../Store_Old/firebase/nodes/$node';
+import { ClaimForm, ClaimType, MapNodeL3 } from '../../../../../../Store_Old/firebase/nodes/@MapNode';
+import { ArgumentType } from '../../../../../../Store_Old/firebase/nodes/@MapNodeRevision';
+import { MapNodeType } from '../../../../../../Store_Old/firebase/nodes/@MapNodeType';
+import { IsUserCreatorOrMod } from '../../../../../../Store_Old/firebase/userExtras';
 
 export class OthersPanel extends BaseComponentPlus({} as {map?: Map, node: MapNodeL3, path: string}, { convertToType: null as ClaimType }) {
 	render() {
@@ -42,8 +40,8 @@ export class OthersPanel extends BaseComponentPlus({} as {map?: Map, node: MapNo
 			|| (parent && parent.type === MapNodeType.Argument && parentCreatorOrMod ? parent : null);
 		const nodeArgOrParentSPArg_controlled_path = nodeArgOrParentSPArg_controlled && (nodeArgOrParentSPArg_controlled === node ? path : parentPath);
 
-		const convertToTypes = GetEntries(ClaimType).filter(pair => CanConvertFromClaimTypeXToY(GetClaimType(node), pair.value));
-		convertToType = convertToType || convertToTypes.map(a => a.value).FirstOrX();
+		const convertToTypes = GetEntries(ClaimType).filter((pair) => CanConvertFromClaimTypeXToY(GetClaimType(node), pair.value));
+		convertToType = convertToType || convertToTypes.map((a) => a.value).FirstOrX();
 
 		const isArgument_any = node.current.argumentType === ArgumentType.Any;
 
@@ -85,7 +83,7 @@ export class OthersPanel extends BaseComponentPlus({} as {map?: Map, node: MapNo
 				{node.type == MapNodeType.Claim && convertToTypes.length > 0 &&
 					<Row center>
 						<Pre>Convert to: </Pre>
-						<Select options={convertToTypes} value={convertToType} onChange={val => this.SetState({ convertToType: val })}/>
+						<Select options={convertToTypes} value={convertToType} onChange={(val) => this.SetState({ convertToType: val })}/>
 						<Button ml={5} text="Convert" onClick={() => {
 							new ChangeClaimType(E({ mapID }, { nodeID: node._key, newType: convertToType })).Run();
 						}}/>
@@ -150,7 +148,7 @@ class ChildrenOrder extends BaseComponent<{mapID: string, node: MapNodeL3}, {}> 
 	render() {
 		const { mapID, node } = this.props;
 		const oldChildrenOrder = node.childrenOrder || [];
-		const oldChildrenOrderValid = oldChildrenOrder.length == node.children.VKeys(true).length && oldChildrenOrder.every(id => node.children[id] != null);
+		const oldChildrenOrderValid = oldChildrenOrder.length == node.children.VKeys(true).length && oldChildrenOrder.every((id) => node.children[id] != null);
 		return (
 			<Column mt={5}>
 				<Row style={{ fontWeight: 'bold' }}>Children order:</Row>
@@ -188,8 +186,8 @@ class ChildrenOrder extends BaseComponent<{mapID: string, node: MapNodeL3}, {}> 
 				})}
 				{!oldChildrenOrderValid &&
 					<Button mr="auto" text="Fix children-order" onClick={() => {
-						const existingValidIDs = oldChildrenOrder.filter(id => node.children[id] != null);
-						const missingChildIDs = node.children.Pairs(true).filter(pair => !oldChildrenOrder.Contains(pair.key)).map(pair => pair.key);
+						const existingValidIDs = oldChildrenOrder.filter((id) => node.children[id] != null);
+						const missingChildIDs = node.children.Pairs(true).filter((pair) => !oldChildrenOrder.Contains(pair.key)).map((pair) => pair.key);
 						new UpdateNodeChildrenOrder({ mapID, nodeID: node._key, childrenOrder: existingValidIDs.concat(missingChildIDs) }).Run();
 					}}/>}
 			</Column>

@@ -1,22 +1,22 @@
 import { Row } from 'react-vcomponents';
 import { BaseComponentWithConnector, GetInnerComp, GetDOM, UseCallback, BaseComponentPlus } from 'react-vextensions';
-import { GetMarkerPercent_AtPath, GetRatings } from 'Store/firebase/nodeRatings';
-import { RatingType } from 'Store/firebase/nodeRatings/@RatingType';
-import { GetParentNodeL3, HolderType } from 'Store/firebase/nodes';
-import { IsSinglePremiseArgument } from 'Store/firebase/nodes/$node';
-import { MapNodeL3 } from 'Store/firebase/nodes/@MapNode';
-import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
-import { ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView/rootNodeViews';
-import { MapNodeView, MapNodeView_SelfOnly } from 'Store/main/mapViews/@MapViews';
-import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
+import { GetMarkerPercent_AtPath, GetRatings } from 'Store_Old/firebase/nodeRatings';
+import { RatingType } from 'Store_Old/firebase/nodeRatings/@RatingType';
+import { GetParentNodeL3, HolderType } from 'Store_Old/firebase/nodes';
+import { IsSinglePremiseArgument } from 'Store_Old/firebase/nodes/$node';
+import { MapNodeL3 } from 'Store_Old/firebase/nodes/@MapNode';
+import { MapNodeType } from 'Store_Old/firebase/nodes/@MapNodeType';
+import { ACTMapNodeExpandedSet } from 'Store_Old/main/mapViews/$mapView/rootNodeViews';
+import { MapNodeView, MapNodeView_SelfOnly } from 'Store_Old/main/mapViews/@MapViews';
+import { CanGetBasicPermissions } from 'Store_Old/firebase/userExtras';
 import { emptyArray_forLoading, emptyArray, AssertWarn } from 'js-vextensions';
 import { Connect, HSLA, ExpensiveComponent, ActionSet } from 'Utils/FrameworkOverrides';
 import { GADDemo } from 'UI/@GAD/GAD';
 import chroma from 'chroma-js';
-import { Map } from '../../../../../Store/firebase/maps/@Map';
-import { GetFillPercent_AtPath } from '../../../../../Store/firebase/nodeRatings';
-import { IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument } from '../../../../../Store/firebase/nodes/$node';
-import { GetNodeColor } from '../../../../../Store/firebase/nodes/@MapNodeType';
+import { Map } from '../../../../../Store_Old/firebase/maps/@Map';
+import { GetFillPercent_AtPath } from '../../../../../Store_Old/firebase/nodeRatings';
+import { IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument } from '../../../../../Store_Old/firebase/nodes/$node';
+import { GetNodeColor } from '../../../../../Store_Old/firebase/nodes/@MapNodeType';
 import { ExpandableBox } from '../ExpandableBox';
 import { Squiggle } from '../NodeConnectorBackground';
 import { NodeUI_Menu, NodeUI_Menu_Stub } from '../NodeUI_Menu';
@@ -35,7 +35,7 @@ export class NodeChildHolderBox extends BaseComponentPlus({} as Props, { innerBo
 		const { node, nodeChildren } = props;
 		// ms only asserts in dev for now (and only as warning); causes error sometimes when cut+pasting otherwise (firebase doesn`t send DB updates atomically?)
 		if (DEV) {
-			AssertWarn(nodeChildren.every(a => a == null || (a.parents || {})[node._key] != null), 'Supplied node is not a parent of all the supplied node-children!');
+			AssertWarn(nodeChildren.every((a) => a == null || (a.parents || {})[node._key] != null), 'Supplied node is not a parent of all the supplied node-children!');
 		}
 	}
 	lineHolder: HTMLDivElement;
@@ -86,9 +86,9 @@ export class NodeChildHolderBox extends BaseComponentPlus({} as Props, { innerBo
 				expanded && nodeChildrenToShow.length && innerBoxOffset == 0 && { opacity: 0, pointerEvents: 'none' },
 			)}>
 				<Row className="clickThrough" style={E(
-					{/* position: "relative", /* removal fixes */ alignItems: 'flex-start', /* marginLeft: `calc(100% - ${width}px)`, */ width },
+					{ /* position: "relative", /* removal fixes */ alignItems: 'flex-start', /* marginLeft: `calc(100% - ${width}px)`, */ width },
 				)}>
-					<div ref={c => this.lineHolder = c} className="clickThroughChain" style={{ position: 'absolute', width: '100%', height: '100%' }}>
+					<div ref={(c) => this.lineHolder = c} className="clickThroughChain" style={{ position: 'absolute', width: '100%', height: '100%' }}>
 						{type == HolderType.Truth &&
 							<Squiggle start={[0, lineHolderHeight + 2]} startControl_offset={[0, -lineOffset]}
 								end={[(width / 2) - 2, innerBoxOffset + height - 2]} endControl_offset={[0, lineOffset]} color={lineColor}/>}
@@ -99,7 +99,7 @@ export class NodeChildHolderBox extends BaseComponentPlus({} as Props, { innerBo
 							<div style={{ position: 'absolute', right: '100%', width: 10, top: innerBoxOffset + (height / 2) - 2, height: 3, backgroundColor: lineColor.css() }}/>}
 					</div>
 					<ExpandableBox {...{ width, widthOverride, expanded }} innerWidth={width}
-						ref={c => this.expandableBox = c}
+						ref={(c) => this.expandableBox = c}
 						style={{ marginTop: innerBoxOffset }}
 						padding="3px 5px 2px"
 						text={<span style={E(
@@ -140,7 +140,7 @@ export class NodeChildHolderBox extends BaseComponentPlus({} as Props, { innerBo
 						}, [expandKey, map._key, nodeChildrenToShow, nodeView, path, type])}
 						afterChildren={<>
 							{ratingPanelShow &&
-								<div ref={c => this.ratingPanelHolder = c} style={{
+								<div ref={(c) => this.ratingPanelHolder = c} style={{
 									position: 'absolute', left: 0, top: 'calc(100% + 1px)',
 									width, minWidth: (widthOverride | 0).KeepAtLeast(550), zIndex: hovered_main ? 6 : 5,
 									padding: 5, background: backgroundColor.css(), borderRadius: 5, boxShadow: 'rgba(0,0,0,1) 0px 0px 2px',
@@ -159,7 +159,7 @@ export class NodeChildHolderBox extends BaseComponentPlus({} as Props, { innerBo
 						<NodeChangesMarker {...{addedDescendants, editedDescendants, textOutline, limitBarPos}}/> */}
 				</Row>
 				{nodeView[expandKey] &&
-					<NodeChildHolder ref={c => this.childHolder = c}
+					<NodeChildHolder ref={(c) => this.childHolder = c}
 						{...{ map, node, path, nodeView, nodeChildrenToShow, type, separateChildren, showArgumentsControlBar }}
 						linkSpawnPoint={innerBoxOffset + (height / 2)}
 						onHeightOrDividePointChange={this.CheckForChanges}/>}

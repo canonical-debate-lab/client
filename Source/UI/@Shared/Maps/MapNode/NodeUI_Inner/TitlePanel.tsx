@@ -4,18 +4,18 @@ import { forwardRef, Ref } from 'react';
 import { Button, Pre, Row, TextArea } from 'react-vcomponents';
 import { FilterOutUnrecognizedProps, UseImperativeHandle, UseState, Wrap, BaseComponentPlus } from 'react-vextensions';
 import { AddNodeRevision } from 'Server/Commands/AddNodeRevision';
-import { Map } from 'Store/firebase/maps/@Map';
-import { GetParentNode, IsNodeSubnode } from 'Store/firebase/nodes';
-import { GetFontSizeForNode, GetNodeDisplayText, GetNodeForm, missingTitleStrings } from 'Store/firebase/nodes/$node';
-import { GetEquationStepNumber } from 'Store/firebase/nodes/$node/equation';
-import { ClaimForm, MapNodeL2 } from 'Store/firebase/nodes/@MapNode';
-import { MapNodeRevision_titlePattern } from 'Store/firebase/nodes/@MapNodeRevision';
-import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
-import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
-import { MeID } from 'Store/firebase/users';
-import { ACTSetLastAcknowledgementTime } from 'Store/main';
-import { ACTMapNodePanelOpen, ACTMapNodeTermOpen } from 'Store/main/mapViews/$mapView/rootNodeViews';
-import { MapNodeView } from 'Store/main/mapViews/@MapViews';
+import { Map } from 'Store_Old/firebase/maps/@Map';
+import { GetParentNode, IsNodeSubnode } from 'Store_Old/firebase/nodes';
+import { GetFontSizeForNode, GetNodeDisplayText, GetNodeForm, missingTitleStrings } from 'Store_Old/firebase/nodes/$node';
+import { GetEquationStepNumber } from 'Store_Old/firebase/nodes/$node/equation';
+import { ClaimForm, MapNodeL2 } from 'Store_Old/firebase/nodes/@MapNode';
+import { MapNodeRevision_titlePattern } from 'Store_Old/firebase/nodes/@MapNodeRevision';
+import { MapNodeType } from 'Store_Old/firebase/nodes/@MapNodeType';
+import { IsUserCreatorOrMod } from 'Store_Old/firebase/userExtras';
+import { MeID } from 'Store_Old/firebase/users';
+import { ACTSetLastAcknowledgementTime } from 'Store_Old/main';
+import { ACTMapNodePanelOpen, ACTMapNodeTermOpen } from 'Store_Old/main/mapViews/$mapView/rootNodeViews';
+import { MapNodeView } from 'Store_Old/main/mapViews/@MapViews';
 import { DBPath, InfoButton, IsDoubleClick, ParseSegmentsForPatterns, RemoveHelpers, VReactMarkdown_Remarkable, WaitTillPathDataIsReceived, ExpensiveComponent, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { NodeMathUI } from '../NodeMathUI';
@@ -92,7 +92,7 @@ export class TitlePanel extends BaseComponentPlus(
 						<VReactMarkdown_Remarkable key={elements.length} containerType="span" source={segmentText}
 							rendererOptions={{
 								components: {
-									p: props => <span>{props.children}</span>,
+									p: (props) => <span>{props.children}</span>,
 								},
 							}}/>,
 					);
@@ -102,7 +102,7 @@ export class TitlePanel extends BaseComponentPlus(
 					const termID = segment.textParts[2];
 					elements.push(
 						<TermPlaceholder key={elements.length} refText={refText} termID={termID}
-							onHover={hovered => this.OnTermHover(termID, hovered)} onClick={() => this.OnTermClick(termID)}/>,
+							onHover={(hovered) => this.OnTermHover(termID, hovered)} onClick={() => this.OnTermClick(termID)}/>,
 					);
 				} else {
 					Assert(false);
@@ -113,7 +113,7 @@ export class TitlePanel extends BaseComponentPlus(
 
 		return (
 			// <Row style={{position: "relative"}}>
-			<div {...FilterOutUnrecognizedProps(rest, 'div')} style={E({ position: 'relative', cursor: 'pointer', fontSize: GetFontSizeForNode(node, isSubnode) }, style)} onClick={e => IsDoubleClick(e) && this.OnDoubleClick()}>
+			<div {...FilterOutUnrecognizedProps(rest, 'div')} style={E({ position: 'relative', cursor: 'pointer', fontSize: GetFontSizeForNode(node, isSubnode) }, style)} onClick={(e) => IsDoubleClick(e) && this.OnDoubleClick()}>
 				{equationNumber != null &&
 					<Pre>{equationNumber}) </Pre>}
 				{!editing &&
@@ -132,7 +132,7 @@ export class TitlePanel extends BaseComponentPlus(
 					)}>
 						{!applyingEdit &&
 							<TextArea required={true} pattern={MapNodeRevision_titlePattern} allowLineBreaks={false} autoSize={true} style={ES({ flex: 1 })}
-								ref={a => a && a.DOM_HTML.focus()}
+								ref={(a) => a && a.DOM_HTML.focus()}
 								onKeyDown={(e) => {
 									if (e.keyCode == keycode.codes.esc) {
 										this.SetState({ editing: false });
@@ -140,7 +140,7 @@ export class TitlePanel extends BaseComponentPlus(
 										this.ApplyEdit();
 									}
 								}}
-								value={newTitle} onChange={val => this.SetState({ newTitle: val })}/>}
+								value={newTitle} onChange={(val) => this.SetState({ newTitle: val })}/>}
 						{!applyingEdit &&
 							<Button enabled={newTitle.match(MapNodeRevision_titlePattern) != null} text="✔️" p="0 3px" style={{ borderRadius: '0 5px 5px 0' }}
 								onClick={() => this.ApplyEdit()}/>}

@@ -1,16 +1,14 @@
 import { ApplyBasicStyles, BaseComponent, BasicStyles, SimpleShouldUpdate, BaseComponentPlus } from 'react-vextensions';
-import { firebaseConnect, helpers } from 'react-redux-firebase';
 import { Button, Div, Row } from 'react-vcomponents';
 // import SocialButton from 'react-social-button';
 import { Column } from 'react-vcomponents';
 import { E } from 'js-vextensions';
 import { ShowMessageBox, BoxController } from 'react-vmessagebox';
-import { IsAuthValid } from 'Store/firebase';
-import { Connect, State, Link, HandleError } from 'Utils/FrameworkOverrides';
-import { rootState } from 'StoreM/StoreM';
+import { IsAuthValid } from 'Store_Old/firebase';
+import { Link, HandleError } from 'Utils/FrameworkOverrides';
+import { store } from 'Store';
 import { runInAction } from 'mobx';
-import { ACTSetPage } from '../../../Store/main';
-import { MeID } from '../../../Store/firebase/users';
+import { MeID } from '../../../Store_Old/firebase/users';
 
 export class UserPanel extends BaseComponentPlus({} as {auth?}, {}) {
 	render() {
@@ -18,7 +16,8 @@ export class UserPanel extends BaseComponentPlus({} as {auth?}, {}) {
 
 		// authError: pathToJS(state.firebase, "authError"),
 		// auth: helpers.pathToJS(state.firebase, "auth"),
-		const auth = State.Watch((a) => a.firebase.auth);
+		//const auth = State.Watch((a) => a.firebase.auth);
+		const auth = store.
 		// account: helpers.pathToJS(state.firebase, "profile")
 
 		if (!IsAuthValid(auth)) {
@@ -45,7 +44,7 @@ export class UserPanel extends BaseComponentPlus({} as {auth?}, {}) {
 						<Button text="Edit profile" style={{ width: 100 }} onClick={() => {
 							// store.dispatch(new ACTTopRightOpenPanelSet(null));
 							runInAction('EditProfile_click', () => {
-								rootState.main.topRightOpenPanel = null;
+								store.main.topRightOpenPanel = null;
 							});
 						}}/>
 					</Link>

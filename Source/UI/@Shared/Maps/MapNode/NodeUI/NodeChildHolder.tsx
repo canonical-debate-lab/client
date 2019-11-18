@@ -3,21 +3,22 @@ import * as React from 'react';
 import { Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 import { Button, Column, Div, Row } from 'react-vcomponents';
 import { BaseComponentPlus, BaseComponentWithConnector, GetDOM, RenderSource } from 'react-vextensions';
-import { GetFillPercent_AtPath } from 'Store/firebase/nodeRatings';
-import { GetNodeChildrenL3, HolderType } from 'Store/firebase/nodes';
-import { MapNodeL3 } from 'Store/firebase/nodes/@MapNode';
-import { ArgumentType } from 'Store/firebase/nodes/@MapNodeRevision';
-import { MapNodeType, MapNodeType_Info } from 'Store/firebase/nodes/@MapNodeType';
-import { ACTMapNodeChildLimitSet } from 'Store/main/mapViews/$mapView/rootNodeViews';
-import { MapNodeView, MapNodeView_SelfOnly } from 'Store/main/mapViews/@MapViews';
+import { GetFillPercent_AtPath } from 'Store_Old/firebase/nodeRatings';
+import { GetNodeChildrenL3, HolderType } from 'Store_Old/firebase/nodes';
+import { MapNodeL3 } from 'Store_Old/firebase/nodes/@MapNode';
+import { ArgumentType } from 'Store_Old/firebase/nodes/@MapNodeRevision';
+import { MapNodeType, MapNodeType_Info } from 'Store_Old/firebase/nodes/@MapNodeType';
+import { ACTMapNodeChildLimitSet } from 'Store_Old/main/mapViews/$mapView/rootNodeViews';
+import { MapNodeView, MapNodeView_SelfOnly } from 'Store_Old/main/mapViews/@MapViews';
 import { NodeConnectorBackground } from 'UI/@Shared/Maps/MapNode/NodeConnectorBackground';
 import { NodeUI } from 'UI/@Shared/Maps/MapNode/NodeUI';
-import { Connect, ExpensiveComponent, Icon, IsSpecialEmptyArray, MaybeLog, State, Watch } from 'Utils/FrameworkOverrides';
+import { ExpensiveComponent, Icon, IsSpecialEmptyArray, MaybeLog } from 'Utils/FrameworkOverrides';
 import { DroppableInfo } from 'Utils/UI/DNDStructures';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { Map } from '../../../../../Store/firebase/maps/@Map';
-import { IsMultiPremiseArgument } from '../../../../../Store/firebase/nodes/$node';
-import { Polarity } from '../../../../../Store/firebase/nodes/@MapNode';
+import {store} from 'Store';
+import { Map } from '../../../../../Store_Old/firebase/maps/@Map';
+import { IsMultiPremiseArgument } from '../../../../../Store_Old/firebase/nodes/$node';
+import { Polarity } from '../../../../../Store_Old/firebase/nodes/@MapNode';
 import { ArgumentsControlBar } from '../ArgumentsControlBar';
 import { NodeChildHolderBox } from './NodeChildHolderBox';
 
@@ -45,36 +46,34 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 		let { childrenWidthOverride, oldChildBoxOffsets, placeholderRect } = this.state;
 		childrenWidthOverride = (childrenWidthOverride | 0).KeepAtLeast(minWidth);
 
-		const nodeChildren_fillPercents = Watch(() => {
-			return IsSpecialEmptyArray(nodeChildrenToShow) ? emptyObj : nodeChildrenToShow.filter(a => a).ToMap(child => `${child._key}`, (child) => {
-				return GetFillPercent_AtPath(child, `${path}/${child._key}`);
-			});
-		}, [nodeChildrenToShow, path]);
+		const nodeChildren_fillPercents = IsSpecialEmptyArray(nodeChildrenToShow) ? emptyObj : nodeChildrenToShow.filter((a) => a).ToMap((child) => `${child._key}`, (child) => {
+			return GetFillPercent_AtPath(child, `${path}/${child._key}`);
+		});
 		this.Stash({ nodeChildren_fillPercents });
 
-		const initialChildLimit = State.Watch(a => a.main.initialChildLimit);
-		const currentNodeBeingAdded_path = State.Watch(a => a.main.currentNodeBeingAdded_path);
+		const initialChildLimit = store.main.initialChildLimit;
+		const currentNodeBeingAdded_path = store.main.currentNodeBeingAdded_path;
 
 		let nodeChildrenToShowHere = nodeChildrenToShow;
 		let nodeChildrenToShowInRelevanceBox;
 		if (IsMultiPremiseArgument(node) && type != HolderType.Relevance) {
-			nodeChildrenToShowHere = nodeChildrenToShow.filter(a => a && a.type != MapNodeType.Argument);
-			nodeChildrenToShowInRelevanceBox = nodeChildrenToShow.filter(a => a && a.type == MapNodeType.Argument);
+			nodeChildrenToShowHere = nodeChildrenToShow.filter((a) => a && a.type != MapNodeType.Argument);
+			nodeChildrenToShowInRelevanceBox = nodeChildrenToShow.filter((a) => a && a.type == MapNodeType.Argument);
 		}
 
-		let upChildren = separateChildren ? nodeChildrenToShowHere.filter(a => a.finalPolarity == Polarity.Supporting) : [];
-		let downChildren = separateChildren ? nodeChildrenToShowHere.filter(a => a.finalPolarity == Polarity.Opposing) : [];
+		let upChildren = separateChildren ? nodeChildrenToShowHere.filter((a) => a.finalPolarity == Polarity.Supporting) : [];
+		let downChildren = separateChildren ? nodeChildrenToShowHere.filter((a) => a.finalPolarity == Polarity.Opposing) : [];
 
 		// apply sorting (regardless of direction, both are ordered by score/priority; "up" reordering is applied on the *child-ui list*, not the child-node list)
 		if (separateChildren) {
-			upChildren = upChildren.OrderByDescending(child => nodeChildren_fillPercents[child._key]);
-			downChildren = downChildren.OrderByDescending(child => nodeChildren_fillPercents[child._key]);
+			upChildren = upChildren.OrderByDescending((child) => nodeChildren_fillPercents[child._key]);
+			downChildren = downChildren.OrderByDescending((child) => nodeChildren_fillPercents[child._key]);
 		} else {
-			nodeChildrenToShowHere = nodeChildrenToShowHere.OrderByDescending(child => nodeChildren_fillPercents[child._key]);
+			nodeChildrenToShowHere = nodeChildrenToShowHere.OrderByDescending((child) => nodeChildren_fillPercents[child._key]);
 			// if (IsArgumentNode(node)) {
 			const isArgument_any = node.type == MapNodeType.Argument && node.current.argumentType == ArgumentType.Any;
 			if (node.childrenOrder && !isArgument_any) {
-				nodeChildrenToShowHere = nodeChildrenToShowHere.OrderBy(child => node.childrenOrder.indexOf(child._key).IfN1Then(Number.MAX_SAFE_INTEGER));
+				nodeChildrenToShowHere = nodeChildrenToShowHere.OrderBy((child) => node.childrenOrder.indexOf(child._key).IfN1Then(Number.MAX_SAFE_INTEGER));
 			}
 		}
 
@@ -95,7 +94,7 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 			return (
 				// <ErrorBoundary errorUI={props=>props.defaultUI(E(props, {style: {width: 500, height: 300}}))}>
 				// <ErrorBoundary key={child._key} errorUIStyle={{ width: 500, height: 300 }}>
-				<NodeUI key={child._key} ref={c => this.childBoxes[child._key] = c} indexInNodeList={index} map={map} node={child}
+				<NodeUI key={child._key} ref={(c) => this.childBoxes[child._key] = c} indexInNodeList={index} map={map} node={child}
 					path={`${path}/${child._key}`} widthOverride={childrenWidthOverride} onHeightOrPosChange={this.OnChildHeightOrPosChange}>
 					{isFarthestChildFromDivider && !showAll && (collection.length > childLimit || childLimit != initialChildLimit) &&
 						<ChildLimitBar {...{ map, path, childrenWidthOverride, childLimit }} direction={direction} childCount={collection.length}/>}
@@ -118,7 +117,7 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 			const dragBoxRect = dragBox && VRect.FromLTWH(dragBox.getBoundingClientRect());
 
 			return (
-				<Droppable type="MapNode" droppableId={ToJSON(droppableInfo.VSet({ subtype: group, childIDs: childrenHere.map(a => a._key) }))} /* renderClone={(provided, snapshot, descriptor) => {
+				<Droppable type="MapNode" droppableId={ToJSON(droppableInfo.VSet({ subtype: group, childIDs: childrenHere.map((a) => a._key) }))} /* renderClone={(provided, snapshot, descriptor) => {
 					const index = descriptor.index;
 					const pack = childrenHere.slice(0, childLimit)[index];
 					return RenderChild(pack, index, childrenHere);
@@ -153,7 +152,7 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 		const droppableInfo = new DroppableInfo({ type: 'NodeChildHolder', parentPath: path });
 		this.childBoxes = {};
 		return (
-			<Column ref={c => this.childHolder = c} className="childHolder clickThrough" style={E(
+			<Column ref={(c) => this.childHolder = c} className="childHolder clickThrough" style={E(
 				{
 					position: 'relative', // needed so position:absolute in RenderGroup takes into account NodeUI padding
 					// marginLeft: vertical ? 20 : (nodeChildrenToShow.length || showArgumentsControlBar) ? 30 : 0,
@@ -175,13 +174,13 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 					<NodeChildHolderBox {...{ map, node, path, nodeView }} type={HolderType.Relevance} widthOverride={childrenWidthOverride}
 						widthOfNode={childrenWidthOverride}
 						nodeChildren={GetNodeChildrenL3(node, path)} nodeChildrenToShow={nodeChildrenToShowInRelevanceBox}
-						onHeightOrDividePointChange={dividePoint => this.CheckForLocalChanges()}/>}
+						onHeightOrDividePointChange={(dividePoint) => this.CheckForLocalChanges()}/>}
 				{!separateChildren &&
 					RenderGroup('all')}
 				{separateChildren &&
 					RenderGroup('up')}
 				{showArgumentsControlBar &&
-					<ArgumentsControlBar ref={c => this.argumentsControlBar = c} map={map} node={node} path={path} childBeingAdded={currentNodeBeingAdded_path == `${path}/?`}/>}
+					<ArgumentsControlBar ref={(c) => this.argumentsControlBar = c} map={map} node={node} path={path} childBeingAdded={currentNodeBeingAdded_path == `${path}/?`}/>}
 				{separateChildren &&
 					RenderGroup('down')}
 			</Column>
@@ -210,20 +209,20 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 		if (dragBox == null) return; // this can happen at end of drag
 		const dragBoxRect = VRect.FromLTWH(dragBox.getBoundingClientRect());
 
-		const siblingNodeUIs = (childHolder.DOM.childNodes.ToArray() as HTMLElement[]).filter(a => a.classList.contains('NodeUI'));
-		const siblingNodeUIInnerDOMs = siblingNodeUIs.map(nodeUI => nodeUI.QuerySelector_BreadthFirst('.NodeUI_Inner')).filter(a => a != null); // entry can be null if inner-ui still loading
-		const firstOffsetInner = siblingNodeUIInnerDOMs.find(a => a && a.style.transform && a.style.transform.includes('translate('));
+		const siblingNodeUIs = (childHolder.DOM.childNodes.ToArray() as HTMLElement[]).filter((a) => a.classList.contains('NodeUI'));
+		const siblingNodeUIInnerDOMs = siblingNodeUIs.map((nodeUI) => nodeUI.QuerySelector_BreadthFirst('.NodeUI_Inner')).filter((a) => a != null); // entry can be null if inner-ui still loading
+		const firstOffsetInner = siblingNodeUIInnerDOMs.find((a) => a && a.style.transform && a.style.transform.includes('translate('));
 
 		let placeholderRect: VRect;
 		if (firstOffsetInner) {
-			const firstOffsetInnerRect = VRect.FromLTWH(firstOffsetInner.getBoundingClientRect()).NewTop(top => top - dragBoxRect.height);
+			const firstOffsetInnerRect = VRect.FromLTWH(firstOffsetInner.getBoundingClientRect()).NewTop((top) => top - dragBoxRect.height);
 			const firstOffsetInnerRect_relative = new VRect(firstOffsetInnerRect.Position.Minus(childHolderRect.Position), firstOffsetInnerRect.Size);
 
 			placeholderRect = firstOffsetInnerRect_relative.NewWidth(dragBoxRect.width).NewHeight(dragBoxRect.height);
 		} else {
 			if (siblingNodeUIInnerDOMs.length) {
 				const lastInner = siblingNodeUIInnerDOMs.Last();
-				const lastInnerRect = VRect.FromLTWH(lastInner.getBoundingClientRect()).NewTop(top => top - dragBoxRect.height);
+				const lastInnerRect = VRect.FromLTWH(lastInner.getBoundingClientRect()).NewTop((top) => top - dragBoxRect.height);
 				const lastInnerRect_relative = new VRect(lastInnerRect.Position.Minus(childHolderRect.Position), lastInnerRect.Size);
 
 				placeholderRect = lastInnerRect_relative.NewWidth(dragBoxRect.width).NewHeight(dragBoxRect.height);
@@ -245,7 +244,7 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 
 	get ChildOrderStr() {
 		const { nodeChildrenToShow, nodeChildren_fillPercents } = this.PropsStash;
-		return nodeChildrenToShow.OrderBy(a => nodeChildren_fillPercents[a._key]).map(a => a._key).join(',');
+		return nodeChildrenToShow.OrderBy((a) => nodeChildren_fillPercents[a._key]).map((a) => a._key).join(',');
 	}
 
 	PostRender() {
@@ -264,7 +263,7 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 		const height = this.DOM_HTML.offsetHeight;
 		const dividePoint = this.GetDividePoint();
 		if (height != this.lastHeight || dividePoint != this.lastDividePoint) {
-			MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
+			MaybeLog((a) => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
 				() => `OnHeightChange NodeChildHolder (${RenderSource[this.lastRender_source]}):${this.props.node._key}${nl}dividePoint:${dividePoint}`);
 
 			// this.UpdateState(true);
@@ -288,7 +287,7 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 	OnChildHeightOrPosChange_updateStateQueued = false;
 	OnChildHeightOrPosChange = () => {
 		const { node } = this.props;
-		MaybeLog(a => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
+		MaybeLog((a) => a.nodeRenderDetails && (a.nodeRenderDetails_for == null || a.nodeRenderDetails_for == node._key),
 			() => `OnChildHeightOrPosChange NodeUI (${RenderSource[this.lastRender_source]}):${this.props.node._key}\ncenterY:${this.GetDividePoint()}`);
 
 		// this.OnHeightOrPosChange();
@@ -319,16 +318,16 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 	UpdateChildrenWidthOverride(forceUpdate = false) {
 		if (!this.Expanded) return;
 
-		const childBoxes = this.childBoxes.VValues().filter(a => a != null);
+		const childBoxes = this.childBoxes.VValues().filter((a) => a != null);
 
 		const cancelIfStateSame = !forceUpdate;
 		const changedState = this.SetState({
-			childrenWidthOverride: childBoxes.map(comp => comp.GetMeasurementInfo().width).concat(0).Max(null, true),
+			childrenWidthOverride: childBoxes.map((comp) => comp.GetMeasurementInfo().width).concat(0).Max(null, true),
 		}, null, cancelIfStateSame, true);
 		// Log(`Changed state? (${this.props.node._id}): ` + changedState);
 	}
 	UpdateChildBoxOffsets(forceUpdate = false) {
-		const childBoxes = this.childBoxes.VValues().filter(a => a != null);
+		const childBoxes = this.childBoxes.VValues().filter((a) => a != null);
 		const newState = {} as any;
 
 		const showAddArgumentButtons = false; // node.type == MapNodeType.Claim && expanded && nodeChildren != emptyArray_forLoading; // && nodeChildren.length > 0;
@@ -336,7 +335,7 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 		if (this.Expanded && this.childHolder) {
 			const holderRect = VRect.FromLTWH(this.childHolder.DOM.getBoundingClientRect());
 
-			const oldChildBoxOffsets = this.childBoxes.Pairs().filter(pair => pair.value != null).ToMap(pair => pair.key, (pair) => {
+			const oldChildBoxOffsets = this.childBoxes.Pairs().filter((pair) => pair.value != null).ToMap((pair) => pair.key, (pair) => {
 				// let childBox = FindDOM_(pair.value).find("> div:first-child > div"); // get inner-box of child
 				// let childBox = $(GetDOM(pair.value)).find(".NodeUI_Inner").first(); // get inner-box of child
 				// not sure why this is needed... (bad sign!)
@@ -365,7 +364,7 @@ export class ChildLimitBar extends BaseComponentPlus({} as {map: Map, path: stri
 	static HEIGHT = 36;
 	render() {
 		const { map, path, childrenWidthOverride, direction, childCount, childLimit } = this.props;
-		const initialChildLimit = State.Watch(a => a.main.initialChildLimit);
+		const initialChildLimit = State.Watch((a) => a.main.initialChildLimit);
 		return (
 			<Row style={{
 				// position: "absolute", marginTop: -30,

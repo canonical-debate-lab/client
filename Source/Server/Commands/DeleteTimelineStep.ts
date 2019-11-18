@@ -1,8 +1,8 @@
 import { UserEdit } from 'Server/CommandMacros';
-import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
-import {GetAsync_Raw} from 'Utils/FrameworkOverrides';
-import { GetTimeline, GetTimelineStep } from '../../Store/firebase/timelines';
-import { Command } from 'Utils/FrameworkOverrides';
+import { TimelineStep } from 'Store_Old/firebase/timelineSteps/@TimelineStep';
+import { GetAsync_Raw , Command } from 'Utils/FrameworkOverrides';
+import { GetTimeline, GetTimelineStep } from '../../Store_Old/firebase/timelines';
+
 
 @UserEdit
 export class DeleteTimelineStep extends Command<{stepID: string}, {}> {

@@ -1,8 +1,8 @@
 import { Vector2i } from 'js-vextensions';
 import { BaseComponent, SimpleShouldUpdate } from 'react-vextensions';
 import { ExpensiveComponent } from 'Utils/FrameworkOverrides';
-import { MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
-import { GetNodeColor } from '../../../../Store/firebase/nodes/@MapNodeType';
+import { MapNodeL3 } from '../../../../Store_Old/firebase/nodes/@MapNode';
+import { GetNodeColor } from '../../../../Store_Old/firebase/nodes/@MapNodeType';
 
 type Props = {
 	node: MapNodeL3, linkSpawnPoint: Vector2i, straightLines?: boolean, nodeChildren: MapNodeL3[],
@@ -17,7 +17,7 @@ export class NodeConnectorBackground extends BaseComponent<Props, {}> {
 
 		return (
 			<svg className="clickThroughChain" style={{ position: 'absolute', overflow: 'visible', zIndex: -1 }}>
-				{childBoxOffsets.Props(true).OrderBy(a => a.name).map(({ name: childID, value: childOffset }) => {
+				{childBoxOffsets.Props(true).OrderBy((a) => a.name).map(({ name: childID, value: childOffset }) => {
 					if (childOffset == null) return null;
 
 					/* result.push(<line key={"inputLine" + result.length} x1={inputPos.x} y1={inputPos.y}
@@ -25,7 +25,7 @@ export class NodeConnectorBackground extends BaseComponent<Props, {}> {
 
 					// let child = A.NonNull = childNodes.First(a=>a._id == childIDStr.ToInt());
 					// maybe temp; see if causes problems ignoring not-found error
-					const child = nodeChildren.FirstOrX(a => a._key == childID);
+					const child = nodeChildren.FirstOrX((a) => a._key == childID);
 					if (child == null) return null;
 
 					const backgroundColor = GetNodeColor(/* node.type == MapNodeType.Argument ? node : */ child, 'raw');

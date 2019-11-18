@@ -1,10 +1,10 @@
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { VReactMarkdown_Remarkable, Connect, Watch } from 'Utils/FrameworkOverrides';
-import { MapNode, ImageAttachment, MapNodeL2 } from '../../../../../Store/firebase/nodes/@MapNode';
-import { GetFontSizeForNode } from '../../../../../Store/firebase/nodes/$node';
-import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
-import { GetImage } from '../../../../../Store/firebase/images';
-import { Image } from '../../../../../Store/firebase/images/@Image';
+import { MapNode, ImageAttachment, MapNodeL2 } from '../../../../../Store_Old/firebase/nodes/@MapNode';
+import { GetFontSizeForNode } from '../../../../../Store_Old/firebase/nodes/$node';
+import { ContentNode } from '../../../../../Store_Old/firebase/contentNodes/@ContentNode';
+import { GetImage } from '../../../../../Store_Old/firebase/images';
+import { Image } from '../../../../../Store_Old/firebase/images/@Image';
 import { SourcesUI } from './SourcesUI';
 
 export class SubPanel extends BaseComponent<{node: MapNodeL2}, {}> {

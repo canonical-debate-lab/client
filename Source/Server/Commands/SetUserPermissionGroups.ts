@@ -1,4 +1,4 @@
-import { PermissionGroupSet } from 'Store/firebase/userExtras/@UserExtraInfo';
+import { PermissionGroupSet } from 'Store_Old/firebase/userExtras/@UserExtraInfo';
 import { AddSchema, AssertValidate, Command } from 'Utils/FrameworkOverrides';
 import { UserEdit } from '../CommandMacros';
 

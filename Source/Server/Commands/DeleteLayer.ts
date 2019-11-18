@@ -1,10 +1,10 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { Assert } from 'js-vextensions';
-import {GetAsync, GetDataAsync} from 'Utils/FrameworkOverrides';
-import { ForDeleteLayer_GetError } from '../../Store/firebase/layers';
-import { Layer } from '../../Store/firebase/layers/@Layer';
-import { UserMapInfoSet } from '../../Store/firebase/userMapInfo/@UserMapInfo';
-import { Command } from 'Utils/FrameworkOverrides';
+import { GetAsync, GetDataAsync , Command } from 'Utils/FrameworkOverrides';
+import { ForDeleteLayer_GetError } from '../../Store_Old/firebase/layers';
+import { Layer } from '../../Store_Old/firebase/layers/@Layer';
+import { UserMapInfoSet } from '../../Store_Old/firebase/userMapInfo/@UserMapInfo';
+
 
 @UserEdit
 export class DeleteLayer extends Command<{layerID: string}, {}> {

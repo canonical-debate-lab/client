@@ -1,7 +1,7 @@
 import { Assert } from 'js-vextensions';
 import { UserEdit } from 'Server/CommandMacros';
 import { AssertValidate, Command, GetDataAsync } from 'Utils/FrameworkOverrides';
-import { Term } from '../../Store/firebase/terms/@Term';
+import { Term } from '../../Store_Old/firebase/terms/@Term';
 
 @UserEdit
 export class UpdateTermData extends Command<{termID: string, updates: Partial<Term>}, {}> {

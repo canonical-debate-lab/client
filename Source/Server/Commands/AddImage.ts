@@ -1,9 +1,9 @@
 import { UserEdit } from 'Server/CommandMacros';
-import { AssertValidate } from 'Utils/FrameworkOverrides';
-import { GetDataAsync } from 'Utils/FrameworkOverrides';
-import { Command } from 'Utils/FrameworkOverrides';
+import { AssertValidate , GetDataAsync , Command } from 'Utils/FrameworkOverrides';
+
+
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
-import { Image } from '../../Store/firebase/images/@Image';
+import { Image } from '../../Store_Old/firebase/images/@Image';
 
 @UserEdit
 export class AddImage extends Command<{image: Image}, {}> {

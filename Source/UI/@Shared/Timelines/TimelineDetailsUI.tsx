@@ -2,9 +2,9 @@ import { Clone, GetErrorMessagesUnderElement } from 'js-vextensions';
 import { Button, Column, Pre, Row, RowLR, TextInput } from 'react-vcomponents';
 import { BaseComponentPlus, GetDOM } from 'react-vextensions';
 import { UpdateTimeline } from 'Server/Commands/UpdateTimeline';
-import { Timeline } from 'Store/firebase/timelines/@Timeline';
+import { Timeline } from 'Store_Old/firebase/timelines/@Timeline';
 import { GetUpdates, Watch } from 'Utils/FrameworkOverrides';
-import { GetUser } from '../../../Store/firebase/users';
+import { GetUser } from '../../../Store_Old/firebase/users';
 import { IDAndCreationInfoUI } from '../CommonPropUIs/IDAndCreationInfoUI';
 
 export class TimelineDetailsUI extends BaseComponentPlus({ enabled: true } as {baseData: Timeline, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: Timeline, ui: TimelineDetailsUI)=>void}, {} as { newData: Timeline }) {
@@ -33,7 +33,7 @@ export class TimelineDetailsUI extends BaseComponentPlus({ enabled: true } as {b
 				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 					<Pre>Name: </Pre>
 					<TextInput required enabled={enabled} style={{ width: '100%' }}
-						value={newData.name} onChange={val => Change(newData.name = val)}/>
+						value={newData.name} onChange={(val) => Change(newData.name = val)}/>
 				</RowLR>
 			</Column>
 		);
@@ -61,7 +61,7 @@ export class TimelineDetailsEditor extends BaseComponentPlus({} as {timeline: Ti
 		const { dataError } = this.state;
 		return (
 			<>
-				<TimelineDetailsUI ref={c => this.detailsUI = c} baseData={timeline} forNew={false}
+				<TimelineDetailsUI ref={(c) => this.detailsUI = c} baseData={timeline} forNew={false}
 					onChange={(newData, ui) => {
 						// this.SetState({ newData, dataError: ui.GetValidationError() });
 						this.SetState({ dataError: ui.GetValidationError() });

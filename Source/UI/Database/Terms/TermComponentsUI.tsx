@@ -6,12 +6,12 @@ import { Connect, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { DeleteTermComponent } from '../../../Server/Commands/DeleteTermComponent';
 import { UpdateTermComponentData } from '../../../Server/Commands/UpdateTermComponentData';
-import { GetTermComponents } from '../../../Store/firebase/termComponents';
-import { TermComponent } from '../../../Store/firebase/termComponents/@TermComponent';
-import { Term } from '../../../Store/firebase/terms/@Term';
-import { IsUserCreatorOrMod } from '../../../Store/firebase/userExtras';
-import { MeID } from '../../../Store/firebase/users';
-import { RootState } from '../../../Store/index';
+import { GetTermComponents } from '../../../Store_Old/firebase/termComponents';
+import { TermComponent } from '../../../Store_Old/firebase/termComponents/@TermComponent';
+import { Term } from '../../../Store_Old/firebase/terms/@Term';
+import { IsUserCreatorOrMod } from '../../../Store_Old/firebase/userExtras';
+import { MeID } from '../../../Store_Old/firebase/users';
+import { RootState } from '../../../Store_Old/index';
 
 const componentsPlaceholder = [];
 
@@ -21,7 +21,7 @@ export class TermComponentsUI extends BaseComponentPlus({} as {term: Term, editi
 		const components = Watch(() => {
 			// only pass components when all are loaded
 			const result = GetTermComponents(term);
-			return CachedTransform('components_transform1', [term._key], result, () => (result.every(a => a != null) ? result : componentsPlaceholder));
+			return CachedTransform('components_transform1', [term._key], result, () => (result.every((a) => a != null) ? result : componentsPlaceholder));
 		}, [term]);
 
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), term);
@@ -59,8 +59,8 @@ export class TermComponentUI extends BaseComponent
 			<Row mt={first ? 0 : 5}>
 				{!creating && <Pre mr={7} sel style={E(inMap && { opacity: 0.5 })}>#{termComponent._key}</Pre>}
 				{(creating || editing)
-					? <TextInput ref={a => a && creating && this.lastRender_source == RenderSource.Mount && WaitXThenRun(0, () => a.DOM_HTML.focus())} style={ES({ flex: 1 })}
-						value={updatedTermComponent.text} onChange={val => Change(updatedTermComponent.text = val)}/>
+					? <TextInput ref={(a) => a && creating && this.lastRender_source == RenderSource.Mount && WaitXThenRun(0, () => a.DOM_HTML.focus())} style={ES({ flex: 1 })}
+						value={updatedTermComponent.text} onChange={(val) => Change(updatedTermComponent.text = val)}/>
 					: <Div sel>{termComponent.text}</Div>}
 				{editing
 					&& <Button ml={5} text="Save" enabled={changes} onClick={(e) => {

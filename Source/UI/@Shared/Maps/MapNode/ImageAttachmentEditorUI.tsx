@@ -2,7 +2,7 @@ import { GetErrorMessagesUnderElement, Clone } from 'js-vextensions';
 import { Column, Pre, RowLR, Spinner } from 'react-vcomponents';
 import { BaseComponent, GetDOM } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
-import { ImageAttachment } from '../../../../Store/firebase/nodes/@MapNode';
+import { ImageAttachment } from '../../../../Store_Old/firebase/nodes/@MapNode';
 
 type Props = {baseData: ImageAttachment, creating: boolean, editing?: boolean, style?, onChange?: (newData: ImageAttachment)=>void};
 export class ImageAttachmentEditorUI extends BaseComponent<Props, {newData: ImageAttachment}> {
@@ -26,7 +26,7 @@ export class ImageAttachmentEditorUI extends BaseComponent<Props, {newData: Imag
 				<RowLR splitAt={splitAt}>
 					<Pre>Image ID: </Pre>
 					<Spinner min={1} enabled={creating || editing} style={{ width: '100%' }}
-						value={newData.id} onChange={val => Change(newData.id = val)}/>
+						value={newData.id} onChange={(val) => Change(newData.id = val)}/>
 				</RowLR>
 			</Column>
 		);

@@ -3,21 +3,21 @@ import Moment from 'moment';
 import { Button, Column, Div, Pre, Row, Select, TextInput } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
-import { GetNodesL2 } from 'Store/firebase/nodes';
-import { User } from 'Store/firebase/users/@User';
+import { GetNodesL2 } from 'Store_Old/firebase/nodes';
+import { User } from 'Store_Old/firebase/users/@User';
 import { Connect, State, Icon, InfoButton, Watch } from 'Utils/FrameworkOverrides';
 import { EnumNameToDisplayName } from 'Utils/General/Others';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { Map } from '../../../Store/firebase/maps/@Map';
-import { GetNodeRatingsRoot, GetRatings } from '../../../Store/firebase/nodeRatings';
-import { RatingsRoot } from '../../../Store/firebase/nodeRatings/@RatingsRoot';
-import { RatingType, ratingTypes } from '../../../Store/firebase/nodeRatings/@RatingType';
-import { AsNodeL3, GetMainRatingType, GetNodeDisplayText, GetNodeL3, GetRatingTypesForNode } from '../../../Store/firebase/nodes/$node';
-import { MapNodeL2 } from '../../../Store/firebase/nodes/@MapNode';
-import { GetNodeColor, MapNodeType_Info } from '../../../Store/firebase/nodes/@MapNodeType';
-import { GetUser } from '../../../Store/firebase/users';
-import { ACTMapNodeListFilterSet, ACTMapNodeListPageSet, ACTMapNodeListSortBySet, ACTMap_List_SelectedNode_OpenPanelSet, ACTSelectedNode_InListSet, GetMap_List_SelectedNode_OpenPanel, GetSelectedNode_InList, SortType } from '../../../Store/main/maps/$map';
-import { MapNodeView } from '../../../Store/main/mapViews/@MapViews';
+import { Map } from '../../../Store_Old/firebase/maps/@Map';
+import { GetNodeRatingsRoot, GetRatings } from '../../../Store_Old/firebase/nodeRatings';
+import { RatingsRoot } from '../../../Store_Old/firebase/nodeRatings/@RatingsRoot';
+import { RatingType, ratingTypes } from '../../../Store_Old/firebase/nodeRatings/@RatingType';
+import { AsNodeL3, GetMainRatingType, GetNodeDisplayText, GetNodeL3, GetRatingTypesForNode } from '../../../Store_Old/firebase/nodes/$node';
+import { MapNodeL2 } from '../../../Store_Old/firebase/nodes/@MapNode';
+import { GetNodeColor, MapNodeType_Info } from '../../../Store_Old/firebase/nodes/@MapNodeType';
+import { GetUser } from '../../../Store_Old/firebase/users';
+import { ACTMapNodeListFilterSet, ACTMapNodeListPageSet, ACTMapNodeListSortBySet, ACTMap_List_SelectedNode_OpenPanelSet, ACTSelectedNode_InListSet, GetMap_List_SelectedNode_OpenPanel, GetSelectedNode_InList, SortType } from '../../../Store_Old/main/maps/$map';
+import { MapNodeView } from '../../../Store_Old/main/mapViews/@MapViews';
 import { DefinitionsPanel } from '../../@Shared/Maps/MapNode/NodeUI/Panels/DefinitionsPanel';
 import { DetailsPanel } from '../../@Shared/Maps/MapNode/NodeUI/Panels/DetailsPanel';
 import { DiscussionPanel } from '../../@Shared/Maps/MapNode/NodeUI/Panels/DiscussionPanel';
@@ -42,7 +42,7 @@ export class ListUI extends BaseComponent<Props, {panelToShow?: string}> {
 		let page = State.Watch('main', 'maps', map._key, 'list_page');
 		// nodes: GetNodes({limitToFirst: entriesPerPage * (page + 1)}).Skip(page * entriesPerPage).Take(entriesPerPage),
 		let nodes = GetNodesL2.Watch();
-		nodes = nodes.Any(a => a == null) ? emptyArray : nodes; // only pass nodes when all are loaded
+		nodes = nodes.Any((a) => a == null) ? emptyArray : nodes; // only pass nodes when all are loaded
 
 		const sortBy = State.Watch('main', 'maps', map._key, 'list_sortBy');
 		const filter = State.Watch('main', 'maps', map._key, 'list_filter');
@@ -66,10 +66,10 @@ export class ListUI extends BaseComponent<Props, {panelToShow?: string}> {
 			nodesFiltered = nodesFiltered.filter((node) => {
 				const titles = node.current.titles ? node.current.titles.Excluding('allTerms').VValues(true) as string[] : [];
 				if (regExp) {
-					return titles.find(a => a.match(regExp) != null);
+					return titles.find((a) => a.match(regExp) != null);
 				}
 				const terms = filter.toLowerCase().split(' ');
-				return titles.find(a => terms.every(term => a.toLowerCase().includes(term)));
+				return titles.find((a) => terms.every((term) => a.toLowerCase().includes(term)));
 			});
 		}
 
@@ -92,8 +92,8 @@ export class ListUI extends BaseComponent<Props, {panelToShow?: string}> {
 					<Column className="clickThrough" style={{ height: 80, background: 'rgba(0,0,0,.7)', borderRadius: 10 }}>
 						<Row style={{ height: 40, padding: 10 }}>
 							<Pre>Sort by: </Pre>
-							<Select options={GetEntries(SortType, name => EnumNameToDisplayName(name))}
-								value={sortBy} onChange={val => store.dispatch(new ACTMapNodeListSortBySet({ mapID: map._key, sortBy: val }))}/>
+							<Select options={GetEntries(SortType, (name) => EnumNameToDisplayName(name))}
+								value={sortBy} onChange={(val) => store.dispatch(new ACTMapNodeListSortBySet({ mapID: map._key, sortBy: val }))}/>
 							<Row style={{ position: 'absolute', left: 'calc(50% - 100px)' /* width: 200 */ }}>
 								<Button text={<Icon icon="arrow-left" size={15}/>} title="Previous page"
 									enabled={page > 0} onClick={() => {
@@ -114,7 +114,7 @@ export class ListUI extends BaseComponent<Props, {panelToShow?: string}> {
 							<Div mlr="auto"/>
 							<Pre>Filter:</Pre>
 							<InfoButton text="Hides nodes without the given text. Regular expressions can be used, ex: /there are [0-9]+ dimensions/"/>
-							<TextInput ml={2} value={filter} onChange={val => store.dispatch(new ACTMapNodeListFilterSet({ mapID: map._key, filter: val }))}/>
+							<TextInput ml={2} value={filter} onChange={(val) => store.dispatch(new ACTMapNodeListFilterSet({ mapID: map._key, filter: val }))}/>
 						</Row>
 						<Row style={{ height: 40, padding: 10 }}>
 							<span style={{ flex: columnWidths[0], fontWeight: 500, fontSize: 17 }}>Title</span>
@@ -216,7 +216,7 @@ class NodeColumn extends BaseComponentPlus({} as NodeColumn_Props, { width: null
 
 		let panelToShow = hoverPanel || openPanel;
 		// if we're supposed to show a rating panel, but its rating-type is not applicable for this node-type, fall back to main rating-type
-		if (ratingTypes.Contains(panelToShow) && !GetRatingTypesForNode(node).Any(a => a.type == panelToShow)) {
+		if (ratingTypes.Contains(panelToShow) && !GetRatingTypesForNode(node).Any((a) => a.type == panelToShow)) {
 			panelToShow = GetMainRatingType(node);
 		}
 
@@ -232,8 +232,8 @@ class NodeColumn extends BaseComponentPlus({} as NodeColumn_Props, { width: null
 					if (this.refs.ratingsPanel) GetInnerComp(this.refs.ratingsPanel).Update();
 				}}/> */}
 				<MapNodeUI_LeftBox {...{ map, path, node: nodeL3, nodeView, ratingsRoot, backgroundColor }}
-					onPanelButtonHover={panel => this.SetState({ hoverPanel: panel })}
-					onPanelButtonClick={panel => store.dispatch(new ACTMap_List_SelectedNode_OpenPanelSet({ mapID: map._key, panel }))}
+					onPanelButtonHover={(panel) => this.SetState({ hoverPanel: panel })}
+					onPanelButtonClick={(panel) => store.dispatch(new ACTMap_List_SelectedNode_OpenPanelSet({ mapID: map._key, panel }))}
 					asHover={false} inList={true} style={{ marginTop: 25 }}/>
 				<ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1 })}>
 					<Column ml={10} style={ES({ flex: 1 })}>

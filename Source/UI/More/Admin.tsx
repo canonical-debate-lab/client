@@ -2,15 +2,15 @@ import { E, SleepAsync, Assert } from 'js-vextensions';
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
-import { HasAdminPermissions } from 'Store/firebase/userExtras';
+import { HasAdminPermissions } from 'Store_Old/firebase/userExtras';
 import { Omit } from 'lodash';
 import { StopStateDataOverride, StartStateDataOverride, UpdateStateDataOverride } from 'UI/@Shared/StateOverrides';
 import { Connect, GetData, DBPath, State, RemoveHelpers, SplitStringBySlash_Cached, GetDataAsync, ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks, PageContainer, Watch } from 'Utils/FrameworkOverrides';
 import { dbVersion } from 'Main';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
 import { styles } from '../../Utils/UI/GlobalStyles';
-import { FirebaseData } from '../../Store/firebase';
-import { MeID, GetUser } from '../../Store/firebase/users';
+import { FirebaseData } from '../../Store_Old/firebase';
+import { MeID, GetUser } from '../../Store_Old/firebase/users';
 import { ResetCurrentDBRoot } from './Admin/ResetCurrentDBRoot';
 
 type UpgradeFunc = (oldData: FirebaseData, markProgress: MarkProgressFunc)=>Promise<FirebaseData>;
@@ -78,7 +78,7 @@ export class AdminUI extends BaseComponentPlus({} as {}, { dbUpgrade_entryIndexe
 				</Row>
 				<Row mt={5}><h4>Upgrader</h4></Row>
 				<Column style={{ alignItems: 'flex-start' }}>
-					{upgradeFuncs.Props().map(pair => <UpgradeButton key={pair.name} newVersion={parseInt(pair.name)} upgradeFunc={pair.value} markProgress={this.MarkProgress.bind(this)}/>)}
+					{upgradeFuncs.Props().map((pair) => <UpgradeButton key={pair.name} newVersion={parseInt(pair.name)} upgradeFunc={pair.value} markProgress={this.MarkProgress.bind(this)}/>)}
 				</Column>
 				{dbUpgrade_entryIndexes.length > 0 &&
 					<Row>

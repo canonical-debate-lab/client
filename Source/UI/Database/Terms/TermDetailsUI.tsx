@@ -1,5 +1,5 @@
-import { MeID } from 'Store/firebase/users';
-import { User } from 'Store/firebase/users/@User';
+import { MeID } from 'Store_Old/firebase/users';
+import { User } from 'Store_Old/firebase/users/@User';
 import { GetErrorMessagesUnderElement, GetEntries, Clone } from 'js-vextensions';
 import Moment from 'moment';
 import { CheckBox, Column, Pre, Row, RowLR, Select, TextInput } from 'react-vcomponents';
@@ -9,10 +9,10 @@ import { InfoButton, Connect, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
 import { AddTerm } from '../../../Server/Commands/AddTerm';
-import { TermComponent } from '../../../Store/firebase/termComponents/@TermComponent';
-import { GetTermVariantNumber } from '../../../Store/firebase/terms';
-import { Term, TermType, Term_disambiguationFormat, Term_nameFormat } from '../../../Store/firebase/terms/@Term';
-import { GetUser } from '../../../Store/firebase/users';
+import { TermComponent } from '../../../Store_Old/firebase/termComponents/@TermComponent';
+import { GetTermVariantNumber } from '../../../Store_Old/firebase/terms';
+import { Term, TermType, Term_disambiguationFormat, Term_nameFormat } from '../../../Store_Old/firebase/terms/@Term';
+import { GetUser } from '../../../Store_Old/firebase/users';
 import { GetNiceNameForTermType } from '../../Database/TermsUI';
 
 export class TermDetailsUI extends BaseComponentPlus(
@@ -38,7 +38,7 @@ export class TermDetailsUI extends BaseComponentPlus(
 		const creator = Watch(() => !forNew && GetUser(baseData.creator), [baseData.creator, forNew]);
 		const variantNumber = Watch(() => !forNew && GetTermVariantNumber(baseData), [baseData, forNew]);
 
-		const Change = _ => this.OnChange();
+		const Change = (_) => this.OnChange();
 
 		const splitAt = 170; const width = 600;
 		return (
@@ -50,7 +50,7 @@ export class TermDetailsUI extends BaseComponentPlus(
 					<TextInput
 						pattern={Term_nameFormat} required
 						enabled={enabled} style={{ width: '100%' }}
-						value={newData.name} onChange={val => Change(newData.name = val)}/>
+						value={newData.name} onChange={(val) => Change(newData.name = val)}/>
 				</RowLR>
 				{!forNew &&
 					<RowLR mt={5} splitAt={splitAt} style={{ width }}>
@@ -64,17 +64,17 @@ export class TermDetailsUI extends BaseComponentPlus(
 							+ '\n\nExample: "element", "planet", and "mythology" would be suitable "disambiguation" texts for the different terms of "Mercury".'}/>
 					</Row>
 					<TextInput enabled={enabled} style={{ width: '100%' }} pattern={Term_disambiguationFormat}
-						value={newData.disambiguation} onChange={val => Change(newData.VSet('disambiguation', val, { deleteEmpty: true }))}/>
+						value={newData.disambiguation} onChange={(val) => Change(newData.VSet('disambiguation', val, { deleteEmpty: true }))}/>
 				</RowLR>
 				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 					<Pre>Type: </Pre>
-					<Select options={GetEntries(TermType, name => GetNiceNameForTermType(TermType[name]))} enabled={enabled} style={ES({ flex: 1 })}
-						value={newData.type} onChange={val => Change(newData.type = val)}/>
+					<Select options={GetEntries(TermType, (name) => GetNiceNameForTermType(TermType[name]))} enabled={enabled} style={ES({ flex: 1 })}
+						value={newData.type} onChange={(val) => Change(newData.type = val)}/>
 				</RowLR>
 				{(newData.type == TermType.SpecificEntity || newData.type == TermType.EntityType) &&
 					<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 						<Pre>Person: </Pre>
-						<CheckBox enabled={enabled} checked={newData.person} onChange={val => Change(newData.person = val)}/>
+						<CheckBox enabled={enabled} checked={newData.person} onChange={(val) => Change(newData.person = val)}/>
 					</RowLR>}
 				{/* newData.type == TermType.Action &&
 					<RowLR mt={5} splitAt={splitAt} style={{width}}>
@@ -85,7 +85,7 @@ export class TermDetailsUI extends BaseComponentPlus(
 				<RowLR mt={5} splitAt={splitAt} style={{ width: '100%' }}>
 					<Pre>Short description: </Pre>
 					<TextInput enabled={enabled} style={ES({ flex: 1 })} required
-						value={newData.shortDescription_current} onChange={val => Change(newData.shortDescription_current = val)}/>
+						value={newData.shortDescription_current} onChange={(val) => Change(newData.shortDescription_current = val)}/>
 				</RowLR>
 			</Column>
 		);

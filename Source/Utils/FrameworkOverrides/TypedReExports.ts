@@ -1,4 +1,4 @@
-import { RootState } from 'Store';
+import { RootState } from 'Store_Old';
 import { CreateACTSet, CreateMaybeLog, CreateShouldLog, CreateSimpleReducer, CreateState, LogTypes_Base, CreateStoreAccessor } from '.';
 
 export class LogTypes extends LogTypes_Base {

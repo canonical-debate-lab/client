@@ -2,10 +2,10 @@ import { GetErrorMessagesUnderElement, Clone } from 'js-vextensions';
 import { Column, Pre, Row } from 'react-vcomponents';
 import { BaseComponent, GetDOM } from 'react-vextensions';
 import { MarkdownEditor, MarkdownToolbar } from 'react-vmarkdown';
-import { ContentNode } from '../../../../Store/firebase/contentNodes/@ContentNode';
-import { GetNodeDisplayText } from '../../../../Store/firebase/nodes/$node';
-import { ClaimForm } from '../../../../Store/firebase/nodes/@MapNode';
-import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
+import { ContentNode } from '../../../../Store_Old/firebase/contentNodes/@ContentNode';
+import { GetNodeDisplayText } from '../../../../Store_Old/firebase/nodes/$node';
+import { ClaimForm } from '../../../../Store_Old/firebase/nodes/@MapNode';
+import { MapNodeType } from '../../../../Store_Old/firebase/nodes/@MapNodeType';
 import { SubPanel_Quote } from './NodeUI_Inner/SubPanel';
 import { SourceChainsEditorUI, CleanUpdatedSourceChains } from './SourceChainsEditorUI';
 
@@ -44,7 +44,7 @@ export class QuoteInfoEditorUI extends BaseComponent
 					{/* <TextInput style={ES({flex: 1})}
 						value={info.text} onChange={val=>Change(info.text = val)}/> */}
 					{(creating || editing) && <MarkdownToolbar editor={() => this.refs.editor} excludeCommands={['h1', 'h2', 'h3', 'h4', 'italic', 'quote']}/>}
-					<MarkdownEditor ref="editor" toolbar={false} value={newData.content} onChange={val => Change(newData.content = val)} options={{
+					<MarkdownEditor ref="editor" toolbar={false} value={newData.content} onChange={(val) => Change(newData.content = val)} options={{
 						scrollbarStyle: 'overlay',
 						lineWrapping: true,
 						readOnly: !(creating || editing),
@@ -52,7 +52,7 @@ export class QuoteInfoEditorUI extends BaseComponent
 				</Column>
 				<Row mt={5}>Source chains:</Row>
 				<Row mt={5}>
-					<SourceChainsEditorUI ref={c => this.chainsEditor = c} enabled={creating || editing} baseData={newData.sourceChains} onChange={val => Change(newData.sourceChains = val)}/>
+					<SourceChainsEditorUI ref={(c) => this.chainsEditor = c} enabled={creating || editing} baseData={newData.sourceChains} onChange={(val) => Change(newData.sourceChains = val)}/>
 				</Row>
 			</Column>
 		);

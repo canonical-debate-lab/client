@@ -4,7 +4,7 @@ import { BaseComponent, GetDOM } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { RemoveHelpers, GetUpdates } from 'Utils/FrameworkOverrides';
 import { UpdateTimelineStep } from '../../../../Server/Commands/UpdateTimelineStep';
-import { NodeReveal, TimelineStep } from '../../../../Store/firebase/timelineSteps/@TimelineStep';
+import { NodeReveal, TimelineStep } from '../../../../Store_Old/firebase/timelineSteps/@TimelineStep';
 
 type Props = {baseData: TimelineStep, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: TimelineStep, ui: TimelineStepDetailsUI)=>void};
 export class TimelineStepDetailsUI extends BaseComponent<Props, {newData: TimelineStep}> {
@@ -28,11 +28,11 @@ export class TimelineStepDetailsUI extends BaseComponent<Props, {newData: Timeli
 			<Column style={style}>
 				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 					<Pre>Title: </Pre>
-					<TextInput value={newData.title} onChange={val => Change(newData.title = val)}/>
+					<TextInput value={newData.title} onChange={(val) => Change(newData.title = val)}/>
 				</RowLR>
 				<Column mt={5} style={{ width }}>
 					<Pre>Message:</Pre>
-					<TextArea autoSize={true} value={newData.message} onChange={val => Change(newData.message = val)}/>
+					<TextArea autoSize={true} value={newData.message} onChange={(val) => Change(newData.message = val)}/>
 				</Column>
 				<Row mt={5}>
 					<Pre>Nodes to show:</Pre>
@@ -63,9 +63,9 @@ class NodeRevealUI extends BaseComponent<{step: TimelineStep, reveal: NodeReveal
 		return (
 			<Row>
 				<Pre>Path: </Pre>
-				<TextInput value={reveal.path} onChange={val => Change(reveal.path = val)}/>
+				<TextInput value={reveal.path} onChange={(val) => Change(reveal.path = val)}/>
 				<Pre ml={5}>Reveal depth: </Pre>
-				<Spinner min={0} max={10} value={reveal.revealDepth} onChange={val => Change(reveal.revealDepth = val)}/>
+				<Spinner min={0} max={10} value={reveal.revealDepth} onChange={(val) => Change(reveal.revealDepth = val)}/>
 				<Button ml={5} text="X" onClick={() => {
 					step.nodeReveals.Remove(reveal);
 					Change();

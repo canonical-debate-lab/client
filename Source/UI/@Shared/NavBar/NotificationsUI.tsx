@@ -1,7 +1,7 @@
 import { Button, Column, Div } from 'react-vcomponents';
 import { AddGlobalStyle, BaseComponent } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
-import { NotificationMessage } from '../../../Store/main/@NotificationMessage';
+import { NotificationMessage } from '../../../Store_Old/main/@NotificationMessage';
 
 const notificationMessages = [];
 G({ AddNotificationMessage });
@@ -29,7 +29,7 @@ export class NotificationsUI extends BaseComponent<{}, {}> {
 	render() {
 		const {} = this.props;
 		return (
-			<ScrollView ref={c => this.scrollView = c} className="NotificationScrollView" scrollVBarStyle={{ width: 10 }} contentStyle={{ willChange: 'transform' }}>
+			<ScrollView ref={(c) => this.scrollView = c} className="NotificationScrollView" scrollVBarStyle={{ width: 10 }} contentStyle={{ willChange: 'transform' }}>
 				<Column ct style={{ maxWidth: 'calc(100% - 10px)', alignItems: 'flex-start', filter: 'drop-shadow(0px 0px 10px rgba(0,0,0,1))' }}>
 					{notificationMessages.map((message, index) => {
 						return <MessageUI key={index} message={message}/>;
@@ -69,7 +69,7 @@ export class MessageUI extends BaseComponent<{message: NotificationMessage}, {}>
 		const backgroundColor = '40,60,80';
 		return (
 			<Div ml={10} mt={10} style={{ position: 'relative', borderRadius: 5, cursor: 'default', boxShadow: 'rgba(0,0,0,1) 0px 0px 2px' }}>
-				<div style={{ display: 'flex', background: 'rgba(0,0,0,.7)', borderRadius: 5 /* cursor: "pointer" */}}>
+				<div style={{ display: 'flex', background: 'rgba(0,0,0,.7)', borderRadius: 5 /* cursor: "pointer" */ }}>
 					<div style={{ position: 'relative', padding: 5 }}>
 						<div style={{
 							position: 'absolute', left: 0, right: 0, top: 0, bottom: 0,
@@ -83,10 +83,10 @@ export class MessageUI extends BaseComponent<{message: NotificationMessage}, {}>
 						style={{
 							display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: '0 5px 5px 0',
 							width: 18, padding: '2px 4px', fontSize: 13, lineHeight: '1px', // keeps text from making meta-theses too tall
-							backgroundColor: `rgba(${backgroundColor.split(',').map(a => (parseInt(a) * 0.8).RoundTo(1)).join(',')},.7)`,
+							backgroundColor: `rgba(${backgroundColor.split(',').map((a) => (parseInt(a) * 0.8).RoundTo(1)).join(',')},.7)`,
 							// boxShadow: "none",
 							border: 'none',
-							':hover': { backgroundColor: `rgba(${backgroundColor.split(',').map(a => (parseInt(a) * 0.9).RoundTo(1)).join(',')},.7)` },
+							':hover': { backgroundColor: `rgba(${backgroundColor.split(',').map((a) => (parseInt(a) * 0.9).RoundTo(1)).join(',')},.7)` },
 						}}
 						onClick={(e) => {
 							RemoveNotificationMessage(message);

@@ -2,24 +2,24 @@ import { StandardCompProps } from 'Utils/UI/General';
 import { DeepGet, E, SleepAsync, Timer, Vector2i, FindDOMAll, Assert, FromJSON, ToJSON, VRect } from 'js-vextensions';
 import { Column, Row } from 'react-vcomponents';
 import { BaseComponentWithConnector, FindReact, GetDOM, BaseComponentPlus } from 'react-vextensions';
-import { VMenuStub } from 'react-vmenu';
-import { VMenuItem } from 'react-vmenu/dist/VMenu';
+import { VMenuStub , VMenuItem } from 'react-vmenu';
+
 import { ScrollView } from 'react-vscrollview';
 import { TimelinePlayerUI } from 'UI/@Shared/Maps/MapUI/TimelinePlayerUI';
 import { State, Connect, GetDistanceBetweenRectAndPoint, inFirefox, Watch, GetScreenRect } from 'Utils/FrameworkOverrides';
-import { GetTimelinePanelOpen, GetPlayingTimelineRevealNodes_All, GetPlayingTimeline } from 'Store/main/maps/$map';
+import { GetTimelinePanelOpen, GetPlayingTimelineRevealNodes_All, GetPlayingTimeline } from 'Store_Old/main/maps/$map';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { ActionBar_Left_GAD } from 'UI/@GAD/ActionBar_Left_GAD';
 import { ActionBar_Right_GAD } from 'UI/@GAD/ActionBar_Right_GAD';
-import { GetParentNodeL3, GetParentPath } from 'Store/firebase/nodes';
+import { GetParentNodeL3, GetParentPath } from 'Store_Old/firebase/nodes';
 import { styles, ES } from '../../../Utils/UI/GlobalStyles';
-import { Map } from '../../../Store/firebase/maps/@Map';
-import { GetNodeL3, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument } from '../../../Store/firebase/nodes/$node';
-import { MapNodeL3 } from '../../../Store/firebase/nodes/@MapNode';
-import { RootState } from '../../../Store/index';
-import { GetOpenMapID } from '../../../Store/main';
-import { GetFocusedNodePath, GetMapView, GetNodeView, GetSelectedNodePath, GetViewOffset } from '../../../Store/main/mapViews';
-import { ACTMapNodeSelect, ACTViewCenterChange } from '../../../Store/main/mapViews/$mapView/rootNodeViews';
+import { Map } from '../../../Store_Old/firebase/maps/@Map';
+import { GetNodeL3, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument } from '../../../Store_Old/firebase/nodes/$node';
+import { MapNodeL3 } from '../../../Store_Old/firebase/nodes/@MapNode';
+import { RootState } from '../../../Store_Old/index';
+import { GetOpenMapID } from '../../../Store_Old/main';
+import { GetFocusedNodePath, GetMapView, GetNodeView, GetSelectedNodePath, GetViewOffset } from '../../../Store_Old/main/mapViews';
+import { ACTMapNodeSelect, ACTViewCenterChange } from '../../../Store_Old/main/mapViews/$mapView/rootNodeViews';
 import { NodeUI } from './MapNode/NodeUI';
 import { NodeUI_ForBots } from './MapNode/NodeUI_ForBots';
 import { NodeUI_Inner } from './MapNode/NodeUI_Inner';
@@ -31,16 +31,16 @@ import { ExpandableBox } from './MapNode/ExpandableBox';
 
 
 export function GetNodeBoxForPath(path: string) {
-	const nodeInnerBoxes = FindDOMAll('.NodeUI_Inner').map(a => DeepGet(FindReact(a), 'props/parent') as NodeUI_Inner);
-	return nodeInnerBoxes.FirstOrX(a => a.props.path == path);
+	const nodeInnerBoxes = FindDOMAll('.NodeUI_Inner').map((a) => DeepGet(FindReact(a), 'props/parent') as NodeUI_Inner);
+	return nodeInnerBoxes.FirstOrX((a) => a.props.path == path);
 }
 export function GetNodeBoxClosestToViewCenter() {
 	const viewCenter_onScreen = new Vector2i(window.innerWidth / 2, window.innerHeight / 2);
-	return FindDOMAll('.NodeUI_Inner').Min(nodeBox => GetDistanceBetweenRectAndPoint($(nodeBox).GetScreenRect(), viewCenter_onScreen));
+	return FindDOMAll('.NodeUI_Inner').Min((nodeBox) => GetDistanceBetweenRectAndPoint($(nodeBox).GetScreenRect(), viewCenter_onScreen));
 }
 export function GetViewOffsetForNodeBox(nodeBox: Element) {
 	const viewCenter_onScreen = new Vector2i(window.innerWidth / 2, window.innerHeight / 2);
-	return viewCenter_onScreen.Minus($(nodeBox).GetScreenRect().Position).NewX(x => x.RoundTo(1)).NewY(y => y.RoundTo(1));
+	return viewCenter_onScreen.Minus($(nodeBox).GetScreenRect().Position).NewX((x) => x.RoundTo(1)).NewY((y) => y.RoundTo(1));
 }
 
 export function UpdateFocusNodeAndViewOffset(mapID: string) {
@@ -128,8 +128,8 @@ export class MapUI extends BaseComponentPlus({
 				<Row style={{ marginTop: 30, height: 'calc(100% - 30px)', alignItems: 'flex-start' }}>
 					{!withinPage && timelinePanelOpen &&
 						<TimelinePanel map={map}/>}
-					<ScrollView {...rest.Excluding(...StandardCompProps())} ref={c => this.scrollView = c}
-						backgroundDrag={true} backgroundDragMatchFunc={a => a == GetDOM(this.scrollView.content) || a == this.mapUIEl}
+					<ScrollView {...rest.Excluding(...StandardCompProps())} ref={(c) => this.scrollView = c}
+						backgroundDrag={true} backgroundDragMatchFunc={(a) => a == GetDOM(this.scrollView.content) || a == this.mapUIEl}
 						style={ES({ height: '100%' }, withinPage && { overflow: 'visible' })}
 						scrollHBarStyle={E({ height: 10 }, withinPage && { display: 'none' })} scrollVBarStyle={E({ width: 10 }, withinPage && { display: 'none' })}
 						contentStyle={E(
@@ -151,7 +151,7 @@ export class MapUI extends BaseComponentPlus({
 						}
 						.MapUI.scrolling > * { pointer-events: none; }
 						`}</style>
-						<div className="MapUI" ref={c => this.mapUIEl = c}
+						<div className="MapUI" ref={(c) => this.mapUIEl = c}
 							style={{
 								position: 'relative', /* display: "flex", */ whiteSpace: 'nowrap',
 								padding: `${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px`,
@@ -186,7 +186,7 @@ export class MapUI extends BaseComponentPlus({
 							{/* <ResizeSensor ref="resizeSensor" onResize={()=> {
 								this.LoadScroll();
 							}}/> */}
-							<VMenuStub preOpen={e => e.passThrough != true}>
+							<VMenuStub preOpen={(e) => e.passThrough != true}>
 								<VMenuItem text="(To add a node, right click on an existing node.)" style={styles.vMenuItem}/>
 							</VMenuStub>
 						</div>
@@ -326,7 +326,7 @@ export class MapUI extends BaseComponentPlus({
 
 		const mapUIBackgroundRect = GetScreenRect(this.mapUIEl);
 		const oldScroll = this.scrollView.GetScroll();
-		const viewportRect = GetScreenRect(GetDOM(this.scrollView.content)).NewPosition(a => a.Minus(mapUIBackgroundRect));
+		const viewportRect = GetScreenRect(GetDOM(this.scrollView.content)).NewPosition((a) => a.Minus(mapUIBackgroundRect));
 
 		const newViewportRect = viewportRect.Clone();
 		if (targetRect.Left < newViewportRect.Left) newViewportRect.x = targetRect.x; // if target-rect extends further left, reposition left

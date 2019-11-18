@@ -2,25 +2,25 @@ import { E, GetErrorMessagesUnderElement, GetEntries } from 'js-vextensions';
 import { Column, Pre, Row, Select } from 'react-vcomponents';
 import { BaseComponent, GetInnerComp, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
-import { Layer } from 'Store/firebase/layers/@Layer';
-import { HasModPermissions } from 'Store/firebase/userExtras';
-import { MeID } from 'Store/firebase/users';
+import { Layer } from 'Store_Old/firebase/layers/@Layer';
+import { HasModPermissions } from 'Store_Old/firebase/userExtras';
+import { MeID } from 'Store_Old/firebase/users';
 import { Connect } from 'Utils/FrameworkOverrides';
 import { AddSubnode } from '../../../../../Server/Commands/AddSubnode';
-import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
-import { GetLayers } from '../../../../../Store/firebase/layers';
-import { AsNodeL2, AsNodeL3, GetClaimType } from '../../../../../Store/firebase/nodes/$node';
-import { Equation } from '../../../../../Store/firebase/nodes/@Equation';
-import { ChildEntry, ClaimForm, ClaimType, ImageAttachment, MapNode, MapNodeL2 } from '../../../../../Store/firebase/nodes/@MapNode';
-import { MapNodeRevision } from '../../../../../Store/firebase/nodes/@MapNodeRevision';
-import { MapNodeType } from '../../../../../Store/firebase/nodes/@MapNodeType';
+import { ContentNode } from '../../../../../Store_Old/firebase/contentNodes/@ContentNode';
+import { GetLayers } from '../../../../../Store_Old/firebase/layers';
+import { AsNodeL2, AsNodeL3, GetClaimType } from '../../../../../Store_Old/firebase/nodes/$node';
+import { Equation } from '../../../../../Store_Old/firebase/nodes/@Equation';
+import { ChildEntry, ClaimForm, ClaimType, ImageAttachment, MapNode, MapNodeL2 } from '../../../../../Store_Old/firebase/nodes/@MapNode';
+import { MapNodeRevision } from '../../../../../Store_Old/firebase/nodes/@MapNodeRevision';
+import { MapNodeType } from '../../../../../Store_Old/firebase/nodes/@MapNodeType';
 import { NodeDetailsUI } from '../NodeDetailsUI';
 
 export function ShowAddSubnodeDialog(mapID: string, anchorNode: MapNodeL2, anchorNodePath: string) {
 	let dialog: AddSubnodeDialog;
 	const boxController = ShowMessageBox({
 		title: 'Add subnode (to layer)', cancelButton: true,
-		message: () => <AddSubnodeDialog ref={c => dialog = c} {...{ mapID, anchorNode, anchorNodePath, boxController }}/>,
+		message: () => <AddSubnodeDialog ref={(c) => dialog = c} {...{ mapID, anchorNode, anchorNodePath, boxController }}/>,
 		onOK: () => dialog.OnOK(),
 	});
 }
@@ -56,18 +56,18 @@ class AddSubnodeDialog extends BaseComponentPlus({} as Props, {} as {layer: Laye
 
 		const claimTypes = GetEntries(ClaimType);
 		if (!HasModPermissions(MeID())) {
-			claimTypes.Remove(claimTypes.find(a => a.value == ClaimType.Image));
+			claimTypes.Remove(claimTypes.find((a) => a.value == ClaimType.Image));
 		}
 
-		const layersWeCanAddTo = layers.filter(a => a.creator == MeID());
-		const layerOptions = [{ name: '', value: null }].concat(layersWeCanAddTo.map(a => ({ name: a.name, value: a })));
+		const layersWeCanAddTo = layers.filter((a) => a.creator == MeID());
+		const layerOptions = [{ name: '', value: null }].concat(layersWeCanAddTo.map((a) => ({ name: a.name, value: a })));
 
 		return (
 			<div>
 				<Column style={{ padding: '10px 0', width: 600 }}>
 					<Row>
 						<Pre>Layer: </Pre>
-						<Select options={layerOptions} value={layer} onChange={val => this.SetState({ layer: val })}/>
+						<Select options={layerOptions} value={layer} onChange={(val) => this.SetState({ layer: val })}/>
 					</Row>
 					{newNode.type == MapNodeType.Claim &&
 					<Row mt={5}>
@@ -87,7 +87,7 @@ class AddSubnodeDialog extends BaseComponentPlus({} as Props, {} as {layer: Laye
 								this.Update();
 							}}/>
 					</Row>}
-					<NodeDetailsUI ref={c => this.nodeEditorUI = c} parent={null}
+					<NodeDetailsUI ref={(c) => this.nodeEditorUI = c} parent={null}
 						baseData={AsNodeL3(AsNodeL2(newNode, newRevision))} baseRevisionData={newRevision} baseLinkData={newLink} forNew={true}
 						onChange={(newNodeData, newRevisionData, newLinkData, comp) => {
 							this.SetState({ newNode: newNodeData, newRevision: newRevisionData, newLink: newLinkData });

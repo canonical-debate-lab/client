@@ -1,138 +1,70 @@
-import { firebaseStateReducer } from 'react-redux-firebase';
-import { VMenuReducer, VMenuState } from 'react-vmenu';
-import { firestoreReducer } from 'redux-firestore';
-import { DeepGet, DeepSet, IsString, Assert } from 'js-vextensions';
-import { CombineReducers_Advanced, bufferedActions, HandleError, manager, LogWarning } from 'Utils/FrameworkOverrides';
-import { FeedbackReducer } from 'firebase-feedback';
-import { persistReducer, createTransform, createMigrate } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
-import { omit } from 'lodash';
-import { MainReducer, MainState_Redux } from './main';
-import { migrations } from './@Migrations/Main';
+import makeInspectable from 'mobx-devtools-mst';
+import { model } from 'mst-decorators';
+import { unprotect } from 'mobx-state-tree';
+import {configure} from 'mobx';
+import { MainState, MainStateM } from './main';
 
-// class is used only for initialization
-export class RootState {
-	main: MainState_Redux;
-	// firebase: FirebaseDatabase;
-	firebase: any;
-	firestore: any;
-	// form: any;
-	// router: RouterState;
-	router: any;
-	vMenu: VMenuState;
-	/* forum: ForumData;
-	feedback: FeedbackData; */
+// configure({ enforceActions: 'always' });
+configure({ enforceActions: 'observed' });
+
+/* export class StoreM {
+	@observable main = new MainStateM();
 }
-export function MakeRootReducer(pureOnly = false) {
-	const innerReducer = CombineReducers_Advanced({
-		/* preReduce: (state, action) => {
-			// if (action.type == '@@reactReduxFirebase/START' || action.type == '@@reactReduxFirebase/SET') {
-			if (action.type == '@@reactReduxFirebase/SET_LISTENER' || DoesActionSetFirestoreData(action)) {
-				// const newFirebaseState = firebaseStateReducer(state.firebase, action);
-				const newFirestoreState = firestoreReducer(state.firestore, action);
 
-				// Watch for changes to requesting and requested, and channel those statuses into a custom pathReceiveStatuses map.
-				// This way, when an action only changes these statuses, we can cancel the action dispatch, greatly reducing performance impact.
-				NotifyPathsReceiving(newFirestoreState.status.requesting.Pairs().filter(a => a.value).map(a => a.key));
-				NotifyPathsReceived(newFirestoreState.status.requested.Pairs().filter(a => a.value).map(a => a.key));
+export const storeM = new StoreM();
+/* declare global { const storeM: StoreM; } *#/ G({ storeM }); */
 
-				// Here we check if the action changed more than just the statuses. If it didn't, then the action dispatch is canceled. (basically -- the action applies no state change, leading to store subscribers not being notified)
-				const oldData = DeepGet(state.firebase.data, action['path']);
-				const newData = DeepGet(newFirestoreState.data, action['path']);
-				// if (newData === oldData) {
-				if (newData === oldData || ToJSON(newData) === ToJSON(oldData)) {
-					return state;
-				}
-			}
-		}, */
-		reducers: {
-			main: MainReducer,
-			firebase: firebaseStateReducer,
-			firestore: firestoreReducer,
-			// form: formReducer,
-			vMenu: VMenuReducer,
-			// forum: ForumReducer,
-			feedback: FeedbackReducer,
-			...manager.GetExtraReducers(),
-		},
-		actionSendFilters: {
-			/* '@@reactReduxFirebase/START': ['firebase'],
-			'@@reactReduxFirebase/SET': ['firebase'], */
-			'ACTSet_main/search/queryStr': ['main'],
+// type GetPropsOfType<T, K extends keyof any> = Pick<T, Extract<keyof T, K>>;
+
+/* const StoreM = types.model('StoreM', {
+	main: MainStateM,
+}).actions((self) => {
+	// const mapActions = mapExports.VValues().filter(a => a instanceof Function && a['Watch'] != null);
+	// const mapActions = Object.entries(mapExports).filter(a => a[1] instanceof Function && a[1]['Watch'] != null).ToMap(a => a[0], a => a[1]);
+	/* const mapActions = E(mapExports);
+	for (const pair of mapActions.Pairs()) {
+		if (!(pair.value instanceof Function) || pair.value['isStoreAction'] == null) {
+			delete mapActions[pair.key];
+		}
+	}
+
+	/* const actions = {};
+	mapActions.forEach(a => actions[a['displayName']] = a);
+	return actions; *#/
+	return {
+		...mapActions,
+	}; *$/
+	return {
+		/* afterCreate: flow(function* () {
+			yield ;
+			applySnapshot().testSnap = JSON.stringify(getSnapshot(self));
+		}), *$/
+	};
+}); */
+
+export class RootState {
+	@MainStateM main: MainState;
+}
+export const RootStateM = model(RootState);
+
+export let store: ReturnType<typeof InitStore>;
+
+/* declare global { const storeM: StoreM; } */
+export function InitStore() {
+	const result = RootStateM.create({
+		main: {
+			maps: {},
 		},
 	});
+	unprotect(result);
+	makeInspectable(result);
 
-	const outerReducer_prePersist = (state: RootState, rootAction) => {
-		if (bufferedActions) {
-			bufferedActions.push(rootAction);
-			return state;
-		}
+	// listen to new snapshots
+	/* onSnapshot(result, (snapshot) => {
+		console.dir(snapshot);
+	}); */
 
-		const actions = rootAction.type === 'ActionSet' ? rootAction.payload.actions : [rootAction];
-
-		let result = state;
-		for (const action of actions) {
-			try {
-				const oldResult = result;
-				result = innerReducer(result, action) as RootState;
-				if (action.type.startsWith('ACTSet_') && result === oldResult) {
-					LogWarning(`An ${action.type} action was dispatched, but did not cause any change to the store contents! Did you forget to add a reducer entry?`);
-				}
-			} catch (ex) {
-				HandleError(ex, true, { action });
-			}
-		}
-
-		// make-so certain paths are ignored in redux-devtools-extension's Chart panel
-		const ignorePaths = [
-			'firestore/data',
-		];
-		for (const path of ignorePaths) {
-			const data = DeepGet(result, path);
-			// temp removed (Object.freeze makes it error)
-			/* if (data != null && data['toJSON'] == null) {
-				data['toJSON'] = () => '[IGNORED]';
-			} */
-		}
-
-		return result;
-	};
-	if (pureOnly) return outerReducer_prePersist;
-
-	const blacklistPaths = [
-		'firebase', 'firestore', 'vmenu', // from above
-		'router', // from vwebapp-framework
-		// main sub-exclusions
-		'main.notificationMessages', 'main.currentNodeBeingAdded_path', 'main.search.findNode_state',
-	];
-	const persistConfig = {
-		key: 'reduxPersist_root',
-		storage,
-		blacklist: blacklistPaths.filter((a) => !a.includes('.')),
-		transforms: [
-			// nested blacklist-paths require a custom transform to be applied
-			createTransform((inboundState, key) => {
-				if (!IsString(key)) throw Assert(false); // we want the type-guard (but not sure if this is correct)
-				const blacklistPaths_forKey = blacklistPaths.filter((path) => path.startsWith(`${key}.`)).map((path) => path.substr(key.length + 1));
-				return omit(inboundState as any, ...blacklistPaths_forKey);
-			}, null),
-		],
-		version: 2,
-		migrate: createMigrate(migrations as any, { debug: true }),
-	};
-	return persistReducer(persistConfig, outerReducer_prePersist);
+	store = result;
+	G({ storeM: result });
+	return result; // the only reason we return it is for the "ReturnType<...>" above
 }
-
-/* function RouterReducer(state = {location: null}, action) {
-	let oldURL = VURL.FromLocationObject(state.location);
-	let newURL = oldURL.Clone();
-	if (action.Is(ACTDebateMapSelect) && action.payload.id == null) {
-		newURL.pathNodes.length = 1;
-	}
-	if (oldURL.toString() != newURL.toString()) {
-		browserHistory.push(newURL.toString({domain: false}));
-		return {...state, location: newURL.ToState()};
-	}
-
-	return routerReducer(state, action);
-} */

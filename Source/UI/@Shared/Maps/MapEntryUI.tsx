@@ -5,10 +5,10 @@ import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions
 import { columnWidths } from 'UI/Debates';
 import { Connect, Link, HSLA, Watch } from 'Utils/FrameworkOverrides';
 import { GADDemo } from 'UI/@GAD/GAD';
-import { Map, MapType } from '../../../Store/firebase/maps/@Map';
-import { GetUser } from '../../../Store/firebase/users';
-import { ACTDebateMapSelect } from '../../../Store/main/debates';
-import { ACTPersonalMapSelect } from '../../../Store/main/personal';
+import { Map, MapType } from '../../../Store_Old/firebase/maps/@Map';
+import { GetUser } from '../../../Store_Old/firebase/users';
+import { ACTDebateMapSelect } from '../../../Store_Old/main/debates';
+import { ACTPersonalMapSelect } from '../../../Store_Old/main/personal';
 
 export class MapEntryUI extends BaseComponentPlus({} as {index: number, last: boolean, map: Map}, {}) {
 	render() {

@@ -1,5 +1,5 @@
-import { Rating } from 'Store/firebase/nodeRatings/@RatingsRoot';
-import { RatingType } from 'Store/firebase/nodeRatings/@RatingType';
+import { Rating } from 'Store_Old/firebase/nodeRatings/@RatingsRoot';
+import { RatingType } from 'Store_Old/firebase/nodeRatings/@RatingType';
 import { AddSchema, AssertValidate, Command } from 'Utils/FrameworkOverrides';
 
 AddSchema('SetNodeRating_payload', {

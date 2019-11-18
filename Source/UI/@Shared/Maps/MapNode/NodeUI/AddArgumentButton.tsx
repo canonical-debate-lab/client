@@ -1,13 +1,13 @@
 import { Button } from 'react-vcomponents';
-import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
-import { MeID } from 'Store/firebase/users';
+import { CanGetBasicPermissions } from 'Store_Old/firebase/userExtras';
+import { MeID } from 'Store_Old/firebase/users';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { HSLA } from 'Utils/FrameworkOverrides';
-import {UseCallback} from 'react-vextensions';
-import { Map } from '../../../../../Store/firebase/maps/@Map';
-import { MapNodeL3, Polarity } from '../../../../../Store/firebase/nodes/@MapNode';
-import { GetNodeColor, MapNodeType } from '../../../../../Store/firebase/nodes/@MapNodeType';
+import { UseCallback } from 'react-vextensions';
+import { Map } from '../../../../../Store_Old/firebase/maps/@Map';
+import { MapNodeL3, Polarity } from '../../../../../Store_Old/firebase/nodes/@MapNode';
+import { GetNodeColor, MapNodeType } from '../../../../../Store_Old/firebase/nodes/@MapNodeType';
 import { ShowAddChildDialog } from '../NodeUI_Menu/AddChildDialog';
 
 type Props = {map: Map, node: MapNodeL3, path: string, polarity: Polarity, style?};

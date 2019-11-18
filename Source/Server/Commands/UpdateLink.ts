@@ -1,7 +1,7 @@
-import { GetNode } from 'Store/firebase/nodes';
+import { GetNode } from 'Store_Old/firebase/nodes';
 import { AddSchema, AssertValidate, Command, GetAsync_Raw, GetSchemaJSON } from 'Utils/FrameworkOverrides';
-import { GetLinkUnderParent } from '../../Store/firebase/nodes/$node';
-import { ChildEntry } from '../../Store/firebase/nodes/@MapNode';
+import { GetLinkUnderParent } from '../../Store_Old/firebase/nodes/$node';
+import { ChildEntry } from '../../Store_Old/firebase/nodes/@MapNode';
 import { UserEdit } from '../CommandMacros';
 
 AddSchema('UpdateLink_payload', ['ChildEntry'], () => ({

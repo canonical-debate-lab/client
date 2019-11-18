@@ -8,7 +8,6 @@ For more information, visit the website at: <https://canonicaldebate.com>
 
 1) Clone the repo to disk: <https://github.com/canonical-debate-lab/client.git>
 2) Run `npm install` in the project's root folder.
-3) Run `npm run create-vendors[-quick]` in the project's root folder. 
 
 For recommended setup of your code editor and other tools, see: [Editor setup](#editor-setup)
 
@@ -17,8 +16,6 @@ For recommended setup of your code editor and other tools, see: [Editor setup](#
 1) Run `tsc` in a console, and keep it running in the background.
 2) Run `npm run dev` in the root project folder. (or `npm run dev-with-stats`)
 3) Navigate to `localhost:3005`.
-
-Note that you'll need to run `npm run create-vendors[-quick]` after updating/removing libraries listed in `Scripts/Config/Vendors.js` (else the old versions are included in the Vendor bundle), and after adding new entries. (you should do this for large, infrequently updated modules, to speed up the regular compile process)
 
 ### Firebase setup + project config (if forking)
 

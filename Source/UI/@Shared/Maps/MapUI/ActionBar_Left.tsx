@@ -2,14 +2,14 @@ import { Button, CheckBox, Column, DropDown, DropDownContent, DropDownTrigger, R
 import { BaseComponent, GetInnerComp, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
-import { Layer } from 'Store/firebase/layers/@Layer';
-import { GetChildCount } from 'Store/firebase/nodes';
-import { GetNodeL2 } from 'Store/firebase/nodes/$node';
-import { GetUser, MeID } from 'Store/firebase/users';
-import { User } from 'Store/firebase/users/@User';
+import { Layer } from 'Store_Old/firebase/layers/@Layer';
+import { GetChildCount } from 'Store_Old/firebase/nodes';
+import { GetNodeL2 } from 'Store_Old/firebase/nodes/$node';
+import { GetUser, MeID } from 'Store_Old/firebase/users';
+import { User } from 'Store_Old/firebase/users/@User';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { GetUpdates, GetAsync, Connect, State, HSLA, Watch } from 'Utils/FrameworkOverrides';
-import { GetTimelinePanelOpen, ACTMap_TimelinePanelOpenSet } from 'Store/main/maps/$map';
+import { GetTimelinePanelOpen, ACTMap_TimelinePanelOpenSet } from 'Store_Old/main/maps/$map';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { Button_GAD } from 'UI/@GAD/GADButton';
 import { colors, ES } from '../../../../Utils/UI/GlobalStyles';
@@ -18,13 +18,13 @@ import { DeleteMap } from '../../../../Server/Commands/DeleteMap';
 import { SetLayerAttachedToMap } from '../../../../Server/Commands/SetLayerAttachedToMap';
 import { SetMapLayerStateForUser } from '../../../../Server/Commands/SetMapLayerStateForUser';
 import { UpdateMapDetails } from '../../../../Server/Commands/UpdateMapDetails';
-import { ForDeleteLayer_GetError, GetLayers, GetMapLayerIDs } from '../../../../Store/firebase/layers';
-import { IsUserMap } from '../../../../Store/firebase/maps';
-import { Map, MapType } from '../../../../Store/firebase/maps/@Map';
-import { HasModPermissions, IsUserCreatorOrMod } from '../../../../Store/firebase/userExtras';
-import { GetUserLayerStateForMap } from '../../../../Store/firebase/userMapInfo';
-import { ACTDebateMapSelect } from '../../../../Store/main/debates';
-import { ACTPersonalMapSelect } from '../../../../Store/main/personal';
+import { ForDeleteLayer_GetError, GetLayers, GetMapLayerIDs } from '../../../../Store_Old/firebase/layers';
+import { IsUserMap } from '../../../../Store_Old/firebase/maps';
+import { Map, MapType } from '../../../../Store_Old/firebase/maps/@Map';
+import { HasModPermissions, IsUserCreatorOrMod } from '../../../../Store_Old/firebase/userExtras';
+import { GetUserLayerStateForMap } from '../../../../Store_Old/firebase/userMapInfo';
+import { ACTDebateMapSelect } from '../../../../Store_Old/main/debates';
+import { ACTPersonalMapSelect } from '../../../../Store_Old/main/personal';
 import { ShowAddLayerDialog } from '../Layers/AddLayerDialog';
 import { MapDetailsUI } from '../MapDetailsUI';
 
@@ -82,7 +82,7 @@ export class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: strin
 			<DropDown>
 				<DropDownTrigger><Button_Final ml={5} style={{ height: '100%' }} text="Details"/></DropDownTrigger>
 				<DropDownContent style={{ left: 0 }}><Column>
-					<MapDetailsUI ref={c => this.detailsUI = c} baseData={map}
+					<MapDetailsUI ref={(c) => this.detailsUI = c} baseData={map}
 						forNew={false} enabled={creatorOrMod}
 						onChange={(newData) => {
 							this.SetState({ dataError: this.detailsUI.GetValidationError() });

@@ -1,17 +1,17 @@
-import { AsNodeL1, GetFinalPolarity } from 'Store/firebase/nodes/$node';
-import { GetUserAccessLevel, MeID } from 'Store/firebase/users';
-import { User } from 'Store/firebase/users/@User';
+import { AsNodeL1, GetFinalPolarity } from 'Store_Old/firebase/nodes/$node';
+import { GetUserAccessLevel, MeID } from 'Store_Old/firebase/users';
+import { User } from 'Store_Old/firebase/users/@User';
 import { GetErrorMessagesUnderElement, GetEntries, Clone, WaitXThenRun } from 'js-vextensions';
 import { CheckBox, Column, Div, Pre, Row, Select, Spinner, TextArea, TextInput, Text } from 'react-vcomponents';
 import { BaseComponent, RenderSource, GetDOM, BaseComponentPlus } from 'react-vextensions';
-import { HasAdminPermissions } from 'Store/firebase/userExtras';
+import { HasAdminPermissions } from 'Store_Old/firebase/userExtras';
 import { Connect, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { AsNodeL2, GetClaimType } from '../../../../Store/firebase/nodes/$node';
-import { AccessLevel, ChildEntry, ClaimForm, ClaimType, MapNode, MapNodeL2, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
-import { ArgumentType, GetArgumentTypeDisplayText, MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../Store/firebase/nodes/@MapNodeRevision';
-import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
-import { GetUser } from '../../../../Store/firebase/users';
+import { AsNodeL2, GetClaimType } from '../../../../Store_Old/firebase/nodes/$node';
+import { AccessLevel, ChildEntry, ClaimForm, ClaimType, MapNode, MapNodeL2, MapNodeL3 } from '../../../../Store_Old/firebase/nodes/@MapNode';
+import { ArgumentType, GetArgumentTypeDisplayText, MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../Store_Old/firebase/nodes/@MapNodeRevision';
+import { MapNodeType } from '../../../../Store_Old/firebase/nodes/@MapNodeType';
+import { GetUser } from '../../../../Store_Old/firebase/users';
 import { EquationEditorUI } from './EquationEditorUI';
 import { ImageAttachmentEditorUI } from './ImageAttachmentEditorUI';
 import { QuoteInfoEditorUI } from './QuoteInfoEditorUI';
@@ -63,20 +63,20 @@ export class NodeDetailsUI extends BaseComponentPlus({ enabled: true } as Props,
 					<OtherTitles {...sharedProps}/>}
 				{newData.type == MapNodeType.Claim && claimType == ClaimType.Equation &&
 					<EquationEditorUI key={0} creating={forNew} editing={enabled}
-						baseData={newRevisionData.equation} onChange={val => Change(newRevisionData.equation = val)}/>}
+						baseData={newRevisionData.equation} onChange={(val) => Change(newRevisionData.equation = val)}/>}
 				{newData.type == MapNodeType.Claim && claimType == ClaimType.Quote &&
-					<QuoteInfoEditorUI ref={c => this.quoteEditor = c} key={1} creating={forNew} editing={enabled}
-						baseData={newRevisionData.contentNode} onChange={val => Change(newRevisionData.contentNode = val)}
+					<QuoteInfoEditorUI ref={(c) => this.quoteEditor = c} key={1} creating={forNew} editing={enabled}
+						baseData={newRevisionData.contentNode} onChange={(val) => Change(newRevisionData.contentNode = val)}
 						showPreview={false} justShowed={false}/>}
 				{newData.type == MapNodeType.Claim && claimType == ClaimType.Image &&
 					<ImageAttachmentEditorUI key={1} creating={forNew} editing={enabled}
-						baseData={newRevisionData.image} onChange={val => Change(newRevisionData.image = val)}/>}
+						baseData={newRevisionData.image} onChange={(val) => Change(newRevisionData.image = val)}/>}
 				{newData.type == MapNodeType.Argument &&
 					<ArgumentInfo {...sharedProps}/>}
 				<Row mt={5}>
 					<Text>Note: </Text>
 					<TextInput enabled={enabled} style={{ width: '100%' }}
-						value={newRevisionData.note} onChange={val => Change(newRevisionData.note = val)}/>
+						value={newRevisionData.note} onChange={(val) => Change(newRevisionData.note = val)}/>
 				</Row>
 				{!forNew &&
 					<AdvancedOptions {...sharedProps}/>}
@@ -127,8 +127,8 @@ class Title_Base extends BaseComponent<SharedProps, {}> {
 						value={newRevisionData.titles["base"]} onChange={val=>Change(newRevisionData.titles["base"] = val)}/> */}
 					<TextArea enabled={enabled} required={!hasOtherTitlesEntered && !willUseYesNoTitleHere} pattern={MapNodeRevision_titlePattern} autoSize={true}
 						allowLineBreaks={false} style={ES({ flex: 1 })}
-						ref={a => a && forNew && this.lastRender_source == RenderSource.Mount && WaitXThenRun(0, () => a.DOM && a.DOM_HTML.focus())}
-						value={newRevisionData.titles['base']} onChange={val => Change(newRevisionData.titles['base'] = val)}/>
+						ref={(a) => a && forNew && this.lastRender_source == RenderSource.Mount && WaitXThenRun(0, () => a.DOM && a.DOM_HTML.focus())}
+						value={newRevisionData.titles['base']} onChange={(val) => Change(newRevisionData.titles['base'] = val)}/>
 				</Row>
 				{forNew && newData.type == MapNodeType.Argument &&
 					<Row mt={5} style={{ background: 'rgba(255,255,255,.1)', padding: 5, borderRadius: 5 }}>
@@ -163,14 +163,14 @@ class OtherTitles extends BaseComponent<SharedProps, {}> {
 					<Pre>Title (negation): </Pre>
 					{/* <TextInput enabled={enabled} style={ES({flex: 1})} value={newRevisionData.titles["negation"]} onChange={val=>Change(newRevisionData.titles["negation"] = val)}/> */}
 					<TextArea enabled={enabled} allowLineBreaks={false} style={ES({ flex: 1 })} pattern={MapNodeRevision_titlePattern} autoSize={true}
-						value={newRevisionData.titles['negation']} onChange={val => Change(newRevisionData.titles['negation'] = val)}/>
+						value={newRevisionData.titles['negation']} onChange={(val) => Change(newRevisionData.titles['negation'] = val)}/>
 				</Row>
 				<Row key={1} mt={5} style={{ display: 'flex', alignItems: 'center' }}>
 					<Pre>Title (question): </Pre>
 					{/* <TextInput enabled={enabled} style={ES({flex: 1})} required={willUseQuestionTitleHere}
 						value={newRevisionData.titles["yesNoQuestion"]} onChange={val=>Change(newRevisionData.titles["yesNoQuestion"] = val)}/> */}
 					<TextArea enabled={enabled} allowLineBreaks={false} style={ES({ flex: 1 })} pattern={MapNodeRevision_titlePattern} autoSize={true}
-						value={newRevisionData.titles['yesNoQuestion']} onChange={val => Change(newRevisionData.titles['yesNoQuestion'] = val)}/>
+						value={newRevisionData.titles['yesNoQuestion']} onChange={(val) => Change(newRevisionData.titles['yesNoQuestion'] = val)}/>
 				</Row>
 				{willUseQuestionTitleHere && forNew &&
 					<Row mt={5} style={{ background: 'rgba(255,255,255,.1)', padding: 5, borderRadius: 5 }}>
@@ -190,7 +190,7 @@ class ArgumentInfo extends BaseComponent<SharedProps, {}> {
 		return (
 			<Row>
 				<Pre>Type: If </Pre>
-				<Select options={GetEntries(ArgumentType, name => GetArgumentTypeDisplayText(ArgumentType[name]))}
+				<Select options={GetEntries(ArgumentType, (name) => GetArgumentTypeDisplayText(ArgumentType[name]))}
 					enabled={enabled} value={newRevisionData.argumentType} onChange={(val) => {
 						Change(newRevisionData.argumentType = val);
 					}}/>
@@ -209,25 +209,25 @@ class AdvancedOptions extends BaseComponent<SharedProps, {}> {
 				{HasAdminPermissions(MeID()) &&
 					<Row style={{ display: 'flex', alignItems: 'center' }}>
 						<Pre>Voting enabled: </Pre>
-						<CheckBox enabled={enabled} checked={!newRevisionData.votingDisabled} onChange={val => Change(newRevisionData.votingDisabled = val ? null : true)}/>
+						<CheckBox enabled={enabled} checked={!newRevisionData.votingDisabled} onChange={(val) => Change(newRevisionData.votingDisabled = val ? null : true)}/>
 					</Row>}
 				{HasAdminPermissions(MeID()) &&
 					<Row style={{ display: 'flex', alignItems: 'center' }}>
 						<Pre>Font-size override: </Pre>
-						<Spinner max={25} enabled={enabled} value={newRevisionData.fontSizeOverride | 0} onChange={val => Change(newRevisionData.fontSizeOverride = val != 0 ? val : null)}/>
+						<Spinner max={25} enabled={enabled} value={newRevisionData.fontSizeOverride | 0} onChange={(val) => Change(newRevisionData.fontSizeOverride = val != 0 ? val : null)}/>
 						<Pre> px (0 for auto)</Pre>
 					</Row>}
 				<Row mt={5} style={{ display: 'flex', alignItems: 'center' }}>
 					<Pre>Width override: </Pre>
-					<Spinner step={10} max={1000} enabled={enabled} value={newRevisionData.widthOverride | 0} onChange={val => Change(newRevisionData.widthOverride = val != 0 ? val : null)}/>
+					<Spinner step={10} max={1000} enabled={enabled} value={newRevisionData.widthOverride | 0} onChange={(val) => Change(newRevisionData.widthOverride = val != 0 ? val : null)}/>
 					<Pre> px (0 for auto)</Pre>
 				</Row>
 				<Row mt={5} style={{ display: 'flex', alignItems: 'center' }}>
 					<Pre>Access level: </Pre>
-					<Select options={GetEntries(AccessLevel).filter(a => a.value <= GetUserAccessLevel(MeID()))} enabled={enabled}
+					<Select options={GetEntries(AccessLevel).filter((a) => a.value <= GetUserAccessLevel(MeID()))} enabled={enabled}
 						value={newRevisionData.accessLevel || AccessLevel.Basic}
 						// onChange={val => Change(val == AccessLevel.Basic ? delete newRevisionData.accessLevel : newRevisionData.accessLevel = val)}/>
-						onChange={val => Change(newRevisionData.accessLevel = val)}/>
+						onChange={(val) => Change(newRevisionData.accessLevel = val)}/>
 				</Row>
 			</Column>
 		);

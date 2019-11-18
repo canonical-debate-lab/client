@@ -8,17 +8,17 @@ import { AddTimelineStep } from 'Server/Commands/AddTimelineStep';
 import { DeleteTimelineStep } from 'Server/Commands/DeleteTimelineStep';
 import { UpdateTimeline } from 'Server/Commands/UpdateTimeline';
 import { UpdateTimelineStep } from 'Server/Commands/UpdateTimelineStep';
-import { Map } from 'Store/firebase/maps/@Map';
-import { GetNodeID } from 'Store/firebase/nodes';
-import { GetNodeDisplayText, GetNodeL2, GetNodeL3 } from 'Store/firebase/nodes/$node';
-import { GetNodeColor, MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
-import { GetTimelineSteps, GetTimelineStep } from 'Store/firebase/timelines';
-import { Timeline } from 'Store/firebase/timelines/@Timeline';
-import { NodeReveal, TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
-import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
-import { MeID } from 'Store/firebase/users';
-import { GetOpenMapID } from 'Store/main';
-import { GetSelectedTimeline, GetTimelineOpenSubpanel, GetTimelinePanelOpen, TimelineSubpanel, GetShowTimelineDetails, ACTMap_TimelineShowDetailsSet } from 'Store/main/maps/$map';
+import { Map } from 'Store_Old/firebase/maps/@Map';
+import { GetNodeID } from 'Store_Old/firebase/nodes';
+import { GetNodeDisplayText, GetNodeL2, GetNodeL3 } from 'Store_Old/firebase/nodes/$node';
+import { GetNodeColor, MapNodeType } from 'Store_Old/firebase/nodes/@MapNodeType';
+import { GetTimelineSteps, GetTimelineStep } from 'Store_Old/firebase/timelines';
+import { Timeline } from 'Store_Old/firebase/timelines/@Timeline';
+import { NodeReveal, TimelineStep } from 'Store_Old/firebase/timelineSteps/@TimelineStep';
+import { IsUserCreatorOrMod } from 'Store_Old/firebase/userExtras';
+import { MeID } from 'Store_Old/firebase/users';
+import { GetOpenMapID } from 'Store_Old/main';
+import { GetSelectedTimeline, GetTimelineOpenSubpanel, GetTimelinePanelOpen, TimelineSubpanel, GetShowTimelineDetails, ACTMap_TimelineShowDetailsSet } from 'Store_Old/main/maps/$map';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { ACTSet, Connect, DragInfo, InfoButton, MakeDraggable, State, Watch } from 'Utils/FrameworkOverrides';
 import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
@@ -31,7 +31,7 @@ import { StepEditorUI } from './EditorSubpanel/StepEditorUI';
 G({ LockMapEdgeScrolling });
 function LockMapEdgeScrolling() {
 	const mapID = GetOpenMapID();
-	return State(a => a.main.lockMapScrolling) && GetTimelinePanelOpen(mapID) && GetTimelineOpenSubpanel(mapID) == TimelineSubpanel.Editor;
+	return State((a) => a.main.lockMapScrolling) && GetTimelinePanelOpen(mapID) && GetTimelineOpenSubpanel(mapID) == TimelineSubpanel.Editor;
 }
 
 export class EditorSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} as {timeline: Timeline}) {
@@ -40,7 +40,7 @@ export class EditorSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} a
 		const timeline = GetSelectedTimeline.Watch(map && map._key);
 		// timelineSteps: timeline && GetTimelineSteps(timeline, true),
 		const showTimelineDetails = GetShowTimelineDetails.Watch(map && map._key);
-		const lockMapScrolling = State.Watch(a => a.main.lockMapScrolling);
+		const lockMapScrolling = State.Watch((a) => a.main.lockMapScrolling);
 		const droppableInfo = new DroppableInfo({ type: 'TimelineStepList', timelineID: timeline ? timeline._key : null });
 
 		this.Stash({ timeline });
@@ -65,7 +65,7 @@ export class EditorSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} a
 						store.dispatch(new ACTMap_TimelineShowDetailsSet({ mapID: map._key, showDetails: val }));
 					}}/>
 					<CheckBox ml="auto" text="Lock map scrolling" title="Lock map edge-scrolling. (for dragging onto timeline steps)" checked={lockMapScrolling} onChange={(val) => {
-						store.dispatch(new ACTSet(a => a.main.lockMapScrolling, val));
+						store.dispatch(new ACTSet((a) => a.main.lockMapScrolling, val));
 					}}/>
 				</Row>
 				<ScrollView style={ES({ flex: 1 })} contentStyle={ES({
@@ -88,7 +88,7 @@ export class EditorSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} a
 							}
 						}}/>
 						<TimeSpanInput mr={5} style={{ width: 60 }} enabled={timeline.videoStartTime != null} delayChangeTillDefocus={true} value={timeline.videoStartTime}
-							onChange={val => new UpdateTimeline({ id: timeline._key, updates: { videoStartTime: val } }).Run()}/>
+							onChange={(val) => new UpdateTimeline({ id: timeline._key, updates: { videoStartTime: val } }).Run()}/>
 						<Row center>
 							<Text>Height</Text>
 							<InfoButton text={`
@@ -114,12 +114,12 @@ export class EditorSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} a
 						}}/>
 					</Row>}
 					<Droppable type="TimelineStep" droppableId={ToJSON(droppableInfo.VSet({ timelineID: timeline._key }))}>{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-						<Column ref={c => provided.innerRef(GetDOM(c) as any)} {...provided.droppableProps}>
+						<Column ref={(c) => provided.innerRef(GetDOM(c) as any)} {...provided.droppableProps}>
 							{/* timelineSteps && timelineSteps.map((step, index) => {
 								if (step == null) return null;
 								return <StepUI key={index} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>;
 							}) */}
-							<ReactList ref={c => this.stepList = c} type='variable' length={timeline.steps.length} itemSizeEstimator={this.EstimateStepHeight} itemRenderer={this.RenderStep}/>
+							<ReactList ref={(c) => this.stepList = c} type='variable' length={timeline.steps.length} itemSizeEstimator={this.EstimateStepHeight} itemRenderer={this.RenderStep}/>
 						</Column>
 					)}</Droppable>
 				</ScrollView>

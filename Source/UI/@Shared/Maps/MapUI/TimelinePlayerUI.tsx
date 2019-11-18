@@ -1,16 +1,16 @@
 import { Button, Column, Pre, Row, Span } from 'react-vcomponents';
 import { BaseComponent, FindReact, BaseComponentPlus } from 'react-vextensions';
-import { Map } from 'Store/firebase/maps/@Map';
-import { GetNodeL2 } from 'Store/firebase/nodes/$node';
-import { Timeline } from 'Store/firebase/timelines/@Timeline';
-import { ACTMap_PlayingTimelineSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimeline, GetPlayingTimelineStep } from 'Store/main/maps/$map';
+import { Map } from 'Store_Old/firebase/maps/@Map';
+import { GetNodeL2 } from 'Store_Old/firebase/nodes/$node';
+import { Timeline } from 'Store_Old/firebase/timelines/@Timeline';
+import { ACTMap_PlayingTimelineSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimeline, GetPlayingTimelineStep } from 'Store_Old/main/maps/$map';
 import { GetEntries } from 'js-vextensions';
 import { VReactMarkdown_Remarkable, Connect, Watch } from 'Utils/FrameworkOverrides';
 import { Segment } from '../../../../Utils/General/RegexHelpers';
-import { AsNodeL3 } from '../../../../Store/firebase/nodes/$node';
-import { MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
-import { TimelineStep } from '../../../../Store/firebase/timelineSteps/@TimelineStep';
-import { ACTMap_PlayingTimelineAppliedStepSet, GetPlayingTimelineAppliedStepIndex, GetPlayingTimelineStepIndex } from '../../../../Store/main/maps/$map';
+import { AsNodeL3 } from '../../../../Store_Old/firebase/nodes/$node';
+import { MapNodeL3, Polarity } from '../../../../Store_Old/firebase/nodes/@MapNode';
+import { TimelineStep } from '../../../../Store_Old/firebase/timelineSteps/@TimelineStep';
+import { ACTMap_PlayingTimelineAppliedStepSet, GetPlayingTimelineAppliedStepIndex, GetPlayingTimelineStepIndex } from '../../../../Store_Old/main/maps/$map';
 import { NodeUI_Inner } from '../MapNode/NodeUI_Inner';
 
 function GetPropsFromPropsStr(propsStr: string) {
@@ -41,7 +41,7 @@ const replacements = {
 	},
 	'\\[node(.*?)\\/\\]': (segment: Segment, index: number, extraInfo) => {
 		const props = GetPropsFromPropsStr(segment.textParts[1]);
-		const polarityEntry = props.polarity ? GetEntries(Polarity).find(a => a.name.toLowerCase() == props.polarity) : null;
+		const polarityEntry = props.polarity ? GetEntries(Polarity).find((a) => a.name.toLowerCase() == props.polarity) : null;
 		const polarity = polarityEntry ? polarityEntry.value : Polarity.Supporting;
 		return (
 			<NodeUI_InMessage map={extraInfo.map} nodeID={props.id} polarity={polarity} index={index}/>
@@ -107,11 +107,11 @@ export class TimelinePlayerUI extends BaseComponentPlus({} as {map: Map}, {}) {
 		const stepApplied = appliedStepIndex >= currentStepIndex || (currentStep.nodeReveals || []).length == 0;
 
 		return (
-			<Column ref={c => this.root = c}
+			<Column ref={(c) => this.root = c}
 				style={{ position: 'absolute', zIndex: 2, left: 10, top: 40, width: 500, padding: 10, background: 'rgba(0,0,0,.7)', borderRadius: 5 }}
 				onClick={(e) => {
-					if ((e.target as HTMLElement).GetSelfAndParents().Any(a => a.classList && a.classList.contains('NodeUI_Inner'))) return;
-					for (const nodeUI of this.root.DOM.$('.NodeUI_Inner').map(a => FindReact(a) as NodeUI_Inner)) {
+					if ((e.target as HTMLElement).GetSelfAndParents().Any((a) => a.classList && a.classList.contains('NodeUI_Inner'))) return;
+					for (const nodeUI of this.root.DOM.$('.NodeUI_Inner').map((a) => FindReact(a) as NodeUI_Inner)) {
 						nodeUI.SetState({ local_openPanel: null });
 					}
 				}}>

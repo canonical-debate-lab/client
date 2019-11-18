@@ -3,9 +3,9 @@ import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions
 import { ShowMessageBox } from 'react-vmessagebox';
 import { DeletePhrasing } from 'Server/Commands/DeletePhrasing';
 import { UpdatePhrasing } from 'Server/Commands/UpdatePhrasing';
-import { MapNodePhrasing } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
-import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
-import { GetUser, MeID } from 'Store/firebase/users';
+import { MapNodePhrasing } from 'Store_Old/firebase/nodePhrasings/@MapNodePhrasing';
+import { IsUserCreatorOrMod } from 'Store_Old/firebase/userExtras';
+import { GetUser, MeID } from 'Store_Old/firebase/users';
 import { PhrasingDetailsUI } from 'UI/Database/Phrasings/PhrasingDetailsUI';
 import { Connect, GetUpdates } from 'Utils/FrameworkOverrides';
 
@@ -19,7 +19,7 @@ export class DetailsPanel_Phrasings extends BaseComponentPlus({} as {phrasing: M
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), phrasing);
 		return (
 			<Column style={{ position: 'relative', width: '100%' }}>
-				<PhrasingDetailsUI ref={c => this.detailsUI = c}
+				<PhrasingDetailsUI ref={(c) => this.detailsUI = c}
 					baseData={phrasing} forNew={false} enabled={creatorOrMod}
 					onChange={(val, error) => {
 						this.SetState({ dataError: error });

@@ -1,11 +1,11 @@
 import { GetSearchTerms } from 'Server/Commands/AddNodeRevision';
-import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
+import { MapNodeRevision } from 'Store_Old/firebase/nodes/@MapNodeRevision';
 import { Clone, DEL } from 'js-vextensions';
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
 import { ReverseArgumentPolarity } from 'Server/Commands/ReverseArgumentPolarity';
-import { globalMapID, globalRootNodeID } from 'Store/firebase/nodes/@MapNode';
+import { globalMapID, globalRootNodeID } from 'Store_Old/firebase/nodes/@MapNode';
 import _ from 'lodash';
-import { FirebaseData } from '../../../../Store/firebase';
+import { FirebaseData } from '../../../../Store_Old/firebase';
 import { AddUpgradeFunc } from '../../Admin';
 
 const newVersion = 12;
@@ -38,7 +38,7 @@ AddUpgradeFunc(newVersion, async (oldData, markProgress) => {
 	};
 
 	function GetNewKey(collectionKey: string, oldEntryKey: string) {
-		const conversionEntry = conversions[collectionKey].find(a => a.oldKey == oldEntryKey);
+		const conversionEntry = conversions[collectionKey].find((a) => a.oldKey == oldEntryKey);
 		if (conversionEntry == null) {
 			const placeholderKey = _.padEnd(oldEntryKey.toString().slice(0, 22), 22, '_MISSING');
 			Log(`Found broken reference. CollectionKey:${collectionKey} OldEntryKey:${oldEntryKey} PlaceholderKey:${placeholderKey}`);
@@ -48,11 +48,11 @@ AddUpgradeFunc(newVersion, async (oldData, markProgress) => {
 	}
 
 	conversions.VKeys().forEach((collectionKey) => {
-		data[collectionKey].VValues(1).forEach(entry => conversions[collectionKey].push({ oldKey: entry._key, newKey: GenerateUUID() }));
+		data[collectionKey].VValues(1).forEach((entry) => conversions[collectionKey].push({ oldKey: entry._key, newKey: GenerateUUID() }));
 	});
 	// manually set newKey for global-map and global-root-node
-	conversions.maps.find(a => a.oldKey == '1').newKey = globalMapID;
-	conversions.nodes.find(a => a.oldKey == '1').newKey = globalRootNodeID;
+	conversions.maps.find((a) => a.oldKey == '1').newKey = globalMapID;
+	conversions.nodes.find((a) => a.oldKey == '1').newKey = globalRootNodeID;
 
 	// convert heirarchal keys (ie. the primary key for each object, as present in the path)
 	// ==========
@@ -64,7 +64,7 @@ AddUpgradeFunc(newVersion, async (oldData, markProgress) => {
 		mapObj[newKey] = value;
 	}
 	function ReplacePairKeys(mapObj: Object, collectionKeyForOldKey: CollectionKey) {
-		(mapObj || {}).Pairs(1).forEach(pair => ReplacePairKey(mapObj, pair.key, collectionKeyForOldKey));
+		(mapObj || {}).Pairs(1).forEach((pair) => ReplacePairKey(mapObj, pair.key, collectionKeyForOldKey));
 	}
 
 	/* conversions.VKeys().forEach((collectionKey) => {
@@ -102,7 +102,7 @@ AddUpgradeFunc(newVersion, async (oldData, markProgress) => {
 		const oldRevisionID = entry.currentRevision;
 
 		ReplacePairKeys(entry.children, 'nodes');
-		if (entry.childrenOrder) entry.childrenOrder = entry.childrenOrder.map(childID => GetNewKey('nodes', childID));
+		if (entry.childrenOrder) entry.childrenOrder = entry.childrenOrder.map((childID) => GetNewKey('nodes', childID));
 		entry.currentRevision = GetNewKey('nodeRevisions', entry.currentRevision);
 		// entry.layerPlusAnchorParents; // skip, since no entries
 

@@ -1,14 +1,14 @@
 import { ShowMessageBox } from 'react-vmessagebox';
-import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
-import { MeID } from 'Store/firebase/users';
+import { MapNodeRevision } from 'Store_Old/firebase/nodes/@MapNodeRevision';
+import { MeID } from 'Store_Old/firebase/users';
 import { ApplyDBUpdates, DBPath, ConvertDataToValidDBUpdates } from 'Utils/FrameworkOverrides';
-import {ValidateDBData} from 'Utils/Store/DBDataValidator';
-import { FirebaseData } from '../../../Store/firebase';
-import { Map, MapType } from '../../../Store/firebase/maps/@Map';
-import { MapNode, globalRootNodeID, globalMapID } from '../../../Store/firebase/nodes/@MapNode';
-import { MapNodeType } from '../../../Store/firebase/nodes/@MapNodeType';
-import { UserExtraInfo } from '../../../Store/firebase/userExtras/@UserExtraInfo';
+import { ValidateDBData } from 'Utils/Store/DBDataValidator';
 import {GenerateUUID} from 'Utils/General/KeyGenerator';
+import { FirebaseData } from '../../../Store_Old/firebase';
+import { Map, MapType } from '../../../Store_Old/firebase/maps/@Map';
+import { MapNode, globalRootNodeID, globalMapID } from '../../../Store_Old/firebase/nodes/@MapNode';
+import { MapNodeType } from '../../../Store_Old/firebase/nodes/@MapNodeType';
+import { UserExtraInfo } from '../../../Store_Old/firebase/userExtras/@UserExtraInfo';
 
 // Note: This is currently not used, and probably doesn`t even work atm.
 
@@ -62,7 +62,7 @@ function AddUserExtras(data: FirebaseData, userID: string, extraInfo: UserExtraI
 function AddMap(data: FirebaseData, entry: Map, id: string) {
 	entry = E(sharedData.creatorInfo, entry);
 
-	//data.maps[id || ++data.general.data.lastMapID] = entry as any;
+	// data.maps[id || ++data.general.data.lastMapID] = entry as any;
 	data.maps[id || GenerateUUID()] = entry as any;
 }
 function AddNode(data: FirebaseData, node: MapNode, revision: MapNodeRevision, nodeID?: string) {
