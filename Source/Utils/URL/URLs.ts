@@ -1,20 +1,13 @@
-import { ToInt, Vector2i, VURL, Assert, IsNumber } from 'js-vextensions';
-import { GetNodeL2 } from 'Store_Old/firebase/nodes/$node';
-import { ACTMap_PlayingTimelineSet, ACTMap_PlayingTimelineStepSet } from 'Store_Old/main/maps/$map';
-import { ACTSet, State, StoreAccessor } from 'Utils/FrameworkOverrides';
-import { ACTProposalSelect, GetSelectedProposalID } from 'firebase-feedback';
+import { GetSelectedProposalID } from 'firebase-feedback';
+import { Assert, VURL } from 'js-vextensions';
 import { RootState } from 'Store';
-import { GetMap } from '../../Store_Old/firebase/maps';
-import { GetNodeDisplayText } from '../../Store_Old/firebase/nodes/$node';
-import { globalMapID, MapNodeL2 } from '../../Store_Old/firebase/nodes/@MapNode';
-import { ACTSetSubpage, GetOpenMapID, GetPage, GetSubpage } from '../../Store_Old/main';
-import { ACTImageSelect, ACTTermSelect, ACTUserSelect, GetSelectedImageID, GetSelectedTermID, GetSelectedUserID } from '../../Store_Old/main/database';
-import { ACTDebateMapSelect } from '../../Store_Old/main/debates';
-import { ACTMap_PlayingTimelineAppliedStepSet } from '../../Store_Old/main/maps/$map';
-import { GetFocusedNodeID, GetNodeView } from '../../Store_Old/main/mapViews';
-import { ACTMapViewMerge } from '../../Store_Old/main/mapViews/$mapView';
-import { MapNodeView, MapView } from '../../Store_Old/main/mapViews/@MapViews';
-import { ACTPersonalMapSelect } from '../../Store_Old/main/personal';
+import { GetNodeL2 } from 'Store/firebase/nodes/$node';
+import { State, StoreAccessor } from 'Utils/FrameworkOverrides';
+import { GetMap } from '../../Store/firebase/maps';
+import { GetNodeDisplayText } from '../../Store/firebase/nodes/$node';
+import { MapNodeL2 } from '../../Store/firebase/nodes/@MapNode';
+import { GetOpenMapID, GetPage, GetSubpage } from '../../Store_Old/main';
+import { GetSelectedImageID, GetSelectedTermID, GetSelectedUserID } from '../../Store_Old/main/database';
 
 export const rootPages = [
 	'stream', 'chat', 'reputation',
@@ -234,11 +227,11 @@ export function GetLoadActionFuncForURL(url: VURL) {
 			const subpageInURL = url.pathNodes[1] != null;
 			const entryID = url.pathNodes[2] || null; // null needed, else reducer complains
 			if (subpage == 'users' && subpageInURL) {
-				store.main.users.selectedUserID = entryID;
+				store.main.database.users.selectedUserID = entryID;
 			} else if (subpage == 'terms' && subpageInURL) {
-				store.main.terms.selectedTermID = entryID;
+				store.main.database.terms.selectedTermID = entryID;
 			} else if (subpage == 'images' && subpageInURL) {
-				store.main.images.selectedImageID = entryID;
+				store.main.database.images.selectedImageID = entryID;
 			}
 		} else if (page == 'personal' || page == 'debates') {
 			const urlStr = url.pathNodes[1];

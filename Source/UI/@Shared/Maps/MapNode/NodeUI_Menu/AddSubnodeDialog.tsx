@@ -2,18 +2,18 @@ import { E, GetErrorMessagesUnderElement, GetEntries } from 'js-vextensions';
 import { Column, Pre, Row, Select } from 'react-vcomponents';
 import { BaseComponent, GetInnerComp, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
-import { Layer } from 'Store_Old/firebase/layers/@Layer';
-import { HasModPermissions } from 'Store_Old/firebase/userExtras';
-import { MeID } from 'Store_Old/firebase/users';
+import { Layer } from 'Store/firebase/layers/@Layer';
+import { HasModPermissions } from 'Store/firebase/userExtras';
+import { MeID } from 'Store/firebase/users';
 import { Connect } from 'Utils/FrameworkOverrides';
 import { AddSubnode } from '../../../../../Server/Commands/AddSubnode';
-import { ContentNode } from '../../../../../Store_Old/firebase/contentNodes/@ContentNode';
-import { GetLayers } from '../../../../../Store_Old/firebase/layers';
-import { AsNodeL2, AsNodeL3, GetClaimType } from '../../../../../Store_Old/firebase/nodes/$node';
-import { Equation } from '../../../../../Store_Old/firebase/nodes/@Equation';
-import { ChildEntry, ClaimForm, ClaimType, ImageAttachment, MapNode, MapNodeL2 } from '../../../../../Store_Old/firebase/nodes/@MapNode';
-import { MapNodeRevision } from '../../../../../Store_Old/firebase/nodes/@MapNodeRevision';
-import { MapNodeType } from '../../../../../Store_Old/firebase/nodes/@MapNodeType';
+import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
+import { GetLayers } from '../../../../../Store/firebase/layers';
+import { AsNodeL2, AsNodeL3, GetClaimType } from '../../../../../Store/firebase/nodes/$node';
+import { Equation } from '../../../../../Store/firebase/nodes/@Equation';
+import { ChildEntry, ClaimForm, ClaimType, ImageAttachment, MapNode, MapNodeL2 } from '../../../../../Store/firebase/nodes/@MapNode';
+import { MapNodeRevision } from '../../../../../Store/firebase/nodes/@MapNodeRevision';
+import { MapNodeType } from '../../../../../Store/firebase/nodes/@MapNodeType';
 import { NodeDetailsUI } from '../NodeDetailsUI';
 
 export function ShowAddSubnodeDialog(mapID: string, anchorNode: MapNodeL2, anchorNodePath: string) {

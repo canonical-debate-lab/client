@@ -2,10 +2,10 @@ import { GetErrorMessagesUnderElement, Clone } from 'js-vextensions';
 import { Column, Pre, Row } from 'react-vcomponents';
 import { BaseComponent, GetDOM } from 'react-vextensions';
 import { MarkdownEditor, MarkdownToolbar } from 'react-vmarkdown';
-import { ContentNode } from '../../../../Store_Old/firebase/contentNodes/@ContentNode';
-import { GetNodeDisplayText } from '../../../../Store_Old/firebase/nodes/$node';
-import { ClaimForm } from '../../../../Store_Old/firebase/nodes/@MapNode';
-import { MapNodeType } from '../../../../Store_Old/firebase/nodes/@MapNodeType';
+import { ContentNode } from '../../../../Store/firebase/contentNodes/@ContentNode';
+import { GetNodeDisplayText } from '../../../../Store/firebase/nodes/$node';
+import { ClaimForm } from '../../../../Store/firebase/nodes/@MapNode';
+import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
 import { SubPanel_Quote } from './NodeUI_Inner/SubPanel';
 import { SourceChainsEditorUI, CleanUpdatedSourceChains } from './SourceChainsEditorUI';
 

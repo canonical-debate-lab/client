@@ -1,13 +1,13 @@
 import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
-import { User } from 'Store_Old/firebase/users/@User';
+import { User } from 'Store/firebase/users/@User';
 import { Row, Column } from 'react-vcomponents';
 import Moment from 'moment';
 import { ScrollView } from 'react-vscrollview';
 import { Connect, Link, ACTSet, State, PageContainer } from 'Utils/FrameworkOverrides';
 import { GetSelectedUser, ACTUserSelect } from 'Store_Old/main/database';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { UserExtraInfo } from '../../Store_Old/firebase/userExtras/@UserExtraInfo';
-import { GetUsers, GetUserExtraInfoMap, UserExtraInfoMap } from '../../Store_Old/firebase/users';
+import { UserExtraInfo } from '../../Store/firebase/userExtras/@UserExtraInfo';
+import { GetUsers, GetUserExtraInfoMap, UserExtraInfoMap } from '../../Store/firebase/users';
 import { UserProfileUI } from './Users/UserProfile';
 
 export const columnWidths = [0.35, 0.15, 0.1, 0.15, 0.25];

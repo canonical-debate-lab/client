@@ -1,5 +1,5 @@
 import { Range, Assert } from 'js-vextensions';
-import { ArgumentType } from 'Store_Old/firebase/nodes/@MapNodeRevision';
+import { ArgumentType } from 'Store/firebase/nodes/@MapNodeRevision';
 import { PropNameToTitle } from 'Utils/General/Others';
 import { AddSchema } from 'Utils/FrameworkOverrides';
 import { GetFinalPolarity, GetLinkUnderParent, GetNodeForm, IsMultiPremiseArgument } from '../nodes/$node';

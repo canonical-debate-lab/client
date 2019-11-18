@@ -1,7 +1,7 @@
 import { GetErrorMessagesUnderElement, Clone } from 'js-vextensions';
 import { CheckBox, Column, Pre, Row, RowLR, TextArea, TextInput } from 'react-vcomponents';
 import { BaseComponent, GetDOM } from 'react-vextensions';
-import { Equation } from '../../../../Store_Old/firebase/nodes/@Equation';
+import { Equation } from '../../../../Store/firebase/nodes/@Equation';
 
 type Props = {baseData: Equation, creating: boolean, editing?: boolean, style?, onChange?: (newData: Equation)=>void};
 // & Partial<{creator: User, variantNumber: number}>;

@@ -2,7 +2,7 @@ import { ColorPickerBox } from 'react-vcomponents';
 import * as react_color from 'react-color';
 import * as chroma_js from 'chroma-js';
 import Moment from 'moment';
-import { MeID, GetUser, GetUserPermissionGroups, Me } from 'Store_Old/firebase/users';
+import { MeID, GetUser, GetUserPermissionGroups, Me } from 'Store/firebase/users';
 /* import { manager as manager_forum } from 'firebase-forum'; */
 import { manager as manager_feedback } from 'firebase-feedback';
 import { replace, push } from 'connected-react-router';

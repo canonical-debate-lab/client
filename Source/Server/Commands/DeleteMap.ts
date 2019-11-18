@@ -1,10 +1,10 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { DeleteNode } from 'Server/Commands/DeleteNode';
-import { GetMap } from 'Store_Old/firebase/maps';
+import { GetMap } from 'Store/firebase/maps';
 import { GetAsync_Raw, GetDataAsync , Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
 
-import { Map } from '../../Store_Old/firebase/maps/@Map';
-import { UserMapInfoSet } from '../../Store_Old/firebase/userMapInfo/@UserMapInfo';
+import { Map } from '../../Store/firebase/maps/@Map';
+import { UserMapInfoSet } from '../../Store/firebase/userMapInfo/@UserMapInfo';
 
 @UserEdit
 export class DeleteMap extends Command<{mapID: string}, {}> {

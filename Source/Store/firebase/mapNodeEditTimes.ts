@@ -1,9 +1,9 @@
 import { GetShortestPathFromRootToNode } from 'Utils/Store/PathFinder';
-import { GetNode, GetNodeID } from 'Store_Old/firebase/nodes';
+import { GetNode, GetNodeID } from 'Store/firebase/nodes';
 import { emptyArray } from 'js-vextensions';
 import { GetData, AddSchema, StoreAccessor, SubWatch } from 'Utils/FrameworkOverrides';
 import { UUID_regex } from 'Utils/General/KeyGenerator';
-import { GetLastAcknowledgementTime } from '../main';
+import { GetLastAcknowledgementTime } from '../../Store_Old/main';
 import { GetRootNodeID } from './maps';
 import { MapNode } from './nodes/@MapNode';
 

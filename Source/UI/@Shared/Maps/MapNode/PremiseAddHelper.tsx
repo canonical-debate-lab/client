@@ -4,9 +4,9 @@ import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { ACTSetLastAcknowledgementTime } from 'Store_Old/main';
 import { WaitTillPathDataIsReceived } from 'Utils/FrameworkOverrides';
 import { AddChildNode } from '../../../../Server/Commands/AddChildNode';
-import { ChildEntry, ClaimForm, MapNode, MapNodeL3 } from '../../../../Store_Old/firebase/nodes/@MapNode';
-import { MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../Store_Old/firebase/nodes/@MapNodeRevision';
-import { MapNodeType } from '../../../../Store_Old/firebase/nodes/@MapNodeType';
+import { ChildEntry, ClaimForm, MapNode, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
+import { MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../Store/firebase/nodes/@MapNodeRevision';
+import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
 import { ACTMapNodeExpandedSet } from '../../../../Store_Old/main/mapViews/$mapView/rootNodeViews';
 
 export class PremiseAddHelper extends BaseComponentPlus({} as {mapID: string, parentNode: MapNodeL3, parentPath: string}, { premiseTitle: '', adding: false }) {

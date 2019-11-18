@@ -4,11 +4,11 @@ import { Column, Pre, RowLR, Select, TextArea, TextInput, Row } from 'react-vcom
 import { BaseComponentWithConnector, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { AddPhrasing } from 'Server/Commands/AddPhrasing';
-import { MapNodePhrasing, MapNodePhrasingType } from 'Store_Old/firebase/nodePhrasings/@MapNodePhrasing';
+import { MapNodePhrasing, MapNodePhrasingType } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
 import { Connect, Link, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
-import { GetUser } from '../../../Store_Old/firebase/users';
+import { GetUser } from '../../../Store/firebase/users';
 
 export class PhrasingDetailsUI extends BaseComponentPlus(
 	{} as {baseData: MapNodePhrasing, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: MapNodePhrasing, error: string)=>void},

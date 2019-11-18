@@ -6,9 +6,9 @@ import { ACTMap_SelectedTimelineSet, GetSelectedTimeline, GetTimelineOpenSubpane
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { ShowAddTimelineDialog } from 'UI/@Shared/Timelines/AddTimelineDialog';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { Map } from 'Store_Old/firebase/maps/@Map';
-import { GetMapTimelines, GetTimelineSteps } from 'Store_Old/firebase/timelines';
-import { MeID } from 'Store_Old/firebase/users';
+import { Map } from 'Store/firebase/maps/@Map';
+import { GetMapTimelines, GetTimelineSteps } from 'Store/firebase/timelines';
+import { MeID } from 'Store/firebase/users';
 
 export class CollectionSubpanel extends BaseComponentPlus({} as {map: Map}, {}) {
 	timelineSelect: DropDown;

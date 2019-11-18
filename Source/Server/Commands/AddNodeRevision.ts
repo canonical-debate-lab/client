@@ -1,9 +1,9 @@
 import { MapEdit, UserEdit } from 'Server/CommandMacros';
-import { GetNode } from 'Store_Old/firebase/nodes';
+import { GetNode } from 'Store/firebase/nodes';
 import { AssertValidate, Command, GetAsync, GetDataAsync } from 'Utils/FrameworkOverrides';
 import {GenerateUUID} from 'Utils/General/KeyGenerator';
-import {MapNode} from '../../Store_Old/firebase/nodes/@MapNode';
-import {MapNodeRevision} from '../../Store_Old/firebase/nodes/@MapNodeRevision';
+import {MapNode} from '../../Store/firebase/nodes/@MapNode';
+import {MapNodeRevision} from '../../Store/firebase/nodes/@MapNodeRevision';
 
 /** Returned terms are all lowercase. */
 export function GetSearchTerms(str: string) {

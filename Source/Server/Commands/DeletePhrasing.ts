@@ -1,7 +1,7 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { GetDataAsync , Command } from 'Utils/FrameworkOverrides';
 
-import { MapNodePhrasing } from 'Store_Old/firebase/nodePhrasings/@MapNodePhrasing';
+import { MapNodePhrasing } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
 
 @UserEdit
 export class DeletePhrasing extends Command<{id: string}, {}> {

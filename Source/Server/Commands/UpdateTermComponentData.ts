@@ -2,7 +2,7 @@ import { UserEdit } from 'Server/CommandMacros';
 import { Assert } from 'js-vextensions';
 import { AssertValidate ,GetDataAsync, Command } from 'Utils/FrameworkOverrides';
 
-import { TermComponent } from '../../Store_Old/firebase/termComponents/@TermComponent';
+import { TermComponent } from '../../Store/firebase/termComponents/@TermComponent';
 
 
 @UserEdit

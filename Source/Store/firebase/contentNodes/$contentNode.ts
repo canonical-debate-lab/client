@@ -1,5 +1,5 @@
 import { Assert } from 'js-vextensions';
-import { SourceType, SourceChain, Source } from 'Store_Old/firebase/contentNodes/@SourceChain';
+import { SourceType, SourceChain, Source } from 'Store/firebase/contentNodes/@SourceChain';
 
 export function GetSourceNamePlaceholderText(sourceType: SourceType) {
 	if (sourceType == SourceType.Speech) return 'speech name';

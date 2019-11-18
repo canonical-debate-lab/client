@@ -1,7 +1,7 @@
 import { InlineMath } from 'react-katex';
 import { BaseComponent, GetDOM } from 'react-vextensions';
 import ReactDOM from 'react-dom';
-import { PreProcessLatex } from 'Store_Old/firebase/nodes/$node';
+import { PreProcessLatex } from 'Store/firebase/nodes/$node';
 import { IsNaN } from 'js-vextensions';
 import { TermPlaceholder } from './NodeUI_Inner/TermPlaceholder';
 

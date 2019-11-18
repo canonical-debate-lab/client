@@ -1,6 +1,6 @@
-import { SourceType, SourceChain, Source } from 'Store_Old/firebase/contentNodes/@SourceChain';
+import { SourceType, SourceChain, Source } from 'Store/firebase/contentNodes/@SourceChain';
 import { AddUpgradeFunc } from '../../Admin';
-import { ContentNode } from '../../../../Store_Old/firebase/contentNodes/@ContentNode';
+import { ContentNode } from '../../../../Store/firebase/contentNodes/@ContentNode';
 import { FirebaseData } from '../../../../Store_Old/firebase';
 
 /* let newVersion = 5;

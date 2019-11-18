@@ -1,7 +1,7 @@
 import { UserEdit } from 'Server/CommandMacros';
-import { Timeline } from 'Store_Old/firebase/timelines/@Timeline';
+import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { GetAsync , Command } from 'Utils/FrameworkOverrides';
-import { GetTimeline } from '../../Store_Old/firebase/timelines';
+import { GetTimeline } from '../../Store/firebase/timelines';
 
 
 @UserEdit

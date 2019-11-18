@@ -1,14 +1,14 @@
 import { ShowMessageBox } from 'react-vmessagebox';
-import { MapNodeRevision } from 'Store_Old/firebase/nodes/@MapNodeRevision';
-import { MeID } from 'Store_Old/firebase/users';
+import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
+import { MeID } from 'Store/firebase/users';
 import { ApplyDBUpdates, DBPath, ConvertDataToValidDBUpdates } from 'Utils/FrameworkOverrides';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
 import {GenerateUUID} from 'Utils/General/KeyGenerator';
 import { FirebaseData } from '../../../Store_Old/firebase';
-import { Map, MapType } from '../../../Store_Old/firebase/maps/@Map';
-import { MapNode, globalRootNodeID, globalMapID } from '../../../Store_Old/firebase/nodes/@MapNode';
-import { MapNodeType } from '../../../Store_Old/firebase/nodes/@MapNodeType';
-import { UserExtraInfo } from '../../../Store_Old/firebase/userExtras/@UserExtraInfo';
+import { Map, MapType } from '../../../Store/firebase/maps/@Map';
+import { MapNode, globalRootNodeID, globalMapID } from '../../../Store/firebase/nodes/@MapNode';
+import { MapNodeType } from '../../../Store/firebase/nodes/@MapNodeType';
+import { UserExtraInfo } from '../../../Store/firebase/userExtras/@UserExtraInfo';
 
 // Note: This is currently not used, and probably doesn`t even work atm.
 

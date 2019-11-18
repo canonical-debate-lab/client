@@ -1,5 +1,5 @@
 import { UserEdit } from 'Server/CommandMacros';
-import { Timeline } from 'Store_Old/firebase/timelines/@Timeline';
+import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { AssertValidate ,GetDataAsync, Command } from 'Utils/FrameworkOverrides';
 
 

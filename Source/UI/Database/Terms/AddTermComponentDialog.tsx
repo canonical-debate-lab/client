@@ -1,7 +1,7 @@
 import { Column } from 'react-vcomponents';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { AddTermComponent } from '../../../Server/Commands/AddTermComponent';
-import { TermComponent } from '../../../Store_Old/firebase/termComponents/@TermComponent';
+import { TermComponent } from '../../../Store/firebase/termComponents/@TermComponent';
 import { TermComponentUI } from './TermComponentsUI';
 
 export function ShowAddTermComponentDialog(userID: string, termID: string) {

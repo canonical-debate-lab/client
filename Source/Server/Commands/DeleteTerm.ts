@@ -1,6 +1,6 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { Command, GetDataAsync } from 'Utils/FrameworkOverrides';
-import { Term } from '../../Store_Old/firebase/terms/@Term';
+import { Term } from '../../Store/firebase/terms/@Term';
 
 @UserEdit
 export class DeleteTerm extends Command<{termID: string}, {}> {

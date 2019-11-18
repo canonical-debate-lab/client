@@ -1,6 +1,6 @@
-import { GetNodeChildrenL3 } from 'Store_Old/firebase/nodes';
-import { MapNodeL3, MapNodeL2 } from 'Store_Old/firebase/nodes/@MapNode';
-import { ArgumentType } from 'Store_Old/firebase/nodes/@MapNodeRevision';
+import { GetNodeChildrenL3 } from 'Store/firebase/nodes';
+import { MapNodeL3, MapNodeL2 } from 'Store/firebase/nodes/@MapNode';
+import { ArgumentType } from 'Store/firebase/nodes/@MapNodeRevision';
 import { emptyArray_forLoading, Assert, IsNaN } from 'js-vextensions';
 import { StoreAccessor, SubWatch } from 'Utils/FrameworkOverrides';
 import { GetParentNodeL3 } from '../nodes';

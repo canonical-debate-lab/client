@@ -2,7 +2,7 @@ import { E, SleepAsync, Assert } from 'js-vextensions';
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
-import { HasAdminPermissions } from 'Store_Old/firebase/userExtras';
+import { HasAdminPermissions } from 'Store/firebase/userExtras';
 import { Omit } from 'lodash';
 import { StopStateDataOverride, StartStateDataOverride, UpdateStateDataOverride } from 'UI/@Shared/StateOverrides';
 import { Connect, GetData, DBPath, State, RemoveHelpers, SplitStringBySlash_Cached, GetDataAsync, ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks, PageContainer, Watch } from 'Utils/FrameworkOverrides';
@@ -10,7 +10,7 @@ import { dbVersion } from 'Main';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
 import { styles } from '../../Utils/UI/GlobalStyles';
 import { FirebaseData } from '../../Store_Old/firebase';
-import { MeID, GetUser } from '../../Store_Old/firebase/users';
+import { MeID, GetUser } from '../../Store/firebase/users';
 import { ResetCurrentDBRoot } from './Admin/ResetCurrentDBRoot';
 
 type UpgradeFunc = (oldData: FirebaseData, markProgress: MarkProgressFunc)=>Promise<FirebaseData>;

@@ -1,4 +1,4 @@
-import { TimelineStep } from 'Store_Old/firebase/timelineSteps/@TimelineStep';
+import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { AddSchema, AssertValidate, Command, GetDataAsync, GetSchemaJSON, Schema } from 'Utils/FrameworkOverrides';
 import { UserEdit } from '../CommandMacros';
 

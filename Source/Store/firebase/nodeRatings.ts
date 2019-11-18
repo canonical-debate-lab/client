@@ -2,7 +2,7 @@ import { Lerp, emptyObj, ToJSON } from 'js-vextensions';
 import { GetData, State, StoreAccessor, SubWatch } from 'Utils/FrameworkOverrides';
 import { GetArgumentImpactPseudoRatingSet } from '../../Utils/Store/RatingProcessor';
 import { RatingType, ratingTypes } from './nodeRatings/@RatingType';
-import { WeightingType } from '../main';
+import { WeightingType } from '../../Store_Old/main';
 import { Rating, RatingsRoot } from './nodeRatings/@RatingsRoot';
 import { RS_GetAllValues } from './nodeRatings/ReasonScore';
 import { GetNodeChildrenL2, HolderType } from './nodes';

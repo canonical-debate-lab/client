@@ -1,8 +1,8 @@
 import { Vector2i } from 'js-vextensions';
 import { BaseComponent, SimpleShouldUpdate } from 'react-vextensions';
 import { ExpensiveComponent } from 'Utils/FrameworkOverrides';
-import { MapNodeL3 } from '../../../../Store_Old/firebase/nodes/@MapNode';
-import { GetNodeColor } from '../../../../Store_Old/firebase/nodes/@MapNodeType';
+import { MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
+import { GetNodeColor } from '../../../../Store/firebase/nodes/@MapNodeType';
 
 type Props = {
 	node: MapNodeL3, linkSpawnPoint: Vector2i, straightLines?: boolean, nodeChildren: MapNodeL3[],

@@ -1,4 +1,4 @@
-import { SourceChain, Source } from 'Store_Old/firebase/contentNodes/@SourceChain';
+import { SourceChain, Source } from 'Store/firebase/contentNodes/@SourceChain';
 import { GetValues_ForSchema } from 'js-vextensions';
 import { AddSchema } from 'Utils/FrameworkOverrides';
 

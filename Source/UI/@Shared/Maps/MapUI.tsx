@@ -11,11 +11,11 @@ import { GetTimelinePanelOpen, GetPlayingTimelineRevealNodes_All, GetPlayingTime
 import { GADDemo } from 'UI/@GAD/GAD';
 import { ActionBar_Left_GAD } from 'UI/@GAD/ActionBar_Left_GAD';
 import { ActionBar_Right_GAD } from 'UI/@GAD/ActionBar_Right_GAD';
-import { GetParentNodeL3, GetParentPath } from 'Store_Old/firebase/nodes';
+import { GetParentNodeL3, GetParentPath } from 'Store/firebase/nodes';
 import { styles, ES } from '../../../Utils/UI/GlobalStyles';
-import { Map } from '../../../Store_Old/firebase/maps/@Map';
-import { GetNodeL3, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument } from '../../../Store_Old/firebase/nodes/$node';
-import { MapNodeL3 } from '../../../Store_Old/firebase/nodes/@MapNode';
+import { Map } from '../../../Store/firebase/maps/@Map';
+import { GetNodeL3, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument } from '../../../Store/firebase/nodes/$node';
+import { MapNodeL3 } from '../../../Store/firebase/nodes/@MapNode';
 import { RootState } from '../../../Store_Old/index';
 import { GetOpenMapID } from '../../../Store_Old/main';
 import { GetFocusedNodePath, GetMapView, GetNodeView, GetSelectedNodePath, GetViewOffset } from '../../../Store_Old/main/mapViews';

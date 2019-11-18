@@ -1,10 +1,10 @@
-import { ArgumentType } from 'Store_Old/firebase/nodes/@MapNodeRevision';
+import { ArgumentType } from 'Store/firebase/nodes/@MapNodeRevision';
 import { emptyObj } from 'js-vextensions';
 import { StoreAccessor } from 'vwebapp-framework/Source';
-import { GetRatingAverage, GetRatingSet, GetRatingValue } from '../../Store_Old/firebase/nodeRatings';
-import { Rating, RatingsSet } from '../../Store_Old/firebase/nodeRatings/@RatingsRoot';
-import { GetMainRatingType, GetNodeForm, GetRatingTypesForNode } from '../../Store_Old/firebase/nodes/$node';
-import { ClaimForm, MapNodeL2 } from '../../Store_Old/firebase/nodes/@MapNode';
+import { GetRatingAverage, GetRatingSet, GetRatingValue } from '../../Store/firebase/nodeRatings';
+import { Rating, RatingsSet } from '../../Store/firebase/nodeRatings/@RatingsRoot';
+import { GetMainRatingType, GetNodeForm, GetRatingTypesForNode } from '../../Store/firebase/nodes/$node';
+import { ClaimForm, MapNodeL2 } from '../../Store/firebase/nodes/@MapNode';
 
 export function GetArgumentImpactPseudoRating(argument: MapNodeL2, premises: MapNodeL2[], userID: string): Rating {
 	if (premises.Any((a) => a == null)) return null; // must still be loading

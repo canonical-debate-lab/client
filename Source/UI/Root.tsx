@@ -1,9 +1,8 @@
 import chroma from 'chroma-js';
 import { ConnectedRouter } from 'connected-react-router';
-import { FromJSON, Vector2i, VURL } from 'js-vextensions';
+import { FromJSON, Vector2i, VURL, Clone } from 'js-vextensions';
 import keycode from 'keycode';
-import { getSnapshot } from 'mobx-state-tree';
-import { persist } from 'mst-persist';
+import { AsyncTrunk } from 'mobx-sync';
 import React, { useCallback } from 'react';
 import { DragDropContext as DragDropContext_Beautiful } from 'react-beautiful-dnd';
 import * as ReactColor from 'react-color';
@@ -16,19 +15,19 @@ import { CreateLinkCommand as CreateLinkCommandForDND, LinkNode_HighLevel_GetCom
 import { UpdateTimelineStep } from 'Server/Commands/UpdateTimelineStep';
 import { UpdateTimelineStepOrder } from 'Server/Commands/UpdateTimelineStepOrder';
 import { InitStore, store } from 'Store';
-import { GetNode, GetNodeID, GetParentNode, GetParentPath } from 'Store_Old/firebase/nodes';
-import { GetNodeDisplayText, GetNodeL3, IsPremiseOfSinglePremiseArgument } from 'Store_Old/firebase/nodes/$node';
-import { Polarity } from 'Store_Old/firebase/nodes/@MapNode';
-import { GetTimelineStep } from 'Store_Old/firebase/timelines';
-import { NodeReveal } from 'Store_Old/firebase/timelineSteps/@TimelineStep';
-import { Me, MeID } from 'Store_Old/firebase/users';
+import { GetNode, GetNodeID, GetParentNode, GetParentPath } from 'Store/firebase/nodes';
+import { GetNodeDisplayText, GetNodeL3, IsPremiseOfSinglePremiseArgument } from 'Store/firebase/nodes/$node';
+import { Polarity } from 'Store/firebase/nodes/@MapNode';
+import { GetTimelineStep } from 'Store/firebase/timelines';
+import { NodeReveal } from 'Store/firebase/timelineSteps/@TimelineStep';
+import { Me, MeID } from 'Store/firebase/users';
 import { ACTSetLastAcknowledgementTime } from 'Store_Old/main';
 import { GetPathNodeIDs } from 'Store_Old/main/mapViews';
 import { AddressBarWrapper, browserHistory, ErrorBoundary, Route } from 'Utils/FrameworkOverrides';
 import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
 import { NormalizeURL } from 'Utils/URL/URLs';
 import '../../Source/Utils/Styles/Main.scss'; // keep absolute-ish, since scss file not copied to Source_JS folder
-import { GetUserBackground } from '../Store_Old/firebase/users';
+import { GetUserBackground } from '../Store/firebase/users';
 import { NavBar } from '../UI/@Shared/NavBar';
 import { GlobalUI } from '../UI/Global';
 import { HomeUI } from '../UI/Home';
@@ -64,7 +63,7 @@ export class RootUIWrapper extends BaseComponentPlus({}, { storeReady: false }) 
 		InitStore();
 
 		// temp fix for "Illegal invocation" error in mst-persist
-		window.localStorage.getItem = window.localStorage.getItem.bind(window.localStorage);
+		/* window.localStorage.getItem = window.localStorage.getItem.bind(window.localStorage);
 		window.localStorage.setItem = window.localStorage.setItem.bind(window.localStorage);
 		persist('some', store, {
 			// jsonify: false,
@@ -72,6 +71,12 @@ export class RootUIWrapper extends BaseComponentPlus({}, { storeReady: false }) 
 			blacklist: [],
 		}).then(() => {
 			Log('Loaded state:', getSnapshot(store));
+			this.SetState({ storeReady: true });
+		}); */
+
+		const trunk = new AsyncTrunk(store, { storage: localStorage });
+		trunk.init().then(() => {
+			Log('Loaded state:', Clone(store));
 			this.SetState({ storeReady: true });
 		});
 	}

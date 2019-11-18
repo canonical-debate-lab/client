@@ -1,11 +1,11 @@
 import { Assert, ToInt } from 'js-vextensions';
-import { GetNodeL2 } from 'Store_Old/firebase/nodes/$node';
-import { MapNodeRevision } from 'Store_Old/firebase/nodes/@MapNodeRevision';
+import { GetNodeL2 } from 'Store/firebase/nodes/$node';
+import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { AddSchema, AssertValidate, Command, GetAsync, GetAsync_Raw, GetDataAsync, MergeDBUpdates, GetData_Query } from 'Utils/FrameworkOverrides';
-import { GetNodeRevision, GetNodeRevisions } from 'Store_Old/firebase/nodeRevisions';
-import { GetMaps } from '../../Store_Old/firebase/maps';
-import { ForDelete_GetError } from '../../Store_Old/firebase/nodes';
-import { MapNodeL2 } from '../../Store_Old/firebase/nodes/@MapNode';
+import { GetNodeRevision, GetNodeRevisions } from 'Store/firebase/nodeRevisions';
+import { GetMaps } from '../../Store/firebase/maps';
+import { ForDelete_GetError } from '../../Store/firebase/nodes';
+import { MapNodeL2 } from '../../Store/firebase/nodes/@MapNode';
 import { MapEdit, UserEdit } from '../CommandMacros';
 
 AddSchema('DeleteNode_payload', {

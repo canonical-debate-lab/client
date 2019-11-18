@@ -1,8 +1,8 @@
 import { Switch } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
-import { HasAdminPermissions } from 'Store_Old/firebase/userExtras';
+import { HasAdminPermissions } from 'Store/firebase/userExtras';
 import { State } from 'Utils/FrameworkOverrides';
-import { GetUsers, MeID } from '../Store_Old/firebase/users';
+import { GetUsers, MeID } from '../Store/firebase/users';
 import { SubNavBar, SubNavBarButton } from './@Shared/SubNavBar';
 import { AdminUI } from './More/Admin';
 import { LinksUI } from './More/Links';

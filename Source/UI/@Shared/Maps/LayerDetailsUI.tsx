@@ -2,10 +2,10 @@ import { GetErrorMessagesUnderElement, Clone } from 'js-vextensions';
 import Moment from 'moment';
 import { Column, Pre, RowLR, TextInput, Text } from 'react-vcomponents';
 import { BaseComponent, GetDOM, BaseComponentPlus } from 'react-vextensions';
-import { Layer } from 'Store_Old/firebase/layers/@Layer';
-import { User } from 'Store_Old/firebase/users/@User';
+import { Layer } from 'Store/firebase/layers/@Layer';
+import { User } from 'Store/firebase/users/@User';
 import { Connect, Watch } from 'Utils/FrameworkOverrides';
-import { GetUser } from '../../../Store_Old/firebase/users';
+import { GetUser } from '../../../Store/firebase/users';
 import { IDAndCreationInfoUI } from '../CommonPropUIs/IDAndCreationInfoUI';
 
 type Props = {baseData: Layer, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: Layer, ui: LayerDetailsUI)=>void};

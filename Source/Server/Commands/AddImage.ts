@@ -3,7 +3,7 @@ import { AssertValidate , GetDataAsync , Command } from 'Utils/FrameworkOverride
 
 
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
-import { Image } from '../../Store_Old/firebase/images/@Image';
+import { Image } from '../../Store/firebase/images/@Image';
 
 @UserEdit
 export class AddImage extends Command<{image: Image}, {}> {

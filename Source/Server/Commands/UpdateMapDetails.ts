@@ -1,6 +1,6 @@
 import { MapEdit } from 'Server/CommandMacros';
 import { AddSchema, AssertValidate, Command, GetDataAsync, Schema } from 'Utils/FrameworkOverrides';
-import { Map, Map_namePattern } from '../../Store_Old/firebase/maps/@Map';
+import { Map, Map_namePattern } from '../../Store/firebase/maps/@Map';
 import { UserEdit } from '../CommandMacros';
 
 AddSchema('UpdateMapDetails_payload', {

@@ -3,7 +3,7 @@ import { AssertValidate , GetDataAsync , Command } from 'Utils/FrameworkOverride
 
 
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
-import { TimelineStep } from '../../Store_Old/firebase/timelineSteps/@TimelineStep';
+import { TimelineStep } from '../../Store/firebase/timelineSteps/@TimelineStep';
 
 @UserEdit
 export class AddTimelineStep extends Command<{timelineID: string, step: TimelineStep, stepIndex?: number}, {}> {

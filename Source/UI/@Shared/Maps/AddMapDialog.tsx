@@ -1,8 +1,8 @@
 import { Column, Row } from 'react-vcomponents';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { AddMap } from '../../../Server/Commands/AddMap';
-import { Map, MapType } from '../../../Store_Old/firebase/maps/@Map';
-import { MeID } from '../../../Store_Old/firebase/users';
+import { Map, MapType } from '../../../Store/firebase/maps/@Map';
+import { MeID } from '../../../Store/firebase/users';
 import { MapDetailsUI } from './MapDetailsUI';
 
 export function ShowAddMapDialog(userID: string, type: MapType) {

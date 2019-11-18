@@ -5,10 +5,10 @@ import { GetCurrentURL, Link, Connect, Watch } from 'Utils/FrameworkOverrides';
 import { TermComponentsUI } from 'UI/Database/Terms/TermComponentsUI';
 import { Fragment } from 'react';
 import { ParseSegmentsForPatterns } from '../../../../../../Utils/General/RegexHelpers';
-import { GetNodeDisplayText } from '../../../../../../Store_Old/firebase/nodes/$node';
-import { MapNode, MapNodeL2 } from '../../../../../../Store_Old/firebase/nodes/@MapNode';
-import { GetTerm, GetTermVariantNumber } from '../../../../../../Store_Old/firebase/terms';
-import { Term } from '../../../../../../Store_Old/firebase/terms/@Term';
+import { GetNodeDisplayText } from '../../../../../../Store/firebase/nodes/$node';
+import { MapNode, MapNodeL2 } from '../../../../../../Store/firebase/nodes/@MapNode';
+import { GetTerm, GetTermVariantNumber } from '../../../../../../Store/firebase/terms';
+import { Term } from '../../../../../../Store/firebase/terms/@Term';
 
 const termsPlaceholder = [];
 

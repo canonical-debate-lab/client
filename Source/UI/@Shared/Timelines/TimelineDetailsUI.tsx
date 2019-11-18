@@ -2,9 +2,9 @@ import { Clone, GetErrorMessagesUnderElement } from 'js-vextensions';
 import { Button, Column, Pre, Row, RowLR, TextInput } from 'react-vcomponents';
 import { BaseComponentPlus, GetDOM } from 'react-vextensions';
 import { UpdateTimeline } from 'Server/Commands/UpdateTimeline';
-import { Timeline } from 'Store_Old/firebase/timelines/@Timeline';
+import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { GetUpdates, Watch } from 'Utils/FrameworkOverrides';
-import { GetUser } from '../../../Store_Old/firebase/users';
+import { GetUser } from '../../../Store/firebase/users';
 import { IDAndCreationInfoUI } from '../CommonPropUIs/IDAndCreationInfoUI';
 
 export class TimelineDetailsUI extends BaseComponentPlus({ enabled: true } as {baseData: Timeline, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: Timeline, ui: TimelineDetailsUI)=>void}, {} as { newData: Timeline }) {

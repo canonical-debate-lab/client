@@ -1,5 +1,5 @@
-import { MeID } from 'Store_Old/firebase/users';
-import { User } from 'Store_Old/firebase/users/@User';
+import { MeID } from 'Store/firebase/users';
+import { User } from 'Store/firebase/users/@User';
 import { GetErrorMessagesUnderElement, GetEntries, Clone } from 'js-vextensions';
 import Moment from 'moment';
 import { CheckBox, Column, Pre, Row, RowLR, Select, TextInput } from 'react-vcomponents';
@@ -9,10 +9,10 @@ import { InfoButton, Connect, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
 import { AddTerm } from '../../../Server/Commands/AddTerm';
-import { TermComponent } from '../../../Store_Old/firebase/termComponents/@TermComponent';
-import { GetTermVariantNumber } from '../../../Store_Old/firebase/terms';
-import { Term, TermType, Term_disambiguationFormat, Term_nameFormat } from '../../../Store_Old/firebase/terms/@Term';
-import { GetUser } from '../../../Store_Old/firebase/users';
+import { TermComponent } from '../../../Store/firebase/termComponents/@TermComponent';
+import { GetTermVariantNumber } from '../../../Store/firebase/terms';
+import { Term, TermType, Term_disambiguationFormat, Term_nameFormat } from '../../../Store/firebase/terms/@Term';
+import { GetUser } from '../../../Store/firebase/users';
 import { GetNiceNameForTermType } from '../../Database/TermsUI';
 
 export class TermDetailsUI extends BaseComponentPlus(

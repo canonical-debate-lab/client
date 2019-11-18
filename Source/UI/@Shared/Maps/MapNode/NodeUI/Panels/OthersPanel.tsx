@@ -3,8 +3,8 @@ import { Fragment } from 'react';
 import { Button, CheckBox, Column, Div, Pre, Row, Select, Text } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
-import { GetParentNodeID, GetParentNodeL3 } from 'Store_Old/firebase/nodes';
-import { GetUser, GetUserPermissionGroups, MeID } from 'Store_Old/firebase/users';
+import { GetParentNodeID, GetParentNodeL3 } from 'Store/firebase/nodes';
+import { GetUser, GetUserPermissionGroups, MeID } from 'Store/firebase/users';
 import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
 import { UUIDPathStub, UUIDStub } from 'UI/@Shared/UUIDStub';
 import { Icon, SlicePath } from 'Utils/FrameworkOverrides';
@@ -13,12 +13,12 @@ import { CanConvertFromClaimTypeXToY, ChangeClaimType } from '../../../../../../
 import { ReverseArgumentPolarity } from '../../../../../../Server/Commands/ReverseArgumentPolarity';
 import { UpdateLink } from '../../../../../../Server/Commands/UpdateLink';
 import { UpdateNodeChildrenOrder } from '../../../../../../Server/Commands/UpdateNodeChildrenOrder';
-import { Map } from '../../../../../../Store_Old/firebase/maps/@Map';
-import { GetClaimType, GetNodeDisplayText, GetNodeForm, GetNodeL3 } from '../../../../../../Store_Old/firebase/nodes/$node';
-import { ClaimForm, ClaimType, MapNodeL3 } from '../../../../../../Store_Old/firebase/nodes/@MapNode';
-import { ArgumentType } from '../../../../../../Store_Old/firebase/nodes/@MapNodeRevision';
-import { MapNodeType } from '../../../../../../Store_Old/firebase/nodes/@MapNodeType';
-import { IsUserCreatorOrMod } from '../../../../../../Store_Old/firebase/userExtras';
+import { Map } from '../../../../../../Store/firebase/maps/@Map';
+import { GetClaimType, GetNodeDisplayText, GetNodeForm, GetNodeL3 } from '../../../../../../Store/firebase/nodes/$node';
+import { ClaimForm, ClaimType, MapNodeL3 } from '../../../../../../Store/firebase/nodes/@MapNode';
+import { ArgumentType } from '../../../../../../Store/firebase/nodes/@MapNodeRevision';
+import { MapNodeType } from '../../../../../../Store/firebase/nodes/@MapNodeType';
+import { IsUserCreatorOrMod } from '../../../../../../Store/firebase/userExtras';
 
 export class OthersPanel extends BaseComponentPlus({} as {map?: Map, node: MapNodeL3, path: string}, { convertToType: null as ClaimType }) {
 	render() {

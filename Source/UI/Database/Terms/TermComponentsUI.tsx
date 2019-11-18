@@ -6,11 +6,11 @@ import { Connect, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { DeleteTermComponent } from '../../../Server/Commands/DeleteTermComponent';
 import { UpdateTermComponentData } from '../../../Server/Commands/UpdateTermComponentData';
-import { GetTermComponents } from '../../../Store_Old/firebase/termComponents';
-import { TermComponent } from '../../../Store_Old/firebase/termComponents/@TermComponent';
-import { Term } from '../../../Store_Old/firebase/terms/@Term';
-import { IsUserCreatorOrMod } from '../../../Store_Old/firebase/userExtras';
-import { MeID } from '../../../Store_Old/firebase/users';
+import { GetTermComponents } from '../../../Store/firebase/termComponents';
+import { TermComponent } from '../../../Store/firebase/termComponents/@TermComponent';
+import { Term } from '../../../Store/firebase/terms/@Term';
+import { IsUserCreatorOrMod } from '../../../Store/firebase/userExtras';
+import { MeID } from '../../../Store/firebase/users';
 import { RootState } from '../../../Store_Old/index';
 
 const componentsPlaceholder = [];

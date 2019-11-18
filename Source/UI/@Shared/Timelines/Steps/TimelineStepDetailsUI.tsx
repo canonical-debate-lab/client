@@ -4,7 +4,7 @@ import { BaseComponent, GetDOM } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { RemoveHelpers, GetUpdates } from 'Utils/FrameworkOverrides';
 import { UpdateTimelineStep } from '../../../../Server/Commands/UpdateTimelineStep';
-import { NodeReveal, TimelineStep } from '../../../../Store_Old/firebase/timelineSteps/@TimelineStep';
+import { NodeReveal, TimelineStep } from '../../../../Store/firebase/timelineSteps/@TimelineStep';
 
 type Props = {baseData: TimelineStep, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: TimelineStep, ui: TimelineStepDetailsUI)=>void};
 export class TimelineStepDetailsUI extends BaseComponent<Props, {newData: TimelineStep}> {

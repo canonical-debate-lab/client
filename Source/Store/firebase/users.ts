@@ -1,9 +1,9 @@
 import { CachedTransform, Assert } from 'js-vextensions';
-import { User } from 'Store_Old/firebase/users/@User';
+import { User } from 'Store/firebase/users/@User';
 import { presetBackgrounds, defaultPresetBackground } from 'Utils/UI/PresetBackgrounds';
 import { GetData, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { GADDemo } from 'UI/@GAD/GAD';
-import { GetAuth, IsAuthValid } from '../firebase';
+import { GetAuth, IsAuthValid } from '../../Store_Old/firebase';
 import { AccessLevel } from './nodes/@MapNode';
 import { UserExtraInfo, PermissionGroupSet } from './userExtras/@UserExtraInfo';
 

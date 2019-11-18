@@ -3,11 +3,11 @@ import { BaseComponent, GetInnerComp, BaseComponentPlus } from 'react-vextension
 import { ScrollView } from 'react-vscrollview';
 import { Link, ACTSet, Connect } from 'Utils/FrameworkOverrides';
 import { RootState } from '../../../../Store_Old';
-import { Map } from '../../../../Store_Old/firebase/maps/@Map';
-import { GetRatings } from '../../../../Store_Old/firebase/nodeRatings';
-import { GetNodeChildrenL2, GetNodeParentsL2, GetParentNodeL2 } from '../../../../Store_Old/firebase/nodes';
-import { AsNodeL3, GetNodeDisplayText, GetRatingTypesForNode } from '../../../../Store_Old/firebase/nodes/$node';
-import { MapNodeL2 } from '../../../../Store_Old/firebase/nodes/@MapNode';
+import { Map } from '../../../../Store/firebase/maps/@Map';
+import { GetRatings } from '../../../../Store/firebase/nodeRatings';
+import { GetNodeChildrenL2, GetNodeParentsL2, GetParentNodeL2 } from '../../../../Store/firebase/nodes';
+import { AsNodeL3, GetNodeDisplayText, GetRatingTypesForNode } from '../../../../Store/firebase/nodes/$node';
+import { MapNodeL2 } from '../../../../Store/firebase/nodes/@MapNode';
 import { DefinitionsPanel } from './NodeUI/Panels/DefinitionsPanel';
 import { DetailsPanel } from './NodeUI/Panels/DetailsPanel';
 import { DiscussionPanel } from './NodeUI/Panels/DiscussionPanel';

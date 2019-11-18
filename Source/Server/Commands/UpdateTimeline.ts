@@ -1,7 +1,7 @@
 import { AddSchema, AssertValidate, Command, GetDataAsync, GetSchemaJSON, Schema, GetAsync, GetData } from 'Utils/FrameworkOverrides';
-import { Timeline } from 'Store_Old/firebase/timelines/@Timeline';
-import { GetTimeline } from 'Store_Old/firebase/timelines';
-import { User } from '../../Store_Old/firebase/users/@User';
+import { Timeline } from 'Store/firebase/timelines/@Timeline';
+import { GetTimeline } from 'Store/firebase/timelines';
+import { User } from '../../Store/firebase/users/@User';
 
 type MainType = Timeline;
 const MTName = 'Timeline';

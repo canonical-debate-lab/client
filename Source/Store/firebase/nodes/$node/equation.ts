@@ -1,4 +1,4 @@
-import { GetParentNode } from 'Store_Old/firebase/nodes';
+import { GetParentNode } from 'Store/firebase/nodes';
 import { GetNodeChildren, GetNodeID, GetNode, GetNodeChildrenL2 } from '../../nodes';
 import { GetLinkUnderParent } from '../$node';
 

@@ -6,7 +6,7 @@ import { State, Connect, ActionSet, ACTSet, HSLA } from 'Utils/FrameworkOverride
 import { GetEntries, FromJSON } from 'js-vextensions';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { colors } from '../../../../Utils/UI/GlobalStyles';
-import { Map } from '../../../../Store_Old/firebase/maps/@Map';
+import { Map } from '../../../../Store/firebase/maps/@Map';
 import { WeightingType } from '../../../../Store_Old/main';
 import { LayoutDropDown } from './ActionBar_Right/LayoutDropDown';
 

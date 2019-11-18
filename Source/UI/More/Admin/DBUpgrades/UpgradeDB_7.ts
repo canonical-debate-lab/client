@@ -1,11 +1,11 @@
-import { SourceType, SourceChain, Source } from 'Store_Old/firebase/contentNodes/@SourceChain';
+import { SourceType, SourceChain, Source } from 'Store/firebase/contentNodes/@SourceChain';
 import { GetTreeNodesInObjTree } from 'js-vextensions';
 import {AddUpgradeFunc} from "../../Admin";
-import {ContentNode} from "../../../../Store_Old/firebase/contentNodes/@ContentNode";
+import {ContentNode} from "../../../../Store/firebase/contentNodes/@ContentNode";
 import { FirebaseData } from '../../../../Store_Old/firebase';
-import { MapNodeRevision } from '../../../../Store_Old/firebase/nodes/@MapNodeRevision';
-import { MapNode, ChildEntry, Polarity } from '../../../../Store_Old/firebase/nodes/@MapNode';
-import { MapNodeType } from '../../../../Store_Old/firebase/nodes/@MapNodeType';
+import { MapNodeRevision } from '../../../../Store/firebase/nodes/@MapNodeRevision';
+import { MapNode, ChildEntry, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
+import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
 
 /* let newVersion = 7;
 AddUpgradeFunc(newVersion, (oldData: FirebaseData)=> {

@@ -1,7 +1,7 @@
-import { MapNodeRevision } from 'Store_Old/firebase/nodes/@MapNodeRevision';
+import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { Assert } from 'js-vextensions';
 import { GetDataAsync , Command, MergeDBUpdates , GetSchemaJSON, AssertValidate, AssertValidate_Full } from 'Utils/FrameworkOverrides';
-import { MapNode } from '../../Store_Old/firebase/nodes/@MapNode';
+import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 
 
 import {GenerateUUID} from 'Utils/General/KeyGenerator';

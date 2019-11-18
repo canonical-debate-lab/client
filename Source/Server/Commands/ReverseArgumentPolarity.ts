@@ -1,10 +1,10 @@
 import { Assert } from 'js-vextensions';
 import { MapEdit } from 'Server/CommandMacros';
 import { AddSchema, AssertValidate, Command, GetAsync_Raw } from 'Utils/FrameworkOverrides';
-import { GetParentNodeID } from '../../Store_Old/firebase/nodes';
-import { GetNodeL3, ReversePolarity } from '../../Store_Old/firebase/nodes/$node';
-import { ChildEntry, MapNodeL3 } from '../../Store_Old/firebase/nodes/@MapNode';
-import { MapNodeType } from '../../Store_Old/firebase/nodes/@MapNodeType';
+import { GetParentNodeID } from '../../Store/firebase/nodes';
+import { GetNodeL3, ReversePolarity } from '../../Store/firebase/nodes/$node';
+import { ChildEntry, MapNodeL3 } from '../../Store/firebase/nodes/@MapNode';
+import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
 import { UserEdit } from '../CommandMacros';
 
 AddSchema('ReverseArgumentPolarity_payload', {

@@ -1,4 +1,4 @@
-import { Source } from 'Store_Old/firebase/contentNodes/@SourceChain';
+import { Source } from 'Store/firebase/contentNodes/@SourceChain';
 import { AddSchema } from 'Utils/FrameworkOverrides';
 import { SourceChain } from './@SourceChain';
 

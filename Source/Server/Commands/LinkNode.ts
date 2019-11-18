@@ -1,10 +1,10 @@
 import { MapEdit } from 'Server/CommandMacros';
-import { GetNode } from 'Store_Old/firebase/nodes';
+import { GetNode } from 'Store/firebase/nodes';
 import { Assert, E } from 'js-vextensions';
 import { GetAsync , Command } from 'Utils/FrameworkOverrides';
 
-import { ClaimForm, MapNode, Polarity } from '../../Store_Old/firebase/nodes/@MapNode';
-import { MapNodeType } from '../../Store_Old/firebase/nodes/@MapNodeType';
+import { ClaimForm, MapNode, Polarity } from '../../Store/firebase/nodes/@MapNode';
+import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
 import { UserEdit } from '../CommandMacros';
 
 @MapEdit

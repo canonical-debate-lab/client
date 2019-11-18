@@ -1,15 +1,15 @@
 import { Button, Column, Pre, Row, Span } from 'react-vcomponents';
 import { BaseComponent, FindReact, BaseComponentPlus } from 'react-vextensions';
-import { Map } from 'Store_Old/firebase/maps/@Map';
-import { GetNodeL2 } from 'Store_Old/firebase/nodes/$node';
-import { Timeline } from 'Store_Old/firebase/timelines/@Timeline';
+import { Map } from 'Store/firebase/maps/@Map';
+import { GetNodeL2 } from 'Store/firebase/nodes/$node';
+import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { ACTMap_PlayingTimelineSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimeline, GetPlayingTimelineStep } from 'Store_Old/main/maps/$map';
 import { GetEntries } from 'js-vextensions';
 import { VReactMarkdown_Remarkable, Connect, Watch } from 'Utils/FrameworkOverrides';
 import { Segment } from '../../../../Utils/General/RegexHelpers';
-import { AsNodeL3 } from '../../../../Store_Old/firebase/nodes/$node';
-import { MapNodeL3, Polarity } from '../../../../Store_Old/firebase/nodes/@MapNode';
-import { TimelineStep } from '../../../../Store_Old/firebase/timelineSteps/@TimelineStep';
+import { AsNodeL3 } from '../../../../Store/firebase/nodes/$node';
+import { MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
+import { TimelineStep } from '../../../../Store/firebase/timelineSteps/@TimelineStep';
 import { ACTMap_PlayingTimelineAppliedStepSet, GetPlayingTimelineAppliedStepIndex, GetPlayingTimelineStepIndex } from '../../../../Store_Old/main/maps/$map';
 import { NodeUI_Inner } from '../MapNode/NodeUI_Inner';
 

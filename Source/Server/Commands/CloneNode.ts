@@ -1,8 +1,8 @@
 import { DEL, E, Clone } from 'js-vextensions';
 import { Command, GetAsync_Raw, MergeDBUpdates, RemoveHelpers, SplitStringBySlash_Cached } from 'Utils/FrameworkOverrides';
-import { GetLinkAtPath, GetNodeForm, GetNodeL2 } from '../../Store_Old/firebase/nodes/$node';
-import { ClaimForm, MapNode, Polarity } from '../../Store_Old/firebase/nodes/@MapNode';
-import { MapNodeType } from '../../Store_Old/firebase/nodes/@MapNodeType';
+import { GetLinkAtPath, GetNodeForm, GetNodeL2 } from '../../Store/firebase/nodes/$node';
+import { ClaimForm, MapNode, Polarity } from '../../Store/firebase/nodes/@MapNode';
+import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
 import { AddChildNode } from './AddChildNode';
 import { LinkNode } from './LinkNode';
 

@@ -1,4 +1,4 @@
-import { SourceType, SourceChain, Source, Source_linkURLPattern } from 'Store_Old/firebase/contentNodes/@SourceChain';
+import { SourceType, SourceChain, Source, Source_linkURLPattern } from 'Store/firebase/contentNodes/@SourceChain';
 import { BaseComponent, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { Button , Column , Row , TextInput , Select } from 'react-vcomponents';
 
@@ -8,8 +8,8 @@ import { Button , Column , Row , TextInput , Select } from 'react-vcomponents';
 import { GetErrorMessagesUnderElement, GetEntries, Clone } from 'js-vextensions';
 import { Validate } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { Image_urlPattern } from 'Store_Old/firebase/images/@Image';
-import { GetSourceNamePlaceholderText, GetSourceAuthorPlaceholderText } from '../../../../Store_Old/firebase/contentNodes/$contentNode';
+import { Image_urlPattern } from 'Store/firebase/images/@Image';
+import { GetSourceNamePlaceholderText, GetSourceAuthorPlaceholderText } from '../../../../Store/firebase/contentNodes/$contentNode';
 
 export class SourceChainsEditorUI extends BaseComponentPlus(
 	{ enabled: true } as {baseData: SourceChain[], enabled?: boolean, style?, onChange?: (newData: SourceChain[])=>void},

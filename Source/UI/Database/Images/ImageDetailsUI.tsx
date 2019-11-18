@@ -3,12 +3,12 @@ import Moment from 'moment';
 import { Column, Div, Pre, Row, RowLR, Select, Spinner, TextInput } from 'react-vcomponents';
 import { BaseComponent, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
-import { User } from 'Store_Old/firebase/users/@User';
+import { User } from 'Store/firebase/users/@User';
 import { Connect, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
-import { GetNiceNameForImageType, Image, ImageType, Image_namePattern, Image_urlPattern } from '../../../Store_Old/firebase/images/@Image';
-import { GetUser } from '../../../Store_Old/firebase/users';
+import { GetNiceNameForImageType, Image, ImageType, Image_namePattern, Image_urlPattern } from '../../../Store/firebase/images/@Image';
+import { GetUser } from '../../../Store/firebase/users';
 import { SourceChainsEditorUI } from '../../@Shared/Maps/MapNode/SourceChainsEditorUI';
 
 export class ImageDetailsUI extends BaseComponentPlus({} as {baseData: Image, creating: boolean, editing: boolean, style?, onChange?: (newData: Image, error: string)=>void}, {} as {newData: Image, dataError: string}) {

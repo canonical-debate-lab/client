@@ -1,6 +1,6 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { Command, GetDataAsync } from 'Utils/FrameworkOverrides';
-import { Image } from '../../Store_Old/firebase/images/@Image';
+import { Image } from '../../Store/firebase/images/@Image';
 
 @UserEdit
 export class DeleteImage extends Command<{id: string}, {}> {

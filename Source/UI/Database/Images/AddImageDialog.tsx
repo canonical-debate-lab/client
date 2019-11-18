@@ -1,8 +1,8 @@
 import { Column } from 'react-vcomponents';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { AddImage } from '../../../Server/Commands/AddImage';
-import { Image, ImageType } from '../../../Store_Old/firebase/images/@Image';
-import { MeID } from '../../../Store_Old/firebase/users';
+import { Image, ImageType } from '../../../Store/firebase/images/@Image';
+import { MeID } from '../../../Store/firebase/users';
 import { ImageDetailsUI } from './ImageDetailsUI';
 
 export function ShowAddImageDialog(userID: string) {

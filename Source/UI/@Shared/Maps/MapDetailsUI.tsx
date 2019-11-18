@@ -3,8 +3,8 @@ import Moment from 'moment';
 import { CheckBox, Column, Pre, RowLR, Spinner, TextInput } from 'react-vcomponents';
 import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { Connect, Watch } from 'Utils/FrameworkOverrides';
-import { Map, Map_namePattern } from '../../../Store_Old/firebase/maps/@Map';
-import { GetUser } from '../../../Store_Old/firebase/users';
+import { Map, Map_namePattern } from '../../../Store/firebase/maps/@Map';
+import { GetUser } from '../../../Store/firebase/users';
 import { IDAndCreationInfoUI } from '../CommonPropUIs/IDAndCreationInfoUI';
 
 type Props = {baseData: Map, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: Map, ui: MapDetailsUI)=>void};

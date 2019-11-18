@@ -1,5 +1,5 @@
 import { GetSearchTerms } from 'Server/Commands/AddNodeRevision';
-import { MapNodeRevision } from 'Store_Old/firebase/nodes/@MapNodeRevision';
+import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { Clone } from 'js-vextensions';
 import { FirebaseData } from '../../../../Store_Old/firebase';
 import { AddUpgradeFunc } from '../../Admin';

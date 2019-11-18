@@ -3,14 +3,14 @@ import { BaseComponentWithConnector } from 'react-vextensions';
 import { Row, Button } from 'react-vcomponents';
 import { colors } from 'Utils/UI/GlobalStyles';
 import { LayoutDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Right/LayoutDropDown';
-import { Map, MapType } from 'Store_Old/firebase/maps/@Map';
-import { MeID } from 'Store_Old/firebase/users';
+import { Map, MapType } from 'Store/firebase/maps/@Map';
+import { MeID } from 'Store/firebase/users';
 import { GetTimelinePanelOpen } from 'Store_Old/main/maps/$map';
-import { IsUserMap } from 'Store_Old/firebase/maps';
+import { IsUserMap } from 'Store/firebase/maps';
 import { ACTPersonalMapSelect } from 'Store_Old/main/personal';
 import { ACTDebateMapSelect } from 'Store_Old/main/debates';
 import { DetailsDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Left';
-import { IsUserCreatorOrMod } from 'Store_Old/firebase/userExtras';
+import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { Button_GAD } from './GADButton';
 
 const connector = (state, { map }: {map: Map, subNavBarWidth: number}) => ({

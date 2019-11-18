@@ -3,9 +3,9 @@ import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions
 import { ShowMessageBox } from 'react-vmessagebox';
 import { DeletePhrasing } from 'Server/Commands/DeletePhrasing';
 import { UpdatePhrasing } from 'Server/Commands/UpdatePhrasing';
-import { MapNodePhrasing } from 'Store_Old/firebase/nodePhrasings/@MapNodePhrasing';
-import { IsUserCreatorOrMod } from 'Store_Old/firebase/userExtras';
-import { GetUser, MeID } from 'Store_Old/firebase/users';
+import { MapNodePhrasing } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
+import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
+import { GetUser, MeID } from 'Store/firebase/users';
 import { PhrasingDetailsUI } from 'UI/Database/Phrasings/PhrasingDetailsUI';
 import { Connect, GetUpdates } from 'Utils/FrameworkOverrides';
 

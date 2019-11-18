@@ -1,7 +1,7 @@
 import { BaseComponentPlus } from 'react-vextensions';
-import { globalMapID } from 'Store_Old/firebase/nodes/@MapNode';
+import { globalMapID } from 'Store/firebase/nodes/@MapNode';
 import { PageContainer } from 'Utils/FrameworkOverrides';
-import { GetMap } from '../../Store_Old/firebase/maps';
+import { GetMap } from '../../Store/firebase/maps';
 import { MapUI } from '../@Shared/Maps/MapUI';
 
 export class GlobalMapUI extends BaseComponentPlus({} as {}, {}) {

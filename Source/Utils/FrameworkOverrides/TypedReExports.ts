@@ -1,5 +1,5 @@
-import { RootState } from 'Store_Old';
-import { CreateACTSet, CreateMaybeLog, CreateShouldLog, CreateSimpleReducer, CreateState, LogTypes_Base, CreateStoreAccessor } from '.';
+import { RootState } from 'Store';
+import { CreateMaybeLog, CreateShouldLog, CreateStoreAccessor, LogTypes_Base } from '.';
 
 export class LogTypes extends LogTypes_Base {
 	actions = false;
@@ -19,7 +19,5 @@ G({ State }); */
 
 export const StoreAccessor = CreateStoreAccessor<RootState>();
 
-export const ACTSet = CreateACTSet<RootState>();
-export const SimpleReducer = CreateSimpleReducer<RootState>();
 export const ShouldLog = CreateShouldLog<LogTypes>();
 export const MaybeLog = CreateMaybeLog<LogTypes>();

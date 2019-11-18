@@ -1,5 +1,5 @@
-import { GetNode } from 'Store_Old/firebase/nodes';
-import { MapNode } from '../../Store_Old/firebase/nodes/@MapNode';
+import { GetNode } from 'Store/firebase/nodes';
+import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 
 // todo: probably merge this function with the StartFindingPathsFromXToY function in SearchPanel.tsx
 export function GetShortestPathFromRootToNode(rootNodeID: string, node: MapNode): string {

@@ -4,7 +4,7 @@ import { BaseComponent } from 'react-vextensions';
 import { ACTSetPage, ACTSetSubpage } from 'Store_Old/main';
 import { ACTUserSelect } from 'Store_Old/main/database';
 import { Link } from 'Utils/FrameworkOverrides';
-import { User } from 'Store_Old/firebase/users/@User';
+import { User } from 'Store/firebase/users/@User';
 
 export class IDAndCreationInfoUI extends BaseComponent<{id: string | number, creator: User, createdAt: number}, {}> {
 	render() {

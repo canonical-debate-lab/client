@@ -2,7 +2,7 @@ import { UserEdit } from 'Server/CommandMacros';
 import { Assert } from 'js-vextensions';
 import { AssertValidate ,GetDataAsync, Command } from 'Utils/FrameworkOverrides';
 
-import { Image } from '../../Store_Old/firebase/images/@Image';
+import { Image } from '../../Store/firebase/images/@Image';
 
 
 export const UpdateImageData_allowedPropUpdates = ['name', 'type', 'url', 'description', 'previewWidth', 'sourceChains'];

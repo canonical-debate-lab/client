@@ -1,6 +1,6 @@
 import { Button, CheckBox, Column, DropDown, DropDownContent, DropDownTrigger, Pre, Row, RowLR, Spinner } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
-import { Map } from 'Store_Old/firebase/maps/@Map';
+import { Map } from 'Store/firebase/maps/@Map';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { Button_GAD } from 'UI/@GAD/GADButton';
 import { ACTSet, State } from 'Utils/FrameworkOverrides';

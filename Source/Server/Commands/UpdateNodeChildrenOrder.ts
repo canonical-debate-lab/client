@@ -1,6 +1,6 @@
 import { MapEdit, UserEdit } from 'Server/CommandMacros';
 import { AddSchema, AssertValidate, Command, GetDataAsync } from 'Utils/FrameworkOverrides';
-import { MapNode } from '../../Store_Old/firebase/nodes/@MapNode';
+import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 
 AddSchema('UpdateNodeChildrenOrder_payload', {
 	properties: {

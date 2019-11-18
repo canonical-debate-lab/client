@@ -8,7 +8,7 @@ import { IsAuthValid } from 'Store_Old/firebase';
 import { Link, HandleError } from 'Utils/FrameworkOverrides';
 import { store } from 'Store';
 import { runInAction } from 'mobx';
-import { MeID } from '../../../Store_Old/firebase/users';
+import { MeID } from '../../../Store/firebase/users';
 
 export class UserPanel extends BaseComponentPlus({} as {auth?}, {}) {
 	render() {
@@ -16,8 +16,8 @@ export class UserPanel extends BaseComponentPlus({} as {auth?}, {}) {
 
 		// authError: pathToJS(state.firebase, "authError"),
 		// auth: helpers.pathToJS(state.firebase, "auth"),
-		//const auth = State.Watch((a) => a.firebase.auth);
-		const auth = store.
+		// const auth = State.Watch((a) => a.firebase.auth);
+		const auth = store.firebase.auth;
 		// account: helpers.pathToJS(state.firebase, "profile")
 
 		if (!IsAuthValid(auth)) {
@@ -40,13 +40,11 @@ export class UserPanel extends BaseComponentPlus({} as {auth?}, {}) {
 						<CheckBox value={State().main.
 					</Row> */}
 				<Row mt={5}>
-					<Link ml="auto" mr={5} actions={[new ACTSetPage('profile')]} onContextMenu={(e) => e.nativeEvent['passThrough'] = true}>
-						<Button text="Edit profile" style={{ width: 100 }} onClick={() => {
-							// store.dispatch(new ACTTopRightOpenPanelSet(null));
-							runInAction('EditProfile_click', () => {
-								store.main.topRightOpenPanel = null;
-							});
-						}}/>
+					<Link ml="auto" mr={5} onContextMenu={(e) => e.nativeEvent['passThrough'] = true} actionFunc={(s) => {
+						s.main.page = 'profile';
+						store.main.topRightOpenPanel = null;
+					}}>
+						<Button text="Edit profile" style={{ width: 100 }}/>
 					</Link>
 					<Button ml={5} text="Sign out" style={{ width: 100 }} onClick={() => {
 						firebase.logout();
