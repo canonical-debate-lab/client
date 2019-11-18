@@ -1,5 +1,5 @@
 import { RootState } from 'Store';
-import { CreateACTSet, CreateMaybeLog, CreateShouldLog, CreateSimpleReducer, CreateState, LogTypes_Base } from '.';
+import { CreateACTSet, CreateMaybeLog, CreateShouldLog, CreateSimpleReducer, CreateState, LogTypes_Base, CreateStoreAccessor } from '.';
 
 export class LogTypes extends LogTypes_Base {
 	actions = false;
@@ -12,10 +12,13 @@ export class LogTypes extends LogTypes_Base {
 	renderTriggers = false;
 }
 
-export const State = CreateState<RootState>();
+/* export const State = CreateState<RootState>();
 // export const State = StoreAccessor('State', CreateState<RootState>());
 // State() actually also returns the root-state (if no data-getter is supplied), but we don't reveal that in type-info (as its only to be used in console)
-G({ State });
+G({ State }); */
+
+export const StoreAccessor = CreateStoreAccessor<RootState>();
+
 export const ACTSet = CreateACTSet<RootState>();
 export const SimpleReducer = CreateSimpleReducer<RootState>();
 export const ShouldLog = CreateShouldLog<LogTypes>();

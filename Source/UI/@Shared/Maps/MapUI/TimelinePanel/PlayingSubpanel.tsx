@@ -8,7 +8,7 @@ import { ScrollSource, ScrollView } from 'react-vscrollview';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetTimelineStep, GetTimelineSteps } from 'Store/firebase/timelines';
 import { ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetNodeRevealHighlightTime, GetPlayingTimelineAppliedStepIndex, GetPlayingTimelineStepIndex, GetSelectedTimeline } from 'Store/main/maps/$map';
-import { storeM } from 'StoreM/StoreM';
+import { rootState } from 'StoreM/StoreM';
 import { ActionSet, ACTSet, GetScreenRect, HSLA, Icon, Observer, RunWithRenderingBatched, UseSize, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, ClassHooks } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { StepUI } from './PlayingSubpanel/StepUI';
@@ -122,7 +122,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 		const { map } = this.props;
 		// const { targetTime, autoScroll } = this.state;
 		const oldTargetTime = this.targetTime;
-		const mapInfo = storeM.main.maps.get(map._key);
+		const mapInfo = rootState.main.maps.get(map._key);
 
 		// Log('Checking');
 		// const targetTime_fromRedux = GetPlayingTimelineTime(map._key); // from redux store
@@ -259,7 +259,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 	render() {
 		const { map } = this.props;
 		// const { targetTime, autoScroll, targetTime_yInMessageArea, targetTimeDirection } = this.state;
-		const mapInfo = storeM.main.maps.get(map._key);
+		const mapInfo = rootState.main.maps.get(map._key);
 		const timeline = GetSelectedTimeline.Watch(map._key);
 		// timelineSteps: timeline && GetTimelineSteps(timeline);
 		const targetStepIndex = GetPlayingTimelineAppliedStepIndex.Watch(map._key);

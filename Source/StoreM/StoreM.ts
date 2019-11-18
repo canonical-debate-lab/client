@@ -1,7 +1,7 @@
 import makeInspectable from 'mobx-devtools-mst';
 import { model } from 'mst-decorators';
-import {unprotect} from 'mobx-state-tree';
-import { MainStateM, MainStateM_ } from './main';
+import { unprotect } from 'mobx-state-tree';
+import { MainState, MainStateM } from './main';
 
 // configure({ enforceActions: 'always' });
 // configure({ enforceActions: 'observed' });
@@ -41,16 +41,16 @@ export const storeM = new StoreM();
 	};
 }); */
 
-export class StoreM {
-	@MainStateM_ main: MainStateM;
+export class RootState {
+	@MainStateM main: MainState;
 }
-export const StoreM_ = model(StoreM);
+export const RootStateM = model(RootState);
 
-export let storeM: ReturnType<typeof InitStore>;
+export let rootState: ReturnType<typeof InitStore>;
 
 /* declare global { const storeM: StoreM; } */
 export function InitStore() {
-	const result = StoreM_.create({
+	const result = RootStateM.create({
 		main: {
 			maps: {},
 		},
@@ -63,7 +63,7 @@ export function InitStore() {
 		console.dir(snapshot);
 	}); */
 
-	storeM = result;
+	rootState = result;
 	G({ storeM: result });
 	return result; // the only reason we return it is for the "ReturnType<...>" above
 }

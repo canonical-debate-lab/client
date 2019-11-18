@@ -7,8 +7,8 @@ import { E } from 'js-vextensions';
 import { ShowMessageBox, BoxController } from 'react-vmessagebox';
 import { IsAuthValid } from 'Store/firebase';
 import { Connect, State, Link, HandleError } from 'Utils/FrameworkOverrides';
-import { storeM } from 'StoreM/StoreM';
-import {runInAction} from 'mobx';
+import { rootState } from 'StoreM/StoreM';
+import { runInAction } from 'mobx';
 import { ACTSetPage } from '../../../Store/main';
 import { MeID } from '../../../Store/firebase/users';
 
@@ -45,7 +45,7 @@ export class UserPanel extends BaseComponentPlus({} as {auth?}, {}) {
 						<Button text="Edit profile" style={{ width: 100 }} onClick={() => {
 							// store.dispatch(new ACTTopRightOpenPanelSet(null));
 							runInAction('EditProfile_click', () => {
-								storeM.main.topRightOpenPanel = null;
+								rootState.main.topRightOpenPanel = null;
 							});
 						}}/>
 					</Link>

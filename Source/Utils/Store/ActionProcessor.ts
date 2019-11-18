@@ -13,7 +13,7 @@ import { GetCurrentURL_SimplifiedForPageViewTracking } from 'Utils/URL/URLs';
 import { GetOpenMapID } from 'Store/main';
 import { NodeUI_Inner } from 'UI/@Shared/Maps/MapNode/NodeUI_Inner';
 import { GetTimelineStep } from 'Store/firebase/timelines';
-import { storeM } from 'StoreM/StoreM';
+import { rootState } from 'StoreM/StoreM';
 import { Map } from '../../Store/firebase/maps/@Map';
 import { RootState } from '../../Store/index';
 import { ACTDebateMapSelect, ACTDebateMapSelect_WithData } from '../../Store/main/debates';
@@ -34,7 +34,7 @@ store.dispatch = function(...args) {
 
 // only use this if you actually need to change the action-data before it gets dispatched/applied (otherwise use [Mid/Post]DispatchAction)
 export function PreDispatchAction(action: Action<any>) {
-	MaybeLog(a => a.actions, () => `Dispatching: ${action.type} JSON:${ToJSON(action)}`);
+	MaybeLog((a) => a.actions, () => `Dispatching: ${action.type} JSON:${ToJSON(action)}`);
 }
 export function MidDispatchAction(action: Action<any>, newState: RootState) {
 	if (action.type == 'persist/REHYDRATE') {
@@ -46,7 +46,7 @@ export function MidDispatchAction(action: Action<any>, newState: RootState) {
 	if (action.Is(ACTPersonalMapSelect) || action.Is(ACTDebateMapSelect)) {
 		// ACTEnsureMapStateInit(action.payload.id);
 		// storeM.ACTEnsureMapStateInit(action.payload.id);
-		storeM.main.ACTEnsureMapStateInit(action.payload.id);
+		rootState.main.ACTEnsureMapStateInit(action.payload.id);
 	}
 }
 
@@ -78,7 +78,7 @@ export function RecordPageView(url: VURL) {
 		ReactGA.set({ page: url.toString({ domain: false }) });
 		ReactGA.pageview(url.toString({ domain: false }) || '/');
 	}
-	MaybeLog(a => a.pageViews, () => `Page-view: ${url}`);
+	MaybeLog((a) => a.pageViews, () => `Page-view: ${url}`);
 }
 
 let postInitCalled = false;
@@ -130,7 +130,7 @@ export async function PostDispatchAction(action: Action<any>) {
 						store.dispatch(new ACTMapNodeExpandedSet({ mapID: map._key, path, expanded: true, resetSubtree: false }));
 					}
 					if (node.children) {
-						newPathsToExpand.push(...node.children.VKeys(true).map(childID => `${path}/${childID}`));
+						newPathsToExpand.push(...node.children.VKeys(true).map((childID) => `${path}/${childID}`));
 					}
 				}
 				pathsToExpand = newPathsToExpand;
@@ -141,7 +141,7 @@ export async function PostDispatchAction(action: Action<any>) {
 		const { path } = action.payload;
 		const nodeID = GetNodeID(path);
 		const node = GetNodeL2(nodeID) || await GetAsync(() => GetNodeL2(nodeID));
-		const expandKey = ['expanded', 'expanded_truth', 'expanded_relevance'].find(key => action.payload[key] != null);
+		const expandKey = ['expanded', 'expanded_truth', 'expanded_relevance'].find((key) => action.payload[key] != null);
 
 		// if we're expanding a claim-node, make sure any untouched truth-arguments start expanded
 		/* if (node.type == MapNodeType.Claim && action.payload[expandKey]) {
@@ -265,7 +265,7 @@ async function ExpandToAndFocusOnNodes(mapID: string, paths: string[]) {
 	let nodeBoxes: NodeUI_Inner[] = [];
 	for (let i = 0; i < 30 && nodeBoxes.length < paths.length; i++) {
 		if (i > 0) await SleepAsync(100);
-		nodeBoxes = paths.map(path => mapUI.FindNodeBox(path)).filter(a => a != null && GetDOM(a));
+		nodeBoxes = paths.map((path) => mapUI.FindNodeBox(path)).filter((a) => a != null && GetDOM(a));
 	}
 	if (nodeBoxes.length == 0) {
 		Log('Failed to find any of the NodeBoxes to apply scroll to. Paths:', paths);
@@ -275,7 +275,7 @@ async function ExpandToAndFocusOnNodes(mapID: string, paths: string[]) {
 	let nodeBoxesMerged: VRect;
 	for (const box of nodeBoxes) {
 		// const boxPos = GetScreenRect(GetDOM(box)).Center.Minus(GetScreenRect(mapUI.mapUIEl).Position);
-		const boxRect = GetScreenRect(GetDOM(box)).NewPosition(a => a.Minus(GetScreenRect(mapUI.mapUIEl).Position));
+		const boxRect = GetScreenRect(GetDOM(box)).NewPosition((a) => a.Minus(GetScreenRect(mapUI.mapUIEl).Position));
 		nodeBoxesMerged = nodeBoxesMerged ? nodeBoxesMerged.Encapsulating(boxRect) : boxRect;
 	}
 	/* const nodeBoxPositionAverage = nodeBoxPositionSum.Times(1 / paths.length);

@@ -7,12 +7,12 @@ import { FeedbackReducer } from 'firebase-feedback';
 import { persistReducer, createTransform, createMigrate } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import { omit } from 'lodash';
-import { MainReducer, MainState } from './main';
+import { MainReducer, MainState_Redux } from './main';
 import { migrations } from './@Migrations/Main';
 
 // class is used only for initialization
 export class RootState {
-	main: MainState;
+	main: MainState_Redux;
 	// firebase: FirebaseDatabase;
 	firebase: any;
 	firestore: any;
@@ -108,12 +108,12 @@ export function MakeRootReducer(pureOnly = false) {
 	const persistConfig = {
 		key: 'reduxPersist_root',
 		storage,
-		blacklist: blacklistPaths.filter(a => !a.includes('.')),
+		blacklist: blacklistPaths.filter((a) => !a.includes('.')),
 		transforms: [
 			// nested blacklist-paths require a custom transform to be applied
 			createTransform((inboundState, key) => {
 				if (!IsString(key)) throw Assert(false); // we want the type-guard (but not sure if this is correct)
-				const blacklistPaths_forKey = blacklistPaths.filter(path => path.startsWith(`${key}.`)).map(path => path.substr(key.length + 1));
+				const blacklistPaths_forKey = blacklistPaths.filter((path) => path.startsWith(`${key}.`)).map((path) => path.substr(key.length + 1));
 				return omit(inboundState as any, ...blacklistPaths_forKey);
 			}, null),
 		],

@@ -30,7 +30,7 @@ import { GetParentNode, GetParentPath, GetNode, GetNodeID } from 'Store/firebase
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { UpdateTimelineStepOrder } from 'Server/Commands/UpdateTimelineStepOrder';
 import ReactDOM from 'react-dom';
-import { storeM, InitStore } from 'StoreM/StoreM';
+import { rootState, InitStore } from 'StoreM/StoreM';
 import { onSnapshot, getSnapshot, applySnapshot } from 'mobx-state-tree';
 import { persist } from 'mst-persist';
 import { GetUserBackground } from '../Store/firebase/users';
@@ -70,12 +70,12 @@ export class RootUIWrapper extends BaseComponentPlus({}, {} as { store: ProjectS
 		// temp fix for "Illegal invocation" error in mst-persist
 		window.localStorage.getItem = window.localStorage.getItem.bind(window.localStorage);
 		window.localStorage.setItem = window.localStorage.setItem.bind(window.localStorage);
-		persist('some', storeM, {
+		persist('some', rootState, {
 			// jsonify: false,
 			// whitelist: ['name']
 			blacklist: [],
 		}).then(() => {
-			Log('Loaded state:', getSnapshot(storeM));
+			Log('Loaded state:', getSnapshot(rootState));
 
 			// init redux store
 			const { store: reduxStore, persister } = CreateStore(g.__InitialState__);

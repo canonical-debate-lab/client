@@ -12,10 +12,9 @@ import { NotificationsUI } from 'UI/@Shared/NavBar/NotificationsUI';
 import { SearchPanel } from 'UI/@Shared/NavBar/SearchPanel';
 import { UserPanel } from 'UI/@Shared/NavBar/UserPanel';
 import { useMemo } from 'react';
-import { storeM } from 'StoreM/StoreM';
+import { rootState, RootState } from 'StoreM/StoreM';
 import { runInAction } from 'mobx';
 import { colors } from '../../Utils/UI/GlobalStyles';
-import { ACTSetPage, ACTSetSubpage } from '../../Store/main';
 import { ACTPersonalMapSelect } from '../../Store/main/personal';
 
 // main
@@ -24,7 +23,7 @@ import { ACTPersonalMapSelect } from '../../Store/main/personal';
 @Observer
 export class NavBar_GAD extends BaseComponentPlus({}, {}) {
 	render() {
-		const { topRightOpenPanel } = storeM.main;
+		const { topRightOpenPanel } = rootState.main;
 		const auth = State.Watch((a) => a.firebase.auth);
 		const dbNeedsInit = Watch(() => GetData({ collection: true, useUndefinedForInProgress: true }, 'maps') === null, []); // use maps because it won't cause too much data to be downloaded-and-watched; improve this later
 		return (
@@ -135,22 +134,25 @@ class NavBarPageButton extends BaseComponent
 			}
 		}
 
-		const actions = [] as Action<any>[];
-		if (page) {
-			if (page != currentPage) {
-				actions.push(new ACTSetPage(page));
-			} else {
-				// go to the page root-contents, if clicking on page in nav-bar we're already on
-				actions.push(new ACTSetSubpage({ page, subpage: null }));
-				if (page == 'debates') {
-					actions.push(new ACTDebateMapSelect({ id: null }));
+		const actionFunc = (root: RootState) => {
+			if (page) {
+				if (page != currentPage) {
+					root.main.page = page;
+				} else {
+					// go to the page root-contents, if clicking on page in nav-bar we're already on
+					root.main[currentPage].subpage = null;
+					if (page == 'personal') {
+						root.main.personal.selectedMapID = null;
+					} else if (page == 'debates') {
+						root.main.debates.selectedMapID = null;
+					}
 				}
 			}
-		}
+		};
 
 		const hoverOrActive = hovered || active;
 		return (
-			<Link actions={actions} style={finalStyle} onMouseEnter={() => this.SetState({ hovered: true })} onMouseLeave={() => this.SetState({ hovered: false })} onClick={onClick}>
+			<Link actionFunc={actionFunc} style={finalStyle} onMouseEnter={() => this.SetState({ hovered: true })} onMouseLeave={() => this.SetState({ hovered: false })} onClick={onClick}>
 				{text}
 				{hoverOrActive && bottomBar}
 			</Link>
@@ -162,7 +164,7 @@ class NavBarPageButton extends BaseComponent
 class NavBarPanelButton extends BaseComponentPlus({} as {text: string, panel: string, corner: 'top-left' | 'top-right'}, {}, { active: false }) {
 	render() {
 		const { text, panel, corner } = this.props;
-		const { topLeftOpenPanel, topRightOpenPanel } = storeM.main;
+		const { topLeftOpenPanel, topRightOpenPanel } = rootState.main;
 		const active = (corner == 'top-left' ? topLeftOpenPanel : topRightOpenPanel) == panel;
 		/* return (
 			<NavBarPageButton page={panel} text={text} panel={true} active={active} onClick={useCallback((e) => {
@@ -183,10 +185,10 @@ class NavBarPanelButton extends BaseComponentPlus({} as {text: string, panel: st
 		runInAction('NavBarPanelButton_OnClick', () => {
 			if (corner == 'top-left') {
 				// store.dispatch(new ACTTopLeftOpenPanelSet(active ? null : panel));
-				storeM.main.topLeftOpenPanel = active ? null : panel;
+				rootState.main.topLeftOpenPanel = active ? null : panel;
 			} else {
 				// store.dispatch(new ACTTopRightOpenPanelSet(active ? null : panel));
-				storeM.main.topRightOpenPanel = active ? null : panel;
+				rootState.main.topRightOpenPanel = active ? null : panel;
 			}
 		});
 	};

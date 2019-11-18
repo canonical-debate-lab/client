@@ -1,6 +1,7 @@
 import { LOCATION_CHANGE } from 'connected-react-router';
 import { VURL } from 'js-vextensions';
 import { ShallowChanged } from 'react-vextensions';
+import { rootState } from 'StoreM/StoreM';
 import { MapInfoReducer } from '../Store/main/maps/$map';
 import { MapInfo } from '../Store/main/maps/@MapInfo';
 import { Personal, ACTPersonalMapSelect, PersonalReducer } from '../Store/main/personal';
@@ -24,7 +25,7 @@ export enum WeightingType {
 }
 
 // class is used only for initialization
-export class MainState {
+export class MainState_Redux {
 	page: string;
 	urlExtraStr: string;
 
@@ -52,8 +53,6 @@ export class MainState {
 	more: {subpage: string};
 	home: {subpage: string};
 	social: {subpage: string};
-	personal: Personal;
-	debates: Debates;
 	global: {subpage: string};
 
 	search: SearchStorage;
@@ -81,8 +80,6 @@ export class MainState {
 	// timelines
 	nodeRevealHighlightTime: number;
 }
-export class ACTSetPage extends Action<string> {}
-export class ACTSetSubpage extends Action<{page: string, subpage: string}> {}
 /* export class ACTTopLeftOpenPanelSet extends Action<string> {}
 export class ACTTopRightOpenPanelSet extends Action<string> {} */
 // export class ACTOpenMapSet extends Action<number> {}
@@ -92,11 +89,6 @@ export class ACTSetLastAcknowledgementTime extends Action<{nodeID: string, time:
 // export class ACTSetCurrentNodeBeingAdded extends Action<{path: string}> {}
 
 export const MainReducer = CombineReducers({
-	page: (state = null, action) => {
-		if (action.Is(ACTSetPage)) return action.payload;
-		return state;
-	},
-
 	/* _: (state = null, action)=> {
 		PreDispatchAction(action);
 		return null;
@@ -234,8 +226,10 @@ export const GetOpenMapID = StoreAccessor(() => {
 	// return State(a=>a.main.openMap);
 	const page = State((a) => a.main.page);
 	// if (page == 'home') return demoMap._id;
-	if (page == 'personal') return State((a) => a.main.personal.selectedMapID);
-	if (page == 'debates') return State((a) => a.main.debates.selectedMapID);
+	/* if (page == 'personal') return State((a) => a.main.personal.selectedMapID);
+	if (page == 'debates') return State((a) => a.main.debates.selectedMapID); */
+	if (page == 'personal') return rootState.main.personal.selectedMapID;
+	if (page == 'debates') return rootState.main.debates.selectedMapID;
 	if (page == 'global') return globalMapID;
 	return null;
 });

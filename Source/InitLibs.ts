@@ -10,7 +10,7 @@ import Raven from 'raven-js';
 import { version, dbVersion, hasHotReloaded, firebaseConfig } from 'Main';
 import { Log, Link, GetData, GetDataAsync, GetAsync, ApplyDBUpdates, VReactMarkdown_Remarkable, Connect, State, DBPath, ExposeModuleExports, manager as manager_framework } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
-import { GetLoadActionsForURL, GetNewURL } from 'Utils/URL/URLs';
+import { GetLoadActionFuncForURL, GetNewURL } from 'Utils/URL/URLs';
 import { MakeRootReducer } from 'Store';
 import { GetAuth } from 'Store/firebase';
 import { NotificationMessage } from 'Store/main/@NotificationMessage';
@@ -44,7 +44,7 @@ export function InitLibs() {
 
 		startURL,
 		routerLocationPathInStore: ['router', 'location'],
-		GetLoadActionsForURL,
+		GetLoadActionFuncForURL,
 		GetNewURL,
 		DoesURLChangeCountAsPageChange,
 

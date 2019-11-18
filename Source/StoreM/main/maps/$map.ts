@@ -20,7 +20,7 @@ export class MapState {
 	@maybe(num) playingTimeline_time: number;
 	// playingTimeline_time_set(val: number) { this.playingTimeline_time = val; }
 }
-export const MapState_ = model(MapState);
+export const MapStateM = model(MapState);
 
 /* export const GetPlayingTimelineTime = StoreAccessor((mapID: string): number => {
 	if (mapID == null) return null;

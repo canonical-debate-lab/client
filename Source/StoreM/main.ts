@@ -1,6 +1,8 @@
 import { ObservableMap } from 'mobx';
 import { map, model, string, maybe, maybeNull } from 'mst-decorators';
-import { MapState, MapState_ } from './main/maps/$map';
+import { MapState, MapStateM } from './main/maps/$map';
+import { PersonalStateM, PersonalState } from './main/personal';
+import { DebatesStateM, DebatesState } from './main/debates';
 
 /* export class MainStateM {
 	// @observable maps = observable.map<string, MapState>();
@@ -20,7 +22,12 @@ import { MapState, MapState_ } from './main/maps/$map';
 	};
 }); */
 
-export class MainStateM {
+export class MainState {
+	@string page = 'home';
+
+	@PersonalStateM personal: PersonalState;
+	@DebatesStateM debates: DebatesState;
+
 	@maybeNull(string) topLeftOpenPanel: string;
 	// set topLeftOpenPanel_set(val) { this.topLeftOpenPanel = val; }
 	@maybeNull(string) topRightOpenPanel: string;
@@ -29,10 +36,10 @@ export class MainStateM {
 	// @observable maps = observable.map<string, MapState>();
 	// @ref(MapState_) maps = {} as {[key: string]: MapState};
 	// @map(MapState_) maps = observable.map<string, MapState>();
-	@map(MapState_) maps = {} as ObservableMap<string, MapState>;
+	@map(MapStateM) maps = {} as ObservableMap<string, MapState>;
 	ACTEnsureMapStateInit(mapID: string) {
 		if (this.maps.get(mapID)) return;
 		this.maps.set(mapID, new MapState());
 	}
 }
-export const MainStateM_ = model(MainStateM);
+export const MainStateM = model(MainState);

@@ -9,7 +9,7 @@ import { Connect, State, Action, Link, GetData, Watch, Observer } from 'Utils/Fr
 import { ACTUserSelect } from 'Store/main/database';
 import { ACTProposalSelect } from 'firebase-feedback';
 import { useMemo, useCallback } from 'react';
-import { storeM } from 'StoreM/StoreM';
+import { rootState } from 'StoreM/StoreM';
 import { runInAction } from 'mobx';
 import { colors } from '../../Utils/UI/GlobalStyles';
 import { ACTSetPage, ACTSetSubpage } from '../../Store/main';
@@ -41,7 +41,7 @@ export class NavBar extends BaseComponentPlus({} as {}, {}) {
 	render() {
 		// const topLeftOpenPanel = State.Watch((a) => a.main.topLeftOpenPanel);
 		// const topRightOpenPanel = State.Watch(a => a.main.topRightOpenPanel);
-		const { topLeftOpenPanel, topRightOpenPanel } = storeM.main;
+		const { topLeftOpenPanel, topRightOpenPanel } = rootState.main;
 		const auth = State.Watch((a) => a.firebase.auth);
 		const dbNeedsInit = Watch(() => GetData({ collection: true, useUndefinedForInProgress: true }, 'maps') === null, []); // use maps because it won't cause too much data to be downloaded-and-watched; improve this later
 		return (
@@ -176,7 +176,7 @@ export class NavBarPageButton extends BaseComponentPlus(
 export class NavBarPanelButton extends BaseComponentPlus({} as {text: string, panel: string, corner: 'top-left' | 'top-right'}, {}, { active: false }) {
 	render() {
 		const { text, panel, corner } = this.props;
-		const { topLeftOpenPanel, topRightOpenPanel } = storeM.main;
+		const { topLeftOpenPanel, topRightOpenPanel } = rootState.main;
 		const active = (corner == 'top-left' ? topLeftOpenPanel : topRightOpenPanel) == panel;
 
 		this.Stash({ active });
@@ -190,10 +190,10 @@ export class NavBarPanelButton extends BaseComponentPlus({} as {text: string, pa
 		runInAction('NavBarPanelButton_OnClick', () => {
 			if (corner == 'top-left') {
 				// store.dispatch(new ACTTopLeftOpenPanelSet(active ? null : panel));
-				storeM.main.topLeftOpenPanel = active ? null : panel;
+				rootState.main.topLeftOpenPanel = active ? null : panel;
 			} else {
 				// store.dispatch(new ACTTopRightOpenPanelSet(active ? null : panel));
-				storeM.main.topRightOpenPanel = active ? null : panel;
+				rootState.main.topRightOpenPanel = active ? null : panel;
 			}
 		});
 	};
