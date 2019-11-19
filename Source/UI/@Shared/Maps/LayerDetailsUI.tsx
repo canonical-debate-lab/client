@@ -4,8 +4,7 @@ import { Column, Pre, RowLR, TextInput, Text } from 'react-vcomponents';
 import { BaseComponent, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { User } from 'Store/firebase/users/@User';
-import { Connect, Watch } from 'Utils/FrameworkOverrides';
-import { GetUser } from '../../../Store/firebase/users';
+import {GetUser} from 'Store/firebase/users';
 import { IDAndCreationInfoUI } from '../CommonPropUIs/IDAndCreationInfoUI';
 
 type Props = {baseData: Layer, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: Layer, ui: LayerDetailsUI)=>void};
@@ -19,7 +18,7 @@ export class LayerDetailsUI extends BaseComponentPlus({ enabled: true } as Props
 	render() {
 		const { baseData, forNew, enabled, style, onChange } = this.props;
 		const { newData } = this.state;
-		const creator = Watch(() => !forNew && GetUser(baseData.creator), [baseData.creator, forNew]);
+		const creator = !forNew && GetUser(baseData.creator);
 		const Change = (_) => {
 			if (onChange) onChange(this.GetNewData(), this);
 			this.Update();

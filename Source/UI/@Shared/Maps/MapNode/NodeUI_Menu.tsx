@@ -1,29 +1,28 @@
-import { E } from 'js-vextensions';
-import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
-import { VMenuStub , VMenuItem } from 'react-vmenu';
+import {E} from 'js-vextensions';
+import {BaseComponent, BaseComponentPlus} from 'react-vextensions';
+import {VMenuItem, VMenuStub} from 'react-vmenu';
+import {ShowMessageBox} from 'react-vmessagebox';
+import {LinkNode_HighLevel, LinkNode_HighLevel_GetCommandError} from 'Server/Commands/LinkNode_HighLevel';
+import {SetNodeIsMultiPremiseArgument} from 'Server/Commands/SetNodeIsMultiPremiseArgument';
+import {UnlinkNode} from 'Server/Commands/UnlinkNode';
+import {store} from 'Store';
+import {GetParentNodeID, HolderType} from 'Store/firebase/nodes';
+import {GetCopiedNode, GetOpenMapID, GetCopiedNodePath} from 'Store/main';
+import {DeleteNode} from '../../../../Server/Commands/DeleteNode';
+import {GetPathsToNodesChangedSinceX} from '../../../../Store/firebase/mapNodeEditTimes';
+import {Map} from '../../../../Store/firebase/maps/@Map';
+import {ForCopy_GetError, ForCut_GetError, ForDelete_GetError, ForUnlink_GetError, GetNodeChildrenL3, GetNodeID, GetParentNodeL3, IsNodeSubnode} from '../../../../Store/firebase/nodes';
+import {GetNodeDisplayText, GetNodeL3, GetValidNewChildTypes, IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument} from '../../../../Store/firebase/nodes/$node';
+import {ClaimForm, MapNodeL3, Polarity} from '../../../../Store/firebase/nodes/@MapNode';
+import {GetMapNodeTypeDisplayName, MapNodeType, MapNodeType_Info} from '../../../../Store/firebase/nodes/@MapNodeType';
+import {CanGetBasicPermissions, IsUserCreatorOrMod} from '../../../../Store/firebase/userExtras';
+import {GetUserPermissionGroups, MeID} from '../../../../Store/firebase/users';
+import {styles} from '../../../../Utils/UI/GlobalStyles';
+import {ShowSignInPopup} from '../../NavBar/UserPanel';
+import {ShowAddChildDialog} from './NodeUI_Menu/AddChildDialog';
+import {SlicePath, ExpensiveComponent} from 'Utils/FrameworkOverrides';
+import {GetTimeFromWhichToShowChangedNodes} from 'Store/main/maps/$map';
 
-import { ShowMessageBox } from 'react-vmessagebox';
-import { LinkNode_HighLevel, LinkNode_HighLevel_GetCommandError } from 'Server/Commands/LinkNode_HighLevel';
-import { SetNodeIsMultiPremiseArgument } from 'Server/Commands/SetNodeIsMultiPremiseArgument';
-import { UnlinkNode } from 'Server/Commands/UnlinkNode';
-import { GetParentNodeID, HolderType } from 'Store/firebase/nodes';
-import { ACTSetLastAcknowledgementTime, GetCopiedNodePath, GetOpenMapID } from 'Store_Old/main';
-import { GetTimeFromWhichToShowChangedNodes } from 'Store_Old/main/maps/$map';
-import { State, Connect, ActionSet, ACTSet, SlicePath, ExpensiveComponent, Watch } from 'Utils/FrameworkOverrides';
-import { styles } from '../../../../Utils/UI/GlobalStyles';
-import { DeleteNode } from '../../../../Server/Commands/DeleteNode';
-import { RootState } from '../../../../Store_Old';
-import { Map } from '../../../../Store/firebase/maps/@Map';
-import { GetPathsToNodesChangedSinceX } from '../../../../Store/firebase/mapNodeEditTimes';
-import { ForCopy_GetError, ForCut_GetError, ForDelete_GetError, ForUnlink_GetError, GetNodeChildrenL3, GetNodeID, GetParentNodeL3, IsNodeSubnode } from '../../../../Store/firebase/nodes';
-import { GetNodeDisplayText, GetNodeL3, GetValidNewChildTypes, IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
-import { ClaimForm, MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
-import { GetMapNodeTypeDisplayName, MapNodeType, MapNodeType_Info } from '../../../../Store/firebase/nodes/@MapNodeType';
-import { CanGetBasicPermissions, IsUserCreatorOrMod } from '../../../../Store/firebase/userExtras';
-import { MeID, GetUserPermissionGroups } from '../../../../Store/firebase/users';
-import { ACTNodeCopy, GetCopiedNode } from '../../../../Store_Old/main';
-import { ShowSignInPopup } from '../../NavBar/UserPanel';
-import { ShowAddChildDialog } from './NodeUI_Menu/AddChildDialog';
 
 export class NodeUI_Menu_Stub extends BaseComponent<Props, {}> {
 	render() {
@@ -44,25 +43,24 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 	render() {
 		const { map, node, path, inList, holderType } = this.props;
 
-		const pathsToChangedInSubtree = Watch(() => {
-			if (map == null) return null;
+		if (map == null) return null;
 
-			const sinceTime = GetTimeFromWhichToShowChangedNodes(map._key);
-			const pathsToChangedNodes = GetPathsToNodesChangedSinceX(map._key, sinceTime);
-			return pathsToChangedNodes.filter((a) => a == path || a.startsWith(`${path}/`)); // also include self, for this
-		}, [map, path]);
-		const parent = GetParentNodeL3.Watch(path);
+		const sinceTime = GetTimeFromWhichToShowChangedNodes(map._key);
+		const pathsToChangedNodes = GetPathsToNodesChangedSinceX(map._key, sinceTime);
+		const pathsToChangedInSubtree = pathsToChangedNodes.filter((a) => a == path || a.startsWith(`${path}/`)); // also include self, for this
+		const parent = GetParentNodeL3(path);
 
-		const copiedNode = GetCopiedNode.Watch();
-		const copiedNodePath = GetCopiedNodePath.Watch();
+		const copiedNode = GetCopiedNode();
+		const copiedNodePath = GetCopiedNodePath();
 
-		const _ = Watch(() => (ForUnlink_GetError(MeID(), node), ForDelete_GetError(MeID(), node)), [node]);
-		const userID = MeID.Watch();
-		const permissions = GetUserPermissionGroups.Watch(userID);
+		ForUnlink_GetError(MeID(), node); // watch
+		ForDelete_GetError(MeID(), node); // watch
+		const userID = MeID();
+		const permissions = GetUserPermissionGroups(userID);
 		// nodeChildren: GetNodeChildrenL3(node, path),
-		const nodeChildren = GetNodeChildrenL3.Watch(node, path);
-		const combinedWithParentArg = IsPremiseOfSinglePremiseArgument.Watch(node, parent);
-		const copiedNode_asCut = State.Watch((a) => a.main.copiedNodePath_asCut);
+		const nodeChildren = GetNodeChildrenL3(node, path);
+		const combinedWithParentArg = IsPremiseOfSinglePremiseArgument(node, parent);
+		const copiedNode_asCut = store.main.copiedNodePath_asCut;
 
 		const mapID = map ? map._key : null;
 		// let validChildTypes = MapNodeType_Info.for[node.type].childTypes;
@@ -143,17 +141,15 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 						onClick={(e) => {
 							if (e.button != 0) return;
 							for (const path of pathsToChangedInSubtree) {
-								store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: GetNodeID(path), time: Date.now() }));
+								store.main.nodeLastAcknowledgementTimes.set(GetNodeID(path), Date.now());
 							}
 						}}/>}
 				{inList && GetOpenMapID() != null &&
 					<VMenuItem text="Find in map" style={styles.vMenuItem}
 						onClick={(e) => {
-							store.dispatch(new ActionSet(
-								new ACTSet((a) => a.main.search.findNode_state, 'activating'),
-								new ACTSet((a) => a.main.search.findNode_node, node._key),
-								new ACTSet((a) => a.main.search.findNode_resultPaths, []),
-							));
+							store.main.search.findNode_state = 'activating';
+							store.main.search.findNode_node = node._key;
+							store.main.search.findNode_resultPaths = [];
 						}}/>}
 				{!inList && !componentBox &&
 					<VMenuItem text={copiedNode ? <span>Cut <span style={{ fontSize: 10, opacity: 0.7 }}>(right-click to clear)</span></span> as any : 'Cut'}
@@ -162,7 +158,8 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 						onClick={(e) => {
 							e.persist();
 							if (e.button == 2) {
-								store.dispatch(new ACTNodeCopy({ path: null, asCut: true }));
+								store.main.copiedNodePath = path;
+								store.main.copiedNodePath_asCut = true;
 								return;
 							}
 
@@ -171,7 +168,8 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 								pathToCut = SlicePath(path, 1);
 							} */
 
-							store.dispatch(new ACTNodeCopy({ path, asCut: true }));
+							store.main.copiedNodePath = path;
+							store.main.copiedNodePath_asCut = true;
 						}}/>}
 				{!componentBox &&
 					<VMenuItem text={copiedNode ? <span>Copy <span style={{ fontSize: 10, opacity: 0.7 }}>(right-click to clear)</span></span> as any : 'Copy'} style={styles.vMenuItem}
@@ -179,7 +177,9 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 						onClick={(e) => {
 							e.persist();
 							if (e.button == 2) {
-								return void store.dispatch(new ACTNodeCopy({ path: null, asCut: false }));
+								store.main.copiedNodePath = null;
+								store.main.copiedNodePath_asCut = false;
+								return;
 							}
 
 							/* let pathToCopy = path;
@@ -187,7 +187,8 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 								pathToCopy = SlicePath(path, 1);
 							} */
 
-							store.dispatch(new ACTNodeCopy({ path, asCut: false }));
+							store.main.copiedNodePath = path;
+							store.main.copiedNodePath_asCut = false;
 						}}/>}
 				<PasteAsLink_MenuItem {...sharedProps}/>
 				{/* // disabled for now, since I need to create a new command to wrap the logic. One route: create a CloneNode_HighLevel command, modeled after LinkNode_HighLevel (or containing it as a sub)
@@ -307,7 +308,7 @@ class PasteAsLink_MenuItem extends BaseComponent<SharedProps, {}> {
 					async function proceed() {
 						const { argumentWrapperID } = await linkCommand.Run();
 						if (argumentWrapperID) {
-							store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: argumentWrapperID, time: Date.now() }));
+							store.main.nodeLastAcknowledgementTimes.set(argumentWrapperID, Date.now());
 						}
 					}
 				}}/>

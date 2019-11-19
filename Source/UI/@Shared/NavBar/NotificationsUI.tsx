@@ -1,7 +1,7 @@
 import { Button, Column, Div } from 'react-vcomponents';
 import { AddGlobalStyle, BaseComponent } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
-import { NotificationMessage } from '../../../Store_Old/main/@NotificationMessage';
+import { NotificationMessage } from 'Store/main';
 
 const notificationMessages = [];
 G({ AddNotificationMessage });

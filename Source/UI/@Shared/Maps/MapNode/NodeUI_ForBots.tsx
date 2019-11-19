@@ -1,8 +1,7 @@
 import { Pre, Row } from 'react-vcomponents';
 import { BaseComponent, GetInnerComp, BaseComponentPlus } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
-import { Link, ACTSet, Connect } from 'Utils/FrameworkOverrides';
-import { RootState } from '../../../../Store_Old';
+import { Link } from 'Utils/FrameworkOverrides';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetRatings } from '../../../../Store/firebase/nodeRatings';
 import { GetNodeChildrenL2, GetNodeParentsL2, GetParentNodeL2 } from '../../../../Store/firebase/nodes';
@@ -23,8 +22,8 @@ export class NodeUI_ForBots extends BaseComponentPlus({} as Props, {}) {
 	innerUI: NodeUI_Inner;
 	render() {
 		const { map, node } = this.props;
-		const nodeParents = GetNodeParentsL2.Watch(node);
-		const nodeChildren = GetNodeChildrenL2.Watch(node);
+		const nodeParents = GetNodeParentsL2(node);
+		const nodeChildren = GetNodeChildrenL2(node);
 		if (nodeParents.Any((a) => a == null) || nodeChildren.Any((a) => a == null)) return <div/>;
 
 		// just list one of the parents as the "current parent", so code relying on a parent doesn't error
@@ -40,7 +39,7 @@ export class NodeUI_ForBots extends BaseComponentPlus({} as Props, {}) {
 						return (
 							<span key={index}>
 								{index > 0 ? ', ' : ''}
-								<Link actions={[new ACTSet(`main/mapViews/${1}/bot_currentNodeID`, parent._key)]}>
+								<Link actionFunc={(s) => s.main.mapViews.get(1).bot_currentNodeID = parent._key}>
 									{GetNodeDisplayText(parent)} ({parent._key})
 								</Link>
 							</span>
@@ -52,7 +51,7 @@ export class NodeUI_ForBots extends BaseComponentPlus({} as Props, {}) {
 						return (
 							<span key={index}>
 								{index > 0 ? ', ' : ''}
-								<Link actions={[new ACTSet(`main/mapViews/${1}/bot_currentNodeID`, child._key)]}>
+								<Link actionFunc={(s) => s.main.mapViews.get(1).bot_currentNodeID = child._key}>
 									{GetNodeDisplayText(child)} ({child._key})
 								</Link>
 							</span>

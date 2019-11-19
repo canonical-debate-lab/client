@@ -1,15 +1,11 @@
-import { DeepSet, DeepGet } from 'js-vextensions';
-import { SplitStringBySlash_Cached, SlicePath } from 'vwebapp-framework/Source';
-import { ACTSet } from 'firebase-feedback';
-import { State } from 'Utils/FrameworkOverrides';
 
 export function PropNameToTitle(propName: string) {
 	// demo string: somePropName
 	return propName
 		// somePropName -> some prop name
-		.replace(/[A-Z]/g, a => ` ${a.toLowerCase()}`)
+		.replace(/[A-Z]/g, (a) => ` ${a.toLowerCase()}`)
 		// some prop name -> Some prop name
-		.replace(/^./, a => a.toUpperCase());
+		.replace(/^./, (a) => a.toUpperCase());
 }
 
 export function EnumNameToDisplayName(enumName: string) {

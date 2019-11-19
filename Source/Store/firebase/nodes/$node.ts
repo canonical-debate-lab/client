@@ -1,7 +1,7 @@
 import katex from 'katex';
-import { VURL, CachedTransform, Assert, IsNumber, IsString } from 'js-vextensions';
+import { VURL, CachedTransform, Assert, IsNumber, IsString, GetValues } from 'js-vextensions';
 import { SplitStringBySlash_Cached, SlicePath, StoreAccessor } from 'Utils/FrameworkOverrides';
-import { GetValues } from 'js-vextensions';
+
 import { GetImage } from '../images';
 import { MapNode, MapNodeL2, ClaimForm, ChildEntry, ClaimType, MapNodeL3, Polarity } from './@MapNode';
 import { RatingType } from '../nodeRatings/@RatingType';
@@ -57,8 +57,8 @@ export function GetRatingTypesForNode(node: MapNodeL2): RatingTypeInfo[] {
 	}
 	Assert(false);
 }
-export const GetMainRatingType = StoreAccessor((node: MapNodeL2) => {
-	return GetRatingTypesForNode(node).FirstOrX(a => a.main, {}).type;
+export const GetMainRatingType = StoreAccessor((s) => (node: MapNodeL2) => {
+	return GetRatingTypesForNode(node).FirstOrX((a) => a.main, {}).type;
 });
 export function GetSortByRatingType(node: MapNodeL3): RatingType {
 	if ((node as MapNodeL3).link && (node as MapNodeL3).link.form == ClaimForm.YesNoQuestion) {
@@ -70,7 +70,7 @@ export function GetSortByRatingType(node: MapNodeL3): RatingType {
 export function ReversePolarity(polarity: Polarity) {
 	return polarity == Polarity.Supporting ? Polarity.Opposing : Polarity.Supporting;
 }
-export function GetFinalPolarityAtPath(node: MapNodeL2, path: string): Polarity {
+export const GetFinalPolarityAtPath = StoreAccessor((s) => (node: MapNodeL2, path: string): Polarity => {
 	Assert(node.type == MapNodeType.Argument, 'Only argument nodes have polarity.');
 	const parent = GetParentNodeL2(path);
 	if (!parent) return Polarity.Supporting; // can be null, if for NodeUI_ForBots
@@ -81,7 +81,7 @@ export function GetFinalPolarityAtPath(node: MapNodeL2, path: string): Polarity 
 
 	const parentForm = GetNodeForm(parent, SplitStringBySlash_Cached(path).slice(0, -1).join('/'));
 	return GetFinalPolarity(link.polarity, parentForm);
-}
+});
 export function GetFinalPolarity(basePolarity: Polarity, parentForm: ClaimForm): Polarity {
 	let result = basePolarity;
 	if (parentForm == ClaimForm.Negation) {
@@ -110,7 +110,7 @@ export function AsNodeL2(node: MapNode, currentRevision: MapNodeRevision) {
 	delete result['link'];
 	return result;
 }
-export const GetNodeL2 = StoreAccessor((nodeID: string | MapNode, path?: string) => {
+export const GetNodeL2 = StoreAccessor((s) => (nodeID: string | MapNode, path?: string) => {
 	if (IsString(nodeID)) nodeID = GetNode(nodeID);
 	if (nodeID == null) return null;
 	const node = nodeID as MapNode;
@@ -136,7 +136,7 @@ export function AsNodeL3(node: MapNodeL2, finalPolarity?: Polarity, link?: Child
 	};
 	return node.Extended({ finalPolarity, link }) as MapNodeL3;
 }
-export const GetNodeL3 = StoreAccessor((path: string) => {
+export const GetNodeL3 = StoreAccessor((s) => (path: string) => {
 	if (path == null) return null;
 	const nodeID = GetNodeID(path);
 	const node = GetNodeL2(nodeID);
@@ -170,7 +170,7 @@ export function GetClaimFormUnderParent(node: MapNode, parent: MapNode): ClaimFo
 	if (link == null) return ClaimForm.Base;
 	return link.form;
 } */
-export const GetNodeForm = StoreAccessor((node: MapNodeL2 | MapNodeL3, pathOrParent?: string | MapNodeL2) => {
+export const GetNodeForm = StoreAccessor((s) => (node: MapNodeL2 | MapNodeL3, pathOrParent?: string | MapNodeL2) => {
 	if ((node as MapNodeL3).link) {
 		return (node as MapNodeL3).link.form;
 	}
@@ -180,7 +180,7 @@ export const GetNodeForm = StoreAccessor((node: MapNodeL2 | MapNodeL3, pathOrPar
 	if (link == null) return ClaimForm.Base;
 	return link.form;
 });
-export const GetLinkUnderParent = StoreAccessor((nodeID: string, parent: MapNode): ChildEntry => {
+export const GetLinkUnderParent = StoreAccessor((s) => (nodeID: string, parent: MapNode): ChildEntry => {
 	if (parent == null) return null;
 	if (parent.children == null) return null; // post-delete, parent-data might have updated before child-data
 	const link = parent.children[nodeID];
@@ -199,11 +199,11 @@ export function IsNodeTitleValid_GetError(node: MapNode, title: string) {
 
 export function GetAllNodeRevisionTitles(nodeRevision: MapNodeRevision): string[] {
 	if (nodeRevision == null || nodeRevision.titles == null) return [];
-	return TitlesMap_baseKeys.map(key => nodeRevision.titles[key]).filter(a => a != null);
+	return TitlesMap_baseKeys.map((key) => nodeRevision.titles[key]).filter((a) => a != null);
 }
 
 /** Gets the main display-text for a node. (doesn't include equation explanation, quote sources, etc.) */
-export const GetNodeDisplayText = StoreAccessor((node: MapNodeL2, path?: string, form?: ClaimForm): string => {
+export const GetNodeDisplayText = StoreAccessor((s) => (node: MapNodeL2, path?: string, form?: ClaimForm): string => {
 	form = form || GetNodeForm(node, path);
 	const titles = node.current.titles || {} as TitlesMap;
 
@@ -212,7 +212,7 @@ export const GetNodeDisplayText = StoreAccessor((node: MapNodeL2, path?: string,
 	if (node.type == MapNodeType.Argument && !node.multiPremiseArgument && !titles.base) {
 		// const baseClaim = GetNodeL2(node.children && node.children.VKeys(true).length ? node.children.VKeys(true)[0] : null);
 		// const baseClaim = GetArgumentPremises(node)[0];
-		const baseClaim = GetNodeChildrenL2(node).filter(a => a && a.type == MapNodeType.Claim)[0];
+		const baseClaim = GetNodeChildrenL2(node).filter((a) => a && a.type == MapNodeType.Claim)[0];
 		if (baseClaim) return GetNodeDisplayText(baseClaim);
 	}
 	if (node.type == MapNodeType.Claim) {
@@ -265,12 +265,12 @@ export const missingTitleStrings = ['(base title not set)', '(negation title not
 
 export function GetValidChildTypes(nodeType: MapNodeType, path: string) {
 	const nodeTypes = GetValues<MapNodeType>(MapNodeType);
-	const validChildTypes = nodeTypes.filter(type => ForLink_GetError(nodeType, type) == null);
+	const validChildTypes = nodeTypes.filter((type) => ForLink_GetError(nodeType, type) == null);
 	return validChildTypes;
 }
 export function GetValidNewChildTypes(parent: MapNodeL2, holderType: HolderType, permissions: PermissionGroupSet) {
 	const nodeTypes = GetValues<MapNodeType>(MapNodeType);
-	const validChildTypes = nodeTypes.filter(type => ForNewLink_GetError(parent._key, { type } as any, permissions, holderType) == null);
+	const validChildTypes = nodeTypes.filter((type) => ForNewLink_GetError(parent._key, { type } as any, permissions, holderType) == null);
 	return validChildTypes;
 }
 
@@ -285,7 +285,7 @@ export function GetClaimType(node: MapNodeL2) {
 }
 
 /** Returns whether the node provided is an argument, and marked as single-premise. */
-export const IsSinglePremiseArgument = StoreAccessor((node: MapNode) => {
+export const IsSinglePremiseArgument = StoreAccessor((s) => (node: MapNode) => {
 	/* nodeChildren = nodeChildren || GetNodeChildren(node);
 	if (nodeChildren.Any(a=>a == null)) return null;
 	//return nodeChildren.Any(child=>IsPremiseOfSinglePremiseArgument(child, node));
@@ -293,7 +293,7 @@ export const IsSinglePremiseArgument = StoreAccessor((node: MapNode) => {
 	return node && node.type == MapNodeType.Argument && !node.multiPremiseArgument;
 });
 /** Returns whether the node provided is an argument, and marked as multi-premise. */
-export const IsMultiPremiseArgument = StoreAccessor((node: MapNode) => {
+export const IsMultiPremiseArgument = StoreAccessor((s) => (node: MapNode) => {
 	/* nodeChildren = nodeChildren || GetNodeChildren(node);
 	if (nodeChildren.Any(a=>a == null)) return null;
 	//return node.type == MapNodeType.Argument && !IsSinglePremiseArgument(node, nodeChildren);
@@ -301,7 +301,7 @@ export const IsMultiPremiseArgument = StoreAccessor((node: MapNode) => {
 	return node && node.type == MapNodeType.Argument && node.multiPremiseArgument;
 });
 
-export const IsPremiseOfSinglePremiseArgument = StoreAccessor((node: MapNode, parent: MapNode) => {
+export const IsPremiseOfSinglePremiseArgument = StoreAccessor((s) => (node: MapNode, parent: MapNode) => {
 	if (parent == null) return null;
 	// let parentChildren = GetNodeChildrenL2(parent);
 	/* if (parentChildren.Any(a=>a == null)) return false;

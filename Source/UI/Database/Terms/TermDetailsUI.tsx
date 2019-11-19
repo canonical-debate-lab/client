@@ -5,7 +5,7 @@ import Moment from 'moment';
 import { CheckBox, Column, Pre, Row, RowLR, Select, TextInput } from 'react-vcomponents';
 import { BaseComponent, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
-import { InfoButton, Connect, Watch } from 'Utils/FrameworkOverrides';
+import { InfoButton } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
 import { AddTerm } from '../../../Server/Commands/AddTerm';
@@ -35,8 +35,8 @@ export class TermDetailsUI extends BaseComponentPlus(
 	render() {
 		const { baseData, forNew, enabled, style, onChange } = this.props;
 		const { newData, selectedTermComponent } = this.state;
-		const creator = Watch(() => !forNew && GetUser(baseData.creator), [baseData.creator, forNew]);
-		const variantNumber = Watch(() => !forNew && GetTermVariantNumber(baseData), [baseData, forNew]);
+		const creator = !forNew && GetUser(baseData.creator);
+		const variantNumber = !forNew && GetTermVariantNumber(baseData);
 
 		const Change = (_) => this.OnChange();
 

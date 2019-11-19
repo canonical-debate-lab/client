@@ -5,7 +5,6 @@ import { GetErrorMessagesUnderElement, GetEntries, Clone, WaitXThenRun } from 'j
 import { CheckBox, Column, Div, Pre, Row, Select, Spinner, TextArea, TextInput, Text } from 'react-vcomponents';
 import { BaseComponent, RenderSource, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { HasAdminPermissions } from 'Store/firebase/userExtras';
-import { Connect, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { AsNodeL2, GetClaimType } from '../../../../Store/firebase/nodes/$node';
 import { AccessLevel, ChildEntry, ClaimForm, ClaimType, MapNode, MapNodeL2, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
@@ -43,7 +42,7 @@ export class NodeDetailsUI extends BaseComponentPlus({ enabled: true } as Props,
 	render() {
 		const { baseData, parent, forNew, forOldRevision, enabled, style, onChange } = this.props;
 		const { newData, newLinkData, newRevisionData } = this.state;
-		const creator = Watch(() => !forNew && GetUser(baseData.creator), [baseData.creator, forNew]);
+		const creator = !forNew && GetUser(baseData.creator);
 		const Change = (..._) => {
 			if (onChange) { onChange(this.GetNewData(), this.GetNewRevisionData(), this.GetNewLinkData(), this); }
 			this.Update();

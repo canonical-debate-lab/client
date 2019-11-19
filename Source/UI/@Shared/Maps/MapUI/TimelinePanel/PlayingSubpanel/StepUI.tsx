@@ -14,7 +14,7 @@ export class StepUI extends BaseComponentPlus(
 	render() {
 		const { index, last, map, timeline, stepID, player, jumpToStep } = this.props;
 		const { showNodeReveals } = this.state;
-		const step = GetTimelineStep.Watch(stepID);
+		const step = GetTimelineStep(stepID);
 		if (step == null) return <div style={{ height: 50 }}/>;
 
 		let margin: string;

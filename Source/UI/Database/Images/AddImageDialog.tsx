@@ -1,5 +1,6 @@
 import { Column } from 'react-vcomponents';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
+import {store} from 'Store';
 import { AddImage } from '../../../Server/Commands/AddImage';
 import { Image, ImageType } from '../../../Store/firebase/images/@Image';
 import { MeID } from '../../../Store/firebase/users';

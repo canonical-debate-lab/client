@@ -4,7 +4,6 @@ import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
-import { Connect } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { GetNodeRevisions } from 'Store/firebase/nodeRevisions';
 import { UUIDStub } from 'UI/@Shared/UUIDStub';
@@ -26,8 +25,8 @@ export class HistoryPanel extends BaseComponentPlus({} as {map?: Map, node: MapN
 		// let mapID = map ? map._id : null;
 
 		// _link: GetLinkUnderParent(node._id, GetParentNode(path)),
-		const creator = GetUser.Watch(node.creator);
-		let revisions = GetNodeRevisions.Watch(node._key);
+		const creator = GetUser(node.creator);
+		let revisions = GetNodeRevisions(node._key);
 		// we want the newest ones listed first
 		revisions = revisions.OrderByDescending((a) => a.createdAt);
 
@@ -56,9 +55,9 @@ type RevisionEntryUI_Props = {index: number, last: boolean, revision: MapNodeRev
 class RevisionEntryUI extends BaseComponentPlus({} as RevisionEntryUI_Props, {}) {
 	render() {
 		const { index, last, revision, node, path } = this.props;
-		const parent = GetParentNodeL3.Watch(path);
-		const creator = GetUser.Watch(revision.creator);
-		const link = GetLinkUnderParent.Watch(node._key, parent);
+		const parent = GetParentNodeL3(path);
+		const creator = GetUser(revision.creator);
+		const link = GetLinkUnderParent(node._key, parent);
 
 		return (
 			<Row p="4px 7px" style={E(

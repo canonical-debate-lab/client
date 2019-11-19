@@ -82,12 +82,12 @@ export { version, dbVersion, firebaseConfig };
 
 /* let hotReloading = false;
 G({hotReloading}); declare global { let hotReloading: boolean; } */
-export let hasHotReloaded = false;
+export const hasHotReloaded = false;
 
 // this code is excluded from production bundle
-if (DEV) {
+/* if (DEV) {
 	/* if (window.devToolsExtension)
-		window.devToolsExtension.open(); */
+		window.devToolsExtension.open(); *#/
 	if (module['hot']) {
 		// setup hot module replacement
 		module['hot'].accept('./Main_Hot', () => {
@@ -103,7 +103,7 @@ if (DEV) {
 			store.replaceReducer(store.reducer);
 		});
 	}
-}
+} */
 
 function LoadHotModules() {
 	// Log("Reloading hot modules...");

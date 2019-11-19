@@ -4,7 +4,6 @@ import { Column, Div, Pre, Row, RowLR, Select, Spinner, TextInput } from 'react-
 import { BaseComponent, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { User } from 'Store/firebase/users/@User';
-import { Connect, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
 import { GetNiceNameForImageType, Image, ImageType, Image_namePattern, Image_urlPattern } from '../../../Store/firebase/images/@Image';
@@ -29,7 +28,7 @@ export class ImageDetailsUI extends BaseComponentPlus({} as {baseData: Image, cr
 	render() {
 		const { baseData, creating, editing, style, onChange } = this.props;
 		const { newData, dataError } = this.state;
-		const creator = Watch(() => !creating && GetUser(baseData.creator), [baseData.creator, creating]);
+		const creator = !creating && GetUser(baseData.creator);
 
 		const Change = (_) => this.OnChange();
 

@@ -7,10 +7,10 @@ import { BaseComponent, GetDOM, UseCallback } from 'react-vextensions';
 import { ScrollSource, ScrollView } from 'react-vscrollview';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetTimelineStep, GetTimelineSteps } from 'Store/firebase/timelines';
-import { ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetNodeRevealHighlightTime, GetPlayingTimelineAppliedStepIndex, GetPlayingTimelineStepIndex, GetSelectedTimeline } from 'Store_Old/main/maps/$map';
 import { store } from 'Store';
-import { ACTSet, GetScreenRect, HSLA, Icon, Observer, RunWithRenderingBatched, UseSize, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, ClassHooks } from 'Utils/FrameworkOverrides';
+import { GetScreenRect, HSLA, Icon, Observer, RunWithRenderingBatched, UseSize, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, ClassHooks } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
+import {GetSelectedTimeline, GetPlayingTimelineStepIndex, GetNodeRevealHighlightTime, GetPlayingTimelineAppliedStepIndex} from 'Store/main/maps/$map';
 import { StepUI } from './PlayingSubpanel/StepUI';
 
 /* export class PlayingSubpanel extends BaseComponentPlus(
@@ -58,7 +58,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 		let targetStepIndex: number;
 		let targetTime_yInMessageArea: number;
 		if (timeline) {
-			// const steps = timeline ? GetTimelineSteps.Watch(timeline, true) : null;
+			// const steps = timeline ? GetTimelineSteps(timeline, true) : null;
 			const steps = GetTimelineSteps(timeline, true);
 			const targetStep = steps.Skip(1).LastOrX((a) => a && a.videoTime <= this.targetTime, firstNormalStep);
 			if (targetStep) {
@@ -167,7 +167,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 			// const maxTargetStepIndex = GetPlayingTimelineAppliedStepIndex(map._key);
 			const firstStep = GetTimelineStep(timeline ? timeline.steps[0] : null);
 			if (timeline && this.targetTime != null) {
-				// const steps = timeline ? GetTimelineSteps.Watch(timeline, true) : null;
+				// const steps = timeline ? GetTimelineSteps(timeline, true) : null;
 				const steps = GetTimelineSteps(timeline, true);
 				const targetStep = steps.LastOrX((a) => a && a.videoTime <= this.targetTime, firstStep);
 				if (targetStep) {
@@ -266,9 +266,9 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 		const { map } = this.props;
 		// const { targetTime, autoScroll, targetTime_yInMessageArea, targetTimeDirection } = this.state;
 		const mapInfo = store.main.maps.get(map._key);
-		const timeline = GetSelectedTimeline.Watch(map._key);
+		const timeline = GetSelectedTimeline(map._key);
 		// timelineSteps: timeline && GetTimelineSteps(timeline);
-		const targetStepIndex = GetPlayingTimelineAppliedStepIndex.Watch(map._key);
+		const targetStepIndex = GetPlayingTimelineAppliedStepIndex(map._key);
 
 		/* const [ref, { width, height }] = UseSize();
 		useEffect(() => ref(this.DOM), [ref]); */
@@ -281,8 +281,8 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 		});
 
 		// const targetTime_floored = GetPlayingTimelineTime(map._key); // no need to watch, since only used as start-pos for video, if in initial mount
-		const nodeRevealHighlightTime = GetNodeRevealHighlightTime.Watch();
-		const firstNormalStep = GetTimelineStep.Watch(timeline ? timeline.steps[1] : null); // just watch for PostRender->UpdateTargetInfo code
+		const nodeRevealHighlightTime = GetNodeRevealHighlightTime();
+		const firstNormalStep = GetTimelineStep(timeline ? timeline.steps[1] : null); // just watch for PostRender->UpdateTargetInfo code
 
 		// Log('Rendering...');
 
@@ -370,7 +370,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 							<DropDownContent style={{ right: 0, width: 300, zIndex: 11 }}><Column>
 								<Row>
 									<Text>Node-reveal highlight time:</Text>
-									<Spinner ml={5} min={0} value={nodeRevealHighlightTime} onChange={(val) => store.dispatch(new ACTSet((a) => a.main.nodeRevealHighlightTime, val))}/>
+									<Spinner ml={5} min={0} value={nodeRevealHighlightTime} onChange={(val) => store.main.nodeRevealHighlightTime = val}/>
 								</Row>
 							</Column></DropDownContent>
 						</DropDown>

@@ -4,7 +4,6 @@ import { Button, Span } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { MeID } from 'Store/firebase/users';
-import { Connect, SlicePath } from 'Utils/FrameworkOverrides';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetRatingAverage_AtPath, GetRatings } from '../../../../Store/firebase/nodeRatings';
 import { RatingsRoot } from '../../../../Store/firebase/nodeRatings/@RatingsRoot';
@@ -13,7 +12,8 @@ import { GetParentNodeL3 } from '../../../../Store/firebase/nodes';
 import { GetNodeForm, GetRatingTypesForNode, IsPremiseOfSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
 import { ClaimForm, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
 import { MapNodeType_Info } from '../../../../Store/firebase/nodes/@MapNodeType';
-import { MapNodeView } from '../../../../Store_Old/main/mapViews/@MapViews';
+import {SlicePath} from 'Utils/FrameworkOverrides';
+import {MapNodeView} from 'Store/main/mapViews/$mapView';
 
 type Props = {
 	map: Map, path: string, node: MapNodeL3, nodeView?: MapNodeView, ratingsRoot: RatingsRoot,
@@ -31,8 +31,8 @@ export class MapNodeUI_LeftBox extends BaseComponentPlus({ panelPosition: 'left'
 		} = this.props;
 		const openPanel = local_openPanel || nodeView.openPanel;
 
-		const form = GetNodeForm.Watch(node, path);
-		const parentNode = GetParentNodeL3.Watch(path);
+		const form = GetNodeForm(node, path);
+		const parentNode = GetParentNodeL3(path);
 
 		const nodeReversed = form == ClaimForm.Negation;
 		const nodeTypeInfo = MapNodeType_Info.for[node.type];

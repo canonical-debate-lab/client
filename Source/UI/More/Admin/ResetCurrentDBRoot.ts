@@ -3,8 +3,9 @@ import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { MeID } from 'Store/firebase/users';
 import { ApplyDBUpdates, DBPath, ConvertDataToValidDBUpdates } from 'Utils/FrameworkOverrides';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
-import {GenerateUUID} from 'Utils/General/KeyGenerator';
-import { FirebaseData } from '../../../Store_Old/firebase';
+import { GenerateUUID } from 'Utils/General/KeyGenerator';
+import { FirebaseState } from 'Store/firebase';
+import {observable} from 'mobx';
 import { Map, MapType } from '../../../Store/firebase/maps/@Map';
 import { MapNode, globalRootNodeID, globalMapID } from '../../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../../Store/firebase/nodes/@MapNodeType';
@@ -17,7 +18,7 @@ const sharedData = {} as {creatorInfo: any};
 export async function ResetCurrentDBRoot() {
 	const userKey = MeID();
 
-	const data = {} as FirebaseData;
+	const data = {} as FirebaseState;
 	data.general = {} as any;
 	data.general.data = {
 		lastTermID: 0,
@@ -32,10 +33,10 @@ export async function ResetCurrentDBRoot() {
 		lastMapID: 99,
 		lastNodeID: 99,
 	};
-	data.maps = {};
-	data.nodes = {};
-	data.nodeRevisions = {};
-	data.userExtras = {};
+	data.maps = observable.map();
+	data.nodes = observable.map();
+	data.nodeRevisions = observable.map();
+	data.userExtras = observable.map();
 
 	sharedData.creatorInfo = { creator: userKey, createdAt: Date.now() };
 
@@ -56,16 +57,16 @@ export async function ResetCurrentDBRoot() {
 	ShowMessageBox({ message: 'Done!' });
 }
 
-function AddUserExtras(data: FirebaseData, userID: string, extraInfo: UserExtraInfo) {
+function AddUserExtras(data: FirebaseState, userID: string, extraInfo: UserExtraInfo) {
 	data.userExtras[userID] = extraInfo;
 }
-function AddMap(data: FirebaseData, entry: Map, id: string) {
+function AddMap(data: FirebaseState, entry: Map, id: string) {
 	entry = E(sharedData.creatorInfo, entry);
 
 	// data.maps[id || ++data.general.data.lastMapID] = entry as any;
 	data.maps[id || GenerateUUID()] = entry as any;
 }
-function AddNode(data: FirebaseData, node: MapNode, revision: MapNodeRevision, nodeID?: string) {
+function AddNode(data: FirebaseState, node: MapNode, revision: MapNodeRevision, nodeID?: string) {
 	node = E(sharedData.creatorInfo, node);
 	revision = E(sharedData.creatorInfo, revision);
 

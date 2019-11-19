@@ -3,8 +3,10 @@ import { Button, Column, Div, Pre, Row, Span } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus, UseEffect } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
-import { RemoveHelpers, Connect } from 'Utils/FrameworkOverrides';
+import { RemoveHelpers } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
+import { GetSelectedTerm } from 'Store/main/database';
+import { store } from 'Store';
 import { DeleteTerm } from '../../Server/Commands/DeleteTerm';
 import { UpdateTermData } from '../../Server/Commands/UpdateTermData';
 import { GetFullNameP, GetTermVariantNumber, GetTerms } from '../../Store/firebase/terms';
@@ -12,7 +14,6 @@ import { Term, TermType } from '../../Store/firebase/terms/@Term';
 import { IsUserCreatorOrMod, CanGetBasicPermissions } from '../../Store/firebase/userExtras';
 import { PermissionGroupSet } from '../../Store/firebase/userExtras/@UserExtraInfo';
 import { MeID, GetUserPermissionGroups } from '../../Store/firebase/users';
-import { ACTTermSelect, GetSelectedTerm } from '../../Store_Old/main/database';
 import { ShowSignInPopup } from '../@Shared/NavBar/UserPanel';
 import { ShowAddTermDialog, TermDetailsUI } from './Terms/TermDetailsUI';
 import { ShowAddTermComponentDialog } from './Terms/AddTermComponentDialog';
@@ -23,9 +24,9 @@ export class TermsUI extends BaseComponentPlus({} as {}, {} as {selectedTerm_new
 		const { selectedTerm_newData, selectedTerm_newDataError } = this.state;
 
 		const userID = MeID();
-		const terms = GetTerms.Watch();
-		const selectedTerm = GetSelectedTerm.Watch();
-		const permissions = GetUserPermissionGroups.Watch(userID);
+		const terms = GetTerms();
+		const selectedTerm = GetSelectedTerm();
+		const permissions = GetUserPermissionGroups(userID);
 		const creatorOrMod = selectedTerm != null && IsUserCreatorOrMod(userID, selectedTerm);
 
 		// whenever selectedTerm changes, reset the derivative states (there's probably a better way to do this, but I don't know how yet)
@@ -54,7 +55,7 @@ export class TermsUI extends BaseComponentPlus({} as {}, {} as {selectedTerm_new
 					</Row>
 					<ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, padding: 10 })} onClick={(e) => {
 						if (e.target != e.currentTarget) return;
-						store.dispatch(new ACTTermSelect({ id: null }));
+						store.main.database.selectedTermID = null;
 					}}>
 						{terms.map((term, index) => <TermUI key={index} first={index == 0} term={term} selected={selectedTerm == term}/>)}
 					</ScrollView>
@@ -136,7 +137,7 @@ function GetHelperTextForTermType(term: Term) {
 export class TermUI extends BaseComponentPlus({} as {term: Term, first: boolean, selected: boolean}, {}) {
 	render() {
 		const { term, first, selected } = this.props;
-		const variantNumber = GetTermVariantNumber.Watch(term);
+		const variantNumber = GetTermVariantNumber(term);
 		return (
 			<Row mt={first ? 0 : 5} className="cursorSet"
 				style={E(
@@ -144,7 +145,7 @@ export class TermUI extends BaseComponentPlus({} as {term: Term, first: boolean,
 					selected && { background: 'rgba(100,100,100,.7)' },
 				)}
 				onClick={(e) => {
-					store.dispatch(new ACTTermSelect({ id: term._key }));
+					store.main.database.selectedTermID = term._key;
 				}}>
 				<Pre>{GetFullNameP(term)}<sup>{variantNumber}</sup>: </Pre>
 				{term.shortDescription_current}

@@ -6,11 +6,8 @@ import ReactDOM from 'react-dom';
 import { BaseComponent, BaseComponentPlus, GetDOM, UseCallback, UseEffect } from 'react-vextensions';
 import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthScoreComposite, RS_GetAllValues } from 'Store/firebase/nodeRatings/ReasonScore';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
-import { ACTSetLastAcknowledgementTime } from 'Store_Old/main';
-import { GetTimeFromWhichToShowChangedNodes, GetPlayingTimelineCurrentStepRevealNodes, GetNodeRevealHighlightTime, GetTimeSinceNodeRevealedByPlayingTimeline } from 'Store_Old/main/maps/$map';
-import { GetPathNodeIDs, GetNodeView, GetNodeView_SelfOnly } from 'Store_Old/main/mapViews';
 import { GADDemo } from 'UI/@GAD/GAD';
-import { DragInfo, EB_ShowError, EB_StoreError, ExpensiveComponent, HSLA, IsDoubleClick, SlicePath, State, Watch, Observer } from 'Utils/FrameworkOverrides';
+import { DragInfo, EB_ShowError, EB_StoreError, ExpensiveComponent, HSLA, IsDoubleClick, SlicePath, Observer } from 'Utils/FrameworkOverrides';
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
 import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
@@ -21,9 +18,6 @@ import { GetMainRatingType, GetNodeForm, GetNodeL3, GetPaddingForNode, IsPremise
 import { ClaimForm, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
 import { GetNodeColor, MapNodeType, MapNodeType_Info } from '../../../../Store/firebase/nodes/@MapNodeType';
 import { MeID } from '../../../../Store/firebase/users';
-import { GetLastAcknowledgementTime, WeightingType } from '../../../../Store_Old/main';
-import { ACTMapNodeExpandedSet, ACTMapNodePanelOpen, ACTMapNodeSelect, ACTMapNodeTermOpen } from '../../../../Store_Old/main/mapViews/$mapView/rootNodeViews';
-import { MapNodeView, MapNodeView_SelfOnly } from '../../../../Store_Old/main/mapViews/@MapViews';
 import { ExpandableBox } from './ExpandableBox';
 import { DefinitionsPanel } from './NodeUI/Panels/DefinitionsPanel';
 import { DetailsPanel } from './NodeUI/Panels/DetailsPanel';
@@ -38,6 +32,10 @@ import { SubPanel } from './NodeUI_Inner/SubPanel';
 import { TitlePanel } from './NodeUI_Inner/TitlePanel';
 import { MapNodeUI_LeftBox } from './NodeUI_LeftBox';
 import { NodeUI_Menu_Stub } from './NodeUI_Menu';
+import {GetTimeFromWhichToShowChangedNodes, GetNodeRevealHighlightTime, GetTimeSinceNodeRevealedByPlayingTimeline} from 'Store/main/maps/$map';
+import {GetPathNodeIDs, GetNodeView_SelfOnly, MapNodeView_SelfOnly, MapNodeView} from 'Store/main/mapViews/$mapView';
+import {store} from 'Store';
+import {WeightingType, GetLastAcknowledgementTime} from 'Store/main';
 
 // drag and drop
 // ==========
@@ -112,12 +110,12 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		// connector part
 		// ==========
 
-		let sinceTime = GetTimeFromWhichToShowChangedNodes.Watch(map._key);
+		let sinceTime = GetTimeFromWhichToShowChangedNodes(map._key);
 		/* let pathsToChangedNodes = GetPathsToNodesChangedSinceX(map._id, sinceTime);
 		let ownNodeChanged = pathsToChangedNodes.Any(a=>a.split("/").Any(b=>b == node._id));
 		let changeType = ownNodeChanged ? GetNodeChangeType(node, sinceTime) : null; */
 
-		const lastAcknowledgementTime = GetLastAcknowledgementTime.Watch(node._key);
+		const lastAcknowledgementTime = GetLastAcknowledgementTime(node._key);
 		sinceTime = sinceTime.KeepAtLeast(lastAcknowledgementTime);
 
 		let changeType: ChangeType;
@@ -125,10 +123,10 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		else if (node.current.createdAt > sinceTime) changeType = ChangeType.Edit;
 
 		const parentPath = SlicePath(path, 1);
-		const parent = GetNodeL3.Watch(parentPath);
-		const combinedWithParentArgument = IsPremiseOfSinglePremiseArgument.Watch(node, parent);
+		const parent = GetNodeL3(parentPath);
+		const combinedWithParentArgument = IsPremiseOfSinglePremiseArgument(node, parent);
 
-		let mainRatingType = GetMainRatingType.Watch(node);
+		let mainRatingType = GetMainRatingType(node);
 		let ratingNode = node;
 		let ratingNodePath = path;
 		if (combinedWithParentArgument) {
@@ -140,24 +138,24 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		// let mainRating_mine = GetRatingValue(ratingNode._id, mainRatingType, MeID());
 		const mainRating_mine = Watch(() => GetRatingAverage_AtPath(ratingNode, mainRatingType, new RatingFilter({ includeUser: MeID() }))); */
 
-		const useReasonScoreValuesForThisNode = State.Watch((a) => a.main.weighting) == WeightingType.ReasonScore && (node.type == MapNodeType.Argument || node.type == MapNodeType.Claim);
-		const reasonScoreValues = Watch(() => useReasonScoreValuesForThisNode && RS_GetAllValues(node._key, path, true) as ReasonScoreValues_RSPrefix, [node, path, useReasonScoreValuesForThisNode]);
+		const useReasonScoreValuesForThisNode = store.main.weighting == WeightingType.ReasonScore && (node.type == MapNodeType.Argument || node.type == MapNodeType.Claim);
+		const reasonScoreValues = useReasonScoreValuesForThisNode && RS_GetAllValues(node._key, path, true) as ReasonScoreValues_RSPrefix;
 
-		const backgroundFillPercent = GetFillPercent_AtPath.Watch(ratingNode, ratingNodePath, null);
-		const markerPercent = GetMarkerPercent_AtPath.Watch(ratingNode, ratingNodePath, null);
+		const backgroundFillPercent = GetFillPercent_AtPath(ratingNode, ratingNodePath, null);
+		const markerPercent = GetMarkerPercent_AtPath(ratingNode, ratingNodePath, null);
 
-		const form = GetNodeForm.Watch(node, path);
-		const ratingsRoot = GetNodeRatingsRoot.Watch(node._key);
-		const showReasonScoreValues = State.Watch((a) => a.main.showReasonScoreValues);
+		const form = GetNodeForm(node, path);
+		const ratingsRoot = GetNodeRatingsRoot(node._key);
+		const showReasonScoreValues = store.main.showReasonScoreValues;
 
-		/* const playingTimeline_currentStepRevealNodes = GetPlayingTimelineCurrentStepRevealNodes.Watch(map._key);
+		/* const playingTimeline_currentStepRevealNodes = GetPlayingTimelineCurrentStepRevealNodes(map._key);
 		let revealedByCurrentTimelineStep = playingTimeline_currentStepRevealNodes.Contains(path);
 		if (combinedWithParentArgument) {
 			revealedByCurrentTimelineStep = revealedByCurrentTimelineStep || playingTimeline_currentStepRevealNodes.Contains(parentPath);
 		} */
-		const nodeRevealHighlightTime = GetNodeRevealHighlightTime.Watch();
-		const timeSinceRevealedByTimeline_self = GetTimeSinceNodeRevealedByPlayingTimeline.Watch(map._key, path, true, true);
-		const timeSinceRevealedByTimeline_parent = GetTimeSinceNodeRevealedByPlayingTimeline.Watch(map._key, parentPath, true, true);
+		const nodeRevealHighlightTime = GetNodeRevealHighlightTime();
+		const timeSinceRevealedByTimeline_self = GetTimeSinceNodeRevealedByPlayingTimeline(map._key, path, true, true);
+		const timeSinceRevealedByTimeline_parent = GetTimeSinceNodeRevealedByPlayingTimeline(map._key, parentPath, true, true);
 		let timeSinceRevealedByTimeline = timeSinceRevealedByTimeline_self;
 		if (combinedWithParentArgument && timeSinceRevealedByTimeline_parent != null) {
 			timeSinceRevealedByTimeline = timeSinceRevealedByTimeline != null ? Math.min(timeSinceRevealedByTimeline, timeSinceRevealedByTimeline_parent) : timeSinceRevealedByTimeline_parent;
@@ -206,9 +204,9 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		const bottomPanelShow = leftPanelShow && panelToShow;
 		let expanded = nodeView && nodeView.expanded;
 
-		// const parentNodeView = GetNodeView.Watch(map._key, parentPath);
+		// const parentNodeView = GetNodeView(map._key, parentPath);
 		// const parentNodeView = Watch(() => parentPath && GetNodeView_SelfOnly(map._key, parentPath), [map._key, parentPath]);
-		const parentNodeView = GetNodeView_SelfOnly.Watch(map._key, parentPath);
+		const parentNodeView = GetNodeView_SelfOnly(map._key, parentPath);
 		// if combined with parent arg (ie. premise of single-premise arg), use parent's expansion state for this box
 		if (combinedWithParentArgument) {
 			expanded = parentNodeView && parentNodeView.expanded;
@@ -235,9 +233,9 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		}, [map._key, nodeView, path]);
 		const onDirectClick = UseCallback((e) => {
 			if (combinedWithParentArgument) {
-				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: parent && parent._key, time: Date.now() }));
+				store.main.nodeLastAcknowledgementTimes.set(parent && parent._key, Date.now());
 			}
-			store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._key, time: Date.now() }));
+			store.main.nodeLastAcknowledgementTimes.set(node._key, Date.now());
 		}, [combinedWithParentArgument, node._key, parent]);
 		const onTextHolderClick = UseCallback((e) => IsDoubleClick(e) && this.titlePanel && this.titlePanel.OnDoubleClick(), []);
 		const toggleExpanded = UseCallback((e) => {

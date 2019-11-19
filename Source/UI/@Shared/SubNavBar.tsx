@@ -1,8 +1,8 @@
 import { E } from 'js-vextensions';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
-import { Connect, State, Link, Action } from 'Utils/FrameworkOverrides';
 import { rootPageDefaultChilds } from 'Utils/URL/URLs';
-import { ACTSetSubpage } from '../../Store_Old/main';
+import { ActionFunc, Link } from 'Utils/FrameworkOverrides';
+import { store, RootState } from 'Store';
 import { colors } from '../../Utils/UI/GlobalStyles';
 
 export class SubNavBar extends BaseComponent<{fullWidth?: boolean}, {}> {
@@ -25,21 +25,21 @@ export class SubNavBar extends BaseComponent<{fullWidth?: boolean}, {}> {
 	}
 }
 
-export class SubNavBarButton extends BaseComponentPlus({} as {page: string, subpage: string, text: string, actionIfAlreadyActive?: ()=>Action<any>}, {}) {
+export class SubNavBarButton extends BaseComponentPlus({} as {page: string, subpage: string, text: string, actionFuncIfAlreadyActive?: ActionFunc<any>}, {}) {
 	render() {
-		const { page, subpage, text, actionIfAlreadyActive } = this.props;
-		const currentSubpage = State.Watch('main', page, 'subpage') || rootPageDefaultChilds[page];
+		const { page, subpage, text, actionFuncIfAlreadyActive } = this.props;
+		const currentSubpage = store.main[page].subpage || rootPageDefaultChilds[page];
 		const active = subpage == currentSubpage;
 
-		const actions = [];
+		let actionFunc: ActionFunc<RootState>;
 		if (!active) {
-			actions.push(new ACTSetSubpage({ page, subpage }));
-		} else if (actionIfAlreadyActive) {
-			actions.push(actionIfAlreadyActive());
+			actionFunc = (s) => s.main[page].subpage = subpage;
+		} else if (actionFuncIfAlreadyActive) {
+			actionFunc = actionFuncIfAlreadyActive;
 		}
 
 		return (
-			<Link actions={actions} text={text} style={E(
+			<Link actionFunc={actionFunc} text={text} style={E(
 				{
 					display: 'inline-block', cursor: 'pointer', verticalAlign: 'middle',
 					lineHeight: '30px', color: '#FFF', padding: '0 15px', fontSize: 12, textDecoration: 'none', opacity: 0.9,

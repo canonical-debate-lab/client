@@ -3,9 +3,9 @@ import { User } from 'Store/firebase/users/@User';
 import { Row, Column } from 'react-vcomponents';
 import Moment from 'moment';
 import { ScrollView } from 'react-vscrollview';
-import { Connect, Link, ACTSet, State, PageContainer } from 'Utils/FrameworkOverrides';
-import { GetSelectedUser, ACTUserSelect } from 'Store_Old/main/database';
+import { Link, PageContainer } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
+import {GetSelectedUser} from 'Store/main/database';
 import { UserExtraInfo } from '../../Store/firebase/userExtras/@UserExtraInfo';
 import { GetUsers, GetUserExtraInfoMap, UserExtraInfoMap } from '../../Store/firebase/users';
 import { UserProfileUI } from './Users/UserProfile';
@@ -14,9 +14,9 @@ export const columnWidths = [0.35, 0.15, 0.1, 0.15, 0.25];
 
 export class UsersUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
-		let users = GetUsers.Watch();
-		const userExtraInfoMap = GetUserExtraInfoMap.Watch();
-		const selectedUser = GetSelectedUser.Watch();
+		let users = GetUsers();
+		const userExtraInfoMap = GetUserExtraInfoMap();
+		const selectedUser = GetSelectedUser();
 
 		if (userExtraInfoMap == null) return <div/>;
 		if (selectedUser) {
@@ -87,7 +87,7 @@ class UserRow extends BaseComponent<{index: number, last: boolean, user: User, u
 				{userExtraInfo == null && <div style={{ textAlign: 'center' }}>Loading...</div>}
 				{userExtraInfo
 					&& <Row>
-						<Link text={displayName} actions={[new ACTUserSelect({ id: user._key })]} style={{ flex: columnWidths[0], fontSize: 17 }}/>
+						<Link text={displayName} actionFunc={(s) => s.main.database.selectedUserID = user._key} style={{ flex: columnWidths[0], fontSize: 17 }}/>
 						{/* <span style={{ flex: columnWidths[0] }}>{displayName}</span> */}
 						<span style={{ flex: columnWidths[1] }}>{Moment(userExtraInfo.joinDate).format('YYYY-MM-DD')}</span>
 						<span style={{ flex: columnWidths[2] }}>{userExtraInfo.edits || 0}</span>

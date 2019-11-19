@@ -1,13 +1,13 @@
 import { Switch } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
-import { State } from 'Utils/FrameworkOverrides';
+import {store} from 'Store';
 import { SubNavBar, SubNavBarButton } from './@Shared/SubNavBar';
 import { AboutUI } from './Home/About';
 import { HomeUI2 } from './Home/Home';
 
 export class HomeUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
-		const currentSubpage = State.Watch(a => a.main.home.subpage);
+		const currentSubpage = store.main.home.subpage;
 		const page = 'home';
 		return (
 			<>

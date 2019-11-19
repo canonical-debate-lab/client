@@ -1,12 +1,12 @@
 import { ArgumentType } from 'Store/firebase/nodes/@MapNodeRevision';
 import { emptyObj } from 'js-vextensions';
-import { StoreAccessor } from 'vwebapp-framework/Source';
+import { StoreAccessor } from 'Utils/FrameworkOverrides';
 import { GetRatingAverage, GetRatingSet, GetRatingValue } from '../../Store/firebase/nodeRatings';
 import { Rating, RatingsSet } from '../../Store/firebase/nodeRatings/@RatingsRoot';
 import { GetMainRatingType, GetNodeForm, GetRatingTypesForNode } from '../../Store/firebase/nodes/$node';
 import { ClaimForm, MapNodeL2 } from '../../Store/firebase/nodes/@MapNode';
 
-export function GetArgumentImpactPseudoRating(argument: MapNodeL2, premises: MapNodeL2[], userID: string): Rating {
+export const GetArgumentImpactPseudoRating = StoreAccessor((s) => (argument: MapNodeL2, premises: MapNodeL2[], userID: string): Rating => {
 	if (premises.Any((a) => a == null)) return null; // must still be loading
 	if (premises.length == 0) return null;
 
@@ -46,7 +46,7 @@ export function GetArgumentImpactPseudoRating(argument: MapNodeL2, premises: Map
 		updated: null,
 		value: (result * 100).RoundTo(1),
 	};
-}
+});
 // export function GetArgumentStrengthEntries(nodeChildren: MapNode[], users: string[]) {
 /* export function GetArgumentStrengthPseudoRatings(nodeChildren: MapNode[]): Rating[] {
 	if (nodeChildren.Any(a=>a == null)) return []; // must still be loading
@@ -60,7 +60,7 @@ export function GetArgumentImpactPseudoRating(argument: MapNodeL2, premises: Map
 } */
 
 // export function GetArgumentImpactPseudoRatingSet(argument: MapNodeL2, premises: MapNodeL2[]): {[key: string]: Rating} {
-export const GetArgumentImpactPseudoRatingSet = StoreAccessor((argument: MapNodeL2, premises: MapNodeL2[]): RatingsSet => {
+export const GetArgumentImpactPseudoRatingSet = StoreAccessor((s) => (argument: MapNodeL2, premises: MapNodeL2[]): RatingsSet => {
 	if (premises.Any((a) => a == null)) return emptyObj; // must still be loading
 	if (premises.length == 0) return emptyObj;
 

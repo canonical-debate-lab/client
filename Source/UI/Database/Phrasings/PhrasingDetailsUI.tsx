@@ -5,7 +5,6 @@ import { BaseComponentWithConnector, GetDOM, BaseComponentPlus } from 'react-vex
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { AddPhrasing } from 'Server/Commands/AddPhrasing';
 import { MapNodePhrasing, MapNodePhrasingType } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
-import { Connect, Link, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
 import { GetUser } from '../../../Store/firebase/users';
@@ -30,7 +29,7 @@ export class PhrasingDetailsUI extends BaseComponentPlus(
 	render() {
 		const { baseData, forNew, enabled, style } = this.props;
 		const { newData } = this.state;
-		const creator = Watch(() => !forNew && GetUser(baseData.creator), [baseData.creator, forNew]);
+		const creator = !forNew && GetUser(baseData.creator);
 
 		const Change = (_) => this.OnChange();
 

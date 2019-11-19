@@ -1,12 +1,11 @@
 import { BaseComponentPlus } from 'react-vextensions';
-import { Watch } from 'Utils/FrameworkOverrides';
 import { GetTerm, GetTermVariantNumber } from '../../../../../Store/firebase/terms';
 
 export class TermPlaceholder extends BaseComponentPlus({ showVariantNumber: true } as {refText: string, termID: string, showVariantNumber?: boolean, onHover: (hovered: boolean)=>void, onClick: ()=>void}, {}) {
 	render() {
 		const { refText, termID, showVariantNumber, onHover, onClick } = this.props;
-		const term = GetTerm.Watch(termID);
-		const termVariantNumber = Watch(() => (term ? GetTermVariantNumber(term) : null), [term]);
+		const term = GetTerm(termID);
+		const termVariantNumber = term ? GetTermVariantNumber(term) : null;
 
 		// if (term == null) return <a>...</a>;
 		// if (term == null) return <a>{refText}</a>;

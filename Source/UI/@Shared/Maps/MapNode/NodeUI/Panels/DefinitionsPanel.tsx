@@ -1,7 +1,7 @@
 import { CachedTransform } from 'js-vextensions';
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
-import { GetCurrentURL, Link, Connect, Watch } from 'Utils/FrameworkOverrides';
+import { GetCurrentURL, Link } from 'Utils/FrameworkOverrides';
 import { TermComponentsUI } from 'UI/Database/Terms/TermComponentsUI';
 import { Fragment } from 'react';
 import { ParseSegmentsForPatterns } from '../../../../../../Utils/General/RegexHelpers';
@@ -19,19 +19,18 @@ export class DefinitionsPanel extends BaseComponentPlus(
 	render() {
 		const { node, path, hoverTermID, openTermID, onHoverTerm, onClickTerm } = this.props;
 
-		const displayText = GetNodeDisplayText.Watch(node, path);
+		const displayText = GetNodeDisplayText(node, path);
 		// let segments = ParseSegmentsFromNodeDisplayText(displayText);
 		const segments = ParseSegmentsForPatterns(displayText, [
 			{ name: 'term', regex: /{(.+?)\}\[(.+?)\]/ },
 		]);
-		const terms = Watch(() => {
-			const result = segments.filter((a) => a.patternMatched == 'term').map((a) => GetTerm(a.textParts[2]));
-			// only pass terms when all are loaded
-			return result.every((a) => a != null) ? result : termsPlaceholder;
-		}, [segments]);
-		const terms_variantNumbers = Watch(() => terms.map((a) => (a ? GetTermVariantNumber(a) : 1)), [terms]);
-		const hoverTerm = Watch(() => (hoverTermID ? GetTerm(hoverTermID) : null), [hoverTermID]);
-		const clickTerm = Watch(() => (openTermID ? GetTerm(openTermID) : null), [openTermID]);
+		let terms = segments.filter((a) => a.patternMatched == 'term').map((a) => GetTerm(a.textParts[2]));
+		// only pass terms when all are loaded
+		terms = terms.every((a) => a != null) ? terms : termsPlaceholder;
+
+		const terms_variantNumbers = terms.map((a) => (a ? GetTermVariantNumber(a) : 1));
+		const hoverTerm = hoverTermID ? GetTerm(hoverTermID) : null;
+		const clickTerm = openTermID ? GetTerm(openTermID) : null;
 
 		// let {localHoverTerm, localClickTerm} = this.state;
 		// let term = localClickTerm || localHoverTerm || clickTerm || hoverTerm;

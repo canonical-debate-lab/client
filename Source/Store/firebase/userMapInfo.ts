@@ -1,15 +1,15 @@
 import { GetData, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { UserMapInfo, LayerStatesMap } from './userMapInfo/@UserMapInfo';
 
-export function GetUserMapInfo(userID: string, mapID: string) {
+export const GetUserMapInfo = StoreAccessor((s) => (userID: string, mapID: string) => {
 	if (userID == null) return null;
 	return GetData('userMapInfo', userID, `.${mapID}`) as UserMapInfo;
-}
-export function GetUserLayerStatesForMap(userID: string, mapID: string) {
+});
+export const GetUserLayerStatesForMap = StoreAccessor((s) => (userID: string, mapID: string) => {
 	if (userID == null) return null;
 	return GetData('userMapInfo', userID, `.${mapID}`, '.layerStates') as LayerStatesMap;
-}
-export const GetUserLayerStateForMap = StoreAccessor((userID: string, mapID: string, layerID: string) => {
+});
+export const GetUserLayerStateForMap = StoreAccessor((s) => (userID: string, mapID: string, layerID: string) => {
 	/* if (userID == null) return null;
 	return GetData("userMapInfo", userID, `.${mapID}`, "layerStates", layerID) as boolean; */
 	// temp fix for that the direct approach above does not update the Connect() props, for some reason

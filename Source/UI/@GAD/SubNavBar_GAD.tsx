@@ -1,8 +1,8 @@
 import { E } from 'js-vextensions';
 import { BaseComponent } from 'react-vextensions';
-import { Connect, State, Link, Action } from 'Utils/FrameworkOverrides';
 import { rootPageDefaultChilds } from 'Utils/URL/URLs';
-import { ACTSetSubpage } from '../../Store_Old/main';
+import { store, RootState } from 'Store';
+import { ActionFunc, Link } from 'Utils/FrameworkOverrides';
 import { colors } from '../../Utils/UI/GlobalStyles';
 
 export class SubNavBar_GAD extends BaseComponent<{fullWidth?: boolean}, {}> {
@@ -24,20 +24,18 @@ export class SubNavBar_GAD extends BaseComponent<{fullWidth?: boolean}, {}> {
 	}
 }
 
-type SubNavBarButtonProps = {page: string, subpage: string, text: string, actionIfAlreadyActive?: ()=>Action<any>} & Partial<{currentSubpage: string}>;
-@Connect((state, { page }) => ({
-	currentSubpage: State('main', page, 'subpage') || rootPageDefaultChilds[page],
-}))
-export class SubNavBarButton_GAD extends BaseComponent<SubNavBarButtonProps, {}> {
+type SubNavBarButtonProps = & Partial<{currentSubpage: string}>;
+export class SubNavBarButton_GAD extends BaseComponent<{page: string, subpage: string, text: string, actionFuncIfAlreadyActive?: ActionFunc<any>}, {}> {
 	render() {
-		const { page, subpage, text, actionIfAlreadyActive, currentSubpage } = this.props;
+		const { page, subpage, text, actionFuncIfAlreadyActive } = this.props;
+		const currentSubpage = store.main[page].subpage || rootPageDefaultChilds[page];
 		const active = subpage == currentSubpage;
 
-		const actions = [];
+		let actionFunc: ActionFunc<RootState>;
 		if (!active) {
-			actions.push(new ACTSetSubpage({ page, subpage }));
-		} else if (actionIfAlreadyActive) {
-			actions.push(actionIfAlreadyActive());
+			actionFunc = (s) => s.main[page].subpage = subpage;
+		} else if (actionFuncIfAlreadyActive) {
+			actionFunc = actionFuncIfAlreadyActive;
 		}
 
 		const style = {
@@ -53,7 +51,7 @@ export class SubNavBarButton_GAD extends BaseComponent<SubNavBarButtonProps, {}>
 		}
 
 		return (
-			<Link actions={actions} text={text} style={E(style)}/>
+			<Link actionFunc={actionFunc} text={text} style={E(style)}/>
 		);
 	}
 }

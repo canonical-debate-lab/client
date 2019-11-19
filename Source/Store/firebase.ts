@@ -1,5 +1,6 @@
 import { ObservableMap } from 'mobx';
 import { O } from 'vwebapp-framework/Source';
+import {StoreAccessor} from 'Utils/FrameworkOverrides';
 import { GeneralData } from './firebase/general';
 import { Image } from './firebase/images/@Image';
 import { Layer } from './firebase/layers/@Layer';
@@ -50,3 +51,7 @@ export class FirebaseState {
 export class Firebase_ModulesState {
 	@O feedback: Firebase_FeedbackState;
 }
+
+export const GetAuth = StoreAccessor((s) => () => {
+	return s.firebase.auth;
+});

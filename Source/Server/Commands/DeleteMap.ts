@@ -1,7 +1,7 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { DeleteNode } from 'Server/Commands/DeleteNode';
 import { GetMap } from 'Store/firebase/maps';
-import { GetAsync_Raw, GetDataAsync , Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
+import { GetAsync_Raw, GetDataAsync, Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
 
 import { Map } from '../../Store/firebase/maps/@Map';
 import { UserMapInfoSet } from '../../Store/firebase/userMapInfo/@UserMapInfo';
@@ -32,8 +32,8 @@ export class DeleteMap extends Command<{mapID: string}, {}> {
 
 		const newUpdates = {};
 		newUpdates[`maps/${mapID}`] = null;
-		for (const { name: userID, value: userMapInfoSet } of this.userMapInfoSets.Props(true)) {
-			for (const { name: mapID2, value: userMapInfo } of userMapInfoSet.Props(true)) {
+		for (const { key: userID, value: userMapInfoSet } of this.userMapInfoSets.Pairs(true)) {
+			for (const { key: mapID2, value: userMapInfo } of userMapInfoSet.Pairs(true)) {
 				if (mapID2 == mapID) {
 					newUpdates[`userMapInfo/${userID}/.${mapID}`] = null;
 				}

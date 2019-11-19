@@ -5,12 +5,13 @@ import { GenerateUUID } from 'Utils/General/KeyGenerator';
 import { ReverseArgumentPolarity } from 'Server/Commands/ReverseArgumentPolarity';
 import { globalMapID, globalRootNodeID } from 'Store/firebase/nodes/@MapNode';
 import _ from 'lodash';
-import { FirebaseData } from '../../../../Store_Old/firebase';
+import { FirebaseState } from 'Store/firebase';
+import { ObservableMap } from 'mobx';
 import { AddUpgradeFunc } from '../../Admin';
 
 const newVersion = 12;
 AddUpgradeFunc(newVersion, async (oldData, markProgress) => {
-	const data = Clone(oldData) as FirebaseData;
+	const data = Clone(oldData) as FirebaseState;
 
 	// clear outdated data
 	// ==========
@@ -64,7 +65,7 @@ AddUpgradeFunc(newVersion, async (oldData, markProgress) => {
 		mapObj[newKey] = value;
 	}
 	function ReplacePairKeys(mapObj: Object, collectionKeyForOldKey: CollectionKey) {
-		(mapObj || {}).Pairs(1).forEach((pair) => ReplacePairKey(mapObj, pair.key, collectionKeyForOldKey));
+		(mapObj || {}).Pairs(1).forEach((pair) => ReplacePairKey(mapObj, pair.key as string, collectionKeyForOldKey));
 	}
 
 	/* conversions.VKeys().forEach((collectionKey) => {
@@ -99,6 +100,7 @@ AddUpgradeFunc(newVersion, async (oldData, markProgress) => {
 
 	ReplacePairKeys(data.nodes, 'nodes');
 	data.nodes.VValues(true).forEach((entry) => {
+	// Array.from(data.nodes.values()).forEach((entry) => {
 		const oldRevisionID = entry.currentRevision;
 
 		ReplacePairKeys(entry.children, 'nodes');

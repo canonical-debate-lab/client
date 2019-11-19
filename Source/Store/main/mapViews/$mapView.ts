@@ -58,7 +58,7 @@ export function GetPathNodeIDs(path: string): UUID[] {
 }
 
 export const GetSelectedNodePathNodes = StoreAccessor((s) => (mapViewOrMapID: string | MapView) => {
-	const mapView = IsString(mapViewOrMapID) ? GetMapView.WS(s)(mapViewOrMapID) : mapViewOrMapID;
+	const mapView = IsString(mapViewOrMapID) ? GetMapView(mapViewOrMapID) : mapViewOrMapID;
 	if (mapView == null) return [];
 
 	const selectedTreeNode = GetTreeNodesInObjTree(mapView.rootNodeViews).FirstOrX((a) => a.prop == 'selected' && a.Value);
@@ -88,7 +88,7 @@ export function GetPathFromDataPath(dataPathUnderRootNodeViews: string[]): strin
 }
 
 export const GetFocusedNodePathNodes = StoreAccessor((s) => (mapViewOrMapID: string | MapView): string[] => {
-	const mapView = IsString(mapViewOrMapID) ? GetMapView.WS(s)(mapViewOrMapID) : mapViewOrMapID;
+	const mapView = IsString(mapViewOrMapID) ? GetMapView(mapViewOrMapID) : mapViewOrMapID;
 	if (mapView == null) return [];
 
 	const focusedTreeNode = GetTreeNodesInObjTree(mapView.rootNodeViews).FirstOrX((a) => a.prop == 'focused' && a.Value);
@@ -99,10 +99,10 @@ export const GetFocusedNodePathNodes = StoreAccessor((s) => (mapViewOrMapID: str
 	return GetPathFromDataPath(focusedNodeView.PathNodes);
 });
 export const GetFocusedNodePath = StoreAccessor((s) => (mapViewOrMapID: string | MapView) => {
-	return GetFocusedNodePathNodes.WS(s)(mapViewOrMapID).join('/').toString(); // toString() needed if only 1 item
+	return GetFocusedNodePathNodes(mapViewOrMapID).join('/').toString(); // toString() needed if only 1 item
 });
 export const GetFocusedNodeID = StoreAccessor((s) => (mapID: string) => {
-	const focusedNodeStr = GetFocusedNodePathNodes.WS(s)(mapID).LastOrX();
+	const focusedNodeStr = GetFocusedNodePathNodes(mapID).LastOrX();
 	return focusedNodeStr ? PathSegmentToNodeID(focusedNodeStr) : null;
 });
 

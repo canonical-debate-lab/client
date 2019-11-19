@@ -4,9 +4,14 @@ import { ignore } from 'mobx-sync';
 import { rootPageDefaultChilds } from 'Utils/URL/URLs';
 import { Global } from 'js-vextensions';
 import { MapState } from './main/maps/$map';
-import { PersonalStateM, PersonalState } from './main/personal';
-import { DebatesStateM, DebatesState } from './main/debates';
+import { PersonalState } from './main/personal';
+import { DebatesState } from './main/debates';
 import { MapView } from './main/mapViews/$mapView';
+import { RatingUIState } from './main/ratingUI';
+import { SearchState } from './main/search';
+import { globalMapID } from './firebase/nodes/@MapNode';
+import { GetNodeL3 } from './firebase/nodes/$node';
+import { DatabaseState } from './main/database';
 
 export enum WeightingType {
 	Votes = 10,
@@ -49,18 +54,18 @@ export class MainState {
 	// reputation: {subpage: string};
 
 	@O database: DatabaseState;
-	@O feedback: FeedbackState;
+	@O feedback: {subpage: string};
 	// forum: Forum;
-	@O more: MoreState;
-	@O home: HomeState;
+	@O more: {subpage: string};
+	@O home: {subpage: string};
 	// @SocialStateM social: SocialState;
 	@O personal: PersonalState;
 	@O debates: DebatesState;
-	@O global: GlobalState;
+	@O global: {subpage: string};
 
 	@O search: SearchState;
 	// guide: {subpage: string};
-	@O profile: ProfileState;
+	@O profile: {subpage: string};
 
 	@O topLeftOpenPanel: string;
 	// set topLeftOpenPanel_set(val) { this.topLeftOpenPanel = val; }
@@ -117,7 +122,7 @@ export const GetPage = StoreAccessor((s) => () => {
 	return s.main.page || 'home';
 });
 export const GetSubpage = StoreAccessor((s) => () => {
-	const page = GetPage.WS(s)();
+	const page = GetPage();
 	return s.main[page].subpage as string || rootPageDefaultChilds[page];
 });
 
@@ -134,7 +139,7 @@ export const GetCopiedNodePath = StoreAccessor((s) => () => {
 	return s.main.copiedNodePath;
 });
 export const GetCopiedNode = StoreAccessor((s) => () => {
-	const path = GetCopiedNodePath.WS(s)();
+	const path = GetCopiedNodePath();
 	if (!path) return null;
-	return GetNodeL3.WS(s)(path);
+	return GetNodeL3(path);
 });

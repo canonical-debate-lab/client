@@ -7,7 +7,7 @@ import { MapNodePhrasing } from './nodePhrasings/@MapNodePhrasing';
 	return CachedTransform('GetPhrasings', [], entryMap, () => (entryMap ? entryMap.VValues(true) : []));
 } */
 // todo: make this use an actual query, to improve performance
-export const GetNodePhrasings = StoreAccessor((nodeID: string): MapNodePhrasing[] => {
+export const GetNodePhrasings = StoreAccessor((s) => (nodeID: string): MapNodePhrasing[] => {
 	const entryMap = GetData({ collection: true }, 'nodePhrasings');
-	return CachedTransform('GetNodePhrasings', [nodeID], entryMap, () => (entryMap ? entryMap.VValues(true).filter(a => a && a.node == nodeID) : []));
+	return entryMap ? entryMap.VValues(true).filter((a) => a && a.node == nodeID) : [];
 });

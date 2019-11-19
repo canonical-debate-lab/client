@@ -4,7 +4,9 @@ import { BaseComponent, RenderSource, BaseComponentPlus } from 'react-vextension
 import { ShowMessageBox } from 'react-vmessagebox';
 import { Area, AreaChart, CartesianGrid, ReferenceLine, Tooltip, XAxis, YAxis } from 'recharts';
 import { SetNodeRating } from 'Server/Commands/SetNodeRating';
-import { SlicePath, Connect } from 'Utils/FrameworkOverrides';
+import { SlicePath } from 'Utils/FrameworkOverrides';
+import { store } from 'Store';
+import {GetRatingUISmoothing} from 'Store/main/ratingUI';
 import { ShouldRatingTypeBeReversed, TransformRatingForContext } from '../../../../../../Store/firebase/nodeRatings';
 import { GetRatingTypeInfo, RatingType } from '../../../../../../Store/firebase/nodeRatings/@RatingType';
 import { Rating } from '../../../../../../Store/firebase/nodeRatings/@RatingsRoot';
@@ -13,8 +15,6 @@ import { GetNodeForm, GetNodeL3 } from '../../../../../../Store/firebase/nodes/$
 import { ClaimForm, MapNode, MapNodeL3 } from '../../../../../../Store/firebase/nodes/@MapNode';
 import { GetMapNodeTypeDisplayName } from '../../../../../../Store/firebase/nodes/@MapNodeType';
 import { MeID } from '../../../../../../Store/firebase/users';
-import { RootState } from '../../../../../../Store_Old/index';
-import { ACTRatingUISmoothnessSet, GetRatingUISmoothing } from '../../../../../../Store_Old/main/ratingUI';
 import { ShowSignInPopup } from '../../../../NavBar/UserPanel';
 
 /* let sampleData = [
@@ -31,10 +31,10 @@ export class RatingsPanel extends BaseComponentPlus({} as RatingsPanel_Props, { 
 		const { node, path, ratingType, ratings } = this.props;
 		const { size } = this.state;
 
-		const userID = MeID.Watch();
-		const form = GetNodeForm.Watch(node, path);
-		const nodeChildren = GetNodeChildren.Watch(node);
-		let smoothing = GetRatingUISmoothing.Watch();
+		const userID = MeID();
+		const form = GetNodeForm(node, path);
+		const nodeChildren = GetNodeChildren(node);
+		let smoothing = GetRatingUISmoothing();
 
 		const parentNode = GetNodeL3(SlicePath(path, 1));
 
@@ -130,7 +130,7 @@ export class RatingsPanel extends BaseComponentPlus({} as RatingsPanel_Props, { 
 							: 'Click to rate. Right-click to remove rating.'}
 					</Pre>
 					{/* Smoothing: <Spinner value={smoothing} onChange={val=>store.dispatch(new ACTRatingUISmoothnessSet(val))}/> */}
-					<Pre>Smoothing: </Pre><Select options={smoothingOptions} value={smoothing} onChange={(val) => store.dispatch(new ACTRatingUISmoothnessSet(val))}/>
+					<Pre>Smoothing: </Pre><Select options={smoothingOptions} value={smoothing} onChange={(val) => store.main.ratingUI.smoothing = val}/>
 				</div>
 				{this.lastRender_source == RenderSource.SetState &&
 					<AreaChart ref="chart" width={size.x} height={250} data={dataFinal}

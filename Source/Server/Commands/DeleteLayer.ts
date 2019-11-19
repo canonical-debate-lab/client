@@ -1,6 +1,6 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { Assert } from 'js-vextensions';
-import { GetAsync, GetDataAsync , Command } from 'Utils/FrameworkOverrides';
+import { GetAsync, GetDataAsync, Command } from 'Utils/FrameworkOverrides';
 import { ForDeleteLayer_GetError } from '../../Store/firebase/layers';
 import { Layer } from '../../Store/firebase/layers/@Layer';
 import { UserMapInfoSet } from '../../Store/firebase/userMapInfo/@UserMapInfo';
@@ -28,8 +28,8 @@ export class DeleteLayer extends Command<{layerID: string}, {}> {
 		for (const mapID of (this.oldData.mapsWhereEnabled || {}).VKeys()) {
 			updates[`maps/${mapID}/.layers/.${layerID}`] = null;
 		}
-		for (const { name: userID, value: userMapInfoSet } of this.userMapInfoSets.Props(true)) {
-			for (const { name: mapID2, value: userMapInfo } of userMapInfoSet.Props(true)) {
+		for (const { key: userID, value: userMapInfoSet } of this.userMapInfoSets.Pairs(true)) {
+			for (const { key: mapID2, value: userMapInfo } of userMapInfoSet.Pairs(true)) {
 				if (userMapInfo.layerStates[layerID] != null) {
 					updates[`userMapInfo/${userID}/.${mapID2}/.layerStates/.${layerID}`] = null;
 				}

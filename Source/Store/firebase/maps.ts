@@ -5,17 +5,17 @@ import { Map, MapType } from './maps/@Map';
 export const GetMaps = StoreAccessor((s) => (orderByEdits = false): Map[] => {
 	/* const mapsMap = GetData({ collection: true }, 'maps');
 	return CachedTransform('GetMaps', [], mapsMap, () => (mapsMap ? mapsMap.VValues(true) : [])); */
-	const mapsMap = GetData.WS(s)({ collection: true }, 'maps');
+	const mapsMap = GetData({ collection: true }, 'maps');
 	if (!mapsMap) return emptyArray_forLoading;
 	let result = mapsMap.VValues(true);
 	if (orderByEdits) result = result.OrderByDescending((a) => ToNumber(a && a.edits, 0));
 	return result;
 });
 export const GetMaps_Personal = StoreAccessor((s) => (orderByEdits = false) => {
-	return GetMaps.WS(s)(orderByEdits).filter((a) => a && a.type == MapType.Personal);
+	return GetMaps(orderByEdits).filter((a) => a && a.type == MapType.Personal);
 });
 export const GetMaps_Debate = StoreAccessor((s) => (orderByEdits = false) => {
-	return GetMaps.WS(s)(orderByEdits).filter((a) => a && a.type == MapType.Debate);
+	return GetMaps(orderByEdits).filter((a) => a && a.type == MapType.Debate);
 });
 
 /* export function GetMapsOfType(type: MapType): Map[] {
@@ -24,10 +24,10 @@ export const GetMaps_Debate = StoreAccessor((s) => (orderByEdits = false) => {
 } */
 export const GetMap = StoreAccessor((s) => (id: string): Map => {
 	if (id == null) return null;
-	return GetData.WS(s)('maps', id);
+	return GetData('maps', id);
 });
 export const GetRootNodeID = StoreAccessor((s) => (mapID: string): string => {
-	const map = GetMap.WS(s)(mapID);
+	const map = GetMap(mapID);
 	if (map == null) return null;
 	return map.rootNode;
 });

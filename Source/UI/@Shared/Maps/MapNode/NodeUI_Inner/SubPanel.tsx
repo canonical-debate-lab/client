@@ -1,5 +1,5 @@
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
-import { VReactMarkdown_Remarkable, Connect, Watch } from 'Utils/FrameworkOverrides';
+import { VReactMarkdown_Remarkable } from 'Utils/FrameworkOverrides';
 import { MapNode, ImageAttachment, MapNodeL2 } from '../../../../../Store/firebase/nodes/@MapNode';
 import { GetFontSizeForNode } from '../../../../../Store/firebase/nodes/$node';
 import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
@@ -52,7 +52,7 @@ export class SubPanel_Quote extends BaseComponent<{contentNode: ContentNode, fon
 export class SubPanel_Image extends BaseComponentPlus({} as {imageAttachment: ImageAttachment}, {}) {
 	render() {
 		const { imageAttachment } = this.props;
-		const image = GetImage.Watch(imageAttachment.id);
+		const image = GetImage(imageAttachment.id);
 		if (image == null) return <div/>;
 		return (
 			<div style={{ position: 'relative' }}>

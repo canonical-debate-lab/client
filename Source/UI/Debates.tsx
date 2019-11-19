@@ -5,9 +5,9 @@ import { ScrollView } from 'react-vscrollview';
 import { GetMaps, GetMaps_Debate } from 'Store/firebase/maps';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
-import { HSLA, PageContainer, Watch } from 'Utils/FrameworkOverrides';
+import { HSLA, PageContainer } from 'Utils/FrameworkOverrides';
+import {GetSelectedDebateMap} from 'Store/main/debates';
 import { MapType } from '../Store/firebase/maps/@Map';
-import { GetSelectedDebateMap } from '../Store_Old/main/debates';
 import { ES } from '../Utils/UI/GlobalStyles';
 import { GADDemo } from './@GAD/GAD';
 import { ShowAddMapDialog } from './@Shared/Maps/AddMapDialog';
@@ -20,10 +20,10 @@ export const columnWidths = [0.64, 0.06, 0.12, 0.18];
 export class DebatesUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
 		const userID = MeID();
-		const permissions = GetUserPermissionGroups.Watch(userID);
-		const maps = GetMaps_Debate.Watch(true);
+		const permissions = GetUserPermissionGroups(userID);
+		const maps = GetMaps_Debate(true);
 		// maps = maps.OrderByDescending(a => ToNumber(a.edits, 0));
-		const selectedMap = GetSelectedDebateMap.Watch();
+		const selectedMap = GetSelectedDebateMap();
 
 		if (selectedMap) {
 			return (

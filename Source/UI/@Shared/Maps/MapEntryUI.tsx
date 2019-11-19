@@ -1,19 +1,18 @@
 import { VURL } from 'js-vextensions';
 import Moment from 'moment';
 import { Column, Div, Row } from 'react-vcomponents';
-import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
-import { columnWidths } from 'UI/Debates';
-import { Connect, Link, HSLA, Watch } from 'Utils/FrameworkOverrides';
+import { BaseComponentPlus } from 'react-vextensions';
 import { GADDemo } from 'UI/@GAD/GAD';
+import { columnWidths } from 'UI/Debates';
+import { HSLA, Link } from 'Utils/FrameworkOverrides';
+import { store } from 'Store';
 import { Map, MapType } from '../../../Store/firebase/maps/@Map';
 import { GetUser } from '../../../Store/firebase/users';
-import { ACTDebateMapSelect } from '../../../Store_Old/main/debates';
-import { ACTPersonalMapSelect } from '../../../Store_Old/main/personal';
 
 export class MapEntryUI extends BaseComponentPlus({} as {index: number, last: boolean, map: Map}, {}) {
 	render() {
 		const { index, last, map } = this.props;
-		const creator = Watch(() => map && GetUser(map.creator), [map]);
+		const creator = map && GetUser(map.creator);
 
 		const toURL = new VURL(null, [map.type == MapType.Personal ? 'personal' : 'debates', `${map._key}`]);
 		return (
@@ -37,7 +36,7 @@ export class MapEntryUI extends BaseComponentPlus({} as {index: number, last: bo
 					<Div style={{ position: 'relative', flex: columnWidths[0] }}>
 						<Link text={map.name} to={toURL.toString({ domain: false })} style={E({ fontSize: 17 }, GADDemo && { color: HSLA(222, 0.33, 0.5, 0.8) })} onClick={(e) => {
 							e.preventDefault();
-							store.dispatch(new (map.type == MapType.Personal ? ACTPersonalMapSelect : ACTDebateMapSelect)({ id: map._key }));
+							store.main[map.type == MapType.Personal ? 'personal' : 'debates'].selectedMapID = map._key;
 						}}/>
 						{map.note &&
 							<Div style={E(

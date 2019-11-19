@@ -2,24 +2,23 @@ import { StandardCompProps } from 'Utils/UI/General';
 import { DeepGet, E, SleepAsync, Timer, Vector2i, FindDOMAll, Assert, FromJSON, ToJSON, VRect } from 'js-vextensions';
 import { Column, Row } from 'react-vcomponents';
 import { BaseComponentWithConnector, FindReact, GetDOM, BaseComponentPlus } from 'react-vextensions';
-import { VMenuStub , VMenuItem } from 'react-vmenu';
+import { VMenuStub, VMenuItem } from 'react-vmenu';
 
 import { ScrollView } from 'react-vscrollview';
 import { TimelinePlayerUI } from 'UI/@Shared/Maps/MapUI/TimelinePlayerUI';
-import { State, Connect, GetDistanceBetweenRectAndPoint, inFirefox, Watch, GetScreenRect } from 'Utils/FrameworkOverrides';
-import { GetTimelinePanelOpen, GetPlayingTimelineRevealNodes_All, GetPlayingTimeline } from 'Store_Old/main/maps/$map';
+import { GetDistanceBetweenRectAndPoint, inFirefox, GetScreenRect } from 'Utils/FrameworkOverrides';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { ActionBar_Left_GAD } from 'UI/@GAD/ActionBar_Left_GAD';
 import { ActionBar_Right_GAD } from 'UI/@GAD/ActionBar_Right_GAD';
 import { GetParentNodeL3, GetParentPath } from 'Store/firebase/nodes';
+import { store } from 'Store';
+import { GetNodeView, GetMapView, GetSelectedNodePath, GetViewOffset, GetFocusedNodePath } from 'Store/main/mapViews/$mapView';
+import { GetTimelinePanelOpen, GetPlayingTimeline } from 'Store/main/maps/$map';
+import { GetOpenMapID } from 'Store/main';
 import { styles, ES } from '../../../Utils/UI/GlobalStyles';
 import { Map } from '../../../Store/firebase/maps/@Map';
 import { GetNodeL3, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument } from '../../../Store/firebase/nodes/$node';
 import { MapNodeL3 } from '../../../Store/firebase/nodes/@MapNode';
-import { RootState } from '../../../Store_Old/index';
-import { GetOpenMapID } from '../../../Store_Old/main';
-import { GetFocusedNodePath, GetMapView, GetNodeView, GetSelectedNodePath, GetViewOffset } from '../../../Store_Old/main/mapViews';
-import { ACTMapNodeSelect, ACTViewCenterChange } from '../../../Store_Old/main/mapViews/$mapView/rootNodeViews';
 import { NodeUI } from './MapNode/NodeUI';
 import { NodeUI_ForBots } from './MapNode/NodeUI_ForBots';
 import { NodeUI_Inner } from './MapNode/NodeUI_Inner';
@@ -86,21 +85,21 @@ export class MapUI extends BaseComponentPlus({
 	downPos: Vector2i;
 	render() {
 		const { map, rootNode: rootNode_passed, withinPage, padding, subNavBarWidth, ...rest } = this.props;
-		const rootNode = Watch(() => {
+		const rootNode = (() => {
 			let result = rootNode_passed;
 			if (result == null && map && map.rootNode) {
 				result = GetNodeL3(`${map.rootNode}`);
 			}
 			if (map) {
-				const nodeID = State('main', 'mapViews', map._key, 'bot_currentNodeID');
+				const nodeID = store.main.mapViews.get(map._key).bot_currentNodeID;
 				if (isBot && nodeID) {
 					result = GetNodeL3(`${nodeID}`);
 				}
 			}
 			return result;
-		}, [map, rootNode_passed]);
-		const timelinePanelOpen = Watch(() => (map ? GetTimelinePanelOpen(map._key) : null), [map]);
-		const playingTimeline = GetPlayingTimeline.Watch(map ? map._key : null);
+		})();
+		const timelinePanelOpen = map ? GetTimelinePanelOpen(map._key) : null;
+		const playingTimeline = GetPlayingTimeline(map ? map._key : null);
 
 		if (map == null) {
 			return <div style={ES({ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, fontSize: 25 })}>Loading map...</div>;

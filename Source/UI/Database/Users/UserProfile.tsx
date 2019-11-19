@@ -5,7 +5,7 @@ import { User } from 'Store/firebase/users/@User';
 import { UpdateProfile } from 'Server/Commands/UpdateProfile';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { presetBackgrounds, defaultPresetBackground } from 'Utils/UI/PresetBackgrounds';
-import { Connect, ClearLocalData, DBPath, PageContainer } from 'Utils/FrameworkOverrides';
+import { DBPath, PageContainer } from 'Utils/FrameworkOverrides';
 import { styles, ES } from 'Utils/UI/GlobalStyles';
 import { Fragment } from 'react';
 import { PropNameToTitle } from 'Utils/General/Others';
@@ -15,9 +15,9 @@ import { ScrollView } from 'react-vscrollview';
 export class UserProfileUI extends BaseComponentPlus({} as {profileUser: User}, {}) {
 	render() {
 		const { profileUser } = this.props;
-		const userID = MeID.Watch();
-		const profileUserPermissionGroups = GetUserPermissionGroups.Watch(profileUser ? profileUser._key : null);
-		const currentUser = GetUser.Watch(userID);
+		const userID = MeID();
+		const profileUserPermissionGroups = GetUserPermissionGroups(profileUser ? profileUser._key : null);
+		const currentUser = GetUser(userID);
 
 		if (profileUser == null) return <PageContainer>User does not exist.</PageContainer>;
 		// if (currentUser == null) return <PageContainer>Must be signed-in to access.</PageContainer>;
@@ -121,7 +121,8 @@ export class UserProfileUI extends BaseComponentPlus({} as {profileUser: User}, 
 
 		This is usually only done if an error is occuring because of outdated or invalid data.`,
 								onOK: () => {
-									ClearLocalData(persister);
+									// ClearLocalData(persister);
+									// todo
 									window.location.reload();
 								},
 								});

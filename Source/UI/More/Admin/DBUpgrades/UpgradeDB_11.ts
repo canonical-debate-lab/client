@@ -1,12 +1,12 @@
 import { GetSearchTerms } from 'Server/Commands/AddNodeRevision';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { Clone } from 'js-vextensions';
-import { FirebaseData } from '../../../../Store_Old/firebase';
+import {FirebaseState} from 'Store/firebase';
 import { AddUpgradeFunc } from '../../Admin';
 
 const newVersion = 11;
 AddUpgradeFunc(newVersion, async (oldData, markProgress) => {
-	const data = Clone(oldData) as FirebaseData;
+	const data = Clone(oldData) as FirebaseState;
 
 	// populate "titles.allTerms" property of each node-revision
 	// ==========

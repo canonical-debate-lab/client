@@ -1,8 +1,8 @@
 import { Lerp, emptyObj, ToJSON } from 'js-vextensions';
-import { GetData, State, StoreAccessor, SubWatch } from 'Utils/FrameworkOverrides';
+import { GetData, StoreAccessor } from 'Utils/FrameworkOverrides';
+import {WeightingType} from 'Store/main';
 import { GetArgumentImpactPseudoRatingSet } from '../../Utils/Store/RatingProcessor';
 import { RatingType, ratingTypes } from './nodeRatings/@RatingType';
-import { WeightingType } from '../../Store_Old/main';
 import { Rating, RatingsRoot } from './nodeRatings/@RatingsRoot';
 import { RS_GetAllValues } from './nodeRatings/ReasonScore';
 import { GetNodeChildrenL2, HolderType } from './nodes';
@@ -11,7 +11,7 @@ import { ClaimForm, MapNodeL3 } from './nodes/@MapNode';
 import { MapNodeType } from './nodes/@MapNodeType';
 import { MeID } from './users';
 
-export const GetNodeRatingsRoot = StoreAccessor((nodeID: string) => {
+export const GetNodeRatingsRoot = StoreAccessor((s) => (nodeID: string) => {
 	// RequestPaths(GetPaths_NodeRatingsRoot(nodeID));
 	// return GetData('nodeRatings', nodeID) as RatingsRoot;
 	// temp workaround for GetData() not retrieving list of subcollections for doc-path
@@ -26,22 +26,20 @@ export const GetNodeRatingsRoot = StoreAccessor((nodeID: string) => {
 });
 
 // path is needed if you want
-export const GetRatingSet = StoreAccessor((nodeID: string, ratingType: RatingType) => {
-	return SubWatch('GetRatingSet', [nodeID, ratingType], () => {
-		if (ratingType == 'impact') {
-			const node = GetNodeL2(nodeID);
-			if (node == null) return null;
-			const nodeChildren = GetNodeChildrenL2(node);
-			if (nodeChildren.Any((a) => a == null)) return emptyObj;
-			const premises = nodeChildren.filter((a) => a == null || a.type == MapNodeType.Claim);
-			return GetArgumentImpactPseudoRatingSet(node, premises);
-		}
-		const ratingsRoot = GetNodeRatingsRoot(nodeID);
-		return ratingsRoot ? ratingsRoot[ratingType] : null;
-	});
+export const GetRatingSet = StoreAccessor((s) => (nodeID: string, ratingType: RatingType) => {
+	if (ratingType == 'impact') {
+		const node = GetNodeL2(nodeID);
+		if (node == null) return null;
+		const nodeChildren = GetNodeChildrenL2(node);
+		if (nodeChildren.Any((a) => a == null)) return emptyObj;
+		const premises = nodeChildren.filter((a) => a == null || a.type == MapNodeType.Claim);
+		return GetArgumentImpactPseudoRatingSet(node, premises);
+	}
+	const ratingsRoot = GetNodeRatingsRoot(nodeID);
+	return ratingsRoot ? ratingsRoot[ratingType] : null;
 });
 // export function GetRatings(nodeID: string, ratingType: RatingType, thesisForm?: ThesisForm): Rating[] {
-export const GetRatings = StoreAccessor((nodeID: string, ratingType: RatingType, filter?: RatingFilter): Rating[] => {
+export const GetRatings = StoreAccessor((s) => (nodeID: string, ratingType: RatingType, filter?: RatingFilter): Rating[] => {
 	/* let ratingSet = GetRatingSet(nodeID, ratingType, null);
 	return CachedTransform("GetRatings", [nodeID, ratingType].concat((filter || {}).VValues()), {ratingSet},
 		()=>ratingSet ? FilterRatings(ratingSet.VValues(true), filter) : []); */
@@ -52,34 +50,32 @@ export const GetRatings = StoreAccessor((nodeID: string, ratingType: RatingType,
 	return FilterRatings(ratingSet.VValues(true), filter);
 	// });
 });
-export const GetRating = StoreAccessor((nodeID: string, ratingType: RatingType, userID: string) => {
+export const GetRating = StoreAccessor((s) => (nodeID: string, ratingType: RatingType, userID: string) => {
 	const ratingSet = GetRatingSet(nodeID, ratingType);
 	if (ratingSet == null) return null;
 	return ratingSet[userID];
 });
-export const GetRatingValue = StoreAccessor((nodeID: string, ratingType: RatingType, userID: string, resultIfNoData = null): number => {
+export const GetRatingValue = StoreAccessor((s) => (nodeID: string, ratingType: RatingType, userID: string, resultIfNoData = null): number => {
 	const rating = GetRating(nodeID, ratingType, userID);
 	return rating ? rating.value : resultIfNoData;
 });
-export const GetRatingAverage = StoreAccessor((nodeID: string, ratingType: RatingType, filter?: RatingFilter): number => {
+export const GetRatingAverage = StoreAccessor((s) => (nodeID: string, ratingType: RatingType, filter?: RatingFilter): number => {
 	// return CachedTransform_WithStore('GetRatingAverage', [nodeID, ratingType, resultIfNoData].concat((filter || {}).VValues()), {}, () => {
-	return SubWatch('GetRatingAverage', [nodeID, ratingType, ToJSON(filter)], () => {
-		// if voting disabled, always show full bar
-		/* let node = GetNodeL2(nodeID);
-		if (node && node.current.votingDisabled) return 100;
+	// if voting disabled, always show full bar
+	/* let node = GetNodeL2(nodeID);
+	if (node && node.current.votingDisabled) return 100;
 
-		let ratings = GetRatings(nodeID, ratingType, filter);
-		if (ratings.length == 0) return resultIfNoData as any; */
+	let ratings = GetRatings(nodeID, ratingType, filter);
+	if (ratings.length == 0) return resultIfNoData as any; */
 
-		const node = GetNodeL2(nodeID);
-		if (node && node.current.votingDisabled) return 100;
+	const node = GetNodeL2(nodeID);
+	if (node && node.current.votingDisabled) return 100;
 
-		const ratings = GetRatings(nodeID, ratingType, filter);
-		if (ratings.length == 0) return null;
-		return ratings.map((a) => a.value).Average().RoundTo(1);
-	});
+	const ratings = GetRatings(nodeID, ratingType, filter);
+	if (ratings.length == 0) return null;
+	return ratings.map((a) => a.value).Average().RoundTo(1);
 });
-export const GetRatingAverage_AtPath = StoreAccessor((node: MapNodeL3, ratingType: RatingType, filter?: RatingFilter, resultIfNoData = null): number => {
+export const GetRatingAverage_AtPath = StoreAccessor((s) => (node: MapNodeL3, ratingType: RatingType, filter?: RatingFilter, resultIfNoData = null): number => {
 	let result = GetRatingAverage(node._key, ratingType, filter);
 	if (result == null) return resultIfNoData;
 	if (ShouldRatingTypeBeReversed(node, ratingType)) {
@@ -90,9 +86,9 @@ export const GetRatingAverage_AtPath = StoreAccessor((node: MapNodeL3, ratingTyp
 
 const rsCompatibleNodeTypes = [MapNodeType.Argument, MapNodeType.Claim];
 // export const GetFillPercent_AtPath = StoreAccessor('GetFillPercent_AtPath', (node: MapNodeL3, path: string, boxType?: HolderType, ratingType?: RatingType, filter?: RatingFilter, resultIfNoData = null) => {
-export const GetFillPercent_AtPath = StoreAccessor((node: MapNodeL3, path: string, boxType?: HolderType, ratingType?: RatingType, filter?: RatingFilter, resultIfNoData = null) => {
+export const GetFillPercent_AtPath = StoreAccessor((s) => (node: MapNodeL3, path: string, boxType?: HolderType, ratingType?: RatingType, filter?: RatingFilter, resultIfNoData = null) => {
 	ratingType = ratingType || { [HolderType.Truth]: 'truth', [HolderType.Relevance]: 'relevance' }[boxType] as any || GetMainRatingType(node);
-	if (State((a) => a.main.weighting) == WeightingType.Votes || !rsCompatibleNodeTypes.Contains(node.type)) {
+	if (s.main.weighting == WeightingType.Votes || !rsCompatibleNodeTypes.Contains(node.type)) {
 		return GetRatingAverage_AtPath(node, ratingType, filter, resultIfNoData);
 	}
 
@@ -119,9 +115,9 @@ export const GetFillPercent_AtPath = StoreAccessor((node: MapNodeL3, path: strin
 	return result;
 });
 
-export const GetMarkerPercent_AtPath = StoreAccessor((node: MapNodeL3, path: string, boxType?: HolderType, ratingType?: RatingType) => {
+export const GetMarkerPercent_AtPath = StoreAccessor((s) => (node: MapNodeL3, path: string, boxType?: HolderType, ratingType?: RatingType) => {
 	ratingType = ratingType || { [HolderType.Truth]: 'truth', [HolderType.Relevance]: 'relevance' }[boxType] as any || GetMainRatingType(node);
-	if (State((a) => a.main.weighting) == WeightingType.Votes || !rsCompatibleNodeTypes.Contains(node.type)) {
+	if (s.main.weighting == WeightingType.Votes || !rsCompatibleNodeTypes.Contains(node.type)) {
 		return GetRatingAverage_AtPath(node, ratingType, new RatingFilter({ includeUser: MeID() }));
 	}
 });

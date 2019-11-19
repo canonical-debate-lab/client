@@ -5,7 +5,7 @@ import { globalMapID } from '../../Store/firebase/nodes/@MapNode';
 
 export class GlobalListUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
-		const map = GetMap.Watch(globalMapID);
+		const map = GetMap(globalMapID);
 		if (map == null) return null;
 		return (
 			<ListUI map={map}/>

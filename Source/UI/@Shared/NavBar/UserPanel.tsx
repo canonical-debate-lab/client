@@ -4,8 +4,7 @@ import { Button, Div, Row } from 'react-vcomponents';
 import { Column } from 'react-vcomponents';
 import { E } from 'js-vextensions';
 import { ShowMessageBox, BoxController } from 'react-vmessagebox';
-import { IsAuthValid } from 'Store_Old/firebase';
-import { Link, HandleError } from 'Utils/FrameworkOverrides';
+import { Link, HandleError, IsAuthValid } from 'Utils/FrameworkOverrides';
 import { store } from 'Store';
 import { runInAction } from 'mobx';
 import { MeID } from '../../../Store/firebase/users';
@@ -16,7 +15,7 @@ export class UserPanel extends BaseComponentPlus({} as {auth?}, {}) {
 
 		// authError: pathToJS(state.firebase, "authError"),
 		// auth: helpers.pathToJS(state.firebase, "auth"),
-		// const auth = State.Watch((a) => a.firebase.auth);
+		// const auth = State((a) => a.firebase.auth);
 		const auth = store.firebase.auth;
 		// account: helpers.pathToJS(state.firebase, "profile")
 

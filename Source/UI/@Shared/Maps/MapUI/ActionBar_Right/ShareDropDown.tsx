@@ -2,7 +2,7 @@ import { GetNewURL } from 'Utils/URL/URLs';
 import { VURL, WaitXThenRun, CopyText } from 'js-vextensions';
 import { Button, Column, DropDown, DropDownContent, DropDownTrigger, Pre, Row, RowLR, Select, TextInput } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
-import { Connect, GetCurrentURL } from 'Utils/FrameworkOverrides';
+import {GetCurrentURL} from 'Utils/FrameworkOverrides';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { GetMapTimelines } from '../../../../../Store/firebase/timelines';
 import { Timeline } from '../../../../../Store/firebase/timelines/@Timeline';
@@ -11,8 +11,8 @@ export class ShareDropDown extends BaseComponentPlus({} as {map: Map}, { timelin
 	render() {
 		const { map } = this.props;
 		const { timeline, justCopied } = this.state;
-		const newURL = GetNewURL.Watch();
-		const timelines = GetMapTimelines.Watch(map);
+		const newURL = GetNewURL();
+		const timelines = GetMapTimelines(map);
 
 		newURL.queryVars.Clear();
 		newURL.domain = GetCurrentURL(true).domain;

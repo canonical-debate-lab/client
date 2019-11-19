@@ -83,7 +83,7 @@ export class DeleteNode extends Command<{mapID?: string, nodeID: string, withCon
 		} */
 
 		// delete links with parents
-		for (const { index, name: parentID } of (this.oldData.parents || {}).Props()) {
+		for (const { index, key: parentID } of (this.oldData.parents || {}).Pairs()) {
 			updates[`nodes/${parentID}/.children/.${nodeID}`] = null;
 			// let parent_childrenOrder = this.oldParentID__childrenOrder[parentID];
 			const parent_childrenOrder = this.oldParentChildrenOrders[index];

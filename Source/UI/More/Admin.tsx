@@ -1,19 +1,19 @@
-import { E, SleepAsync, Assert } from 'js-vextensions';
+import { E, SleepAsync, Assert, Clone, DeepSet } from 'js-vextensions';
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { HasAdminPermissions } from 'Store/firebase/userExtras';
 import { Omit } from 'lodash';
-import { StopStateDataOverride, StartStateDataOverride, UpdateStateDataOverride } from 'UI/@Shared/StateOverrides';
-import { Connect, GetData, DBPath, State, RemoveHelpers, SplitStringBySlash_Cached, GetDataAsync, ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks, PageContainer, Watch } from 'Utils/FrameworkOverrides';
+import { GetData, DBPath, RemoveHelpers, SplitStringBySlash_Cached, GetDataAsync, ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks, PageContainer } from 'Utils/FrameworkOverrides';
 import { dbVersion } from 'Main';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
+import { FirebaseState } from 'Store/firebase';
+import { store } from 'Store';
 import { styles } from '../../Utils/UI/GlobalStyles';
-import { FirebaseData } from '../../Store_Old/firebase';
 import { MeID, GetUser } from '../../Store/firebase/users';
 import { ResetCurrentDBRoot } from './Admin/ResetCurrentDBRoot';
 
-type UpgradeFunc = (oldData: FirebaseData, markProgress: MarkProgressFunc)=>Promise<FirebaseData>;
+type UpgradeFunc = (oldData: FirebaseState, markProgress: MarkProgressFunc)=>Promise<FirebaseState>;
 type MarkProgressFunc = (depth: number, entryIndex: number, entryCount?: number)=>void;
 
 // upgrade-funcs
@@ -51,11 +51,9 @@ export class AdminUI extends BaseComponentPlus({} as {}, { dbUpgrade_entryIndexe
 
 	render() {
 		const { dbUpgrade_entryIndexes, dbUpgrade_entryCounts } = this.state;
-		const isAdmin = Watch(() => {
-			return HasAdminPermissions(MeID())
-				// also check previous version for admin-rights (so we can increment db-version without losing our rights to complete the db-upgrade!)
-				|| (MeID() != null && GetData({ inVersionRoot: false }, 'versions', `v${dbVersion - 1}-${DB_SHORT}`, 'userExtras', MeID(), '.permissionGroups', '.admin'));
-		}, []);
+		const isAdmin = HasAdminPermissions(MeID())
+			// also check previous version for admin-rights (so we can increment db-version without losing our rights to complete the db-upgrade!)
+			|| (MeID() != null && GetData({ inVersionRoot: false }, 'versions', `v${dbVersion - 1}-${DB_SHORT}`, 'userExtras', MeID(), '.permissionGroups', '.admin'));
 
 		if (!isAdmin) return <PageContainer>Please sign in.</PageContainer>;
 		return (
@@ -78,7 +76,7 @@ export class AdminUI extends BaseComponentPlus({} as {}, { dbUpgrade_entryIndexe
 				</Row>
 				<Row mt={5}><h4>Upgrader</h4></Row>
 				<Column style={{ alignItems: 'flex-start' }}>
-					{upgradeFuncs.Props().map((pair) => <UpgradeButton key={pair.name} newVersion={parseInt(pair.name)} upgradeFunc={pair.value} markProgress={this.MarkProgress.bind(this)}/>)}
+					{upgradeFuncs.Pairs().map((pair) => <UpgradeButton key={pair.key} newVersion={pair.keyNum} upgradeFunc={pair.value} markProgress={this.MarkProgress.bind(this)}/>)}
 				</Column>
 				{dbUpgrade_entryIndexes.length > 0 &&
 					<Row>
@@ -152,13 +150,11 @@ The old db-root will not be modified.`,
 						const oldData = await GetCollectionsDataAsync(oldVersionPath);
 
 						// maybe temp; use firebase-data overriding system, so upgrade-funcs can use GetData() and such -- but accessing a local data-store (which can be updated) instead of the "real" remote data
-						StartStateDataOverride(State());
-						UpdateStateDataOverride({ [`firebase/data/${DBPath()}`]: oldData });
-						try {
-							var newData = await upgradeFunc(oldData, markProgress);
-						} finally {
-							StopStateDataOverride();
-						}
+						const newStore = Clone(store);
+						DeepSet(newStore, `firebase/data/${DBPath()}`, oldData);
+						const newData = await WithStore(newStore, () => {
+							return upgradeFunc(oldData, markProgress);
+						});
 						RemoveHelpers(newData); // remove "_key" and such
 
 						if (newVersion >= dbVersion) {
@@ -199,13 +195,16 @@ export async function GetCollectionsDataAsync(versionRootPath: string) {
 		return GetDataAsync({ inVersionRoot: false, collection: true }, ...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath);
 	}
 
-	let versionCollectionsData: FirebaseData;
+	let versionCollectionsData: FirebaseState;
 	// we put the db-updates into this variable, so that we know we're importing data for every key (if not, Typescript throws error about value not matching FirebaseData's shape)
 	versionCollectionsData = {
 		// modules
-		'modules/feedback/general': await getData('modules', 'feedback', 'general'),
+		/* 'modules/feedback/general': await getData('modules', 'feedback', 'general'),
 		'modules/feedback/proposals': await getData('modules', 'feedback', 'proposals'),
-		'modules/feedback/userData': await getData('modules', 'feedback', 'userData'),
+		'modules/feedback/userData': await getData('modules', 'feedback', 'userData'), */
+		modules: {
+			feedback: await getData('modules', 'feedback'),
+		},
 
 		general: await getData('general'),
 		images: await getData('images'),

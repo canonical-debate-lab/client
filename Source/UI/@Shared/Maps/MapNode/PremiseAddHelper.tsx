@@ -1,13 +1,12 @@
 import keycode from 'keycode';
 import { Button, Row, TextArea } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
-import { ACTSetLastAcknowledgementTime } from 'Store_Old/main';
 import { WaitTillPathDataIsReceived } from 'Utils/FrameworkOverrides';
+import {store} from 'Store';
 import { AddChildNode } from '../../../../Server/Commands/AddChildNode';
 import { ChildEntry, ClaimForm, MapNode, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
 import { MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../Store/firebase/nodes/@MapNodeRevision';
 import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
-import { ACTMapNodeExpandedSet } from '../../../../Store_Old/main/mapViews/$mapView/rootNodeViews';
 
 export class PremiseAddHelper extends BaseComponentPlus({} as {mapID: string, parentNode: MapNodeL3, parentPath: string}, { premiseTitle: '', adding: false }) {
 	render() {
@@ -50,7 +49,7 @@ export class PremiseAddHelper extends BaseComponentPlus({} as {mapID: string, pa
 		// SetNodeUILocked(parentNode._key, true);
 		const info = await new AddChildNode({ mapID, parentID: parentNode._key, node: newNode, revision: newRevision, link: newLink }).Run();
 		store.dispatch(new ACTMapNodeExpandedSet({ mapID, path: `${parentPath}/${info.nodeID}`, expanded: true, resetSubtree: false }));
-		store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.nodeID, time: Date.now() }));
+		store.main.nodeLastAcknowledgementTimes.set(info.nodeID, Date.now());
 
 		// await WaitTillPathDataIsReceiving(`nodeRevisions/${info.revisionID}`);
 		await WaitTillPathDataIsReceived(`nodeRevisions/${info.revisionID}`);

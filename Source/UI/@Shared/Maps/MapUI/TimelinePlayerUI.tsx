@@ -3,14 +3,14 @@ import { BaseComponent, FindReact, BaseComponentPlus } from 'react-vextensions';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
-import { ACTMap_PlayingTimelineSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimeline, GetPlayingTimelineStep } from 'Store_Old/main/maps/$map';
 import { GetEntries } from 'js-vextensions';
-import { VReactMarkdown_Remarkable, Connect, Watch } from 'Utils/FrameworkOverrides';
+import { VReactMarkdown_Remarkable } from 'Utils/FrameworkOverrides';
+import { store } from 'Store';
+import {GetPlayingTimelineAppliedStepIndex, GetPlayingTimelineStep, GetPlayingTimeline, GetPlayingTimelineStepIndex} from 'Store/main/maps/$map';
 import { Segment } from '../../../../Utils/General/RegexHelpers';
 import { AsNodeL3 } from '../../../../Store/firebase/nodes/$node';
 import { MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
 import { TimelineStep } from '../../../../Store/firebase/timelineSteps/@TimelineStep';
-import { ACTMap_PlayingTimelineAppliedStepSet, GetPlayingTimelineAppliedStepIndex, GetPlayingTimelineStepIndex } from '../../../../Store_Old/main/maps/$map';
 import { NodeUI_Inner } from '../MapNode/NodeUI_Inner';
 
 function GetPropsFromPropsStr(propsStr: string) {
@@ -53,12 +53,13 @@ const replacements = {
 		const currentStep = extraInfo.currentStep as TimelineStep;
 		// let ids = currentStep.actions.filter(a=>a.type == TimelineStepActionType.ShowNode).map(a=>a.showNode_nodeID);
 		// let ids = (currentStep.nodeReveals || []).map(a=>a.nodeID);
+		const mapInfo = store.main.maps.get(extraInfo.map._key);
 		return (
 			<Button text={props.text || 'Place into debate map'} enabled={!extraInfo.stepApplied}
 				style={{ alignSelf: 'center', fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,.7)' }}
 				onClick={(e) => {
 					// let currentStep = await GetAsync(()=>GetPlayingTimelineStepIndex(extraInfo.map._id));
-					store.dispatch(new ACTMap_PlayingTimelineAppliedStepSet({ mapID: extraInfo.map._key, stepIndex: extraInfo.currentStepIndex }));
+					mapInfo.playingTimeline_appliedStep = extraInfo.currentStepIndex;
 				}}/>
 		);
 	},
@@ -76,7 +77,7 @@ type NodeUI_InMessageProps = {map: Map, nodeID: string, polarity: Polarity, inde
 class NodeUI_InMessage extends BaseComponentPlus({} as NodeUI_InMessageProps, {}) {
 	render() {
 		const { map, nodeID, polarity, index } = this.props;
-		const node = Watch(() => (GetNodeL2(nodeID) ? AsNodeL3(GetNodeL2(nodeID), polarity, null) : null), [nodeID, polarity]);
+		const node = GetNodeL2(nodeID) ? AsNodeL3(GetNodeL2(nodeID), polarity, null) : null;
 		if (!node) return <div/>;
 
 		const path = `${nodeID}`;
@@ -95,9 +96,9 @@ export class TimelinePlayerUI extends BaseComponentPlus({} as {map: Map}, {}) {
 	root: Column;
 	render() {
 		const { map } = this.props;
-		const playingTimeline = GetPlayingTimeline.Watch(map._key);
-		const currentStep = GetPlayingTimelineStep.Watch(map._key);
-		const appliedStepIndex = GetPlayingTimelineAppliedStepIndex.Watch(map._key);
+		const playingTimeline = GetPlayingTimeline(map._key);
+		const currentStep = GetPlayingTimelineStep(map._key);
+		const appliedStepIndex = GetPlayingTimelineAppliedStepIndex(map._key);
 
 		if (!playingTimeline) return <div/>;
 		if (!currentStep) return <div/>;
@@ -106,6 +107,7 @@ export class TimelinePlayerUI extends BaseComponentPlus({} as {map: Map}, {}) {
 
 		const stepApplied = appliedStepIndex >= currentStepIndex || (currentStep.nodeReveals || []).length == 0;
 
+		const mapInfo = store.main.maps.get(map._key);
 		return (
 			<Column ref={(c) => this.root = c}
 				style={{ position: 'absolute', zIndex: 2, left: 10, top: 40, width: 500, padding: 10, background: 'rgba(0,0,0,.7)', borderRadius: 5 }}
@@ -118,18 +120,18 @@ export class TimelinePlayerUI extends BaseComponentPlus({} as {map: Map}, {}) {
 				<Row style={{ position: 'relative' }}>
 					<Pre style={{ fontSize: 18, textAlign: 'center', width: '100%' }}>Timeline</Pre>
 					<Button text="X" style={{ position: 'absolute', right: 0, padding: '3px 6px', marginTop: -2, marginRight: -2, fontSize: 13 }} onClick={() => {
-						store.dispatch(new ACTMap_PlayingTimelineSet({ mapID: map._key, timelineID: null }));
-						store.dispatch(new ACTMap_PlayingTimelineStepSet({ mapID: map._key, stepIndex: null }));
-						store.dispatch(new ACTMap_PlayingTimelineAppliedStepSet({ mapID: map._key, stepIndex: null }));
+						// mapInfo.playingTimeline = null;
+						mapInfo.playingTimeline_step = null;
+						mapInfo.playingTimeline_appliedStep = null;
 					}}/>
 				</Row>
 				<Row mt={5} style={{ position: 'relative' }}>
 					<Button text="<" enabled={currentStepIndex > 0} onClick={() => {
-						store.dispatch(new ACTMap_PlayingTimelineStepSet({ mapID: map._key, stepIndex: currentStepIndex - 1 }));
+						mapInfo.playingTimeline_step = currentStepIndex - 1;
 					}}/>
 					{stepApplied && currentStepIndex == 0 && appliedStepIndex >= 0
 						&& <Button ml={5} text="Restart" onClick={() => {
-							store.dispatch(new ACTMap_PlayingTimelineAppliedStepSet({ mapID: map._key, stepIndex: null }));
+							mapInfo.playingTimeline_appliedStep = null;
 						}}/>}
 					<Pre className="clickThrough" style={{ position: 'absolute', fontSize: 15, textAlign: 'center', width: '100%' }}>
 						Step {currentStepIndex + 1}{currentStep.title ? `: ${currentStep.title}` : ''}
@@ -139,11 +141,11 @@ export class TimelinePlayerUI extends BaseComponentPlus({} as {map: Map}, {}) {
 					}}/> */}
 					{stepApplied
 						&& <Button ml="auto" text=">" enabled={playingTimeline.steps && currentStepIndex < playingTimeline.steps.length - 1} onClick={() => {
-							store.dispatch(new ACTMap_PlayingTimelineStepSet({ mapID: map._key, stepIndex: currentStepIndex + 1 }));
+							mapInfo.playingTimeline_step = currentStepIndex + 1;
 						}}/>}
 					{!stepApplied
 						&& <Button ml="auto" text="Place" onClick={() => {
-							store.dispatch(new ACTMap_PlayingTimelineAppliedStepSet({ mapID: map._key, stepIndex: currentStepIndex }));
+							mapInfo.playingTimeline_appliedStep = currentStepIndex;
 						}}/>}
 				</Row>
 				<Row sel>
@@ -161,8 +163,8 @@ export class TimelinePlayerUI extends BaseComponentPlus({} as {map: Map}, {}) {
 export class TimelineOverlayUI extends BaseComponentPlus({} as {map: Map}, {}) {
 	render() {
 		const { map } = this.props;
-		const playingTimeline = GetPlayingTimeline.Watch(map._key);
-		const currentStepIndex = GetPlayingTimelineStepIndex.Watch(map._key);
+		const playingTimeline = GetPlayingTimeline(map._key);
+		const currentStepIndex = GetPlayingTimelineStepIndex(map._key);
 		if (!playingTimeline) return <div/>;
 		return (
 			<Column style={{ position: 'absolute', zIndex: 1, left: 0, right: 0, top: 30, bottom: 0 }}>

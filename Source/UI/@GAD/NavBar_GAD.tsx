@@ -1,21 +1,17 @@
 import { DeepGet, E } from 'js-vextensions';
-import { Button, Div, Row } from 'react-vcomponents';
-import { BaseComponent, BaseComponentWithConnector, UseMemo, BaseComponentPlus } from 'react-vextensions';
-import { ShowMessageBox } from 'react-vmessagebox';
-import { ACTDebateMapSelect } from 'Store_Old/main/debates';
-import { ResetCurrentDBRoot } from 'UI/More/Admin/ResetCurrentDBRoot';
 import { dbVersion } from 'Main';
-import { Connect, State, Action, Link, GetData, HSL, Watch, Observer } from 'Utils/FrameworkOverrides';
-import { ACTUserSelect } from 'Store_Old/main/database';
-import { ACTProposalSelect } from 'firebase-feedback';
+import { runInAction } from 'mobx';
+import { Button, Div, Row } from 'react-vcomponents';
+import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
+import { ShowMessageBox } from 'react-vmessagebox';
+import { RootState, store } from 'Store';
+import { GetAuth } from 'Store/firebase';
 import { NotificationsUI } from 'UI/@Shared/NavBar/NotificationsUI';
 import { SearchPanel } from 'UI/@Shared/NavBar/SearchPanel';
 import { UserPanel } from 'UI/@Shared/NavBar/UserPanel';
-import { useMemo } from 'react';
-import { store, RootState } from 'Store';
-import { runInAction } from 'mobx';
+import { ResetCurrentDBRoot } from 'UI/More/Admin/ResetCurrentDBRoot';
+import { GetData, Observer, Link, HSL } from 'Utils/FrameworkOverrides';
 import { colors } from '../../Utils/UI/GlobalStyles';
-import { ACTPersonalMapSelect } from '../../Store_Old/main/personal';
 
 // main
 // ==========
@@ -24,8 +20,8 @@ import { ACTPersonalMapSelect } from '../../Store_Old/main/personal';
 export class NavBar_GAD extends BaseComponentPlus({}, {}) {
 	render() {
 		const { topRightOpenPanel } = store.main;
-		const auth = State.Watch((a) => a.firebase.auth);
-		const dbNeedsInit = Watch(() => GetData({ collection: true, useUndefinedForInProgress: true }, 'maps') === null, []); // use maps because it won't cause too much data to be downloaded-and-watched; improve this later
+		const auth = GetAuth();
+		const dbNeedsInit = GetData({ collection: true, useUndefinedForInProgress: true }, 'maps') === null; // use maps because it won't cause too much data to be downloaded-and-watched; improve this later
 		return (
 			<nav style={{
 				position: 'relative', zIndex: 11, height: 150, boxShadow: colors.navBarBoxShadow,
@@ -84,15 +80,12 @@ export class NavBar_GAD extends BaseComponentPlus({}, {}) {
 	}
 }
 
-// @Radium
-@Connect((state) => ({
-	currentPage: State((a) => a.main.page),
-}))
 class NavBarPageButton extends BaseComponent
 		<{page?: string, text: string, panel?: boolean, active?: boolean, style?, onClick?: (e)=>void} & Partial<{currentPage: string}>,
 		{hovered: boolean}> {
 	render() {
-		let { page, text, panel, active, style, onClick, currentPage } = this.props;
+		let { page, text, panel, active, style, onClick } = this.props;
+		const currentPage = store.main.page;
 		// let {_radiumStyleState: {main: radiumState = {}} = {}} = this.state as any;
 		// let {_radiumStyleState} = this.state as any;
 		const { hovered } = this.state;

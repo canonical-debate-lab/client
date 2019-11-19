@@ -1,26 +1,24 @@
-import { Connect, HSLA } from 'Utils/FrameworkOverrides';
-import { BaseComponentWithConnector } from 'react-vextensions';
+import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { Row, Button } from 'react-vcomponents';
 import { colors } from 'Utils/UI/GlobalStyles';
 import { LayoutDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Right/LayoutDropDown';
 import { Map, MapType } from 'Store/firebase/maps/@Map';
 import { MeID } from 'Store/firebase/users';
-import { GetTimelinePanelOpen } from 'Store_Old/main/maps/$map';
 import { IsUserMap } from 'Store/firebase/maps';
-import { ACTPersonalMapSelect } from 'Store_Old/main/personal';
-import { ACTDebateMapSelect } from 'Store_Old/main/debates';
 import { DetailsDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Left';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
+import { GetTimelinePanelOpen } from 'Store/main/maps/$map';
+import { HSLA } from 'Utils/FrameworkOverrides';
+import {store} from 'Store';
 import { Button_GAD } from './GADButton';
 
-const connector = (state, { map }: {map: Map, subNavBarWidth: number}) => ({
-	_: IsUserCreatorOrMod(MeID(), map),
-	timelinePanelOpen: GetTimelinePanelOpen(map._key),
-});
-@Connect(connector)
-export class ActionBar_Left_GAD extends BaseComponentWithConnector(connector, {}) {
+export class ActionBar_Left_GAD extends BaseComponentPlus({} as {map: Map, subNavBarWidth: number}, {}) {
 	render() {
-		const { map, subNavBarWidth, timelinePanelOpen } = this.props;
+		const { map, subNavBarWidth } = this.props;
+		const userID = MeID();
+		IsUserCreatorOrMod(userID, map);
+		const timelinePanelOpen = GetTimelinePanelOpen(map._key);
+
 		return (
 			<nav style={{
 				position: 'absolute', zIndex: 1, left: 0, width: `calc(50% - ${subNavBarWidth / 2}px)`, top: 0, textAlign: 'center',
@@ -40,7 +38,7 @@ export class ActionBar_Left_GAD extends BaseComponentWithConnector(connector, {}
 				)}>
 					{IsUserMap(map) &&
 						<Button_GAD text="Back" onClick={() => {
-							store.dispatch(new (map.type == MapType.Personal ? ACTPersonalMapSelect : ACTDebateMapSelect)({ id: null }));
+							store.main[map.type == MapType.Personal ? 'personal' : 'debates'].selectedMapID = null;
 						}}/>}
 					{IsUserMap(map) && <DetailsDropDown map={map}/>}
 				</Row>

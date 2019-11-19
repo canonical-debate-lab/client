@@ -1,13 +1,13 @@
 import { Switch } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
-import { State } from 'Utils/FrameworkOverrides';
+import {store} from 'Store';
 import { SubNavBar, SubNavBarButton } from './@Shared/SubNavBar';
 import { GlobalListUI } from './Global/GlobalListUI';
 import { GlobalMapUI } from './Global/GlobalMapUI';
 
 export class GlobalUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
-		const currentSubpage = State.Watch(a => a.main.global.subpage);
+		const currentSubpage = store.main.global.subpage;
 		const page = 'global';
 		return (
 			<>

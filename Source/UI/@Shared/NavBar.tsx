@@ -2,18 +2,14 @@ import { DeepGet, E } from 'js-vextensions';
 import { Button, Div, Row } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
-import { ACTDebateMapSelect } from 'Store_Old/main/debates';
 import { ResetCurrentDBRoot } from 'UI/More/Admin/ResetCurrentDBRoot';
 import { dbVersion } from 'Main';
-import { Connect, State, Action, Link, GetData, Watch, Observer } from 'Utils/FrameworkOverrides';
-import { ACTUserSelect } from 'Store_Old/main/database';
+import { Action, Link, GetData, Observer } from 'Utils/FrameworkOverrides';
 import { ACTProposalSelect } from 'firebase-feedback';
 import { useMemo, useCallback } from 'react';
-import { store } from 'Store';
+import { store, RootState } from 'Store';
 import { runInAction } from 'mobx';
 import { colors } from '../../Utils/UI/GlobalStyles';
-import { ACTSetPage, ACTSetSubpage } from '../../Store_Old/main';
-import { ACTPersonalMapSelect } from '../../Store_Old/main/personal';
 import { ChatPanel } from './NavBar/ChatPanel';
 import { GuidePanel } from './NavBar/GuidePanel';
 import { NotificationsUI } from './NavBar/NotificationsUI';
@@ -39,11 +35,11 @@ const avatarStyles = {
 @Observer
 export class NavBar extends BaseComponentPlus({} as {}, {}) {
 	render() {
-		// const topLeftOpenPanel = State.Watch((a) => a.main.topLeftOpenPanel);
-		// const topRightOpenPanel = State.Watch(a => a.main.topRightOpenPanel);
+		// const topLeftOpenPanel = State((a) => a.main.topLeftOpenPanel);
+		// const topRightOpenPanel = State(a => a.main.topRightOpenPanel);
 		const { topLeftOpenPanel, topRightOpenPanel } = store.main;
-		const auth = State.Watch((a) => a.firebase.auth);
-		const dbNeedsInit = Watch(() => GetData({ collection: true, useUndefinedForInProgress: true }, 'maps') === null, []); // use maps because it won't cause too much data to be downloaded-and-watched; improve this later
+		const auth = store.firebase.auth;
+		const dbNeedsInit = GetData({ collection: true, useUndefinedForInProgress: true }, 'maps') === null; // use maps because it won't cause too much data to be downloaded-and-watched; improve this later
 		return (
 			<nav style={{
 				position: 'relative', zIndex: 11, padding: '0 10px', boxShadow: colors.navBarBoxShadow,
@@ -128,7 +124,7 @@ export class NavBarPageButton extends BaseComponentPlus(
 		// let {_radiumStyleState} = this.state as any;
 		const { hovered } = this.state;
 
-		const currentPage = State.Watch((a) => a.main.page);
+		const currentPage = store.main.page;
 		active = active != null ? active : page == currentPage;
 
 		const finalStyle = E(
@@ -139,31 +135,32 @@ export class NavBarPageButton extends BaseComponentPlus(
 			style,
 		);
 
-		const actions = [] as Action<any>[];
-		if (page) {
-			if (page != currentPage) {
-				actions.push(new ACTSetPage(page));
-			} else {
-				// go to the page root-contents, if clicking on page in nav-bar we're already on
-				actions.push(new ACTSetSubpage({ page, subpage: null }));
-				if (page == 'database') {
-					// if our default subpage is already active, then perform that subpage's action-if-already-active
-					if ([null, 'users'].Contains(State((a) => a.main.database.subpage))) {
-						actions.push(new ACTUserSelect({ id: null }));
+		const actionFunc = (s: RootState) => {
+			if (page) {
+				if (page != currentPage) {
+					s.main.page = page;
+				} else {
+					// go to the page root-contents, if clicking on page in nav-bar we're already on
+					s.main[currentPage].subpage = null;
+					if (page == 'database') {
+						// if our default subpage is already active, then perform that subpage's action-if-already-active
+						if ([null, 'users'].Contains(store.main.database.subpage)) {
+							s.main.database.selectedUserID = null;
+						}
+					} else if (page == 'feedback') {
+						s.feedback.selectedProposalID = null;
+					} else if (page == 'personal') {
+						s.main.personal.selectedMapID = null;
+					} else if (page == 'debates') {
+						s.main.debates.selectedMapID = null;
 					}
-				} else if (page == 'feedback') {
-					actions.push(new ACTProposalSelect({ id: null }) as any);
-				} else if (page == 'personal') {
-					actions.push(new ACTPersonalMapSelect({ id: null }));
-				} else if (page == 'debates') {
-					actions.push(new ACTDebateMapSelect({ id: null }));
 				}
 			}
-		}
+		};
 
 		const hoverOrActive = hovered || active;
 		return (
-			<Link actions={actions} style={finalStyle} onMouseEnter={useCallback(() => this.SetState({ hovered: true }), [])} onMouseLeave={useCallback(() => this.SetState({ hovered: false }), [])} onClick={onClick}>
+			<Link actionFunc={actionFunc} style={finalStyle} onMouseEnter={useCallback(() => this.SetState({ hovered: true }), [])} onMouseLeave={useCallback(() => this.SetState({ hovered: false }), [])} onClick={onClick}>
 				{text}
 				{hoverOrActive &&
 					<div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 2, background: 'rgba(100,255,100,1)' }}/>}

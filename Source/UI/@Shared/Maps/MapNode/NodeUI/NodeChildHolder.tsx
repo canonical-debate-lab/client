@@ -364,7 +364,7 @@ export class ChildLimitBar extends BaseComponentPlus({} as {map: Map, path: stri
 	static HEIGHT = 36;
 	render() {
 		const { map, path, childrenWidthOverride, direction, childCount, childLimit } = this.props;
-		const initialChildLimit = State.Watch((a) => a.main.initialChildLimit);
+		const initialChildLimit = State((a) => a.main.initialChildLimit);
 		return (
 			<Row style={{
 				// position: "absolute", marginTop: -30,

@@ -1,7 +1,7 @@
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
-import { ACTSetLastAcknowledgementTime } from 'Store_Old/main';
 import { DBPath, GetUpdates, RemoveHelpers, WaitTillPathDataIsReceived } from 'Utils/FrameworkOverrides';
+import { store } from 'Store';
 import { AddNodeRevision } from '../../../../../../Server/Commands/AddNodeRevision';
 import { UpdateLink } from '../../../../../../Server/Commands/UpdateLink';
 import { Map } from '../../../../../../Store/firebase/maps/@Map';
@@ -18,9 +18,9 @@ export class DetailsPanel extends BaseComponentPlus({} as {map?: Map, node: MapN
 		const { map, node, path } = this.props;
 		const { dataError } = this.state;
 
-		const parentNode = GetParentNodeL3.Watch(path);
-		const link = GetLinkUnderParent.Watch(node._key, parentNode);
-		const creator = GetUser.Watch(node.creator);
+		const parentNode = GetParentNodeL3(path);
+		const link = GetLinkUnderParent(node._key, parentNode);
+		const creator = GetUser(node.creator);
 
 		const isSubnode = IsNodeSubnode(node);
 
@@ -50,7 +50,7 @@ export class DetailsPanel extends BaseComponentPlus({} as {map?: Map, node: MapN
 							// if (parentNode) SetNodeUILocked(parentNode._key, true);
 							try {
 								const revisionID = await new AddNodeRevision({ mapID: map._key, revision: RemoveHelpers(this.detailsUI.GetNewRevisionData()) }).Run();
-								store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._key, time: Date.now() }));
+								store.main.nodeLastAcknowledgementTimes.set(node._key, Date.now());
 								// await WaitTillPathDataIsReceiving(DBPath(`nodeRevisions/${revisionID}`));
 								await WaitTillPathDataIsReceived(DBPath(`nodeRevisions/${revisionID}`));
 							} finally {

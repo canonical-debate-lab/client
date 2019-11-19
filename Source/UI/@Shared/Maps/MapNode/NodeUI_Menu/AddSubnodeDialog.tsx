@@ -1,20 +1,19 @@
-import { E, GetErrorMessagesUnderElement, GetEntries } from 'js-vextensions';
-import { Column, Pre, Row, Select } from 'react-vcomponents';
-import { BaseComponent, GetInnerComp, GetDOM, BaseComponentPlus } from 'react-vextensions';
-import { BoxController, ShowMessageBox } from 'react-vmessagebox';
-import { Layer } from 'Store/firebase/layers/@Layer';
-import { HasModPermissions } from 'Store/firebase/userExtras';
-import { MeID } from 'Store/firebase/users';
-import { Connect } from 'Utils/FrameworkOverrides';
-import { AddSubnode } from '../../../../../Server/Commands/AddSubnode';
-import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
-import { GetLayers } from '../../../../../Store/firebase/layers';
-import { AsNodeL2, AsNodeL3, GetClaimType } from '../../../../../Store/firebase/nodes/$node';
-import { Equation } from '../../../../../Store/firebase/nodes/@Equation';
-import { ChildEntry, ClaimForm, ClaimType, ImageAttachment, MapNode, MapNodeL2 } from '../../../../../Store/firebase/nodes/@MapNode';
-import { MapNodeRevision } from '../../../../../Store/firebase/nodes/@MapNodeRevision';
-import { MapNodeType } from '../../../../../Store/firebase/nodes/@MapNodeType';
-import { NodeDetailsUI } from '../NodeDetailsUI';
+import {E, GetEntries, GetErrorMessagesUnderElement} from 'js-vextensions';
+import {Column, Pre, Row, Select} from 'react-vcomponents';
+import {BaseComponentPlus, GetDOM} from 'react-vextensions';
+import {BoxController, ShowMessageBox} from 'react-vmessagebox';
+import {Layer} from 'Store/firebase/layers/@Layer';
+import {HasModPermissions} from 'Store/firebase/userExtras';
+import {MeID} from 'Store/firebase/users';
+import {AddSubnode} from '../../../../../Server/Commands/AddSubnode';
+import {ContentNode} from '../../../../../Store/firebase/contentNodes/@ContentNode';
+import {GetLayers} from '../../../../../Store/firebase/layers';
+import {AsNodeL2, AsNodeL3, GetClaimType} from '../../../../../Store/firebase/nodes/$node';
+import {Equation} from '../../../../../Store/firebase/nodes/@Equation';
+import {ChildEntry, ClaimForm, ClaimType, ImageAttachment, MapNode, MapNodeL2} from '../../../../../Store/firebase/nodes/@MapNode';
+import {MapNodeRevision} from '../../../../../Store/firebase/nodes/@MapNodeRevision';
+import {MapNodeType} from '../../../../../Store/firebase/nodes/@MapNodeType';
+import {NodeDetailsUI} from '../NodeDetailsUI';
 
 export function ShowAddSubnodeDialog(mapID: string, anchorNode: MapNodeL2, anchorNodePath: string) {
 	let dialog: AddSubnodeDialog;
@@ -52,7 +51,7 @@ class AddSubnodeDialog extends BaseComponentPlus({} as Props, {} as {layer: Laye
 		const { boxController } = this.props;
 		const { layer, newNode, newRevision, newLink, validationError } = this.state;
 
-		const layers = GetLayers.Watch();
+		const layers = GetLayers();
 
 		const claimTypes = GetEntries(ClaimType);
 		if (!HasModPermissions(MeID())) {

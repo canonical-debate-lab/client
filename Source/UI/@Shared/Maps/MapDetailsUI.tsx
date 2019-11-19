@@ -2,7 +2,6 @@ import { GetErrorMessagesUnderElement, Clone } from 'js-vextensions';
 import Moment from 'moment';
 import { CheckBox, Column, Pre, RowLR, Spinner, TextInput } from 'react-vcomponents';
 import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
-import { Connect, Watch } from 'Utils/FrameworkOverrides';
 import { Map, Map_namePattern } from '../../../Store/firebase/maps/@Map';
 import { GetUser } from '../../../Store/firebase/users';
 import { IDAndCreationInfoUI } from '../CommonPropUIs/IDAndCreationInfoUI';
@@ -18,7 +17,7 @@ export class MapDetailsUI extends BaseComponentPlus({ enabled: true } as Props, 
 	render() {
 		const { baseData, forNew, enabled, style, onChange } = this.props;
 		const { newData } = this.state;
-		const creator = Watch(() => !forNew && GetUser(baseData.creator), [baseData.creator, forNew]);
+		const creator = !forNew && GetUser(baseData.creator);
 		const Change = (_) => {
 			if (onChange) onChange(this.GetNewData(), this);
 			this.Update();

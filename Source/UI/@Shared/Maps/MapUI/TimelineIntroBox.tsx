@@ -7,7 +7,7 @@ import { GetTimelineStep } from 'Store/firebase/timelines';
 export class TimelineIntroBox extends BaseComponentPlus({} as {timeline: Timeline}) {
 	render() {
 		const { timeline } = this.props;
-		const firstStep = GetTimelineStep.Watch(timeline.steps[0]);
+		const firstStep = GetTimelineStep(timeline.steps[0]);
 		if (firstStep == null) return null;
 
 		return (

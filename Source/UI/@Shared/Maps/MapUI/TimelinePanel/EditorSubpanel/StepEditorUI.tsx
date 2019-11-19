@@ -14,11 +14,11 @@ import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { NodeReveal, TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { MeID } from 'Store/firebase/users';
-import { DragInfo, MakeDraggable, Watch, GetAsync } from 'Utils/FrameworkOverrides';
+import { DragInfo, MakeDraggable, GetAsync } from 'Utils/FrameworkOverrides';
 import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
-import { GetPathNodes } from 'Store_Old/main/mapViews';
 import { UUIDPathStub } from 'UI/@Shared/UUIDStub';
 import { GetShortestPathFromRootToNode } from 'Utils/Store/PathFinder';
+import { GetPathNodes } from 'Store/main/mapViews/$mapView';
 
 export enum PositionOptionsEnum {
 	Full = null,
@@ -61,8 +61,8 @@ export class StepEditorUI extends BaseComponentPlus({} as StepEditorUIProps, { p
 	render() {
 		const { index, last, map, timeline, stepID, dragInfo } = this.props;
 		const { placeholderRect } = this.state;
-		const step = GetTimelineStep.Watch(stepID);
-		const creatorOrMod = IsUserCreatorOrMod.Watch(MeID.Watch(), map);
+		const step = GetTimelineStep(stepID);
+		const creatorOrMod = IsUserCreatorOrMod(MeID(), map);
 
 		if (step == null) {
 			return <div style={{ height: 100 }} {...(dragInfo && dragInfo.provided.draggableProps)} {...(dragInfo && dragInfo.provided.dragHandleProps)}/>;
@@ -212,25 +212,23 @@ export class NodeRevealUI extends BaseComponentPlus({} as {map: Map, step: Timel
 
 		const { path } = nodeReveal;
 		const nodeID = GetNodeID(path);
-		let node = GetNodeL2.Watch(nodeID);
-		let nodeL3 = GetNodeL3.Watch(path);
+		let node = GetNodeL2(nodeID);
+		let nodeL3 = GetNodeL3(path);
 		// if one is null, make them both null to be consistent
 		if (node == null || nodeL3 == null) {
 			node = null;
 			nodeL3 = null;
 		}
 
-		const pathValid = Watch(() => {
-			const pathNodes = GetPathNodes(path);
-			const mapNodes = pathNodes.map((a) => GetNode(a));
-			// path is valid if every node in path, has the previous node as a parent
-			return mapNodes.every((node, index) => {
-				const parent = mapNodes[index - 1];
-				return index == 0 || (node && parent && parent.children[node._key] != null);
-			});
-		}, [path]);
+		const pathNodes = GetPathNodes(path);
+		const mapNodes = pathNodes.map((a) => GetNode(a));
+		// path is valid if every node in path, has the previous node as a parent
+		const pathValid = mapNodes.every((node, index) => {
+			const parent = mapNodes[index - 1];
+			return index == 0 || (node && parent && parent.children[node._key] != null);
+		});
 
-		let displayText = Watch(() => (node && nodeL3 ? GetNodeDisplayText(node, nodeReveal.path) : `(Node no longer exists: ${GetNodeID(nodeReveal.path)})`), [node, nodeL3, nodeReveal.path]);
+		let displayText = node && nodeL3 ? GetNodeDisplayText(node, nodeReveal.path) : `(Node no longer exists: ${GetNodeID(nodeReveal.path)})`;
 		if (!pathValid) {
 			displayText = `[path invalid] ${displayText}`;
 		}

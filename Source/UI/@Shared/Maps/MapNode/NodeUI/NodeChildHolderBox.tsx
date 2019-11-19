@@ -1,25 +1,24 @@
+import chroma from 'chroma-js';
+import { AssertWarn, emptyArray, emptyArray_forLoading } from 'js-vextensions';
 import { Row } from 'react-vcomponents';
-import { BaseComponentWithConnector, GetInnerComp, GetDOM, UseCallback, BaseComponentPlus } from 'react-vextensions';
+import { BaseComponentPlus, GetDOM, UseCallback } from 'react-vextensions';
 import { GetMarkerPercent_AtPath, GetRatings } from 'Store/firebase/nodeRatings';
 import { RatingType } from 'Store/firebase/nodeRatings/@RatingType';
 import { GetParentNodeL3, HolderType } from 'Store/firebase/nodes';
 import { IsSinglePremiseArgument } from 'Store/firebase/nodes/$node';
 import { MapNodeL3 } from 'Store/firebase/nodes/@MapNode';
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
-import { ACTMapNodeExpandedSet } from 'Store_Old/main/mapViews/$mapView/rootNodeViews';
-import { MapNodeView, MapNodeView_SelfOnly } from 'Store_Old/main/mapViews/@MapViews';
-import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
-import { emptyArray_forLoading, emptyArray, AssertWarn } from 'js-vextensions';
-import { Connect, HSLA, ExpensiveComponent, ActionSet } from 'Utils/FrameworkOverrides';
 import { GADDemo } from 'UI/@GAD/GAD';
-import chroma from 'chroma-js';
+import { ExpensiveComponent, HSLA } from 'Utils/FrameworkOverrides';
+import { store } from 'Store';
+import {MapNodeView_SelfOnly} from 'Store/main/mapViews/$mapView';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath } from '../../../../../Store/firebase/nodeRatings';
 import { IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument } from '../../../../../Store/firebase/nodes/$node';
 import { GetNodeColor } from '../../../../../Store/firebase/nodes/@MapNodeType';
 import { ExpandableBox } from '../ExpandableBox';
 import { Squiggle } from '../NodeConnectorBackground';
-import { NodeUI_Menu, NodeUI_Menu_Stub } from '../NodeUI_Menu';
+import { NodeUI_Menu_Stub } from '../NodeUI_Menu';
 import { NodeChildCountMarker } from './NodeChildCountMarker';
 import { NodeChildHolder } from './NodeChildHolder';
 import { RatingsPanel } from './Panels/RatingsPanel';
@@ -43,11 +42,11 @@ export class NodeChildHolderBox extends BaseComponentPlus({} as Props, { innerBo
 		const { map, node, path, nodeView, nodeChildren, nodeChildrenToShow, type, widthOfNode, widthOverride } = this.props;
 		const { innerBoxOffset, lineHolderHeight, hovered, hovered_button } = this.state;
 
-		const parent = GetParentNodeL3.Watch(path);
-		const combineWithParentArgument = IsPremiseOfSinglePremiseArgument.Watch(node, parent);
+		const parent = GetParentNodeL3(path);
+		const combineWithParentArgument = IsPremiseOfSinglePremiseArgument(node, parent);
 
-		const backgroundFillPercent = GetFillPercent_AtPath.Watch(node, path, type);
-		const markerPercent = GetMarkerPercent_AtPath.Watch(node, path, type);
+		const backgroundFillPercent = GetFillPercent_AtPath(node, path, type);
+		const markerPercent = GetMarkerPercent_AtPath(node, path, type);
 
 		const isMultiPremiseArgument = IsMultiPremiseArgument(node);
 		let text = type == HolderType.Truth ? 'True?' : 'Relevant?';

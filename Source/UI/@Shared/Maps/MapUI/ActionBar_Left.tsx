@@ -8,10 +8,11 @@ import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { GetUser, MeID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
-import { GetUpdates, GetAsync, Connect, State, HSLA, Watch } from 'Utils/FrameworkOverrides';
-import { GetTimelinePanelOpen, ACTMap_TimelinePanelOpenSet } from 'Store_Old/main/maps/$map';
+import { GetUpdates, GetAsync, HSLA } from 'Utils/FrameworkOverrides';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { Button_GAD } from 'UI/@GAD/GADButton';
+import { GetTimelinePanelOpen } from 'Store/main/maps/$map';
+import { store } from 'Store';
 import { colors, ES } from '../../../../Utils/UI/GlobalStyles';
 import { DeleteLayer } from '../../../../Server/Commands/DeleteLayer';
 import { DeleteMap } from '../../../../Server/Commands/DeleteMap';
@@ -23,17 +24,15 @@ import { IsUserMap } from '../../../../Store/firebase/maps';
 import { Map, MapType } from '../../../../Store/firebase/maps/@Map';
 import { HasModPermissions, IsUserCreatorOrMod } from '../../../../Store/firebase/userExtras';
 import { GetUserLayerStateForMap } from '../../../../Store/firebase/userMapInfo';
-import { ACTDebateMapSelect } from '../../../../Store_Old/main/debates';
-import { ACTPersonalMapSelect } from '../../../../Store_Old/main/personal';
 import { ShowAddLayerDialog } from '../Layers/AddLayerDialog';
 import { MapDetailsUI } from '../MapDetailsUI';
 
 export class ActionBar_Left extends BaseComponentPlus({} as {map: Map, subNavBarWidth: number}, {}) {
 	render() {
 		const { map, subNavBarWidth } = this.props;
-		const userID = MeID.Watch();
-		IsUserCreatorOrMod.Watch(userID, map);
-		const timelinePanelOpen = GetTimelinePanelOpen.Watch(map._key);
+		const userID = MeID();
+		IsUserCreatorOrMod(userID, map);
+		const timelinePanelOpen = GetTimelinePanelOpen(map._key);
 
 		return (
 			<nav style={{
@@ -54,7 +53,7 @@ export class ActionBar_Left extends BaseComponentPlus({} as {map: Map, subNavBar
 				)}>
 					{IsUserMap(map) &&
 						<Button text="Back" style={{ height: '100%' }} onClick={() => {
-							store.dispatch(new (map.type == MapType.Personal ? ACTPersonalMapSelect : ACTDebateMapSelect)({ id: null }));
+							store.main[map.type == MapType.Personal ? 'personal' : 'debate'].selectedMapID = null;
 						}}/>}
 					{IsUserMap(map) && <DetailsDropDown map={map}/>}
 					{/* // disabled for now, so we can iterate quickly on the stuff we're actually using right now
@@ -62,7 +61,7 @@ export class ActionBar_Left extends BaseComponentPlus({} as {map: Map, subNavBar
 					{/* IsUserMap(map) && HasModPermissions(MeID()) && <TimelineDropDown map={map}/> */}
 					{IsUserMap(map) && !GADDemo &&
 						<Button ml={5} text="Timelines" style={{ height: '100%' }} onClick={() => {
-							store.dispatch(new ACTMap_TimelinePanelOpenSet({ mapID: map._key, open: !timelinePanelOpen }));
+							store.main.maps.get(map._key).timelinePanelOpen = !timelinePanelOpen;
 						}}/>}
 				</Row>
 			</nav>
@@ -112,7 +111,7 @@ export class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: strin
 										message: `Delete the map "${map.name}"?`,
 										onOK: async () => {
 											await new DeleteMap({ mapID: map._key }).Run();
-											store.dispatch(new ACTDebateMapSelect({ id: null }));
+											store.main.debates.selectedMapID = null;
 										},
 									});
 								}}/>
@@ -130,9 +129,9 @@ type LayersDropDownProps = {map: Map};
 class LayersDropDown extends BaseComponentPlus({} as LayersDropDownProps, {}) {
 	render() {
 		const { map } = this.props;
-		const userID = MeID.Watch();
-		const layers = GetLayers.Watch();
-		const creatorOrMod = IsUserCreatorOrMod.Watch(userID, map);
+		const userID = MeID();
+		const layers = GetLayers();
+		const creatorOrMod = IsUserCreatorOrMod(userID, map);
 		return (
 			<DropDown>
 				<DropDownTrigger><Button ml={5} text="Layers"/></DropDownTrigger>
@@ -193,12 +192,12 @@ class LayersDropDown extends BaseComponentPlus({} as LayersDropDownProps, {}) {
 class LayerUI extends BaseComponentPlus({} as {index: number, last: boolean, map: Map, layer: Layer}, {}) {
 	render() {
 		const { index, last, map, layer } = this.props;
-		const userID = MeID.Watch();
-		// const creator = GetUser.Watch({if: layer}, layer.creator); // todo
-		const creator = GetUser.Watch(layer ? layer.creator : null);
-		const userLayerState = GetUserLayerStateForMap.Watch(userID, map._key, layer._key);
-		const creatorOrMod = IsUserCreatorOrMod.Watch(userID, map);
-		const deleteLayerError = ForDeleteLayer_GetError.Watch(userID, layer);
+		const userID = MeID();
+		// const creator = GetUser({if: layer}, layer.creator); // todo
+		const creator = GetUser(layer ? layer.creator : null);
+		const userLayerState = GetUserLayerStateForMap(userID, map._key, layer._key);
+		const creatorOrMod = IsUserCreatorOrMod(userID, map);
+		const deleteLayerError = ForDeleteLayer_GetError(userID, layer);
 		return (
 			<Column p="7px 10px" style={E(
 				{ background: index % 2 == 0 ? 'rgba(30,30,30,.7)' : 'rgba(0,0,0,.7)' },

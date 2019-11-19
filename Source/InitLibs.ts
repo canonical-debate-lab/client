@@ -1,22 +1,22 @@
-import { ColorPickerBox } from 'react-vcomponents';
-import * as react_color from 'react-color';
 import * as chroma_js from 'chroma-js';
-import Moment from 'moment';
-import { MeID, GetUser, GetUserPermissionGroups, Me } from 'Store/firebase/users';
+import { push, replace } from 'connected-react-router';
 /* import { manager as manager_forum } from 'firebase-forum'; */
 import { manager as manager_feedback } from 'firebase-feedback';
-import { replace, push } from 'connected-react-router';
+import { dbVersion, firebaseConfig, hasHotReloaded, version } from 'Main';
+import Moment from 'moment';
 import Raven from 'raven-js';
-import { version, dbVersion, hasHotReloaded, firebaseConfig } from 'Main';
-import { Log, Link, GetData, GetDataAsync, GetAsync, ApplyDBUpdates, VReactMarkdown_Remarkable, Connect, State, DBPath, ExposeModuleExports, manager as manager_framework } from 'Utils/FrameworkOverrides';
-import { logTypes } from 'Utils/General/Logging';
-import { GetLoadActionFuncForURL, GetNewURL } from 'Utils/URL/URLs';
-import { MakeRootReducer } from 'Store_Old';
-import { GetAuth } from 'Store_Old/firebase';
-import { NotificationMessage } from 'Store_Old/main/@NotificationMessage';
+import * as react_color from 'react-color';
+import { ColorPickerBox } from 'react-vcomponents';
+import { GetUser, GetUserPermissionGroups, Me, MeID } from 'Store/firebase/users';
 import { AddNotificationMessage } from 'UI/@Shared/NavBar/NotificationsUI';
-import { PreDispatchAction, MidDispatchAction, PostDispatchAction, DoesURLChangeCountAsPageChange } from 'Utils/Store/ActionProcessor';
+import { ApplyDBUpdates, DBPath, ExposeModuleExports, GetAsync, GetData, GetDataAsync, Link, Log, manager as manager_framework, VReactMarkdown_Remarkable } from 'Utils/FrameworkOverrides';
+import { logTypes } from 'Utils/General/Logging';
+import { DoesURLChangeCountAsPageChange, MidDispatchAction, PostDispatchAction, PreDispatchAction } from 'Utils/Store/ActionProcessor';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
+import { GetLoadActionFuncForURL, GetNewURL } from 'Utils/URL/URLs';
+import { store } from 'Store';
+import { NotificationMessage } from 'Store/main';
+import {GetAuth} from 'Store/firebase';
 import { ShowSignInPopup } from './UI/@Shared/NavBar/UserPanel';
 
 const context = (require as any).context('../Resources/SVGs/', true, /\.svg$/);
@@ -50,10 +50,6 @@ export function InitLibs() {
 
 		GetStore: () => store,
 		firebaseConfig,
-		MakeRootReducer,
-		PreDispatchAction,
-		MidDispatchAction,
-		PostDispatchAction,
 
 		globalConnectorPropGetters: {
 			// also access some other paths here, so that when they change, they trigger ui updates for everything
@@ -105,8 +101,6 @@ export function InitLibs() {
 
 		logTypes,
 
-		Connect,
-		State,
 		GetData: (options, ...pathSegments) => GetData(E(options, { inVersionRoot: false }), ...pathSegments),
 		GetDataAsync: (options, ...pathSegments) => GetDataAsync(E(options, { inVersionRoot: false }), ...pathSegments),
 		GetAsync,

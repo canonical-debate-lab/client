@@ -24,8 +24,8 @@ export class SourceChainsEditorUI extends BaseComponentPlus(
 	render() {
 		const { enabled, style, onChange } = this.props;
 		const { newData } = this.state;
-		/* creator: !creating && GetUser.Watch(baseData.creator);
-		variantNumber: !creating && GetTermVariantNumber.Watch(baseData); */
+		/* creator: !creating && GetUser(baseData.creator);
+		variantNumber: !creating && GetTermVariantNumber(baseData); */
 
 		const Change = (_) => {
 			if (onChange) onChange(this.GetNewData());

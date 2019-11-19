@@ -8,7 +8,7 @@ import { TimelineStep } from './timelineSteps/@TimelineStep';
 	let timelinesMap = GetData({collection: true}, "timelines");
 	return CachedTransform("GetTimelines", [], timelinesMap, ()=>timelinesMap ? timelinesMap.VValues(true) : []);
 } */
-export const GetTimeline = StoreAccessor((id: string): Timeline => {
+export const GetTimeline = StoreAccessor((s) => (id: string): Timeline => {
 	if (id == null) return null;
 	return GetData('timelines', id);
 });
@@ -16,18 +16,18 @@ export const GetTimeline = StoreAccessor((id: string): Timeline => {
 export function GetMapTimelineIDs(map: Map) {
 	return (map.timelines || {}).VKeys(true);
 }
-export const GetMapTimelines = StoreAccessor((map: Map) => {
-	const timelines = GetMapTimelineIDs(map).map(id => GetTimeline(id));
-	if (timelines.Any(a => a == null)) return emptyArray;
-	return CachedTransform('GetTimelinesForMap', [map._key], timelines, () => timelines);
+export const GetMapTimelines = StoreAccessor((s) => (map: Map) => {
+	const timelines = GetMapTimelineIDs(map).map((id) => GetTimeline(id));
+	if (timelines.Any((a) => a == null)) return emptyArray;
+	return timelines;
 });
 
-export const GetTimelineStep = StoreAccessor((id: string): TimelineStep => {
+export const GetTimelineStep = StoreAccessor((s) => (id: string): TimelineStep => {
 	if (id == null) return null;
 	return GetData('timelineSteps', id);
 });
-export const GetTimelineSteps = StoreAccessor((timeline: Timeline, allowStillLoading = false): TimelineStep[] => {
-	const steps = (timeline.steps || []).map(id => GetTimelineStep(id));
-	if (!allowStillLoading && steps.Any(a => a == null)) return emptyArray;
-	return CachedTransform('GetTimelineSteps', [timeline._key], steps, () => steps);
+export const GetTimelineSteps = StoreAccessor((s) => (timeline: Timeline, allowStillLoading = false): TimelineStep[] => {
+	const steps = (timeline.steps || []).map((id) => GetTimelineStep(id));
+	if (!allowStillLoading && steps.Any((a) => a == null)) return emptyArray;
+	return steps;
 });

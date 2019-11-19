@@ -1,7 +1,7 @@
 import { Switch } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
 import { HasAdminPermissions } from 'Store/firebase/userExtras';
-import { State } from 'Utils/FrameworkOverrides';
+import {store} from 'Store';
 import { GetUsers, MeID } from '../Store/firebase/users';
 import { SubNavBar, SubNavBarButton } from './@Shared/SubNavBar';
 import { AdminUI } from './More/Admin';
@@ -9,9 +9,9 @@ import { LinksUI } from './More/Links';
 
 export class MoreUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
-		const admin = HasAdminPermissions.Watch(MeID.Watch());
-		const userCount = (GetUsers.Watch() || []).length;
-		const currentSubpage = State.Watch((a) => a.main.more.subpage);
+		const admin = HasAdminPermissions(MeID());
+		const userCount = (GetUsers() || []).length;
+		const currentSubpage = store.main.more.subpage;
 		const page = 'more';
 		return (
 			<>

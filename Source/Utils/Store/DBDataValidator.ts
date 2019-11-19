@@ -1,7 +1,7 @@
-import { FirebaseData } from 'Store_Old/firebase';
 import { AssertValidate } from 'Utils/FrameworkOverrides';
+import { FirebaseState } from 'Store/firebase';
 
-export function ValidateDBData(data: FirebaseData) {
+export function ValidateDBData(data: FirebaseState) {
 	function ValidateCollection(collection, itemType: string) {
 		(collection || {}).VValues(1).forEach((entry) => {
 			AssertValidate(itemType, entry, `${itemType} invalid`);

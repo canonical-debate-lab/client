@@ -14,15 +14,13 @@ import { MessageBoxUI, ShowMessageBox } from 'react-vmessagebox';
 import { CreateLinkCommand as CreateLinkCommandForDND, LinkNode_HighLevel_GetCommandError } from 'Server/Commands/LinkNode_HighLevel';
 import { UpdateTimelineStep } from 'Server/Commands/UpdateTimelineStep';
 import { UpdateTimelineStepOrder } from 'Server/Commands/UpdateTimelineStepOrder';
-import { InitStore, store } from 'Store';
+import { store } from 'Store';
 import { GetNode, GetNodeID, GetParentNode, GetParentPath } from 'Store/firebase/nodes';
 import { GetNodeDisplayText, GetNodeL3, IsPremiseOfSinglePremiseArgument } from 'Store/firebase/nodes/$node';
 import { Polarity } from 'Store/firebase/nodes/@MapNode';
 import { GetTimelineStep } from 'Store/firebase/timelines';
 import { NodeReveal } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { Me, MeID } from 'Store/firebase/users';
-import { ACTSetLastAcknowledgementTime } from 'Store_Old/main';
-import { GetPathNodeIDs } from 'Store_Old/main/mapViews';
 import { AddressBarWrapper, browserHistory, ErrorBoundary, Route } from 'Utils/FrameworkOverrides';
 import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
 import { NormalizeURL } from 'Utils/URL/URLs';
@@ -43,6 +41,7 @@ import { FeedbackUI } from './Feedback';
 import { ForumUI } from './Forum';
 import { PersonalUI } from './Personal';
 import { SocialUI } from './Social';
+import { GetPathNodeIDs } from 'Store/main/mapViews/$mapView';
 
 ColorPickerBox.Init(ReactColor, chroma);
 
@@ -60,7 +59,7 @@ export class RootUIWrapper extends BaseComponentPlus({}, { storeReady: false }) 
 		g.storeRehydrated = startVal;
 	} */
 	ComponentWillMount() {
-		InitStore();
+		// InitStore();
 
 		// temp fix for "Illegal invocation" error in mst-persist
 		/* window.localStorage.getItem = window.localStorage.getItem.bind(window.localStorage);
@@ -140,14 +139,14 @@ export class RootUIWrapper extends BaseComponentPlus({}, { storeReady: false }) 
 						controller.Close();
 						const { argumentWrapperID } = await copyCommand.Run();
 						if (argumentWrapperID) {
-							store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: argumentWrapperID, time: Date.now() }));
+							store.main.nodeLastAcknowledgementTimes.set(argumentWrapperID, Date.now());
 						}
 					}}/>
 					<Button ml={5} text="Move" enabled={moveCommand_error == null} title={moveCommand_error} onClick={async () => {
 						controller.Close();
 						const { argumentWrapperID } = await moveCommand.Run();
 						if (argumentWrapperID) {
-							store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: argumentWrapperID, time: Date.now() }));
+							store.main.nodeLastAcknowledgementTimes.set(argumentWrapperID, Date.now());
 						}
 					}}/>
 					<Button ml={5} text="Cancel" onClick={() => controller.Close()}/>
@@ -237,7 +236,7 @@ class RootUI extends BaseComponentPlus({} as {}, {}) {
 		return ShallowChanged(newProps.Excluding('router'), this.props.Excluding('router')) || ShallowChanged(newState, this.state);
 	} */
 	render() {
-		// const currentPage = State.Watch(a => a.main.page);
+		// const currentPage = State(a => a.main.page);
 		const background = GetUserBackground(MeID());
 		return (
 			<Column className='background'/* 'unselectable' */ style={{ height: '100%' }}>

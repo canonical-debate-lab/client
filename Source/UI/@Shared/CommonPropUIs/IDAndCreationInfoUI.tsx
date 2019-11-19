@@ -1,8 +1,6 @@
 import Moment from 'moment';
 import { Column, Pre, Row, Text } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
-import { ACTSetPage, ACTSetSubpage } from 'Store_Old/main';
-import { ACTUserSelect } from 'Store_Old/main/database';
 import { Link } from 'Utils/FrameworkOverrides';
 import { User } from 'Store/firebase/users/@User';
 
@@ -15,7 +13,13 @@ export class IDAndCreationInfoUI extends BaseComponent<{id: string | number, cre
 				<Row>
 					<Text>Created at: {Moment(createdAt).format('YYYY-MM-DD HH:mm:ss')} (by: </Text>
 					<Link text={creator == null ? 'n/a' : creator.displayName}
-						actions={creator == null ? [] : [new ACTSetPage('database'), new ACTSetSubpage({ page: 'database', subpage: 'users' }), new ACTUserSelect({ id: creator._key })]} />
+						actionFunc={(s) => {
+							if (creator != null) {
+								s.main.page = 'database';
+								s.main.database.subpage = 'users';
+								s.main.database.users.selectedUserID = creator._key;
+							}
+						}} />
 					<Text>)</Text>
 				</Row>
 			</Column>

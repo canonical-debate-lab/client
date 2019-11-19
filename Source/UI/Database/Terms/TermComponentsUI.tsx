@@ -2,7 +2,6 @@ import { CachedTransform, Clone, ToJSON, WaitXThenRun } from 'js-vextensions';
 import { Button, Column, Div, Pre, Row, TextInput } from 'react-vcomponents';
 import { BaseComponent, RenderSource, BaseComponentPlus } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
-import { Connect, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { DeleteTermComponent } from '../../../Server/Commands/DeleteTermComponent';
 import { UpdateTermComponentData } from '../../../Server/Commands/UpdateTermComponentData';
@@ -11,24 +10,21 @@ import { TermComponent } from '../../../Store/firebase/termComponents/@TermCompo
 import { Term } from '../../../Store/firebase/terms/@Term';
 import { IsUserCreatorOrMod } from '../../../Store/firebase/userExtras';
 import { MeID } from '../../../Store/firebase/users';
-import { RootState } from '../../../Store_Old/index';
 
 const componentsPlaceholder = [];
 
 export class TermComponentsUI extends BaseComponentPlus({} as {term: Term, editing: boolean, inMap?: boolean, style?}, {}) {
 	render() {
 		const { term, editing, inMap, style } = this.props;
-		const components = Watch(() => {
-			// only pass components when all are loaded
-			const result = GetTermComponents(term);
-			return CachedTransform('components_transform1', [term._key], result, () => (result.every((a) => a != null) ? result : componentsPlaceholder));
-		}, [term]);
+		let comps = GetTermComponents(term);
+		// only pass components when all are loaded
+		comps = comps.every((a) => a != null) ? comps : componentsPlaceholder;
 
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), term);
 
 		return (
 			<Column style={{ padding: 10 }}>
-				{components.map((comp, index) => <TermComponentUI key={index} first={index == 0} termComponent={comp} editing={editing && creatorOrMod} inMap={inMap}/>)}
+				{comps.map((comp, index) => <TermComponentUI key={index} first={index == 0} termComponent={comp} editing={editing && creatorOrMod} inMap={inMap}/>)}
 			</Column>
 		);
 	}

@@ -1,7 +1,7 @@
 import { CachedTransform, IsNaN, emptyArray, ToJSON, AsObj, emptyArray_forLoading } from 'js-vextensions';
-import { GetData, SplitStringBySlash_Cached, SlicePath, GetDataAsync, StoreAccessor, SubWatch } from 'Utils/FrameworkOverrides';
-import { PathSegmentToNodeID } from 'Store_Old/main/mapViews';
-import { GetPlayingTimelineRevealNodes_UpToAppliedStep, GetPlayingTimelineStepIndex, GetPlayingTimeline } from 'Store_Old/main/maps/$map';
+import { GetData, SplitStringBySlash_Cached, SlicePath, GetDataAsync, StoreAccessor } from 'Utils/FrameworkOverrides';
+import { PathSegmentToNodeID } from 'Store/main/mapViews/$mapView';
+import { GetPlayingTimeline, GetPlayingTimelineStepIndex, GetPlayingTimelineRevealNodes_UpToAppliedStep } from 'Store/main/maps/$map';
 import { GetNodeL2, GetNodeL3 } from './nodes/$node';
 import { MapNode, MapNodeL2, MapNodeL3, globalRootNodeID } from './nodes/@MapNode';
 import { MapNodeType, MapNodeType_Info } from './nodes/@MapNodeType';
@@ -15,23 +15,23 @@ export enum HolderType {
 }
 
 export type NodeMap = {[key: string]: MapNode};
-export function GetNodeMap(): NodeMap {
+export const GetNodeMap = StoreAccessor((s) => (): NodeMap => {
 	return GetData('nodes');
-}
-export function GetNodes(): MapNode[] {
+});
+export const GetNodes = StoreAccessor((s) => (): MapNode[] => {
 	const nodeMap = GetNodeMap();
 	return CachedTransform('GetNodes', [], nodeMap, () => (nodeMap ? nodeMap.VValues(true) : []));
-}
-export const GetNodesL2 = StoreAccessor((): MapNodeL2[] => {
+});
+export const GetNodesL2 = StoreAccessor((s) => (): MapNodeL2[] => {
 	const nodes = GetNodes();
-	return CachedTransform('GetNodes', [], nodes, () => nodes.map((a) => GetNodeL2(a)));
+	return nodes.map((a) => GetNodeL2(a));
 });
 /* export function GetNodes_Enhanced(): MapNode[] {
 	let nodeMap = GetNodeMap();
 	return CachedTransform("GetNodes_Enhanced", [], nodeMap, ()=>nodeMap ? nodeMap.VValues(true) : []);
 } */
 
-export const GetNode = StoreAccessor((id: string) => {
+export const GetNode = StoreAccessor((s) => (id: string) => {
 	// Assert(id != null && !IsNaN(id), "Node-id cannot be null or NaN.");
 	if (id == null || IsNaN(id)) return null;
 	return GetData('nodes', id) as MapNode;
@@ -67,34 +67,34 @@ export function GetParentNodeID(path: string) {
 	return parentNodeStr ? PathSegmentToNodeID(parentNodeStr) : null;
 }
 
-export const GetParentNode = StoreAccessor((childPath: string) => {
+export const GetParentNode = StoreAccessor((s) => (childPath: string) => {
 	return GetNode(GetParentNodeID(childPath));
 });
-export const GetParentNodeL2 = StoreAccessor((childPath: string) => {
+export const GetParentNodeL2 = StoreAccessor((s) => (childPath: string) => {
 	return GetNodeL2(GetParentNodeID(childPath));
 });
-export const GetParentNodeL3 = StoreAccessor((childPath: string) => {
+export const GetParentNodeL3 = StoreAccessor((s) => (childPath: string) => {
 	return GetNodeL3(GetParentPath(childPath));
 });
-export const GetNodeID = StoreAccessor((path: string) => {
+export const GetNodeID = StoreAccessor((s) => (path: string) => {
 	const ownNodeStr = SplitStringBySlash_Cached(path).LastOrX();
 	return ownNodeStr ? PathSegmentToNodeID(ownNodeStr) : null;
 });
 
-export const GetNodeParents = StoreAccessor((node: MapNode) => {
+export const GetNodeParents = StoreAccessor((s) => (node: MapNode) => {
 	const parents = (node.parents || {}).VKeys(true).map((id) => GetNode(id));
-	return CachedTransform('GetNodeParents', [node._key], parents, () => parents);
+	return parents;
 });
 export async function GetNodeParentsAsync(node: MapNode) {
 	return await Promise.all(node.parents.VKeys(true).map((parentID) => GetDataAsync('nodes', parentID))) as MapNode[];
 }
-export const GetNodeParentsL2 = StoreAccessor((node: MapNode) => {
+export const GetNodeParentsL2 = StoreAccessor((s) => (node: MapNode) => {
 	const parentsL2 = GetNodeParents(node).map((parent) => (parent ? GetNodeL2(parent) : null));
-	return CachedTransform('GetNodeParentsL2', [], parentsL2, () => parentsL2);
+	return parentsL2;
 });
-export const GetNodeParentsL3 = StoreAccessor((node: MapNode, path: string) => {
+export const GetNodeParentsL3 = StoreAccessor((s) => (node: MapNode, path: string) => {
 	const parentsL3 = GetNodeParents(node).map((parent) => (parent ? GetNodeL3(SlicePath(path, 1)) : null));
-	return CachedTransform('GetNodeParentsL3', [path], parentsL3, () => parentsL3);
+	return parentsL3;
 });
 
 /* export function GetNodeChildIDs(nodeID: string) {
@@ -104,79 +104,71 @@ export const GetNodeParentsL3 = StoreAccessor((node: MapNode, path: string) => {
 		node.VSet("@childIDs", (node.children || {}).VKeys(true).map(id=>parseInt(id)), {prop: {}});
 	return node["@childIDs"];
 } */
-export const GetNodeChildren = StoreAccessor((node: MapNode) => {
+export const GetNodeChildren = StoreAccessor((s) => (node: MapNode) => {
 	// special case, for demo map
 	if (node.children && node.children[0] instanceof MapNode) {
 		return node.children as any as MapNode[];
 	}
 
-	return SubWatch('GetNodeChildren', [node._key], () => {
-		const children = (node.children || {}).VKeys(true).map((id) => GetNode(id));
-		// return CachedTransform('GetNodeChildren', [node._key], children, () => children);
-		return children;
-	});
+	const children = (node.children || {}).VKeys(true).map((id) => GetNode(id));
+	// return CachedTransform('GetNodeChildren', [node._key], children, () => children);
+	return children;
 });
 export async function GetNodeChildrenAsync(node: MapNode) {
 	return await Promise.all(node.children.VKeys(true).map((id) => GetDataAsync('nodes', id))) as MapNode[];
 }
 
-export const GetNodeChildrenL2 = StoreAccessor((node: MapNode) => {
-	return SubWatch('GetNodeChildrenL2', [node._key], () => {
-		const nodeChildren = GetNodeChildren(node);
-		const nodeChildrenL2 = nodeChildren.map((child) => (child ? GetNodeL2(child) : null));
-		// return CachedTransform('GetNodeChildrenL2', [], nodeChildrenL2, () => nodeChildrenL2);
-		return nodeChildrenL2;
-	});
+export const GetNodeChildrenL2 = StoreAccessor((s) => (node: MapNode) => {
+	const nodeChildren = GetNodeChildren(node);
+	const nodeChildrenL2 = nodeChildren.map((child) => (child ? GetNodeL2(child) : null));
+	// return CachedTransform('GetNodeChildrenL2', [], nodeChildrenL2, () => nodeChildrenL2);
+	return nodeChildrenL2;
 });
-export const GetNodeChildrenL3 = StoreAccessor((node: MapNode, path?: string): MapNodeL3[] => {
+export const GetNodeChildrenL3 = StoreAccessor((s) => (node: MapNode, path?: string): MapNodeL3[] => {
 	if (node == null) return emptyArray;
 	// return CachedTransform_WithStore('GetNodeChildrenL3', [node._key, path, filterForPath], node.children, () => {
-	return SubWatch('GetNodeChildrenL3', [node._key], () => {
-		path = path || `${node._key}`;
+	path = path || `${node._key}`;
 
-		const nodeChildrenL2 = GetNodeChildrenL2(node);
-		const nodeChildrenL3 = nodeChildrenL2.map((child) => (child ? GetNodeL3(`${path}/${child._key}`) : null));
-		return nodeChildrenL3;
-	});
+	const nodeChildrenL2 = GetNodeChildrenL2(node);
+	const nodeChildrenL3 = nodeChildrenL2.map((child) => (child ? GetNodeL3(`${path}/${child._key}`) : null));
+	return nodeChildrenL3;
 	// return CachedTransform('GetNodeChildrenL3', [node, path, filterForPath], [], () => nodeChildrenL3);
 });
-export const GetNodeChildrenL3_Advanced = StoreAccessor((node: MapNode, path: string, mapID: string, applyAccessLevels = false, applyTimeline = false, requireFullyLoaded = false): MapNodeL3[] => {
+export const GetNodeChildrenL3_Advanced = StoreAccessor((s) => (node: MapNode, path: string, mapID: string, applyAccessLevels = false, applyTimeline = false, requireFullyLoaded = false): MapNodeL3[] => {
 	if (node == null) return emptyArray;
 	// return CachedTransform_WithStore('GetNodeChildrenL3', [node._key, path, filterForPath], node.children, () => {
-	return SubWatch('GetNodeChildrenL3_Advanced', [node._key, path, mapID, applyAccessLevels, applyTimeline, requireFullyLoaded], () => {
-		path = path || `${node._key}`;
+	path = path || `${node._key}`;
 
-		const nodeChildrenL2 = GetNodeChildrenL2(node);
-		let nodeChildrenL3 = nodeChildrenL2.map((child) => (child ? GetNodeL3(`${path}/${child._key}`) : null));
-		if (applyAccessLevels) {
-			nodeChildrenL3 = nodeChildrenL3.filter((child) => {
-				// if null, keep (so receiver knows there's an entry here, but it's still loading)
-				if (child == null) return true;
-				// filter out any nodes whose access-level is higher than our own
-				if (child.current.accessLevel > GetUserAccessLevel(MeID())) return false;
-				// hide nodes that don't have the required premise-count
-				// if (!IsNodeVisibleToNonModNonCreators(child, GetNodeChildren(child)) && !IsUserCreatorOrMod(MeID(), child)) return false;
-				return true;
-			});
+	const nodeChildrenL2 = GetNodeChildrenL2(node);
+	let nodeChildrenL3 = nodeChildrenL2.map((child) => (child ? GetNodeL3(`${path}/${child._key}`) : null));
+	if (applyAccessLevels) {
+		nodeChildrenL3 = nodeChildrenL3.filter((child) => {
+			// if null, keep (so receiver knows there's an entry here, but it's still loading)
+			if (child == null) return true;
+			// filter out any nodes whose access-level is higher than our own
+			if (child.current.accessLevel > GetUserAccessLevel(MeID())) return false;
+			// hide nodes that don't have the required premise-count
+			// if (!IsNodeVisibleToNonModNonCreators(child, GetNodeChildren(child)) && !IsUserCreatorOrMod(MeID(), child)) return false;
+			return true;
+		});
+	}
+	if (applyTimeline) {
+		const playingTimeline = GetPlayingTimeline(mapID);
+		const playingTimeline_currentStepIndex = GetPlayingTimelineStepIndex(mapID);
+		// const playingTimelineShowableNodes = GetPlayingTimelineRevealNodes_All(map._key);
+		// const playingTimelineVisibleNodes = GetPlayingTimelineRevealNodes_UpToAppliedStep(map._key, true);
+		// if users scrolls to step X and expands this node, keep expanded even if user goes back to a previous step
+		const playingTimelineVisibleNodes = GetPlayingTimelineRevealNodes_UpToAppliedStep(mapID);
+		if (playingTimeline && playingTimeline_currentStepIndex < playingTimeline.steps.length - 1) {
+			// nodeChildrenToShow = nodeChildrenToShow.filter(child => playingTimelineVisibleNodes.Contains(`${path}/${child._key}`));
+			// if this node (or a descendent) is marked to be revealed by a currently-applied timeline-step, reveal this node
+			nodeChildrenL3 = nodeChildrenL3.filter((child) => child != null && playingTimelineVisibleNodes.Any((a) => a.startsWith(`${path}/${child._key}`)));
 		}
-		if (applyTimeline) {
-			const playingTimeline = GetPlayingTimeline(mapID);
-			const playingTimeline_currentStepIndex = GetPlayingTimelineStepIndex(mapID);
-			// const playingTimelineShowableNodes = GetPlayingTimelineRevealNodes_All.Watch(map._key);
-			// const playingTimelineVisibleNodes = GetPlayingTimelineRevealNodes_UpToAppliedStep.Watch(map._key, true);
-			// if users scrolls to step X and expands this node, keep expanded even if user goes back to a previous step
-			const playingTimelineVisibleNodes = GetPlayingTimelineRevealNodes_UpToAppliedStep(mapID);
-			if (playingTimeline && playingTimeline_currentStepIndex < playingTimeline.steps.length - 1) {
-				// nodeChildrenToShow = nodeChildrenToShow.filter(child => playingTimelineVisibleNodes.Contains(`${path}/${child._key}`));
-				// if this node (or a descendent) is marked to be revealed by a currently-applied timeline-step, reveal this node
-				nodeChildrenL3 = nodeChildrenL3.filter((child) => child != null && playingTimelineVisibleNodes.Any((a) => a.startsWith(`${path}/${child._key}`)));
-			}
-		}
-		if (requireFullyLoaded) {
-			nodeChildrenL3 = nodeChildrenL3.Any((a) => a == null) ? emptyArray_forLoading : nodeChildrenL3; // only pass nodeChildren when all are loaded
-		}
-		return nodeChildrenL3;
-	});
+	}
+	if (requireFullyLoaded) {
+		nodeChildrenL3 = nodeChildrenL3.Any((a) => a == null) ? emptyArray_forLoading : nodeChildrenL3; // only pass nodeChildren when all are loaded
+	}
+	return nodeChildrenL3;
 	// return CachedTransform('GetNodeChildrenL3', [node, path, filterForPath], [], () => nodeChildrenL3);
 });
 
@@ -189,11 +181,11 @@ export function GetHolderType(childType: MapNodeType, parentType: MapNodeType) {
 	return null;
 }
 
-export function ForLink_GetError(parentType: MapNodeType, childType: MapNodeType) {
+export const ForLink_GetError = StoreAccessor((s) => (parentType: MapNodeType, childType: MapNodeType) => {
 	const parentTypeInfo = MapNodeType_Info.for[parentType].childTypes;
 	if (!parentTypeInfo.Contains(childType)) return `The child's type (${MapNodeType[childType]}) is not valid for the parent's type (${MapNodeType[parentType]}).`;
-}
-export function ForNewLink_GetError(parentID: string, newChild: Pick<MapNode, '_key' | 'type'>, permissions: PermissionGroupSet, newHolderType?: HolderType) {
+});
+export const ForNewLink_GetError = StoreAccessor((s) => (parentID: string, newChild: Pick<MapNode, '_key' | 'type'>, permissions: PermissionGroupSet, newHolderType?: HolderType) => {
 	if (!CanGetBasicPermissions(permissions)) return "You're not signed in, or lack basic permissions.";
 	const parent = GetNode(parentID);
 	if (parent == null) return 'Parent data not found.';
@@ -211,17 +203,17 @@ export function ForNewLink_GetError(parentID: string, newChild: Pick<MapNode, '_
 		if (isAlreadyChild && currentHolderType == newHolderType) return false; // if already a child of this parent, reject (unless it's a claim, in which case allow, as can be)
 	}
 	return ForLink_GetError(parent.type, newChild.type);
-}
+});
 
-export function ForUnlink_GetError(userID: string, node: MapNodeL2, asPartOfCut = false) {
+export const ForUnlink_GetError = StoreAccessor((s) => (userID: string, node: MapNodeL2, asPartOfCut = false) => {
 	const baseText = `Cannot unlink node #${node._key}, since `;
 	if (!IsUserCreatorOrMod(userID, node)) return `${baseText}you are not its owner. (or a mod)`;
 	if (!asPartOfCut && (node.parents || {}).VKeys(true).length <= 1) return `${baseText}doing so would orphan it. Try deleting it instead.`;
 	if (IsRootNode(node)) return `${baseText}it's the root-node of a map.`;
 	if (IsNodeSubnode(node)) return `${baseText}it's a subnode. Try deleting it instead.`;
 	return null;
-}
-export function ForDelete_GetError(userID: string, node: MapNodeL2, subcommandInfo?: {asPartOfMapDelete?: boolean, childrenToIgnore?: string[]}) {
+});
+export const ForDelete_GetError = StoreAccessor((s) => (userID: string, node: MapNodeL2, subcommandInfo?: {asPartOfMapDelete?: boolean, childrenToIgnore?: string[]}) => {
 	const baseText = `Cannot delete node #${node._key}, since `;
 	if (!IsUserCreatorOrMod(userID, node)) return `${baseText}you are not the owner of this node. (or a mod)`;
 	if (GetParentCount(node) > 1) return `${baseText}it has more than one parent. Try unlinking it instead.`;
@@ -233,18 +225,18 @@ export function ForDelete_GetError(userID: string, node: MapNodeL2, subcommandIn
 		return `Cannot delete this node (#${node._key}) until all its children have been unlinked or deleted.`;
 	}
 	return null;
-}
+});
 
-export function ForCut_GetError(userID: string, node: MapNodeL2) {
+export const ForCut_GetError = StoreAccessor((s) => (userID: string, node: MapNodeL2) => {
 	return ForUnlink_GetError(userID, node, true);
-}
+});
 
-export function ForCopy_GetError(userID: string, node: MapNode) {
+export const ForCopy_GetError = StoreAccessor((s) => (userID: string, node: MapNode) => {
 	if (!CanGetBasicPermissions(userID)) return "You're not signed in, or lack basic permissions.";
 	if (IsRootNode(node)) return 'Cannot copy the root-node of a map.';
 	if (IsNodeSubnode(node)) return 'Cannot copy a subnode.';
 	return null;
-}
+});
 
 /* export function GetUnlinkErrorMessage(parent: MapNode, child: MapNode) {
 	//let childNodes = node.children.Select(a=>nodes[a]);

@@ -3,25 +3,19 @@ import { hasHotReloaded } from 'Main';
 import Raven from 'raven-js';
 import ReactGA from 'react-ga';
 import { FindReact, GetDOM } from 'react-vextensions';
-import { GetAuth, IsAuthValid } from 'Store_Old/firebase';
 import { GetNodeChildrenL2, GetNodeID } from 'Store/firebase/nodes';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
-import { ACTMapViewMerge } from 'Store_Old/main/mapViews/$mapView';
-import { Action, DBPath, GetAsync, GetCurrentURL, GetDataAsync, LoadURL, MaybeLog, State, GetScreenRect, SlicePath } from 'Utils/FrameworkOverrides';
+import { Action, DBPath, GetAsync, GetCurrentURL, GetDataAsync, LoadURL, MaybeLog, GetScreenRect, SlicePath } from 'Utils/FrameworkOverrides';
 import { GetCurrentURL_SimplifiedForPageViewTracking } from 'Utils/URL/URLs';
 import { NodeUI_Inner } from 'UI/@Shared/Maps/MapNode/NodeUI_Inner';
 import { GetTimelineStep } from 'Store/firebase/timelines';
 import { store } from 'Store';
-import { Map } from '../../Store/firebase/maps/@Map';
-import { RootState } from '../../Store_Old/index';
-import { ACTDebateMapSelect, ACTDebateMapSelect_WithData } from '../../Store_Old/main/debates';
-import { ACTMap_PlayingTimelineAppliedStepSet, ACTMap_PlayingTimelineStepSet, GetPlayingTimelineCurrentStepRevealNodes, GetPlayingTimeline, GetNodesRevealedInSteps } from '../../Store_Old/main/maps/$map';
-import { GetNodeView, GetMapView } from '../../Store_Old/main/mapViews';
-import { ACTMapNodeExpandedSet } from '../../Store_Old/main/mapViews/$mapView/rootNodeViews';
-import { ACTPersonalMapSelect, ACTPersonalMapSelect_WithData } from '../../Store_Old/main/personal';
+import {autorun} from 'mobx';
+import {GetOpenMapID} from 'Store/main';
+import {GetMapView} from 'Store/main/mapViews/$mapView';
 import { MapUI } from '../../UI/@Shared/Maps/MapUI';
-import { ProcessRehydrateData } from './StoreRehydrateProcessor';
+import { Map } from '../../Store/firebase/maps/@Map';
 
 // use this to intercept dispatches (for debugging)
 /* let oldDispatch = store.dispatch;
@@ -288,7 +282,7 @@ function PostInit() {
 	let lastAuth;
 	let lastMapView;
 	let lastContextData; // only gets updated when one of the above components change
-	store.subscribe(() => {
+	autorun(() => {
 		const auth = GetAuth();
 		const mapView = GetOpenMapID() ? GetMapView(GetOpenMapID()) : null;
 

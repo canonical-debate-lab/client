@@ -1,16 +1,16 @@
 import { CachedTransform, Assert } from 'js-vextensions';
 import { User } from 'Store/firebase/users/@User';
 import { presetBackgrounds, defaultPresetBackground } from 'Utils/UI/PresetBackgrounds';
-import { GetData, StoreAccessor } from 'Utils/FrameworkOverrides';
+import { GetData, StoreAccessor, IsAuthValid } from 'Utils/FrameworkOverrides';
 import { GADDemo } from 'UI/@GAD/GAD';
-import { GetAuth, IsAuthValid } from '../../Store_Old/firebase';
+import {GetAuth} from 'Store/firebase';
 import { AccessLevel } from './nodes/@MapNode';
 import { UserExtraInfo, PermissionGroupSet } from './userExtras/@UserExtraInfo';
 
 /* export function GetAuth(state: RootState) {
 	return state.firebase.auth;
 } */
-export const MeID = StoreAccessor((): string => {
+export const MeID = StoreAccessor((s) => (): string => {
 	// return state.firebase.data.auth ? state.firebase.data.auth.uid : null;
 	// return GetData(state.firebase, "auth");
 	/* var result = helpers.pathToJS(firebase, "auth").uid;
@@ -20,29 +20,29 @@ export const MeID = StoreAccessor((): string => {
 	// return State(a=>a.firebase.auth) ? State(a=>a.firebase.auth.uid) : null;
 	return IsAuthValid(GetAuth()) ? GetAuth().uid : null;
 });
-export const Me = StoreAccessor(() => {
+export const Me = StoreAccessor((s) => () => {
 	return GetUser(MeID());
 });
 
-export const GetUser = StoreAccessor((userID: string): User => {
+export const GetUser = StoreAccessor((s) => (userID: string): User => {
 	if (userID == null) return null;
 	return GetData('users', userID);
 });
-export const GetUsers = StoreAccessor((): User[] => {
+export const GetUsers = StoreAccessor((s) => (): User[] => {
 	const userMap = GetData({ collection: true }, 'users');
 	return CachedTransform('GetUsers', [], userMap, () => (userMap ? userMap.VValues(true) : []));
 });
 
 export type UserExtraInfoMap = { [key: string]: UserExtraInfo };
-export const GetUserExtraInfoMap = StoreAccessor((): UserExtraInfoMap => {
+export const GetUserExtraInfoMap = StoreAccessor((s) => (): UserExtraInfoMap => {
 	return GetData({ collection: true }, 'userExtras');
 });
-export function GetUserJoinDate(userID: string): number {
+export const GetUserJoinDate = StoreAccessor((s) => (userID: string): number => {
 	if (userID == null) return null;
 	return GetData('userExtras', userID, '.joinDate');
-}
+});
 const defaultPermissions = { basic: true, verified: true, mod: false, admin: false } as PermissionGroupSet; // temp
-export const GetUserPermissionGroups = StoreAccessor((userID: string): PermissionGroupSet => {
+export const GetUserPermissionGroups = StoreAccessor((s) => (userID: string): PermissionGroupSet => {
 	if (userID == null) return null;
 	return GetData('userExtras', userID, '.permissionGroups') || defaultPermissions;
 });

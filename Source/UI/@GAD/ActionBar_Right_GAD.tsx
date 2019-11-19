@@ -1,14 +1,11 @@
-import { Connect, HSLA } from 'Utils/FrameworkOverrides';
-import { BaseComponentWithConnector } from 'react-vextensions';
+import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { Row } from 'react-vcomponents';
 import { colors } from 'Utils/UI/GlobalStyles';
 import { LayoutDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Right/LayoutDropDown';
 import { Map } from 'Store/firebase/maps/@Map';
+import { HSLA } from 'Utils/FrameworkOverrides';
 
-const connector = (state, { map }: {map: Map, subNavBarWidth: number}) => ({
-});
-@Connect(connector)
-export class ActionBar_Right_GAD extends BaseComponentWithConnector(connector, {}) {
+export class ActionBar_Right_GAD extends BaseComponentPlus({} as {map: Map, subNavBarWidth: number}, {}) {
 	render() {
 		const { map, subNavBarWidth } = this.props;
 		const tabBarWidth = 104;

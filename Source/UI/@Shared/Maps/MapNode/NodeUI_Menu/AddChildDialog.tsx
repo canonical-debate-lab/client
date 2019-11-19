@@ -4,8 +4,9 @@ import { ShowMessageBox } from 'react-vmessagebox';
 import { AddArgumentAndClaim } from 'Server/Commands/AddArgumentAndClaim';
 import { GetNode } from 'Store/firebase/nodes';
 import { HasModPermissions } from 'Store/firebase/userExtras';
-import { ACTSet, Link } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
+import { store } from 'Store';
+import { Link } from 'Utils/FrameworkOverrides';
 import { AddChildNode } from '../../../../../Server/Commands/AddChildNode';
 import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
 import { AsNodeL2, AsNodeL3, GetClaimType, GetNodeForm, GetNodeL3 } from '../../../../../Store/firebase/nodes/$node';
@@ -13,8 +14,6 @@ import { Equation } from '../../../../../Store/firebase/nodes/@Equation';
 import { ChildEntry, ClaimForm, ClaimType, ImageAttachment, MapNode, Polarity } from '../../../../../Store/firebase/nodes/@MapNode';
 import { ArgumentType, MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../../Store/firebase/nodes/@MapNodeRevision';
 import { GetMapNodeTypeDisplayName, MapNodeType } from '../../../../../Store/firebase/nodes/@MapNodeType';
-import { ACTSetLastAcknowledgementTime } from '../../../../../Store_Old/main';
-import { ACTMapNodeExpandedSet } from '../../../../../Store_Old/main/mapViews/$mapView/rootNodeViews';
 import { NodeDetailsUI } from '../NodeDetailsUI';
 
 export class AddChildHelper {
@@ -62,7 +61,7 @@ export class AddChildHelper {
 		/* if (validationError) {
 			return void setTimeout(()=>ShowMessageBox({title: `Validation error`, message: `Validation error: ${validationError}`}));
 		} */
-		store.dispatch(new ACTSet((a) => a.main.currentNodeBeingAdded_path, `${this.node_parentPath}/?`));
+		store.main.currentNodeBeingAdded_path = `${this.node_parentPath}/?`;
 
 		let info;
 		if (this.node.type == MapNodeType.Argument) {
@@ -76,8 +75,8 @@ export class AddChildHelper {
 				store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.argumentNodeID}`, expanded: true, resetSubtree: false }));
 				store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.argumentNodeID}/${info.claimNodeID}`, expanded: true,
 					expanded_truth: expandTruthAndRelevance, expanded_relevance: expandTruthAndRelevance, resetSubtree: false }));
-				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.argumentNodeID, time: Date.now() }));
-				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.claimNodeID, time: Date.now() }));
+				store.main.nodeLastAcknowledgementTimes.set(info.argumentNodeID, Date.now());
+				store.main.nodeLastAcknowledgementTimes.set(info.claimNodeID, Date.now());
 			}
 		} else {
 			info = await new AddChildNode({
@@ -87,11 +86,11 @@ export class AddChildHelper {
 			if (expandSelf) {
 				store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.nodeID}`, expanded: true,
 					expanded_truth: expandTruthAndRelevance, expanded_relevance: expandTruthAndRelevance, resetSubtree: false }));
-				store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: info.nodeID, time: Date.now() }));
+				store.main.nodeLastAcknowledgementTimes.set(info.nodeID, Date.now());
 			}
 		}
 
-		store.dispatch(new ACTSet((a) => a.main.currentNodeBeingAdded_path, null));
+		store.main.currentNodeBeingAdded_path = null;
 
 		return info;
 	}

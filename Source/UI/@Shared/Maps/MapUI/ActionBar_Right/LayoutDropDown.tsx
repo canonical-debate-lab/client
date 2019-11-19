@@ -3,15 +3,13 @@ import { BaseComponentPlus } from 'react-vextensions';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { Button_GAD } from 'UI/@GAD/GADButton';
-import { ACTSet, State } from 'Utils/FrameworkOverrides';
-import { ACTClearMapView } from 'Store_Old/main/mapViews/$mapView';
-import { ACTSetInitialChildLimit } from '../../../../../Store_Old/main';
+import { store } from 'Store';
 
 export class LayoutDropDown extends BaseComponentPlus({} as {map: Map}, {}) {
 	render() {
 		const { map } = this.props;
-		const initialChildLimit = State.Watch((a) => a.main.initialChildLimit);
-		const showReasonScoreValues = State.Watch((a) => a.main.showReasonScoreValues);
+		const initialChildLimit = store.main.initialChildLimit;
+		const showReasonScoreValues = store.main.showReasonScoreValues;
 
 		const Button_Final = GADDemo ? Button_GAD : Button;
 		const splitAt = 230;
@@ -22,15 +20,15 @@ export class LayoutDropDown extends BaseComponentPlus({} as {map: Map}, {}) {
 					<RowLR splitAt={splitAt}>
 						<Pre>Initial child limit: </Pre>
 						<Spinner min={1} style={{ width: '100%' }}
-							value={initialChildLimit} onChange={(val) => store.dispatch(new ACTSetInitialChildLimit({ value: val }))}/>
+							value={initialChildLimit} onChange={(val) => store.main.initialChildLimit = val}/>
 					</RowLR>
 					<RowLR splitAt={splitAt}>
 						<Pre>Show Reason Score values: </Pre>
-						<CheckBox checked={showReasonScoreValues} onChange={(val) => store.dispatch(new ACTSet((a) => a.main.showReasonScoreValues, val))}/>
+						<CheckBox checked={showReasonScoreValues} onChange={(val) => store.main.showReasonScoreValues = val}/>
 					</RowLR>
 					<Row mt={5}>
 						<Button text="Clear map-view state" onClick={() => {
-							store.dispatch(new ACTClearMapView({ mapID: map._key }));
+							store.main.mapViews.delete(map._key);
 						}}/>
 					</Row>
 				</Column></DropDownContent>

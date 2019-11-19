@@ -26,15 +26,15 @@ export class OthersPanel extends BaseComponentPlus({} as {map?: Map, node: MapNo
 		let { convertToType } = this.state;
 
 		const mapID = map ? map._key : null;
-		const userID = MeID.Watch();
-		const _ = GetUserPermissionGroups.Watch(userID);
-		const creator = GetUser.Watch(node.creator);
+		const userID = MeID();
+		const _ = GetUserPermissionGroups(userID);
+		const creator = GetUser(node.creator);
 		// viewers: GetNodeViewers(node._key),
-		const creatorOrMod = IsUserCreatorOrMod.Watch(userID, node);
+		const creatorOrMod = IsUserCreatorOrMod(userID, node);
 
-		const parent = GetParentNodeL3.Watch(path);
+		const parent = GetParentNodeL3(path);
 		const parentPath = SlicePath(path, 1);
-		const parentCreatorOrMod = IsUserCreatorOrMod.Watch(userID, parent);
+		const parentCreatorOrMod = IsUserCreatorOrMod(userID, parent);
 
 		const nodeArgOrParentSPArg_controlled = (node.type == MapNodeType.Argument && creatorOrMod ? node : null)
 			|| (parent && parent.type === MapNodeType.Argument && parentCreatorOrMod ? parent : null);

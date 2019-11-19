@@ -1,5 +1,6 @@
 import { Column } from 'react-vcomponents';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
+import {store} from 'Store';
 import { AddTermComponent } from '../../../Server/Commands/AddTermComponent';
 import { TermComponent } from '../../../Store/firebase/termComponents/@TermComponent';
 import { TermComponentUI } from './TermComponentsUI';

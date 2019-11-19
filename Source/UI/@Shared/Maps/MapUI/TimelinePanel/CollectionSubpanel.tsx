@@ -2,20 +2,21 @@ import { Button, Column, DropDown, DropDownContent, DropDownTrigger, Pre, Row } 
 import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { DeleteTimeline } from 'Server/Commands/DeleteTimeline';
-import { ACTMap_SelectedTimelineSet, GetSelectedTimeline, GetTimelineOpenSubpanel } from 'Store_Old/main/maps/$map';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { ShowAddTimelineDialog } from 'UI/@Shared/Timelines/AddTimelineDialog';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetMapTimelines, GetTimelineSteps } from 'Store/firebase/timelines';
 import { MeID } from 'Store/firebase/users';
+import { GetSelectedTimeline } from 'Store/main/maps/$map';
+import { store } from 'Store';
 
 export class CollectionSubpanel extends BaseComponentPlus({} as {map: Map}, {}) {
 	timelineSelect: DropDown;
 	render() {
 		const { map } = this.props;
-		const timelines = GetMapTimelines.Watch(map);
-		const timeline = GetSelectedTimeline.Watch(map._key);
+		const timelines = GetMapTimelines(map);
+		const timeline = GetSelectedTimeline(map._key);
 
 		return (
 			<Row style={{ height: 40, padding: 10 }}>
@@ -35,7 +36,7 @@ export class CollectionSubpanel extends BaseComponentPlus({} as {map: Map}, {}) 
 												index == timelines.length - 1 && { borderRadius: '0 0 10px 10px' },
 											)}
 											onClick={() => {
-												store.dispatch(new ACTMap_SelectedTimelineSet({ mapID: map._key, selectedTimeline: timeline._key }));
+												store.main.maps.get(map._key).selectedTimeline = timeline._key;
 												this.timelineSelect.Hide();
 											}}>
 											<Row>

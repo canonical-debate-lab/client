@@ -1,46 +1,40 @@
-import { ToJSON, Vector2i, VRect, WaitXThenRun, Assert, GetEntries } from 'js-vextensions';
+import { ToJSON } from 'js-vextensions';
 import { Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
-import { Text, Button, CheckBox, Column, Pre, Row, Select, Spinner, TextArea, TextInput, TimeSpanInput } from 'react-vcomponents';
-import { BaseComponent, BaseComponentWithConnector, GetDOM, SimpleShouldUpdate, BaseComponentPlus } from 'react-vextensions';
+import ReactList from 'react-list';
+import { Button, CheckBox, Column, Pre, Row, Spinner, Text, TextInput, TimeSpanInput } from 'react-vcomponents';
+import { BaseComponentPlus, GetDOM } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
 import { AddTimelineStep } from 'Server/Commands/AddTimelineStep';
-import { DeleteTimelineStep } from 'Server/Commands/DeleteTimelineStep';
 import { UpdateTimeline } from 'Server/Commands/UpdateTimeline';
-import { UpdateTimelineStep } from 'Server/Commands/UpdateTimelineStep';
+import { store } from 'Store';
 import { Map } from 'Store/firebase/maps/@Map';
-import { GetNodeID } from 'Store/firebase/nodes';
-import { GetNodeDisplayText, GetNodeL2, GetNodeL3 } from 'Store/firebase/nodes/$node';
-import { GetNodeColor, MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
-import { GetTimelineSteps, GetTimelineStep } from 'Store/firebase/timelines';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
-import { NodeReveal, TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
-import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
+import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { MeID } from 'Store/firebase/users';
-import { GetOpenMapID } from 'Store_Old/main';
-import { GetSelectedTimeline, GetTimelineOpenSubpanel, GetTimelinePanelOpen, TimelineSubpanel, GetShowTimelineDetails, ACTMap_TimelineShowDetailsSet } from 'Store_Old/main/maps/$map';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
-import { ACTSet, Connect, DragInfo, InfoButton, MakeDraggable, State, Watch } from 'Utils/FrameworkOverrides';
-import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
+import { TimelineDetailsEditor } from 'UI/@Shared/Timelines/TimelineDetailsUI';
+import { InfoButton } from 'Utils/FrameworkOverrides';
+import { DroppableInfo } from 'Utils/UI/DNDStructures';
 import { ES } from 'Utils/UI/GlobalStyles';
-import ReactList from 'react-list';
-import { TimelineDetailsUI, TimelineDetailsEditor } from 'UI/@Shared/Timelines/TimelineDetailsUI';
+import { GetOpenMapID } from 'Store/main';
+import {GetTimelinePanelOpen, GetTimelineOpenSubpanel, TimelineSubpanel, GetSelectedTimeline, GetShowTimelineDetails} from 'Store/main/maps/$map';
 import { StepEditorUI } from './EditorSubpanel/StepEditorUI';
 
 // for use by react-beautiful-dnd (using text replacement)
 G({ LockMapEdgeScrolling });
 function LockMapEdgeScrolling() {
 	const mapID = GetOpenMapID();
-	return State((a) => a.main.lockMapScrolling) && GetTimelinePanelOpen(mapID) && GetTimelineOpenSubpanel(mapID) == TimelineSubpanel.Editor;
+	return store.main.lockMapScrolling && GetTimelinePanelOpen(mapID) && GetTimelineOpenSubpanel(mapID) == TimelineSubpanel.Editor;
 }
 
 export class EditorSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} as {timeline: Timeline}) {
 	render() {
 		const { map } = this.props;
-		const timeline = GetSelectedTimeline.Watch(map && map._key);
+		const timeline = GetSelectedTimeline(map && map._key);
 		// timelineSteps: timeline && GetTimelineSteps(timeline, true),
-		const showTimelineDetails = GetShowTimelineDetails.Watch(map && map._key);
-		const lockMapScrolling = State.Watch((a) => a.main.lockMapScrolling);
+		const showTimelineDetails = GetShowTimelineDetails(map && map._key);
+		const lockMapScrolling = store.main.lockMapScrolling;
 		const droppableInfo = new DroppableInfo({ type: 'TimelineStepList', timelineID: timeline ? timeline._key : null });
 
 		this.Stash({ timeline });
@@ -62,10 +56,10 @@ export class EditorSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} a
 						new AddTimelineStep({ timelineID: timeline._key, step: newStep, stepIndex: newStepIndex }).Run();
 					}}/>
 					<CheckBox ml={5} text="Details" checked={showTimelineDetails} onChange={(val) => {
-						store.dispatch(new ACTMap_TimelineShowDetailsSet({ mapID: map._key, showDetails: val }));
+						store.main.maps.get(map._key).showTimelineDetails = val;
 					}}/>
 					<CheckBox ml="auto" text="Lock map scrolling" title="Lock map edge-scrolling. (for dragging onto timeline steps)" checked={lockMapScrolling} onChange={(val) => {
-						store.dispatch(new ACTSet((a) => a.main.lockMapScrolling, val));
+						store.main.lockMapScrolling = val;
 					}}/>
 				</Row>
 				<ScrollView style={ES({ flex: 1 })} contentStyle={ES({

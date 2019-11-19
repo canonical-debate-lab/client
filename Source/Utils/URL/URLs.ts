@@ -1,13 +1,13 @@
 import { GetSelectedProposalID } from 'firebase-feedback';
 import { Assert, VURL } from 'js-vextensions';
-import { RootState } from 'Store';
+import { RootState, store } from 'Store';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
-import { State, StoreAccessor } from 'Utils/FrameworkOverrides';
+import { StoreAccessor } from 'Utils/FrameworkOverrides';
+import { GetSelectedUserID, GetSelectedTermID, GetSelectedImageID } from 'Store/main/database';
+import { GetOpenMapID, GetPage, GetSubpage } from 'Store/main';
 import { GetMap } from '../../Store/firebase/maps';
 import { GetNodeDisplayText } from '../../Store/firebase/nodes/$node';
 import { MapNodeL2 } from '../../Store/firebase/nodes/@MapNode';
-import { GetOpenMapID, GetPage, GetSubpage } from '../../Store_Old/main';
-import { GetSelectedImageID, GetSelectedTermID, GetSelectedUserID } from '../../Store_Old/main/database';
 
 export const rootPages = [
 	'stream', 'chat', 'reputation',
@@ -227,11 +227,11 @@ export function GetLoadActionFuncForURL(url: VURL) {
 			const subpageInURL = url.pathNodes[1] != null;
 			const entryID = url.pathNodes[2] || null; // null needed, else reducer complains
 			if (subpage == 'users' && subpageInURL) {
-				store.main.database.users.selectedUserID = entryID;
+				store.main.database.selectedUserID = entryID;
 			} else if (subpage == 'terms' && subpageInURL) {
-				store.main.database.terms.selectedTermID = entryID;
+				store.main.database.selectedTermID = entryID;
 			} else if (subpage == 'images' && subpageInURL) {
-				store.main.database.images.selectedImageID = entryID;
+				store.main.database.selectedImageID = entryID;
 			}
 		} else if (page == 'personal' || page == 'debates') {
 			const urlStr = url.pathNodes[1];
@@ -332,7 +332,7 @@ export function GetLoadActionFuncForURL(url: VURL) {
 // ==========
 
 // g.justChangedURLFromCode = false;
-export const GetNewURL = StoreAccessor((includeMapViewStr = true) => {
+export const GetNewURL = StoreAccessor((s) => (includeMapViewStr = true) => {
 	// let newURL = URL.Current();
 	/* let oldURL = URL.Current(true);
 	let newURL = new VURL(oldURL.domain, oldURL.pathNodes); */
@@ -372,7 +372,7 @@ export const GetNewURL = StoreAccessor((includeMapViewStr = true) => {
 
 	let mapID: string;
 	if (page == 'personal') {
-		mapID = State((a) => a.main.personal.selectedMapID);
+		mapID = store.main.personal.selectedMapID;
 		if (mapID) {
 			// newURL.pathNodes.push(mapID+"");
 			const urlStr = GetCrawlerURLStrForMap(mapID);
@@ -380,7 +380,7 @@ export const GetNewURL = StoreAccessor((includeMapViewStr = true) => {
 		}
 	}
 	if (page == 'debates') {
-		mapID = State((a) => a.main.debates.selectedMapID);
+		mapID = store.main.debates.selectedMapID;
 		if (mapID) {
 			// newURL.pathNodes.push(mapID+"");
 			const urlStr = GetCrawlerURLStrForMap(mapID);
@@ -391,7 +391,7 @@ export const GetNewURL = StoreAccessor((includeMapViewStr = true) => {
 		mapID = GetOpenMapID();
 		if (isBot) {
 			const map = GetMap(mapID);
-			const rootNodeID = State('main', 'mapViews', mapID, 'rootNodeID');
+			const rootNodeID = store.main.mapViews.get(mapID).rootNodeID;
 			const rootNode = GetNodeL2(rootNodeID);
 			if (rootNode) {
 				const nodeStr = GetCrawlerURLStrForNode(rootNode);
@@ -406,35 +406,37 @@ export const GetNewURL = StoreAccessor((includeMapViewStr = true) => {
 		newURL.SetQueryVar('view', GetMapViewStr(mapID));
 	} */
 
-	const playingTimeline = mapID && State('main', 'maps', mapID, 'playingTimeline');
+	const mapInfo = store.main.maps.get(mapID);
+	// const playingTimeline = mapID && mapInfo.playingTimeline;
+	const playingTimeline = mapID && mapInfo.selectedTimeline;
 	if (playingTimeline) {
 		newURL.SetQueryVar('timeline', playingTimeline);
 
-		const playingTimeline_step = mapID ? State('main', 'maps', mapID, 'playingTimeline_step') : null;
+		const playingTimeline_step = mapID ? mapInfo.playingTimeline_step : null;
 		if (playingTimeline_step != null) {
 			newURL.SetQueryVar('step', playingTimeline_step + 1);
 		}
 
-		const playingTimeline_appliedStep = mapID ? State('main', 'maps', mapID, 'playingTimeline_appliedStep') : null;
+		const playingTimeline_appliedStep = mapID ? mapInfo.playingTimeline_appliedStep : null;
 		if (playingTimeline_appliedStep != null) {
 			newURL.SetQueryVar('appliedStep', playingTimeline_appliedStep + 1);
 		}
 	}
 
-	if (State((a) => a.main.urlExtraStr)) {
-		newURL.SetQueryVar('extra', State((a) => a.main.urlExtraStr));
+	if (store.main.urlExtraStr) {
+		newURL.SetQueryVar('extra', store.main.urlExtraStr);
 	}
-	if (!State((a) => a.main.analyticsEnabled) && newURL.GetQueryVar('analytics') == null) {
+	if (!store.main.analyticsEnabled && newURL.GetQueryVar('analytics') == null) {
 		newURL.SetQueryVar('analytics', 'false');
 	}
-	if (State((a) => a.main.envOverride)) {
-		newURL.SetQueryVar('env', State((a) => a.main.envOverride));
+	if (store.main.envOverride) {
+		newURL.SetQueryVar('env', store.main.envOverride);
 	}
-	if (State((a) => a.main.dbOverride)) {
-		newURL.SetQueryVar('db', State((a) => a.main.dbOverride));
+	if (store.main.dbOverride) {
+		newURL.SetQueryVar('db', store.main.dbOverride);
 	}
-	if (State((a) => a.main.dbVersionOverride)) {
-		newURL.SetQueryVar('dbVersion', State((a) => a.main.dbVersionOverride));
+	if (store.main.dbVersionOverride) {
+		newURL.SetQueryVar('dbVersion', store.main.dbVersionOverride);
 	}
 
 	// a default-child is only used (ie. removed from url) if there are no path-nodes after it

@@ -15,5 +15,5 @@ export const GetSelectedDebateMap = StoreAccessor((s) => () => {
 	const selectedID = s.main.debates.selectedMapID;
 	// return GetData(`maps/${selectedID}`);
 	// return (GetMapsOfType(MapType.Debate) || []).find(a=>a._id == selectedID);
-	return GetMap.WS(s)(selectedID);
+	return GetMap(selectedID);
 });

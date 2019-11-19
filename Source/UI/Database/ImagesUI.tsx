@@ -2,8 +2,10 @@ import { Button, Column, Div, Pre, Row, Span } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus, UseEffect } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
-import { Connect, RemoveHelpers, Watch } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
+import { store } from 'Store';
+import { RemoveHelpers } from 'Utils/FrameworkOverrides';
+import {GetSelectedImage} from 'Store/main/database';
 import { DeleteImage } from '../../Server/Commands/DeleteImage';
 import { UpdateImageData, UpdateImageData_allowedPropUpdates } from '../../Server/Commands/UpdateImageData';
 import { GetImages } from '../../Store/firebase/images';
@@ -11,7 +13,6 @@ import { GetNiceNameForImageType, Image } from '../../Store/firebase/images/@Ima
 import { IsUserCreatorOrMod, CanGetBasicPermissions } from '../../Store/firebase/userExtras';
 import { PermissionGroupSet } from '../../Store/firebase/userExtras/@UserExtraInfo';
 import { MeID, GetUserPermissionGroups } from '../../Store/firebase/users';
-import { ACTImageSelect, GetSelectedImage } from '../../Store_Old/main/database';
 import { ShowSignInPopup } from '../@Shared/NavBar/UserPanel';
 import { ShowAddImageDialog } from './Images/AddImageDialog';
 import { ImageDetailsUI } from './Images/ImageDetailsUI';
@@ -22,10 +23,10 @@ export class ImagesUI extends BaseComponentPlus({} as {}, {} as { selectedImage_
 		const { selectedImage_newData, selectedImage_newDataError } = this.state;
 
 		const userID = MeID();
-		const images = GetImages.Watch();
-		const selectedImage = GetSelectedImage.Watch();
-		const permissions = GetUserPermissionGroups.Watch(userID);
-		const creatorOrMod = Watch(() => selectedImage != null && IsUserCreatorOrMod(userID, selectedImage), [selectedImage, userID]);
+		const images = GetImages();
+		const selectedImage = GetSelectedImage();
+		const permissions = GetUserPermissionGroups(userID);
+		const creatorOrMod = selectedImage != null && IsUserCreatorOrMod(userID, selectedImage);
 
 		// whenever selectedImage changes, reset the derivative states (there's probably a better way to do this, but I don't know how yet)
 		UseEffect(() => {
@@ -53,7 +54,7 @@ export class ImagesUI extends BaseComponentPlus({} as {}, {} as { selectedImage_
 					</Row>
 					<ScrollView ref={(c) => this.scrollView = c} style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, padding: 10 })} onClick={(e) => {
 						if (e.target != e.currentTarget) return;
-						store.dispatch(new ACTImageSelect({ id: null }));
+						store.main.database.selectedImageID = null;
 					}}>
 						{images.map((image, index) => <ImageUI key={index} first={index == 0} image={image} selected={selectedImage == image}/>)}
 					</ScrollView>
@@ -111,7 +112,7 @@ export class ImageUI extends BaseComponent<ImageUI_Props, {}> {
 					selected && { background: 'rgba(100,100,100,.7)' },
 				)}
 				onClick={(e) => {
-					store.dispatch(new ACTImageSelect({ id: image._key }));
+					store.main.database.selectedImageID = image._key;
 				}}>
 				<Pre>{image.name}: </Pre>
 				{image.description.KeepAtMost(100)}

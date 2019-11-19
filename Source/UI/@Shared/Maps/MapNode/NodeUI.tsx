@@ -5,20 +5,18 @@ import { BaseComponentPlus, GetInnerComp, RenderSource, ShallowEquals, UseCallba
 import { ChangeType, GetPathsToChangedDescendantNodes_WithChangeTypes } from 'Store/firebase/mapNodeEditTimes';
 import { GetParentPath, HolderType, GetNodeChildrenL3_Advanced } from 'Store/firebase/nodes';
 import { MeID } from 'Store/firebase/users';
-import { GetPlayingTimelineRevealNodes_UpToAppliedStep } from 'Store_Old/main/maps/$map';
 import { NodeChildHolder } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolder';
 import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolderBox';
-import { EB_ShowError, EB_StoreError, ExpensiveComponent, MaybeLog, ShouldLog, SlicePath, State, Watch } from 'Utils/FrameworkOverrides';
+import { EB_ShowError, EB_StoreError, ExpensiveComponent, MaybeLog, ShouldLog, SlicePath } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
+import { GetNodeView_SelfOnly } from 'Store/main/mapViews/$mapView';
+import { GetTimeFromWhichToShowChangedNodes, GetPlayingTimeline, GetPlayingTimelineStepIndex, GetPlayingTimelineRevealNodes_UpToAppliedStep } from 'Store/main/maps/$map';
 import { GetSubnodesInEnabledLayersEnhanced } from '../../../../Store/firebase/layers';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetNodeChildrenL3, GetParentNodeL2, GetParentNodeL3, IsRootNode } from '../../../../Store/firebase/nodes';
 import { GetNodeForm, IsMultiPremiseArgument, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
 import { AccessLevel, MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
-import { GetPlayingTimeline, GetPlayingTimelineCurrentStepRevealNodes, GetPlayingTimelineStepIndex, GetTimeFromWhichToShowChangedNodes } from '../../../../Store_Old/main/maps/$map';
-import { GetNodeView, GetNodeView_SelfOnly } from '../../../../Store_Old/main/mapViews';
-import { MapNodeView } from '../../../../Store_Old/main/mapViews/@MapViews';
 import { NodeChangesMarker } from './NodeUI/NodeChangesMarker';
 import { NodeChildCountMarker } from './NodeUI/NodeChildCountMarker';
 import { GetMeasurementInfoForNode } from './NodeUI/NodeMeasurer';
@@ -55,43 +53,43 @@ export class NodeUI extends BaseComponentPlus(
 		performance.mark('NodeUI_1');
 		path = path || node._key.toString();
 
-		const nodeChildren = GetNodeChildrenL3.Watch(node, path);
+		const nodeChildren = GetNodeChildrenL3(node, path);
 		// let nodeChildrenToShow: MapNodeL3[] = nodeChildren.Any(a => a == null) ? emptyArray_forLoading : nodeChildren; // only pass nodeChildren when all are loaded
-		const nodeChildrenToShow = GetNodeChildrenL3_Advanced.Watch(node, path, map._key, true, true, true);
+		const nodeChildrenToShow = GetNodeChildrenL3_Advanced(node, path, map._key, true, true, true);
 
-		/* let subnodes = GetSubnodesInEnabledLayersEnhanced.Watch(MeID(), map, node._key);
+		/* let subnodes = GetSubnodesInEnabledLayersEnhanced(MeID(), map, node._key);
 		subnodes = subnodes.Any(a => a == null) ? emptyArray : subnodes; // only pass subnodes when all are loaded */
 
-		const sinceTime = GetTimeFromWhichToShowChangedNodes.Watch(map._key);
-		const pathsToChangedDescendantNodes_withChangeTypes = GetPathsToChangedDescendantNodes_WithChangeTypes.Watch(map._key, sinceTime, path);
+		const sinceTime = GetTimeFromWhichToShowChangedNodes(map._key);
+		const pathsToChangedDescendantNodes_withChangeTypes = GetPathsToChangedDescendantNodes_WithChangeTypes(map._key, sinceTime, path);
 		const addedDescendants = pathsToChangedDescendantNodes_withChangeTypes.filter((a) => a == ChangeType.Add).length;
 		const editedDescendants = pathsToChangedDescendantNodes_withChangeTypes.filter((a) => a == ChangeType.Edit).length;
 
 		const parent = GetParentNodeL3(path);
 		const parentPath = GetParentPath(path);
-		// const parentNodeView = GetNodeView.Watch(map._key, parentPath) || new MapNodeView();
+		// const parentNodeView = GetNodeView(map._key, parentPath) || new MapNodeView();
 		// const parentNodeView = Watch(() => GetNodeView(map._key, parentPath) || new MapNodeView(), [map._key, parentPath]);
-		const parentNodeView = GetNodeView_SelfOnly.Watch(map._key, parentPath, true);
+		const parentNodeView = GetNodeView_SelfOnly(map._key, parentPath, true);
 
-		const isSinglePremiseArgument = IsSinglePremiseArgument.Watch(node);
-		const isPremiseOfSinglePremiseArg = IsPremiseOfSinglePremiseArgument.Watch(node, parent);
-		const isMultiPremiseArgument = IsMultiPremiseArgument.Watch(node);
+		const isSinglePremiseArgument = IsSinglePremiseArgument(node);
+		const isPremiseOfSinglePremiseArg = IsPremiseOfSinglePremiseArgument(node, parent);
+		const isMultiPremiseArgument = IsMultiPremiseArgument(node);
 		const argumentNode = node.type == MapNodeType.Argument ? node : isPremiseOfSinglePremiseArg ? parent : null;
 
-		/* const initialChildLimit = State.Watch(a => a.main.initialChildLimit);
-		const form = GetNodeForm.Watch(node, GetParentNodeL2.Watch(path)); */
-		/* const nodeView_early = GetNodeView.Watch(map._key, path) || new MapNodeView();
+		/* const initialChildLimit = State(a => a.main.initialChildLimit);
+		const form = GetNodeForm(node, GetParentNodeL2(path)); */
+		/* const nodeView_early = GetNodeView(map._key, path) || new MapNodeView();
 		const nodeView = CachedTransform('nodeView_transform1', [map._key, path], nodeView_early.Excluding('focused', 'viewOffset', 'children'), () => nodeView_early); */
 		// const nodeView = Watch(() => GetNodeView(map._key, path) || new MapNodeView(), [map._key, path]);
-		const nodeView = GetNodeView_SelfOnly.Watch(map._key, path, true);
+		const nodeView = GetNodeView_SelfOnly(map._key, path, true);
 		const boxExpanded = isPremiseOfSinglePremiseArg ? parentNodeView.expanded : nodeView.expanded;
 
-		const playingTimeline = GetPlayingTimeline.Watch(map._key);
-		const playingTimeline_currentStepIndex = GetPlayingTimelineStepIndex.Watch(map._key);
-		// const playingTimelineShowableNodes = GetPlayingTimelineRevealNodes_All.Watch(map._key);
-		// const playingTimelineVisibleNodes = GetPlayingTimelineRevealNodes_UpToAppliedStep.Watch(map._key, true);
+		const playingTimeline = GetPlayingTimeline(map._key);
+		const playingTimeline_currentStepIndex = GetPlayingTimelineStepIndex(map._key);
+		// const playingTimelineShowableNodes = GetPlayingTimelineRevealNodes_All(map._key);
+		// const playingTimelineVisibleNodes = GetPlayingTimelineRevealNodes_UpToAppliedStep(map._key, true);
 		// if users scrolls to step X and expands this node, keep expanded even if user goes back to a previous step
-		const playingTimelineVisibleNodes = GetPlayingTimelineRevealNodes_UpToAppliedStep.Watch(map._key);
+		const playingTimelineVisibleNodes = GetPlayingTimelineRevealNodes_UpToAppliedStep(map._key);
 
 		performance.mark('NodeUI_2');
 		if (ShouldLog((a) => a.nodeRenders)) {
@@ -128,7 +126,7 @@ export class NodeUI extends BaseComponentPlus(
 
 		const separateChildren = node.type == MapNodeType.Claim;
 
-		const parentChildren = GetNodeChildrenL3.Watch(parent, parentPath);
+		const parentChildren = GetNodeChildrenL3(parent, parentPath);
 		if (isPremiseOfSinglePremiseArg) {
 			const argument = parent;
 			const argumentPath = SlicePath(path, 1);

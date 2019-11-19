@@ -13,14 +13,13 @@ import { MapNodeRevision_titlePattern } from 'Store/firebase/nodes/@MapNodeRevis
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { MeID } from 'Store/firebase/users';
-import { ACTSetLastAcknowledgementTime } from 'Store_Old/main';
-import { ACTMapNodePanelOpen, ACTMapNodeTermOpen } from 'Store_Old/main/mapViews/$mapView/rootNodeViews';
-import { MapNodeView } from 'Store_Old/main/mapViews/@MapViews';
-import { DBPath, InfoButton, IsDoubleClick, ParseSegmentsForPatterns, RemoveHelpers, VReactMarkdown_Remarkable, WaitTillPathDataIsReceived, ExpensiveComponent, Watch } from 'Utils/FrameworkOverrides';
+import { DBPath, InfoButton, IsDoubleClick, ParseSegmentsForPatterns, RemoveHelpers, VReactMarkdown_Remarkable, WaitTillPathDataIsReceived, ExpensiveComponent } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { NodeMathUI } from '../NodeMathUI';
 import { NodeUI_Inner } from '../NodeUI_Inner';
 import { TermPlaceholder } from './TermPlaceholder';
+import {store} from 'Store';
+import {MapNodeView} from 'Store/main/mapViews/$mapView';
 
 /* type TitlePanelProps = {parent: NodeUI_Inner, map: Map, node: MapNodeL2, nodeView: MapNodeView, path: string, indexInNodeList: number, style};
 const TitlePanel_connector = (state, { node, path }: TitlePanelProps) => ({
@@ -69,8 +68,8 @@ export class TitlePanel extends BaseComponentPlus(
 		const latex = node.current.equation && node.current.equation.latex;
 		const isSubnode = IsNodeSubnode(node);
 
-		const displayText = GetNodeDisplayText.Watch(node, path);
-		const equationNumber = Watch(() => (node.current.equation ? GetEquationStepNumber(path) : null), [node, path]);
+		const displayText = GetNodeDisplayText(node, path);
+		const equationNumber = node.current.equation ? GetEquationStepNumber(path) : null;
 
 		newTitle = newTitle != null ? newTitle : displayText;
 
@@ -175,7 +174,7 @@ export class TitlePanel extends BaseComponentPlus(
 
 			// if (parentNode) SetNodeUILocked(parentNode._key, true);
 			const revisionID = await new AddNodeRevision({ mapID: map._key, revision: RemoveHelpers(newRevision) }).Run();
-			store.dispatch(new ACTSetLastAcknowledgementTime({ nodeID: node._key, time: Date.now() }));
+			store.main.nodeLastAcknowledgementTimes.set(node._key, Date.now());
 			// await WaitTillPathDataIsReceiving(DBPath(`nodeRevisions/${revisionID}`));
 			await WaitTillPathDataIsReceived(DBPath(`nodeRevisions/${revisionID}`));
 			// if (parentNode) SetNodeUILocked(parentNode._key, false);

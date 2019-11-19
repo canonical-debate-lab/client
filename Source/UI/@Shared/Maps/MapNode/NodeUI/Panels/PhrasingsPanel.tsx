@@ -1,6 +1,6 @@
 import { Column, Button, Row, CheckBox, Pre } from 'react-vcomponents';
 import { BaseComponentWithConnector, BaseComponent, BaseComponentPlus } from 'react-vextensions';
-import { Connect, InfoButton } from 'Utils/FrameworkOverrides';
+import { InfoButton } from 'Utils/FrameworkOverrides';
 import { PropNameToTitle } from 'Utils/General/Others';
 import { GetNodeDisplayText } from 'Store/firebase/nodes/$node';
 import { MapNodePhrasing, MapNodePhrasingType } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
@@ -20,7 +20,7 @@ export class PhrasingsPanel extends BaseComponentPlus({} as Props, { selectedPhr
 	render() {
 		const { node, path } = this.props;
 		const { selectedPhrasingID } = this.state;
-		let phrasings = GetNodePhrasings.Watch(node._key);
+		let phrasings = GetNodePhrasings(node._key);
 
 		// add one fake "precise" phrasing, matching the node's current text (temp)
 		phrasings = phrasings.slice();
