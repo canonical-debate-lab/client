@@ -41,8 +41,8 @@ export class MapState {
 	showChangesSince_visitOffset = 1;
 
 	@O playingTimeline_time: number;
-	@O playingTimeline_step: number;
-	@O playingTimeline_appliedStep: number;
+	@O playingTimeline_step: number; // step currently scrolled to
+	@O playingTimeline_appliedStep: number; // max step scrolled to
 }
 
 export const GetSelectedNodeID_InList = StoreAccessor((s) => (mapID: string) => {

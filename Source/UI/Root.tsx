@@ -21,7 +21,7 @@ import { Polarity } from 'Store/firebase/nodes/@MapNode';
 import { GetTimelineStep } from 'Store/firebase/timelines';
 import { NodeReveal } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { Me, MeID } from 'Store/firebase/users';
-import { AddressBarWrapper, browserHistory, ErrorBoundary, Route } from 'Utils/FrameworkOverrides';
+import { AddressBarWrapper, browserHistory, ErrorBoundary, Route, LoadURL } from 'Utils/FrameworkOverrides';
 import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
 import { NormalizeURL } from 'Utils/URL/URLs';
 import '../../Source/Utils/Styles/Main.scss'; // keep absolute-ish, since scss file not copied to Source_JS folder
@@ -42,6 +42,8 @@ import { ForumUI } from './Forum';
 import { PersonalUI } from './Personal';
 import { SocialUI } from './Social';
 import { GetPathNodeIDs } from 'Store/main/mapViews/$mapView';
+import { hasHotReloaded } from 'Main';
+import ReactGA from 'react-ga';
 
 ColorPickerBox.Init(ReactColor, chroma);
 
@@ -77,6 +79,20 @@ export class RootUIWrapper extends BaseComponentPlus({}, { storeReady: false }) 
 		trunk.init().then(() => {
 			Log('Loaded state:', Clone(store));
 			this.SetState({ storeReady: true });
+
+			if (!hasHotReloaded) {
+				LoadURL(startURL);
+			}
+			// UpdateURL(false);
+			if (PROD && store.main.analyticsEnabled) {
+				Log('Initialized Google Analytics.');
+				// ReactGA.initialize("UA-21256330-33", {debug: true});
+				ReactGA.initialize('UA-21256330-33');
+
+				/* let url = VURL.FromLocationObject(State().router).toString(false);
+				ReactGA.set({page: url});
+				ReactGA.pageview(url || "/"); */
+			}
 		});
 	}
 

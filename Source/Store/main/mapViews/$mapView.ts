@@ -3,6 +3,7 @@ import { observable } from 'mobx';
 import { O, SplitStringBySlash_Cached, Validate, StoreAccessor, StoreAction } from 'Utils/FrameworkOverrides';
 import { UUID } from 'Utils/General/KeyGenerator';
 import { store } from 'Store';
+import { MapUI } from 'UI/@Shared/Maps/MapUI';
 
 export class MapView {
 	// rootNodeView = new MapNodeView();
@@ -194,7 +195,7 @@ export const GetNodeViewsBelowPath = StoreAccessor({ cache_unwrapArgs: [1] }, (s
 export const ACTMapNodeExpandedSet = StoreAction((opt: {
 	mapID: string, path: string,
 	expanded?: boolean, expanded_truth?: boolean, expanded_relevance?: boolean,
-	expandAncestors?: boolean, resetSubtree: boolean,
+	expandAncestors?: boolean, resetSubtree?: boolean,
 }) => {
 	const rootNodeViews = store.main.mapViews.get(opt.mapID).rootNodeViews;
 	const pathNodes = ToPathNodes(opt.path);
@@ -265,5 +266,10 @@ export const ACTMapViewMerge = StoreAction((mapID: string, toMergeMapView: MapVi
 		DeepSet(inStoreMapView, updatedNode.PathStr, updatedNode.Value);
 	}
 
-	return inStoreMapView;
+	// maybe temp (maybe find another way)
+	// const mapUI = FindReact($('.MapUI')[0]) as MapUI;
+	const mapUI = MapUI.CurrentMapUI;
+	if (mapUI) {
+		mapUI.LoadStoredScroll();
+	}
 });

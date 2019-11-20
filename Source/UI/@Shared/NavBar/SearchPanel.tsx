@@ -16,7 +16,7 @@ import { UUID } from 'Utils/General/KeyGenerator';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { store } from 'Store';
 import { GetOpenMapID } from 'Store/main';
-import { MapNodeView, MapView } from 'Store/main/mapViews/$mapView';
+import { MapNodeView, MapView, ACTMapViewMerge } from 'Store/main/mapViews/$mapView';
 import { NodeUI_Menu_Stub } from '../Maps/MapNode/NodeUI_Menu';
 import { MapUI } from '../Maps/MapUI';
 

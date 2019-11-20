@@ -391,7 +391,8 @@ export const GetNewURL = StoreAccessor((s) => (includeMapViewStr = true) => {
 		mapID = GetOpenMapID();
 		if (isBot) {
 			const map = GetMap(mapID);
-			const rootNodeID = store.main.mapViews.get(mapID).rootNodeID;
+			// const rootNodeID = store.main.mapViews.get(mapID).rootNodeID;
+			const rootNodeID = map.rootNode;
 			const rootNode = GetNodeL2(rootNodeID);
 			if (rootNode) {
 				const nodeStr = GetCrawlerURLStrForNode(rootNode);
