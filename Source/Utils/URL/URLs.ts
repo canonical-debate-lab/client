@@ -25,6 +25,11 @@ export const rootPageDefaultChilds = {
 	global: 'map',
 };
 
+export function PushHistoryEntry() {
+	// history.pushState({}, document.title, GetNewURL());
+	history.pushState({}, document.title, window.location.href);
+}
+
 export function NormalizeURL(url: VURL) {
 	const result = url.Clone();
 	if (!rootPages.Contains(result.pathNodes[0])) {

@@ -1,5 +1,4 @@
 import chroma from 'chroma-js';
-import { ConnectedRouter } from 'connected-react-router';
 import { FromJSON, Vector2i, VURL, Clone } from 'js-vextensions';
 import keycode from 'keycode';
 import { AsyncTrunk } from 'mobx-sync';
@@ -102,11 +101,9 @@ export class RootUIWrapper extends BaseComponentPlus({}, { storeReady: false }) 
 		if (!storeReady) return null;
 
 		return (
-			<ConnectedRouter history={browserHistory}>
-				<DragDropContext_Beautiful onDragEnd={this.OnDragEnd}>
-					<RootUI/>
-				</DragDropContext_Beautiful>
-			</ConnectedRouter>
+			<DragDropContext_Beautiful onDragEnd={this.OnDragEnd}>
+				<RootUI/>
+			</DragDropContext_Beautiful>
 		);
 	}
 
@@ -253,6 +250,7 @@ class RootUI extends BaseComponentPlus({} as {}, {}) {
 	} */
 	render() {
 		// const currentPage = State(a => a.main.page);
+		const page = store.main.page;
 		const background = GetUserBackground(MeID());
 		return (
 			<Column className='background'/* 'unselectable' */ style={{ height: '100%' }}>
@@ -288,22 +286,20 @@ class RootUI extends BaseComponentPlus({} as {}, {}) {
 						<Route path='/chat'><ChatUI/></Route>
 						<Route path='/reputation'><ReputationUI/></Route> */}
 
-						<Route path='/database'><DatabaseUI/></Route>
-						<Route path='/forum'><ForumUI/></Route>
-						<Route path='/feedback'><FeedbackUI/></Route>
-						<Route path='/more'><MoreUI/></Route>
-						<Route withConditions={useCallback((url) => NormalizeURL(VURL.FromLocationObject(url)).pathNodes[0] == 'home', [])}>
-							{!GADDemo && <HomeUI/>}
-							{GADDemo && <HomeUI_GAD/>}
-						</Route>
-						<Route path='/social'><SocialUI/></Route>
-						<Route path='/personal'><PersonalUI/></Route>
-						<Route path='/debates'><DebatesUI/></Route>
-						<Route path='/global'><GlobalUI/></Route>
+						{page == 'database' && <DatabaseUI/>}
+						{page == 'forum' && <ForumUI/>}
+						{page == 'feedback' && <FeedbackUI/>}
+						{page == 'more' && <MoreUI/>}
+						{page == 'home' && !GADDemo && <HomeUI/>}
+						{page == 'home' && GADDemo && <HomeUI_GAD/>}
+						{page == 'social' && <SocialUI/>}
+						{page == 'personal' && <PersonalUI/>}
+						{page == 'debates' && <DebatesUI/>}
+						{page == 'global' && <GlobalUI/>}
 
 						{/* <Route path='/search'><SearchUI/></Route>
 						<Route path='/guide'><GuideUI/></Route> */}
-						<Route path='/profile'><UserProfileUI profileUser={Me()}/></Route>
+						{page == 'profile' && <UserProfileUI profileUser={Me()}/>}
 					</main>
 				</ErrorBoundary>
 			</Column>

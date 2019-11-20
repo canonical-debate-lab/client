@@ -11,11 +11,12 @@ import { AddNotificationMessage } from 'UI/@Shared/NavBar/NotificationsUI';
 import { ApplyDBUpdates, DBPath, ExposeModuleExports, GetAsync, GetData, GetDataAsync, Link, Log, manager as manager_framework, VReactMarkdown_Remarkable } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
-import { GetLoadActionFuncForURL, GetNewURL } from 'Utils/URL/URLs';
+import { GetLoadActionFuncForURL, GetNewURL, PushHistoryEntry } from 'Utils/URL/URLs';
 import { store } from 'Store';
 import { NotificationMessage } from 'Store/main';
 import { GetAuth } from 'Store/firebase';
 import { DoesURLChangeCountAsPageChange } from 'Utils/AutoRuns/PageViewRecorder';
+import { RootState } from 'firebase-feedback/Dist/General';
 import { ShowSignInPopup } from './UI/@Shared/NavBar/UserPanel';
 
 const context = (require as any).context('../Resources/SVGs/', true, /\.svg$/);
@@ -95,8 +96,15 @@ export function InitLibs() {
 			return Moment(time).format(formatStr);
 		},
 
-		router_replace: replace,
-		router_push: push,
+		/* router_replace: replace,
+		router_push: push, */
+		/* RunActionFuncAsPageReplace: (actionFunc: ActionFunc<RootState>) => {
+			// todo
+		},
+		RunActionFuncAsPagePush: (actionFunc: ActionFunc<RootState>) => {
+			// todo
+		}, */
+		PushHistoryEntry,
 
 		logTypes,
 
