@@ -6,13 +6,13 @@ import { VMenuStub, VMenuItem } from 'react-vmenu';
 
 import { ScrollView } from 'react-vscrollview';
 import { TimelinePlayerUI } from 'UI/@Shared/Maps/MapUI/TimelinePlayerUI';
-import { GetDistanceBetweenRectAndPoint, inFirefox, GetScreenRect } from 'Utils/FrameworkOverrides';
+import { GetDistanceBetweenRectAndPoint, inFirefox, GetScreenRect, StoreAction } from 'Utils/FrameworkOverrides';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { ActionBar_Left_GAD } from 'UI/@GAD/ActionBar_Left_GAD';
 import { ActionBar_Right_GAD } from 'UI/@GAD/ActionBar_Right_GAD';
 import { GetParentNodeL3, GetParentPath } from 'Store/firebase/nodes';
 import { store } from 'Store';
-import { GetNodeView, GetMapView, GetSelectedNodePath, GetViewOffset, GetFocusedNodePath } from 'Store/main/mapViews/$mapView';
+import { GetNodeView, GetMapView, GetSelectedNodePath, GetViewOffset, GetFocusedNodePath, GetNodeViewsAlongPath, ACTMapNodeSelect } from 'Store/main/mapViews/$mapView';
 import { GetTimelinePanelOpen, GetPlayingTimeline } from 'Store/main/maps/$map';
 import { GetOpenMapID } from 'Store/main';
 import { styles, ES } from '../../../Utils/UI/GlobalStyles';
@@ -42,7 +42,7 @@ export function GetViewOffsetForNodeBox(nodeBox: Element) {
 	return viewCenter_onScreen.Minus($(nodeBox).GetScreenRect().Position).NewX((x) => x.RoundTo(1)).NewY((y) => y.RoundTo(1));
 }
 
-export function UpdateFocusNodeAndViewOffset(mapID: string) {
+export const ACTUpdateFocusNodeAndViewOffset = StoreAction((mapID: string) => {
 	/* let selectedNodePath = GetSelectedNodePath(mapID);
 	let focusNodeBox = selectedNodePath ? GetNodeBoxForPath(selectedNodePath) : GetNodeBoxClosestToViewCenter(); */
 	const focusNodeBox = GetNodeBoxClosestToViewCenter();
@@ -53,11 +53,14 @@ export function UpdateFocusNodeAndViewOffset(mapID: string) {
 	if (focusNodePath == null) return; // can happen sometimes; not sure what causes
 	const viewOffset = GetViewOffsetForNodeBox(focusNodeBox);
 
-	const oldNodeView = GetNodeView(mapID, focusNodePath);
+	let oldNodeView = GetNodeView(mapID, focusNodePath);
 	if (oldNodeView == null || !oldNodeView.focused || !viewOffset.Equals(oldNodeView.viewOffset)) {
-		store.dispatch(new ACTViewCenterChange({ mapID, focusNodePath, viewOffset }));
+		if (oldNodeView == null) {
+			oldNodeView = GetNodeViewsAlongPath(mapID, focusNodePath, true).Last();
+		}
+		oldNodeView.viewOffset = viewOffset;
 	}
-}
+});
 
 type Props = {
 	map: Map, rootNode?: MapNodeL3, withinPage?: boolean,
@@ -140,7 +143,7 @@ export class MapUI extends BaseComponentPlus({
 						// bufferScrollEventsBy={10000}
 						onScrollEnd={(pos) => {
 							// if (withinPage) return;
-							UpdateFocusNodeAndViewOffset(map._key);
+							ACTUpdateFocusNodeAndViewOffset(map._key);
 						}}
 					>
 						<style>{`
@@ -169,7 +172,7 @@ export class MapUI extends BaseComponentPlus({
 								if (this.downPos && new Vector2i(e.clientX, e.clientY).DistanceTo(this.downPos) >= 3) return;
 								const mapView = GetMapView(GetOpenMapID());
 								if (GetSelectedNodePath(map._key)) {
-									store.dispatch(new ACTMapNodeSelect({ mapID: map._key, path: null }));
+									ACTMapNodeSelect(map._key, null);
 									// UpdateFocusNodeAndViewOffset(map._id);
 								}
 							}}

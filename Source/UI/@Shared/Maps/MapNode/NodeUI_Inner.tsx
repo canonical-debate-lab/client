@@ -9,6 +9,11 @@ import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { DragInfo, EB_ShowError, EB_StoreError, ExpensiveComponent, HSLA, IsDoubleClick, SlicePath, Observer } from 'Utils/FrameworkOverrides';
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
+import { GetTimeFromWhichToShowChangedNodes, GetNodeRevealHighlightTime, GetTimeSinceNodeRevealedByPlayingTimeline } from 'Store/main/maps/$map';
+import { GetPathNodeIDs, GetNodeView_SelfOnly, MapNodeView_SelfOnly, MapNodeView, ACTMapNodeSelect, ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView';
+import { store } from 'Store';
+import { WeightingType, GetLastAcknowledgementTime } from 'Store/main';
+import { runInAction } from 'mobx';
 import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatings } from '../../../../Store/firebase/nodeRatings';
@@ -32,10 +37,6 @@ import { SubPanel } from './NodeUI_Inner/SubPanel';
 import { TitlePanel } from './NodeUI_Inner/TitlePanel';
 import { MapNodeUI_LeftBox } from './NodeUI_LeftBox';
 import { NodeUI_Menu_Stub } from './NodeUI_Menu';
-import {GetTimeFromWhichToShowChangedNodes, GetNodeRevealHighlightTime, GetTimeSinceNodeRevealedByPlayingTimeline} from 'Store/main/maps/$map';
-import {GetPathNodeIDs, GetNodeView_SelfOnly, MapNodeView_SelfOnly, MapNodeView} from 'Store/main/mapViews/$mapView';
-import {store} from 'Store';
-import {WeightingType, GetLastAcknowledgementTime} from 'Store/main';
 
 // drag and drop
 // ==========
@@ -228,7 +229,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 			} */
 
 			if (nodeView == null || !nodeView.selected) {
-				store.dispatch(new ACTMapNodeSelect({ mapID: map._key, path }));
+				ACTMapNodeSelect(map._key, path);
 			}
 		}, [map._key, nodeView, path]);
 		const onDirectClick = UseCallback((e) => {
@@ -248,13 +249,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 
 			// if collapsing subtree, and this node is premise of single-premise arg, start collapsing from parent (the argument node), so that its relevance args are collapsed as well
 			const recursivelyCollapsing = expanded && e.altKey;
-			store.dispatch(new ACTMapNodeExpandedSet(E(
-				{
-					mapID: map._key, path: combinedWithParentArgument ? parentPath : path,
-					expanded: !expanded, resetSubtree: recursivelyCollapsing,
-				},
-				// recursivelyCollapsing && { expanded_relevance: false },
-			)));
+			ACTMapNodeExpandedSet({ mapID: map._key, path: combinedWithParentArgument ? parentPath : path, expanded: !expanded, resetSubtree: recursivelyCollapsing });
 			e.nativeEvent['ignore'] = true; // for some reason, "return false" isn't working
 			// return false;
 		}, [combinedWithParentArgument, expanded, map._key, parentPath, path]);
@@ -293,12 +288,14 @@ export class NodeUI_Inner extends BaseComponentPlus(
 									return;
 								}
 
-								if (nodeView.openPanel != panel) {
-									store.dispatch(new ACTMapNodePanelOpen({ mapID: map._key, path, panel }));
-								} else {
-									store.dispatch(new ACTMapNodePanelOpen({ mapID: map._key, path, panel: null }));
-									this.SetState({ hoverPanel: null });
-								}
+								runInAction('NodeUI_Inner.onPanelButtonClick', () => {
+									if (nodeView.openPanel != panel) {
+										nodeView.openPanel = panel;
+									} else {
+										nodeView.openPanel = null;
+										this.SetState({ hoverPanel: null });
+									}
+								});
 							}}>
 							{/* fixes click-gap */}
 							{panelPosition == 'below' && <div style={{ position: 'absolute', right: -1, width: 1, top: 0, bottom: 0 }}/>}
@@ -413,7 +410,7 @@ class NodeUI_BottomPanel extends BaseComponentPlus(
 					<DefinitionsPanel ref={(c) => this.definitionsPanel = c} {...{ node, path, hoverTermID }}
 						openTermID={nodeView.openTermID}
 						onHoverTerm={(termID) => onTermHover(termID)}
-						onClickTerm={(termID) => store.dispatch(new ACTMapNodeTermOpen({ mapID: map._key, path, termID }))}/>}
+						onClickTerm={(termID) => runInAction('NodeUI_Inner_onClickTerm', () => nodeView.openTermID = termID)}/>}
 				{panelToShow == 'phrasings' && <PhrasingsPanel node={node} path={path}/>}
 				{panelToShow == 'discussion' && <DiscussionPanel/>}
 				{panelToShow == 'social' && <SocialPanel/>}

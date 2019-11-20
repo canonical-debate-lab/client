@@ -8,14 +8,13 @@ import { GetNodeChildrenL3, HolderType } from 'Store/firebase/nodes';
 import { MapNodeL3 } from 'Store/firebase/nodes/@MapNode';
 import { ArgumentType } from 'Store/firebase/nodes/@MapNodeRevision';
 import { MapNodeType, MapNodeType_Info } from 'Store/firebase/nodes/@MapNodeType';
-import { ACTMapNodeChildLimitSet } from 'Store_Old/main/mapViews/$mapView/rootNodeViews';
-import { MapNodeView, MapNodeView_SelfOnly } from 'Store_Old/main/mapViews/@MapViews';
 import { NodeConnectorBackground } from 'UI/@Shared/Maps/MapNode/NodeConnectorBackground';
 import { NodeUI } from 'UI/@Shared/Maps/MapNode/NodeUI';
 import { ExpensiveComponent, Icon, IsSpecialEmptyArray, MaybeLog } from 'Utils/FrameworkOverrides';
 import { DroppableInfo } from 'Utils/UI/DNDStructures';
 import { ES } from 'Utils/UI/GlobalStyles';
-import {store} from 'Store';
+import { store } from 'Store';
+import { MapNodeView_SelfOnly, GetNodeView } from 'Store/main/mapViews/$mapView';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { IsMultiPremiseArgument } from '../../../../../Store/firebase/nodes/$node';
 import { Polarity } from '../../../../../Store/firebase/nodes/@MapNode';
@@ -364,7 +363,8 @@ export class ChildLimitBar extends BaseComponentPlus({} as {map: Map, path: stri
 	static HEIGHT = 36;
 	render() {
 		const { map, path, childrenWidthOverride, direction, childCount, childLimit } = this.props;
-		const initialChildLimit = State((a) => a.main.initialChildLimit);
+		const nodeView = GetNodeView(map._key, path);
+		const initialChildLimit = store.main.initialChildLimit;
 		return (
 			<Row style={{
 				// position: "absolute", marginTop: -30,
@@ -377,7 +377,7 @@ export class ChildLimitBar extends BaseComponentPlus({} as {map: Map, path: stri
 					</Row>
 				} title="Show more"
 				enabled={childLimit < childCount} style={ES({ flex: 1 })} onClick={() => {
-					store.dispatch(new ACTMapNodeChildLimitSet({ mapID: map._key, path, direction, value: (childLimit + 3).KeepAtMost(childCount) }));
+					nodeView[`childLimit_${direction}`] = (childLimit + 3).KeepAtMost(childCount);
 				}}/>
 				<Button ml={5} text={
 					<Row>
@@ -386,7 +386,7 @@ export class ChildLimitBar extends BaseComponentPlus({} as {map: Map, path: stri
 					</Row>
 				} title="Show less"
 				enabled={childLimit > initialChildLimit} style={ES({ flex: 1 })} onClick={() => {
-					store.dispatch(new ACTMapNodeChildLimitSet({ mapID: map._key, path, direction, value: (childLimit - 3).KeepAtLeast(initialChildLimit) }));
+					nodeView[`childLimit_${direction}`] = (childLimit - 3).KeepAtLeast(initialChildLimit);
 				}}/>
 			</Row>
 		);

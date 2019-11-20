@@ -268,7 +268,7 @@ export function JumpToNode(mapID: string, path: string) {
 	currentParentView.focused = true;
 	currentParentView.viewOffset = new Vector2i(0, 0);
 
-	store.dispatch(new ACTMapViewMerge({ mapID, mapView }));
+	ACTMapViewMerge(mapID, mapView);
 
 	// const mapUI = FindReact(document.querySelector('.MapUI')) as MapUI;
 	const mapUI = MapUI.CurrentMapUI;

@@ -15,11 +15,12 @@ import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { MeID } from 'Store/firebase/users';
 import { DBPath, InfoButton, IsDoubleClick, ParseSegmentsForPatterns, RemoveHelpers, VReactMarkdown_Remarkable, WaitTillPathDataIsReceived, ExpensiveComponent } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
+import {store} from 'Store';
 import { NodeMathUI } from '../NodeMathUI';
 import { NodeUI_Inner } from '../NodeUI_Inner';
 import { TermPlaceholder } from './TermPlaceholder';
-import {store} from 'Store';
-import {MapNodeView} from 'Store/main/mapViews/$mapView';
+import { MapNodeView } from 'Store/main/mapViews/$mapView';
+import { runInAction } from 'mobx';
 
 /* type TitlePanelProps = {parent: NodeUI_Inner, map: Map, node: MapNodeL2, nodeView: MapNodeView, path: string, indexInNodeList: number, style};
 const TitlePanel_connector = (state, { node, path }: TitlePanelProps) => ({
@@ -53,10 +54,12 @@ export class TitlePanel extends BaseComponentPlus(
 		parent.SetState({ hoverPanel: hovered ? 'definitions' : null, hoverTermID: hovered ? termID : null });
 	};
 	OnTermClick = (termID: string) => {
-		const { map, path } = this.props;
+		const { map, path, nodeView } = this.props;
 		// parent.SetState({hoverPanel: "definitions", hoverTermID: termID});
-		store.dispatch(new ACTMapNodePanelOpen({ mapID: map._key, path, panel: 'definitions' }));
-		store.dispatch(new ACTMapNodeTermOpen({ mapID: map._key, path, termID }));
+		runInAction('TitlePanel_OnTermClick', () => {
+			nodeView.openPanel = 'definitions';
+			nodeView.openTermID = termID;
+		});
 	};
 
 	render() {

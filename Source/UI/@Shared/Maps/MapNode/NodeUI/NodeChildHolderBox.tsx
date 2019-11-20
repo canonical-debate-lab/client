@@ -11,7 +11,8 @@ import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { ExpensiveComponent, HSLA } from 'Utils/FrameworkOverrides';
 import { store } from 'Store';
-import {MapNodeView_SelfOnly} from 'Store/main/mapViews/$mapView';
+import { MapNodeView_SelfOnly, ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView';
+import {runInAction} from 'mobx';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath } from '../../../../../Store/firebase/nodeRatings';
 import { IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument } from '../../../../../Store/firebase/nodes/$node';
@@ -112,25 +113,27 @@ export class NodeChildHolderBox extends BaseComponentPlus({} as Props, { innerBo
 						toggleExpanded={UseCallback((e) => {
 							const newExpanded = !nodeView[expandKey];
 							const recursivelyCollapsing = !newExpanded && e.altKey;
-							if (type == HolderType.Truth) {
-								store.dispatch(new ACTMapNodeExpandedSet({
-									mapID: map._key, path, resetSubtree: recursivelyCollapsing,
-									[expandKey]: newExpanded,
-								}));
-							} else {
-								store.dispatch(new ActionSet(
-									new ACTMapNodeExpandedSet({
+							runInAction('NodeChildHolderBox_toggleExpanded', () => {
+								if (type == HolderType.Truth) {
+									ACTMapNodeExpandedSet({
+										mapID: map._key, path, resetSubtree: recursivelyCollapsing,
+										[expandKey]: newExpanded,
+									});
+								} else {
+									ACTMapNodeExpandedSet({
 										mapID: map._key, path, resetSubtree: false,
 										[expandKey]: newExpanded,
-									}),
-									...(!recursivelyCollapsing ? [] : nodeChildrenToShow.map((child) => {
-										return new ACTMapNodeExpandedSet({
-											mapID: map._key, path: `${path}/${child._key}`, resetSubtree: true,
-											[expandKey]: newExpanded,
-										});
-									})),
-								));
-							}
+									});
+									if (recursivelyCollapsing) {
+										for (const child of nodeChildrenToShow) {
+											ACTMapNodeExpandedSet({
+												mapID: map._key, path: `${path}/${child._key}`, resetSubtree: true,
+												[expandKey]: newExpanded,
+											});
+										}
+									}
+								}
+							});
 							e.nativeEvent['ignore'] = true; // for some reason, "return false" isn't working
 							// return false;
 							if (nodeView[expandKey]) {

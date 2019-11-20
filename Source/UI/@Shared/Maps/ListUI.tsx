@@ -97,7 +97,6 @@ export class ListUI extends BaseComponent<Props, {panelToShow?: string}> {
 							<Row style={{ position: 'absolute', left: 'calc(50% - 100px)' /* width: 200 */ }}>
 								<Button text={<Icon icon="arrow-left" size={15}/>} title="Previous page"
 									enabled={page > 0} onClick={() => {
-										// store.dispatch(new ACTMapNodeListPageSet({mapID: map._id, page: page - 1}));
 										mapInfo.list_page = page - 1;
 									}}/>
 								<Div ml={10} mr={7}>Page: </Div>

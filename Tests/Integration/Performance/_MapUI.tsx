@@ -11,14 +11,12 @@
 // If something imported has wrong typing (eg. "any" when should be specific type), it's probably due to non-relative imports failing from the Tests folder.
 // To fix, make the needed imports relative. (long-term, either fix root cause, or use tsconfig to force all imports relative, so test-writers don't get confused down the road)
 // declare let { DBPath }: typeof import('../../../node_modules/vwebapp-framework/Source/index');
+declare const { store }: typeof import('../../../Source/Store');
 declare const { DBPath }: typeof import('../../../Source/Utils/FrameworkOverrides');
 declare const { AddMap }: typeof import('../../../Source/Server/Commands/AddMap');
 declare const { Assert }: typeof import('../../../../../@Modules/react-vscrollview/Main/dist/Utils');
 declare const { MeID }: typeof import('../../../Source/Store/firebase/users');
-declare const { ACTPersonalMapSelect }: typeof import('../../../Source/Store/main/personal');
 declare const { AddChildNode }: typeof import('../../../Source/Server/Commands/AddChildNode');
-declare const { ACTMapNodeExpandedSet }: typeof import('../../../Source/Store/main/mapViews/$mapView/rootNodeViews');
-declare const { ACTSetLastAcknowledgementTime }: typeof import('../../../Source/Store/main');
 declare const { MapNode }: typeof import('../../../Source/Store/firebase/nodes/@MapNode');
 declare const { MapNodeType }: typeof import('../../../Source/Store/firebase/nodes/@MapNodeType');
 declare const { MapNodeRevision }: typeof import('../../../Source/Store/firebase/nodes/@MapNodeRevision');
@@ -26,7 +24,7 @@ declare const { ClaimForm }: typeof import('../../../Source/Store/firebase/nodes
 declare const { Polarity }: typeof import('../../../Source/Store/firebase/nodes/@MapNode');
 declare const { AddChildHelper }: typeof import('../../../Source/UI/@Shared/Maps/MapNode/NodeUI_Menu/AddChildDialog');
 
-declare const global;
+// declare const global;
 /* declare global {
 	interface Object {
 		entries: any;
@@ -102,14 +100,15 @@ async function SeedDB(firebase) {
 		Object.defineProperties(Object.getPrototypeOf([]), Object['getOwnPropertyDescriptors'](Object.getPrototypeOf(RR.emptyArray)));
 	}
 
-	RR.store.dispatch(fullAuth);
+	// RR.store.dispatch(fullAuth);
+	// todo: add equivalent for mobx-firebase-plus
 	Assert(MeID() != null);
 
 	// await db.doc(DBPath('users/test1')).set({ name: 'Test1' });
 
 	async function AddTestMap(info) {
 		// if (mapID == null) mapID = `Map ${Math.random()}`;
-		const map = Object.assign({}, { name: `Map ${Math.random()}`, type: 10, creator: 'MyUser' }, info);
+		const map = { name: `Map ${Math.random()}`, type: 10, creator: 'MyUser', ...info };
 		// db.doc(DBPath(`maps/${mapID}`)).set(map);
 		const command = new AddMap({ map });
 		const mapID = await command.Run();
@@ -118,7 +117,8 @@ async function SeedDB(firebase) {
 	const mapInfo = await AddTestMap({ name: 'MainTestMap' }); // , '---TestingMap---');
 	for (let i = 0; i < 10; i++) AddTestMap({});
 	Assert(mapInfo.mapID != null);
-	RR.store.dispatch(new ACTPersonalMapSelect({ id: mapInfo.mapID }));
+	// RR.store.dispatch(new ACTPersonalMapSelect({ id: mapInfo.mapID }));
+	store.main.personal.selectedMapID = mapInfo.mapID;
 	await RR.SleepAsync(50); // wait a bit, till map-data loaded (otherwise nodes can't be expanded)
 
 	const rootNodeID = mapInfo.command.payload.map.rootNode;

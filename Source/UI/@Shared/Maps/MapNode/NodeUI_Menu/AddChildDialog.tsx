@@ -7,6 +7,7 @@ import { HasModPermissions } from 'Store/firebase/userExtras';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { store } from 'Store';
 import { Link } from 'Utils/FrameworkOverrides';
+import { ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView';
 import { AddChildNode } from '../../../../../Server/Commands/AddChildNode';
 import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
 import { AsNodeL2, AsNodeL3, GetClaimType, GetNodeForm, GetNodeL3 } from '../../../../../Store/firebase/nodes/$node';
@@ -72,9 +73,9 @@ export class AddChildHelper {
 			}).Run();
 
 			if (expandSelf) {
-				store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.argumentNodeID}`, expanded: true, resetSubtree: false }));
-				store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.argumentNodeID}/${info.claimNodeID}`, expanded: true,
-					expanded_truth: expandTruthAndRelevance, expanded_relevance: expandTruthAndRelevance, resetSubtree: false }));
+				ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.argumentNodeID}`, expanded: true, resetSubtree: false });
+				ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.argumentNodeID}/${info.claimNodeID}`, expanded: true,
+					expanded_truth: expandTruthAndRelevance, expanded_relevance: expandTruthAndRelevance, resetSubtree: false });
 				store.main.nodeLastAcknowledgementTimes.set(info.argumentNodeID, Date.now());
 				store.main.nodeLastAcknowledgementTimes.set(info.claimNodeID, Date.now());
 			}
@@ -84,8 +85,8 @@ export class AddChildHelper {
 			}).Run();
 
 			if (expandSelf) {
-				store.dispatch(new ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.nodeID}`, expanded: true,
-					expanded_truth: expandTruthAndRelevance, expanded_relevance: expandTruthAndRelevance, resetSubtree: false }));
+				ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.nodeID}`, expanded: true,
+					expanded_truth: expandTruthAndRelevance, expanded_relevance: expandTruthAndRelevance, resetSubtree: false });
 				store.main.nodeLastAcknowledgementTimes.set(info.nodeID, Date.now());
 			}
 		}

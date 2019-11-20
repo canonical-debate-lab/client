@@ -186,10 +186,8 @@ export class NavBarPanelButton extends BaseComponentPlus({} as {text: string, pa
 		const { corner, panel, active } = this.PropsStateStash;
 		runInAction('NavBarPanelButton_OnClick', () => {
 			if (corner == 'top-left') {
-				// store.dispatch(new ACTTopLeftOpenPanelSet(active ? null : panel));
 				store.main.topLeftOpenPanel = active ? null : panel;
 			} else {
-				// store.dispatch(new ACTTopRightOpenPanelSet(active ? null : panel));
 				store.main.topRightOpenPanel = active ? null : panel;
 			}
 		});
