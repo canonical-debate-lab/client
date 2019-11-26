@@ -1,10 +1,10 @@
 import { autorun, runInAction } from 'mobx';
 import { GetOpenMapID } from 'Store/main';
 import { GetMap } from 'Store/firebase/maps';
-import { GetAsync } from 'Utils/FrameworkOverrides';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { GetNodeView, ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView';
 import { store } from 'Store';
+import { GetAsync } from 'Utils/LibIntegrations/MobXFirelink';
 
 let lastMapID;
 autorun(() => {

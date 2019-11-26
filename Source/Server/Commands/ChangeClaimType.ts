@@ -1,6 +1,6 @@
 import { MapEdit } from 'Server/CommandMacros';
 import { Assert, GetValues_ForSchema } from 'js-vextensions';
-import { AssertValidate, AddSchema , GetAsync_Raw, GetDataAsync , Command } from 'Utils/FrameworkOverrides';
+import { AssertValidate, AddSchema } from 'Utils/FrameworkOverrides';
 
 
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
@@ -9,6 +9,8 @@ import { Equation } from '../../Store/firebase/nodes/@Equation';
 import { ClaimType, MapNodeL2 } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeRevision } from '../../Store/firebase/nodes/@MapNodeRevision';
 import { UserEdit } from './../CommandMacros';
+import {Command} from 'mobx-firelink';
+import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
 
 export const conversionTypes = [
 	// from normal to...
@@ -43,7 +45,7 @@ export class ChangeClaimType extends Command<{mapID?: number, nodeID: string, ne
 	async Prepare() {
 		const { nodeID, newType } = this.payload;
 		// let oldData = await GetDataAsync({addHelpers: false}, "nodes", nodeID) as MapNode;
-		const oldData = await GetAsync_Raw(() => GetNodeL2(nodeID));
+		const oldData = await GetAsync(() => GetNodeL2(nodeID));
 		this.oldType = GetClaimType(oldData);
 
 		this.newData = { ...oldData.Excluding('current') as any };

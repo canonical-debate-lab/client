@@ -1,6 +1,9 @@
 import { MapNodePhrasing } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
-import { AddSchema, GetSchemaJSON, Schema, AssertValidate, GetDataAsync, Command } from 'Utils/FrameworkOverrides';
+import { AddSchema, GetSchemaJSON, Schema, AssertValidate } from 'Utils/FrameworkOverrides';
 import { UserEdit } from 'Server/CommandMacros';
+import { Command } from 'mobx-firelink';
+import { GetAsync } from 'Utils/LibIntegrations/MobXFirelink';
+import { GetNodePhrasings, GetNodePhrasing } from 'Store/firebase/nodePhrasings';
 
 type MainType = MapNodePhrasing;
 const MTName = 'MapNodePhrasing';
@@ -25,7 +28,7 @@ export class UpdatePhrasing extends Command<{id: string, updates: Partial<MainTy
 	newData: MainType;
 	async Prepare() {
 		const { id, updates } = this.payload;
-		this.oldData = await GetDataAsync({ addHelpers: false }, 'nodePhrasings', id) as MainType;
+		this.oldData = await GetAsync(() => GetNodePhrasing(id));
 		this.newData = { ...this.oldData, ...updates };
 	}
 	async Validate() {

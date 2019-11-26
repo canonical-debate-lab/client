@@ -1,9 +1,10 @@
-import { UserEdit } from 'Server/CommandMacros';
 import { Assert } from 'js-vextensions';
-import { AssertValidate ,GetDataAsync, Command } from 'Utils/FrameworkOverrides';
-
+import { Command } from 'mobx-firelink';
+import { UserEdit } from 'Server/CommandMacros';
+import { GetImage } from 'Store/firebase/images';
+import { AssertValidate } from 'Utils/FrameworkOverrides';
+import { GetAsync } from 'Utils/LibIntegrations/MobXFirelink';
 import { Image } from '../../Store/firebase/images/@Image';
-
 
 export const UpdateImageData_allowedPropUpdates = ['name', 'type', 'url', 'description', 'previewWidth', 'sourceChains'];
 @UserEdit
@@ -18,7 +19,7 @@ export class UpdateImageData extends Command<{id: string, updates: Partial<Image
 	newData: Image;
 	async Prepare() {
 		const { id, updates } = this.payload;
-		this.oldData = await GetDataAsync({ addHelpers: false }, 'images', id) as Image;
+		this.oldData = await GetAsync(() => GetImage(id));
 		this.newData = { ...this.oldData, ...updates };
 	}
 	async Validate() {

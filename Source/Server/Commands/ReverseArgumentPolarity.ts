@@ -1,6 +1,8 @@
 import { Assert } from 'js-vextensions';
 import { MapEdit } from 'Server/CommandMacros';
-import { AddSchema, AssertValidate, Command, GetAsync_Raw } from 'Utils/FrameworkOverrides';
+import { AddSchema, AssertValidate } from 'Utils/FrameworkOverrides';
+import { Command } from 'mobx-firelink';
+import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
 import { GetParentNodeID } from '../../Store/firebase/nodes';
 import { GetNodeL3, ReversePolarity } from '../../Store/firebase/nodes/$node';
 import { ChildEntry, MapNodeL3 } from '../../Store/firebase/nodes/@MapNode';
@@ -29,7 +31,7 @@ export class ReverseArgumentPolarity extends Command<{mapID?: number, nodeID: st
 	async Prepare() {
 		const { nodeID, path } = this.payload;
 
-		this.oldNodeData = await GetAsync_Raw(() => GetNodeL3(path));
+		this.oldNodeData = await GetAsync(() => GetNodeL3(path));
 		this.parentID = GetParentNodeID(path);
 
 		this.newLinkData = { ...this.oldNodeData.link };

@@ -1,6 +1,6 @@
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
-import { DBPath, GetUpdates, RemoveHelpers, WaitTillPathDataIsReceived } from 'Utils/FrameworkOverrides';
+import { GetUpdates } from 'Utils/FrameworkOverrides';
 import { store } from 'Store';
 import { AddNodeRevision } from '../../../../../../Server/Commands/AddNodeRevision';
 import { UpdateLink } from '../../../../../../Server/Commands/UpdateLink';
@@ -47,15 +47,10 @@ export class DetailsPanel extends BaseComponentPlus({} as {map?: Map, node: MapN
 								}
 							}
 
-							// if (parentNode) SetNodeUILocked(parentNode._key, true);
-							try {
-								const revisionID = await new AddNodeRevision({ mapID: map._key, revision: RemoveHelpers(this.detailsUI.GetNewRevisionData()) }).Run();
-								store.main.nodeLastAcknowledgementTimes.set(node._key, Date.now());
-								// await WaitTillPathDataIsReceiving(DBPath(`nodeRevisions/${revisionID}`));
-								await WaitTillPathDataIsReceived(DBPath(`nodeRevisions/${revisionID}`));
-							} finally {
-								// if (parentNode) SetNodeUILocked(parentNode._key, false);
-							}
+							const revisionID = await new AddNodeRevision({ mapID: map._key, revision: this.detailsUI.GetNewRevisionData() }).Run();
+							store.main.nodeLastAcknowledgementTimes.set(node._key, Date.now());
+							// await WaitTillPathDataIsReceiving(DBPath(`nodeRevisions/${revisionID}`));
+							// await WaitTillPathDataIsReceived(DBPath(`nodeRevisions/${revisionID}`));
 						}}/>
 						{/* error && <Pre>{error.message}</Pre> */}
 					</Row>}

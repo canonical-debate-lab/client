@@ -1,6 +1,9 @@
 import { Assert } from 'js-vextensions';
 import { UserEdit } from 'Server/CommandMacros';
-import { AssertValidate, Command, GetDataAsync } from 'Utils/FrameworkOverrides';
+import { AssertValidate } from 'Utils/FrameworkOverrides';
+import { Command } from 'mobx-firelink';
+import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
+import {GetTerm} from 'Store/firebase/terms';
 import { Term } from '../../Store/firebase/terms/@Term';
 
 @UserEdit
@@ -15,7 +18,7 @@ export class UpdateTermData extends Command<{termID: string, updates: Partial<Te
 	newData: Term;
 	async Prepare() {
 		const { termID, updates } = this.payload;
-		this.oldData = await GetDataAsync({ addHelpers: false }, 'terms', termID) as Term;
+		this.oldData = await GetAsync(() => GetTerm(termID));
 		this.newData = { ...this.oldData, ...updates };
 	}
 	async Validate() {

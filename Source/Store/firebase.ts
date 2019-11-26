@@ -1,6 +1,6 @@
 import { ObservableMap } from 'mobx';
 import { O } from 'vwebapp-framework/Source';
-import {StoreAccessor} from 'Utils/FrameworkOverrides';
+import { StoreAccessor } from 'Utils/FrameworkOverrides';
 import { GeneralData } from './firebase/general';
 import { Image } from './firebase/images/@Image';
 import { Layer } from './firebase/layers/@Layer';
@@ -31,11 +31,11 @@ export class FirebaseState {
 	@O maps: ObservableMap<string, Map>;
 	@O mapNodeEditTimes: ObservableMap<string, NodeEditTimes>;
 	@O nodes: ObservableMap<string, MapNode>;
-	// @O nodeExtras: {[key: string]: any};
+	// @O nodeExtras: ObservableMap<string, any>;
 	@O nodeRatings: ObservableMap<string, RatingsRoot>; // $nodeID (key) -> $ratingType -> $userID -> value -> $value
 	@O nodeRevisions: ObservableMap<string, MapNodeRevision>;
-	// @O nodeStats: {[key: string]: MapNodeStats};
-	// @O nodeViewers: {[key: string]: ViewerSet}; // removed due to privacy concerns
+	// @O nodeStats: ObservableMap<string, MapNodeStats>;
+	// @O nodeViewers: ObservableMap<string, ViewerSet>; // removed due to privacy concerns
 	@O nodePhrasings: ObservableMap<string, MapNodePhrasing>;
 	@O terms: ObservableMap<string, Term>;
 	@O termComponents: ObservableMap<string, TermComponent>;
@@ -45,11 +45,40 @@ export class FirebaseState {
 	@O users: ObservableMap<string, User>;
 	@O userExtras: ObservableMap<string, UserExtraInfo>;
 	@O userMapInfo: ObservableMap<string, UserMapInfoSet>; // $userID (key) -> $mapID -> layerStates -> $layerID -> [boolean, for whether enabled]
-	// @O userViewedNodes: {[key: string]: ViewedNodeSet}; // removed due to privacy concerns
+	// @O userViewedNodes: ObservableMap<string, ViewedNodeSet>; // removed due to privacy concerns
 }
+/* interface FirebaseDBState {
+	modules: Firebase_ModulesState;
+
+	general: {data: GeneralData};
+	images: ObservableMap<string, Image>;
+	layers: ObservableMap<string, Layer>;
+	/* maps: {
+		[key: number]: Map
+			& {nodeEditTimes: DataWrapper<NodeEditTimes>}; // nodeEditTimes -> $nodeID -> $nodeEditTime
+	}; *#/
+	maps: ObservableMap<string, Map>;
+	mapNodeEditTimes: ObservableMap<string, NodeEditTimes>;
+	nodes: ObservableMap<string, MapNode>;
+	// nodeExtras: ObservableMap<string, any>;
+	nodeRatings: ObservableMap<string, RatingsRoot>; // $nodeID (key) -> $ratingType -> $userID -> value -> $value
+	nodeRevisions: ObservableMap<string, MapNodeRevision>;
+	// nodeStats: ObservableMap<string, MapNodeStats>;
+	// nodeViewers: ObservableMap<string, ViewerSet>; // removed due to privacy concerns
+	nodePhrasings: ObservableMap<string, MapNodePhrasing>;
+	terms: ObservableMap<string, Term>;
+	termComponents: ObservableMap<string, TermComponent>;
+	termNames: ObservableMap<string, any>;
+	timelines: ObservableMap<string, Timeline>;
+	timelineSteps: ObservableMap<string, TimelineStep>;
+	users: ObservableMap<string, User>;
+	userExtras: ObservableMap<string, UserExtraInfo>;
+	userMapInfo: ObservableMap<string, UserMapInfoSet>; // $userID (key) -> $mapID -> layerStates -> $layerID -> [boolean, for whether enabled]
+	// userViewedNodes: ObservableMap<string, ViewedNodeSet>; // removed due to privacy concerns
+} */
 
 export class Firebase_ModulesState {
-	@O feedback: Firebase_FeedbackState;
+	// @O feedback: Firebase_FeedbackState;
 }
 
 export const GetAuth = StoreAccessor((s) => () => {

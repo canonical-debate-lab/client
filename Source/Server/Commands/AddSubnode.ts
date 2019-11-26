@@ -1,11 +1,11 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
-import { GetAsync_Raw , Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
-
 import { GetLayer } from '../../Store/firebase/layers';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { AddNode } from './AddNode';
+import {Command, MergeDBUpdates} from 'mobx-firelink';
+import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
 
 @UserEdit
 export class AddSubnode extends Command<{mapID: string, layerID: string, anchorNodeID: string, subnode: MapNode, subnodeRevision: MapNodeRevision}, number> {
@@ -17,7 +17,7 @@ export class AddSubnode extends Command<{mapID: string, layerID: string, anchorN
 		this.sub_addNode = new AddNode({ mapID, node: subnode, revision: subnodeRevision }).MarkAsSubcommand();
 		await this.sub_addNode.Prepare();
 
-		this.layer_oldData = await GetAsync_Raw(() => GetLayer(layerID));
+		this.layer_oldData = await GetAsync(() => GetLayer(layerID));
 
 		this.returnData = this.sub_addNode.nodeID;
 	}

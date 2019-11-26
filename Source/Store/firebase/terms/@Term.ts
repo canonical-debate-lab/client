@@ -1,6 +1,7 @@
 import { GetValues_ForSchema } from 'js-vextensions';
 import { AddSchema } from 'Utils/FrameworkOverrides';
 import { UUID_regex } from 'Utils/General/KeyGenerator';
+import { ObservableMap } from 'mobx';
 
 export class Term {
 	constructor(initialData: {name: string, type: TermType} & Partial<Term>) {
@@ -66,5 +67,5 @@ export enum TermType {
 }
 AddSchema('TermType', { oneOf: GetValues_ForSchema(TermType) });
 
-export type TermComponentSet = {[key: string]: boolean};
+export type TermComponentSet = ObservableMap<string, boolean>;
 AddSchema('TermComponentSet', { patternProperties: { [UUID_regex]: { type: 'boolean' } } });

@@ -4,8 +4,7 @@ import { ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { store } from 'Store';
-import { RemoveHelpers } from 'Utils/FrameworkOverrides';
-import {GetSelectedImage} from 'Store/main/database';
+import { GetSelectedImage } from 'Store/main/database';
 import { DeleteImage } from '../../Server/Commands/DeleteImage';
 import { UpdateImageData, UpdateImageData_allowedPropUpdates } from '../../Server/Commands/UpdateImageData';
 import { GetImages } from '../../Store/firebase/images';
@@ -74,7 +73,7 @@ export class ImagesUI extends BaseComponentPlus({} as {}, {} as { selectedImage_
 								{creatorOrMod &&
 									<Button ml="auto" text="Save details" enabled={selectedImage_newData != null && selectedImage_newDataError == null}
 										onClick={async (e) => {
-											const updates = RemoveHelpers(selectedImage_newData.Including(...UpdateImageData_allowedPropUpdates));
+											const updates = selectedImage_newData.Including(...UpdateImageData_allowedPropUpdates);
 											await new UpdateImageData({ id: selectedImage._key, updates }).Run();
 											// this.SetState({selectedImage_newData: null});
 										}}/>}

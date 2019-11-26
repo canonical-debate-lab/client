@@ -1,6 +1,7 @@
 import { Assert } from 'js-vextensions';
 import { MapEdit } from 'Server/CommandMacros';
-import { AddSchema, AssertValidate, Command } from 'Utils/FrameworkOverrides';
+import { AddSchema, AssertValidate } from 'Utils/FrameworkOverrides';
+import {Command} from 'mobx-firelink';
 import { UserEdit } from '../CommandMacros';
 
 AddSchema('SetMapLayerStateForUser_payload', {

@@ -1,10 +1,12 @@
 import { Assert, ToInt } from 'js-vextensions';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
-import { AddSchema, AssertValidate, Command, GetAsync, GetAsync_Raw, GetDataAsync, MergeDBUpdates, GetData_Query } from 'Utils/FrameworkOverrides';
 import { GetNodeRevision, GetNodeRevisions } from 'Store/firebase/nodeRevisions';
+import { Command, MergeDBUpdates } from 'mobx-firelink';
+import { AssertValidate, AddSchema } from 'Utils/FrameworkOverrides';
+import { GetAsync, GetDoc_Async } from 'Utils/LibIntegrations/MobXFirelink';
 import { GetMaps } from '../../Store/firebase/maps';
-import { ForDelete_GetError } from '../../Store/firebase/nodes';
+import { ForDelete_GetError, GetNode } from '../../Store/firebase/nodes';
 import { MapNodeL2 } from '../../Store/firebase/nodes/@MapNode';
 import { MapEdit, UserEdit } from '../CommandMacros';
 
@@ -38,7 +40,7 @@ export class DeleteNode extends Command<{mapID?: string, nodeID: string, withCon
 	async Prepare() {
 		const { mapID, nodeID, withContainerArgument } = this.payload;
 
-		this.oldData = await GetAsync_Raw(() => GetNodeL2(nodeID));
+		this.oldData = await GetAsync(() => GetNodeL2(nodeID));
 		// this.oldRevisions = await GetAsync(() => GetNodeRevisions(nodeID));
 		// this.oldRevisions = await Promise.all(...oldRevisionIDs.map(id => GetDataAsync('nodeRevisions', id)));
 		// this.oldRevisions = await Promise.all(...oldRevisionIDs.map(id => GetAsync(() => GetNodeRevision(id))));
@@ -46,7 +48,8 @@ export class DeleteNode extends Command<{mapID?: string, nodeID: string, withCon
 		this.oldRevisions = await GetAsync(() => oldRevisionIDs.map(id => GetNodeRevision(id))); */
 		this.oldRevisions = await GetAsync(() => GetNodeRevisions(nodeID));
 
-		this.oldParentChildrenOrders = await Promise.all((this.oldData.parents || {}).VKeys().map((parentID) => GetDataAsync('nodes', parentID, '.childrenOrder') as Promise<string[]>));
+		const parentIDs = (this.oldData.parents || {}).VKeys();
+		this.oldParentChildrenOrders = await Promise.all(parentIDs.map((parentID) => GetAsync(() => GetNode(parentID)?.childrenOrder)));
 
 		// this.viewerIDs_main = await GetAsync(() => GetNodeViewers(nodeID));
 

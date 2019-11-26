@@ -1,10 +1,12 @@
 import { IsNaN } from 'js-vextensions';
-import { GetData, GetData_Query, StoreAccessor, WhereFilter } from 'Utils/FrameworkOverrides';
+import { StoreAccessor } from 'Utils/FrameworkOverrides';
+import { WhereFilter } from 'mobx-firelink';
+import { GetDoc, GetDocs } from 'Utils/LibIntegrations/MobXFirelink';
 import { MapNodeRevision } from './nodes/@MapNodeRevision';
 
 export function GetNodeRevision(id: string) {
 	if (id == null || IsNaN(id)) return null;
-	return GetData('nodeRevisions', id) as MapNodeRevision;
+	return GetDoc((a) => a.nodeRevisions.get(id));
 }
 
 // todo: make this use an actual query, to improve performance
@@ -25,7 +27,7 @@ export function GetNodeRevision(id: string) {
 	return docIDs;
 } */
 export const GetNodeRevisions = StoreAccessor((s) => (nodeID: string): MapNodeRevision[] => {
-	const entryMap = GetData_Query(
+	/* const entryMap = GetData_Query(
 		{
 			// key: `GetNodeRevisions_${nodeID}`,
 			whereFilters: [new WhereFilter('node', '==', nodeID)],
@@ -33,6 +35,9 @@ export const GetNodeRevisions = StoreAccessor((s) => (nodeID: string): MapNodeRe
 		},
 		'nodeRevisions',
 	);
-	return entryMap ? entryMap.VValues(true).filter((a) => a && a.node == nodeID) : [];
+	return entryMap ? entryMap.VValues(true).filter((a) => a && a.node == nodeID) : []; */
 	// return entryMap ? entryMap.VValues(true).filter(a => a && a.node == nodeID) : [];
+	return GetDocs((a) => a.nodeRevisions, {
+		filters: [new WhereFilter('node', '==', nodeID)],
+	});
 });

@@ -1,6 +1,6 @@
 import { MapEdit, UserEdit } from 'Server/CommandMacros';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
-import { Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
+import {Command, MergeDBUpdates} from 'mobx-firelink';
 import { ChildEntry, MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { AddChildNode } from './AddChildNode';
 

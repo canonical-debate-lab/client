@@ -1,5 +1,6 @@
 import { CachedTransform, emptyArray, ToInt } from 'js-vextensions';
-import { GetData, StoreAccessor } from 'Utils/FrameworkOverrides';
+import { StoreAccessor } from 'Utils/FrameworkOverrides';
+import { GetDoc } from 'Utils/LibIntegrations/MobXFirelink';
 import { Map } from './maps/@Map';
 import { Timeline } from './timelines/@Timeline';
 import { TimelineStep } from './timelineSteps/@TimelineStep';
@@ -10,7 +11,7 @@ import { TimelineStep } from './timelineSteps/@TimelineStep';
 } */
 export const GetTimeline = StoreAccessor((s) => (id: string): Timeline => {
 	if (id == null) return null;
-	return GetData('timelines', id);
+	return GetDoc((a) => a.timelines.get(id));
 });
 
 export function GetMapTimelineIDs(map: Map) {
@@ -24,7 +25,7 @@ export const GetMapTimelines = StoreAccessor((s) => (map: Map) => {
 
 export const GetTimelineStep = StoreAccessor((s) => (id: string): TimelineStep => {
 	if (id == null) return null;
-	return GetData('timelineSteps', id);
+	return GetDoc((a) => a.timelineSteps.get(id));
 });
 export const GetTimelineSteps = StoreAccessor((s) => (timeline: Timeline, allowStillLoading = false): TimelineStep[] => {
 	const steps = (timeline.steps || []).map((id) => GetTimelineStep(id));

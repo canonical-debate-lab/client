@@ -3,7 +3,6 @@ import { Button, Column, Div, Pre, Row, Span } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus, UseEffect } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
-import { RemoveHelpers } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { GetSelectedTerm } from 'Store/main/database';
 import { store } from 'Store';
@@ -75,7 +74,7 @@ export class TermsUI extends BaseComponentPlus({} as {}, {} as {selectedTerm_new
 								{creatorOrMod &&
 									<Button ml="auto" text="Save details" enabled={selectedTerm_newData != null && selectedTerm_newDataError == null}
 										onClick={async (e) => {
-											const updates = RemoveHelpers(selectedTerm_newData.Including('name', 'disambiguation', 'type', 'person', 'shortDescription_current'));
+											const updates = selectedTerm_newData.Including('name', 'disambiguation', 'type', 'person', 'shortDescription_current');
 											await new UpdateTermData({ termID: selectedTerm._key, updates }).Run();
 											// this.SetState({selectedTerm_newData: null});
 										}}/>}

@@ -1,5 +1,6 @@
 import { AddSchema } from 'Utils/FrameworkOverrides';
 import { UUID_regex } from 'Utils/General/KeyGenerator';
+import { ObservableMap } from 'mobx';
 
 export class TermComponent {
 	constructor(initialData: {text: string} & Partial<TermComponent>) {
@@ -20,7 +21,7 @@ AddSchema('TermComponent', {
 	required: ['text', 'parentTerms'],
 });
 
-/* export type ParentTermSet = {[key: number]: ParentTerm};
+/* export type ParentTermSet = ObservableMap<number, ParentTerm>;
 AddSchema({patternProperties: {"^[A-Za-z0-9_-]+$": {$ref: "ParentTerm"}}}, "ParentTermSet");
 export type ParentTerm = boolean;
 AddSchema({type: "boolean"}, "ParentTerm"); */

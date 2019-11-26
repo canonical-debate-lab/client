@@ -1,5 +1,8 @@
 import { MapEdit, UserEdit } from 'Server/CommandMacros';
-import { AddSchema, AssertValidate, Command, GetDataAsync } from 'Utils/FrameworkOverrides';
+import { AddSchema, AssertValidate } from 'Utils/FrameworkOverrides';
+import { Command } from 'mobx-firelink';
+import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
+import {GetNode} from 'Store/firebase/nodes';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 
 AddSchema('SetNodeIsMultiPremiseArgument_payload', {
@@ -22,7 +25,7 @@ export class SetNodeIsMultiPremiseArgument extends Command<{mapID?: number, node
 	newNodeData: MapNode;
 	async Prepare() {
 		const { mapID, nodeID, multiPremiseArgument } = this.payload;
-		this.oldNodeData = await GetDataAsync({ addHelpers: false }, 'nodes', nodeID) as MapNode;
+		this.oldNodeData = await GetAsync(() => GetNode(nodeID));
 		this.newNodeData = { ...this.oldNodeData, ...{ multiPremiseArgument } };
 	}
 	async Validate() {

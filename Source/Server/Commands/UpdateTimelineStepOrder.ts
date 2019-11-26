@@ -1,6 +1,7 @@
 import { UserEdit } from 'Server/CommandMacros';
-import { GetDataAsync } from 'Utils/FrameworkOverrides';
-import { Command } from 'Utils/FrameworkOverrides';
+import { Command } from 'mobx-firelink';
+import { GetAsync } from 'Utils/LibIntegrations/MobXFirelink';
+import { GetTimeline } from 'Store/firebase/timelines';
 
 @UserEdit
 export class UpdateTimelineStepOrder extends Command<{timelineID: string, stepID: string, newIndex: number}, {}> {
@@ -8,7 +9,7 @@ export class UpdateTimelineStepOrder extends Command<{timelineID: string, stepID
 	timeline_newSteps: string[];
 	async Prepare() {
 		const { timelineID, stepID, newIndex } = this.payload;
-		this.timeline_oldSteps = await GetDataAsync('timelines', timelineID, '.steps') || [];
+		this.timeline_oldSteps = await GetAsync(() => GetTimeline(timelineID)?.steps) || [];
 		this.timeline_newSteps = this.timeline_oldSteps.slice();
 		this.timeline_newSteps.Move(stepID, newIndex, true);
 	}

@@ -1,20 +1,21 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { DeleteNode } from 'Server/Commands/DeleteNode';
 import { GetMap } from 'Store/firebase/maps';
-import { GetAsync_Raw, GetDataAsync, Command, MergeDBUpdates } from 'Utils/FrameworkOverrides';
-
+import { GetAsync, GetDoc_Async, GetDocs_Async } from 'Utils/LibIntegrations/MobXFirelink';
+import { Command, MergeDBUpdates } from 'mobx-firelink';
+import {MapNode} from 'Store/firebase/nodes/@MapNode';
 import { Map } from '../../Store/firebase/maps/@Map';
 import { UserMapInfoSet } from '../../Store/firebase/userMapInfo/@UserMapInfo';
 
 @UserEdit
 export class DeleteMap extends Command<{mapID: string}, {}> {
 	oldData: Map;
-	userMapInfoSets: {[key: string]: UserMapInfoSet};
+	userMapInfoSets: UserMapInfoSet[];
 	sub_deleteNode: DeleteNode;
 	async Prepare() {
 		const { mapID } = this.payload;
-		this.oldData = await GetAsync_Raw(() => GetMap(mapID));
-		this.userMapInfoSets = (await GetDataAsync('userMapInfo') as {[key: string]: UserMapInfoSet}) || {};
+		this.oldData = await GetAsync(() => GetMap(mapID));
+		this.userMapInfoSets = await GetDocs_Async((a) => a.userMapInfo) || [];
 
 		this.sub_deleteNode = new DeleteNode({ mapID, nodeID: this.oldData.rootNode }).MarkAsSubcommand();
 		this.sub_deleteNode.asPartOfMapDelete = true;
@@ -32,7 +33,8 @@ export class DeleteMap extends Command<{mapID: string}, {}> {
 
 		const newUpdates = {};
 		newUpdates[`maps/${mapID}`] = null;
-		for (const { key: userID, value: userMapInfoSet } of this.userMapInfoSets.Pairs(true)) {
+		for (const userMapInfoSet of this.userMapInfoSets) {
+			const userID = userMapInfoSet._key;
 			for (const { key: mapID2, value: userMapInfo } of userMapInfoSet.Pairs(true)) {
 				if (mapID2 == mapID) {
 					newUpdates[`userMapInfo/${userID}/.${mapID}`] = null;

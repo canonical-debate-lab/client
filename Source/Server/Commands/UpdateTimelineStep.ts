@@ -1,5 +1,8 @@
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
-import { AddSchema, AssertValidate, Command, GetDataAsync, GetSchemaJSON, Schema } from 'Utils/FrameworkOverrides';
+import { AddSchema, AssertValidate, GetSchemaJSON, Schema } from 'Utils/FrameworkOverrides';
+import {Command} from 'mobx-firelink';
+import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
+import {GetTimelineStep} from 'Store/firebase/timelines';
 import { UserEdit } from '../CommandMacros';
 
 AddSchema('UpdateTimelineStep_payload', ['TimelineStep'], () => ({
@@ -22,7 +25,7 @@ export class UpdateTimelineStep extends Command<{stepID: string, stepUpdates: Pa
 	newData: TimelineStep;
 	async Prepare() {
 		const { stepID, stepUpdates } = this.payload;
-		this.oldData = await GetDataAsync({ addHelpers: false }, 'timelineSteps', stepID) as TimelineStep;
+		this.oldData = await GetAsync(() => GetTimelineStep(stepID));
 		this.newData = { ...this.oldData, ...stepUpdates };
 	}
 	async Validate() {

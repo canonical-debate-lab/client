@@ -1,11 +1,12 @@
 import { CachedTransform, emptyArray_forLoading, ToNumber } from 'js-vextensions';
-import { GetData, StoreAccessor } from 'Utils/FrameworkOverrides';
+import { StoreAccessor } from 'Utils/FrameworkOverrides';
 import { Map, MapType } from './maps/@Map';
+import {GetDocs, GetDoc} from 'Utils/LibIntegrations/MobXFirelink';
 
 export const GetMaps = StoreAccessor((s) => (orderByEdits = false): Map[] => {
 	/* const mapsMap = GetData({ collection: true }, 'maps');
 	return CachedTransform('GetMaps', [], mapsMap, () => (mapsMap ? mapsMap.VValues(true) : [])); */
-	const mapsMap = GetData({ collection: true }, 'maps');
+	const mapsMap = GetDocs(a=>a.maps);
 	if (!mapsMap) return emptyArray_forLoading;
 	let result = mapsMap.VValues(true);
 	if (orderByEdits) result = result.OrderByDescending((a) => ToNumber(a && a.edits, 0));
@@ -23,8 +24,7 @@ export const GetMaps_Debate = StoreAccessor((s) => (orderByEdits = false) => {
 	return CachedTransform('GetMaps', [type], mapsMap, () => (mapsMap ? mapsMap.VValues(true).filter(a => a && a.type == type) : []));
 } */
 export const GetMap = StoreAccessor((s) => (id: string): Map => {
-	if (id == null) return null;
-	return GetData('maps', id);
+	return GetDoc(a=>a.maps.get(id));
 });
 export const GetRootNodeID = StoreAccessor((s) => (mapID: string): string => {
 	const map = GetMap(mapID);

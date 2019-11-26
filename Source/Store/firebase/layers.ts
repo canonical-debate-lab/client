@@ -1,19 +1,18 @@
 import { CachedTransform, emptyArray, ToInt } from 'js-vextensions';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { GetNode } from 'Store/firebase/nodes';
-import { GetData, StoreAccessor } from 'Utils/FrameworkOverrides';
+import { StoreAccessor } from 'Utils/FrameworkOverrides';
 import { Map } from './maps/@Map';
 import { AsNodeL3, GetNodeL2 } from './nodes/$node';
 import { GetUserLayerStatesForMap } from './userMapInfo';
 import { MapNodeL3 } from './nodes/@MapNode';
+import {GetDocs, GetDoc} from 'Utils/LibIntegrations/MobXFirelink';
 
 export const GetLayers = StoreAccessor((s) => (): Layer[] => {
-	const layersMap = GetData({ collection: true }, 'layers');
-	return CachedTransform('GetLayers', [], layersMap, () => (layersMap ? layersMap.VValues(true) : []));
+	return GetDocs(a=>a.layers);
 });
 export const GetLayer = StoreAccessor((s) => (id: string): Layer => {
-	if (id == null) return null;
-	return GetData('layers', id);
+	return GetDoc(a=>a.layers.get(id));
 });
 
 export function GetMapLayerIDs(map: Map) {
@@ -24,7 +23,7 @@ export const GetMapLayers = StoreAccessor((s) => (map: Map) => {
 });
 
 export const GetSubnodeIDsInLayer = StoreAccessor((s) => (anchorNodeID: string, layerID: string) => {
-	return (GetData('layers', layerID, '.nodeSubnodes', `.${anchorNodeID}`) || {}).VKeys(true);
+	return (GetDoc(a=>a.layers.get(layerID).nodeSubnodes.get(anchorNodeID)) || {}).VKeys(true);
 });
 export const GetSubnodesInLayer = StoreAccessor((s) => (anchorNodeID: string, layerID: string) => {
 	const subnodeIDs = GetSubnodeIDsInLayer(anchorNodeID, layerID);

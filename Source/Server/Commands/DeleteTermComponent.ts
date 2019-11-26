@@ -1,7 +1,8 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { Assert, IsNumber } from 'js-vextensions';
-import { GetDataAsync , Command } from 'Utils/FrameworkOverrides';
-
+import { Command } from 'mobx-firelink';
+import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
+import {GetTermComponent} from 'Store/firebase/termComponents';
 import { TermComponent } from '../../Store/firebase/termComponents/@TermComponent';
 
 @UserEdit
@@ -14,7 +15,7 @@ export class DeleteTermComponent extends Command<{termComponentID: string}, {}> 
 	oldData: TermComponent;
 	async Prepare() {
 		const { termComponentID } = this.payload;
-		this.oldData = await GetDataAsync({ addHelpers: false }, 'termComponents', termComponentID) as TermComponent;
+		this.oldData = await GetAsync(() => GetTermComponent(termComponentID));
 	}
 	async Validate() {
 	}

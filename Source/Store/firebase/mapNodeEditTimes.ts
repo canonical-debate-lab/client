@@ -1,11 +1,12 @@
 import { GetShortestPathFromRootToNode } from 'Utils/Store/PathFinder';
 import { GetNode, GetNodeID } from 'Store/firebase/nodes';
 import { emptyArray } from 'js-vextensions';
-import { GetData, AddSchema, StoreAccessor } from 'Utils/FrameworkOverrides';
+import { AddSchema, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { UUID_regex } from 'Utils/General/KeyGenerator';
 import { GetLastAcknowledgementTime } from 'Store/main';
 import { GetRootNodeID } from './maps';
 import { MapNode } from './nodes/@MapNode';
+import {GetDoc} from 'Utils/LibIntegrations/MobXFirelink';
 
 export class NodeEditTimes {
 	// [key: number]: ChangeInfo;
@@ -37,7 +38,7 @@ export function GetChangeTypeOutlineColor(changeType: ChangeType) {
 }
 
 export const GetMapNodeEditTimes = StoreAccessor((s) => (mapID: string) => {
-	return GetData('mapNodeEditTimes', mapID) as NodeEditTimes;
+	return GetDoc(a=>a.mapNodeEditTimes.get(mapID)) as NodeEditTimes;
 });
 
 export const GetNodeIDsChangedSinceX = StoreAccessor((s) => (mapID: string, sinceTime: number, includeAcknowledgement = true): string[] => {

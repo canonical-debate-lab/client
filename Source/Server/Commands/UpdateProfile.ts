@@ -1,4 +1,7 @@
-import { AddSchema, AssertValidate, Command, GetDataAsync, GetSchemaJSON, Schema } from 'Utils/FrameworkOverrides';
+import { AddSchema, AssertValidate, GetSchemaJSON, Schema } from 'Utils/FrameworkOverrides';
+import {Command} from 'mobx-firelink';
+import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
+import {GetUser} from 'Store/firebase/users';
 import { User } from '../../Store/firebase/users/@User';
 
 type MainType = User;
@@ -26,7 +29,7 @@ export class UpdateProfile extends Command<{id: string, updates: Partial<MainTyp
 	newData: MainType;
 	async Prepare() {
 		const { id, updates } = this.payload;
-		this.oldData = await GetDataAsync({ addHelpers: false }, 'users', id) as MainType;
+		this.oldData = await GetAsync(() => GetUser(id));
 		this.newData = { ...this.oldData, ...updates };
 	}
 	async Validate() {

@@ -1,7 +1,9 @@
 import { CachedTransform, IsNaN, emptyArray, ToJSON, AsObj, emptyArray_forLoading } from 'js-vextensions';
-import { GetData, SplitStringBySlash_Cached, SlicePath, GetDataAsync, StoreAccessor } from 'Utils/FrameworkOverrides';
+import { SplitStringBySlash_Cached, SlicePath, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { PathSegmentToNodeID } from 'Store/main/mapViews/$mapView';
 import { GetPlayingTimeline, GetPlayingTimelineStepIndex, GetPlayingTimelineRevealNodes_UpToAppliedStep } from 'Store/main/maps/$map';
+import { ObservableMap } from 'mobx';
+import { GetDocs, GetDoc, GetDoc_Async } from 'Utils/LibIntegrations/MobXFirelink';
 import { GetNodeL2, GetNodeL3 } from './nodes/$node';
 import { MapNode, MapNodeL2, MapNodeL3, globalRootNodeID } from './nodes/@MapNode';
 import { MapNodeType, MapNodeType_Info } from './nodes/@MapNodeType';
@@ -14,13 +16,14 @@ export enum HolderType {
 	Relevance = 20,
 }
 
-export type NodeMap = {[key: string]: MapNode};
+/* export type NodeMap = ObservableMap<string, MapNode>;
 export const GetNodeMap = StoreAccessor((s) => (): NodeMap => {
-	return GetData('nodes');
-});
+	return GetDocs((a) => a.nodes);
+}); */
 export const GetNodes = StoreAccessor((s) => (): MapNode[] => {
-	const nodeMap = GetNodeMap();
-	return CachedTransform('GetNodes', [], nodeMap, () => (nodeMap ? nodeMap.VValues(true) : []));
+	/* const nodeMap = GetNodeMap();
+	return CachedTransform('GetNodes', [], nodeMap, () => (nodeMap ? nodeMap.VValues(true) : [])); */
+	return GetDocs((a) => a.nodes);
 });
 export const GetNodesL2 = StoreAccessor((s) => (): MapNodeL2[] => {
 	const nodes = GetNodes();
@@ -34,7 +37,7 @@ export const GetNodesL2 = StoreAccessor((s) => (): MapNodeL2[] => {
 export const GetNode = StoreAccessor((s) => (id: string) => {
 	// Assert(id != null && !IsNaN(id), "Node-id cannot be null or NaN.");
 	if (id == null || IsNaN(id)) return null;
-	return GetData('nodes', id) as MapNode;
+	return GetDoc((a) => a.nodes.get(id));
 });
 /* export async function GetNodeAsync(id: string) {
 	return await GetDataAsync("nodes", id) as MapNode;
@@ -85,9 +88,9 @@ export const GetNodeParents = StoreAccessor((s) => (node: MapNode) => {
 	const parents = (node.parents || {}).VKeys(true).map((id) => GetNode(id));
 	return parents;
 });
-export async function GetNodeParentsAsync(node: MapNode) {
-	return await Promise.all(node.parents.VKeys(true).map((parentID) => GetDataAsync('nodes', parentID))) as MapNode[];
-}
+/* export async function GetNodeParentsAsync(node: MapNode) {
+	return await Promise.all(node.parents.VKeys(true).map((parentID) => GetDoc_Async(a=>a.nodes.get(parentID))) as MapNode[];
+} */
 export const GetNodeParentsL2 = StoreAccessor((s) => (node: MapNode) => {
 	const parentsL2 = GetNodeParents(node).map((parent) => (parent ? GetNodeL2(parent) : null));
 	return parentsL2;
@@ -114,9 +117,9 @@ export const GetNodeChildren = StoreAccessor((s) => (node: MapNode) => {
 	// return CachedTransform('GetNodeChildren', [node._key], children, () => children);
 	return children;
 });
-export async function GetNodeChildrenAsync(node: MapNode) {
+/* export async function GetNodeChildrenAsync(node: MapNode) {
 	return await Promise.all(node.children.VKeys(true).map((id) => GetDataAsync('nodes', id))) as MapNode[];
-}
+} */
 
 export const GetNodeChildrenL2 = StoreAccessor((s) => (node: MapNode) => {
 	const nodeChildren = GetNodeChildren(node);

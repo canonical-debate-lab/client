@@ -1,5 +1,6 @@
 import { PermissionGroupSet } from 'Store/firebase/userExtras/@UserExtraInfo';
-import { AddSchema, AssertValidate, Command } from 'Utils/FrameworkOverrides';
+import { AddSchema, AssertValidate } from 'Utils/FrameworkOverrides';
+import {Command} from 'mobx-firelink';
 import { UserEdit } from '../CommandMacros';
 
 AddSchema('SetUserPermissionGroups_payload', {

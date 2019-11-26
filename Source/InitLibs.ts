@@ -8,7 +8,7 @@ import * as react_color from 'react-color';
 import { ColorPickerBox } from 'react-vcomponents';
 import { GetUser, GetUserPermissionGroups, Me, MeID } from 'Store/firebase/users';
 import { AddNotificationMessage } from 'UI/@Shared/NavBar/NotificationsUI';
-import { ApplyDBUpdates, DBPath, ExposeModuleExports, GetAsync, GetData, GetDataAsync, Link, Log, manager as manager_framework, VReactMarkdown_Remarkable } from 'Utils/FrameworkOverrides';
+import { ExposeModuleExports, Link, Log, manager as manager_framework, VReactMarkdown_Remarkable, DBPath } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
 import { GetLoadActionFuncForURL, GetNewURL, PushHistoryEntry } from 'Utils/URL/URLs';
@@ -17,6 +17,8 @@ import { NotificationMessage } from 'Store/main';
 import { GetAuth } from 'Store/firebase';
 import { DoesURLChangeCountAsPageChange } from 'Utils/AutoRuns/PageViewRecorder';
 import { RootState } from 'firebase-feedback/Dist/General';
+import { ApplyDBUpdates } from 'mobx-firelink';
+import { WithStore } from 'Utils/LibIntegrations/MobXFirelink';
 import { ShowSignInPopup } from './UI/@Shared/NavBar/UserPanel';
 
 const context = (require as any).context('../Resources/SVGs/', true, /\.svg$/);
@@ -49,6 +51,7 @@ export function InitLibs() {
 		DoesURLChangeCountAsPageChange,
 
 		GetStore: () => store,
+		WithStore,
 		firebaseConfig,
 
 		globalConnectorPropGetters: {
@@ -108,24 +111,19 @@ export function InitLibs() {
 
 		logTypes,
 
-		GetData: (options, ...pathSegments) => GetData(E(options, { inVersionRoot: false }), ...pathSegments),
-		GetDataAsync: (options, ...pathSegments) => GetDataAsync(E(options, { inVersionRoot: false }), ...pathSegments),
-		GetAsync,
 		ShowSignInPopup,
 		GetUserID: MeID,
 		GetUser,
 		GetUserPermissionGroups,
 
-		ApplyDBUpdates,
-
 		MarkdownRenderer: VReactMarkdown_Remarkable,
 	};
 
-	manager_feedback.Populate(sharedData.Extended({
+	/* manager_feedback.Populate(sharedData.Extended({
 		storePath_mainData: 'feedback',
 		storePath_dbData: DBPath('modules/feedback'),
 	}));
-	/* manager_forum.Populate(sharedData.Extended({
+	manager_forum.Populate(sharedData.Extended({
 		storePath_mainData: 'forum',
 		storePath_dbData: DBPath('modules/forum'),
 	})); */

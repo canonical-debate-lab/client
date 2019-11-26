@@ -1,5 +1,7 @@
+import { Command } from 'mobx-firelink';
 import { GetNode } from 'Store/firebase/nodes';
-import { AddSchema, AssertValidate, Command, GetAsync_Raw, GetSchemaJSON } from 'Utils/FrameworkOverrides';
+import { AddSchema, AssertValidate, GetSchemaJSON } from 'Utils/FrameworkOverrides';
+import { GetAsync } from 'Utils/LibIntegrations/MobXFirelink';
 import { GetLinkUnderParent } from '../../Store/firebase/nodes/$node';
 import { ChildEntry } from '../../Store/firebase/nodes/@MapNode';
 import { UserEdit } from '../CommandMacros';
@@ -22,7 +24,7 @@ export class UpdateLink extends Command<{linkParentID: string, linkChildID: stri
 	newData: ChildEntry;
 	async Prepare() {
 		const { linkParentID, linkChildID, linkUpdates } = this.payload;
-		const parent = await GetAsync_Raw(() => GetNode(linkParentID));
+		const parent = await GetAsync(() => GetNode(linkParentID));
 		const oldData = GetLinkUnderParent(linkChildID, parent);
 		this.newData = { ...oldData, ...linkUpdates };
 	}

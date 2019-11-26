@@ -170,7 +170,7 @@ export function GetClaimFormUnderParent(node: MapNode, parent: MapNode): ClaimFo
 	if (link == null) return ClaimForm.Base;
 	return link.form;
 } */
-export const GetNodeForm = StoreAccessor((s) => (node: MapNodeL2 | MapNodeL3, pathOrParent?: string | MapNodeL2) => {
+export const GetNodeForm = StoreAccessor((s) => (node: MapNodeL2 | MapNodeL3, pathOrParent?: string | MapNodeL2): ClaimForm => {
 	if ((node as MapNodeL3).link) {
 		return (node as MapNodeL3).link.form;
 	}

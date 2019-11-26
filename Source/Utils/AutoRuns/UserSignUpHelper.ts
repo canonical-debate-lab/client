@@ -1,6 +1,7 @@
 import { autorun } from 'mobx';
 import { store } from 'Store';
-import { GetDataAsync, DBPath } from 'Utils/FrameworkOverrides';
+import { DBPath } from 'Utils/FrameworkOverrides';
+import { GetDoc_Async, fire } from 'Utils/LibIntegrations/MobXFirelink';
 
 let lastAuth;
 autorun(() => {
@@ -13,7 +14,7 @@ autorun(() => {
 }, { name: 'UserSignUpHelper' });
 
 async function RunSignUpInitIfNotYetRun(userID: string) {
-	const joinDate = await GetDataAsync('userExtras', userID, '.joinDate');
+	const joinDate = (await GetDoc_Async((a) => a.userExtras.get(userID)))?.joinDate;
 	if (joinDate == null) {
 		// todo: improve this; perhaps create an InitUser command, with the server doing the actual permission setting and such
 		/* const firebase = store.firebase.helpers;
@@ -21,7 +22,7 @@ async function RunSignUpInitIfNotYetRun(userID: string) {
 			permissionGroups: { basic: true, verified: true, mod: false, admin: false },
 			joinDate: Date.now(),
 		}); */
-		firestoreDB.doc(DBPath(`userExtras/${userID}`)).set({
+		fire.subs.firestoreDB.doc(DBPath(`userExtras/${userID}`)).set({
 			permissionGroups: { basic: true, verified: true, mod: false, admin: false },
 			joinDate: Date.now(),
 		}, { merge: true });

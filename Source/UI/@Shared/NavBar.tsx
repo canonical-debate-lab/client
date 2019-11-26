@@ -4,11 +4,12 @@ import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 're
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ResetCurrentDBRoot } from 'UI/More/Admin/ResetCurrentDBRoot';
 import { dbVersion } from 'Main';
-import { Action, Link, GetData, Observer } from 'Utils/FrameworkOverrides';
+import { Action, Link, Observer } from 'Utils/FrameworkOverrides';
 import { ACTProposalSelect } from 'firebase-feedback';
 import { useMemo, useCallback } from 'react';
 import { store, RootState } from 'Store';
 import { runInAction } from 'mobx';
+import {GetDocs} from 'Utils/LibIntegrations/MobXFirelink';
 import { colors } from '../../Utils/UI/GlobalStyles';
 import { ChatPanel } from './NavBar/ChatPanel';
 import { GuidePanel } from './NavBar/GuidePanel';
@@ -39,7 +40,7 @@ export class NavBar extends BaseComponentPlus({} as {}, {}) {
 		// const topRightOpenPanel = State(a => a.main.topRightOpenPanel);
 		const { topLeftOpenPanel, topRightOpenPanel } = store.main;
 		const auth = store.firebase.auth;
-		const dbNeedsInit = GetData({ collection: true, useUndefinedForInProgress: true }, 'maps') === null; // use maps because it won't cause too much data to be downloaded-and-watched; improve this later
+		const dbNeedsInit = GetDocs((a) => a.maps, { useUndefinedForInProgress: true }) === null; // use maps because it won't cause too much data to be downloaded-and-watched; improve this later
 		return (
 			<nav style={{
 				position: 'relative', zIndex: 11, padding: '0 10px', boxShadow: colors.navBarBoxShadow,

@@ -1,17 +1,16 @@
 import { CachedTransform, IsNaN } from 'js-vextensions';
-import { GetData, StoreAccessor } from 'Utils/FrameworkOverrides';
+import { StoreAccessor } from 'Utils/FrameworkOverrides';
+import { GetDoc, GetDocs } from 'Utils/LibIntegrations/MobXFirelink';
 import { Image } from './images/@Image';
 
 export const GetImage = StoreAccessor((s) => (id: string) => {
 	if (id == null || IsNaN(id)) return null;
-	return GetData('images', id) as Image;
+	return GetDoc((a) => a.images.get(id));
 });
 /* export async function GetImageAsync(id: string) {
 	return await GetDataAsync(`images/${id}`) as Image;
 } */
 
 export const GetImages = StoreAccessor((s) => (): Image[] => {
-	const entryMap = GetData({ collection: true }, 'images');
-	return entryMap ? entryMap.VValues(true) : [];
-	// return imagesMap ? imagesMap.VKeys(true).map(id=>GetImage(parseInt(id))) : [];
+	return GetDocs((a) => a.images);
 });

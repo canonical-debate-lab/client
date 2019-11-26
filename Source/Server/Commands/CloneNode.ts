@@ -1,10 +1,12 @@
 import { DEL, E, Clone } from 'js-vextensions';
-import { Command, GetAsync_Raw, MergeDBUpdates, RemoveHelpers, SplitStringBySlash_Cached } from 'Utils/FrameworkOverrides';
+import { Command, MergeDBUpdates } from 'mobx-firelink';
+import { GetAsync } from 'Utils/LibIntegrations/MobXFirelink';
 import { GetLinkAtPath, GetNodeForm, GetNodeL2 } from '../../Store/firebase/nodes/$node';
 import { ClaimForm, MapNode, Polarity } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
 import { AddChildNode } from './AddChildNode';
 import { LinkNode } from './LinkNode';
+import { SplitStringBySlash_Cached } from 'Utils/FrameworkOverrides';
 
 export class CloneNode extends Command<{mapID: string, baseNodePath: string, newParentID: string}, {nodeID: string, revisionID: string}> {
 	sub_addNode: AddChildNode;
@@ -16,14 +18,13 @@ export class CloneNode extends Command<{mapID: string, baseNodePath: string, new
 		// ==========
 
 		const baseNodeID = SplitStringBySlash_Cached(baseNodePath).Last();
-		const baseNode = await GetAsync_Raw(() => GetNodeL2(baseNodeID));
+		const baseNode = await GetAsync(() => GetNodeL2(baseNodeID));
 		const isArgument = baseNode.type == MapNodeType.Argument;
 
-		const nodeForm = await GetAsync_Raw(() => GetNodeForm(baseNode, baseNodePath)) as ClaimForm;
-		const nodePolarity = await GetAsync_Raw(() => GetLinkAtPath(baseNodePath).polarity) as Polarity;
+		const nodeForm = await GetAsync(() => GetNodeForm(baseNode, baseNodePath)) as ClaimForm;
+		const nodePolarity = await GetAsync(() => GetLinkAtPath(baseNodePath).polarity) as Polarity;
 
-		const newChildNode = RemoveHelpers(Clone(baseNode))
-			.VSet({ children: DEL, childrenOrder: DEL, currentRevision: DEL, current: DEL, parents: DEL }) as MapNode;
+		const newChildNode = Clone(baseNode).VSet({ children: DEL, childrenOrder: DEL, currentRevision: DEL, current: DEL, parents: DEL }) as MapNode;
 
 		const newChildRevision = Clone(baseNode.current).VSet({ node: DEL });
 
@@ -50,8 +51,8 @@ export class CloneNode extends Command<{mapID: string, baseNodePath: string, new
 
 		this.sub_linkChildren = [];
 		for (const childID of childrenToLink) {
-			const child = await GetAsync_Raw(() => GetNodeL2(childID));
-			const childForm = await GetAsync_Raw(() => GetNodeForm(child, `${baseNodePath}/${childID}`)) as ClaimForm;
+			const child = await GetAsync(() => GetNodeL2(childID));
+			const childForm = await GetAsync(() => GetNodeForm(child, `${baseNodePath}/${childID}`)) as ClaimForm;
 			const linkChildSub = new LinkNode({ mapID, parentID: this.sub_addNode.sub_addNode.nodeID, childID, childForm }).MarkAsSubcommand();
 			linkChildSub.Validate_Early();
 

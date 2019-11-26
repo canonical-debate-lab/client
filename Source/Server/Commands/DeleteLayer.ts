@@ -1,6 +1,8 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { Assert } from 'js-vextensions';
-import { GetAsync, GetDataAsync, Command } from 'Utils/FrameworkOverrides';
+import { Command } from 'mobx-firelink';
+import { GetDoc_Async, GetDocs_Async, GetAsync } from 'Utils/LibIntegrations/MobXFirelink';
+import { ObservableMap } from 'mobx';
 import { ForDeleteLayer_GetError } from '../../Store/firebase/layers';
 import { Layer } from '../../Store/firebase/layers/@Layer';
 import { UserMapInfoSet } from '../../Store/firebase/userMapInfo/@UserMapInfo';
@@ -9,11 +11,11 @@ import { UserMapInfoSet } from '../../Store/firebase/userMapInfo/@UserMapInfo';
 @UserEdit
 export class DeleteLayer extends Command<{layerID: string}, {}> {
 	oldData: Layer;
-	userMapInfoSets: {[key: string]: UserMapInfoSet};
+	userMapInfoSets: UserMapInfoSet[];
 	async Prepare() {
 		const { layerID } = this.payload;
-		this.oldData = await GetDataAsync({ addHelpers: false }, 'layers', layerID) as Layer;
-		this.userMapInfoSets = await GetDataAsync('userMapInfo') as {[key: string]: UserMapInfoSet};
+		this.oldData = await GetDoc_Async((a) => a.layers.get(layerID));
+		this.userMapInfoSets = await GetDocs_Async((a) => a.userMapInfo);
 	}
 	async Validate() {
 		const { layerID } = this.payload;
@@ -25,11 +27,12 @@ export class DeleteLayer extends Command<{layerID: string}, {}> {
 		const { layerID } = this.payload;
 		const updates = {};
 		updates[`layers/${layerID}`] = null;
-		for (const mapID of (this.oldData.mapsWhereEnabled || {}).VKeys()) {
+		for (const mapID of this.oldData.mapsWhereEnabled.keys()) {
 			updates[`maps/${mapID}/.layers/.${layerID}`] = null;
 		}
-		for (const { key: userID, value: userMapInfoSet } of this.userMapInfoSets.Pairs(true)) {
-			for (const { key: mapID2, value: userMapInfo } of userMapInfoSet.Pairs(true)) {
+		for (const userMapInfoSet of this.userMapInfoSets) {
+			const userID = userMapInfoSet._key;
+			for (const [mapID2, userMapInfo] of userMapInfoSet.maps.entries()) {
 				if (userMapInfo.layerStates[layerID] != null) {
 					updates[`userMapInfo/${userID}/.${mapID2}/.layerStates/.${layerID}`] = null;
 				}

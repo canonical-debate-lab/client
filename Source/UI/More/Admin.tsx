@@ -4,11 +4,13 @@ import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 're
 import { ShowMessageBox } from 'react-vmessagebox';
 import { HasAdminPermissions } from 'Store/firebase/userExtras';
 import { Omit } from 'lodash';
-import { GetData, DBPath, RemoveHelpers, SplitStringBySlash_Cached, GetDataAsync, ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks, PageContainer } from 'Utils/FrameworkOverrides';
+import { SplitStringBySlash_Cached, PageContainer, DBPath } from 'Utils/FrameworkOverrides';
 import { dbVersion } from 'Main';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
 import { FirebaseState } from 'Store/firebase';
-import { store } from 'Store';
+import { store, RootState } from 'Store';
+import { GetDoc, GetDoc_Async, GetDocs_Async, WithStore } from 'Utils/LibIntegrations/MobXFirelink';
+import { ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks } from 'mobx-firelink';
 import { styles } from '../../Utils/UI/GlobalStyles';
 import { MeID, GetUser } from '../../Store/firebase/users';
 import { ResetCurrentDBRoot } from './Admin/ResetCurrentDBRoot';
@@ -53,7 +55,7 @@ export class AdminUI extends BaseComponentPlus({} as {}, { dbUpgrade_entryIndexe
 		const { dbUpgrade_entryIndexes, dbUpgrade_entryCounts } = this.state;
 		const isAdmin = HasAdminPermissions(MeID())
 			// also check previous version for admin-rights (so we can increment db-version without losing our rights to complete the db-upgrade!)
-			|| (MeID() != null && GetData({ inVersionRoot: false }, 'versions', `v${dbVersion - 1}-${DB_SHORT}`, 'userExtras', MeID(), '.permissionGroups', '.admin'));
+			|| (MeID() != null && GetDoc((a: any) => (a.versions.get(`v${dbVersion - 1}-${DB_SHORT}`) as FirebaseState).userExtras.get(MeID()))?.permissionGroups.admin, { inVersionRoot: false });
 
 		if (!isAdmin) return <PageContainer>Please sign in.</PageContainer>;
 		return (
@@ -155,7 +157,7 @@ The old db-root will not be modified.`,
 						const newData = await WithStore(newStore, () => {
 							return upgradeFunc(oldData, markProgress);
 						});
-						RemoveHelpers(newData); // remove "_key" and such
+						// RemoveHelpers(newData); // remove "_key" and such
 
 						if (newVersion >= dbVersion) {
 							ValidateDBData(newData);
@@ -191,42 +193,45 @@ type FirebaseData_AnyValues = WithDifferentValueType<FirebaseData, any>; */
 export async function GetCollectionsDataAsync(versionRootPath: string) {
 	AssertVersionRootPath(versionRootPath);
 
-	async function getData(...collectionSubpath: string[]) {
-		return GetDataAsync({ inVersionRoot: false, collection: true }, ...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath);
+	async function getDocs(...collectionSubpath: string[]) {
+		return GetDocs_Async([...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath], { inVersionRoot: false }) as any;
+	}
+	async function getDoc(...collectionSubpath: string[]) {
+		return GetDoc_Async([...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath], { inVersionRoot: false }) as any;
 	}
 
 	let versionCollectionsData: FirebaseState;
 	// we put the db-updates into this variable, so that we know we're importing data for every key (if not, Typescript throws error about value not matching FirebaseData's shape)
 	versionCollectionsData = {
 		// modules
-		/* 'modules/feedback/general': await getData('modules', 'feedback', 'general'),
-		'modules/feedback/proposals': await getData('modules', 'feedback', 'proposals'),
-		'modules/feedback/userData': await getData('modules', 'feedback', 'userData'), */
+		/* 'modules/feedback/general': await getDocs('modules', 'feedback', 'general'),
+		'modules/feedback/proposals': await getDocs('modules', 'feedback', 'proposals'),
+		'modules/feedback/userData': await getDocs('modules', 'feedback', 'userData'), */
 		modules: {
-			feedback: await getData('modules', 'feedback'),
+			feedback: await getDoc('modules', 'feedback'),
 		},
 
-		general: await getData('general'),
-		images: await getData('images'),
-		layers: await getData('layers'),
-		maps: await getData('maps'),
-		mapNodeEditTimes: await getData('mapNodeEditTimes'),
-		nodes: await getData('nodes'),
-		// nodeExtras: await getData('nodeExtras'),
-		nodePhrasings: await getData('nodePhrasings'),
-		nodeRatings: await getData('nodeRatings'),
-		nodeRevisions: await getData('nodeRevisions'),
-		// nodeStats: await getData('nodeStats'),
-		// nodeViewers: await getData('nodeViewers'),
-		terms: await getData('terms'),
-		termComponents: await getData('termComponents'),
-		termNames: await getData('termNames'),
-		timelines: await getData('timelines'),
-		timelineSteps: await getData('timelineSteps'),
-		users: await getData('users'),
-		userExtras: await getData('userExtras'),
-		userMapInfo: await getData('userMapInfo'),
-		// userViewedNodes: await getData('userViewedNodes'),
+		general: await getDocs('general'),
+		images: await getDocs('images'),
+		layers: await getDocs('layers'),
+		maps: await getDocs('maps'),
+		mapNodeEditTimes: await getDocs('mapNodeEditTimes'),
+		nodes: await getDocs('nodes'),
+		// nodeExtras: await getDocs('nodeExtras'),
+		nodePhrasings: await getDocs('nodePhrasings'),
+		nodeRatings: await getDocs('nodeRatings'),
+		nodeRevisions: await getDocs('nodeRevisions'),
+		// nodeStats: await getDocs('nodeStats'),
+		// nodeViewers: await getDocs('nodeViewers'),
+		terms: await getDocs('terms'),
+		termComponents: await getDocs('termComponents'),
+		termNames: await getDocs('termNames'),
+		timelines: await getDocs('timelines'),
+		timelineSteps: await getDocs('timelineSteps'),
+		users: await getDocs('users'),
+		userExtras: await getDocs('userExtras'),
+		userMapInfo: await getDocs('userMapInfo'),
+		// userViewedNodes: await getDocs('userViewedNodes'),
 	};
 
 	return versionCollectionsData;

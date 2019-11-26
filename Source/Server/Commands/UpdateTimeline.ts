@@ -1,6 +1,8 @@
-import { AddSchema, AssertValidate, Command, GetDataAsync, GetSchemaJSON, Schema, GetAsync, GetData } from 'Utils/FrameworkOverrides';
+import { AddSchema, AssertValidate, GetSchemaJSON, Schema } from 'Utils/FrameworkOverrides';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { GetTimeline } from 'Store/firebase/timelines';
+import {Command} from 'mobx-firelink';
+import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
 import { User } from '../../Store/firebase/users/@User';
 
 type MainType = Timeline;
@@ -26,7 +28,7 @@ export class UpdateTimeline extends Command<{id: string, updates: Partial<MainTy
 	async Prepare() {
 		const { id, updates } = this.payload;
 		// this.oldData = await GetAsync(() => GetTimeline(id));
-		this.oldData = await GetDataAsync({ addHelpers: false }, 'timelines', id) as MainType;
+		this.oldData = await GetAsync(() => GetTimeline(id));
 		this.newData = { ...this.oldData, ...updates };
 	}
 	async Validate() {

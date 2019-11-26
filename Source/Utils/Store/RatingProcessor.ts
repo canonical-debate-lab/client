@@ -61,14 +61,14 @@ export const GetArgumentImpactPseudoRating = StoreAccessor((s) => (argument: Map
 
 // export function GetArgumentImpactPseudoRatingSet(argument: MapNodeL2, premises: MapNodeL2[]): {[key: string]: Rating} {
 export const GetArgumentImpactPseudoRatingSet = StoreAccessor((s) => (argument: MapNodeL2, premises: MapNodeL2[]): RatingsSet => {
-	if (premises.Any((a) => a == null)) return emptyObj; // must still be loading
-	if (premises.length == 0) return emptyObj;
+	if (premises.Any((a) => a == null)) return emptyObj as any; // must still be loading
+	if (premises.length == 0) return emptyObj as any;
 
 	const childForms_map = premises.ToMap((child, index) => `childForm_${index}`, (child) => {
 		return GetNodeForm(child, argument);
 	});
 	// let dataUsedInCalculation = {...childRatingSets, ...childForms_map};
-	const dataUsedInCalculation = { ...childForms_map };
+	const dataUsedInCalculation = { ...childForms_map } as any;
 	dataUsedInCalculation.argumentType = argument.current.argumentType;
 
 	// let result = CachedTransform("GetArgumentImpactPseudoRatingSet", [argument._id], dataUsedInCalculation, ()=> {

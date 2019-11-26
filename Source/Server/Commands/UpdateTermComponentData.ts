@@ -1,7 +1,10 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { Assert } from 'js-vextensions';
-import { AssertValidate ,GetDataAsync, Command } from 'Utils/FrameworkOverrides';
+import { AssertValidate } from 'Utils/FrameworkOverrides';
 
+import { Command } from 'mobx-firelink';
+import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
+import {GetTermComponent} from 'Store/firebase/termComponents';
 import { TermComponent } from '../../Store/firebase/termComponents/@TermComponent';
 
 
@@ -16,7 +19,7 @@ export class UpdateTermComponentData extends Command<{termComponentID: string, u
 	newData: TermComponent;
 	async Prepare() {
 		const { termComponentID, updates } = this.payload;
-		const oldData = await GetDataAsync({ addHelpers: false }, 'termComponents', termComponentID) as TermComponent;
+		const oldData = await GetAsync(() => GetTermComponent(termComponentID));
 		this.newData = { ...oldData, ...updates };
 	}
 	async Validate() {

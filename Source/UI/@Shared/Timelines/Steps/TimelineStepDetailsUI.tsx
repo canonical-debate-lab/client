@@ -2,7 +2,7 @@ import { GetErrorMessagesUnderElement, Clone } from 'js-vextensions';
 import { Button, Column, Pre, Row, RowLR, Spinner, TextInput, TextArea } from 'react-vcomponents';
 import { BaseComponent, GetDOM } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
-import { RemoveHelpers, GetUpdates } from 'Utils/FrameworkOverrides';
+import { GetUpdates } from 'Utils/FrameworkOverrides';
 import { UpdateTimelineStep } from '../../../../Server/Commands/UpdateTimelineStep';
 import { NodeReveal, TimelineStep } from '../../../../Store/firebase/timelineSteps/@TimelineStep';
 
@@ -76,7 +76,7 @@ class NodeRevealUI extends BaseComponent<{step: TimelineStep, reveal: NodeReveal
 }
 
 export function ShowEditTimelineStepDialog(userID: string, step: TimelineStep) {
-	let newStep = RemoveHelpers(Clone(step));
+	let newStep = Clone(step);
 
 	let error = null;
 	const Change = (..._) => boxController.UpdateUI();

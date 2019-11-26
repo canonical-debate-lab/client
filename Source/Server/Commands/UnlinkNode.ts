@@ -1,6 +1,7 @@
 import { Assert } from 'js-vextensions';
-import { GetDataAsync, GetAsync , Command } from 'Utils/FrameworkOverrides';
 
+import { Command } from 'mobx-firelink';
+import { GetDoc_Async, GetAsync } from 'Utils/LibIntegrations/MobXFirelink';
 import { ForUnlink_GetError } from '../../Store/firebase/nodes';
 import { GetNodeL2 } from '../../Store/firebase/nodes/$node';
 import { MapEdit, UserEdit } from '../CommandMacros';
@@ -15,7 +16,7 @@ export class UnlinkNode extends Command<{mapID: string, parentID: string, childI
 	parent_oldChildrenOrder: string[];
 	async Prepare() {
 		const { parentID, childID } = this.payload;
-		this.parent_oldChildrenOrder = await GetDataAsync('nodes', parentID, '.childrenOrder') as string[];
+		this.parent_oldChildrenOrder = (await GetDoc_Async((a) => a.nodes.get(parentID)))?.childrenOrder;
 	}
 	async Validate() {
 		/* let {parentID, childID} = this.payload;

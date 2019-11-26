@@ -1,6 +1,7 @@
 import { GetValues_ForSchema } from 'js-vextensions';
 import { AddSchema } from 'Utils/FrameworkOverrides';
 import { UUID_regex } from 'Utils/General/KeyGenerator';
+import { ObservableMap } from 'mobx';
 
 export enum MapType {
 	Personal = 10,
@@ -26,8 +27,8 @@ export class Map {
 	edits: number;
 	editedAt: number;
 
-	layers: {[key: number]: boolean};
-	timelines: {[key: number]: boolean};
+	layers: ObservableMap<number, boolean>;
+	timelines: ObservableMap<number, boolean>;
 }
 export const Map_namePattern = '^[a-zA-Z0-9 ,\'"%:.?\\-()\\/]+$';
 // export const Map_namePattern = '^\\S.*$'; // must start with non-whitespace // todo: probably switch to a more lax pattern like this, eg. so works for other languages

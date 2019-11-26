@@ -33,7 +33,7 @@ const initialState = {
 };
 
 @ExpensiveComponent
-export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props, initialState, {} as {nodeChildren_fillPercents: number[]}) {
+export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props, initialState, {} as {nodeChildren_fillPercents: {[key: string]: number}}) {
 	/* static ValidateProps(props) {
 		let {node, path} = props;
 		//Assert(SplitStringBySlash_Cached(path).Distinct().length == SplitStringBySlash_Cached(path).length, `Node path contains a circular link! (${path})`);

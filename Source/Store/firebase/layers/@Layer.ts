@@ -1,5 +1,6 @@
 import { AddSchema } from 'Utils/FrameworkOverrides';
 import { UUID_regex } from 'Utils/General/KeyGenerator';
+import {ObservableMap} from 'mobx';
 
 export class Layer {
 	constructor(initialData: {name: string, creator: string} & Partial<Layer>) {
@@ -11,8 +12,8 @@ export class Layer {
 	creator: string;
 	createdAt: number;
 
-	mapsWhereEnabled: {[key: string]: boolean};
-	nodeSubnodes: {[key: string]: LayerNodeSubnodes}; // key: node-id
+	mapsWhereEnabled: ObservableMap<string, boolean>;
+	nodeSubnodes: ObservableMap<string, LayerNodeSubnodes>; // key: node-id
 }
 AddSchema('Layer', {
 	properties: {
@@ -26,5 +27,5 @@ AddSchema('Layer', {
 	required: ['name', 'creator', 'createdAt'],
 });
 
-export type LayerNodeSubnodes = {[key: string]: boolean}; // key: subnode-id
+export type LayerNodeSubnodes = ObservableMap<string, boolean>; // key: subnode-id
 AddSchema('LayerNodeSubnodes', { patternProperties: { [UUID_regex]: { type: 'boolean' } } });

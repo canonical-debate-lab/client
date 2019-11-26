@@ -5,9 +5,9 @@ import Moment from 'moment';
 import { ScrollView } from 'react-vscrollview';
 import { Link, PageContainer } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
-import {GetSelectedUser} from 'Store/main/database';
+import { GetSelectedUser } from 'Store/main/database';
 import { UserExtraInfo } from '../../Store/firebase/userExtras/@UserExtraInfo';
-import { GetUsers, GetUserExtraInfoMap, UserExtraInfoMap } from '../../Store/firebase/users';
+import { GetUsers, GetUserJoinDate, GetUserExtraInfo } from '../../Store/firebase/users';
 import { UserProfileUI } from './Users/UserProfile';
 
 export const columnWidths = [0.35, 0.15, 0.1, 0.15, 0.25];
@@ -15,17 +15,19 @@ export const columnWidths = [0.35, 0.15, 0.1, 0.15, 0.25];
 export class UsersUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
 		let users = GetUsers();
-		const userExtraInfoMap = GetUserExtraInfoMap();
+		// const userExtraInfoMap = GetUserExtraInfoMap();
 		const selectedUser = GetSelectedUser();
 
-		if (userExtraInfoMap == null) return <div/>;
+		// if (userExtraInfoMap == null) return <div/>;
 		if (selectedUser) {
 			return <UserProfileUI profileUser={selectedUser}/>;
 		}
 
 		users = users.filter((a) => a);
-		users = users.OrderBy((a) => (userExtraInfoMap[a._key] ? userExtraInfoMap[a._key].joinDate : Number.MAX_SAFE_INTEGER));
-		users = users.OrderByDescending((a) => (userExtraInfoMap[a._key] ? (userExtraInfoMap[a._key].edits | 0) : Number.MIN_SAFE_INTEGER));
+		/* users = users.OrderBy((a) => (userExtraInfoMap[a._key] ? userExtraInfoMap[a._key].joinDate : Number.MAX_SAFE_INTEGER));
+		users = users.OrderByDescending((a) => (userExtraInfoMap[a._key] ? (userExtraInfoMap[a._key].edits | 0) : Number.MIN_SAFE_INTEGER)); */
+		users = users.OrderBy((a) => GetUserJoinDate(a._key) ?? Number.MAX_SAFE_INTEGER);
+		users = users.OrderByDescending((a) => GetUserExtraInfo(a._key)?.edits ?? Number.MAX_SAFE_INTEGER);
 		return (
 			<PageContainer style={{ padding: 0, background: null }}>
 				<Column className="clickThrough" style={{ height: 40, background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' }}>
@@ -63,7 +65,8 @@ export class UsersUI extends BaseComponentPlus({} as {}, {}) {
 				<ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1 })}>
 					{users.length == 0 && <div style={{ textAlign: 'center', fontSize: 18 }}>Loading...</div>}
 					{users.map((user, index) => {
-						const userExtraInfo = userExtraInfoMap[user._key];
+						// const userExtraInfo = userExtraInfoMap[user._key];
+						const userExtraInfo = GetUserExtraInfo(user._key);
 						return <UserRow key={user._key} index={index} last={index == users.length - 1} user={user} userExtraInfo={userExtraInfo}/>;
 					})}
 				</ScrollView>

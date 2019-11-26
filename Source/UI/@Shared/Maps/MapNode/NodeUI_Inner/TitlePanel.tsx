@@ -13,14 +13,14 @@ import { MapNodeRevision_titlePattern } from 'Store/firebase/nodes/@MapNodeRevis
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { MeID } from 'Store/firebase/users';
-import { DBPath, InfoButton, IsDoubleClick, ParseSegmentsForPatterns, RemoveHelpers, VReactMarkdown_Remarkable, WaitTillPathDataIsReceived, ExpensiveComponent } from 'Utils/FrameworkOverrides';
+import { InfoButton, IsDoubleClick, ParseSegmentsForPatterns, VReactMarkdown_Remarkable, ExpensiveComponent } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
-import {store} from 'Store';
+import { store } from 'Store';
+import { MapNodeView } from 'Store/main/mapViews/$mapView';
+import { runInAction } from 'mobx';
 import { NodeMathUI } from '../NodeMathUI';
 import { NodeUI_Inner } from '../NodeUI_Inner';
 import { TermPlaceholder } from './TermPlaceholder';
-import { MapNodeView } from 'Store/main/mapViews/$mapView';
-import { runInAction } from 'mobx';
 
 /* type TitlePanelProps = {parent: NodeUI_Inner, map: Map, node: MapNodeL2, nodeView: MapNodeView, path: string, indexInNodeList: number, style};
 const TitlePanel_connector = (state, { node, path }: TitlePanelProps) => ({
@@ -175,12 +175,12 @@ export class TitlePanel extends BaseComponentPlus(
 		if (newRevision.titles[titleKey] != newTitle) {
 			newRevision.titles[titleKey] = newTitle;
 
-			// if (parentNode) SetNodeUILocked(parentNode._key, true);
-			const revisionID = await new AddNodeRevision({ mapID: map._key, revision: RemoveHelpers(newRevision) }).Run();
+			const command = new AddNodeRevision({ mapID: map._key, revision: newRevision });
+			const revisionID = await command.Run();
 			store.main.nodeLastAcknowledgementTimes.set(node._key, Date.now());
 			// await WaitTillPathDataIsReceiving(DBPath(`nodeRevisions/${revisionID}`));
-			await WaitTillPathDataIsReceived(DBPath(`nodeRevisions/${revisionID}`));
-			// if (parentNode) SetNodeUILocked(parentNode._key, false);
+			// await WaitTillPathDataIsReceived(DBPath(`nodeRevisions/${revisionID}`));
+			// await command.WaitTillDBUpdatesReceived();
 		}
 		if (this.mounted) {
 			this.SetState({ applyingEdit: false, editing: false });

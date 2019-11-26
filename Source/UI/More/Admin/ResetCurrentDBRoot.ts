@@ -1,15 +1,16 @@
 import { ShowMessageBox } from 'react-vmessagebox';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { MeID } from 'Store/firebase/users';
-import { ApplyDBUpdates, DBPath, ConvertDataToValidDBUpdates } from 'Utils/FrameworkOverrides';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
 import { FirebaseState } from 'Store/firebase';
-import {observable} from 'mobx';
+import { observable } from 'mobx';
+import {ConvertDataToValidDBUpdates, ApplyDBUpdates} from 'mobx-firelink';
 import { Map, MapType } from '../../../Store/firebase/maps/@Map';
 import { MapNode, globalRootNodeID, globalMapID } from '../../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../../Store/firebase/nodes/@MapNodeType';
 import { UserExtraInfo } from '../../../Store/firebase/userExtras/@UserExtraInfo';
+import { DBPath } from 'Utils/FrameworkOverrides';
 
 // Note: This is currently not used, and probably doesn`t even work atm.
 

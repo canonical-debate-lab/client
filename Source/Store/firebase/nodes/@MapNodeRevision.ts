@@ -1,5 +1,6 @@
 import { GetValues_ForSchema } from 'js-vextensions';
 import { AddSchema } from 'Utils/FrameworkOverrides';
+import { ObservableMap } from 'mobx';
 import { AccessLevel, ImageAttachment } from './@MapNode';
 import { Equation } from './@Equation';
 import { ContentNode } from '../contentNodes/@ContentNode';
@@ -11,6 +12,7 @@ export class TitlesMap {
 	yesNoQuestion?: string;
 
 	// allTerms?: string[];
+	// allTerms?: ObservableMap<string, boolean>;
 	allTerms?: {[key: string]: boolean};
 }
 AddSchema('TitlesMap', {

@@ -1,9 +1,8 @@
 import { UserEdit } from 'Server/CommandMacros';
-import { AssertValidate ,GetDataAsync, Command } from 'Utils/FrameworkOverrides';
-
-import { TermComponent } from '../../Store/firebase/termComponents/@TermComponent';
-
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
+import {Command} from 'mobx-firelink';
+import {AssertValidate} from 'Utils/FrameworkOverrides';
+import {TermComponent} from '../../Store/firebase/termComponents/@TermComponent';
 
 @UserEdit
 export class AddTermComponent extends Command<{termID: string, termComponent: TermComponent}, {}> {

@@ -4,9 +4,10 @@ import { Button, Div, Row } from 'react-vcomponents';
 import { Column } from 'react-vcomponents';
 import { E } from 'js-vextensions';
 import { ShowMessageBox, BoxController } from 'react-vmessagebox';
-import { Link, HandleError, IsAuthValid } from 'Utils/FrameworkOverrides';
+import { Link, HandleError } from 'Utils/FrameworkOverrides';
 import { store } from 'Store';
 import { runInAction } from 'mobx';
+import {IsAuthValid} from 'mobx-firelink';
 import { MeID } from '../../../Store/firebase/users';
 
 export class UserPanel extends BaseComponentPlus({} as {auth?}, {}) {

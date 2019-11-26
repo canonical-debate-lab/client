@@ -1,11 +1,12 @@
-import { GetDataAsync, MergeDBUpdates } from 'Utils/FrameworkOverrides';
+import { MergeDBUpdates } from 'mobx-firelink';
+import { GetDoc_Async } from 'Utils/LibIntegrations/MobXFirelink';
 
 export function MapEdit(target: Function) {
 	const oldPrepare = target.prototype.Prepare;
 	target.prototype.Prepare = async function () {
 		await oldPrepare.apply(this);
 		if (this.payload.mapID) {
-			this.map_oldEditCount = await GetDataAsync({ addHelpers: false }, 'maps', this.payload.mapID, '.edits') as number || 0;
+			this.map_oldEditCount = (await GetDoc_Async((a) => a.maps.get(this.payload.mapID)))?.edits ?? 0;
 		}
 	};
 
@@ -25,7 +26,7 @@ export function UserEdit(target: Function) {
 	const oldPrepare = target.prototype.Prepare;
 	target.prototype.Prepare = async function () {
 		await oldPrepare.apply(this);
-		this.user_oldEditCount = await GetDataAsync({ addHelpers: false }, 'userExtras', this.userInfo.id, '.edits') as number || 0;
+		this.user_oldEditCount = (await GetDoc_Async((a) => a.userExtras.get(this.userInfo.id)))?.edits ?? 0;
 	};
 
 	const oldGetDBUpdates = target.prototype.GetDBUpdates;

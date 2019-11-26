@@ -20,7 +20,7 @@ import { Polarity } from 'Store/firebase/nodes/@MapNode';
 import { GetTimelineStep } from 'Store/firebase/timelines';
 import { NodeReveal } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { Me, MeID } from 'Store/firebase/users';
-import { AddressBarWrapper, browserHistory, ErrorBoundary, Route, LoadURL } from 'Utils/FrameworkOverrides';
+import { AddressBarWrapper, browserHistory, ErrorBoundary, LoadURL } from 'Utils/FrameworkOverrides';
 import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
 import { NormalizeURL } from 'Utils/URL/URLs';
 import '../../Source/Utils/Styles/Main.scss'; // keep absolute-ish, since scss file not copied to Source_JS folder

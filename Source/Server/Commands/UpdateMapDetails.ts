@@ -1,7 +1,10 @@
 import { MapEdit } from 'Server/CommandMacros';
-import { AddSchema, AssertValidate, Command, GetDataAsync, Schema } from 'Utils/FrameworkOverrides';
+import { AddSchema, AssertValidate, Schema } from 'Utils/FrameworkOverrides';
+import { Command } from 'mobx-firelink';
+import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
 import { Map, Map_namePattern } from '../../Store/firebase/maps/@Map';
 import { UserEdit } from '../CommandMacros';
+import { GetMap } from 'Store/firebase/maps';
 
 AddSchema('UpdateMapDetails_payload', {
 	properties: {
@@ -29,7 +32,7 @@ export class UpdateMapDetails extends Command<{mapID: string, mapUpdates: Partia
 	newData: Map;
 	async Prepare() {
 		const { mapID, mapUpdates } = this.payload;
-		this.oldData = await GetDataAsync({ addHelpers: false }, 'maps', mapID) as Map;
+		this.oldData = await GetAsync(() => GetMap(mapID));
 		this.newData = { ...this.oldData, ...mapUpdates };
 		this.newData.editedAt = Date.now();
 	}

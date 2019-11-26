@@ -1,13 +1,13 @@
-import { GetData, StoreAccessor } from 'Utils/FrameworkOverrides';
-import { UserMapInfo, LayerStatesMap } from './userMapInfo/@UserMapInfo';
+import { StoreAccessor } from 'Utils/FrameworkOverrides';
+import { GetDoc } from 'Utils/LibIntegrations/MobXFirelink';
 
 export const GetUserMapInfo = StoreAccessor((s) => (userID: string, mapID: string) => {
 	if (userID == null) return null;
-	return GetData('userMapInfo', userID, `.${mapID}`) as UserMapInfo;
+	return GetDoc((a) => a.userMapInfo.get(userID))?.maps.get(mapID);
 });
 export const GetUserLayerStatesForMap = StoreAccessor((s) => (userID: string, mapID: string) => {
 	if (userID == null) return null;
-	return GetData('userMapInfo', userID, `.${mapID}`, '.layerStates') as LayerStatesMap;
+	return GetDoc((a) => a.userMapInfo.get(userID))?.maps.get(mapID)?.layerStates;
 });
 export const GetUserLayerStateForMap = StoreAccessor((s) => (userID: string, mapID: string, layerID: string) => {
 	/* if (userID == null) return null;
