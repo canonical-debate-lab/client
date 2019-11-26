@@ -11,6 +11,10 @@
 		"moduleResolution": "node",
 		//"rootDir": ".",
 		"rootDir": "Source",
+		/*"rootDirs": [
+			"Source",
+			"../node_modules/vwebapp-framework",
+		],*/
 		"baseUrl": "Source",
 		//"baseUrl": ".", // we need it at root so we can apply path-overrides, even when requester is outside of Source folder
 		"paths": { // ("paths" is relative to "baseUrl")
@@ -50,6 +54,7 @@
 		"experimentalDecorators": true,
 		"allowSyntheticDefaultImports": true
 	},
+	//"files": ["Source/Main.ts"],
 	"include": [
 		"Typings/**/*.d.ts",
 		//"Typings/globals/**/*.d.ts",
@@ -58,5 +63,15 @@
 		//"Source/**/*.js",
 		//"Source/**/*.jsx"
 	],
+	/*"exclude": [
+		"Build",
+		"Tests",
+		"node_modules"
+
+		/*"Typings/main",
+		"Typings/main.d.ts",
+		"Typings/browser",
+		"Typings/browser.d.ts",*#/
+	],*/
 	"compileOnSave": true
 }

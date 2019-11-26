@@ -138,7 +138,7 @@
     "firebase-feedback": "0.0.5",
     "firebase-forum": "0.0.6",
     "immer": "5.0.0",
-    "js-vextensions": "0.0.19",
+    "js-vextensions": "0.0.21",
     "katex": "^0.9.0",
     "keycode": "^2.1.8",
     "lodash": "^4.17.2",
@@ -187,6 +187,8 @@
   },
   "devDependencies": {
     "@babel/core": "7.2.2",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "7.7.4",
+    "@babel/plugin-proposal-optional-chaining": "7.7.4",
     "@babel/preset-env": "7.2.3",
     "@babel/preset-react": "7.0.0",
     "@cypress/webpack-preprocessor": "4.1.0",

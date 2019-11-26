@@ -165,7 +165,11 @@ webpackConfig.module.rules = [
 		test: /\.(jsx?|tsx?)$/,
 		// we have babel ignore most node_modules (ie. include them raw), but we tell it to transpile the vwebapp-framework typescript files
 		// include: [paths.source(), paths.base("node_modules", "vwebapp-framework")],
-		include: [paths.source(), fs.realpathSync(paths.base('node_modules', 'vwebapp-framework'))],
+		include: [
+			paths.source(),
+			// fs.realpathSync(paths.base('node_modules', 'vwebapp-framework')),
+			fs.realpathSync(paths.base('node_modules', 'vwebapp-framework', 'Source')),
+		],
 		loader: 'babel-loader',
 		options: {
 			presets: [
@@ -178,6 +182,10 @@ webpackConfig.module.rules = [
 				],
 				'@babel/react',
 			],
+			plugins: [
+				'@babel/plugin-proposal-nullish-coalescing-operator',
+        		'@babel/plugin-proposal-optional-chaining',
+			],
 		},
 	},
 ];
@@ -186,7 +194,22 @@ webpackConfig.module.rules = [
 // if (USE_TSLOADER) {
 // webpackConfig.module.rules.push({test: /\.tsx?$/, use: "awesome-typescript-loader"});
 // webpackConfig.module.rules.push({test: /\.tsx?$/, loader: "ts-loader", options: {include: [paths.source()]}});
-webpackConfig.module.rules.push({ test: /\.tsx?$/, loader: 'ts-loader' });
+webpackConfig.module.rules.push({
+	// limiting ts-loader to these paths fixes the odd issue it was having (where it said files in vwebapp-framework were "outside the root" of js-extensions, despite jsve source-files never importing from vwaf!)
+	test: [
+		/vwebapp-framework[/\\].*Source[/\\].*\.tsx?$/,
+		/js-vextensions[/\\].*Source[/\\].*@ApplyTypes\.tsx?$/,
+	],
+	loader: 'ts-loader',
+	/* options: {
+		include: [
+			// paths.source(),
+			// paths.base("node_modules", ""),
+			fs.realpathSync(paths.base('node_modules', 'vwebapp-framework', 'Source')),
+			fs.realpathSync(paths.base('node_modules', 'js-vextensions', 'Source', 'ClassExtensions', '@ApplyTypes.ts')),
+		],
+	}, */
+});
 
 // for mobx-sync
 webpackConfig.module.rules.push({ test: /\.mjs$/, type: 'javascript/auto' });
