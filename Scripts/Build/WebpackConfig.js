@@ -36,8 +36,8 @@ const webpackConfig = {
 	devtool: config.compiler_devtool,
 	resolve: {
 		modules: [
-			// 'node_modules', // commented; thus we ignore the closest-to-import-statement node_modules folder, instead we: [...]
-			paths.base('node_modules'), // [...] always get libraries from the root node_modules folder
+			'node_modules', // commented; thus we ignore the closest-to-import-statement node_modules folder, instead we: [...]
+			// paths.base('node_modules'), // [...] always get libraries from the root node_modules folder
 			paths.source(),
 		],
 		// extensions: [".js", ".jsx", ".json"].concat(USE_TSLOADER ? [".ts", ".tsx"] : []),
