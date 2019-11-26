@@ -9,4 +9,4 @@ export class UserMapInfo {
 	_key: string;
 	layerStates: LayerStatesMap;
 }
-export type LayerStatesMap = ObservableMap<number, boolean>;
+export type LayerStatesMap = ObservableMap<string, boolean>;

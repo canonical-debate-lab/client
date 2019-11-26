@@ -2,17 +2,17 @@ import { CachedTransform, emptyArray, ToInt } from 'js-vextensions';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { GetNode } from 'Store/firebase/nodes';
 import { StoreAccessor } from 'Utils/FrameworkOverrides';
+import {GetDocs, GetDoc} from 'Utils/LibIntegrations/MobXFirelink';
 import { Map } from './maps/@Map';
 import { AsNodeL3, GetNodeL2 } from './nodes/$node';
 import { GetUserLayerStatesForMap } from './userMapInfo';
 import { MapNodeL3 } from './nodes/@MapNode';
-import {GetDocs, GetDoc} from 'Utils/LibIntegrations/MobXFirelink';
 
 export const GetLayers = StoreAccessor((s) => (): Layer[] => {
-	return GetDocs(a=>a.layers);
+	return GetDocs((a) => a.layers);
 });
 export const GetLayer = StoreAccessor((s) => (id: string): Layer => {
-	return GetDoc(a=>a.layers.get(id));
+	return GetDoc((a) => a.layers.get(id));
 });
 
 export function GetMapLayerIDs(map: Map) {
@@ -23,7 +23,7 @@ export const GetMapLayers = StoreAccessor((s) => (map: Map) => {
 });
 
 export const GetSubnodeIDsInLayer = StoreAccessor((s) => (anchorNodeID: string, layerID: string) => {
-	return (GetDoc(a=>a.layers.get(layerID).nodeSubnodes.get(anchorNodeID)) || {}).VKeys(true);
+	return (GetDoc((a) => a.layers.get(layerID).nodeSubnodes.get(anchorNodeID)) || {}).VKeys(true);
 });
 export const GetSubnodesInLayer = StoreAccessor((s) => (anchorNodeID: string, layerID: string) => {
 	const subnodeIDs = GetSubnodeIDsInLayer(anchorNodeID, layerID);
@@ -43,7 +43,8 @@ export const GetSubnodesInEnabledLayersEnhanced = StoreAccessor((s) => (userID: 
 	// if some layers aren't loaded yet, return nothing
 	if (layersEnabled.Any((a) => a == null)) return emptyArray;
 
-	const userLayerStates = GetUserLayerStatesForMap(userID, map._key) || {};
+	// const userLayerStates = GetUserLayerStatesForMap(userID, map._key) || {};
+	const userLayerStates = GetUserLayerStatesForMap(userID, map._key);
 	for (const { key: layerID, value: state } of userLayerStates.Pairs(true)) {
 		const existingEntry = layersEnabled.find((a) => a._key == layerID);
 		if (state == true) {

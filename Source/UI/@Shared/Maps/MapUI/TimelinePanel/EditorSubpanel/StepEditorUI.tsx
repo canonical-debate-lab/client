@@ -177,7 +177,7 @@ export class StepEditorUI extends BaseComponentPlus({} as StepEditorUIProps, { p
 		if (dragBox == null) return; // this can happen at end of drag
 		const dragBoxRect = VRect.FromLTWH(dragBox.getBoundingClientRect());
 
-		const siblingNodeUIs = (this.nodeHolder.DOM.childNodes.ToArray() as HTMLElement[]).filter((a) => a.classList.contains('NodeUI'));
+		const siblingNodeUIs = (Array.from(this.nodeHolder.DOM.childNodes) as HTMLElement[]).filter((a) => a.classList.contains('NodeUI'));
 		const siblingNodeUIInnerDOMs = siblingNodeUIs.map((nodeUI) => nodeUI.QuerySelector_BreadthFirst('.NodeUI_Inner')).filter((a) => a != null); // entry can be null if inner-ui still loading
 		const firstOffsetInner = siblingNodeUIInnerDOMs.find((a) => a && a.style.transform && a.style.transform.includes('translate('));
 

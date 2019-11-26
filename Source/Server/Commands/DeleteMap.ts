@@ -3,7 +3,7 @@ import { DeleteNode } from 'Server/Commands/DeleteNode';
 import { GetMap } from 'Store/firebase/maps';
 import { GetAsync, GetDoc_Async, GetDocs_Async } from 'Utils/LibIntegrations/MobXFirelink';
 import { Command, MergeDBUpdates } from 'mobx-firelink';
-import {MapNode} from 'Store/firebase/nodes/@MapNode';
+import { MapNode } from 'Store/firebase/nodes/@MapNode';
 import { Map } from '../../Store/firebase/maps/@Map';
 import { UserMapInfoSet } from '../../Store/firebase/userMapInfo/@UserMapInfo';
 
@@ -35,7 +35,7 @@ export class DeleteMap extends Command<{mapID: string}, {}> {
 		newUpdates[`maps/${mapID}`] = null;
 		for (const userMapInfoSet of this.userMapInfoSets) {
 			const userID = userMapInfoSet._key;
-			for (const { key: mapID2, value: userMapInfo } of userMapInfoSet.Pairs(true)) {
+			for (const { key: mapID2, value: userMapInfo } of userMapInfoSet.maps.Pairs(true)) {
 				if (mapID2 == mapID) {
 					newUpdates[`userMapInfo/${userID}/.${mapID}`] = null;
 				}

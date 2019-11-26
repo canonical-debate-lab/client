@@ -271,7 +271,7 @@ export class MapUI extends BaseComponentPlus({
 	}
 
 	FindNodeBox(nodePath: string, ifMissingFindAncestor = false) {
-		const nodeUIs = document.querySelectorAll('.NodeUI_Inner').ToArray().map((nodeUI_boxEl) => {
+		const nodeUIs = Array.from(document.querySelectorAll('.NodeUI_Inner')).map((nodeUI_boxEl) => {
 			const boxEl = FindReact(nodeUI_boxEl) as ExpandableBox;
 			const result = boxEl.props.parent as NodeUI_Inner;
 			Assert(result instanceof NodeUI_Inner);
