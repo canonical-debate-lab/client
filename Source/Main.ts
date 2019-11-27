@@ -1,11 +1,13 @@
+// /// <reference path="../node_modules/js-vextensions/Source/ClassExtensions/@ApplyTypes.d.ts"/>
+
 // "static" imports
 import './Utils/PreRunners/Start_0';
 import 'babel-polyfill';
 import 'webpack-runtime-require';
 // import {Require} from "webpack-runtime-require";
-// import 'js-vextensions';
-/* import 'js-vextensions/Source/ClassExtensions/@ApplyTypes';
-import 'js-vextensions/Dist/ClassExtensions/@ApplyCode'; */
+/* //import "js-vextensions/Source/ClassExtensions/@ApplyTypes";
+type __ = typeof import("../node_modules/js-vextensions/Source/ClassExtensions/@ApplyTypes");
+import "js-vextensions/Dist/ClassExtensions/@ApplyCode"; // eslint-disable-line */
 import './Utils/ClassExtensions/CE_General';
 import './Utils/PreRunners/Start_1';
 import 'codemirror';

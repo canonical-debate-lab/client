@@ -14,6 +14,7 @@
 		/*"rootDirs": [
 			"Source",
 			"../node_modules/vwebapp-framework",
+			"../node_modules/js-vextensions/....",
 		],*/
 		"baseUrl": "Source",
 		//"baseUrl": ".", // we need it at root so we can apply path-overrides, even when requester is outside of Source folder

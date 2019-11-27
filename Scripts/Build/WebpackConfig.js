@@ -250,7 +250,7 @@ function AddStringReplacement(fileRegex, replacements, minCallCount = 1, verifyP
 		replacements_final = replacements_final.concat({
 			pattern: /(.|\n)+/g,
 			replacement: (match) => {
-				if (fileRegex.toString().includes('createStosdfsdfre')) {
+				if (fileRegex.toString().includes('createStore')) {
 					console.log(`\n\n============ Replacement called for: ${fileRegex} ==================\n`);
 				}
 				VerifyReplacementsCalled();
