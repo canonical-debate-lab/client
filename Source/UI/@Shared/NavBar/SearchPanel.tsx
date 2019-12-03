@@ -11,13 +11,14 @@ import { GetNodeRevision } from 'Store/firebase/nodeRevisions';
 import { AsNodeL3, GetAllNodeRevisionTitles, GetNodeDisplayText, GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { GetNodeColor, MapNodeType_Info } from 'Store/firebase/nodes/@MapNodeType';
 import { GetUser } from 'Store/firebase/users';
-import { EB_ShowError, EB_StoreError, InfoButton, LogWarning, DBPath } from 'Utils/FrameworkOverrides';
+import { EB_ShowError, EB_StoreError, InfoButton, LogWarning } from 'Utils/FrameworkOverrides';
 import { UUID } from 'Utils/General/KeyGenerator';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { store } from 'Store';
 import { GetOpenMapID } from 'Store/main';
 import { MapNodeView, MapView, ACTMapViewMerge } from 'Store/main/mapViews/$mapView';
-import { GetAsync, fire } from 'Utils/LibIntegrations/MobXFirelink';
+import { DBPath, GetAsync } from 'mobx-firelink';
+import {fire} from 'Utils/LibIntegrations/MobXFirelink';
 import { NodeUI_Menu_Stub } from '../Maps/MapNode/NodeUI_Menu';
 import { MapUI } from '../Maps/MapUI';
 
@@ -37,7 +38,7 @@ export class SearchPanel extends BaseComponentPlus({} as {}, {}, {} as {queryStr
 
 		const searchTerms = GetSearchTerms_Advanced(queryStr);
 		if (searchTerms.wholeTerms.length == 0 && !unrestricted) return;
-		let query = fire.subs.firestoreDB.collection(DBPath('nodeRevisions')) as CollectionReference | Query;
+		let query = fire.subs.firestoreDB.collection(DBPath({}, 'nodeRevisions')) as CollectionReference | Query;
 		for (const term of searchTerms.wholeTerms) {
 			query = query.where(`titles.allTerms.${term}`, '==', true);
 		}

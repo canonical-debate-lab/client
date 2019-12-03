@@ -1,4 +1,5 @@
-import {Command, MergeDBUpdates} from 'mobx-firelink';
+import { Command, MergeDBUpdates } from 'mobx-firelink';
+import { AssertValidate } from 'Utils/FrameworkOverrides';
 import { UserEdit } from '../../Server/CommandMacros';
 import { GenerateUUID, UUID } from '../../Utils/General/KeyGenerator';
 import { Map } from '../../Store/firebase/maps/@Map';
@@ -6,7 +7,6 @@ import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeRevision } from '../../Store/firebase/nodes/@MapNodeRevision';
 import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
 import { AddChildNode } from './AddChildNode';
-import { AssertValidate } from 'Utils/FrameworkOverrides';
 
 @UserEdit
 export class AddMap extends Command<{map: Map}, UUID> {

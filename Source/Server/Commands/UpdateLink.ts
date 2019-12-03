@@ -1,7 +1,6 @@
-import { Command } from 'mobx-firelink';
+import { Command, GetAsync } from 'mobx-firelink';
 import { GetNode } from 'Store/firebase/nodes';
 import { AddSchema, AssertValidate, GetSchemaJSON } from 'Utils/FrameworkOverrides';
-import { GetAsync } from 'Utils/LibIntegrations/MobXFirelink';
 import { GetLinkUnderParent } from '../../Store/firebase/nodes/$node';
 import { ChildEntry } from '../../Store/firebase/nodes/@MapNode';
 import { UserEdit } from '../CommandMacros';

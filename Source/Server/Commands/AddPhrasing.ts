@@ -4,8 +4,7 @@ import { AddSchema, AssertValidate } from 'Utils/FrameworkOverrides';
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
 import { GetNode } from 'Store/firebase/nodes';
 import { Assert } from 'js-vextensions';
-import {Command} from 'mobx-firelink';
-import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
+import { Command, GetAsync } from 'mobx-firelink';
 
 /* AddSchema({
 	properties: {

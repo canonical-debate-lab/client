@@ -4,5 +4,5 @@ import React from 'react';
 // include JQuery file directly from html, for faster building
 const JQuery = jQuery;
 
-G({ JQuery, jQuery: JQuery, $: JQuery }); declare global { const JQuery; /* const jQuery; const $; */ }
-G({ React }); declare global { const React: typeof React; }
+Object.assign(window, { JQuery, jQuery: JQuery, $: JQuery }); declare global { const JQuery; /* const jQuery; const $; */ }
+Object.assign(window, { React }); declare global { const React: typeof React; }

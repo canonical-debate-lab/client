@@ -1,11 +1,11 @@
 import { CachedTransform, IsNaN } from 'js-vextensions';
-import { GetDoc } from 'Utils/LibIntegrations/MobXFirelink';
+import {GetDoc} from 'mobx-firelink';
 import { Term } from './terms/@Term';
 import { TermComponent } from './termComponents/@TermComponent';
 
 export function GetTermComponent(id: string) {
 	if (id == null || IsNaN(id)) return null;
-	return GetDoc((a) => a.termComponents.get(id));
+	return GetDoc({}, (a) => a.termComponents.get(id));
 }
 /* export async function GetTermComponentAsync(id: string) {
 	return await GetDataAsync('termComponents', id) as TermComponent;

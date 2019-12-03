@@ -1,7 +1,7 @@
 import { Lerp, emptyObj, ToJSON } from 'js-vextensions';
 import { StoreAccessor } from 'Utils/FrameworkOverrides';
 import { WeightingType } from 'Store/main';
-import { GetDocs, GetDoc } from 'Utils/LibIntegrations/MobXFirelink';
+import {GetDoc} from 'mobx-firelink';
 import { GetArgumentImpactPseudoRatingSet } from '../../Utils/Store/RatingProcessor';
 import { RatingType, ratingTypes } from './nodeRatings/@RatingType';
 import { Rating, RatingsRoot } from './nodeRatings/@RatingsRoot';
@@ -14,7 +14,7 @@ import { MeID } from './users';
 
 export const GetNodeRatingsRoot = StoreAccessor((s) => (nodeID: string) => {
 	// RequestPaths(GetPaths_NodeRatingsRoot(nodeID));
-	return GetDoc((a) => a.nodeRatings.get(nodeID));
+	return GetDoc({}, (a) => a.nodeRatings.get(nodeID));
 	// temp workaround for GetData() not retrieving list of subcollections for doc-path
 	/* const result = {};
 	for (const ratingType of ratingTypes) {

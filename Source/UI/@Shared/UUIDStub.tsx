@@ -1,7 +1,7 @@
 import { BaseComponent, BaseComponentPlus, ApplyBasicStyles } from 'react-vextensions';
 import { Text, Row } from 'react-vcomponents';
 import { Fragment } from 'react';
-import { SplitStringBySlash_Cached } from 'Utils/FrameworkOverrides';
+import { SplitStringBySlash_Cached } from 'mobx-firelink';
 
 export class UUIDStub extends BaseComponent<{id: string}, {}> {
 	render() {

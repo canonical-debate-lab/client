@@ -11,7 +11,7 @@ import { SearchPanel } from 'UI/@Shared/NavBar/SearchPanel';
 import { UserPanel } from 'UI/@Shared/NavBar/UserPanel';
 import { ResetCurrentDBRoot } from 'UI/More/Admin/ResetCurrentDBRoot';
 import { Observer, Link, HSL } from 'Utils/FrameworkOverrides';
-import {GetDocs} from 'Utils/LibIntegrations/MobXFirelink';
+import { GetDocs } from 'mobx-firelink';
 import { colors } from '../../Utils/UI/GlobalStyles';
 
 // main
@@ -22,7 +22,7 @@ export class NavBar_GAD extends BaseComponentPlus({}, {}) {
 	render() {
 		const { topRightOpenPanel } = store.main;
 		const auth = GetAuth();
-		const dbNeedsInit = GetDocs((a) => a.maps, { useUndefinedForInProgress: true }) === null; // use maps because it won't cause too much data to be downloaded-and-watched; improve this later
+		const dbNeedsInit = GetDocs({ useUndefinedForInProgress: true }, (a) => a.maps) === null; // use maps because it won't cause too much data to be downloaded-and-watched; improve this later
 		return (
 			<nav style={{
 				position: 'relative', zIndex: 11, height: 150, boxShadow: colors.navBarBoxShadow,

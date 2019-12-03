@@ -1,8 +1,7 @@
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { AddSchema, AssertValidate, GetSchemaJSON, Schema } from 'Utils/FrameworkOverrides';
-import {Command} from 'mobx-firelink';
-import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
-import {GetTimelineStep} from 'Store/firebase/timelines';
+import { Command, GetAsync } from 'mobx-firelink';
+import { GetTimelineStep } from 'Store/firebase/timelines';
 import { UserEdit } from '../CommandMacros';
 
 AddSchema('UpdateTimelineStep_payload', ['TimelineStep'], () => ({

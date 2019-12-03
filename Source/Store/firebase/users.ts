@@ -4,8 +4,7 @@ import { presetBackgrounds, defaultPresetBackground } from 'Utils/UI/PresetBackg
 import { StoreAccessor } from 'Utils/FrameworkOverrides';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { GetAuth } from 'Store/firebase';
-import { GetDoc, GetDocs } from 'Utils/LibIntegrations/MobXFirelink';
-import {IsAuthValid} from 'mobx-firelink';
+import { IsAuthValid, GetDoc, GetDocs } from 'mobx-firelink';
 import { AccessLevel } from './nodes/@MapNode';
 import { UserExtraInfo, PermissionGroupSet } from './userExtras/@UserExtraInfo';
 
@@ -27,10 +26,10 @@ export const Me = StoreAccessor((s) => () => {
 });
 
 export const GetUser = StoreAccessor((s) => (userID: string): User => {
-	return GetDoc((a) => a.users.get(userID));
+	return GetDoc({}, (a) => a.users.get(userID));
 });
 export const GetUsers = StoreAccessor((s) => (): User[] => {
-	return GetDocs((a) => a.users);
+	return GetDocs({}, (a) => a.users);
 });
 
 /* export type UserExtraInfoMap = { [key: string]: UserExtraInfo };
@@ -38,15 +37,15 @@ export const GetUserExtraInfoMap = StoreAccessor((s) => (): UserExtraInfoMap => 
 	return GetDocs((a) => a.userExtras);
 }); */
 export const GetUserExtraInfo = StoreAccessor((s) => (userID: string): UserExtraInfo => {
-	return GetDoc((a) => a.userExtras.get(userID));
+	return GetDoc({}, (a) => a.userExtras.get(userID));
 });
 export const GetUserJoinDate = StoreAccessor((s) => (userID: string): number => {
-	return GetDoc((a) => a.userExtras.get(userID))?.joinDate;
+	return GetDoc({}, (a) => a.userExtras.get(userID))?.joinDate;
 });
 const defaultPermissions = { basic: true, verified: true, mod: false, admin: false } as PermissionGroupSet; // temp
 export const GetUserPermissionGroups = StoreAccessor((s) => (userID: string): PermissionGroupSet => {
 	if (userID == null) return null;
-	return GetDoc((a) => a.userExtras.get(userID))?.permissionGroups ?? defaultPermissions;
+	return GetDoc({}, (a) => a.userExtras.get(userID))?.permissionGroups ?? defaultPermissions;
 });
 export function GetUserAccessLevel(userID: string) {
 	const groups = GetUserPermissionGroups(userID);

@@ -1,18 +1,18 @@
 import { CachedTransform, IsNaN } from 'js-vextensions';
 import { StoreAccessor } from 'Utils/FrameworkOverrides';
-import { GetDoc, GetDoc_Async, GetDocs } from 'Utils/LibIntegrations/MobXFirelink';
+import { GetDoc, GetDocs } from 'mobx-firelink';
 import { Term } from './terms/@Term';
 
 export const GetTerm = StoreAccessor((s) => (id: string) => {
 	if (id == null || IsNaN(id)) return null;
-	return GetDoc((a) => a.terms.get(id));
+	return GetDoc({}, (a) => a.terms.get(id));
 });
 /* export async function GetTermAsync(id: string) {
 	return await GetDoc_Async((a) => a.terms.get(id));
 } */
 
 export const GetTerms = StoreAccessor((s) => (): Term[] => {
-	return GetDocs((a) => a.terms);
+	return GetDocs({}, (a) => a.terms);
 });
 
 // "P" stands for "pure" (though really means something like "pure + synchronous")
@@ -21,7 +21,7 @@ export function GetFullNameP(term: Term) {
 }
 
 export const GetTermVariantNumber = StoreAccessor((s) => (term: Term): number => {
-	const termsWithSameName_map = GetDoc((a) => a.termNames.get(term.name));
+	const termsWithSameName_map = GetDoc({}, (a) => a.termNames.get(term.name));
 	if (termsWithSameName_map == null) return 1;
 	const termsWithSameNameAndLowerIDs = termsWithSameName_map.VKeys(true).map((a) => a).filter((a) => a < term._key);
 	return 1 + termsWithSameNameAndLowerIDs.length;

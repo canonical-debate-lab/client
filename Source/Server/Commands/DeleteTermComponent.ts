@@ -1,8 +1,7 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { Assert, IsNumber } from 'js-vextensions';
-import { Command } from 'mobx-firelink';
-import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
-import {GetTermComponent} from 'Store/firebase/termComponents';
+import { Command, GetAsync } from 'mobx-firelink';
+import { GetTermComponent } from 'Store/firebase/termComponents';
 import { TermComponent } from '../../Store/firebase/termComponents/@TermComponent';
 
 @UserEdit

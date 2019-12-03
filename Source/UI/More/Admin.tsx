@@ -4,13 +4,12 @@ import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 're
 import { ShowMessageBox } from 'react-vmessagebox';
 import { HasAdminPermissions } from 'Store/firebase/userExtras';
 import { Omit } from 'lodash';
-import { SplitStringBySlash_Cached, PageContainer, DBPath } from 'Utils/FrameworkOverrides';
+import { PageContainer } from 'Utils/FrameworkOverrides';
 import { dbVersion } from 'Main';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
 import { FirebaseState } from 'Store/firebase';
 import { store, RootState } from 'Store';
-import { GetDoc, GetDoc_Async, GetDocs_Async, WithStore } from 'Utils/LibIntegrations/MobXFirelink';
-import { ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks } from 'mobx-firelink';
+import { ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks, DBPath, SplitStringBySlash_Cached, GetDoc_Async, GetDocs_Async, WithStore, GetDoc } from 'mobx-firelink';
 import { styles } from '../../Utils/UI/GlobalStyles';
 import { MeID, GetUser } from '../../Store/firebase/users';
 import { ResetCurrentDBRoot } from './Admin/ResetCurrentDBRoot';
@@ -55,7 +54,7 @@ export class AdminUI extends BaseComponentPlus({} as {}, { dbUpgrade_entryIndexe
 		const { dbUpgrade_entryIndexes, dbUpgrade_entryCounts } = this.state;
 		const isAdmin = HasAdminPermissions(MeID())
 			// also check previous version for admin-rights (so we can increment db-version without losing our rights to complete the db-upgrade!)
-			|| (MeID() != null && GetDoc((a: any) => (a.versions.get(`v${dbVersion - 1}-${DB_SHORT}`) as FirebaseState).userExtras.get(MeID()))?.permissionGroups.admin, { inVersionRoot: false });
+			|| (MeID() != null && GetDoc({}, (a: any) => (a.versions.get(`v${dbVersion - 1}-${DB_SHORT}`) as FirebaseState).userExtras.get(MeID()))?.permissionGroups.admin, { inVersionRoot: false });
 
 		if (!isAdmin) return <PageContainer>Please sign in.</PageContainer>;
 		return (
@@ -66,9 +65,9 @@ export class AdminUI extends BaseComponentPlus({} as {}, { dbUpgrade_entryIndexe
 				</Row> */}
 				<Row><h4>General</h4></Row>
 				<Row>
-					<Button text={`Reset ${DBPath()}`} onClick={() => {
+					<Button text={`Reset ${DBPath({})}`} onClick={() => {
 						ShowMessageBox({
-							title: `Reset ${DBPath()}?`,
+							title: `Reset ${DBPath({})}?`,
 							message: 'This will clear all existing data in this root, then replace it with a fresh, initial state.', cancelButton: true,
 							onOK: () => {
 								ResetCurrentDBRoot();
@@ -153,7 +152,7 @@ The old db-root will not be modified.`,
 
 						// maybe temp; use firebase-data overriding system, so upgrade-funcs can use GetData() and such -- but accessing a local data-store (which can be updated) instead of the "real" remote data
 						const newStore = Clone(store);
-						DeepSet(newStore, `firebase/data/${DBPath()}`, oldData);
+						DeepSet(newStore, `firebase/data/${DBPath({})}`, oldData);
 						const newData = await WithStore(newStore, () => {
 							return upgradeFunc(oldData, markProgress);
 						});
@@ -194,10 +193,10 @@ export async function GetCollectionsDataAsync(versionRootPath: string) {
 	AssertVersionRootPath(versionRootPath);
 
 	async function getDocs(...collectionSubpath: string[]) {
-		return GetDocs_Async([...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath], { inVersionRoot: false }) as any;
+		return GetDocs_Async({ inVersionRoot: false }, [...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath]) as any;
 	}
 	async function getDoc(...collectionSubpath: string[]) {
-		return GetDoc_Async([...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath], { inVersionRoot: false }) as any;
+		return GetDoc_Async({ inVersionRoot: false }, [...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath]) as any;
 	}
 
 	let versionCollectionsData: FirebaseState;
@@ -254,5 +253,5 @@ export async function ImportCollectionsData(versionRootPath: string, collections
 	}
 
 	Log('Importing db-data into path. Path: ', versionRootPath, ' DBData: ', collectionsDataToImport, ' DBUpdates: ', allDBUpdates);
-	await ApplyDBUpdates_InChunks(versionRootPath, allDBUpdates);
+	await ApplyDBUpdates_InChunks({}, versionRootPath, allDBUpdates);
 }

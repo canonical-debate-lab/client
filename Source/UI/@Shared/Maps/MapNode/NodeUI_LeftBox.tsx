@@ -4,6 +4,7 @@ import { Button, Span } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { MeID } from 'Store/firebase/users';
+import {MapNodeView} from 'Store/main/mapViews/$mapView';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetRatingAverage_AtPath, GetRatings } from '../../../../Store/firebase/nodeRatings';
 import { RatingsRoot } from '../../../../Store/firebase/nodeRatings/@RatingsRoot';
@@ -12,8 +13,7 @@ import { GetParentNodeL3 } from '../../../../Store/firebase/nodes';
 import { GetNodeForm, GetRatingTypesForNode, IsPremiseOfSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
 import { ClaimForm, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
 import { MapNodeType_Info } from '../../../../Store/firebase/nodes/@MapNodeType';
-import {SlicePath} from 'Utils/FrameworkOverrides';
-import {MapNodeView} from 'Store/main/mapViews/$mapView';
+import { SlicePath } from 'mobx-firelink';
 
 type Props = {
 	map: Map, path: string, node: MapNodeL3, nodeView?: MapNodeView, ratingsRoot: RatingsRoot,

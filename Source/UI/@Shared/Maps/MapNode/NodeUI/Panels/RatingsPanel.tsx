@@ -4,9 +4,9 @@ import { BaseComponent, RenderSource, BaseComponentPlus } from 'react-vextension
 import { ShowMessageBox } from 'react-vmessagebox';
 import { Area, AreaChart, CartesianGrid, ReferenceLine, Tooltip, XAxis, YAxis } from 'recharts';
 import { SetNodeRating } from 'Server/Commands/SetNodeRating';
-import { SlicePath } from 'Utils/FrameworkOverrides';
 import { store } from 'Store';
-import {GetRatingUISmoothing} from 'Store/main/ratingUI';
+import { GetRatingUISmoothing } from 'Store/main/ratingUI';
+import {SlicePath} from 'mobx-firelink';
 import { ShouldRatingTypeBeReversed, TransformRatingForContext } from '../../../../../../Store/firebase/nodeRatings';
 import { GetRatingTypeInfo, RatingType } from '../../../../../../Store/firebase/nodeRatings/@RatingType';
 import { Rating } from '../../../../../../Store/firebase/nodeRatings/@RatingsRoot';

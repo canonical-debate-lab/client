@@ -1,11 +1,10 @@
 import { MapEdit } from 'Server/CommandMacros';
 import { GetNode } from 'Store/firebase/nodes';
 import { Assert, E } from 'js-vextensions';
-import {Command} from 'mobx-firelink';
+import { Command, GetAsync } from 'mobx-firelink';
 import { ClaimForm, MapNode, Polarity } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
 import { UserEdit } from '../CommandMacros';
-import { GetAsync } from 'Utils/LibIntegrations/MobXFirelink';
 
 @MapEdit
 @UserEdit

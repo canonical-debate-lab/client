@@ -4,7 +4,7 @@ import { GetMap } from 'Store/firebase/maps';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { GetNodeView, ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView';
 import { store } from 'Store';
-import { GetAsync } from 'Utils/LibIntegrations/MobXFirelink';
+import { GetAsync } from 'mobx-firelink';
 
 let lastMapID;
 autorun(() => {

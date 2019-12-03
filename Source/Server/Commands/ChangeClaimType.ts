@@ -4,13 +4,12 @@ import { AssertValidate, AddSchema } from 'Utils/FrameworkOverrides';
 
 
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
+import {Command, GetAsync} from 'mobx-firelink';
 import { GetClaimType, GetNodeL2 } from '../../Store/firebase/nodes/$node';
 import { Equation } from '../../Store/firebase/nodes/@Equation';
 import { ClaimType, MapNodeL2 } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeRevision } from '../../Store/firebase/nodes/@MapNodeRevision';
 import { UserEdit } from './../CommandMacros';
-import {Command} from 'mobx-firelink';
-import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
 
 export const conversionTypes = [
 	// from normal to...

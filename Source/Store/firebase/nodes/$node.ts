@@ -1,16 +1,16 @@
+import { Assert, CachedTransform, GetValues, IsString, VURL } from 'js-vextensions';
 import katex from 'katex';
-import { VURL, CachedTransform, Assert, IsNumber, IsString, GetValues } from 'js-vextensions';
-import { SplitStringBySlash_Cached, SlicePath, StoreAccessor } from 'Utils/FrameworkOverrides';
-
+import { StoreAccessor } from 'Utils/FrameworkOverrides';
+import { SplitStringBySlash_Cached, SlicePath } from 'mobx-firelink';
 import { GetImage } from '../images';
-import { MapNode, MapNodeL2, ClaimForm, ChildEntry, ClaimType, MapNodeL3, Polarity } from './@MapNode';
+import { GetNiceNameForImageType } from '../images/@Image';
 import { RatingType } from '../nodeRatings/@RatingType';
-import { MapNodeType } from './@MapNodeType';
-import { GetParentNode, IsNodeSubnode, GetNode, GetParentNodeL2, GetNodeChildrenL2, GetNodeChildren, GetNodeID, HolderType, ForNewLink_GetError, ForLink_GetError } from '../nodes';
-import { PermissionGroupSet } from '../userExtras/@UserExtraInfo';
-import { ImageType, GetNiceNameForImageType } from '../images/@Image';
-import { MapNodeRevision, TitlesMap, TitlesMap_baseKeys } from './@MapNodeRevision';
 import { GetNodeRevision } from '../nodeRevisions';
+import { ForLink_GetError, ForNewLink_GetError, GetNode, GetNodeChildrenL2, GetNodeID, GetParentNode, GetParentNodeL2, HolderType, IsNodeSubnode } from '../nodes';
+import { PermissionGroupSet } from '../userExtras/@UserExtraInfo';
+import { ChildEntry, ClaimForm, ClaimType, MapNode, MapNodeL2, MapNodeL3, Polarity } from './@MapNode';
+import { MapNodeRevision, TitlesMap, TitlesMap_baseKeys } from './@MapNodeRevision';
+import { MapNodeType } from './@MapNodeType';
 
 export function PreProcessLatex(text: string) {
 	// text = text.replace(/\\term{/g, "\\text{");

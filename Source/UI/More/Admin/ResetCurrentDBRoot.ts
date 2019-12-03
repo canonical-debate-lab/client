@@ -5,12 +5,11 @@ import { ValidateDBData } from 'Utils/Store/DBDataValidator';
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
 import { FirebaseState } from 'Store/firebase';
 import { observable } from 'mobx';
-import {ConvertDataToValidDBUpdates, ApplyDBUpdates} from 'mobx-firelink';
+import { ConvertDataToValidDBUpdates, ApplyDBUpdates, DBPath } from 'mobx-firelink';
 import { Map, MapType } from '../../../Store/firebase/maps/@Map';
 import { MapNode, globalRootNodeID, globalMapID } from '../../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../../Store/firebase/nodes/@MapNodeType';
 import { UserExtraInfo } from '../../../Store/firebase/userExtras/@UserExtraInfo';
-import { DBPath } from 'Utils/FrameworkOverrides';
 
 // Note: This is currently not used, and probably doesn`t even work atm.
 
@@ -53,7 +52,8 @@ export async function ResetCurrentDBRoot() {
 
 	ValidateDBData(data);
 
-	await ApplyDBUpdates(DBPath(), ConvertDataToValidDBUpdates('', data));
+	// todo
+	// await ApplyDBUpdates({}, DBPath({}), ConvertDataToValidDBUpdates('', data));
 
 	ShowMessageBox({ message: 'Done!' });
 }

@@ -2,9 +2,8 @@ import { UserEdit } from 'Server/CommandMacros';
 import { Assert } from 'js-vextensions';
 import { AssertValidate } from 'Utils/FrameworkOverrides';
 
-import { Command } from 'mobx-firelink';
-import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
-import {GetTermComponent} from 'Store/firebase/termComponents';
+import { Command, GetAsync } from 'mobx-firelink';
+import { GetTermComponent } from 'Store/firebase/termComponents';
 import { TermComponent } from '../../Store/firebase/termComponents/@TermComponent';
 
 

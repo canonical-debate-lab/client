@@ -1,11 +1,10 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
+import {Command, MergeDBUpdates, GetAsync} from 'mobx-firelink';
 import { GetLayer } from '../../Store/firebase/layers';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { AddNode } from './AddNode';
-import {Command, MergeDBUpdates} from 'mobx-firelink';
-import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
 
 @UserEdit
 export class AddSubnode extends Command<{mapID: string, layerID: string, anchorNodeID: string, subnode: MapNode, subnodeRevision: MapNodeRevision}, number> {

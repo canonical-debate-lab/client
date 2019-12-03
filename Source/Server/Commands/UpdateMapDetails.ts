@@ -1,10 +1,9 @@
 import { MapEdit } from 'Server/CommandMacros';
 import { AddSchema, AssertValidate, Schema } from 'Utils/FrameworkOverrides';
-import { Command } from 'mobx-firelink';
-import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
+import { Command, GetAsync } from 'mobx-firelink';
+import { GetMap } from 'Store/firebase/maps';
 import { Map, Map_namePattern } from '../../Store/firebase/maps/@Map';
 import { UserEdit } from '../CommandMacros';
-import { GetMap } from 'Store/firebase/maps';
 
 AddSchema('UpdateMapDetails_payload', {
 	properties: {

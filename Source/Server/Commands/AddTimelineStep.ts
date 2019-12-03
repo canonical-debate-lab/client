@@ -1,8 +1,7 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { AssertValidate } from 'Utils/FrameworkOverrides';
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
-import { Command } from 'mobx-firelink';
-import { GetDoc_Async } from 'Utils/LibIntegrations/MobXFirelink';
+import { Command, GetDoc_Async } from 'mobx-firelink';
 import { TimelineStep } from '../../Store/firebase/timelineSteps/@TimelineStep';
 
 @UserEdit
@@ -18,7 +17,7 @@ export class AddTimelineStep extends Command<{timelineID: string, step: Timeline
 		step.timelineID = timelineID;
 
 		// this.timeline_oldSteps = await GetDocField_Async(a=>a.timelines.get(timelineID), a=>a.steps) || [];
-		this.timeline_oldSteps = (await GetDoc_Async((a) => a.timelines.get(timelineID)))?.steps || [];
+		this.timeline_oldSteps = (await GetDoc_Async({}, (a) => a.timelines.get(timelineID)))?.steps || [];
 		this.timeline_newSteps = this.timeline_oldSteps.slice();
 		if (stepIndex) {
 			this.timeline_newSteps.Insert(stepIndex, this.stepID);

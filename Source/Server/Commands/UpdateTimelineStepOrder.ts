@@ -1,6 +1,5 @@
 import { UserEdit } from 'Server/CommandMacros';
-import { Command } from 'mobx-firelink';
-import { GetAsync } from 'Utils/LibIntegrations/MobXFirelink';
+import { Command, GetAsync } from 'mobx-firelink';
 import { GetTimeline } from 'Store/firebase/timelines';
 
 @UserEdit

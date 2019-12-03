@@ -1,11 +1,10 @@
 import { Assert } from 'js-vextensions';
 import { MapEdit } from 'Server/CommandMacros';
 import { AddSchema, AssertValidate } from 'Utils/FrameworkOverrides';
-import { Command } from 'mobx-firelink';
-import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
+import { Command, GetAsync } from 'mobx-firelink';
+import { GetMap } from 'Store/firebase/maps';
 import { Map } from '../../Store/firebase/maps/@Map';
 import { UserEdit } from '../CommandMacros';
-import { GetMap } from 'Store/firebase/maps';
 
 AddSchema('SetLayerAttachedToMap_payload', {
 	properties: {

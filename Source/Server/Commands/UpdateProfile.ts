@@ -1,7 +1,6 @@
 import { AddSchema, AssertValidate, GetSchemaJSON, Schema } from 'Utils/FrameworkOverrides';
-import {Command} from 'mobx-firelink';
-import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
-import {GetUser} from 'Store/firebase/users';
+import { Command, GetAsync } from 'mobx-firelink';
+import { GetUser } from 'Store/firebase/users';
 import { User } from '../../Store/firebase/users/@User';
 
 type MainType = User;

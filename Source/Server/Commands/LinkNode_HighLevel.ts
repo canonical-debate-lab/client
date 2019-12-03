@@ -6,8 +6,7 @@ import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
 
 import { Map } from 'Store/firebase/maps/@Map';
 import { UUID } from 'Utils/General/KeyGenerator';
-import { Command, MergeDBUpdates } from 'mobx-firelink';
-import { GetAsync } from 'Utils/LibIntegrations/MobXFirelink';
+import { Command, MergeDBUpdates, GetAsync } from 'mobx-firelink';
 import { ClaimForm, MapNode, Polarity, MapNodeL3 } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
 import { UserEdit } from './../CommandMacros';

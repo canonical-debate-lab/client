@@ -7,13 +7,14 @@ import { BaseComponent, BaseComponentPlus, GetDOM, UseCallback, UseEffect } from
 import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthScoreComposite, RS_GetAllValues } from 'Store/firebase/nodeRatings/ReasonScore';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { GADDemo } from 'UI/@GAD/GAD';
-import { DragInfo, EB_ShowError, EB_StoreError, ExpensiveComponent, HSLA, IsDoubleClick, SlicePath, Observer } from 'Utils/FrameworkOverrides';
+import { DragInfo, EB_ShowError, EB_StoreError, ExpensiveComponent, HSLA, IsDoubleClick, Observer } from 'Utils/FrameworkOverrides';
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
 import { GetTimeFromWhichToShowChangedNodes, GetNodeRevealHighlightTime, GetTimeSinceNodeRevealedByPlayingTimeline } from 'Store/main/maps/$map';
 import { GetPathNodeIDs, GetNodeView_SelfOnly, MapNodeView_SelfOnly, MapNodeView, ACTMapNodeSelect, ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView';
 import { store } from 'Store';
 import { WeightingType, GetLastAcknowledgementTime } from 'Store/main';
 import { runInAction } from 'mobx';
+import {SlicePath} from 'mobx-firelink';
 import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatings } from '../../../../Store/firebase/nodeRatings';

@@ -1,9 +1,8 @@
 import { Assert } from 'js-vextensions';
 import { UserEdit } from 'Server/CommandMacros';
 import { AssertValidate } from 'Utils/FrameworkOverrides';
-import { Command } from 'mobx-firelink';
-import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
-import {GetTerm} from 'Store/firebase/terms';
+import { Command, GetAsync } from 'mobx-firelink';
+import { GetTerm } from 'Store/firebase/terms';
 import { Term } from '../../Store/firebase/terms/@Term';
 
 @UserEdit

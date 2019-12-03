@@ -1,8 +1,7 @@
 import { Assert } from 'js-vextensions';
 import { MapEdit } from 'Server/CommandMacros';
 import { AddSchema, AssertValidate } from 'Utils/FrameworkOverrides';
-import { Command } from 'mobx-firelink';
-import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
+import { Command, GetAsync } from 'mobx-firelink';
 import { GetParentNodeID } from '../../Store/firebase/nodes';
 import { GetNodeL3, ReversePolarity } from '../../Store/firebase/nodes/$node';
 import { ChildEntry, MapNodeL3 } from '../../Store/firebase/nodes/@MapNode';

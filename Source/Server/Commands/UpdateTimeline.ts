@@ -1,8 +1,7 @@
 import { AddSchema, AssertValidate, GetSchemaJSON, Schema } from 'Utils/FrameworkOverrides';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { GetTimeline } from 'Store/firebase/timelines';
-import {Command} from 'mobx-firelink';
-import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
+import { Command, GetAsync } from 'mobx-firelink';
 import { User } from '../../Store/firebase/users/@User';
 
 type MainType = Timeline;

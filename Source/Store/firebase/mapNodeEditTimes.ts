@@ -4,9 +4,9 @@ import { emptyArray } from 'js-vextensions';
 import { AddSchema, StoreAccessor } from 'Utils/FrameworkOverrides';
 import { UUID_regex } from 'Utils/General/KeyGenerator';
 import { GetLastAcknowledgementTime } from 'Store/main';
+import {GetDoc} from 'mobx-firelink';
 import { GetRootNodeID } from './maps';
 import { MapNode } from './nodes/@MapNode';
-import {GetDoc} from 'Utils/LibIntegrations/MobXFirelink';
 
 export class NodeEditTimes {
 	// [key: number]: ChangeInfo;
@@ -38,7 +38,7 @@ export function GetChangeTypeOutlineColor(changeType: ChangeType) {
 }
 
 export const GetMapNodeEditTimes = StoreAccessor((s) => (mapID: string) => {
-	return GetDoc(a=>a.mapNodeEditTimes.get(mapID)) as NodeEditTimes;
+	return GetDoc({}, (a) => a.mapNodeEditTimes.get(mapID)) as NodeEditTimes;
 });
 
 export const GetNodeIDsChangedSinceX = StoreAccessor((s) => (mapID: string, sinceTime: number, includeAcknowledgement = true): string[] => {

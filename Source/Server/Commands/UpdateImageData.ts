@@ -1,9 +1,8 @@
 import { Assert } from 'js-vextensions';
-import { Command } from 'mobx-firelink';
+import { Command, GetAsync } from 'mobx-firelink';
 import { UserEdit } from 'Server/CommandMacros';
 import { GetImage } from 'Store/firebase/images';
 import { AssertValidate } from 'Utils/FrameworkOverrides';
-import { GetAsync } from 'Utils/LibIntegrations/MobXFirelink';
 import { Image } from '../../Store/firebase/images/@Image';
 
 export const UpdateImageData_allowedPropUpdates = ['name', 'type', 'url', 'description', 'previewWidth', 'sourceChains'];

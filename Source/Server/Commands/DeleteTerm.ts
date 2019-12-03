@@ -1,7 +1,6 @@
 import { UserEdit } from 'Server/CommandMacros';
-import { GetAsync } from 'Utils/LibIntegrations/MobXFirelink';
 import { GetTerm } from 'Store/firebase/terms';
-import {Command} from 'mobx-firelink';
+import { Command, GetAsync } from 'mobx-firelink';
 import { Term } from '../../Store/firebase/terms/@Term';
 
 @UserEdit

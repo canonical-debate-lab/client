@@ -1,13 +1,13 @@
 import { StoreAccessor } from 'Utils/FrameworkOverrides';
-import { GetDoc } from 'Utils/LibIntegrations/MobXFirelink';
+import { GetDoc } from 'mobx-firelink';
 
 export const GetUserMapInfo = StoreAccessor((s) => (userID: string, mapID: string) => {
 	if (userID == null) return null;
-	return GetDoc((a) => a.userMapInfo.get(userID))?.maps.get(mapID);
+	return GetDoc({}, (a) => a.userMapInfo.get(userID))?.maps.get(mapID);
 });
 export const GetUserLayerStatesForMap = StoreAccessor((s) => (userID: string, mapID: string) => {
 	if (userID == null) return null;
-	return GetDoc((a) => a.userMapInfo.get(userID))?.maps.get(mapID)?.layerStates;
+	return GetDoc({}, (a) => a.userMapInfo.get(userID))?.maps.get(mapID)?.layerStates;
 });
 export const GetUserLayerStateForMap = StoreAccessor((s) => (userID: string, mapID: string, layerID: string) => {
 	/* if (userID == null) return null;

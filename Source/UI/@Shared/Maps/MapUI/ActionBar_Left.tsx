@@ -13,7 +13,7 @@ import { GADDemo } from 'UI/@GAD/GAD';
 import { Button_GAD } from 'UI/@GAD/GADButton';
 import { GetTimelinePanelOpen } from 'Store/main/maps/$map';
 import { store } from 'Store';
-import {GetAsync} from 'Utils/LibIntegrations/MobXFirelink';
+import {GetAsync} from 'mobx-firelink';
 import { colors, ES } from '../../../../Utils/UI/GlobalStyles';
 import { DeleteLayer } from '../../../../Server/Commands/DeleteLayer';
 import { DeleteMap } from '../../../../Server/Commands/DeleteMap';

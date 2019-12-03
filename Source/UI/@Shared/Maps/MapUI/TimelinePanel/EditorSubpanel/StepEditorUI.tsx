@@ -19,7 +19,7 @@ import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
 import { UUIDPathStub } from 'UI/@Shared/UUIDStub';
 import { GetShortestPathFromRootToNode } from 'Utils/Store/PathFinder';
 import { GetPathNodes } from 'Store/main/mapViews/$mapView';
-import { GetAsync } from 'Utils/LibIntegrations/MobXFirelink';
+import { GetAsync } from 'mobx-firelink';
 
 export enum PositionOptionsEnum {
 	Full = null,
