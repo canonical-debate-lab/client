@@ -5,13 +5,13 @@ import { GenerateUUID } from 'Utils/General/KeyGenerator';
 import { ReverseArgumentPolarity } from 'Server/Commands/ReverseArgumentPolarity';
 import { globalMapID, globalRootNodeID } from 'Store/firebase/nodes/@MapNode';
 import _ from 'lodash';
-import { FirebaseState } from 'Store/firebase';
+import { FirebaseDBShape } from 'Store/firebase';
 import { ObservableMap } from 'mobx';
 import { AddUpgradeFunc } from '../../Admin';
 
 const newVersion = 12;
 AddUpgradeFunc(newVersion, async (oldData, markProgress) => {
-	const data = Clone(oldData) as FirebaseState;
+	const data = Clone(oldData) as FirebaseDBShape;
 
 	// clear outdated data
 	// ==========

@@ -1,6 +1,7 @@
 import { ObservableMap } from 'mobx';
 import { O } from 'vwebapp-framework/Source';
 import { StoreAccessor } from 'Utils/FrameworkOverrides';
+import { Collection_Closed, Collection } from 'mobx-firelink';
 import { GeneralData } from './firebase/general';
 import { Image } from './firebase/images/@Image';
 import { Layer } from './firebase/layers/@Layer';
@@ -18,6 +19,9 @@ import { UserExtraInfo } from './firebase/userExtras/@UserExtraInfo';
 import { UserMapInfoSet } from './firebase/userMapInfo/@UserMapInfo';
 import { User } from './firebase/users/@User';
 
+/* export class Firebase_ModulesState {
+	// @O feedback: Firebase_FeedbackState;
+}
 export class FirebaseState {
 	@O modules: Firebase_ModulesState;
 
@@ -27,7 +31,7 @@ export class FirebaseState {
 	/* @O maps: {
 		[key: number]: Map
 			& {nodeEditTimes: DataWrapper<NodeEditTimes>}; // nodeEditTimes -> $nodeID -> $nodeEditTime
-	}; */
+	}; *#/
 	@O maps: ObservableMap<string, Map>;
 	@O mapNodeEditTimes: ObservableMap<string, NodeEditTimes>;
 	@O nodes: ObservableMap<string, MapNode>;
@@ -46,40 +50,68 @@ export class FirebaseState {
 	@O userExtras: ObservableMap<string, UserExtraInfo>;
 	@O userMapInfo: ObservableMap<string, UserMapInfoSet>; // $userID (key) -> $mapID -> layerStates -> $layerID -> [boolean, for whether enabled]
 	// @O userViewedNodes: ObservableMap<string, ViewedNodeSet>; // removed due to privacy concerns
-}
-/* interface FirebaseDBState {
-	modules: Firebase_ModulesState;
-
-	general: {data: GeneralData};
-	images: ObservableMap<string, Image>;
-	layers: ObservableMap<string, Layer>;
-	/* maps: {
-		[key: number]: Map
-			& {nodeEditTimes: DataWrapper<NodeEditTimes>}; // nodeEditTimes -> $nodeID -> $nodeEditTime
-	}; *#/
-	maps: ObservableMap<string, Map>;
-	mapNodeEditTimes: ObservableMap<string, NodeEditTimes>;
-	nodes: ObservableMap<string, MapNode>;
-	// nodeExtras: ObservableMap<string, any>;
-	nodeRatings: ObservableMap<string, RatingsRoot>; // $nodeID (key) -> $ratingType -> $userID -> value -> $value
-	nodeRevisions: ObservableMap<string, MapNodeRevision>;
-	// nodeStats: ObservableMap<string, MapNodeStats>;
-	// nodeViewers: ObservableMap<string, ViewerSet>; // removed due to privacy concerns
-	nodePhrasings: ObservableMap<string, MapNodePhrasing>;
-	terms: ObservableMap<string, Term>;
-	termComponents: ObservableMap<string, TermComponent>;
-	termNames: ObservableMap<string, any>;
-	timelines: ObservableMap<string, Timeline>;
-	timelineSteps: ObservableMap<string, TimelineStep>;
-	users: ObservableMap<string, User>;
-	userExtras: ObservableMap<string, UserExtraInfo>;
-	userMapInfo: ObservableMap<string, UserMapInfoSet>; // $userID (key) -> $mapID -> layerStates -> $layerID -> [boolean, for whether enabled]
-	// userViewedNodes: ObservableMap<string, ViewedNodeSet>; // removed due to privacy concerns
 } */
 
-export class Firebase_ModulesState {
-	// @O feedback: Firebase_FeedbackState;
+export interface FirebaseDBShape {
+	modules: Collection_Closed<{
+		// feedback: FeedbackDBShape;
+	}>;
+
+	general: Collection_Closed<{data: GeneralData}>;
+	images: Collection<Image>;
+	layers: Collection<Layer>;
+	maps: Collection<Map>;
+	mapNodeEditTimes: Collection<NodeEditTimes>;
+	nodes: Collection<MapNode>;
+	// nodeExtras: Collection<any>;
+	nodeRatings: Collection<RatingsRoot>; // $nodeID (key) -> $ratingType -> $userID -> value -> $value
+	nodeRevisions: Collection<MapNodeRevision>;
+	// nodeStats: Collection<MapNodeStats>;
+	// nodeViewers: Collection<ViewerSet>; // removed due to privacy concerns
+	nodePhrasings: Collection<MapNodePhrasing>;
+	terms: Collection<Term>;
+	termComponents: Collection<TermComponent>;
+	termNames: Collection<any>;
+	timelines: Collection<Timeline>;
+	timelineSteps: Collection<TimelineStep>;
+	users: Collection<User>;
+	userExtras: Collection<UserExtraInfo>;
+	userMapInfo: Collection<UserMapInfoSet>; // $userID (key) -> $mapID -> layerStates -> $layerID -> [boolean, for whether enabled]
+	// userViewedNodes: Collection<ViewedNodeSet>; // removed due to privacy concerns
 }
+
+/* export interface FirebaseDBShape {
+	modules: Collection_Closed<{
+		// feedback: FeedbackDBShape;
+	}>;
+
+	general: Collection_Closed<{data: GeneralData}>;
+	images: Collection<Image>;
+	layers: Collection<Layer>;
+	maps: Collection<Map, {
+		nodeEditTimes: Collection<NodeEditTimes>,
+	}>;
+	nodes: Collection<MapNode, {
+		ratings: Collection<RatingsRoot>, // $ratingType -> $userID -> value -> $value
+		// extras: Collection<any>,
+		revisions: Collection<MapNodeRevision>,
+		// stats: Collection<MapNodeStats>,
+		// viewers: Collection<ViewerSet>, // removed due to privacy concerns
+		phrasings: Collection<MapNodePhrasing>,
+	}>;
+	terms: Collection<Term, {
+		components: Collection<TermComponent>,
+		names: Collection<any>,
+	}>;
+	timelines: Collection<Timeline, {
+		steps: Collection<TimelineStep>,
+	}>;
+	users: Collection<User, {
+		extras: Collection<UserExtraInfo>,
+		mapInfo: Collection<UserMapInfoSet>, // $mapID -> layerStates -> $layerID -> [boolean, for whether enabled]
+		// viewedNodes: Collection<ViewedNodeSet>, // removed due to privacy concerns
+	}>;
+} */
 
 export const GetAuth = StoreAccessor((s) => () => {
 	return s.firebase.auth;

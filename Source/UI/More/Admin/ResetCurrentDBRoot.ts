@@ -3,9 +3,9 @@ import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { MeID } from 'Store/firebase/users';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
-import { FirebaseState } from 'Store/firebase';
 import { observable } from 'mobx';
 import { ConvertDataToValidDBUpdates, ApplyDBUpdates, DBPath } from 'mobx-firelink';
+import { FirebaseDBShape } from 'Store/firebase';
 import { Map, MapType } from '../../../Store/firebase/maps/@Map';
 import { MapNode, globalRootNodeID, globalMapID } from '../../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../../Store/firebase/nodes/@MapNodeType';
@@ -18,7 +18,7 @@ const sharedData = {} as {creatorInfo: any};
 export async function ResetCurrentDBRoot() {
 	const userKey = MeID();
 
-	const data = {} as FirebaseState;
+	const data = {} as FirebaseDBShape;
 	data.general = {} as any;
 	data.general.data = {
 		lastTermID: 0,
@@ -58,16 +58,16 @@ export async function ResetCurrentDBRoot() {
 	ShowMessageBox({ message: 'Done!' });
 }
 
-function AddUserExtras(data: FirebaseState, userID: string, extraInfo: UserExtraInfo) {
+function AddUserExtras(data: FirebaseDBShape, userID: string, extraInfo: UserExtraInfo) {
 	data.userExtras[userID] = extraInfo;
 }
-function AddMap(data: FirebaseState, entry: Map, id: string) {
+function AddMap(data: FirebaseDBShape, entry: Map, id: string) {
 	entry = E(sharedData.creatorInfo, entry);
 
 	// data.maps[id || ++data.general.data.lastMapID] = entry as any;
 	data.maps[id || GenerateUUID()] = entry as any;
 }
-function AddNode(data: FirebaseState, node: MapNode, revision: MapNodeRevision, nodeID?: string) {
+function AddNode(data: FirebaseDBShape, node: MapNode, revision: MapNodeRevision, nodeID?: string) {
 	node = E(sharedData.creatorInfo, node);
 	revision = E(sharedData.creatorInfo, revision);
 

@@ -7,14 +7,14 @@ import { Omit } from 'lodash';
 import { PageContainer } from 'Utils/FrameworkOverrides';
 import { dbVersion } from 'Main';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
-import { FirebaseState } from 'Store/firebase';
 import { store, RootState } from 'Store';
 import { ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks, DBPath, SplitStringBySlash_Cached, GetDoc_Async, GetDocs_Async, WithStore, GetDoc } from 'mobx-firelink';
+import {FirebaseDBShape} from 'Store/firebase';
 import { styles } from '../../Utils/UI/GlobalStyles';
 import { MeID, GetUser } from '../../Store/firebase/users';
 import { ResetCurrentDBRoot } from './Admin/ResetCurrentDBRoot';
 
-type UpgradeFunc = (oldData: FirebaseState, markProgress: MarkProgressFunc)=>Promise<FirebaseState>;
+type UpgradeFunc = (oldData: FirebaseDBShape, markProgress: MarkProgressFunc)=>Promise<FirebaseDBShape>;
 type MarkProgressFunc = (depth: number, entryIndex: number, entryCount?: number)=>void;
 
 // upgrade-funcs
@@ -54,7 +54,7 @@ export class AdminUI extends BaseComponentPlus({} as {}, { dbUpgrade_entryIndexe
 		const { dbUpgrade_entryIndexes, dbUpgrade_entryCounts } = this.state;
 		const isAdmin = HasAdminPermissions(MeID())
 			// also check previous version for admin-rights (so we can increment db-version without losing our rights to complete the db-upgrade!)
-			|| (MeID() != null && GetDoc({}, (a: any) => (a.versions.get(`v${dbVersion - 1}-${DB_SHORT}`) as FirebaseState).userExtras.get(MeID()))?.permissionGroups.admin, { inVersionRoot: false });
+			|| (MeID() != null && GetDoc({}, (a: any) => (a.versions.get(`v${dbVersion - 1}-${DB_SHORT}`) as FirebaseDBShape).userExtras.get(MeID()))?.permissionGroups.admin, { inVersionRoot: false });
 
 		if (!isAdmin) return <PageContainer>Please sign in.</PageContainer>;
 		return (
@@ -199,7 +199,7 @@ export async function GetCollectionsDataAsync(versionRootPath: string) {
 		return GetDoc_Async({ inVersionRoot: false }, [...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath]) as any;
 	}
 
-	let versionCollectionsData: FirebaseState;
+	let versionCollectionsData: FirebaseDBShape;
 	// we put the db-updates into this variable, so that we know we're importing data for every key (if not, Typescript throws error about value not matching FirebaseData's shape)
 	versionCollectionsData = {
 		// modules

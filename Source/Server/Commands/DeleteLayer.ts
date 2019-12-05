@@ -6,7 +6,6 @@ import { ForDeleteLayer_GetError } from '../../Store/firebase/layers';
 import { Layer } from '../../Store/firebase/layers/@Layer';
 import { UserMapInfoSet } from '../../Store/firebase/userMapInfo/@UserMapInfo';
 
-
 @UserEdit
 export class DeleteLayer extends Command<{layerID: string}, {}> {
 	oldData: Layer;
