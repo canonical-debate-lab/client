@@ -114,5 +114,5 @@ export interface FirebaseDBShape {
 } */
 
 export const GetAuth = StoreAccessor((s) => () => {
-	return s.firebase.auth;
+	return s.firelink.userInfo;
 });

@@ -1,13 +1,11 @@
 import { Column } from 'react-vcomponents';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
-import {store} from 'Store';
+import { store } from 'Store';
 import { AddTermComponent } from '../../../Server/Commands/AddTermComponent';
 import { TermComponent } from '../../../Store/firebase/termComponents/@TermComponent';
 import { TermComponentUI } from './TermComponentsUI';
 
 export function ShowAddTermComponentDialog(userID: string, termID: string) {
-	const firebase = store.firebase.helpers;
-
 	let info = { text: '' };
 
 	let justShowed = true;

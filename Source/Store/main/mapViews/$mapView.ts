@@ -3,7 +3,6 @@ import { observable } from 'mobx';
 import { O, Validate, StoreAccessor, StoreAction } from 'Utils/FrameworkOverrides';
 import { UUID } from 'Utils/General/KeyGenerator';
 import { store } from 'Store';
-import { MapUI } from 'UI/@Shared/Maps/MapUI';
 import { SplitStringBySlash_Cached } from 'mobx-firelink';
 
 export class MapView {
@@ -269,6 +268,7 @@ export const ACTMapViewMerge = StoreAction((mapID: string, toMergeMapView: MapVi
 
 	// maybe temp (maybe find another way)
 	// const mapUI = FindReact($('.MapUI')[0]) as MapUI;
+	const MapUI = require('UI/@Shared/Maps/MapUI').MapUI as typeof import('UI/@Shared/Maps/MapUI').MapUI; // late-import, to not violate "no importing UI files from other files" rule
 	const mapUI = MapUI.CurrentMapUI;
 	if (mapUI) {
 		mapUI.LoadStoredScroll();

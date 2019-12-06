@@ -49,7 +49,9 @@ autorun(() => {
 
 	// const playingTimeline_currentStep = GetPlayingTimelineStep(mapID);
 	const mapID = GetOpenMapID();
-	const playingTimeline_step = store.main.maps.get(mapID).playingTimeline_step;
+	const mapInfo = store.main.maps.get(mapID);
+	if (mapInfo == null) return;
+	const playingTimeline_step = mapInfo.playingTimeline_step;
 	if (playingTimeline_step != lastPlayingTimeline_step) {
 		lastPlayingTimeline_step = playingTimeline_step;
 		StartExpandingToAndFocusingOnNodesForStep(GetOpenMapID(), playingTimeline_step);

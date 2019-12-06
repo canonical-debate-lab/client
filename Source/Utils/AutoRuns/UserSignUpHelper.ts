@@ -4,13 +4,11 @@ import { DBPath, GetAsync } from 'mobx-firelink';
 import { fire } from 'Utils/LibIntegrations/MobXFirelink';
 import { GetUserExtraInfo } from 'Store/firebase/users';
 
-let lastAuth;
+let lastUserInfo;
 autorun(() => {
-	const auth = store.firebase.auth;
-	if (auth != lastAuth) {
-		lastAuth = auth;
-		const userID = auth.uid;
-		RunSignUpInitIfNotYetRun(userID);
+	if (fire.userInfo != lastUserInfo) {
+		lastUserInfo = fire.userInfo;
+		RunSignUpInitIfNotYetRun(fire.userInfo.id);
 	}
 }, { name: 'UserSignUpHelper' });
 

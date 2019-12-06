@@ -10,6 +10,7 @@ import { useMemo, useCallback } from 'react';
 import { store, RootState } from 'Store';
 import { runInAction } from 'mobx';
 import { GetDocs } from 'mobx-firelink';
+import {fire} from 'Utils/LibIntegrations/MobXFirelink';
 import { colors } from '../../Utils/UI/GlobalStyles';
 import { ChatPanel } from './NavBar/ChatPanel';
 import { GuidePanel } from './NavBar/GuidePanel';
@@ -39,7 +40,6 @@ export class NavBar extends BaseComponentPlus({} as {}, {}) {
 		// const topLeftOpenPanel = State((a) => a.main.topLeftOpenPanel);
 		// const topRightOpenPanel = State(a => a.main.topRightOpenPanel);
 		const { topLeftOpenPanel, topRightOpenPanel } = store.main;
-		const auth = store.firebase.auth;
 		const dbNeedsInit = GetDocs({ useUndefinedForInProgress: true }, (a) => a.maps) === null; // use maps because it won't cause too much data to be downloaded-and-watched; improve this later
 		return (
 			<nav style={{
@@ -98,7 +98,7 @@ export class NavBar extends BaseComponentPlus({} as {}, {}) {
 					<span style={{ position: 'absolute', right: 0, display: 'flex' }}>
 						<NavBarPanelButton text="Search" panel="search" corner="top-right"/>
 						{/* <NavBarPanelButton text="Guide" panel="guide" corner="top-right"/> */}
-						<NavBarPanelButton text={DeepGet(auth, 'displayName') ? auth.displayName.match(/(.+?)( |$)/)[1] : 'Sign in'} panel="profile" corner="top-right"/>
+						<NavBarPanelButton text={fire.userInfo?.displayName ? fire.userInfo.displayName.match(/(.+?)( |$)/)[1] : 'Sign in'} panel="profile" corner="top-right"/>
 					</span>
 					<div style={{
 						position: 'fixed', display: 'flex', zIndex: 11, right: 0, top: 45, maxHeight: 'calc(100% - 45px - 30px)',

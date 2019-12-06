@@ -53,19 +53,19 @@ export class MainState {
 	// chat: {subpage: string};
 	// reputation: {subpage: string};
 
-	@O database: DatabaseState;
-	@O feedback: {subpage: string};
+	@O database = new DatabaseState();
+	@O feedback = {} as {subpage: string};
 	// forum: Forum;
-	@O more: {subpage: string};
-	@O home: {subpage: string};
+	@O more = {} as {subpage: string};
+	@O home = {} as {subpage: string};
 	// @SocialStateM social: SocialState;
-	@O personal: PersonalState;
-	@O debates: DebatesState;
-	@O global: {subpage: string};
+	@O personal = new PersonalState();
+	@O debates = new DebatesState();
+	@O global = {} as {subpage: string};
 
-	@O search: SearchState;
+	@O search = new SearchState();
 	// guide: {subpage: string};
-	@O profile: {subpage: string};
+	@O profile = {} as {subpage: string};
 
 	@O topLeftOpenPanel: string;
 	// set topLeftOpenPanel_set(val) { this.topLeftOpenPanel = val; }

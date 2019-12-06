@@ -2,9 +2,10 @@ import { GetSelectedProposalID } from 'firebase-feedback';
 import { Assert, VURL } from 'js-vextensions';
 import { RootState, store } from 'Store';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
-import { StoreAccessor } from 'Utils/FrameworkOverrides';
+import { StoreAccessor, MaybeLog } from 'Utils/FrameworkOverrides';
 import { GetSelectedUserID, GetSelectedTermID, GetSelectedImageID } from 'Store/main/database';
 import { GetOpenMapID, GetPage, GetSubpage } from 'Store/main';
+import ReactGA from 'react-ga';
 import { GetMap } from '../../Store/firebase/maps';
 import { GetNodeDisplayText } from '../../Store/firebase/nodes/$node';
 import { MapNodeL2 } from '../../Store/firebase/nodes/@MapNode';
@@ -527,3 +528,35 @@ export function GetNodeViewStr(mapID: string, path: string) {
 	}
 	return result;
 } */
+
+export function DoesURLChangeCountAsPageChange(oldURL: VURL, newURL: VURL) {
+	if (oldURL == null) return true;
+	if (oldURL.PathStr() != newURL.PathStr()) return true;
+
+	/* let oldSyncLoadActions = GetSyncLoadActionsForURL(oldURL, directURLChange);
+	let oldMapViewMergeAction = oldSyncLoadActions.find(a=>a.Is(ACTMapViewMerge));
+
+	let newSyncLoadActions = GetSyncLoadActionsForURL(newURL, directURLChange);
+	let newMapViewMergeAction = newSyncLoadActions.find(a=>a.Is(ACTMapViewMerge));
+
+	let oldViewStr = oldURL.GetQueryVar("view");
+	let oldURLWasTemp = oldViewStr == "";
+	if (newMapViewMergeAction != oldMapViewMergeAction && !oldURLWasTemp) {
+		//let oldFocused = GetFocusedNodePath(GetMapView(mapViewMergeAction.payload.mapID));
+		let oldFocused = oldMapViewMergeAction ? GetFocusedNodePath(oldMapViewMergeAction.payload.mapView) : null;
+		let newFocused = newMapViewMergeAction ? GetFocusedNodePath(newMapViewMergeAction.payload.mapView) : null;
+		if (newFocused != oldFocused) return true;
+	} */
+
+	return false;
+}
+
+export function RecordPageView(url: VURL) {
+	// let url = window.location.pathname;
+	if (PROD) {
+		// todo: ms if react-ga is not initialized yet, we buffer up these commands, then run them once it is initialized
+		ReactGA.set({ page: url.toString({ domain: false }) });
+		ReactGA.pageview(url.toString({ domain: false }) || '/');
+	}
+	MaybeLog((a) => a.pageViews, () => `Page-view: ${url}`);
+}

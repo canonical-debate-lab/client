@@ -7,20 +7,18 @@ import { ShowMessageBox, BoxController } from 'react-vmessagebox';
 import { Link, HandleError } from 'Utils/FrameworkOverrides';
 import { store } from 'Store';
 import { runInAction } from 'mobx';
-import {IsAuthValid} from 'mobx-firelink';
+import { IsAuthValid } from 'mobx-firelink';
+import { fire } from 'Utils/LibIntegrations/MobXFirelink';
 import { MeID } from '../../../Store/firebase/users';
 
 export class UserPanel extends BaseComponentPlus({} as {auth?}, {}) {
 	render() {
-		const firebase = store.firebase.helpers;
-
 		// authError: pathToJS(state.firebase, "authError"),
 		// auth: helpers.pathToJS(state.firebase, "auth"),
 		// const auth = State((a) => a.firebase.auth);
-		const auth = store.firebase.auth;
 		// account: helpers.pathToJS(state.firebase, "profile")
 
-		if (!IsAuthValid(auth)) {
+		if (!IsAuthValid(fire.userInfo)) {
 			return (
 				<Column style={{ padding: 10, background: 'rgba(0,0,0,.7)', borderRadius: '0 0 0 5px' }}>
 					<Div mt={-3} mb={5}>Takes under 30 seconds.</Div>
@@ -32,7 +30,7 @@ export class UserPanel extends BaseComponentPlus({} as {auth?}, {}) {
 		return (
 			<Column style={{ padding: 5, background: 'rgba(0,0,0,.7)', borderRadius: '0 0 0 5px' }}>
 				<Column sel>
-					<div>Name: {auth.displayName}</div>
+					<div>Name: {fire.userInfo.displayName}</div>
 					<div>ID: {MeID()}</div>
 				</Column>
 				{/* DEV &&
@@ -47,7 +45,7 @@ export class UserPanel extends BaseComponentPlus({} as {auth?}, {}) {
 						<Button text="Edit profile" style={{ width: 100 }}/>
 					</Link>
 					<Button ml={5} text="Sign out" style={{ width: 100 }} onClick={() => {
-						firebase.logout();
+						fire.LogOut();
 					}}/>
 				</Row>
 			</Column>
@@ -89,7 +87,6 @@ export class SignInPanel extends BaseComponent<{style?, onSignIn?: ()=>void}, {}
 class SignInButton extends BaseComponent<{provider: 'google' | 'facebook' | 'twitter' | 'github', text: string, style?, onSignIn?: ()=>void}, {loading: boolean}> {
 	render() {
 		const { provider, text, style, onSignIn } = this.props;
-		const firebase = store.firebase.helpers;
 		const { loading } = this.state;
 		return (
 			// <SocialButton social={provider} text={text} loading={loading} btnProps={{
@@ -98,7 +95,7 @@ class SignInButton extends BaseComponent<{provider: 'google' | 'facebook' | 'twi
 			<Button text={text} style={E({ outline: 'none' }, BasicStyles(this.props), style)} onClick={async () => {
 				this.SetState({ loading: true });
 				try {
-					const account = await firebase.login({ provider, type: 'popup' });
+					const account = await fire.LogIn({ provider, type: 'popup' });
 					if (this.mounted == false) return;
 					this.SetState({ loading: false });
 					if (onSignIn) onSignIn();

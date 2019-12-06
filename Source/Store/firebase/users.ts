@@ -19,7 +19,7 @@ export const MeID = StoreAccessor((s) => (): string => {
 	/* let firebaseSet = State().firebase as Set<any>;
 	return firebaseSet.toJS().auth.uid; */
 	// return State(a=>a.firebase.auth) ? State(a=>a.firebase.auth.uid) : null;
-	return IsAuthValid(GetAuth()) ? GetAuth().uid : null;
+	return IsAuthValid(GetAuth()) ? GetAuth().id : null;
 });
 export const Me = StoreAccessor((s) => () => {
 	return GetUser(MeID());

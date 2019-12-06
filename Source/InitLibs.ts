@@ -1,6 +1,5 @@
 import * as chroma_js from 'chroma-js';
-import { dbVersion, firebaseConfig, hasHotReloaded, version } from 'Main';
-import { WithStore } from 'mobx-firelink';
+import { dbVersion, hasHotReloaded, version } from 'Main';
 import Moment from 'moment';
 import Raven from 'raven-js';
 import * as react_color from 'react-color';
@@ -10,11 +9,10 @@ import { GetAuth } from 'Store/firebase';
 import { GetUser, GetUserPermissionGroups, Me, MeID } from 'Store/firebase/users';
 import { NotificationMessage } from 'Store/main';
 import { AddNotificationMessage } from 'UI/@Shared/NavBar/NotificationsUI';
-import { DoesURLChangeCountAsPageChange } from 'Utils/AutoRuns/PageViewRecorder';
 import { ExposeModuleExports, Link, Log, manager as manager_framework, VReactMarkdown_Remarkable } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
-import { GetLoadActionFuncForURL, GetNewURL, PushHistoryEntry } from 'Utils/URL/URLs';
+import { GetLoadActionFuncForURL, GetNewURL, PushHistoryEntry, DoesURLChangeCountAsPageChange } from 'Utils/URL/URLs';
 import { ShowSignInPopup } from './UI/@Shared/NavBar/UserPanel';
 
 const context = (require as any).context('../Resources/SVGs/', true, /\.svg$/);
@@ -48,7 +46,7 @@ export function InitLibs() {
 
 		GetStore: () => store,
 		// WithStore,
-		firebaseConfig,
+		// firebaseConfig,
 
 		globalConnectorPropGetters: {
 			// also access some other paths here, so that when they change, they trigger ui updates for everything

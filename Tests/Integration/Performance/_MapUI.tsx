@@ -12,7 +12,8 @@
 // To fix, make the needed imports relative. (long-term, either fix root cause, or use tsconfig to force all imports relative, so test-writers don't get confused down the road)
 // declare let { DBPath }: typeof import('../../../node_modules/vwebapp-framework/Source/index');
 declare const { store }: typeof import('../../../Source/Store');
-declare const { DBPath }: typeof import('../../../Source/Utils/FrameworkOverrides');
+// declare const { DBPath }: typeof import('../../../Source/Utils/FrameworkOverrides');
+declare const { DBPath }: typeof import('mobx-firelink');
 declare const { AddMap }: typeof import('../../../Source/Server/Commands/AddMap');
 declare const { Assert }: typeof import('../../../../../@Modules/react-vscrollview/Main/dist/Utils');
 declare const { MeID }: typeof import('../../../Source/Store/firebase/users');
@@ -144,7 +145,7 @@ async function SeedDB(firebase) {
 
 	// console.log('DB contents:', await collectionRef.get());
 	// console.log('Seeded DB contents:', db.children);
-	console.log('Seeded DB contents:', (await db.collection(DBPath()).get()).ref.children);
+	console.log('Seeded DB contents:', (await db.collection(DBPath({})).get()).ref.children);
 }
 
 context('MapUI', () => {

@@ -2,7 +2,6 @@
 import { JustBeforeInitLibs_listeners, JustBeforeUI_listeners } from 'Main';
 import ReactDOM from 'react-dom';
 import { supportReactDevTools } from 'react-universal-hooks';
-import 'Utils/AutoRuns'; // eslint-disable-line
 
 // supportReactDevTools({ active: DEV });
 supportReactDevTools({ active: true });
@@ -12,6 +11,9 @@ supportReactDevTools({ active: true });
 
 JustBeforeInitLibs_listeners.forEach((a) => a());
 require('./InitLibs').InitLibs();
+
+// start auto-runs after libs are initialized
+require('Utils/AutoRuns');
 
 JustBeforeUI_listeners.forEach((a) => a());
 const mountNode = document.getElementById('root');
