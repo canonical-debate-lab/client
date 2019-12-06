@@ -1,13 +1,14 @@
+import { Command, GetAsync } from 'mobx-firelink';
 import { UserEdit } from 'Server/CommandMacros';
+import { GetNodePhrasing } from 'Store/firebase/nodePhrasings';
 import { MapNodePhrasing } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
-import { Command, GetDoc_Async } from 'mobx-firelink';
 
 @UserEdit
 export class DeletePhrasing extends Command<{id: string}, {}> {
 	oldData: MapNodePhrasing;
 	async Prepare() {
 		const { id } = this.payload;
-		this.oldData = await GetDoc_Async({}, (a) => a.nodePhrasings.get(id));
+		this.oldData = await GetAsync(() => GetNodePhrasing(id));
 	}
 	async Validate() {}
 

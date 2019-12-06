@@ -1,5 +1,6 @@
 import { UserEdit } from 'Server/CommandMacros';
-import { Command, GetDoc_Async } from 'mobx-firelink';
+import { Command, GetAsync } from 'mobx-firelink';
+import {GetImage} from 'Store/firebase/images';
 import { Image } from '../../Store/firebase/images/@Image';
 
 @UserEdit
@@ -7,7 +8,7 @@ export class DeleteImage extends Command<{id: string}, {}> {
 	oldData: Image;
 	async Prepare() {
 		const { id } = this.payload;
-		this.oldData = await GetDoc_Async({}, (a) => a.images.get(id)) as Image;
+		this.oldData = await GetAsync(() => GetImage(id));
 	}
 	async Validate() {
 	}

@@ -8,8 +8,8 @@ import { PageContainer } from 'Utils/FrameworkOverrides';
 import { dbVersion } from 'Main';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
 import { store, RootState } from 'Store';
-import { ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks, DBPath, SplitStringBySlash_Cached, GetDoc_Async, GetDocs_Async, WithStore, GetDoc } from 'mobx-firelink';
-import {FirebaseDBShape} from 'Store/firebase';
+import { ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks, DBPath, SplitStringBySlash_Cached, WithStore, GetDoc, GetDocs, GetAsync } from 'mobx-firelink';
+import { FirebaseDBShape } from 'Store/firebase';
 import { styles } from '../../Utils/UI/GlobalStyles';
 import { MeID, GetUser } from '../../Store/firebase/users';
 import { ResetCurrentDBRoot } from './Admin/ResetCurrentDBRoot';
@@ -193,10 +193,10 @@ export async function GetCollectionsDataAsync(versionRootPath: string) {
 	AssertVersionRootPath(versionRootPath);
 
 	async function getDocs(...collectionSubpath: string[]) {
-		return GetDocs_Async({ inVersionRoot: false }, [...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath]) as any;
+		return GetAsync(() => GetDocs({ inVersionRoot: false }, [...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath])) as any;
 	}
 	async function getDoc(...collectionSubpath: string[]) {
-		return GetDoc_Async({ inVersionRoot: false }, [...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath]) as any;
+		return GetAsync(() => GetDocs({ inVersionRoot: false }, [...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath])) as any;
 	}
 
 	let versionCollectionsData: FirebaseDBShape;

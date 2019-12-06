@@ -1,8 +1,8 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { Assert } from 'js-vextensions';
-import { Command, GetAsync, GetDocs_Async, GetDoc_Async } from 'mobx-firelink';
+import { Command, GetAsync, GetDocs, GetDoc } from 'mobx-firelink';
 import { ObservableMap } from 'mobx';
-import { ForDeleteLayer_GetError } from '../../Store/firebase/layers';
+import { ForDeleteLayer_GetError, GetLayer } from '../../Store/firebase/layers';
 import { Layer } from '../../Store/firebase/layers/@Layer';
 import { UserMapInfoSet } from '../../Store/firebase/userMapInfo/@UserMapInfo';
 
@@ -12,8 +12,9 @@ export class DeleteLayer extends Command<{layerID: string}, {}> {
 	userMapInfoSets: UserMapInfoSet[];
 	async Prepare() {
 		const { layerID } = this.payload;
-		this.oldData = await GetDoc_Async({}, (a) => a.layers.get(layerID));
-		this.userMapInfoSets = await GetDocs_Async({}, (a) => a.userMapInfo);
+		// this.oldData = await GetDoc_Async({}, (a) => a.layers.get(layerID));
+		this.oldData = await GetAsync(() => GetLayer(layerID));
+		this.userMapInfoSets = await GetAsync(() => GetDocs({}, (a) => a.userMapInfo));
 	}
 	async Validate() {
 		const { layerID } = this.payload;
