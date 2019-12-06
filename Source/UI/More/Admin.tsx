@@ -8,7 +8,7 @@ import { PageContainer } from 'Utils/FrameworkOverrides';
 import { dbVersion } from 'Main';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
 import { store, RootState } from 'Store';
-import { ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks, DBPath, SplitStringBySlash_Cached, WithStore, GetDoc, GetDocs, GetAsync } from 'mobx-firelink';
+import { ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks, DBPath, SplitStringBySlash_Cached, GetDoc, GetDocs, GetAsync } from 'mobx-firelink';
 import { FirebaseDBShape } from 'Store/firebase';
 import { styles } from '../../Utils/UI/GlobalStyles';
 import { MeID, GetUser } from '../../Store/firebase/users';
@@ -141,10 +141,11 @@ export class UpgradeButton extends BaseComponent<{newVersion: number, upgradeFun
 			<Button text={`${oldVersionName}   ->   ${newVersionName}`} style={{ whiteSpace: 'pre' }} onClick={() => {
 				ShowMessageBox({
 					title: `Upgrade ${oldVersionName}   ->   ${newVersionName}?`,
-					message:
-`The new db-root (${newVersionName}) will be created as a transformation of the old db-root (${oldVersionName}).
-					
-The old db-root will not be modified.`,
+					message: `
+						The new db-root (${newVersionName}) will be created as a transformation of the old db-root (${oldVersionName}).
+											
+						The old db-root will not be modified.
+					`.AsMultiline(0),
 					cancelButton: true,
 					onOK: async () => {
 						// const oldData = await GetDataAsync({ inVersionRoot: false }, ...oldVersionPath.split('/')) as FirebaseData;

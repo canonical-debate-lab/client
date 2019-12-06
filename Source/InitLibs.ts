@@ -1,23 +1,20 @@
 import * as chroma_js from 'chroma-js';
-/* import { manager as manager_forum } from 'firebase-forum'; */
-import { manager as manager_feedback } from 'firebase-feedback';
 import { dbVersion, firebaseConfig, hasHotReloaded, version } from 'Main';
+import { WithStore } from 'mobx-firelink';
 import Moment from 'moment';
 import Raven from 'raven-js';
 import * as react_color from 'react-color';
 import { ColorPickerBox } from 'react-vcomponents';
+import { store } from 'Store';
+import { GetAuth } from 'Store/firebase';
 import { GetUser, GetUserPermissionGroups, Me, MeID } from 'Store/firebase/users';
+import { NotificationMessage } from 'Store/main';
 import { AddNotificationMessage } from 'UI/@Shared/NavBar/NotificationsUI';
+import { DoesURLChangeCountAsPageChange } from 'Utils/AutoRuns/PageViewRecorder';
 import { ExposeModuleExports, Link, Log, manager as manager_framework, VReactMarkdown_Remarkable } from 'Utils/FrameworkOverrides';
 import { logTypes } from 'Utils/General/Logging';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
 import { GetLoadActionFuncForURL, GetNewURL, PushHistoryEntry } from 'Utils/URL/URLs';
-import { store } from 'Store';
-import { NotificationMessage } from 'Store/main';
-import { GetAuth } from 'Store/firebase';
-import { DoesURLChangeCountAsPageChange } from 'Utils/AutoRuns/PageViewRecorder';
-import { RootState } from 'firebase-feedback/Dist/General';
-import { ApplyDBUpdates, WithStore } from 'mobx-firelink';
 import { ShowSignInPopup } from './UI/@Shared/NavBar/UserPanel';
 
 const context = (require as any).context('../Resources/SVGs/', true, /\.svg$/);
@@ -50,7 +47,7 @@ export function InitLibs() {
 		DoesURLChangeCountAsPageChange,
 
 		GetStore: () => store,
-		WithStore,
+		// WithStore,
 		firebaseConfig,
 
 		globalConnectorPropGetters: {
