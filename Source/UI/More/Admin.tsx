@@ -151,11 +151,12 @@ The old db-root will not be modified.`,
 						const oldData = await GetCollectionsDataAsync(oldVersionPath);
 
 						// maybe temp; use firebase-data overriding system, so upgrade-funcs can use GetData() and such -- but accessing a local data-store (which can be updated) instead of the "real" remote data
-						const newStore = Clone(store);
+						/* const newStore = Clone(store);
 						DeepSet(newStore, `firebase/data/${DBPath({})}`, oldData);
 						const newData = await WithStore(newStore, () => {
 							return upgradeFunc(oldData, markProgress);
-						});
+						}); */
+						const newData = await upgradeFunc(oldData, markProgress);
 						// RemoveHelpers(newData); // remove "_key" and such
 
 						if (newVersion >= dbVersion) {
