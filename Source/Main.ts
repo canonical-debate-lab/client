@@ -18,6 +18,10 @@ import ReactDOM from 'react-dom';
 // import Promise from "bluebird";
 import { VURL } from 'js-vextensions';
 
+/* //import "js-vextensions/Source/ClassExtensions/@ApplyTypes";
+type __ = typeof import("../node_modules/js-vextensions/Helpers/@ApplyCETypes");
+import "js-vextensions/Helpers/@ApplyCECode"; // eslint-disable-line */
+
 // startup (non-hot)
 // ==========
 

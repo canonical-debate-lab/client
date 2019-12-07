@@ -47,7 +47,7 @@ const webpackConfig = {
 			'.mjs', // needed for mobx-sync
 		],
 		alias: {
-			// always retrieve these packages from the root node_modules folder (they throw errors if there are multiple instances) [needing for when using "npm link"]
+			// always retrieve these packages from the root node_modules folder (they throw errors if there are multiple instances) [needed for when using "npm link"]
 			react: paths.base('node_modules', 'react'),
 			'react-dom': paths.base('node_modules', 'react-dom'),
 			firebase: paths.base('node_modules', 'firebase'),

@@ -1,5 +1,4 @@
 import { configure } from 'mobx';
-import { VMenuState } from 'react-vmenu';
 import { O } from 'Utils/FrameworkOverrides';
 import { ignore } from 'mobx-sync';
 import { Firelink } from 'mobx-firelink';
@@ -20,7 +19,7 @@ export class RootState {
 	@O @ignore firelink: Firelink<FirebaseDBShape>;
 
 	@O @ignore router: any;
-	@O @ignore vMenu: VMenuState;
+	// @O @ignore vMenu: VMenuState;
 }
 
 export const store = new RootState();

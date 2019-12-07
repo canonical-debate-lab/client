@@ -1,4 +1,5 @@
 import { E } from 'js-vextensions';
+import { SlicePath } from 'mobx-firelink';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { VMenuItem, VMenuStub } from 'react-vmenu';
 import { ShowMessageBox } from 'react-vmessagebox';
@@ -7,23 +8,21 @@ import { SetNodeIsMultiPremiseArgument } from 'Server/Commands/SetNodeIsMultiPre
 import { UnlinkNode } from 'Server/Commands/UnlinkNode';
 import { store } from 'Store';
 import { GetParentNodeID, HolderType } from 'Store/firebase/nodes';
-import { GetCopiedNode, GetOpenMapID, GetCopiedNodePath } from 'Store/main';
-import { ExpensiveComponent } from 'Utils/FrameworkOverrides';
+import { GetCopiedNode, GetCopiedNodePath, GetOpenMapID } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
-import {DeleteNode} from '../../../../Server/Commands/DeleteNode';
-import {GetPathsToNodesChangedSinceX} from '../../../../Store/firebase/mapNodeEditTimes';
-import {Map} from '../../../../Store/firebase/maps/@Map';
-import {ForCopy_GetError, ForCut_GetError, ForDelete_GetError, ForUnlink_GetError, GetNodeChildrenL3, GetNodeID, GetParentNodeL3, IsNodeSubnode} from '../../../../Store/firebase/nodes';
-import {GetNodeDisplayText, GetNodeL3, GetValidNewChildTypes, IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument} from '../../../../Store/firebase/nodes/$node';
-import {ClaimForm, MapNodeL3, Polarity} from '../../../../Store/firebase/nodes/@MapNode';
-import {GetMapNodeTypeDisplayName, MapNodeType, MapNodeType_Info} from '../../../../Store/firebase/nodes/@MapNodeType';
-import {CanGetBasicPermissions, IsUserCreatorOrMod} from '../../../../Store/firebase/userExtras';
-import {GetUserPermissionGroups, MeID} from '../../../../Store/firebase/users';
-import {styles} from '../../../../Utils/UI/GlobalStyles';
-import {ShowSignInPopup} from '../../NavBar/UserPanel';
-import {ShowAddChildDialog} from './NodeUI_Menu/AddChildDialog';
-import { SlicePath } from 'mobx-firelink';
-
+import { ExpensiveComponent } from 'Utils/FrameworkOverrides';
+import { DeleteNode } from '../../../../Server/Commands/DeleteNode';
+import { GetPathsToNodesChangedSinceX } from '../../../../Store/firebase/mapNodeEditTimes';
+import { Map } from '../../../../Store/firebase/maps/@Map';
+import { ForCopy_GetError, ForCut_GetError, ForDelete_GetError, ForUnlink_GetError, GetNodeChildrenL3, GetNodeID, GetParentNodeL3, IsNodeSubnode } from '../../../../Store/firebase/nodes';
+import { GetNodeDisplayText, GetNodeL3, GetValidNewChildTypes, IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
+import { ClaimForm, MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
+import { GetMapNodeTypeDisplayName, MapNodeType, MapNodeType_Info } from '../../../../Store/firebase/nodes/@MapNodeType';
+import { CanGetBasicPermissions, IsUserCreatorOrMod } from '../../../../Store/firebase/userExtras';
+import { GetUserPermissionGroups, MeID } from '../../../../Store/firebase/users';
+import { styles } from '../../../../Utils/UI/GlobalStyles';
+import { ShowSignInPopup } from '../../NavBar/UserPanel';
+import { ShowAddChildDialog } from './NodeUI_Menu/AddChildDialog';
 
 export class NodeUI_Menu_Stub extends BaseComponent<Props, {}> {
 	render() {
