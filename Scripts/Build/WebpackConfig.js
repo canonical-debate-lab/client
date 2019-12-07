@@ -51,7 +51,8 @@ const webpackConfig = {
 			react: paths.base('node_modules', 'react'),
 			'react-dom': paths.base('node_modules', 'react-dom'),
 			firebase: paths.base('node_modules', 'firebase'),
-			// "@types/react": paths.base() + "/node_modules/@types/react/",
+			// consolidating for these wouldn't throw errors necessarily, but we do so to keep things tidy (since we know the different versions will be compatible anyway)
+			'js-vextensions': paths.base('node_modules', 'js-vextensions'),
 		},
 	},
 	module: {},

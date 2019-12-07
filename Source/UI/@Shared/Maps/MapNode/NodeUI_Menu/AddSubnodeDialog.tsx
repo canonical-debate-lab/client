@@ -42,7 +42,7 @@ class AddSubnodeDialog extends BaseComponentPlus({} as Props, {} as {layer: Laye
 		const newClickable = validationError == null;
 		if (newClickable != boxController.options.okButtonClickable) {
 			boxController.options.okButtonClickable = newClickable;
-			boxController.UpdateUI(false);
+			boxController.UpdateUI();
 		}
 	}
 
