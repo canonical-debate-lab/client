@@ -158,13 +158,64 @@ AddRule({
 	fileInclude: /immer.module.js$/,
 	// logFileMatches: true,
 	// logFileMatchContents: true,
-	fileMatchCount: { min: 2 },
+	// fileMatchCount: 2, // one for root/immer, another for vwebapp-framework/immer (make sure to run "npm link vwebapp-framework")
+	fileMatchCount: 1,
 	replacements: [
+		// makes-so immer accept any object in its "produce" function (so we don't need to add the "[immerable] = true" markers)
+		/* {
+			pattern: 'function isDraftable(value) {',
+			patternMatchCount: 1,
+			replacement: 'function isDraftable(value) { return true;',
+		}, */
+		// makes-so when traversing down path with getter-setters, immer proceeds instead of halting
 		{
 			pattern: 'function shallowCopy(base, invokeGetters) {',
-			patternMatchCount: { min: 2 },
+			patternMatchCount: 1,
 			// logAroundPatternMatches: 100,
 			replacement: 'function shallowCopy(base, invokeGetters) { invokeGetters = true;',
+		},
+		/* {
+			pattern: /var assign = (.|\n)+?(?=var ownKeys)/,
+			patternMatchCount: 2,
+			replacement: `
+var assign = (function (target) {
+	var overrides = [], len = arguments.length - 1;
+	while ( len-- > 0 ) overrides[ len ] = arguments[ len + 1 ];
+
+	overrides.forEach(function (override) {
+		return Object.keys(override || {}).forEach(function (key) {
+			/*delete target[key]; // v-added
+			return target[key] = override[key];*#/
+			Object.defineProperty(target, key, {value: override[key]});
+		});
+	});
+	return target;
+});
+ 			`.trim(),
+		}, */
+		// the 3 changes below make-so, when immer is trying to set a field under a path with getter-setters along it, it replaces those getter-setters with just the value itself (on the copy/result object, not the draft/proxy or source object)
+		{
+			pattern: 'if (isMap(base)) { assignMap(copy, drafts); }else { assign(copy, drafts); }',
+			patternMatchCount: 1,
+			replacement: `
+				if (isMap(base)) {
+					assignMap(copy, drafts);
+				} else {
+					Object.keys(drafts).forEach(function (key) {
+						Object.defineProperty(copy, key, {configurable: true, writable: true, value: drafts[key]});
+					});
+				}
+			`,
+		},
+		{
+			pattern: 'return state.copy[prop] = createProxy(value, state);',
+			patternMatchCount: 1,
+			replacement: 'Object.defineProperty(state.copy, prop, {configurable: true, writable: true, value: createProxy(value, state)}); return state.copy;',
+		},
+		{
+			pattern: 'state.copy[prop] = value;',
+			patternMatchCount: 2,
+			replacement: 'Object.defineProperty(state.copy, prop, {configurable: true, writable: true, value: value});',
 		},
 	],
 });

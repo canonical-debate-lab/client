@@ -55,6 +55,7 @@ export const webpackConfig: webpack.Configuration = {
 			// consolidating for these wouldn't throw errors necessarily, but we do so to keep things tidy (since we know the different versions will be compatible anyway)
 			'js-vextensions': paths.base('node_modules', 'js-vextensions'),
 			'react-beautiful-dnd': paths.base('node_modules', 'react-beautiful-dnd'),
+			immer: paths.base('node_modules', 'immer'),
 			// consolidating since some modifications are made to it (and we don't want to have to make modifications in multiple places)
 			// 'immer': paths.base('node_modules', 'immer'),
 		},
