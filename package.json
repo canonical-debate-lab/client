@@ -137,7 +137,7 @@
     "firebase": "5.8.4",
     "firebase-feedback": "0.0.6",
     "immer": "5.0.0",
-    "js-vextensions": "0.0.40",
+    "js-vextensions": "0.0.43",
     "katex": "^0.9.0",
     "keycode": "^2.1.8",
     "lodash": "^4.17.2",
@@ -200,6 +200,7 @@
     "@types/react-dom": "16.9.4",
     "@types/react-ga": "2.3.0",
     "@types/react-list": "0.8.5",
+    "@types/webpack": "4.41.0",
     "@typescript-eslint/eslint-plugin": "2.7.0",
     "@typescript-eslint/parser": "2.7.0",
     "babel-cli": "6.4.5",
@@ -250,6 +251,7 @@
     "style-loader": "1.0.0",
     "svg-sprite-loader": "4.1.6",
     "ts-loader": "6.2.1",
+    "ts-node": "8.5.4",
     "typescript": "3.7.2",
     "url-loader": "2.2.0",
     "webpack": "^4.6.0",
@@ -258,6 +260,7 @@
     "webpack-dependency-tools": "^0.0.1",
     "webpack-dev-middleware": "3.7.2",
     "webpack-hot-middleware": "^2.22.1",
+    "webpack-string-replacer": "0.0.10",
     "why-did-you-update": "1.0.6",
     "yargs": "14.2.0"
   }

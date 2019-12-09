@@ -1,39 +1,41 @@
-// @ts-check_disabled
-
-const webpack = require('webpack');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CSSNano = require('cssnano');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const debug = require('debug')('app:webpack:config');
-const path = require('path');
-const fs = require('fs');
-const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
-const StringReplacePlugin = require('string-replace-webpack-plugin');
-const SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
-const { CyclicDependencyChecker } = require('webpack-dependency-tools');
-const config = require('../Config');
+import webpack from 'webpack';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import CSSNano from 'cssnano';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import debug_base from 'debug';
+import path from 'path';
+import fs from 'fs';
+import HardSourceWebpackPlugin from 'hard-source-webpack-plugin';
+import StringReplacePlugin from 'string-replace-webpack-plugin';
+import SpriteLoaderPlugin from 'svg-sprite-loader/plugin';
+import { CyclicDependencyChecker } from 'webpack-dependency-tools';
+import { WebpackStringReplacer } from 'webpack-string-replacer';
+import { config } from '../Config';
+import { patchRules } from './PackagePatches';
 // const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 // const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 // const AutoDllPlugin = require("autodll-webpack-plugin");
 // require('js-vextensions'); // maybe temp; used atm for "".AsMultiline function
 
+const debug = debug_base('app:webpack:config');
+
 const paths = config.utils_paths;
 const { QUICK, USE_TSLOADER, OUTPUT_STATS } = process.env;
 
-const root = path.join(__dirname, '..', '..');
+// const root = path.join(__dirname, '..', '..');
 
 debug('Creating configuration.');
-const webpackConfig = {
+const webpackConfig: webpack.Configuration = {
 	name: 'client',
 	mode: PROD && !QUICK ? 'production' : 'development',
 	optimization: {
 		// use paths as runtime identifiers for webpack modules (easier debugging)
-    	// namedModules: true, // commented; not needed, since "output.pathinfo=true" (and, before at least, would cause problems when inconsistent between bundles)
-    	namedModules: true,
+		// namedModules: true, // commented; not needed, since "output.pathinfo=true" (and, before at least, would cause problems when inconsistent between bundles)
+		namedModules: true,
 		noEmitOnErrors: true,
 	},
 	target: 'web',
-	devtool: config.compiler_devtool,
+	devtool: config.compiler_devtool as any,
 	resolve: {
 		modules: [
 			'node_modules', // commented; thus we ignore the closest-to-import-statement node_modules folder, instead we: [...]
@@ -53,9 +55,21 @@ const webpackConfig = {
 			firebase: paths.base('node_modules', 'firebase'),
 			// consolidating for these wouldn't throw errors necessarily, but we do so to keep things tidy (since we know the different versions will be compatible anyway)
 			'js-vextensions': paths.base('node_modules', 'js-vextensions'),
+			// consolidating since some modifications are made to it (and we don't want to have to make modifications in multiple places)
+			// 'immer': paths.base('node_modules', 'immer'),
 		},
 	},
-	module: {},
+	module: {
+		rules: [
+			{ test: /\.woff(\?.*)?$/, use: 'url-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=application/font-woff' },
+			{ test: /\.woff2(\?.*)?$/, use: 'url-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=application/font-woff2' },
+			{ test: /\.otf(\?.*)?$/, use: 'file-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=font/opentype' },
+			{ test: /\.ttf(\?.*)?$/, use: 'url-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=application/octet-stream' },
+			{ test: /\.eot(\?.*)?$/, use: 'file-loader?prefix=fonts/&name=[path][name].[ext]' },
+			// {test: /\.svg(\?.*)?$/, use: "url-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=image/svg+xml"},
+			{ test: /\.(png|jpg)$/, use: 'url-loader?limit=8192' },
+		],
+	},
 	externals: {
 		// temp; fix for firebase-mock in browser (code-path not actually used, so it's okay)
 		fs: 'root location', // redirect to some global-variable, eg. window.location
@@ -266,7 +280,7 @@ function AddStringReplacement(fileRegex, replacements, minCallCount = 1, verifyP
 	onReplacementPhaseDone_listeners.push(VerifyReplacementsCalled);
 	webpackConfig.module.rules.push({
 		test: fileRegex,
-		loader: StringReplacePlugin.replace({ replacements: replacements_final }),
+		loader: StringReplacePlugin.replace({ replacements: replacements_final }, {}),
 	});
 }
 
@@ -431,6 +445,13 @@ webpackConfig.plugins.push({
 	},
 });
 
+// file text-replacements (new system)
+// ==========
+
+webpackConfig.plugins.push(new WebpackStringReplacer({
+	rules: patchRules,
+}));
+
 // css loaders
 // ==========
 
@@ -459,17 +480,24 @@ webpackConfig.module.rules.push({
 				ident: 'postcss',
 				plugins: (loader) => [
 					PROD && CSSNano({
-						autoprefixer: {
-							add: true,
-							remove: true,
-							browsers: ['last 2 versions'],
-						},
-						discardComments: { removeAll: true },
-						discardUnused: false,
-						mergeIdents: false,
-						reduceIdents: false,
-						safe: true,
-						// sourcemap: true
+						// it seems this weird wrapper thing is needed, from examining source, but will just comment all options for now since ts-check complains
+						/* preset: ()=> ({
+							plugins: new Promise(resolve=> {
+								resolve({
+									autoprefixer: {
+										add: true,
+										remove: true,
+										browsers: ['last 2 versions'],
+									},
+									discardComments: { removeAll: true },
+									discardUnused: false,
+									mergeIdents: false,
+									reduceIdents: false,
+									safe: true,
+									// sourcemap: true
+								});
+							}),
+						}), */
 					}),
 				].filter((a) => a),
 			},
@@ -484,21 +512,6 @@ webpackConfig.module.rules.push({
 		},
 	],
 });
-
-// file loaders
-// ==========
-
-/* eslint-disable */
-webpackConfig.module.rules.push(
-	{test: /\.woff(\?.*)?$/, use: "url-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=application/font-woff"},
-	{test: /\.woff2(\?.*)?$/, use: "url-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=application/font-woff2"},
-	{test: /\.otf(\?.*)?$/, use: "file-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=font/opentype"},
-	{test: /\.ttf(\?.*)?$/, use: "url-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=application/octet-stream"},
-	{test: /\.eot(\?.*)?$/, use: "file-loader?prefix=fonts/&name=[path][name].[ext]"},
-	//{test: /\.svg(\?.*)?$/, use: "url-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=image/svg+xml"},
-	{test: /\.(png|jpg)$/, use: "url-loader?limit=8192"}
-)
-/* eslint-enable */
 
 // finalize configuration
 // ==========
@@ -534,7 +547,7 @@ if (OUTPUT_STATS) {
 					warnings: false,
 					publicPath: false,
 				});
-				fs.writeFile(`./Tools/Webpack Profiling/Stats${firstOutput ? '' : '_Incremental'}.json`, JSON.stringify(stats));
+				fs.writeFile(`./Tools/Webpack Profiling/Stats${firstOutput ? '' : '_Incremental'}.json`, JSON.stringify(stats), () => {});
 
 				let modules_justTimings = stats.modules.map((mod) => {
 					const timings = mod.profile;
@@ -551,7 +564,7 @@ if (OUTPUT_STATS) {
 					modules_justTimings_asMap[mod.name] = mod;
 					delete mod.name;
 				}
-				fs.writeFile(`./Tools/Webpack Profiling/ModuleTimings${firstOutput ? '' : '_Incremental'}.json`, JSON.stringify(modules_justTimings_asMap, null, 2));
+				fs.writeFile(`./Tools/Webpack Profiling/ModuleTimings${firstOutput ? '' : '_Incremental'}.json`, JSON.stringify(modules_justTimings_asMap, null, 2), () => {});
 
 				firstOutput = false;
 			});

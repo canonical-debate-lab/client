@@ -1,17 +1,18 @@
-import { ObservableMap, observable } from 'mobx';
-import { O, StoreAccessor } from 'Utils/FrameworkOverrides';
-import { ignore } from 'mobx-sync';
-import { rootPageDefaultChilds } from 'Utils/URL/URLs';
+import { immerable } from 'immer';
 import { Global } from 'js-vextensions';
-import { MapState } from './main/maps/$map';
-import { PersonalState } from './main/personal';
+import { observable } from 'mobx';
+import { ignore } from 'mobx-sync';
+import { O, StoreAccessor } from 'Utils/FrameworkOverrides';
+import { rootPageDefaultChilds } from 'Utils/URL/URLs';
+import { GetNodeL3 } from './firebase/nodes/$node';
+import { globalMapID } from './firebase/nodes/@MapNode';
+import { DatabaseState } from './main/database';
 import { DebatesState } from './main/debates';
+import { MapState } from './main/maps/$map';
 import { MapView } from './main/mapViews/$mapView';
+import { PersonalState } from './main/personal';
 import { RatingUIState } from './main/ratingUI';
 import { SearchState } from './main/search';
-import { globalMapID } from './firebase/nodes/@MapNode';
-import { GetNodeL3 } from './firebase/nodes/$node';
-import { DatabaseState } from './main/database';
 
 export enum WeightingType {
 	Votes = 10,
@@ -32,6 +33,8 @@ export class NotificationMessage {
 }
 
 export class MainState {
+	[immerable] = true;
+
 	@O page = 'home';
 	@O urlExtraStr: string;
 
