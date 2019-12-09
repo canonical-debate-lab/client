@@ -6,12 +6,11 @@ import debug_base from 'debug';
 import path from 'path';
 import fs from 'fs';
 import HardSourceWebpackPlugin from 'hard-source-webpack-plugin';
-import StringReplacePlugin from 'string-replace-webpack-plugin';
 import SpriteLoaderPlugin from 'svg-sprite-loader/plugin';
 import { CyclicDependencyChecker } from 'webpack-dependency-tools';
 import { WebpackStringReplacer } from 'webpack-string-replacer';
 import { config } from '../Config';
-import { patchRules } from './PackagePatches';
+import { npmPatch_replacerConfig } from './NPMPatches';
 // const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 // const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 // const AutoDllPlugin = require("autodll-webpack-plugin");
@@ -25,7 +24,7 @@ const { QUICK, USE_TSLOADER, OUTPUT_STATS } = process.env;
 // const root = path.join(__dirname, '..', '..');
 
 debug('Creating configuration.');
-const webpackConfig: webpack.Configuration = {
+export const webpackConfig: webpack.Configuration = {
 	name: 'client',
 	mode: PROD && !QUICK ? 'production' : 'development',
 	optimization: {
@@ -55,6 +54,7 @@ const webpackConfig: webpack.Configuration = {
 			firebase: paths.base('node_modules', 'firebase'),
 			// consolidating for these wouldn't throw errors necessarily, but we do so to keep things tidy (since we know the different versions will be compatible anyway)
 			'js-vextensions': paths.base('node_modules', 'js-vextensions'),
+			'react-beautiful-dnd': paths.base('node_modules', 'react-beautiful-dnd'),
 			// consolidating since some modifications are made to it (and we don't want to have to make modifications in multiple places)
 			// 'immer': paths.base('node_modules', 'immer'),
 		},
@@ -141,8 +141,6 @@ webpackConfig.plugins = [
 			sizeThreshold: 50 * 1024 * 1024
 		},*#/
 	}), */
-
-	new StringReplacePlugin(),
 ];
 
 /* if (DEV) {
@@ -233,224 +231,7 @@ webpackConfig.module.rules.push({ test: /\.mjs$/, type: 'javascript/auto' });
 // file text-replacements
 // ==========
 
-const onReplacementPhaseDone_listeners = [];
-function AddStringReplacement(fileRegex, replacements, minCallCount = 1, verifyPerFile = true) {
-	const replacementCallCounts = replacements.map(() => 0);
-	function VerifyReplacementsCalled() {
-		const undercalledIndex = replacementCallCounts.findIndex((callCount) => callCount < minCallCount);
-		const undercalledReplacement = replacements[undercalledIndex];
-		if (undercalledIndex != -1) {
-			throw new Error(`
-
-				A text-replacement was not called as many times as it should have been.
-				File: ${fileRegex}
-				Pattern (#${undercalledIndex}): ${undercalledReplacement.pattern}
-				Min call count: ${minCallCount}
-				Actual call acount: ${replacementCallCounts[undercalledIndex]}
-
-				Ensure that you have the correct version of the npm package installed.
-			`);
-		}
-	}
-
-	let replacements_final = replacements.map((oldReplacement, index) => {
-		return {
-			...oldReplacement,
-			replacement: (...args) => {
-				replacementCallCounts[index]++;
-				return oldReplacement.replacement.apply(this, args);
-			},
-		};
-	});
-	if (verifyPerFile) {
-		replacements_final = replacements_final.concat({
-			pattern: /(.|\n)+/g,
-			replacement: (match) => {
-				if (fileRegex.toString().includes('createStore')) {
-					console.log(`\n\n============ Replacement called for: ${fileRegex} ==================\n`);
-				}
-				VerifyReplacementsCalled();
-				// since this replacement was called, the file-pattern must be valid -- thus, no need for the global post-compilation call to our VerifyReplacementsCalled (so remove from that list)
-				const index = onReplacementPhaseDone_listeners.indexOf(VerifyReplacementsCalled);
-				if (index != -1) onReplacementPhaseDone_listeners.splice(index, 1);
-				return match;
-			},
-		});
-	}
-	onReplacementPhaseDone_listeners.push(VerifyReplacementsCalled);
-	webpackConfig.module.rules.push({
-		test: fileRegex,
-		loader: StringReplacePlugin.replace({ replacements: replacements_final }, {}),
-	});
-}
-
-AddStringReplacement(/\.jsx?$/, [
-	// optimization; replace `State(a=>a.some.thing)` with `State("some", "thing")`
-	// (faster for the State function to consume, and supplies primitives instead of a function, meaning State.Watch(...) does not view the call-args as changed each render)
-	{
-		pattern: /(State|State_Base)\(a ?=> ?a\.([a-zA-Z0-9_.]+)\)/g,
-		replacement(match, sub1, sub2, offset, string) {
-			const pathStr = sub2.replace(/\./g, '/');
-			// return `${sub1}("${pathStr}")`;
-			const pathSegments = pathStr.split('/');
-			return `${sub1}("${pathSegments.join('", "')}")`;
-		},
-	},
-	// make function-names of store-accessors accessible to watcher debug-info, for react-devtools
-	{
-		pattern: /export const ([a-zA-Z0-9_$]+?) = StoreAccessor\(\(/g,
-		replacement(match, sub1, offset, string) {
-			return `export const ${sub1} = StoreAccessor("${sub1}", (`;
-		},
-	},
-	// make function-names of store-actions accessible at runtime
-	{
-		pattern: /export const ([a-zA-Z0-9_$]+?) = StoreAction\(\(/g,
-		replacement(match, sub1, offset, string) {
-			return `export const ${sub1} = StoreAction("${sub1}", (`;
-		},
-	},
-	/* {
-		pattern: /State\(function \(a\) {\s+return a.([a-zA-Z0-9_.]+);\s+}\)/g,
-		replacement: function(match, sub1, offset, string) {
-			Log("Replacing...");
-			return `State("${sub1.replace(/\./g, "/")}")`;
-		}
-	}, */
-], 0, false);
-
-// AddStringReplacement(/connected-(draggable|droppable).js$/, [
-AddStringReplacement(/react-beautiful-dnd.esm.js$/, [
-	// note: the replacements below may need updating, since the library was updated since the replacements were written
-	// make react-beautiful-dnd import react-redux using a relative path, so it uses its local v5 instead of the project's v6
-	/* {
-		pattern: /from 'react-redux';/g,
-		replacement: (match, offset, str) => "from '../node_modules/react-redux';",
-	}, */
-	// make lib support nested-lists better (from: https://github.com/atlassian/react-beautiful-dnd/pull/636)
-	{
-		pattern: /var getDroppableOver\$1 = (.|\n)+?(?=var withDroppableScroll)/,
-		replacement: () => {
-			return `
-				var getDroppableOver$1 = (function(args) {
-					var target = args.target, droppables = args.droppables;
-					var maybe = toDroppableList(droppables)
-						.filter(droppable => {
-							if (!droppable.isEnabled) return false;
-							var active = droppable.subject.active;
-							if (!active) return false;
-							return isPositionInFrame(active)(target);
-						})
-						.sort((a, b) => {
-							// if draggable is over two lists, and one's not as tall, have it prioritize the list that's not as tall
-							/*if (a.client.contentBox[a.axis.size] < b.client.contentBox[b.axis.size]) return -1;
-							if (a.client.contentBox[a.axis.size] > b.client.contentBox[b.axis.size]) return 1;
-							return 0;*/
-							if (a.client.contentBox[a.axis.size] != b.client.contentBox[b.axis.size]) {
-								return a.client.contentBox[a.axis.size] - b.client.contentBox[b.axis.size]; // ascending
-							}
-
-							// if draggable is over two lists, have it prioritize the list farther to the right
-							/*if (a.client.contentBox.left != b.client.contentBox.left) {
-								return a.client.contentBox.left - b.client.contentBox.left; // ascending
-							}*/
-
-							// if draggable is over multiple lists, have it prioritize the list whose center is closest to the mouse
-							/*var aDist = Math.hypot(target.x - a.client.contentBox.center.x, target.y - a.client.contentBox.center.y);
-							var bDist = Math.hypot(target.x - b.client.contentBox.center.x, target.y - b.client.contentBox.center.y);
-							return aDist - bDist; // ascending*/
-
-							// prioritize the list farther to the right/bottom (evaluated as distance from union-rect top-left)
-							var unionRect = {x: Math.min(a.client.contentBox.left, b.client.contentBox.left), y: Math.min(a.client.contentBox.top, b.client.contentBox.top)};
-							var aDist = Math.hypot(unionRect.x - a.client.contentBox.center.x, unionRect.y - a.client.contentBox.center.y);
-							var bDist = Math.hypot(unionRect.x - b.client.contentBox.center.x, unionRect.y - b.client.contentBox.center.y);
-							return -(aDist - bDist); // descending
-						})
-						.find(droppable => !!droppable);
-					return maybe ? maybe.descriptor.id : null;
-				});
-			`.trim();
-		},
-	},
-	// disable map edge-scrolling, when option is set
-	{
-		// pattern: /var canScrollDroppable = function canScrollDroppable\(droppable, change\) {/,
-		pattern: /var canScrollDroppable = function canScrollDroppable.+/,
-		replacement: () => `
-			var canScrollDroppable = function canScrollDroppable(droppable, change) {
-				if (window.LockMapEdgeScrolling()) return false;
-		`.trim(),
-	},
-]);
-
-// react
-/* AddStringReplacement(/ReactDebugTool.js/, [
-	{
-		// expose ReactDebugTool.getTreeSnapshot
-		pattern: /module.exports = /g,
-		replacement: (match, offset, string) => Clip(`
-ReactDebugTool.getTreeSnapshot = getTreeSnapshot;
-
-module.exports =
-			`),
-	},
-]); */
-
-// make all Object.defineProperty calls leave the property configurable (probably better to just wrap the Object.defineProperty function)
-/* AddStringReplacement(/index\.js$/, [
-	{
-		pattern: /enumerable: true,/g,
-		replacement(match, offset, string) {
-			return `${match} configurable: true,`;
-		},
-	},
-]); */
-
-// firebase-mock
-/* AddStringReplacement(/firebase-mock\/src\/storage-file.js/, [
-	{
-		// remove "fs" require
-		pattern: /require\('fs'\)/g,
-		replacement: (match, offset, string) => {
-			console.log('=== Replaced fs line. ===');
-			return '{}';
-		},
-	},
-]); */
-
-// just a special stub, used to call the VerifyReplacementsCalled functions after the replacement-phase is done
-/* let done = false;
-AddStringReplacement(/Root.js$/, [
-	{
-		pattern: /.$/gm,
-		replacement: (match, offset, string) => {
-			console.log('\n=== Verifying replacements called... ===\n');
-			if (!done) {
-				done = true;
-				setTimeout(() => onReplacementPhaseDone_listeners.forEach(a => a()), 0); // wait till current stack completes (since this replacement might run before some of the others)
-			}
-			return match;
-		},
-	},
-]); */
-webpackConfig.plugins.push({
-	apply(compiler) {
-		/* compiler.plugin('beforeCompile', (compilation, done) => {
-			done();
-		}); */
-		compiler.hooks.emit.tap('AddStringReplacement_Verify', (compilation) => {
-			console.log('\n=== Verifying replacements called (global)... ===\n');
-			onReplacementPhaseDone_listeners.forEach((a) => a());
-		});
-	},
-});
-
-// file text-replacements (new system)
-// ==========
-
-webpackConfig.plugins.push(new WebpackStringReplacer({
-	rules: patchRules,
-}));
+webpackConfig.plugins.push(new WebpackStringReplacer(npmPatch_replacerConfig));
 
 // css loaders
 // ==========
@@ -633,4 +414,6 @@ function Compare(a, b, caseSensitive = true) {
 	};
 } */
 
-module.exports = webpackConfig;
+// also do this, for if sending to cli-started webpack
+// export default webpackConfig;
+// module.exports = webpackConfig;

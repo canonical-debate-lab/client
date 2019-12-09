@@ -1,10 +1,11 @@
-const express = require('express');
-const debug = require('debug')('app:server');
-const webpack = require('webpack');
-const devMiddleware = require('webpack-dev-middleware');
-const webpackConfig = require('./Build/WebpackConfig');
-const config = require('./Config');
+import express from 'express';
+import debug_base from 'debug';
+import webpack from 'webpack';
+import devMiddleware from 'webpack-dev-middleware';
+import { webpackConfig } from './Build/WebpackConfig';
+import { config } from './Config';
 
+const debug = debug_base('app:server');
 const app = express();
 const paths = config.utils_paths;
 
@@ -27,7 +28,8 @@ app.use(require('connect-history-api-fallback')({
 if (DEV) {
 	const compiler = webpack(webpackConfig);
 
-	compiler.apply(new webpack.ProgressPlugin({ profile: true }));
+	// compiler.apply(new webpack.ProgressPlugin({ profile: true }));
+	compiler.apply(new webpack.ProgressPlugin());
 
 	debug('Enable webpack dev and HMR middleware');
 	app.use(devMiddleware(compiler, {

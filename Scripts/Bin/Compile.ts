@@ -1,9 +1,10 @@
-const fs = require('fs-extra');
-const debug = require('debug')('app:bin:compile');
-const webpackCompiler = require('../Build/WebpackCompiler');
-const webpackConfig = require('../Build/WebpackConfig');
-const config = require('../Config');
+import fs from 'fs-extra';
+import debug_base from 'debug';
+import webpackCompiler from '../Build/WebpackCompiler';
+import { webpackConfig } from '../Build/WebpackConfig';
+import { config } from '../Config';
 
+const debug = debug_base('app:bin:compile');
 const paths = config.utils_paths;
 
 const compile = () => {

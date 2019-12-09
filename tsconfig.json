@@ -7,7 +7,8 @@
 		"forceConsistentCasingInFileNames": true, // creates duplicates in import-helper plugins otherwise
 
 		// modules/paths
-		"module": "es2015",
+		"module": "ES2015", // leave the imports/exports alone (webpack will convert them to "require")
+		//"module": "commonjs", // needed, since this config file is used for "ts-node Scripts/Server" as well
 		"moduleResolution": "node",
 		//"rootDir": ".",
 		"rootDir": "Source",
@@ -38,12 +39,14 @@
 		//"skipLibCheck": true,
 
 		// compiler options
+		//"target": "ES5",
 		//"target": "es2015",
 		//"target": "es2017",
 		"target": "esnext",
 		"lib": [
-			"es6",
 			"es5",
+			"es6",
+			"ESNext",
 			"dom"
 		],
 		//"allowJs": true,
@@ -53,7 +56,8 @@
 		"alwaysStrict": true, // alternative: "@babel/plugin-transform-strict-mode"; went with this since doesn't require another npm package
 
 		"experimentalDecorators": true,
-		"allowSyntheticDefaultImports": true
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true
 	},
 	//"files": ["Source/Main.ts"],
 	"include": [
