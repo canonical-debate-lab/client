@@ -39,7 +39,8 @@ export const webpackConfig: webpack.Configuration = {
 		modules: [
 			'node_modules', // commented; thus we ignore the closest-to-import-statement node_modules folder, instead we: [...]
 			// paths.base('node_modules'), // [...] always get libraries from the root node_modules folder
-			paths.source(),
+			// paths.source(),
+			USE_TSLOADER ? paths.source() : paths.base('Source_JS'),
 		],
 		// extensions: [".js", ".jsx", ".json"].concat(USE_TSLOADER ? [".ts", ".tsx"] : []),
 		extensions: [
@@ -61,6 +62,17 @@ export const webpackConfig: webpack.Configuration = {
 	},
 	module: {
 		rules: [
+			// load source-maps (doesn't seem to actually work atm, at least for, eg. js-vextensions lib)
+			/* {
+				test: /(\.jsx?|\.jsx?\.map)$/,
+				use: 'source-map-loader',
+				include: [
+					// list here the node-modules you want to load the source-maps for
+					paths.base('node_modules', 'js-vextensions'),
+				],
+				enforce: 'pre',
+			}, */
+			// load fonts/images
 			{ test: /\.woff(\?.*)?$/, use: 'url-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=application/font-woff' },
 			{ test: /\.woff2(\?.*)?$/, use: 'url-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=application/font-woff2' },
 			{ test: /\.otf(\?.*)?$/, use: 'file-loader?prefix=fonts/&name=[path][name].[ext]&limit=10000&mimetype=font/opentype' },
@@ -198,7 +210,7 @@ webpackConfig.module.rules = [
 			],
 			plugins: [
 				'@babel/plugin-proposal-nullish-coalescing-operator',
-        		'@babel/plugin-proposal-optional-chaining',
+				'@babel/plugin-proposal-optional-chaining',
 			],
 		},
 	},

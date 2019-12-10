@@ -1,6 +1,8 @@
 import { Options, Rule } from 'webpack-string-replacer';
 
 export const npmPatch_replacerConfig: Options = {
+	shouldValidate: ({ compilations }) => compilations.length == 3, // only validate on initial compile
+	// validationLogType: 'logError',
 	rules: [],
 };
 

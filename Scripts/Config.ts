@@ -59,8 +59,9 @@ export const config = {
 	// compiler_devtool: 'cheap-eval-source-map', // *shows: ...
 	// compiler_devtool: 'cheap-module-eval-source-map', // *shows: original (in error.stack, shows eval/transpiled-to-js-but-in-module line)
 	// compiler_devtool: 'cheap-module-source-map', // shows: original [however, for some reason it misses lots of lines -- at least in async functions]
-	compiler_devtool: PROD ? 'source-map' : 'cheap-source-map', // shows: transpiled-to-js [.8s/rebuild]
 	// compiler_devtool: "eval", // *shows: transpiled-to-js
+	compiler_devtool: PROD ? 'source-map' : 'cheap-source-map', // cheap-source-map: transpiled-to-js [.8s/rebuild]
+	// compiler_devtool: 'source-map', // for trying to get source-map-loader working
 	compiler_fail_on_warning: false,
 	compiler_quiet: false,
 	compiler_public_path: '/',
