@@ -10,7 +10,7 @@ import { FirebaseDBShape } from './firebase';
 configure({ enforceActions: 'observed' });
 
 export class RootState {
-	[immerable] = true; // makes the store able to be used in immer's "produce" function
+	// [immerable] = true; // makes the store able to be used in immer's "produce" function
 
 	@O main = new MainState();
 

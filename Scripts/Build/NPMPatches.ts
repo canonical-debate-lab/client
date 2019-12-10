@@ -164,11 +164,11 @@ AddRule({
 	fileMatchCount: 1,
 	replacements: [
 		// makes-so immer accept any object in its "produce" function (so we don't need to add the "[immerable] = true" markers)
-		/* {
+		{
 			pattern: 'function isDraftable(value) {',
 			patternMatchCount: 1,
-			replacement: 'function isDraftable(value) { return true;',
-		}, */
+			replacement: 'function isDraftable(value) { return value != null;',
+		},
 		// makes-so when traversing down path with getter-setters, immer proceeds instead of halting
 		{
 			pattern: 'function shallowCopy(base, invokeGetters) {',

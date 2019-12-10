@@ -10,7 +10,7 @@ import { useMemo, useCallback } from 'react';
 import { store, RootState } from 'Store';
 import { runInAction } from 'mobx';
 import { GetDocs } from 'mobx-firelink';
-import {fire} from 'Utils/LibIntegrations/MobXFirelink';
+import { fire } from 'Utils/LibIntegrations/MobXFirelink';
 import { colors } from '../../Utils/UI/GlobalStyles';
 import { ChatPanel } from './NavBar/ChatPanel';
 import { GuidePanel } from './NavBar/GuidePanel';
@@ -114,7 +114,7 @@ export class NavBar extends BaseComponentPlus({} as {}, {}) {
 	}
 }
 
-// @Radium
+@Observer
 export class NavBarPageButton extends BaseComponentPlus(
 	{} as {page?: string, text: string, panel?: boolean, active?: boolean, style?, onClick?: (e)=>void},
 	{ hovered: false },

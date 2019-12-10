@@ -4,7 +4,7 @@ import { observable } from 'mobx';
 import { ignore } from 'mobx-sync';
 import { O } from 'Utils/FrameworkOverrides';
 import { rootPageDefaultChilds } from 'Utils/URL/URLs';
-import {StoreAccessor} from 'mobx-firelink';
+import { StoreAccessor } from 'mobx-firelink';
 import { GetNodeL3 } from './firebase/nodes/$node';
 import { globalMapID } from './firebase/nodes/@MapNode';
 import { DatabaseState } from './main/database';
@@ -34,7 +34,7 @@ export class NotificationMessage {
 }
 
 export class MainState {
-	[immerable] = true;
+	// [immerable] = true;
 
 	@O page = 'home';
 	@O urlExtraStr: string;

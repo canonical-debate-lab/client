@@ -81,6 +81,7 @@ export class NavBar_GAD extends BaseComponentPlus({}, {}) {
 	}
 }
 
+@Observer
 class NavBarPageButton extends BaseComponent
 		<{page?: string, text: string, panel?: boolean, active?: boolean, style?, onClick?: (e)=>void} & Partial<{currentPage: string}>,
 		{hovered: boolean}> {

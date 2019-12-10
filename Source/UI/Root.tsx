@@ -20,7 +20,7 @@ import { Polarity } from 'Store/firebase/nodes/@MapNode';
 import { GetTimelineStep } from 'Store/firebase/timelines';
 import { NodeReveal } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { Me, MeID } from 'Store/firebase/users';
-import { AddressBarWrapper, browserHistory, ErrorBoundary, LoadURL } from 'Utils/FrameworkOverrides';
+import { AddressBarWrapper, browserHistory, ErrorBoundary, LoadURL, Observer } from 'Utils/FrameworkOverrides';
 import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
 import { NormalizeURL } from 'Utils/URL/URLs';
 import '../../Source/Utils/Styles/Main.scss'; // keep absolute-ish, since scss file not copied to Source_JS folder
@@ -243,6 +243,7 @@ declare global {
 g.mousePos = new Vector2i(undefined, undefined);
 G({ ctrlDown: false, shiftDown: false, altDown: false });
 
+@Observer
 class RootUI extends BaseComponentPlus({} as {}, {}) {
 	/* shouldComponentUpdate(newProps, newState) {
 		// ignore change of 'router' prop -- we don't use it

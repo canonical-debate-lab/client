@@ -1,10 +1,11 @@
 import { E } from 'js-vextensions';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { rootPageDefaultChilds } from 'Utils/URL/URLs';
-import { ActionFunc, Link } from 'Utils/FrameworkOverrides';
+import { ActionFunc, Link, Observer } from 'Utils/FrameworkOverrides';
 import { store, RootState } from 'Store';
 import { colors } from '../../Utils/UI/GlobalStyles';
 
+// @Observer
 export class SubNavBar extends BaseComponent<{fullWidth?: boolean}, {}> {
 	render() {
 		const { fullWidth, children } = this.props;
@@ -25,7 +26,8 @@ export class SubNavBar extends BaseComponent<{fullWidth?: boolean}, {}> {
 	}
 }
 
-export class SubNavBarButton extends BaseComponentPlus({} as {page: string, subpage: string, text: string, actionFuncIfAlreadyActive?: ActionFunc<any>}, {}) {
+@Observer
+export class SubNavBarButton extends BaseComponentPlus({} as {page: string, subpage: string, text: string, actionFuncIfAlreadyActive?: ActionFunc<RootState>}, {}) {
 	render() {
 		const { page, subpage, text, actionFuncIfAlreadyActive } = this.props;
 		const currentSubpage = store.main[page].subpage || rootPageDefaultChilds[page];

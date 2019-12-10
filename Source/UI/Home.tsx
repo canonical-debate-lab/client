@@ -1,10 +1,12 @@
 import { Switch } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
-import {store} from 'Store';
+import { store } from 'Store';
+import { Observer } from 'Utils/FrameworkOverrides';
 import { SubNavBar, SubNavBarButton } from './@Shared/SubNavBar';
 import { AboutUI } from './Home/About';
 import { HomeUI2 } from './Home/Home';
 
+@Observer
 export class HomeUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
 		const currentSubpage = store.main.home.subpage;

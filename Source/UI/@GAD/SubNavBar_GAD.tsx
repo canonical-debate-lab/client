@@ -2,9 +2,10 @@ import { E } from 'js-vextensions';
 import { BaseComponent } from 'react-vextensions';
 import { rootPageDefaultChilds } from 'Utils/URL/URLs';
 import { store, RootState } from 'Store';
-import { ActionFunc, Link } from 'Utils/FrameworkOverrides';
+import { ActionFunc, Link, Observer } from 'Utils/FrameworkOverrides';
 import { colors } from '../../Utils/UI/GlobalStyles';
 
+// @Observer
 export class SubNavBar_GAD extends BaseComponent<{fullWidth?: boolean}, {}> {
 	render() {
 		const { fullWidth, children } = this.props;
@@ -24,7 +25,7 @@ export class SubNavBar_GAD extends BaseComponent<{fullWidth?: boolean}, {}> {
 	}
 }
 
-type SubNavBarButtonProps = & Partial<{currentSubpage: string}>;
+@Observer
 export class SubNavBarButton_GAD extends BaseComponent<{page: string, subpage: string, text: string, actionFuncIfAlreadyActive?: ActionFunc<any>}, {}> {
 	render() {
 		const { page, subpage, text, actionFuncIfAlreadyActive } = this.props;
