@@ -54,7 +54,7 @@ export class AdminUI extends BaseComponentPlus({} as {}, { dbUpgrade_entryIndexe
 		const { dbUpgrade_entryIndexes, dbUpgrade_entryCounts } = this.state;
 		const isAdmin = HasAdminPermissions(MeID())
 			// also check previous version for admin-rights (so we can increment db-version without losing our rights to complete the db-upgrade!)
-			|| (MeID() != null && GetDoc({}, (a: any) => (a.versions.get(`v${dbVersion - 1}-${DB_SHORT}`) as FirebaseDBShape).userExtras.get(MeID()))?.permissionGroups.admin, { inVersionRoot: false });
+			|| (MeID() != null && GetDoc({}, (a: any) => (a.versions.get(`v${dbVersion - 1}-${DB_SHORT}`) as FirebaseDBShape).userExtras.get(MeID()))?.permissionGroups.admin, { inLinkRoot: false });
 
 		if (!isAdmin) return <PageContainer>Please sign in.</PageContainer>;
 		return (
@@ -195,10 +195,10 @@ export async function GetCollectionsDataAsync(versionRootPath: string) {
 	AssertVersionRootPath(versionRootPath);
 
 	async function getDocs(...collectionSubpath: string[]) {
-		return GetAsync(() => GetDocs({ inVersionRoot: false }, [...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath])) as any;
+		return GetAsync(() => GetDocs({ inLinkRoot: false }, [...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath])) as any;
 	}
 	async function getDoc(...collectionSubpath: string[]) {
-		return GetAsync(() => GetDocs({ inVersionRoot: false }, [...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath])) as any;
+		return GetAsync(() => GetDocs({ inLinkRoot: false }, [...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath])) as any;
 	}
 
 	let versionCollectionsData: FirebaseDBShape;

@@ -8,7 +8,7 @@ import { SubNavBar, SubNavBarButton } from './@Shared/SubNavBar';
 
 export class FeedbackUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
-		if (true) {
+		/* if (true) {
 			return (
 				<PageContainer scrollable={true}>
 					<article>
@@ -16,7 +16,7 @@ export class FeedbackUI extends BaseComponentPlus({} as {}, {}) {
 					</article>
 				</PageContainer>
 			);
-		}
+		} */
 		const currentSubpage = store.main.feedback.subpage;
 		const page = 'feedback';
 		return (

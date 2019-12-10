@@ -1,12 +1,12 @@
 import { GetSelectedProposalID } from 'firebase-feedback';
 import { Assert, VURL } from 'js-vextensions';
-import { RootState, store } from 'Store';
+import { RootState } from 'Store';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { MaybeLog } from 'Utils/FrameworkOverrides';
 import { GetSelectedUserID, GetSelectedTermID, GetSelectedImageID } from 'Store/main/database';
 import { GetOpenMapID, GetPage, GetSubpage } from 'Store/main';
 import ReactGA from 'react-ga';
-import {StoreAccessor} from 'mobx-firelink';
+import { StoreAccessor } from 'mobx-firelink';
 import { GetMap } from '../../Store/firebase/maps';
 import { GetNodeDisplayText } from '../../Store/firebase/nodes/$node';
 import { MapNodeL2 } from '../../Store/firebase/nodes/@MapNode';
@@ -379,7 +379,7 @@ export const GetNewURL = StoreAccessor((s) => (includeMapViewStr = true) => {
 
 	let mapID: string;
 	if (page == 'personal') {
-		mapID = store.main.personal.selectedMapID;
+		mapID = s.main.personal.selectedMapID;
 		if (mapID) {
 			// newURL.pathNodes.push(mapID+"");
 			const urlStr = GetCrawlerURLStrForMap(mapID);
@@ -387,7 +387,7 @@ export const GetNewURL = StoreAccessor((s) => (includeMapViewStr = true) => {
 		}
 	}
 	if (page == 'debates') {
-		mapID = store.main.debates.selectedMapID;
+		mapID = s.main.debates.selectedMapID;
 		if (mapID) {
 			// newURL.pathNodes.push(mapID+"");
 			const urlStr = GetCrawlerURLStrForMap(mapID);
@@ -414,9 +414,9 @@ export const GetNewURL = StoreAccessor((s) => (includeMapViewStr = true) => {
 		newURL.SetQueryVar('view', GetMapViewStr(mapID));
 	} */
 
-	const mapInfo = store.main.maps.get(mapID);
-	// const playingTimeline = mapID && mapInfo.playingTimeline;
-	const playingTimeline = mapID && mapInfo.selectedTimeline;
+	const mapInfo = s.main.maps.get(mapID);
+	// const playingTimeline = mapInfo && mapInfo.playingTimeline;
+	const playingTimeline = mapInfo && mapInfo.selectedTimeline;
 	if (playingTimeline) {
 		newURL.SetQueryVar('timeline', playingTimeline);
 
@@ -431,20 +431,20 @@ export const GetNewURL = StoreAccessor((s) => (includeMapViewStr = true) => {
 		}
 	}
 
-	if (store.main.urlExtraStr) {
-		newURL.SetQueryVar('extra', store.main.urlExtraStr);
+	if (s.main.urlExtraStr) {
+		newURL.SetQueryVar('extra', s.main.urlExtraStr);
 	}
-	if (!store.main.analyticsEnabled && newURL.GetQueryVar('analytics') == null) {
+	if (!s.main.analyticsEnabled && newURL.GetQueryVar('analytics') == null) {
 		newURL.SetQueryVar('analytics', 'false');
 	}
-	if (store.main.envOverride) {
-		newURL.SetQueryVar('env', store.main.envOverride);
+	if (s.main.envOverride) {
+		newURL.SetQueryVar('env', s.main.envOverride);
 	}
-	if (store.main.dbOverride) {
-		newURL.SetQueryVar('db', store.main.dbOverride);
+	if (s.main.dbOverride) {
+		newURL.SetQueryVar('db', s.main.dbOverride);
 	}
-	if (store.main.dbVersionOverride) {
-		newURL.SetQueryVar('dbVersion', store.main.dbVersionOverride);
+	if (s.main.dbVersionOverride) {
+		newURL.SetQueryVar('dbVersion', s.main.dbVersionOverride);
 	}
 
 	// a default-child is only used (ie. removed from url) if there are no path-nodes after it

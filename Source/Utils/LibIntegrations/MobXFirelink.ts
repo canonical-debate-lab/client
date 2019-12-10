@@ -1,23 +1,19 @@
 import { Firelink, GetDoc, SetDefaultFireOptions } from 'mobx-firelink';
-import { dbVersion, firebaseConfig } from 'Main';
+import { dbVersion } from 'Main';
 import { FirebaseDBShape } from 'Store/firebase';
-import firebase from 'firebase/app';
 import { store, RootState } from 'Store';
+import { OnPopulated } from 'vwebapp-framework/Source';
 
 declare module 'mobx-firelink/Dist/UserTypes' {
 	interface RootStoreShape extends RootState {}
 	interface DBShape extends FirebaseDBShape {}
 }
 
-// if first run (in firebase-mock/test, or not hot-reloading), initialize the firebase app/sdk
-// if (!firebaseAppIsReal || firebaseApp.apps.length == 0) {
-firebase.initializeApp(firebaseConfig);
-
-export const fire = new Firelink<RootState, FirebaseDBShape>(dbVersion, DB_SHORT, store);
-// export const { GetDocs, GetDoc, GetDoc_Async, GetAsync, WithStore } = fire;
-SetDefaultFireOptions({ fire });
-
+const linkRootPath = `versions/v${dbVersion}-${DB_SHORT}`;
+export const fire = new Firelink<RootState, FirebaseDBShape>(linkRootPath, store, false);
+OnPopulated(() => fire.InitSubs());
 store.firelink = fire;
+SetDefaultFireOptions({ fire });
 
 // start auto-runs after store+firelink are created
 require('Utils/AutoRuns');

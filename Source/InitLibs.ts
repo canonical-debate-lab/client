@@ -1,5 +1,5 @@
 import * as chroma_js from 'chroma-js';
-import { dbVersion, hasHotReloaded, version } from 'Main';
+import { dbVersion, hasHotReloaded, version, firebaseConfig } from 'Main';
 import Moment from 'moment';
 import Raven from 'raven-js';
 import * as react_color from 'react-color';
@@ -13,6 +13,9 @@ import { ExposeModuleExports, Link, Log, manager as manager_framework, VReactMar
 import { logTypes } from 'Utils/General/Logging';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
 import { GetLoadActionFuncForURL, GetNewURL, PushHistoryEntry, DoesURLChangeCountAsPageChange } from 'Utils/URL/URLs';
+import { DBPath } from 'mobx-firelink';
+import { manager as manager_feedback } from 'firebase-feedback';
+import firebase from 'firebase/app';
 import { ShowSignInPopup } from './UI/@Shared/NavBar/UserPanel';
 
 const context = (require as any).context('../Resources/SVGs/', true, /\.svg$/);
@@ -24,6 +27,10 @@ context.keys().forEach((filename) => {
 export function InitLibs() {
 	// set some globals
 	G({ Log });
+
+	// if first run (in firebase-mock/test, or not hot-reloading), initialize the firebase app/sdk
+	// if (!firebaseAppIsReal || firebaseApp.apps.length == 0) {
+	firebase.initializeApp(firebaseConfig);
 
 	ColorPickerBox.Init(react_color, chroma_js);
 
@@ -113,13 +120,13 @@ export function InitLibs() {
 		MarkdownRenderer: VReactMarkdown_Remarkable,
 	};
 
-	/* manager_feedback.Populate(sharedData.Extended({
-		storePath_mainData: 'feedback',
-		storePath_dbData: DBPath('modules/feedback'),
+	manager_feedback.Populate(sharedData.Extended({
+		dbPath: DBPath({}, 'modules/feedback'),
+		// storePath_mainData: 'feedback',
 	}));
-	manager_forum.Populate(sharedData.Extended({
+	/* manager_forum.Populate(sharedData.Extended({
 		storePath_mainData: 'forum',
-		storePath_dbData: DBPath('modules/forum'),
+		storePath_dbData: DBPath({}, 'modules/forum'),
 	})); */
 
 	// expose exports

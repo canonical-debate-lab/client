@@ -273,22 +273,22 @@ webpackConfig.module.rules.push({
 				ident: 'postcss',
 				plugins: (loader) => [
 					PROD && CSSNano({
-						// it seems this weird wrapper thing is needed, from examining source, but will just comment all options for now since ts-check complains
+						// it seems this weird wrapper thing is needed, from examining source, but will just comment for now
 						/* preset: ()=> ({
 							plugins: new Promise(resolve=> {
-								resolve({
-									autoprefixer: {
-										add: true,
-										remove: true,
-										browsers: ['last 2 versions'],
-									},
-									discardComments: { removeAll: true },
-									discardUnused: false,
-									mergeIdents: false,
-									reduceIdents: false,
-									safe: true,
-									// sourcemap: true
-								});
+								resolve({ */
+						autoprefixer: {
+							add: true,
+							remove: true,
+							browsers: ['last 2 versions'],
+						},
+						discardComments: { removeAll: true },
+						discardUnused: false,
+						mergeIdents: false,
+						reduceIdents: false,
+						safe: true,
+						// sourcemap: true
+						/*		});
 							}),
 						}), */
 					}),
