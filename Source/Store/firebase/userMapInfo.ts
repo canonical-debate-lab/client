@@ -1,5 +1,4 @@
-import { StoreAccessor } from 'Utils/FrameworkOverrides';
-import { GetDoc } from 'mobx-firelink';
+import { GetDoc, StoreAccessor } from 'mobx-firelink';
 
 export const GetUserMapInfo = StoreAccessor((s) => (userID: string, mapID: string) => {
 	if (userID == null) return null;

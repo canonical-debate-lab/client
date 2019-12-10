@@ -1,6 +1,6 @@
 import { ArgumentType } from 'Store/firebase/nodes/@MapNodeRevision';
 import { emptyObj } from 'js-vextensions';
-import { StoreAccessor } from 'Utils/FrameworkOverrides';
+import {StoreAccessor} from 'mobx-firelink';
 import { GetRatingAverage, GetRatingSet, GetRatingValue } from '../../Store/firebase/nodeRatings';
 import { Rating, RatingsSet } from '../../Store/firebase/nodeRatings/@RatingsRoot';
 import { GetMainRatingType, GetNodeForm, GetRatingTypesForNode } from '../../Store/firebase/nodes/$node';

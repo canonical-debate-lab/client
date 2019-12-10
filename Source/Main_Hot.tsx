@@ -12,8 +12,8 @@ supportReactDevTools({ active: true });
 JustBeforeInitLibs_listeners.forEach((a) => a());
 require('./InitLibs').InitLibs();
 
-// start auto-runs after libs are initialized
-require('Utils/AutoRuns');
+// start auto-runs after libs are initialized (moved to just after store+firelink are created, in MobXFirelink.ts)
+// require('Utils/AutoRuns');
 
 JustBeforeUI_listeners.forEach((a) => a());
 const mountNode = document.getElementById('root');

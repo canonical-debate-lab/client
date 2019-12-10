@@ -1,6 +1,5 @@
 import { CachedTransform, emptyArray, ToInt } from 'js-vextensions';
-import { StoreAccessor } from 'Utils/FrameworkOverrides';
-import {GetDoc} from 'mobx-firelink';
+import { GetDoc, StoreAccessor } from 'mobx-firelink';
 import { Map } from './maps/@Map';
 import { Timeline } from './timelines/@Timeline';
 import { TimelineStep } from './timelineSteps/@TimelineStep';

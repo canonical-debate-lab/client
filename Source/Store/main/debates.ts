@@ -1,6 +1,7 @@
 import { store, RootState } from 'Store';
-import { StoreAccessor, O } from 'Utils/FrameworkOverrides';
+import { O } from 'Utils/FrameworkOverrides';
 import { GetMap } from 'Store/firebase/maps';
+import { StoreAccessor } from 'mobx-firelink';
 
 export class DebatesState {
 	@O selectedMapID: string;

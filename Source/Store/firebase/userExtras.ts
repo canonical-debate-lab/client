@@ -1,6 +1,6 @@
 // import { Subforum, Post, Thread } from 'firebase-forum';
 import { IsString } from 'js-vextensions';
-import { StoreAccessor } from 'Utils/FrameworkOverrides';
+import {StoreAccessor} from 'mobx-firelink';
 import { PermissionGroupSet } from './userExtras/@UserExtraInfo';
 import { MapNode } from './nodes/@MapNode';
 import { GetUserPermissionGroups, MeID } from './users';

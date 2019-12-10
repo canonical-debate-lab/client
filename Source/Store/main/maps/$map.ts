@@ -4,7 +4,8 @@ import { GetNode, GetNodeChildren } from 'Store/firebase/nodes';
 import { GetTimeline, GetTimelineStep } from 'Store/firebase/timelines';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
-import { O, StoreAccessor } from 'Utils/FrameworkOverrides';
+import { O } from 'Utils/FrameworkOverrides';
+import { StoreAccessor } from 'mobx-firelink';
 
 export enum SortType {
 	CreatorID = 10,

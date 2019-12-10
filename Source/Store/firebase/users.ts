@@ -1,10 +1,9 @@
 import { CachedTransform, Assert } from 'js-vextensions';
 import { User } from 'Store/firebase/users/@User';
-import { presetBackgrounds, defaultPresetBackground } from 'Utils/UI/PresetBackgrounds';
-import { StoreAccessor } from 'Utils/FrameworkOverrides';
+import { presetBackgrounds, defaultPresetBackground, BackgroundConfig } from 'Utils/UI/PresetBackgrounds';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { GetAuth } from 'Store/firebase';
-import { IsAuthValid, GetDoc, GetDocs } from 'mobx-firelink';
+import { IsAuthValid, GetDoc, GetDocs, StoreAccessor } from 'mobx-firelink';
 import { AccessLevel } from './nodes/@MapNode';
 import { UserExtraInfo, PermissionGroupSet } from './userExtras/@UserExtraInfo';
 
@@ -58,7 +57,7 @@ export function GetUserAccessLevel(userID: string) {
 	Assert(false);
 }
 
-export function GetUserBackground(userID: string) {
+export function GetUserBackground(userID: string): BackgroundConfig {
 	if (GADDemo) return { color: '#ffffff' };
 
 	const user = GetUser(userID);

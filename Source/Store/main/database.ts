@@ -1,5 +1,6 @@
 import { GetUsers } from 'Store/firebase/users';
-import { O, StoreAccessor } from 'Utils/FrameworkOverrides';
+import { O } from 'Utils/FrameworkOverrides';
+import {StoreAccessor} from 'mobx-firelink';
 import { GetImages } from '../../Store/firebase/images';
 import { GetTerms } from '../../Store/firebase/terms';
 

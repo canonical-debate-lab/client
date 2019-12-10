@@ -19,7 +19,7 @@ export class RootState {
 
 	/* @O @ignore firebase: any;
 	@O @ignore firestore: any; */
-	@O @ignore firelink: Firelink<FirebaseDBShape>;
+	@O @ignore firelink: Firelink<RootState, FirebaseDBShape>;
 
 	@O @ignore router: any;
 	// @O @ignore vMenu: VMenuState;

@@ -1,6 +1,7 @@
-import { StoreAccessor, O } from 'Utils/FrameworkOverrides';
+import { O } from 'Utils/FrameworkOverrides';
 import { store } from 'Store';
 import { GetMap } from 'Store/firebase/maps';
+import { StoreAccessor } from 'mobx-firelink';
 
 export class PersonalState {
 	@O selectedMapID: string;

@@ -1,10 +1,10 @@
 import { GetShortestPathFromRootToNode } from 'Utils/Store/PathFinder';
 import { GetNode, GetNodeID } from 'Store/firebase/nodes';
 import { emptyArray } from 'js-vextensions';
-import { AddSchema, StoreAccessor } from 'Utils/FrameworkOverrides';
+import { AddSchema } from 'Utils/FrameworkOverrides';
 import { UUID_regex } from 'Utils/General/KeyGenerator';
 import { GetLastAcknowledgementTime } from 'Store/main';
-import {GetDoc} from 'mobx-firelink';
+import { GetDoc, StoreAccessor } from 'mobx-firelink';
 import { GetRootNodeID } from './maps';
 import { MapNode } from './nodes/@MapNode';
 

@@ -1,5 +1,5 @@
 import { O } from 'vwebapp-framework/Source';
-import { StoreAccessor } from 'Utils/FrameworkOverrides';
+import { StoreAccessor } from 'mobx-firelink';
 
 export class RatingUIState {
 	@O smoothing = 5;

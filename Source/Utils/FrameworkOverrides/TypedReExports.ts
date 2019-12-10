@@ -1,5 +1,4 @@
-import { RootState } from 'Store';
-import { CreateMaybeLog, CreateShouldLog, CreateStoreAccessor, LogTypes_Base } from '.';
+import { CreateMaybeLog, CreateShouldLog, LogTypes_Base } from '.';
 
 export class LogTypes extends LogTypes_Base {
 	actions = false;
@@ -17,7 +16,7 @@ export class LogTypes extends LogTypes_Base {
 // State() actually also returns the root-state (if no data-getter is supplied), but we don't reveal that in type-info (as its only to be used in console)
 G({ State }); */
 
-export const StoreAccessor = CreateStoreAccessor<RootState>();
+// export const StoreAccessor = CreateStoreAccessor<RootState>();
 
 export const ShouldLog = CreateShouldLog<LogTypes>();
 export const MaybeLog = CreateMaybeLog<LogTypes>();

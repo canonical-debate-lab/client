@@ -1,6 +1,5 @@
 import { CachedTransform, IsNaN } from 'js-vextensions';
-import { StoreAccessor } from 'Utils/FrameworkOverrides';
-import {GetDoc, GetDocs} from 'mobx-firelink';
+import { GetDoc, GetDocs, StoreAccessor } from 'mobx-firelink';
 import { Image } from './images/@Image';
 
 export const GetImage = StoreAccessor((s) => (id: string) => {
