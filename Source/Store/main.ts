@@ -44,7 +44,7 @@ export class MainState {
 	@O dbOverride: string;
 	@O dbVersionOverride: string;
 
-	@O analyticsEnabled: boolean;
+	@O analyticsEnabled = true;
 	// topLeftOpenPanel: string;
 	// topRightOpenPanel: string;
 	@O ratingUI: RatingUIState;
