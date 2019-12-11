@@ -2,15 +2,16 @@ import { immerable } from 'immer';
 import { Global } from 'js-vextensions';
 import { observable } from 'mobx';
 import { ignore } from 'mobx-sync';
-import { O } from 'Utils/FrameworkOverrides';
+import { O, StoreAction } from 'Utils/FrameworkOverrides';
 import { rootPageDefaultChilds } from 'Utils/URL/URLs';
 import { StoreAccessor } from 'mobx-firelink';
+import { store } from 'Store';
 import { GetNodeL3 } from './firebase/nodes/$node';
 import { globalMapID } from './firebase/nodes/@MapNode';
 import { DatabaseState } from './main/database';
 import { DebatesState } from './main/debates';
 import { MapState } from './main/maps/$map';
-import { MapView } from './main/mapViews/$mapView';
+import { MapView, GetMapView } from './main/mapViews/$mapView';
 import { PersonalState } from './main/personal';
 import { RatingUIState } from './main/ratingUI';
 import { SearchState } from './main/search';
@@ -86,10 +87,10 @@ export class MainState {
 
 	// @O maps = {} as ObservableMap<string, MapState>;
 	@O maps = observable.map<string, MapState>();
-	ACTEnsureMapStateInit(mapID: string) {
+	/* ACTEnsureMapStateInit(mapID: string) {
 		if (this.maps.get(mapID)) return;
 		this.maps.set(mapID, new MapState());
-	}
+	} */
 	@O mapViews = observable.map<string, MapView>();
 
 	@O nodeLastAcknowledgementTimes = observable.map<string, number>();
@@ -146,4 +147,17 @@ export const GetCopiedNode = StoreAccessor((s) => () => {
 	const path = GetCopiedNodePath();
 	if (!path) return null;
 	return GetNodeL3(path);
+});
+
+// actions
+// ==========
+
+export const ACTEnsureMapStateInit = StoreAction((mapID: string) => {
+	if (store.main.maps.get(mapID)) return;
+	store.main.maps.set(mapID, new MapState());
+});
+export const ACTCreateMapViewIfMissing = StoreAction((mapID: string) => {
+	if (GetMapView(mapID) == null) {
+		store.main.mapViews.set(mapID, new MapView());
+	}
 });

@@ -1,5 +1,5 @@
 import { autorun, runInAction } from 'mobx';
-import { GetOpenMapID } from 'Store/main';
+import { GetOpenMapID, ACTCreateMapViewIfMissing, ACTEnsureMapStateInit } from 'Store/main';
 import { GetMap } from 'Store/firebase/maps';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { GetNodeView, ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView';
@@ -10,7 +10,7 @@ import { Assert } from 'js-vextensions';
 let lastMapID;
 autorun(() => {
 	const mapID = GetOpenMapID();
-	if (mapID != lastMapID) {
+	if (mapID && mapID != lastMapID) {
 		lastMapID = mapID;
 		StartInitForNewlyLoadedMap(mapID);
 	}
@@ -22,7 +22,10 @@ async function StartInitForNewlyLoadedMap(mapID: string) {
 
 	// ACTEnsureMapStateInit(action.payload.id);
 	// storeM.ACTEnsureMapStateInit(action.payload.id);
-	runInAction('StartInitForNewlyLoadedMap_part1', () => store.main.ACTEnsureMapStateInit(mapID));
+	runInAction('StartInitForNewlyLoadedMap_part1', () => {
+		ACTEnsureMapStateInit(mapID);
+		ACTCreateMapViewIfMissing(mapID);
+	});
 
 	let pathsToExpand = [`${map.rootNode}`];
 	for (let depth = 0; depth < map.defaultExpandDepth; depth++) {

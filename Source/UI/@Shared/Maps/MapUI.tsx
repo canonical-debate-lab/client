@@ -12,7 +12,7 @@ import { ActionBar_Left_GAD } from 'UI/@GAD/ActionBar_Left_GAD';
 import { ActionBar_Right_GAD } from 'UI/@GAD/ActionBar_Right_GAD';
 import { GetParentNodeL3, GetParentPath } from 'Store/firebase/nodes';
 import { store } from 'Store';
-import { GetNodeView, GetMapView, GetSelectedNodePath, GetViewOffset, GetFocusedNodePath, GetNodeViewsAlongPath, ACTMapNodeSelect, CreateMapViewIfMissing } from 'Store/main/mapViews/$mapView';
+import { GetNodeView, GetMapView, GetSelectedNodePath, GetViewOffset, GetFocusedNodePath, GetNodeViewsAlongPath, ACTMapNodeSelect } from 'Store/main/mapViews/$mapView';
 import { GetTimelinePanelOpen, GetPlayingTimeline } from 'Store/main/maps/$map';
 import { GetOpenMapID } from 'Store/main';
 import { styles, ES } from '../../../Utils/UI/GlobalStyles';
@@ -43,7 +43,7 @@ export function GetViewOffsetForNodeBox(nodeBox: Element) {
 }
 
 export const ACTUpdateFocusNodeAndViewOffset = StoreAction((mapID: string) => {
-	CreateMapViewIfMissing(mapID);
+	// CreateMapViewIfMissing(mapID);
 	/* let selectedNodePath = GetSelectedNodePath(mapID);
 	let focusNodeBox = selectedNodePath ? GetNodeBoxForPath(selectedNodePath) : GetNodeBoxClosestToViewCenter(); */
 	const focusNodeBox = GetNodeBoxClosestToViewCenter();

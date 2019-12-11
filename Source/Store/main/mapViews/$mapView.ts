@@ -158,14 +158,8 @@ export const GetViewOffset = StoreAccessor((s) => (mapView: MapView): Vector2i =
 // actions
 // ==========
 
-export const CreateMapViewIfMissing = StoreAction((mapID: string) => {
-	if (GetMapView(mapID) == null) {
-		store.main.mapViews.set(mapID, new MapView());
-	}
-});
-
 export const ACTMapNodeSelect = StoreAction((mapID: string, path: string) => {
-	CreateMapViewIfMissing(mapID);
+	// CreateMapViewIfMissing(mapID);
 	const nodes = GetTreeNodesInObjTree(GetMapView(mapID).rootNodeViews, true);
 	const selectedNode = nodes.FirstOrX((a) => a.Value && a.Value.selected) as MapNodeView;
 	if (selectedNode) {
@@ -208,7 +202,7 @@ export const ACTMapNodeExpandedSet = StoreAction((opt: {
 	expanded?: boolean, expanded_truth?: boolean, expanded_relevance?: boolean,
 	expandAncestors?: boolean, resetSubtree?: boolean,
 }) => {
-	CreateMapViewIfMissing(opt.mapID);
+	// CreateMapViewIfMissing(opt.mapID);
 	const rootNodeViews = GetMapView(opt.mapID).rootNodeViews;
 	const pathNodes = ToPathNodes(opt.path);
 	const nodeViews = [] as MapNodeView[];
