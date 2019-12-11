@@ -3,7 +3,7 @@ import { User } from 'Store/firebase/users/@User';
 import { Row, Column } from 'react-vcomponents';
 import Moment from 'moment';
 import { ScrollView } from 'react-vscrollview';
-import { Link, PageContainer } from 'Utils/FrameworkOverrides';
+import { Link, PageContainer, Observer } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { GetSelectedUser } from 'Store/main/database';
 import { UserExtraInfo } from '../../Store/firebase/userExtras/@UserExtraInfo';
@@ -12,6 +12,7 @@ import { UserProfileUI } from './Users/UserProfile';
 
 export const columnWidths = [0.35, 0.15, 0.1, 0.15, 0.25];
 
+@Observer
 export class UsersUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
 		let users = GetUsers();

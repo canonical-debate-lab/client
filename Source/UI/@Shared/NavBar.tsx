@@ -149,7 +149,7 @@ export class NavBarPageButton extends BaseComponentPlus(
 							s.main.database.selectedUserID = null;
 						}
 					} else if (page == 'feedback') {
-						s.feedback.selectedProposalID = null;
+						s.feedback.main.proposals.selectedProposalID = null;
 					} else if (page == 'personal') {
 						s.main.personal.selectedMapID = null;
 					} else if (page == 'debates') {

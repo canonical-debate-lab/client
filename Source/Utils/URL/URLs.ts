@@ -225,7 +225,7 @@ export function GetLoadActionFuncForURL(url: VURL) {
 				const idStr = url.pathNodes[2];
 				const idStrMatch = idStr && idStr.match(/([A-Za-z0-9_-]+)$/);
 				const proposalID = idStrMatch ? idStrMatch[1] : null;
-				store.feedback.selectedProposalID = proposalID;
+				store.feedback.main.proposals.selectedProposalID = proposalID;
 			}
 		}
 

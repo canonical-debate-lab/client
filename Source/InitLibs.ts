@@ -14,7 +14,7 @@ import { logTypes } from 'Utils/General/Logging';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
 import { GetLoadActionFuncForURL, GetNewURL, PushHistoryEntry, DoesURLChangeCountAsPageChange } from 'Utils/URL/URLs';
 import { DBPath } from 'mobx-firelink';
-import { manager as manager_feedback } from 'firebase-feedback';
+import { manager as manager_feedback, Feedback_store } from 'firebase-feedback';
 import firebase from 'firebase/app';
 import { ShowSignInPopup } from './UI/@Shared/NavBar/UserPanel';
 
@@ -124,6 +124,7 @@ export function InitLibs() {
 		dbPath: DBPath({}, 'modules/feedback'),
 		// storePath_mainData: 'feedback',
 	}));
+	store.feedback = Feedback_store;
 	/* manager_forum.Populate(sharedData.Extended({
 		storePath_mainData: 'forum',
 		storePath_dbData: DBPath({}, 'modules/forum'),

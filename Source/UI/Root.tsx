@@ -43,10 +43,13 @@ import { SocialUI } from './Social';
 import { GetPathNodeIDs } from 'Store/main/mapViews/$mapView';
 import { hasHotReloaded } from 'Main';
 import ReactGA from 'react-ga';
+import { observable, runInAction } from 'mobx';
 
 ColorPickerBox.Init(ReactColor, chroma);
 
-export class RootUIWrapper extends BaseComponentPlus({}, { storeReady: false }) {
+// export class RootUIWrapper extends BaseComponentPlus({}, { storeReady: false }) {
+@Observer
+export class RootUIWrapper extends BaseComponentPlus({}, {}) {
 	/* ComponentWillMount() {
 		let startVal = g.storeRehydrated;
 		// wrap storeRehydrated property, so we know when it's set (from CreateStore.ts callback)
@@ -77,7 +80,12 @@ export class RootUIWrapper extends BaseComponentPlus({}, { storeReady: false }) 
 		const trunk = new AsyncTrunk(store, { storage: localStorage });
 		trunk.init().then(() => {
 			Log('Loaded state:', Clone(store));
-			this.SetState({ storeReady: true });
+
+			// wrap with try, since it synchronously triggers rendering -- which breaks loading process below, when rendering fails
+			/* try {
+				this.SetState({ storeReady: true });
+			} finally { */
+			runInAction('RootUIWrapper.ComponentWillMount.postTrunkInit', () => this.storeReady = true);
 
 			if (!hasHotReloaded) {
 				LoadURL(startURL);
@@ -94,9 +102,12 @@ export class RootUIWrapper extends BaseComponentPlus({}, { storeReady: false }) 
 			}
 		});
 	}
+	// use observable field for this rather than react state, since setState synchronously triggers rendering -- which breaks loading process above, when rendering fails
+	@observable storeReady = false;
 
 	render() {
-		const { storeReady } = this.state;
+		// const { storeReady } = this.state;
+		const storeReady = this.storeReady;
 		// if (!g.storeRehydrated) return <div/>;
 		if (!storeReady) return null;
 
@@ -276,10 +287,14 @@ class RootUI extends BaseComponentPlus({} as {}, {}) {
 					}
 				}
 				`}</style>
-				<AddressBarWrapper/>
-				<OverlayUI/>
-				{!GADDemo && <NavBar/>}
-				{GADDemo && <NavBar_GAD/>}
+				<ErrorBoundary>
+					<AddressBarWrapper/>
+					<OverlayUI/>
+				</ErrorBoundary>
+				<ErrorBoundary>
+					{!GADDemo && <NavBar/>}
+					{GADDemo && <NavBar_GAD/>}
+				</ErrorBoundary>
 				{/* <InfoButton_TooltipWrapper/> */}
 				<ErrorBoundary>
 					<main style={{ position: 'relative', flex: 1, overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>

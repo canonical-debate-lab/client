@@ -11,9 +11,9 @@ declare module 'mobx-firelink/Dist/UserTypes' {
 
 const linkRootPath = `versions/v${dbVersion}-${DB_SHORT}`;
 export const fire = new Firelink<RootState, FirebaseDBShape>(linkRootPath, store, false);
-OnPopulated(() => fire.InitSubs());
 store.firelink = fire;
 SetDefaultFireOptions({ fire });
+OnPopulated(() => fire.InitSubs());
 
 // start auto-runs after store+firelink are created
 require('Utils/AutoRuns');

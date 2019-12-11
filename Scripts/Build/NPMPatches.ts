@@ -196,7 +196,7 @@ var assign = (function (target) {
  			`.trim(),
 		}, */
 		// the 3 changes below make-so, when immer is trying to set a field under a path with getter-setters along it, it replaces those getter-setters with just the value itself (on the copy/result object, not the draft/proxy or source object)
-		{
+		/* {
 			pattern: 'if (isMap(base)) { assignMap(copy, drafts); }else { assign(copy, drafts); }',
 			patternMatchCount: 1,
 			replacement: `
@@ -218,6 +218,47 @@ var assign = (function (target) {
 			pattern: 'state.copy[prop] = value;',
 			patternMatchCount: 2,
 			replacement: 'Object.defineProperty(state.copy, prop, {configurable: true, writable: true, value: value});',
+		}, */
+		// the change below makes-so, when immer is trying to set a field under a path with getter-setters along it, it replaces those getter-setters with just the value itself (on the copy/result object, not the draft/proxy or source object)
+		/* {
+			pattern: 'var ref = Proxy.revocable(target, traps);',
+			patternMatchCount: 1,
+			replacement: `
+				debugger;
+				for (const [key, desc] of Object.entries(Object.getOwnPropertyDescriptors(target))) {
+					if (desc.get) {
+						let value = target[key];
+						Object.defineProperty(target, key, {configurable: true, writable: true, value: value});
+					}
+				}
+
+				var ref = Proxy.revocable(target, traps);
+			`,
+		}, */
+		// immer expects draftable objects to not have getter-setters; this change makes immer compatible, by having it always use Object.defineProperty (instead of sometimes using "clone[key] =", which breaks things)
+		{
+			pattern: 'clone[key] = value;',
+			patternMatchCount: 1,
+			replacement: `
+				Object.defineProperty(clone, key, {
+					value: value,
+					writable: true,
+					configurable: true,
+					enumerable: true
+				});
+			`,
+		},
+		// probably due to our sending objects with getter-setters into immer, immer breaks on "store.feedback.[...]"; the change below fixes that issue (not sure of details atm)
+		{
+			pattern: 'if (value !== peek$1(state.base, prop)) { return value; }',
+			patternMatchCount: 1,
+			replacement: `
+				if (peek$1(state.base, prop) === undefined) {
+					if (drafts == null) drafts = {...state.copy};
+					return drafts[prop] = createProxy$1(value, state);
+				}
+				if (value !== peek$1(state.base, prop)) { return value; }
+			`,
 		},
 	],
 });

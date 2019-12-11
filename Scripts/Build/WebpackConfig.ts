@@ -58,6 +58,7 @@ export const webpackConfig: webpack.Configuration = {
 			// consolidating since some modifications are made to it (and we don't want to have to make modifications in multiple places)
 			'react-beautiful-dnd': paths.base('node_modules', 'react-beautiful-dnd'),
 			immer: paths.base('node_modules', 'immer'),
+			mobx: paths.base('node_modules', 'mobx'), // maybe temp; used to try to resolve odd bug with Link->immer.produce, which sets a value within firebase-feedback store
 		},
 	},
 	module: {
