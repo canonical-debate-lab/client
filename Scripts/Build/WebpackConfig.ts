@@ -55,10 +55,11 @@ export const webpackConfig: webpack.Configuration = {
 			firebase: paths.base('node_modules', 'firebase'),
 			// consolidating for these wouldn't throw errors necessarily, but we do so to keep things tidy (since we know the different versions will be compatible anyway)
 			'js-vextensions': paths.base('node_modules', 'js-vextensions'),
-			// consolidating since some modifications are made to it (and we don't want to have to make modifications in multiple places)
+			'mobx-firelink': paths.base('node_modules', 'mobx-firelink'),
+			// consolidating for these, since they have npm-patches applied (and we don't want to have to adjust the match-counts)
 			'react-beautiful-dnd': paths.base('node_modules', 'react-beautiful-dnd'),
 			immer: paths.base('node_modules', 'immer'),
-			mobx: paths.base('node_modules', 'mobx'), // maybe temp; used to try to resolve odd bug with Link->immer.produce, which sets a value within firebase-feedback store
+			// mobx: paths.base('node_modules', 'mobx'), // maybe temp; used to try to resolve odd bug with Link->immer.produce, which sets a value within firebase-feedback store
 		},
 	},
 	module: {

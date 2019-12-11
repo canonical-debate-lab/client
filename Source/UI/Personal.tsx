@@ -6,15 +6,16 @@ import { GetMaps, GetMaps_Personal } from 'Store/firebase/maps';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
 import { columnWidths } from 'UI/Debates';
-import { PageContainer } from 'Utils/FrameworkOverrides';
+import { PageContainer, Observer } from 'Utils/FrameworkOverrides';
 import { ES } from 'Utils/UI/GlobalStyles';
-import {GetSelectedPersonalMap} from 'Store/main/personal';
+import { GetSelectedPersonalMap } from 'Store/main/personal';
 import { MapType } from '../Store/firebase/maps/@Map';
 import { ShowAddMapDialog } from './@Shared/Maps/AddMapDialog';
 import { MapEntryUI } from './@Shared/Maps/MapEntryUI';
 import { MapUI } from './@Shared/Maps/MapUI';
 import { ShowSignInPopup } from './@Shared/NavBar/UserPanel';
 
+@Observer
 export class PersonalUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
 		const userID = MeID();

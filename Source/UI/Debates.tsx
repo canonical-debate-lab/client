@@ -5,8 +5,8 @@ import { ScrollView } from 'react-vscrollview';
 import { GetMaps, GetMaps_Debate } from 'Store/firebase/maps';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
-import { HSLA, PageContainer } from 'Utils/FrameworkOverrides';
-import {GetSelectedDebateMap} from 'Store/main/debates';
+import { HSLA, PageContainer, Observer } from 'Utils/FrameworkOverrides';
+import { GetSelectedDebateMap } from 'Store/main/debates';
 import { MapType } from '../Store/firebase/maps/@Map';
 import { ES } from '../Utils/UI/GlobalStyles';
 import { GADDemo } from './@GAD/GAD';
@@ -17,6 +17,7 @@ import { ShowSignInPopup } from './@Shared/NavBar/UserPanel';
 
 export const columnWidths = [0.64, 0.06, 0.12, 0.18];
 
+@Observer
 export class DebatesUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
 		const userID = MeID();

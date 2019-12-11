@@ -6,13 +6,13 @@ import { VMenuStub, VMenuItem } from 'react-vmenu';
 
 import { ScrollView } from 'react-vscrollview';
 import { TimelinePlayerUI } from 'UI/@Shared/Maps/MapUI/TimelinePlayerUI';
-import { GetDistanceBetweenRectAndPoint, inFirefox, GetScreenRect, StoreAction } from 'Utils/FrameworkOverrides';
+import { GetDistanceBetweenRectAndPoint, inFirefox, GetScreenRect, StoreAction, Observer } from 'Utils/FrameworkOverrides';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { ActionBar_Left_GAD } from 'UI/@GAD/ActionBar_Left_GAD';
 import { ActionBar_Right_GAD } from 'UI/@GAD/ActionBar_Right_GAD';
 import { GetParentNodeL3, GetParentPath } from 'Store/firebase/nodes';
 import { store } from 'Store';
-import { GetNodeView, GetMapView, GetSelectedNodePath, GetViewOffset, GetFocusedNodePath, GetNodeViewsAlongPath, ACTMapNodeSelect } from 'Store/main/mapViews/$mapView';
+import { GetNodeView, GetMapView, GetSelectedNodePath, GetViewOffset, GetFocusedNodePath, GetNodeViewsAlongPath, ACTMapNodeSelect, CreateMapViewIfMissing } from 'Store/main/mapViews/$mapView';
 import { GetTimelinePanelOpen, GetPlayingTimeline } from 'Store/main/maps/$map';
 import { GetOpenMapID } from 'Store/main';
 import { styles, ES } from '../../../Utils/UI/GlobalStyles';
@@ -43,6 +43,7 @@ export function GetViewOffsetForNodeBox(nodeBox: Element) {
 }
 
 export const ACTUpdateFocusNodeAndViewOffset = StoreAction((mapID: string) => {
+	CreateMapViewIfMissing(mapID);
 	/* let selectedNodePath = GetSelectedNodePath(mapID);
 	let focusNodeBox = selectedNodePath ? GetNodeBoxForPath(selectedNodePath) : GetNodeBoxClosestToViewCenter(); */
 	const focusNodeBox = GetNodeBoxClosestToViewCenter();
@@ -67,6 +68,7 @@ type Props = {
 	padding?: {left: number, right: number, top: number, bottom: number},
 	subNavBarWidth?: number,
 } & React.HTMLProps<HTMLDivElement>;
+@Observer
 export class MapUI extends BaseComponentPlus({
 	// padding: {left: 2000, right: 2000, top: 1000, bottom: 1000}
 	padding: { left: screen.availWidth, right: screen.availWidth, top: screen.availHeight, bottom: screen.availHeight },

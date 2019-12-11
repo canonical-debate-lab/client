@@ -44,14 +44,16 @@ export const GetSubnodesInEnabledLayersEnhanced = StoreAccessor((s) => (userID: 
 
 	// const userLayerStates = GetUserLayerStatesForMap(userID, map._key) || {};
 	const userLayerStates = GetUserLayerStatesForMap(userID, map._key);
-	for (const { key: layerID, value: state } of userLayerStates.Pairs(true)) {
-		const existingEntry = layersEnabled.find((a) => a._key == layerID);
-		if (state == true) {
-			if (existingEntry == null) {
-				layersEnabled.push(GetLayer(layerID));
+	if (userLayerStates != null) {
+		for (const { key: layerID, value: state } of userLayerStates.Pairs(true)) {
+			const existingEntry = layersEnabled.find((a) => a._key == layerID);
+			if (state == true) {
+				if (existingEntry == null) {
+					layersEnabled.push(GetLayer(layerID));
+				}
+			} else if (existingEntry != null) {
+				layersEnabled.Remove(existingEntry);
 			}
-		} else if (existingEntry != null) {
-			layersEnabled.Remove(existingEntry);
 		}
 	}
 

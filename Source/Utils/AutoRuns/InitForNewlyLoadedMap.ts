@@ -5,6 +5,7 @@ import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { GetNodeView, ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView';
 import { store } from 'Store';
 import { GetAsync } from 'mobx-firelink';
+import { Assert } from 'js-vextensions';
 
 let lastMapID;
 autorun(() => {
@@ -16,6 +17,7 @@ autorun(() => {
 }, { name: 'InitForNewlyLoadedMap' });
 
 async function StartInitForNewlyLoadedMap(mapID: string) {
+	Assert(mapID != null, 'mapID cannot be null.');
 	const map = await GetAsync(() => GetMap(mapID));
 
 	// ACTEnsureMapStateInit(action.payload.id);

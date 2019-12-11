@@ -14,7 +14,7 @@ import { GetPathNodeIDs, GetNodeView_SelfOnly, MapNodeView_SelfOnly, MapNodeView
 import { store } from 'Store';
 import { WeightingType, GetLastAcknowledgementTime } from 'Store/main';
 import { runInAction } from 'mobx';
-import {SlicePath} from 'mobx-firelink';
+import { SlicePath } from 'mobx-firelink';
 import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatings } from '../../../../Store/firebase/nodeRatings';
@@ -234,10 +234,12 @@ export class NodeUI_Inner extends BaseComponentPlus(
 			}
 		}, [map._key, nodeView, path]);
 		const onDirectClick = UseCallback((e) => {
-			if (combinedWithParentArgument) {
-				store.main.nodeLastAcknowledgementTimes.set(parent && parent._key, Date.now());
-			}
-			store.main.nodeLastAcknowledgementTimes.set(node._key, Date.now());
+			runInAction('NodeUI_Inner.onDirectClick', () => {
+				if (combinedWithParentArgument) {
+					store.main.nodeLastAcknowledgementTimes.set(parent && parent._key, Date.now());
+				}
+				store.main.nodeLastAcknowledgementTimes.set(node._key, Date.now());
+			});
 		}, [combinedWithParentArgument, node._key, parent]);
 		const onTextHolderClick = UseCallback((e) => IsDoubleClick(e) && this.titlePanel && this.titlePanel.OnDoubleClick(), []);
 		const toggleExpanded = UseCallback((e) => {

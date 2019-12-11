@@ -13,6 +13,8 @@ import './Utils/PreRunners/Start_1';
 import 'codemirror';
 import 'codemirror/addon/scroll/simplescrollbars';
 import './Utils/UI/CodeMirrorConfig';
+// needed to fix odd ts issue (where, if first "import" call for library is in vwaf, all subsequent imports of it are assumed to be referencing that under-vwaf version)
+import 'mobx-firelink';
 
 import ReactDOM from 'react-dom';
 // import Promise from "bluebird";

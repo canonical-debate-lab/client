@@ -18,7 +18,7 @@ import { store } from 'Store';
 import { GetOpenMapID } from 'Store/main';
 import { MapNodeView, MapView, ACTMapViewMerge } from 'Store/main/mapViews/$mapView';
 import { DBPath, GetAsync } from 'mobx-firelink';
-import {fire} from 'Utils/LibIntegrations/MobXFirelink';
+import { fire } from 'Utils/LibIntegrations/MobXFirelink';
 import { NodeUI_Menu_Stub } from '../Maps/MapNode/NodeUI_Menu';
 import { MapUI } from '../Maps/MapUI';
 

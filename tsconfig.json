@@ -24,6 +24,7 @@
 			/*"*": [
 				//"node_modules/@types/*", // prefer "/node_modules/@types" over "/node_modules/[something]/node_modules/@types" (eg, when using npm link)
 				//"../node_modules/@types/*", // prefer "/node_modules/@types" over "/node_modules/[something]/node_modules/@types" (eg, when using npm link)
+				//"/node_modules/*", // prefer "/node_modules/X" over "/node_modules/[something]/node_modules/X" (eg, when using npm link)
 				"../node_modules/*", // prefer "/node_modules/X" over "/node_modules/[something]/node_modules/X" (eg, when using npm link)
 				"*"
 			],*/
@@ -35,6 +36,9 @@
 			"react-vcomponents/node_modules/react/global.d.ts": ["../Typings/empty.d.ts"],
 			// temp removals (lib definitions need updating)
 			//"mst-decorators": ["../Typings/empty.d.ts"],
+			// consolidating for these wouldn't throw errors necessarily, but we do so to keep things tidy (since we know the different versions will be compatible anyway)
+			//"js-vextensions": ["../node_modules/js-vextensions"],
+			//"mobx-firelink": ["../node_modules/mobx-firelink"], // fixes odd ts issue
 		},
 		//"skipLibCheck": true,
 

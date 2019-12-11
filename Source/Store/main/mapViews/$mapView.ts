@@ -4,12 +4,16 @@ import { O, Validate, StoreAction } from 'Utils/FrameworkOverrides';
 import { UUID } from 'Utils/General/KeyGenerator';
 import { store } from 'Store';
 import { SplitStringBySlash_Cached, StoreAccessor } from 'mobx-firelink';
+import { GetMap } from 'Store/firebase/maps';
 
 export class MapView {
 	// rootNodeView = new MapNodeView();
 	// include root-node-view as a keyed-child, so that it's consistent with descendants (of key signifying id)
 	// rootNodeView;
-	@O rootNodeViews = observable.map<string, MapNodeView>();
+	// @O rootNodeViews = observable.map<string, MapNodeView>();
+	// use simple object rather than observable-map, since observable-map would lose its prototype on page refresh (when mobx-sync starts loading stored data, this path is not initialized-with-types, since it's nested/non-static)
+	// maybe todo: update mobx-sync to at least be able to handle the mobx classes (observable.map, observable.array, etc.)
+	@O rootNodeViews = {} as {[key: string]: MapNodeView};
 
 	// if bot
 	@O bot_currentNodeID?: number;
@@ -154,8 +158,15 @@ export const GetViewOffset = StoreAccessor((s) => (mapView: MapView): Vector2i =
 // actions
 // ==========
 
+export const CreateMapViewIfMissing = StoreAction((mapID: string) => {
+	if (GetMapView(mapID) == null) {
+		store.main.mapViews.set(mapID, new MapView());
+	}
+});
+
 export const ACTMapNodeSelect = StoreAction((mapID: string, path: string) => {
-	const nodes = GetTreeNodesInObjTree(store.main.mapViews.get(mapID).rootNodeViews, true);
+	CreateMapViewIfMissing(mapID);
+	const nodes = GetTreeNodesInObjTree(GetMapView(mapID).rootNodeViews, true);
 	const selectedNode = nodes.FirstOrX((a) => a.Value && a.Value.selected) as MapNodeView;
 	if (selectedNode) {
 		selectedNode.selected = false;
@@ -169,15 +180,15 @@ export const ACTMapNodeSelect = StoreAction((mapID: string, path: string) => {
 // export const GetNodeViewsAlongPath = StoreAccessor({ cache_unwrapArgs: [1] }, (s) => (mapID: string, pathOrPathNodes: string | string[], createNodeViewsIfMissing = false): MapNodeView[] => {
 export function GetNodeViewsAlongPath(mapID: string, pathOrPathNodes: string | string[], createNodeViewsIfMissing = false): MapNodeView[] {
 	if (pathOrPathNodes == null) return null;
-	const rootNodeViews = store.main.mapViews.get(mapID).rootNodeViews;
+	const rootNodeViews = GetMapView(mapID).rootNodeViews;
 	const pathNodes = ToPathNodes(pathOrPathNodes);
 	const nodeViews = [] as MapNodeView[];
 	return pathNodes.map((pathNode) => {
 		const childGroup = nodeViews.length ? (nodeViews.Last() ? nodeViews.Last().children : new Map()) : rootNodeViews;
-		if (!childGroup.has(pathNode) && createNodeViewsIfMissing) {
-			childGroup.set(pathNode, new MapNodeView());
+		if (childGroup[pathNode] == null && createNodeViewsIfMissing) {
+			childGroup[pathNode] = new MapNodeView();
 		}
-		return childGroup.get(pathNode);
+		return childGroup[pathNode];
 	});
 }
 export const GetNodeViewsBelowPath = StoreAccessor({ cache_unwrapArgs: [1] }, (s) => (mapID: string, pathOrPathNodes: string | string[]): MapNodeView[] => {
@@ -197,17 +208,18 @@ export const ACTMapNodeExpandedSet = StoreAction((opt: {
 	expanded?: boolean, expanded_truth?: boolean, expanded_relevance?: boolean,
 	expandAncestors?: boolean, resetSubtree?: boolean,
 }) => {
-	const rootNodeViews = store.main.mapViews.get(opt.mapID).rootNodeViews;
+	CreateMapViewIfMissing(opt.mapID);
+	const rootNodeViews = GetMapView(opt.mapID).rootNodeViews;
 	const pathNodes = ToPathNodes(opt.path);
 	const nodeViews = [] as MapNodeView[];
 	for (const pathNode of pathNodes) {
 		/* const pathNodesToHere = pathNodes.Take(index);
 		return GetNodeView(mapID, pathNodesToHere); */
 		const childGroup = nodeViews.length ? (nodeViews.Last() ? nodeViews.Last().children : new Map()) : rootNodeViews;
-		if (!childGroup.has(pathNode)) {
-			childGroup.set(pathNode, new MapNodeView());
+		if (childGroup[pathNode] == null) {
+			childGroup[pathNode] = new MapNodeView();
 		}
-		return childGroup.get(pathNode);
+		return childGroup[pathNode];
 	}
 
 	if (opt.expandAncestors) {
@@ -235,11 +247,12 @@ export const ACTMapNodeExpandedSet = StoreAction((opt: {
 }); */
 
 export const ACTMapViewMerge = StoreAction((mapID: string, toMergeMapView: MapView) => {
-	if (store.main.mapViews.get(mapID) == null) {
+	// CreateMapViewIfMissing(opt.mapID);
+	if (GetMapView(mapID) == null) {
 		store.main.mapViews.set(mapID, toMergeMapView);
 		return;
 	}
-	const inStoreMapView = store.main.mapViews.get(mapID);
+	const inStoreMapView = GetMapView(mapID);
 
 	const inStoreEntries = GetTreeNodesInObjTree(inStoreMapView, true);
 	const toMergeEntries = GetTreeNodesInObjTree(toMergeMapView, true);

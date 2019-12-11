@@ -157,7 +157,8 @@ export const GetNodeL3 = StoreAccessor((s) => (path: string) => {
 	}
 
 	const nodeL3 = AsNodeL3(node, finalPolarity, link);
-	return CachedTransform('GetNodeL3', [path], nodeL3, () => nodeL3);
+	// return CachedTransform('GetNodeL3', [path], nodeL3, () => nodeL3);
+	return nodeL3;
 });
 
 /* export function GetNodeForm(node: MapNode, path: string): ClaimForm {
