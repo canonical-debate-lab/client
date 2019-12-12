@@ -206,6 +206,8 @@ webpackConfig.module.rules = [
 					{
 						loose: true,
 						exclude: DEV ? ['babel-plugin-transform-async-to-generator', 'babel-plugin-transform-regenerator'] : [],
+						// targets: {esmodules: true}, // target es2015
+						targets: { node: '6.5' }, // target es2015
 					},
 				],
 				'@babel/react',

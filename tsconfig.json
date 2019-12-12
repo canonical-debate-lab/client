@@ -46,7 +46,7 @@
 		//"target": "ES5",
 		//"target": "es2015",
 		//"target": "es2017",
-		"target": "esnext",
+		"target": "esnext", // babel targets es2015 (ie. transpiles our code to it), so it's fine for TS to target es-next
 		"lib": [
 			"es5",
 			"es6",
