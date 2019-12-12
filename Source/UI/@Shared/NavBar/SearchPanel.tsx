@@ -11,7 +11,7 @@ import { GetNodeRevision } from 'Store/firebase/nodeRevisions';
 import { AsNodeL3, GetAllNodeRevisionTitles, GetNodeDisplayText, GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { GetNodeColor, MapNodeType_Info } from 'Store/firebase/nodes/@MapNodeType';
 import { GetUser } from 'Store/firebase/users';
-import { EB_ShowError, EB_StoreError, InfoButton, LogWarning } from 'Utils/FrameworkOverrides';
+import { EB_ShowError, EB_StoreError, InfoButton, LogWarning } from 'vwebapp-framework';
 import { UUID } from 'Utils/General/KeyGenerator';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { store } from 'Store';

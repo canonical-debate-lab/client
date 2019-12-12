@@ -1,6 +1,6 @@
 import { Assert } from 'js-vextensions';
 import { UserEdit } from 'Server/CommandMacros';
-import { AssertValidate } from 'Utils/FrameworkOverrides';
+import { AssertValidate } from 'vwebapp-framework';
 import { Command, GetAsync } from 'mobx-firelink';
 import { GetTerm } from 'Store/firebase/terms';
 import { Term } from '../../Store/firebase/terms/@Term';

@@ -7,7 +7,7 @@ import { MapNodePhrasing } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { GetUser, MeID } from 'Store/firebase/users';
 import { PhrasingDetailsUI } from 'UI/Database/Phrasings/PhrasingDetailsUI';
-import { GetUpdates } from 'Utils/FrameworkOverrides';
+import { GetUpdates } from 'vwebapp-framework';
 
 export class DetailsPanel_Phrasings extends BaseComponentPlus({} as {phrasing: MapNodePhrasing}, { dataError: null as string }) {
 	detailsUI: PhrasingDetailsUI;

@@ -1,4 +1,4 @@
-import { AddSchema } from 'Utils/FrameworkOverrides';
+import { AddSchema } from 'vwebapp-framework';
 import {ObservableMap} from 'mobx';
 import {User_id} from "../users/@User";
 

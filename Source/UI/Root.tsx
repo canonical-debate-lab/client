@@ -20,7 +20,7 @@ import { Polarity } from 'Store/firebase/nodes/@MapNode';
 import { GetTimelineStep } from 'Store/firebase/timelines';
 import { NodeReveal } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { Me, MeID } from 'Store/firebase/users';
-import { AddressBarWrapper, browserHistory, ErrorBoundary, LoadURL, Observer } from 'Utils/FrameworkOverrides';
+import { AddressBarWrapper, browserHistory, ErrorBoundary, LoadURL, Observer } from 'vwebapp-framework';
 import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
 import { NormalizeURL } from 'Utils/URL/URLs';
 import '../../Source/Utils/Styles/Main.scss'; // keep absolute-ish, since scss file not copied to Source_JS folder
@@ -62,7 +62,7 @@ export class RootUIWrapper extends BaseComponentPlus({}, {}) {
 		// trigger setter right now (in case value is already true)
 		g.storeRehydrated = startVal;
 	} */
-	ComponentWillMount() {
+	async ComponentWillMount() {
 		// InitStore();
 
 		// temp fix for "Illegal invocation" error in mst-persist
@@ -78,29 +78,32 @@ export class RootUIWrapper extends BaseComponentPlus({}, {}) {
 		}); */
 
 		const trunk = new AsyncTrunk(store, { storage: localStorage });
-		trunk.init().then(() => {
-			Log('Loaded state:', Clone(store));
+		if (startURL.GetQueryVar('clearState') == 'true') {
+			await trunk.clear();
+		}
 
-			// wrap with try, since it synchronously triggers rendering -- which breaks loading process below, when rendering fails
-			/* try {
-				this.SetState({ storeReady: true });
-			} finally { */
-			runInAction('RootUIWrapper.ComponentWillMount.postTrunkInit', () => this.storeReady = true);
+		await trunk.init();
+		Log('Loaded state:', Clone(store));
 
-			if (!hasHotReloaded) {
-				LoadURL(startURL);
-			}
-			// UpdateURL(false);
-			if (PROD && store.main.analyticsEnabled) {
-				Log('Initialized Google Analytics.');
-				// ReactGA.initialize("UA-21256330-33", {debug: true});
-				ReactGA.initialize('UA-21256330-33');
+		if (!hasHotReloaded) {
+			LoadURL(startURL);
+		}
+		// UpdateURL(false);
+		if (PROD && store.main.analyticsEnabled) {
+			Log('Initialized Google Analytics.');
+			// ReactGA.initialize("UA-21256330-33", {debug: true});
+			ReactGA.initialize('UA-21256330-33');
 
-				/* let url = VURL.FromLocationObject(State().router).toString(false);
-				ReactGA.set({page: url});
-				ReactGA.pageview(url || "/"); */
-			}
-		});
+			/* let url = VURL.FromLocationObject(State().router).toString(false);
+			ReactGA.set({page: url});
+			ReactGA.pageview(url || "/"); */
+		}
+
+		// wrap with try, since it synchronously triggers rendering -- which breaks loading process below, when rendering fails
+		/* try {
+			this.SetState({ storeReady: true });
+		} finally { */
+		runInAction('RootUIWrapper.ComponentWillMount.notifyStoreReady', () => this.storeReady = true);
 	}
 	// use observable field for this rather than react state, since setState synchronously triggers rendering -- which breaks loading process above, when rendering fails
 	@observable storeReady = false;

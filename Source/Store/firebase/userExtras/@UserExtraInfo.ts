@@ -1,4 +1,4 @@
-import { AddSchema } from 'Utils/FrameworkOverrides';
+import { AddSchema } from 'vwebapp-framework';
 
 export class UserExtraInfo {
 	constructor(initialData: Partial<UserExtraInfo>) {

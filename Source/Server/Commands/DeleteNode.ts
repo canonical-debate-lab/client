@@ -3,7 +3,7 @@ import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { GetNodeRevision, GetNodeRevisions } from 'Store/firebase/nodeRevisions';
 import { Command, MergeDBUpdates, GetAsync } from 'mobx-firelink';
-import { AssertValidate, AddSchema } from 'Utils/FrameworkOverrides';
+import { AssertValidate, AddSchema } from 'vwebapp-framework';
 import { GetMaps } from '../../Store/firebase/maps';
 import { ForDelete_GetError, GetNode } from '../../Store/firebase/nodes';
 import { MapNodeL2 } from '../../Store/firebase/nodes/@MapNode';

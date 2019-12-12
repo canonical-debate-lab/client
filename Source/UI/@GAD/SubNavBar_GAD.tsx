@@ -2,7 +2,7 @@ import { E } from 'js-vextensions';
 import { BaseComponent } from 'react-vextensions';
 import { rootPageDefaultChilds } from 'Utils/URL/URLs';
 import { store, RootState } from 'Store';
-import { ActionFunc, Link, Observer } from 'Utils/FrameworkOverrides';
+import { ActionFunc, Link, Observer } from 'vwebapp-framework';
 import { colors } from '../../Utils/UI/GlobalStyles';
 
 // @Observer

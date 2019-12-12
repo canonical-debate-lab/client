@@ -1,12 +1,12 @@
 import { StandardCompProps } from 'Utils/UI/General';
 import { DeepGet, E, SleepAsync, Timer, Vector2i, FindDOMAll, Assert, FromJSON, ToJSON, VRect } from 'js-vextensions';
 import { Column, Row } from 'react-vcomponents';
-import { BaseComponentWithConnector, FindReact, GetDOM, BaseComponentPlus } from 'react-vextensions';
+import { BaseComponentWithConnector, FindReact, GetDOM, BaseComponentPlus, BaseComponent } from 'react-vextensions';
 import { VMenuStub, VMenuItem } from 'react-vmenu';
 
 import { ScrollView } from 'react-vscrollview';
 import { TimelinePlayerUI } from 'UI/@Shared/Maps/MapUI/TimelinePlayerUI';
-import { GetDistanceBetweenRectAndPoint, inFirefox, GetScreenRect, StoreAction, Observer } from 'Utils/FrameworkOverrides';
+import { GetDistanceBetweenRectAndPoint, inFirefox, GetScreenRect, StoreAction, Observer } from 'vwebapp-framework';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { ActionBar_Left_GAD } from 'UI/@GAD/ActionBar_Left_GAD';
 import { ActionBar_Right_GAD } from 'UI/@GAD/ActionBar_Right_GAD';
@@ -63,6 +63,17 @@ export const ACTUpdateFocusNodeAndViewOffset = StoreAction((mapID: string) => {
 	}
 });
 
+class MapUIWaitMessage extends BaseComponent<{message: string}, {}> {
+	render() {
+		const { message } = this.props;
+		return (
+			<div style={ES({ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, fontSize: 25 })}>
+				{message}
+			</div>
+		);
+	}
+}
+
 type Props = {
 	map: Map, rootNode?: MapNodeL3, withinPage?: boolean,
 	padding?: {left: number, right: number, top: number, bottom: number},
@@ -90,6 +101,11 @@ export class MapUI extends BaseComponentPlus({
 	downPos: Vector2i;
 	render() {
 		const { map, rootNode: rootNode_passed, withinPage, padding, subNavBarWidth, ...rest } = this.props;
+		Assert(map._key, 'map._key is null!');
+
+		if (!store.main.maps.has(map._key)) return <MapUIWaitMessage message="Initialing map metadata..."/>;
+		if (GetMapView(map._key) == null) return <MapUIWaitMessage message="Initialing map view..."/>;
+		if (map == null) return <MapUIWaitMessage message="Loading map..."/>;
 		const rootNode = (() => {
 			let result = rootNode_passed;
 			if (result == null && map && map.rootNode) {
@@ -106,20 +122,15 @@ export class MapUI extends BaseComponentPlus({
 			}
 			return result;
 		})();
-		const timelinePanelOpen = map ? GetTimelinePanelOpen(map._key) : null;
-		const playingTimeline = GetPlayingTimeline(map ? map._key : null);
-
-		if (map == null) {
-			return <div style={ES({ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, fontSize: 25 })}>Loading map...</div>;
-		}
-		Assert(map._key, 'map._key is null!');
-		if (rootNode == null) {
-			return <div style={ES({ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, fontSize: 25 })}>Loading root node...</div>;
-		}
+		if (rootNode == null) return <MapUIWaitMessage message="Loading root node..."/>;
 
 		if (isBot) {
 			return <NodeUI_ForBots map={map} node={rootNode}/>;
 		}
+
+		const timelinePanelOpen = map ? GetTimelinePanelOpen(map._key) : null;
+		const playingTimeline = GetPlayingTimeline(map ? map._key : null);
+
 		const ActionBar_Left_Final = GADDemo ? ActionBar_Left_GAD : ActionBar_Left;
 		const ActionBar_Right_Final = GADDemo ? ActionBar_Right_GAD : ActionBar_Right;
 		return (

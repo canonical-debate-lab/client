@@ -3,7 +3,7 @@ import { SourceChain, Source } from 'Store/firebase/contentNodes/@SourceChain';
 import { Row, Text , Column } from 'react-vcomponents';
 
 import { VURL } from 'js-vextensions';
-import { Link } from 'Utils/FrameworkOverrides';
+import { Link } from 'vwebapp-framework';
 
 export class SourcesUI extends BaseComponent<{sourceChains: SourceChain[]}, {}> {
 	render() {

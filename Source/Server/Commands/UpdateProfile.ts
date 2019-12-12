@@ -1,4 +1,4 @@
-import { AddSchema, AssertValidate, GetSchemaJSON, Schema } from 'Utils/FrameworkOverrides';
+import { AddSchema, AssertValidate, GetSchemaJSON, Schema } from 'vwebapp-framework';
 import { Command, GetAsync } from 'mobx-firelink';
 import { GetUser } from 'Store/firebase/users';
 import { User } from '../../Store/firebase/users/@User';

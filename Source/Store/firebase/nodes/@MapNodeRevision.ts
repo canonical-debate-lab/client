@@ -1,5 +1,5 @@
 import { GetValues_ForSchema } from 'js-vextensions';
-import { AddSchema } from 'Utils/FrameworkOverrides';
+import { AddSchema } from 'vwebapp-framework';
 import { ObservableMap } from 'mobx';
 import { AccessLevel, ImageAttachment } from './@MapNode';
 import { Equation } from './@Equation';

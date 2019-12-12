@@ -2,7 +2,7 @@ import { GetNewURL } from 'Utils/URL/URLs';
 import { VURL, WaitXThenRun, CopyText } from 'js-vextensions';
 import { Button, Column, DropDown, DropDownContent, DropDownTrigger, Pre, Row, RowLR, Select, TextInput } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
-import {GetCurrentURL} from 'Utils/FrameworkOverrides';
+import {GetCurrentURL} from 'vwebapp-framework';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { GetMapTimelines } from '../../../../../Store/firebase/timelines';
 import { Timeline } from '../../../../../Store/firebase/timelines/@Timeline';

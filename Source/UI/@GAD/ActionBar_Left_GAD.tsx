@@ -8,16 +8,18 @@ import { IsUserMap } from 'Store/firebase/maps';
 import { DetailsDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Left';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { GetTimelinePanelOpen } from 'Store/main/maps/$map';
-import { HSLA } from 'Utils/FrameworkOverrides';
-import {store} from 'Store';
+import { HSLA, Observer } from 'vwebapp-framework';
+import { store } from 'Store';
+import { runInAction } from 'mobx';
 import { Button_GAD } from './GADButton';
 
+@Observer
 export class ActionBar_Left_GAD extends BaseComponentPlus({} as {map: Map, subNavBarWidth: number}, {}) {
 	render() {
 		const { map, subNavBarWidth } = this.props;
 		const userID = MeID();
 		IsUserCreatorOrMod(userID, map);
-		const timelinePanelOpen = GetTimelinePanelOpen(map._key);
+		// const timelinePanelOpen = GetTimelinePanelOpen(map._key);
 
 		return (
 			<nav style={{
@@ -38,7 +40,9 @@ export class ActionBar_Left_GAD extends BaseComponentPlus({} as {map: Map, subNa
 				)}>
 					{IsUserMap(map) &&
 						<Button_GAD text="Back" onClick={() => {
-							store.main[map.type == MapType.Personal ? 'personal' : 'debates'].selectedMapID = null;
+							runInAction('ActionBar_Left_GAD.Back.onClick', () => {
+								store.main[map.type == MapType.Personal ? 'personal' : 'debates'].selectedMapID = null;
+							});
 						}}/>}
 					{IsUserMap(map) && <DetailsDropDown map={map}/>}
 				</Row>

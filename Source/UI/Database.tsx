@@ -1,7 +1,7 @@
 import { Switch } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
 import { store } from 'Store';
-import {Observer} from 'Utils/FrameworkOverrides';
+import {Observer} from 'vwebapp-framework';
 import { SubNavBar, SubNavBarButton } from './@Shared/SubNavBar';
 import { ImagesUI } from './Database/ImagesUI';
 import { TermsUI } from './Database/TermsUI';

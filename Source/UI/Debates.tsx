@@ -5,7 +5,7 @@ import { ScrollView } from 'react-vscrollview';
 import { GetMaps, GetMaps_Debate } from 'Store/firebase/maps';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
-import { HSLA, PageContainer, Observer } from 'Utils/FrameworkOverrides';
+import { HSLA, PageContainer, Observer } from 'vwebapp-framework';
 import { GetSelectedDebateMap } from 'Store/main/debates';
 import { MapType } from '../Store/firebase/maps/@Map';
 import { ES } from '../Utils/UI/GlobalStyles';

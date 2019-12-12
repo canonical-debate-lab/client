@@ -4,7 +4,7 @@ import { Map } from 'Store/firebase/maps/@Map';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { GetEntries } from 'js-vextensions';
-import { VReactMarkdown_Remarkable } from 'Utils/FrameworkOverrides';
+import { VReactMarkdown_Remarkable } from 'vwebapp-framework';
 import { store } from 'Store';
 import {GetPlayingTimelineAppliedStepIndex, GetPlayingTimelineStep, GetPlayingTimeline, GetPlayingTimelineStepIndex} from 'Store/main/maps/$map';
 import { Segment } from '../../../../Utils/General/RegexHelpers';

@@ -2,7 +2,7 @@ import { GetErrorMessagesUnderElement, Clone } from 'js-vextensions';
 import { Button, Column, Pre, Row, RowLR, Spinner, TextInput, TextArea } from 'react-vcomponents';
 import { BaseComponent, GetDOM } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
-import { GetUpdates } from 'Utils/FrameworkOverrides';
+import { GetUpdates } from 'vwebapp-framework';
 import { UpdateTimelineStep } from '../../../../Server/Commands/UpdateTimelineStep';
 import { NodeReveal, TimelineStep } from '../../../../Store/firebase/timelineSteps/@TimelineStep';
 

@@ -1,6 +1,6 @@
 import { Rating } from 'Store/firebase/nodeRatings/@RatingsRoot';
 import { RatingType } from 'Store/firebase/nodeRatings/@RatingType';
-import { AddSchema, AssertValidate } from 'Utils/FrameworkOverrides';
+import { AddSchema, AssertValidate } from 'vwebapp-framework';
 import { Command } from 'mobx-firelink';
 
 AddSchema('SetNodeRating_payload', {

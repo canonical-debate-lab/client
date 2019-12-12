@@ -1,6 +1,6 @@
-import { AddSchema } from 'Utils/FrameworkOverrides';
+import { AddSchema } from 'vwebapp-framework';
 import { UUID_regex } from 'Utils/General/KeyGenerator';
-import {ObservableMap} from 'mobx';
+import { ObservableMap } from 'mobx';
 
 export class Layer {
 	constructor(initialData: {name: string, creator: string} & Partial<Layer>) {

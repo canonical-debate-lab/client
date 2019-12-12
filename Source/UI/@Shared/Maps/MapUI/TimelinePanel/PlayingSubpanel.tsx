@@ -8,7 +8,7 @@ import { ScrollSource, ScrollView } from 'react-vscrollview';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetTimelineStep, GetTimelineSteps } from 'Store/firebase/timelines';
 import { store } from 'Store';
-import { GetScreenRect, HSLA, Icon, Observer, RunWithRenderingBatched, UseSize, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, ClassHooks } from 'Utils/FrameworkOverrides';
+import { GetScreenRect, HSLA, Icon, Observer, RunWithRenderingBatched, UseSize, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, ClassHooks } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
 import {GetSelectedTimeline, GetPlayingTimelineStepIndex, GetNodeRevealHighlightTime, GetPlayingTimelineAppliedStepIndex} from 'Store/main/maps/$map';
 import { StepUI } from './PlayingSubpanel/StepUI';

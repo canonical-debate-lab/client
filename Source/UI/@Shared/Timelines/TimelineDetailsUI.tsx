@@ -3,7 +3,7 @@ import { Button, Column, Pre, Row, RowLR, TextInput } from 'react-vcomponents';
 import { BaseComponentPlus, GetDOM } from 'react-vextensions';
 import { UpdateTimeline } from 'Server/Commands/UpdateTimeline';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
-import { GetUpdates } from 'Utils/FrameworkOverrides';
+import { GetUpdates } from 'vwebapp-framework';
 import { GetUser } from '../../../Store/firebase/users';
 import { IDAndCreationInfoUI } from '../CommonPropUIs/IDAndCreationInfoUI';
 

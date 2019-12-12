@@ -10,7 +10,7 @@ import { store } from 'Store';
 import { GetParentNodeID, HolderType } from 'Store/firebase/nodes';
 import { GetCopiedNode, GetCopiedNodePath, GetOpenMapID } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
-import { ExpensiveComponent } from 'Utils/FrameworkOverrides';
+import { ExpensiveComponent } from 'vwebapp-framework';
 import { DeleteNode } from '../../../../Server/Commands/DeleteNode';
 import { GetPathsToNodesChangedSinceX } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';

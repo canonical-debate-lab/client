@@ -3,7 +3,7 @@ import { Row } from 'react-vcomponents';
 import { colors } from 'Utils/UI/GlobalStyles';
 import { LayoutDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Right/LayoutDropDown';
 import { Map } from 'Store/firebase/maps/@Map';
-import { HSLA } from 'Utils/FrameworkOverrides';
+import { HSLA } from 'vwebapp-framework';
 
 export class ActionBar_Right_GAD extends BaseComponentPlus({} as {map: Map, subNavBarWidth: number}, {}) {
 	render() {

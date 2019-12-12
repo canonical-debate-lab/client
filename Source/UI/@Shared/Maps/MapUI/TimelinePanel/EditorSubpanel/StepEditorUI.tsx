@@ -14,7 +14,7 @@ import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { NodeReveal, TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { MeID } from 'Store/firebase/users';
-import { DragInfo, MakeDraggable } from 'Utils/FrameworkOverrides';
+import { DragInfo, MakeDraggable } from 'vwebapp-framework';
 import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
 import { UUIDPathStub } from 'UI/@Shared/UUIDStub';
 import { GetShortestPathFromRootToNode } from 'Utils/Store/PathFinder';

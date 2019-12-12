@@ -3,7 +3,7 @@ import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { MeID } from 'Store/firebase/users';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
-import { HSLA } from 'Utils/FrameworkOverrides';
+import { HSLA } from 'vwebapp-framework';
 import { UseCallback } from 'react-vextensions';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { MapNodeL3, Polarity } from '../../../../../Store/firebase/nodes/@MapNode';

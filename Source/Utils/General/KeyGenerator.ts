@@ -1,6 +1,6 @@
 // import uuidV4 from 'uuid/v4';
 import slugid from 'slugid';
-import { AddSchema } from 'Utils/FrameworkOverrides';
+import { AddSchema } from 'vwebapp-framework';
 
 export type UUID = string; // just an alias
 export const UUID_regex_partial = '[A-Za-z0-9_-]{22}';

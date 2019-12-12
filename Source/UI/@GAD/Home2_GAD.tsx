@@ -1,6 +1,6 @@
 import { E } from 'js-vextensions';
 import { BaseComponent } from 'react-vextensions';
-import { VReactMarkdown, PageContainer } from 'Utils/FrameworkOverrides';
+import { VReactMarkdown, PageContainer } from 'vwebapp-framework';
 import { Row } from 'react-vcomponents';
 import { styles } from '../../Utils/UI/GlobalStyles';
 

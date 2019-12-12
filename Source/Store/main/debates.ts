@@ -1,5 +1,5 @@
 import { store, RootState } from 'Store';
-import { O } from 'Utils/FrameworkOverrides';
+import { O } from 'vwebapp-framework';
 import { GetMap } from 'Store/firebase/maps';
 import { StoreAccessor } from 'mobx-firelink';
 

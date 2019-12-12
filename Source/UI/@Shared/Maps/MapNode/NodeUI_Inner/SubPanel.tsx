@@ -1,5 +1,5 @@
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
-import { VReactMarkdown_Remarkable } from 'Utils/FrameworkOverrides';
+import { VReactMarkdown_Remarkable } from 'vwebapp-framework';
 import { MapNode, ImageAttachment, MapNodeL2 } from '../../../../../Store/firebase/nodes/@MapNode';
 import { GetFontSizeForNode } from '../../../../../Store/firebase/nodes/$node';
 import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';

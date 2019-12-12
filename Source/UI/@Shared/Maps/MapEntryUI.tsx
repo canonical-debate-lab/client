@@ -4,8 +4,9 @@ import { Column, Div, Row } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { columnWidths } from 'UI/Debates';
-import { HSLA, Link } from 'Utils/FrameworkOverrides';
+import { HSLA, Link } from 'vwebapp-framework';
 import { store } from 'Store';
+import {runInAction} from 'mobx-firelink/node_modules/mobx';
 import { Map, MapType } from '../../../Store/firebase/maps/@Map';
 import { GetUser } from '../../../Store/firebase/users';
 
@@ -36,7 +37,9 @@ export class MapEntryUI extends BaseComponentPlus({} as {index: number, last: bo
 					<Div style={{ position: 'relative', flex: columnWidths[0] }}>
 						<Link text={map.name} to={toURL.toString({ domain: false })} style={E({ fontSize: 17 }, GADDemo && { color: HSLA(222, 0.33, 0.5, 0.8) })} onClick={(e) => {
 							e.preventDefault();
-							store.main[map.type == MapType.Personal ? 'personal' : 'debates'].selectedMapID = map._key;
+							runInAction('MapEntryUI.onClick', () => {
+								store.main[map.type == MapType.Personal ? 'personal' : 'debates'].selectedMapID = map._key;
+							});
 						}}/>
 						{map.note &&
 							<Div style={E(

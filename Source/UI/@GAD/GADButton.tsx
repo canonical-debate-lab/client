@@ -1,7 +1,7 @@
 import { BaseComponent } from 'react-vextensions';
 import React from 'react';
 import { ButtonProps, Button } from 'react-vcomponents';
-import { HSLA } from 'Utils/FrameworkOverrides';
+import { HSLA } from 'vwebapp-framework';
 
 export class Button_GAD extends BaseComponent<{} & ButtonProps, {}> {
 	render() {

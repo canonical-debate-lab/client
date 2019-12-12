@@ -1,6 +1,6 @@
 import { Vector2i, Assert, IsString, GetTreeNodesInObjTree, DeepGet, IsPrimitive, DeepSet } from 'js-vextensions';
 import { observable } from 'mobx';
-import { O, Validate, StoreAction } from 'Utils/FrameworkOverrides';
+import { O, Validate, StoreAction } from 'vwebapp-framework';
 import { UUID } from 'Utils/General/KeyGenerator';
 import { store } from 'Store';
 import { SplitStringBySlash_Cached, StoreAccessor } from 'mobx-firelink';
@@ -16,7 +16,7 @@ export class MapView {
 	@O rootNodeViews = {} as {[key: string]: MapNodeView};
 
 	// if bot
-	@O bot_currentNodeID?: number;
+	@O bot_currentNodeID?: string;
 }
 
 export class MapNodeView {

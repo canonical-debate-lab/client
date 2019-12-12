@@ -1,7 +1,8 @@
 import { Pre, Row } from 'react-vcomponents';
 import { BaseComponent, GetInnerComp, BaseComponentPlus } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
-import { Link } from 'Utils/FrameworkOverrides';
+import { Link } from 'vwebapp-framework';
+import {GetOpenMapID} from 'Store/main';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetRatings } from '../../../../Store/firebase/nodeRatings';
 import { GetNodeChildrenL2, GetNodeParentsL2, GetParentNodeL2 } from '../../../../Store/firebase/nodes';
@@ -39,7 +40,7 @@ export class NodeUI_ForBots extends BaseComponentPlus({} as Props, {}) {
 						return (
 							<span key={index}>
 								{index > 0 ? ', ' : ''}
-								<Link actionFunc={(s) => s.main.mapViews.get(1).bot_currentNodeID = parent._key}>
+								<Link actionFunc={(s) => s.main.mapViews.get(GetOpenMapID()).bot_currentNodeID = parent._key}>
 									{GetNodeDisplayText(parent)} ({parent._key})
 								</Link>
 							</span>
@@ -51,7 +52,7 @@ export class NodeUI_ForBots extends BaseComponentPlus({} as Props, {}) {
 						return (
 							<span key={index}>
 								{index > 0 ? ', ' : ''}
-								<Link actionFunc={(s) => s.main.mapViews.get(1).bot_currentNodeID = child._key}>
+								<Link actionFunc={(s) => s.main.mapViews.get(GetOpenMapID()).bot_currentNodeID = child._key}>
 									{GetNodeDisplayText(child)} ({child._key})
 								</Link>
 							</span>

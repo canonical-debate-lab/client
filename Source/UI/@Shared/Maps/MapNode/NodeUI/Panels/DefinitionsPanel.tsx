@@ -1,7 +1,7 @@
 import { CachedTransform } from 'js-vextensions';
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
-import { GetCurrentURL, Link } from 'Utils/FrameworkOverrides';
+import { GetCurrentURL, Link } from 'vwebapp-framework';
 import { TermComponentsUI } from 'UI/Database/Terms/TermComponentsUI';
 import { Fragment } from 'react';
 import { ParseSegmentsForPatterns } from '../../../../../../Utils/General/RegexHelpers';

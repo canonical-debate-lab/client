@@ -1,5 +1,5 @@
 import { MapEdit, UserEdit } from 'Server/CommandMacros';
-import { AddSchema, AssertValidate } from 'Utils/FrameworkOverrides';
+import { AddSchema, AssertValidate } from 'vwebapp-framework';
 import { Command, GetAsync } from 'mobx-firelink';
 import { GetNode } from 'Store/firebase/nodes';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';

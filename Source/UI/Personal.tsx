@@ -6,7 +6,7 @@ import { GetMaps, GetMaps_Personal } from 'Store/firebase/maps';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
 import { columnWidths } from 'UI/Debates';
-import { PageContainer, Observer } from 'Utils/FrameworkOverrides';
+import { PageContainer, Observer } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { GetSelectedPersonalMap } from 'Store/main/personal';
 import { MapType } from '../Store/firebase/maps/@Map';

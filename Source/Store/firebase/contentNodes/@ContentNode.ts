@@ -1,5 +1,5 @@
 import { Source } from 'Store/firebase/contentNodes/@SourceChain';
-import { AddSchema } from 'Utils/FrameworkOverrides';
+import { AddSchema } from 'vwebapp-framework';
 import { SourceChain } from './@SourceChain';
 
 // todo: probably rename to "Quote"

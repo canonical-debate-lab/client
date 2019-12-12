@@ -5,7 +5,7 @@
 // import 'babel-polyfill';
 
 // const { MockFirebase, MockFirestore } = require('firebase-mock');
-// import { DBPath } from '../../../Source/Utils/FrameworkOverrides';
+// import { DBPath } from 'vwebapp-framework';
 // import { DBPath } from 'vwebapp-framework/Source/index';
 
 // If something imported has wrong typing (eg. "any" when should be specific type), it's probably due to non-relative imports failing from the Tests folder.

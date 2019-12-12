@@ -1,5 +1,5 @@
 import { Command, MergeDBUpdates } from 'mobx-firelink';
-import { AssertValidate } from 'Utils/FrameworkOverrides';
+import { AssertValidate } from 'vwebapp-framework';
 import { UserEdit } from '../../Server/CommandMacros';
 import { GenerateUUID, UUID } from '../../Utils/General/KeyGenerator';
 import { Map } from '../../Store/firebase/maps/@Map';

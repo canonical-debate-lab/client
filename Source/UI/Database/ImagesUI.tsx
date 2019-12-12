@@ -1,10 +1,12 @@
-import { Button, Column, Div, Pre, Row, Span } from 'react-vcomponents';
+import { Button, Column, Div, Pre, Row, Span, Text } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus, UseEffect } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { store } from 'Store';
 import { GetSelectedImage } from 'Store/main/database';
+import { Observer } from 'vwebapp-framework';
+import { runInAction } from 'mobx';
 import { DeleteImage } from '../../Server/Commands/DeleteImage';
 import { UpdateImageData, UpdateImageData_allowedPropUpdates } from '../../Server/Commands/UpdateImageData';
 import { GetImages } from '../../Store/firebase/images';
@@ -16,6 +18,7 @@ import { ShowSignInPopup } from '../@Shared/NavBar/UserPanel';
 import { ShowAddImageDialog } from './Images/AddImageDialog';
 import { ImageDetailsUI } from './Images/ImageDetailsUI';
 
+@Observer
 export class ImagesUI extends BaseComponentPlus({} as {}, {} as { selectedImage_newData: Image, selectedImage_newDataError: string }) {
 	scrollView: ScrollView;
 	render() {
@@ -53,7 +56,7 @@ export class ImagesUI extends BaseComponentPlus({} as {}, {} as { selectedImage_
 					</Row>
 					<ScrollView ref={(c) => this.scrollView = c} style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, padding: 10 })} onClick={(e) => {
 						if (e.target != e.currentTarget) return;
-						store.main.database.selectedImageID = null;
+						runInAction('ImagesUI.ScrollView.onClick', () => store.main.database.selectedImageID = null);
 					}}>
 						{images.map((image, index) => <ImageUI key={index} first={index == 0} image={image} selected={selectedImage == image}/>)}
 					</ScrollView>
@@ -66,9 +69,9 @@ export class ImagesUI extends BaseComponentPlus({} as {}, {} as { selectedImage_
 					<Column style={{ position: 'relative', background: 'rgba(0,0,0,.5)', borderRadius: 10 }}>
 						<Row style={{ height: 40, justifyContent: 'center', background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' }}>
 							{selectedImage
-								&& <Div style={{ fontSize: 17, fontWeight: 500 }}>
+								&& <Text style={{ fontSize: 17, fontWeight: 500 }}>
 									{selectedImage.name}
-								</Div>}
+								</Text>}
 							<Div p={7} style={{ position: 'absolute', right: 0 }}>
 								{creatorOrMod &&
 									<Button ml="auto" text="Save details" enabled={selectedImage_newData != null && selectedImage_newDataError == null}
@@ -111,7 +114,7 @@ export class ImageUI extends BaseComponent<ImageUI_Props, {}> {
 					selected && { background: 'rgba(100,100,100,.7)' },
 				)}
 				onClick={(e) => {
-					store.main.database.selectedImageID = image._key;
+					runInAction('ImageUI.onClick', () => store.main.database.selectedImageID = image._key);
 				}}>
 				<Pre>{image.name}: </Pre>
 				{image.description.KeepAtMost(100)}

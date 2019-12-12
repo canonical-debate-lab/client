@@ -4,7 +4,7 @@ import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 're
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ResetCurrentDBRoot } from 'UI/More/Admin/ResetCurrentDBRoot';
 import { dbVersion } from 'Main';
-import { Action, Link, Observer } from 'Utils/FrameworkOverrides';
+import { Action, Link, Observer } from 'vwebapp-framework';
 import { ACTProposalSelect } from 'firebase-feedback';
 import { useMemo, useCallback } from 'react';
 import { store, RootState } from 'Store';

@@ -1,5 +1,4 @@
 import { ObservableMap } from 'mobx';
-import { O } from 'vwebapp-framework/Source';
 import { Collection_Closed, Collection, StoreAccessor } from 'mobx-firelink';
 import { GeneralData } from './firebase/general';
 import { Image } from './firebase/images/@Image';

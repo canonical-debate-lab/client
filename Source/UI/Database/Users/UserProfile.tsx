@@ -5,7 +5,7 @@ import { User } from 'Store/firebase/users/@User';
 import { UpdateProfile } from 'Server/Commands/UpdateProfile';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { presetBackgrounds, defaultPresetBackground } from 'Utils/UI/PresetBackgrounds';
-import { PageContainer } from 'Utils/FrameworkOverrides';
+import { PageContainer } from 'vwebapp-framework';
 import { styles, ES } from 'Utils/UI/GlobalStyles';
 import { Fragment } from 'react';
 import { PropNameToTitle } from 'Utils/General/Others';

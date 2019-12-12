@@ -6,7 +6,7 @@ import { Button , Column , Row , TextInput , Select } from 'react-vcomponents';
 
 
 import { GetErrorMessagesUnderElement, GetEntries, Clone } from 'js-vextensions';
-import { Validate } from 'Utils/FrameworkOverrides';
+import { Validate } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { Image_urlPattern } from 'Store/firebase/images/@Image';
 import { GetSourceNamePlaceholderText, GetSourceAuthorPlaceholderText } from '../../../../Store/firebase/contentNodes/$contentNode';

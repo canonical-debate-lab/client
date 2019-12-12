@@ -2,7 +2,7 @@ import { GetSelectedProposalID } from 'firebase-feedback';
 import { Assert, VURL } from 'js-vextensions';
 import { RootState } from 'Store';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
-import { MaybeLog } from 'Utils/FrameworkOverrides';
+import { MaybeLog } from 'vwebapp-framework';
 import { GetSelectedUserID, GetSelectedTermID, GetSelectedImageID } from 'Store/main/database';
 import { GetOpenMapID, GetPage, GetSubpage } from 'Store/main';
 import ReactGA from 'react-ga';

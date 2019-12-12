@@ -8,12 +8,13 @@ import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { GetUser, MeID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
-import { GetUpdates, HSLA } from 'Utils/FrameworkOverrides';
+import { GetUpdates, HSLA, Observer } from 'vwebapp-framework';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { Button_GAD } from 'UI/@GAD/GADButton';
 import { GetTimelinePanelOpen } from 'Store/main/maps/$map';
 import { store } from 'Store';
-import {GetAsync} from 'mobx-firelink';
+import { GetAsync } from 'mobx-firelink';
+import { runInAction } from 'mobx';
 import { colors, ES } from '../../../../Utils/UI/GlobalStyles';
 import { DeleteLayer } from '../../../../Server/Commands/DeleteLayer';
 import { DeleteMap } from '../../../../Server/Commands/DeleteMap';
@@ -28,6 +29,7 @@ import { GetUserLayerStateForMap } from '../../../../Store/firebase/userMapInfo'
 import { ShowAddLayerDialog } from '../Layers/AddLayerDialog';
 import { MapDetailsUI } from '../MapDetailsUI';
 
+@Observer
 export class ActionBar_Left extends BaseComponentPlus({} as {map: Map, subNavBarWidth: number}, {}) {
 	render() {
 		const { map, subNavBarWidth } = this.props;
@@ -54,7 +56,9 @@ export class ActionBar_Left extends BaseComponentPlus({} as {map: Map, subNavBar
 				)}>
 					{IsUserMap(map) &&
 						<Button text="Back" style={{ height: '100%' }} onClick={() => {
-							store.main[map.type == MapType.Personal ? 'personal' : 'debate'].selectedMapID = null;
+							runInAction('ActionBar_Left.Back.onClick', () => {
+								store.main[map.type == MapType.Personal ? 'personal' : 'debates'].selectedMapID = null;
+							});
 						}}/>}
 					{IsUserMap(map) && <DetailsDropDown map={map}/>}
 					{/* // disabled for now, so we can iterate quickly on the stuff we're actually using right now
@@ -62,7 +66,9 @@ export class ActionBar_Left extends BaseComponentPlus({} as {map: Map, subNavBar
 					{/* IsUserMap(map) && HasModPermissions(MeID()) && <TimelineDropDown map={map}/> */}
 					{IsUserMap(map) && !GADDemo &&
 						<Button ml={5} text="Timelines" style={{ height: '100%' }} onClick={() => {
-							store.main.maps.get(map._key).timelinePanelOpen = !timelinePanelOpen;
+							runInAction('ActionBar_Left.Timelines.onClick', () => {
+								store.main.maps.get(map._key).timelinePanelOpen = !timelinePanelOpen;
+							});
 						}}/>}
 				</Row>
 			</nav>

@@ -10,7 +10,7 @@ import { ArgumentType } from 'Store/firebase/nodes/@MapNodeRevision';
 import { MapNodeType, MapNodeType_Info } from 'Store/firebase/nodes/@MapNodeType';
 import { NodeConnectorBackground } from 'UI/@Shared/Maps/MapNode/NodeConnectorBackground';
 import { NodeUI } from 'UI/@Shared/Maps/MapNode/NodeUI';
-import { ExpensiveComponent, Icon, IsSpecialEmptyArray, MaybeLog } from 'Utils/FrameworkOverrides';
+import { ExpensiveComponent, Icon, IsSpecialEmptyArray, MaybeLog } from 'vwebapp-framework';
 import { DroppableInfo } from 'Utils/UI/DNDStructures';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { store } from 'Store';

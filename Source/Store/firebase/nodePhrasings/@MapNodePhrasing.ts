@@ -1,4 +1,4 @@
-import { AddSchema } from 'Utils/FrameworkOverrides';
+import { AddSchema } from 'vwebapp-framework';
 import { GetValues_ForSchema } from 'js-vextensions';
 
 export class MapNodePhrasing {

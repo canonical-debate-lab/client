@@ -1,11 +1,13 @@
 import { Assert } from 'js-vextensions';
-import { Button, Column, Div, Pre, Row, Span } from 'react-vcomponents';
+import { Button, Column, Div, Pre, Row, Span, Text } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus, UseEffect } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { GetSelectedTerm } from 'Store/main/database';
 import { store } from 'Store';
+import { Observer } from 'vwebapp-framework';
+import { runInAction } from 'mobx';
 import { DeleteTerm } from '../../Server/Commands/DeleteTerm';
 import { UpdateTermData } from '../../Server/Commands/UpdateTermData';
 import { GetFullNameP, GetTermVariantNumber, GetTerms } from '../../Store/firebase/terms';
@@ -18,6 +20,7 @@ import { ShowAddTermDialog, TermDetailsUI } from './Terms/TermDetailsUI';
 import { ShowAddTermComponentDialog } from './Terms/AddTermComponentDialog';
 import { TermComponentsUI } from './Terms/TermComponentsUI';
 
+@Observer
 export class TermsUI extends BaseComponentPlus({} as {}, {} as {selectedTerm_newData: Term, selectedTerm_newDataError: string}) {
 	render() {
 		const { selectedTerm_newData, selectedTerm_newDataError } = this.state;
@@ -54,7 +57,7 @@ export class TermsUI extends BaseComponentPlus({} as {}, {} as {selectedTerm_new
 					</Row>
 					<ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, padding: 10 })} onClick={(e) => {
 						if (e.target != e.currentTarget) return;
-						store.main.database.selectedTermID = null;
+						runInAction('ImagesUI.ScrollView.onClick', () => store.main.database.selectedTermID = null);
 					}}>
 						{terms.map((term, index) => <TermUI key={index} first={index == 0} term={term} selected={selectedTerm == term}/>)}
 					</ScrollView>
@@ -67,9 +70,9 @@ export class TermsUI extends BaseComponentPlus({} as {}, {} as {selectedTerm_new
 					<Column style={{ position: 'relative', background: 'rgba(0,0,0,.5)', borderRadius: 10 }}>
 						<Row style={{ height: 40, justifyContent: 'center', background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' }}>
 							{selectedTerm &&
-								<Div style={{ fontSize: 17, fontWeight: 500 }}>
+								<Text style={{ fontSize: 17, fontWeight: 500 }}>
 									{GetFullNameP(selectedTerm)}
-								</Div>}
+								</Text>}
 							<Div p={7} style={{ position: 'absolute', right: 0 }}>
 								{creatorOrMod &&
 									<Button ml="auto" text="Save details" enabled={selectedTerm_newData != null && selectedTerm_newDataError == null}
@@ -144,7 +147,7 @@ export class TermUI extends BaseComponentPlus({} as {term: Term, first: boolean,
 					selected && { background: 'rgba(100,100,100,.7)' },
 				)}
 				onClick={(e) => {
-					store.main.database.selectedTermID = term._key;
+					runInAction('TermUI.onClick', () => store.main.database.selectedTermID = term._key);
 				}}>
 				<Pre>{GetFullNameP(term)}<sup>{variantNumber}</sup>: </Pre>
 				{term.shortDescription_current}

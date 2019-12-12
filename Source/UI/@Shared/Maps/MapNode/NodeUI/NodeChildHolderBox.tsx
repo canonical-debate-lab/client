@@ -9,7 +9,7 @@ import { IsSinglePremiseArgument } from 'Store/firebase/nodes/$node';
 import { MapNodeL3 } from 'Store/firebase/nodes/@MapNode';
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { GADDemo } from 'UI/@GAD/GAD';
-import { ExpensiveComponent, HSLA } from 'Utils/FrameworkOverrides';
+import { ExpensiveComponent, HSLA } from 'vwebapp-framework';
 import { store } from 'Store';
 import { MapNodeView_SelfOnly, ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView';
 import {runInAction} from 'mobx';

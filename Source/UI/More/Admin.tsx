@@ -4,7 +4,7 @@ import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 're
 import { ShowMessageBox } from 'react-vmessagebox';
 import { HasAdminPermissions } from 'Store/firebase/userExtras';
 import { Omit } from 'lodash';
-import { PageContainer } from 'Utils/FrameworkOverrides';
+import { PageContainer } from 'vwebapp-framework';
 import { dbVersion } from 'Main';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
 import { store, RootState } from 'Store';

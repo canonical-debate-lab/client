@@ -5,7 +5,7 @@ import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { store } from 'Store';
 import { GetNodesL2, GetNode } from 'Store/firebase/nodes';
-import { Icon, InfoButton } from 'Utils/FrameworkOverrides';
+import { Icon, InfoButton } from 'vwebapp-framework';
 import { EnumNameToDisplayName } from 'Utils/General/Others';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { SortType } from 'Store/main/maps/$map';

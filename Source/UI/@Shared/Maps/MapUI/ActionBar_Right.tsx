@@ -1,9 +1,11 @@
-import { FromJSON, GetEntries } from 'js-vextensions';
+import { FromJSON, GetEntries, ToNumber } from 'js-vextensions';
 import { Pre, Row, Select } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
 import { store } from 'Store';
 import { WeightingType } from 'Store/main';
 import { ShowChangesSinceType } from 'Store/main/maps/$map';
+import { runInAction } from 'mobx-firelink/node_modules/mobx';
+import {Observer} from 'vwebapp-framework';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { colors } from '../../../../Utils/UI/GlobalStyles';
 import { LayoutDropDown } from './ActionBar_Right/LayoutDropDown';
@@ -16,6 +18,7 @@ for (let offset = 1; offset <= 5; offset++) {
 }
 changesSince_options.push({ name: 'All unclicked changes', value: `${ShowChangesSinceType.AllUnseenChanges}_null` });
 
+@Observer
 export class ActionBar_Right extends BaseComponentPlus({} as {map: Map, subNavBarWidth: number}, {}) {
 	render() {
 		const { map, subNavBarWidth } = this.props;
@@ -37,13 +40,17 @@ export class ActionBar_Right extends BaseComponentPlus({} as {map: Map, subNavBa
 					<Row center mr={5}>
 						<Pre>Show changes since: </Pre>
 						<Select options={changesSince_options} value={`${showChangesSince_type}_${showChangesSince_visitOffset}`} onChange={(val) => {
-							const parts = val.split('_');
-							mapInfo.showChangesSince_type = parseInt(parts[0]);
-							mapInfo.showChangesSince_visitOffset = FromJSON(parts[1]);
+							runInAction('ActionBar_Right.ShowChangesSince.onChange', () => {
+								const parts = val.split('_');
+								mapInfo.showChangesSince_type = ToNumber(parts[0]);
+								mapInfo.showChangesSince_visitOffset = FromJSON(parts[1]);
+							});
 						}}/>
 						<Pre ml={5}>Weighting: </Pre>
 						<Select options={GetEntries(WeightingType, (name) => ({ ReasonScore: 'Reason score' })[name] || name)} value={weighting} onChange={(val) => {
-							store.main.weighting = val;
+							runInAction('ActionBar_Right.Weighting.onChange', () => {
+								store.main.weighting = val;
+							});
 						}}/>
 					</Row>
 					{/* <ShareDropDown map={map}/> // disabled for now, till we re-implement shareable map-views using json-based approach */}

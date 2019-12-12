@@ -1,6 +1,6 @@
 import { Column, Button, Row, CheckBox, Pre } from 'react-vcomponents';
 import { BaseComponentWithConnector, BaseComponent, BaseComponentPlus } from 'react-vextensions';
-import { InfoButton } from 'Utils/FrameworkOverrides';
+import { InfoButton } from 'vwebapp-framework';
 import { PropNameToTitle } from 'Utils/General/Others';
 import { GetNodeDisplayText } from 'Store/firebase/nodes/$node';
 import { MapNodePhrasing, MapNodePhrasingType } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';

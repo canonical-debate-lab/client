@@ -1,5 +1,5 @@
 import { GetValues_ForSchema } from 'js-vextensions';
-import { AddAJVExtraCheck, AddSchema } from 'Utils/FrameworkOverrides';
+import { AddAJVExtraCheck, AddSchema } from 'vwebapp-framework';
 import { UUID_regex, UUID, UUID_regex_partial } from 'Utils/General/KeyGenerator';
 import { MapNodeRevision } from './@MapNodeRevision';
 import { MapNodeType } from './@MapNodeType';

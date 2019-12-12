@@ -176,65 +176,6 @@ AddRule({
 			// logAroundPatternMatches: 100,
 			replacement: 'function shallowCopy(base, invokeGetters) { invokeGetters = true;',
 		},
-		/* {
-			pattern: /var assign = (.|\n)+?(?=var ownKeys)/,
-			patternMatchCount: 2,
-			replacement: `
-var assign = (function (target) {
-	var overrides = [], len = arguments.length - 1;
-	while ( len-- > 0 ) overrides[ len ] = arguments[ len + 1 ];
-
-	overrides.forEach(function (override) {
-		return Object.keys(override || {}).forEach(function (key) {
-			/*delete target[key]; // v-added
-			return target[key] = override[key];*#/
-			Object.defineProperty(target, key, {value: override[key]});
-		});
-	});
-	return target;
-});
- 			`.trim(),
-		}, */
-		// the 3 changes below make-so, when immer is trying to set a field under a path with getter-setters along it, it replaces those getter-setters with just the value itself (on the copy/result object, not the draft/proxy or source object)
-		/* {
-			pattern: 'if (isMap(base)) { assignMap(copy, drafts); }else { assign(copy, drafts); }',
-			patternMatchCount: 1,
-			replacement: `
-				if (isMap(base)) {
-					assignMap(copy, drafts);
-				} else {
-					Object.keys(drafts).forEach(function (key) {
-						Object.defineProperty(copy, key, {configurable: true, writable: true, value: drafts[key]});
-					});
-				}
-			`,
-		},
-		{
-			pattern: 'return state.copy[prop] = createProxy(value, state);',
-			patternMatchCount: 1,
-			replacement: 'Object.defineProperty(state.copy, prop, {configurable: true, writable: true, value: createProxy(value, state)}); return state.copy;',
-		},
-		{
-			pattern: 'state.copy[prop] = value;',
-			patternMatchCount: 2,
-			replacement: 'Object.defineProperty(state.copy, prop, {configurable: true, writable: true, value: value});',
-		}, */
-		// the change below makes-so, when immer is trying to set a field under a path with getter-setters along it, it replaces those getter-setters with just the value itself (on the copy/result object, not the draft/proxy or source object)
-		/* {
-			pattern: 'var ref = Proxy.revocable(target, traps);',
-			patternMatchCount: 1,
-			replacement: `
-				debugger;
-				for (const [key, desc] of Object.entries(Object.getOwnPropertyDescriptors(target))) {
-					if (desc.get) {
-						let value = target[key];
-						Object.defineProperty(target, key, {configurable: true, writable: true, value: value});
-					}
-				}
-
-				var ref = Proxy.revocable(target, traps);
-			`,
-		}, */
 		// immer expects draftable objects to not have getter-setters; this change makes immer compatible, by having it always use Object.defineProperty (instead of sometimes using "clone[key] =", which breaks things)
 		{
 			pattern: 'clone[key] = value;',
@@ -248,8 +189,16 @@ var assign = (function (target) {
 				});
 			`,
 		},
-		// probably due to our sending objects with getter-setters into immer, immer breaks on "store.feedback.[...]"; the change below fixes that issue (not sure of details atm)
+		// The below fixes are only needed if using proxies. Fixing all the issues is tricky however (never completed), so we just disable the use of proxies (in Store/index.ts).
+		// ==========
+		/* // now that objects with getter-setters are draftable (used as state.base), fix immer trying to add incompatible "writable" attr to prop-descriptor, in objectTraps.getOwnPropertyDescriptor (called from shallowCopy)
 		{
+			pattern: 'desc.writable = true;',
+			patternMatchCount: 1,
+			replacement: 'if (desc.get == null && desc.set == null) desc.writable = true;',
+		}, */
+		// probably due to our sending objects with getter-setters into immer, immer breaks on "store.feedback.[...]"; the change below fixes that issue (not sure of details atm)
+		/* {
 			pattern: 'if (value !== peek$1(state.base, prop)) { return value; }',
 			patternMatchCount: 1,
 			replacement: `
@@ -259,6 +208,6 @@ var assign = (function (target) {
 				}
 				if (value !== peek$1(state.base, prop)) { return value; }
 			`,
-		},
+		}, */
 	],
 });

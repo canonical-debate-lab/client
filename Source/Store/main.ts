@@ -2,7 +2,7 @@ import { immerable } from 'immer';
 import { Global } from 'js-vextensions';
 import { observable } from 'mobx';
 import { ignore } from 'mobx-sync';
-import { O, StoreAction } from 'Utils/FrameworkOverrides';
+import { O, StoreAction } from 'vwebapp-framework';
 import { rootPageDefaultChilds } from 'Utils/URL/URLs';
 import { StoreAccessor } from 'mobx-firelink';
 import { store } from 'Store';

@@ -6,7 +6,7 @@ import { GetNode } from 'Store/firebase/nodes';
 import { HasModPermissions } from 'Store/firebase/userExtras';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { store } from 'Store';
-import { Link } from 'Utils/FrameworkOverrides';
+import { Link } from 'vwebapp-framework';
 import { ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView';
 import { AddChildNode } from '../../../../../Server/Commands/AddChildNode';
 import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';

@@ -10,7 +10,7 @@ supportReactDevTools({ active: true });
 // StackTrace.get();
 
 JustBeforeInitLibs_listeners.forEach((a) => a());
-require('./InitLibs').InitLibs();
+require('./Utils/LibIntegrations/@InitLibs').InitLibs();
 
 // start auto-runs after libs are initialized (moved to just after store+firelink are created, in MobXFirelink.ts)
 // require('Utils/AutoRuns');

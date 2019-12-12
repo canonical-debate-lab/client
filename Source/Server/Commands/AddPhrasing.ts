@@ -1,6 +1,6 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { MapNodePhrasing } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
-import { AddSchema, AssertValidate } from 'Utils/FrameworkOverrides';
+import { AddSchema, AssertValidate } from 'vwebapp-framework';
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
 import { GetNode } from 'Store/firebase/nodes';
 import { Assert } from 'js-vextensions';

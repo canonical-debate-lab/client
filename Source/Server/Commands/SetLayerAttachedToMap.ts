@@ -1,6 +1,6 @@
 import { Assert } from 'js-vextensions';
 import { MapEdit } from 'Server/CommandMacros';
-import { AddSchema, AssertValidate } from 'Utils/FrameworkOverrides';
+import { AddSchema, AssertValidate } from 'vwebapp-framework';
 import { Command, GetAsync } from 'mobx-firelink';
 import { GetMap } from 'Store/firebase/maps';
 import { Map } from '../../Store/firebase/maps/@Map';

@@ -1,4 +1,4 @@
-import { AddSchema, AssertValidate, GetSchemaJSON, Schema } from 'Utils/FrameworkOverrides';
+import { AddSchema, AssertValidate, GetSchemaJSON, Schema } from 'vwebapp-framework';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { GetTimeline } from 'Store/firebase/timelines';
 import { Command, GetAsync } from 'mobx-firelink';

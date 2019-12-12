@@ -2,7 +2,7 @@ import { UserEdit } from 'Server/CommandMacros';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
 import { Command } from 'mobx-firelink';
-import { AssertValidate } from 'Utils/FrameworkOverrides';
+import { AssertValidate } from 'vwebapp-framework';
 
 @UserEdit
 export class AddLayer extends Command<{layer: Layer}, {}> {

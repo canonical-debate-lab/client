@@ -1,5 +1,5 @@
 import { GetValues_ForSchema } from 'js-vextensions';
-import { AddSchema } from 'Utils/FrameworkOverrides';
+import { AddSchema } from 'vwebapp-framework';
 import { UUID_regex } from 'Utils/General/KeyGenerator';
 import { ObservableMap } from 'mobx';
 

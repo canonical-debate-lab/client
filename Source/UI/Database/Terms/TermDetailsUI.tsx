@@ -5,7 +5,7 @@ import Moment from 'moment';
 import { CheckBox, Column, Pre, Row, RowLR, Select, TextInput } from 'react-vcomponents';
 import { BaseComponent, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
-import { InfoButton } from 'Utils/FrameworkOverrides';
+import { InfoButton } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
 import { AddTerm } from '../../../Server/Commands/AddTerm';

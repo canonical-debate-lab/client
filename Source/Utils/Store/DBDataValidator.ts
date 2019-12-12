@@ -1,4 +1,4 @@
-import { AssertValidate } from 'Utils/FrameworkOverrides';
+import { AssertValidate } from 'vwebapp-framework';
 import { FirebaseDBShape } from 'Store/firebase';
 
 export function ValidateDBData(data: FirebaseDBShape) {

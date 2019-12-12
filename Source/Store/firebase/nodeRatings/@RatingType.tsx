@@ -1,7 +1,7 @@
 import { Range, Assert } from 'js-vextensions';
 import { ArgumentType } from 'Store/firebase/nodes/@MapNodeRevision';
 import { PropNameToTitle } from 'Utils/General/Others';
-import { AddSchema } from 'Utils/FrameworkOverrides';
+import { AddSchema } from 'vwebapp-framework';
 import { GetFinalPolarity, GetLinkUnderParent, GetNodeForm, IsMultiPremiseArgument } from '../nodes/$node';
 import { MapNodeL2, MapNodeL3, Polarity } from '../nodes/@MapNode';
 import { MapNodeType } from '../nodes/@MapNodeType';

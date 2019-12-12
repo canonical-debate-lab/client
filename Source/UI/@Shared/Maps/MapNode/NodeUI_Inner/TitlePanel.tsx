@@ -13,7 +13,7 @@ import { MapNodeRevision_titlePattern } from 'Store/firebase/nodes/@MapNodeRevis
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { MeID } from 'Store/firebase/users';
-import { InfoButton, IsDoubleClick, ParseSegmentsForPatterns, VReactMarkdown_Remarkable, ExpensiveComponent } from 'Utils/FrameworkOverrides';
+import { InfoButton, IsDoubleClick, ParseSegmentsForPatterns, VReactMarkdown_Remarkable, ExpensiveComponent } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { store } from 'Store';
 import { MapNodeView } from 'Store/main/mapViews/$mapView';

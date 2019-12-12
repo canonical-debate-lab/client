@@ -1,4 +1,4 @@
-import { O } from 'Utils/FrameworkOverrides';
+import { O } from 'vwebapp-framework';
 
 export class SearchState {
 	@O queryStr: string;

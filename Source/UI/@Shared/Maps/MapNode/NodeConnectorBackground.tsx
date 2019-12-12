@@ -1,6 +1,6 @@
 import { Vector2i } from 'js-vextensions';
 import { BaseComponent, SimpleShouldUpdate } from 'react-vextensions';
-import { ExpensiveComponent } from 'Utils/FrameworkOverrides';
+import { ExpensiveComponent } from 'vwebapp-framework';
 import { MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
 import { GetNodeColor } from '../../../../Store/firebase/nodes/@MapNodeType';
 

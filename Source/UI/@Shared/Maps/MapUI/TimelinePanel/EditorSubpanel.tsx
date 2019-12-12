@@ -14,7 +14,7 @@ import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { MeID } from 'Store/firebase/users';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { TimelineDetailsEditor } from 'UI/@Shared/Timelines/TimelineDetailsUI';
-import { InfoButton } from 'Utils/FrameworkOverrides';
+import { InfoButton } from 'vwebapp-framework';
 import { DroppableInfo } from 'Utils/UI/DNDStructures';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { GetOpenMapID } from 'Store/main';

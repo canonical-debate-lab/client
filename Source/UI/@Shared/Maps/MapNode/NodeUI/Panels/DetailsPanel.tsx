@@ -1,6 +1,6 @@
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
-import { GetUpdates } from 'Utils/FrameworkOverrides';
+import { GetUpdates } from 'vwebapp-framework';
 import { store } from 'Store';
 import { AddNodeRevision } from '../../../../../../Server/Commands/AddNodeRevision';
 import { UpdateLink } from '../../../../../../Server/Commands/UpdateLink';

@@ -1,5 +1,5 @@
 /* import { CachedTransform } from 'js-vextensions';
-import {GetData} from 'Utils/FrameworkOverrides';
+import {GetData} from 'vwebapp-framework';
 import { ViewerSet } from './nodeViewers/@ViewerSet';
 
 export function GetNodeViewerSet(nodeID: string) {

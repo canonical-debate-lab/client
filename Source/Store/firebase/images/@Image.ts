@@ -1,6 +1,6 @@
 import { SourceChain, Source } from 'Store/firebase/contentNodes/@SourceChain';
 import { GetValues_ForSchema } from 'js-vextensions';
-import { AddSchema } from 'Utils/FrameworkOverrides';
+import { AddSchema } from 'vwebapp-framework';
 
 export enum ImageType {
 	Photo = 10,

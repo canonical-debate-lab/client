@@ -1,5 +1,5 @@
 import { MapNodePhrasing } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
-import { AddSchema, GetSchemaJSON, Schema, AssertValidate } from 'Utils/FrameworkOverrides';
+import { AddSchema, GetSchemaJSON, Schema, AssertValidate } from 'vwebapp-framework';
 import { UserEdit } from 'Server/CommandMacros';
 import { Command, GetAsync } from 'mobx-firelink';
 import { GetNodePhrasings, GetNodePhrasing } from 'Store/firebase/nodePhrasings';

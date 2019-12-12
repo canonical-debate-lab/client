@@ -4,7 +4,7 @@ import { MapEdit, UserEdit } from '../../Server/CommandMacros';
 import { GetNode } from '../../Store/firebase/nodes';
 import { MapNodeRevision } from '../../Store/firebase/nodes/@MapNodeRevision';
 import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
-import { AssertValidate } from '../../Utils/FrameworkOverrides';
+import { AssertValidate } from 'vwebapp-framework';
 import { ChildEntry, MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { AddNode } from './AddNode';
 

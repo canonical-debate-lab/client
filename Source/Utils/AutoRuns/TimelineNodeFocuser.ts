@@ -7,7 +7,7 @@ import { MapUI, ACTUpdateFocusNodeAndViewOffset } from 'UI/@Shared/Maps/MapUI';
 import { SleepAsync, VRect } from 'js-vextensions';
 import { NodeUI_Inner } from 'UI/@Shared/Maps/MapNode/NodeUI_Inner';
 import { GetDOM } from 'react-vextensions';
-import { GetScreenRect } from 'Utils/FrameworkOverrides';
+import { GetScreenRect } from 'vwebapp-framework';
 import { GetTimelineStep } from 'Store/firebase/timelines';
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { SlicePath, GetAsync } from 'mobx-firelink';

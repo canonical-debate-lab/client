@@ -1,7 +1,7 @@
 import { GetShortestPathFromRootToNode } from 'Utils/Store/PathFinder';
 import { GetNode, GetNodeID } from 'Store/firebase/nodes';
 import { emptyArray } from 'js-vextensions';
-import { AddSchema } from 'Utils/FrameworkOverrides';
+import { AddSchema } from 'vwebapp-framework';
 import { UUID_regex } from 'Utils/General/KeyGenerator';
 import { GetLastAcknowledgementTime } from 'Store/main';
 import { GetDoc, StoreAccessor } from 'mobx-firelink';

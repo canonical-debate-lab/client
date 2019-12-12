@@ -2,7 +2,7 @@ import { Firelink, GetDoc, SetDefaultFireOptions } from 'mobx-firelink';
 import { dbVersion } from 'Main';
 import { FirebaseDBShape } from 'Store/firebase';
 import { store, RootState } from 'Store';
-import { OnPopulated } from 'vwebapp-framework/Source';
+import { OnPopulated } from 'vwebapp-framework';
 
 declare module 'mobx-firelink/Dist/UserTypes' {
 	interface RootStoreShape extends RootState {}

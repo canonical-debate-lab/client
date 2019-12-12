@@ -3,7 +3,7 @@ import { User } from 'Store/firebase/users/@User';
 import { Row, Column } from 'react-vcomponents';
 import Moment from 'moment';
 import { ScrollView } from 'react-vscrollview';
-import { Link, PageContainer, Observer } from 'Utils/FrameworkOverrides';
+import { Link, PageContainer, Observer } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { GetSelectedUser } from 'Store/main/database';
 import { UserExtraInfo } from '../../Store/firebase/userExtras/@UserExtraInfo';

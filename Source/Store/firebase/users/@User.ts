@@ -1,4 +1,4 @@
-import { AddSchema } from 'Utils/FrameworkOverrides';
+import { AddSchema } from 'vwebapp-framework';
 
 // temp replaced
 // import {UserInfo} from "firebase";
