@@ -10,9 +10,11 @@ import { Assert } from 'js-vextensions';
 let lastMapID;
 autorun(() => {
 	const mapID = GetOpenMapID();
-	if (mapID && mapID != lastMapID) {
+	if (mapID != lastMapID) {
 		lastMapID = mapID;
-		StartInitForNewlyLoadedMap(mapID);
+		if (mapID) {
+			StartInitForNewlyLoadedMap(mapID);
+		}
 	}
 }, { name: 'InitForNewlyLoadedMap' });
 

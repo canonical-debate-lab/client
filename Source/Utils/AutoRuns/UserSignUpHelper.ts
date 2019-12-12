@@ -8,7 +8,9 @@ let lastUserInfo;
 autorun(() => {
 	if (fire.userInfo != lastUserInfo) {
 		lastUserInfo = fire.userInfo;
-		RunSignUpInitIfNotYetRun(fire.userInfo.id);
+		if (fire.userInfo) {
+			RunSignUpInitIfNotYetRun(fire.userInfo.id);
+		}
 	}
 }, { name: 'UserSignUpHelper' });
 

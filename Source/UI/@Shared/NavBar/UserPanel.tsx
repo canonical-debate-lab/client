@@ -4,13 +4,14 @@ import { Button, Div, Row } from 'react-vcomponents';
 import { Column } from 'react-vcomponents';
 import { E } from 'js-vextensions';
 import { ShowMessageBox, BoxController } from 'react-vmessagebox';
-import { Link, HandleError } from 'vwebapp-framework';
+import { Link, HandleError, Observer } from 'vwebapp-framework';
 import { store } from 'Store';
 import { runInAction } from 'mobx';
 import { IsAuthValid } from 'mobx-firelink';
 import { fire } from 'Utils/LibIntegrations/MobXFirelink';
 import { MeID } from '../../../Store/firebase/users';
 
+@Observer
 export class UserPanel extends BaseComponentPlus({} as {auth?}, {}) {
 	render() {
 		// authError: pathToJS(state.firebase, "authError"),
@@ -40,7 +41,7 @@ export class UserPanel extends BaseComponentPlus({} as {auth?}, {}) {
 				<Row mt={5}>
 					<Link ml="auto" mr={5} onContextMenu={(e) => e.nativeEvent['passThrough'] = true} actionFunc={(s) => {
 						s.main.page = 'profile';
-						store.main.topRightOpenPanel = null;
+						s.main.topRightOpenPanel = null;
 					}}>
 						<Button text="Edit profile" style={{ width: 100 }}/>
 					</Link>
