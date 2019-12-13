@@ -1,6 +1,5 @@
 import { Vector2i } from 'js-vextensions';
-import { BaseComponent, SimpleShouldUpdate } from 'react-vextensions';
-import { ExpensiveComponent } from 'vwebapp-framework';
+import { BaseComponent, SimpleShouldUpdate, WarnOfTransientObjectProps } from 'react-vextensions';
 import { MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
 import { GetNodeColor } from '../../../../Store/firebase/nodes/@MapNodeType';
 
@@ -10,7 +9,9 @@ type Props = {
 	childBoxOffsets: {[key: number]: Vector2i},
 	shouldUpdate: boolean
 };
-@ExpensiveComponent({ simpleShouldUpdate_options: { useShouldUpdateProp: true } })
+// @ExpensiveComponent({ simpleShouldUpdate_options: { useShouldUpdateProp: true } })
+@WarnOfTransientObjectProps
+@SimpleShouldUpdate({ useShouldUpdateProp: true })
 export class NodeConnectorBackground extends BaseComponent<Props, {}> {
 	render() {
 		const { node, linkSpawnPoint, straightLines, nodeChildren, childBoxOffsets } = this.props;
@@ -72,8 +73,7 @@ export class NodeConnectorBackground extends BaseComponent<Props, {}> {
 }
 
 type Position = [number, number];
-export class Squiggle extends BaseComponent
-		<{start: Position, startControl_offset: Position, end: Position, endControl_offset: Position, color: Color, usePercents?: boolean, style?}, {}> {
+export class Squiggle extends BaseComponent<{start: Position, startControl_offset: Position, end: Position, endControl_offset: Position, color: Color, usePercents?: boolean, style?}, {}> {
 	render() {
 		const { start, startControl_offset, end, endControl_offset, color, usePercents, style } = this.props;
 

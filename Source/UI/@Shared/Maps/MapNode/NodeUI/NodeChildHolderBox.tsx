@@ -1,7 +1,7 @@
 import chroma from 'chroma-js';
 import { AssertWarn, emptyArray, emptyArray_forLoading } from 'js-vextensions';
 import { Row } from 'react-vcomponents';
-import { BaseComponentPlus, GetDOM, UseCallback } from 'react-vextensions';
+import { BaseComponentPlus, GetDOM, UseCallback, WarnOfTransientObjectProps } from 'react-vextensions';
 import { GetMarkerPercent_AtPath, GetRatings } from 'Store/firebase/nodeRatings';
 import { RatingType } from 'Store/firebase/nodeRatings/@RatingType';
 import { GetParentNodeL3, HolderType } from 'Store/firebase/nodes';
@@ -9,10 +9,10 @@ import { IsSinglePremiseArgument } from 'Store/firebase/nodes/$node';
 import { MapNodeL3 } from 'Store/firebase/nodes/@MapNode';
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { GADDemo } from 'UI/@GAD/GAD';
-import { ExpensiveComponent, HSLA } from 'vwebapp-framework';
+import { HSLA, Observer } from 'vwebapp-framework';
 import { store } from 'Store';
-import { MapNodeView_SelfOnly, ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView';
-import {runInAction} from 'mobx';
+import { MapNodeView_SelfOnly, ACTMapNodeExpandedSet, GetNodeView } from 'Store/main/mapViews/$mapView';
+import { runInAction } from 'mobx';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath } from '../../../../../Store/firebase/nodeRatings';
 import { IsMultiPremiseArgument, IsPremiseOfSinglePremiseArgument } from '../../../../../Store/firebase/nodes/$node';
@@ -25,11 +25,12 @@ import { NodeChildHolder } from './NodeChildHolder';
 import { RatingsPanel } from './Panels/RatingsPanel';
 
 type Props = {
-	map: Map, node: MapNodeL3, path: string, nodeView: MapNodeView_SelfOnly, nodeChildren: MapNodeL3[], nodeChildrenToShow: MapNodeL3[],
+	map: Map, node: MapNodeL3, path: string, nodeChildren: MapNodeL3[], nodeChildrenToShow: MapNodeL3[],
 	type: HolderType, widthOfNode: number, widthOverride?: number, onHeightOrDividePointChange?: (dividePoint: number)=>void,
 };
 
-@ExpensiveComponent
+@WarnOfTransientObjectProps
+@Observer
 export class NodeChildHolderBox extends BaseComponentPlus({} as Props, { innerBoxOffset: 0, lineHolderHeight: 0, hovered: false, hovered_button: false }) {
 	static ValidateProps(props: Props) {
 		const { node, nodeChildren } = props;
@@ -40,9 +41,10 @@ export class NodeChildHolderBox extends BaseComponentPlus({} as Props, { innerBo
 	}
 	lineHolder: HTMLDivElement;
 	render() {
-		const { map, node, path, nodeView, nodeChildren, nodeChildrenToShow, type, widthOfNode, widthOverride } = this.props;
+		const { map, node, path, nodeChildren, nodeChildrenToShow, type, widthOfNode, widthOverride } = this.props;
 		const { innerBoxOffset, lineHolderHeight, hovered, hovered_button } = this.state;
 
+		const nodeView = GetNodeView(map._key, path);
 		const parent = GetParentNodeL3(path);
 		const combineWithParentArgument = IsPremiseOfSinglePremiseArgument(node, parent);
 
@@ -170,8 +172,9 @@ export class NodeChildHolderBox extends BaseComponentPlus({} as Props, { innerBo
 	}
 
 	get Expanded() {
-		const { type, nodeView } = this.props;
+		const { map, path, type } = this.props;
 		const expandKey = `expanded_${HolderType[type].toLowerCase()}`;
+		const nodeView = GetNodeView(map._key, path);
 		return nodeView[expandKey];
 	}
 
@@ -193,7 +196,7 @@ export class NodeChildHolderBox extends BaseComponentPlus({} as Props, { innerBo
 	lastHeight = 0;
 	lastDividePoint = 0;
 	CheckForChanges = () => {
-		const { nodeView, onHeightOrDividePointChange } = this.props;
+		const { onHeightOrDividePointChange } = this.props;
 
 		const lineHolderHeight = $(this.lineHolder).outerHeight();
 		if (lineHolderHeight != this.lastLineHolderHeight) {

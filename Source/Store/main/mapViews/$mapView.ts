@@ -1,9 +1,9 @@
-import { Vector2i, Assert, IsString, GetTreeNodesInObjTree, DeepGet, IsPrimitive, DeepSet } from 'js-vextensions';
+import { Vector2i, Assert, IsString, GetTreeNodesInObjTree, DeepGet, IsPrimitive, DeepSet, Break } from 'js-vextensions';
 import { observable } from 'mobx';
 import { O, Validate, StoreAction } from 'vwebapp-framework';
 import { UUID } from 'Utils/General/KeyGenerator';
 import { store } from 'Store';
-import { SplitStringBySlash_Cached, StoreAccessor } from 'mobx-firelink';
+import { SplitStringBySlash_Cached, StoreAccessor, PathOrPathGetterToPathSegments } from 'mobx-firelink';
 import { GetMap } from 'Store/firebase/maps';
 
 export class MapView {
@@ -124,22 +124,31 @@ export function GetNodeViewDataPath_FromRootNodeViews(mapID: string, pathOrPathN
 	// let childPath = pathNodeIDs.map(childID=>`${childID}/children`).join("/").slice(0, -"/children".length);
 	return pathNodes.SelectMany((nodeStr) => ['children', nodeStr]).slice(1);
 }
-export function GetNodeViewDataPath_FromStore(mapID: string, pathOrPathNodes: string | string[]): string[] {
+/* export function GetNodeViewDataPath_FromStore(mapID: string, pathOrPathNodes: string | string[]): string[] {
 	const childPathNodes = GetNodeViewDataPath_FromRootNodeViews(mapID, pathOrPathNodes);
 	return ['main', 'mapViews', `${mapID}`, 'rootNodeViews', ...childPathNodes];
-}
+} */
 export const GetNodeView = StoreAccessor({ cache_unwrapArgs: [1] }, (s) => (mapID: string, pathOrPathNodes: string | string[]): MapNodeView => {
 	if (pathOrPathNodes == null) return null;
-	const dataPath = GetNodeViewDataPath_FromStore(mapID, pathOrPathNodes);
-	return DeepGet(s, dataPath) as any;
+	/* const dataPath = GetNodeViewDataPath_FromStore(mapID, pathOrPathNodes);
+	return DeepGet(s, dataPath) as any; */
 	// return GetNodeView_Advanced(mapID, pathOrPathNodes, createNodeViewsIfMissing).Last();
-});
-export const GetNodeView_SelfOnly = StoreAccessor((s) => (mapID: string, path: string, returnEmptyNodeViewIfNull = false) => {
-	/* const nodeView = GetNodeView(mapID, path);
-	if (nodeView == null && returnEmptyNodeViewIfNull) return emptyNodeView; */
 
-	// access each prop separately, so that changes to the "children" prop do not trigger this sub-watcher to re-run
-	if (path == null) return null;
+	const pathNodes = PathOrPathGetterToPathSegments(pathOrPathNodes);
+	const mapView = GetMapView(mapID);
+	let currentNodeView = mapView.rootNodeViews[pathNodes[0]];
+	pathNodes.Skip(1).ForEach((pathNode) => {
+		currentNodeView = currentNodeView.children[pathNode];
+		if (currentNodeView == null) return Break();
+	});
+	return currentNodeView;
+});
+/* export const GetNodeView_SelfOnly = StoreAccessor((s) => (mapID: string, path: string, returnEmptyNodeViewIfNull = false) => {
+	/* const nodeView = GetNodeView(mapID, path);
+	if (nodeView == null && returnEmptyNodeViewIfNull) return emptyNodeView; *#/
+
+// access each prop separately, so that changes to the "children" prop do not trigger this sub-watcher to re-run
+/*if (path == null) return null;
 	const dataPath = GetNodeViewDataPath_FromStore(mapID, path);
 	const nodeView = {};
 	for (const prop of MapNodeView_SelfOnly_props) {
@@ -147,8 +156,8 @@ export const GetNodeView_SelfOnly = StoreAccessor((s) => (mapID: string, path: s
 	}
 
 	if (nodeView.VKeys().length == 0 && returnEmptyNodeViewIfNull) return emptyNodeView;
-	return nodeView.Excluding('children') as MapNodeView_SelfOnly;
-});
+	return nodeView.Excluding('children') as MapNodeView_SelfOnly;*#/
+}); */
 export const GetViewOffset = StoreAccessor((s) => (mapView: MapView): Vector2i => {
 	if (mapView == null) return null;
 	const treeNode = GetTreeNodesInObjTree(mapView.rootNodeViews).FirstOrX((a) => a.prop == 'viewOffset' && a.Value);
@@ -161,13 +170,17 @@ export const GetViewOffset = StoreAccessor((s) => (mapView: MapView): Vector2i =
 export const ACTMapNodeSelect = StoreAction((mapID: string, path: string) => {
 	// CreateMapViewIfMissing(mapID);
 	const nodes = GetTreeNodesInObjTree(GetMapView(mapID).rootNodeViews, true);
-	const selectedNode = nodes.FirstOrX((a) => a.Value && a.Value.selected) as MapNodeView;
+	const selectedNode = nodes.FirstOrX((a) => a.Value && a.Value.selected)?.Value as MapNodeView;
 	if (selectedNode) {
 		selectedNode.selected = false;
 		selectedNode.openPanel = null;
 	}
-	const nodeView = GetNodeView(mapID, path);
-	nodeView.selected = true;
+
+	if (path != null) {
+		// const nodeView = GetNodeView(mapID, path);
+		const nodeView = GetNodeViewsAlongPath(mapID, path, true).Last();
+		nodeView.selected = true;
+	}
 });
 
 // export const GetNodeView_Advanced = StoreAccessor({ cache_unwrapArgs: [1] }, (s) => (mapID: string, pathOrPathNodes: string | string[], createNodeViewsIfMissing = false): MapNodeView[] => {

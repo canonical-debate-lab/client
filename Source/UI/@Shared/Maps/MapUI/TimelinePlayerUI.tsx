@@ -6,7 +6,7 @@ import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { GetEntries } from 'js-vextensions';
 import { VReactMarkdown_Remarkable } from 'vwebapp-framework';
 import { store } from 'Store';
-import {GetPlayingTimelineAppliedStepIndex, GetPlayingTimelineStep, GetPlayingTimeline, GetPlayingTimelineStepIndex} from 'Store/main/maps/$map';
+import { GetPlayingTimelineAppliedStepIndex, GetPlayingTimelineStep, GetPlayingTimeline, GetPlayingTimelineStepIndex } from 'Store/main/maps/$map';
 import { Segment } from '../../../../Utils/General/RegexHelpers';
 import { AsNodeL3 } from '../../../../Store/firebase/nodes/$node';
 import { MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
@@ -82,7 +82,7 @@ class NodeUI_InMessage extends BaseComponentPlus({} as NodeUI_InMessageProps, {}
 
 		const path = `${nodeID}`;
 		return (
-			<NodeUI_Inner indexInNodeList={0} map={map} node={node} nodeView={{}} path={path} width={null} widthOverride={null}
+			<NodeUI_Inner indexInNodeList={0} map={map} node={node} path={path} width={null} widthOverride={null}
 				panelPosition="below" useLocalPanelState={true}
 				style={{
 					// zIndex: 1, filter: "drop-shadow(0px 0px 10px rgba(0,0,0,1))"

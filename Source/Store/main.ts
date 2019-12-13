@@ -48,7 +48,7 @@ export class MainState {
 	@O analyticsEnabled = true;
 	// topLeftOpenPanel: string;
 	// topRightOpenPanel: string;
-	@O ratingUI: RatingUIState;
+	@O ratingUI = new RatingUIState();
 	@O @ignore notificationMessages: NotificationMessage[];
 
 	// pages (and nav-bar panels)

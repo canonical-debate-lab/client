@@ -2,7 +2,7 @@ import { Assert, Clone } from 'js-vextensions';
 import keycode from 'keycode';
 import { forwardRef, Ref } from 'react';
 import { Button, Pre, Row, TextArea } from 'react-vcomponents';
-import { FilterOutUnrecognizedProps, UseImperativeHandle, UseState, Wrap, BaseComponentPlus } from 'react-vextensions';
+import { FilterOutUnrecognizedProps, UseImperativeHandle, UseState, Wrap, BaseComponentPlus, WarnOfTransientObjectProps } from 'react-vextensions';
 import { AddNodeRevision } from 'Server/Commands/AddNodeRevision';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetParentNode, IsNodeSubnode } from 'Store/firebase/nodes';
@@ -13,7 +13,7 @@ import { MapNodeRevision_titlePattern } from 'Store/firebase/nodes/@MapNodeRevis
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { MeID } from 'Store/firebase/users';
-import { InfoButton, IsDoubleClick, ParseSegmentsForPatterns, VReactMarkdown_Remarkable, ExpensiveComponent } from 'vwebapp-framework';
+import { InfoButton, IsDoubleClick, ParseSegmentsForPatterns, VReactMarkdown_Remarkable, Observer } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { store } from 'Store';
 import { MapNodeView } from 'Store/main/mapViews/$mapView';
@@ -36,7 +36,8 @@ export function TitlePanel(props: VProps<TitlePanelInternals, {
 	parent: NodeUI_Inner, map: Map, node: MapNodeL2, nodeView: MapNodeView, path: string, indexInNodeList: number, style,
 }>) { */
 
-@ExpensiveComponent
+@WarnOfTransientObjectProps
+@Observer
 export class TitlePanel extends BaseComponentPlus(
 	{} as {parent: NodeUI_Inner, map: Map, node: MapNodeL2, nodeView: MapNodeView, path: string, indexInNodeList: number, style},
 	{ newTitle: null as string, editing: false, applyingEdit: false },

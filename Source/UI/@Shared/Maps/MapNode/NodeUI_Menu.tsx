@@ -1,6 +1,6 @@
 import { E } from 'js-vextensions';
 import { SlicePath } from 'mobx-firelink';
-import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
+import { BaseComponent, BaseComponentPlus, WarnOfTransientObjectProps } from 'react-vextensions';
 import { VMenuItem, VMenuStub } from 'react-vmenu';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { LinkNode_HighLevel, LinkNode_HighLevel_GetCommandError } from 'Server/Commands/LinkNode_HighLevel';
@@ -10,7 +10,7 @@ import { store } from 'Store';
 import { GetParentNodeID, HolderType } from 'Store/firebase/nodes';
 import { GetCopiedNode, GetCopiedNodePath, GetOpenMapID } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
-import { ExpensiveComponent } from 'vwebapp-framework';
+import {Observer} from 'vwebapp-framework';
 import { DeleteNode } from '../../../../Server/Commands/DeleteNode';
 import { GetPathsToNodesChangedSinceX } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
@@ -38,7 +38,8 @@ export class NodeUI_Menu_Stub extends BaseComponent<Props, {}> {
 type Props = {map?: Map, node: MapNodeL3, path: string, inList?: boolean, holderType?: HolderType};
 type SharedProps = Props & {combinedWithParentArg: boolean, copiedNode: MapNodeL3, copiedNodePath: string, copiedNode_asCut: boolean};
 
-@ExpensiveComponent
+@WarnOfTransientObjectProps
+@Observer
 export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 	render() {
 		const { map, node, path, inList, holderType } = this.props;

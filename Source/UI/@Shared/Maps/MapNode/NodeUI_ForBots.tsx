@@ -2,7 +2,7 @@ import { Pre, Row } from 'react-vcomponents';
 import { BaseComponent, GetInnerComp, BaseComponentPlus } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { Link } from 'vwebapp-framework';
-import {GetOpenMapID} from 'Store/main';
+import { GetOpenMapID } from 'Store/main';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetRatings } from '../../../../Store/firebase/nodeRatings';
 import { GetNodeChildrenL2, GetNodeParentsL2, GetParentNodeL2 } from '../../../../Store/firebase/nodes';
@@ -66,7 +66,7 @@ export class NodeUI_ForBots extends BaseComponentPlus({} as Props, {}) {
 					<NodeUI_Inner
 						ref={(c) => this.innerUI = GetInnerComp(c)}
 						// ref={c => this.innerUI = c ? c['getDecoratedComponentInstance']() : null}
-						indexInNodeList={0} map={map} node={nodeL3} nodeView={{}} path={path} width={null} widthOverride={null}/>
+						indexInNodeList={0} map={map} node={nodeL3} path={path} width={null} widthOverride={null}/>
 					Panels:
 					{GetRatingTypesForNode(nodeL3).map((ratingInfo, index) => {
 						const ratings = GetRatings(node._key, ratingInfo.type);

@@ -2,7 +2,7 @@ import { Assert, emptyObj, nl, ToJSON, Vector2i, VRect, WaitXThenRun } from 'js-
 import * as React from 'react';
 import { Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 import { Button, Column, Div, Row } from 'react-vcomponents';
-import { BaseComponentPlus, BaseComponentWithConnector, GetDOM, RenderSource } from 'react-vextensions';
+import { BaseComponentPlus, BaseComponentWithConnector, GetDOM, RenderSource, WarnOfTransientObjectProps } from 'react-vextensions';
 import { GetFillPercent_AtPath } from 'Store/firebase/nodeRatings';
 import { GetNodeChildrenL3, HolderType } from 'Store/firebase/nodes';
 import { MapNodeL3 } from 'Store/firebase/nodes/@MapNode';
@@ -10,7 +10,7 @@ import { ArgumentType } from 'Store/firebase/nodes/@MapNodeRevision';
 import { MapNodeType, MapNodeType_Info } from 'Store/firebase/nodes/@MapNodeType';
 import { NodeConnectorBackground } from 'UI/@Shared/Maps/MapNode/NodeConnectorBackground';
 import { NodeUI } from 'UI/@Shared/Maps/MapNode/NodeUI';
-import { ExpensiveComponent, Icon, IsSpecialEmptyArray, MaybeLog } from 'vwebapp-framework';
+import { Icon, IsSpecialEmptyArray, MaybeLog, Observer } from 'vwebapp-framework';
 import { DroppableInfo } from 'Utils/UI/DNDStructures';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { store } from 'Store';
@@ -22,7 +22,7 @@ import { ArgumentsControlBar } from '../ArgumentsControlBar';
 import { NodeChildHolderBox } from './NodeChildHolderBox';
 
 type Props = {
-	map: Map, node: MapNodeL3, path: string, nodeView: MapNodeView_SelfOnly, nodeChildrenToShow: MapNodeL3[], type: HolderType,
+	map: Map, node: MapNodeL3, path: string, nodeChildrenToShow: MapNodeL3[], type: HolderType,
 	separateChildren: boolean, showArgumentsControlBar: boolean, linkSpawnPoint: number, vertical?: boolean, minWidth?: number,
 	onHeightOrDividePointChange?: (dividePoint: number)=>void,
 };
@@ -32,7 +32,8 @@ const initialState = {
 	placeholderRect: null as VRect,
 };
 
-@ExpensiveComponent
+@WarnOfTransientObjectProps
+@Observer
 export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props, initialState, {} as {nodeChildren_fillPercents: {[key: string]: number}}) {
 	/* static ValidateProps(props) {
 		let {node, path} = props;
@@ -41,10 +42,11 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 
 	childBoxes: {[key: number]: NodeUI} = {};
 	render() {
-		const { map, node, nodeView, path, nodeChildrenToShow, type, separateChildren, showArgumentsControlBar, linkSpawnPoint, vertical, minWidth, onHeightOrDividePointChange } = this.props;
+		const { map, node, path, nodeChildrenToShow, type, separateChildren, showArgumentsControlBar, linkSpawnPoint, vertical, minWidth, onHeightOrDividePointChange } = this.props;
 		let { childrenWidthOverride, oldChildBoxOffsets, placeholderRect } = this.state;
 		childrenWidthOverride = (childrenWidthOverride | 0).KeepAtLeast(minWidth);
 
+		const nodeView = GetNodeView(map._key, path);
 		const nodeChildren_fillPercents = IsSpecialEmptyArray(nodeChildrenToShow) ? emptyObj : nodeChildrenToShow.filter((a) => a).ToMap((child) => `${child._key}`, (child) => {
 			return GetFillPercent_AtPath(child, `${path}/${child._key}`);
 		});
@@ -170,7 +172,7 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 
 				{/* if we're for multi-premise arg, and this comp is not already showing relevance-args, show them in a "Taken together, are these claims relevant?" box */}
 				{IsMultiPremiseArgument(node) && type != HolderType.Relevance &&
-					<NodeChildHolderBox {...{ map, node, path, nodeView }} type={HolderType.Relevance} widthOverride={childrenWidthOverride}
+					<NodeChildHolderBox {...{ map, node, path }} type={HolderType.Relevance} widthOverride={childrenWidthOverride}
 						widthOfNode={childrenWidthOverride}
 						nodeChildren={GetNodeChildrenL3(node, path)} nodeChildrenToShow={nodeChildrenToShowInRelevanceBox}
 						onHeightOrDividePointChange={(dividePoint) => this.CheckForLocalChanges()}/>}
@@ -236,8 +238,9 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 	}
 
 	get Expanded() {
-		const { type, nodeView } = this.props;
+		const { map, path, type } = this.props;
 		const expandKey = type ? `expanded_${HolderType[type].toLowerCase()}` : 'expanded';
+		const nodeView = GetNodeView(map._key, path);
 		return nodeView[expandKey];
 	}
 

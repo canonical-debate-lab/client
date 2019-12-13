@@ -7,10 +7,10 @@ import { BaseComponent, BaseComponentPlus, GetDOM, UseCallback, UseEffect } from
 import { ReasonScoreValues_RSPrefix, RS_CalculateTruthScore, RS_CalculateTruthScoreComposite, RS_GetAllValues } from 'Store/firebase/nodeRatings/ReasonScore';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { GADDemo } from 'UI/@GAD/GAD';
-import { DragInfo, EB_ShowError, EB_StoreError, ExpensiveComponent, HSLA, IsDoubleClick, Observer } from 'vwebapp-framework';
+import { DragInfo, EB_ShowError, EB_StoreError, HSLA, IsDoubleClick, Observer } from 'vwebapp-framework';
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
 import { GetTimeFromWhichToShowChangedNodes, GetNodeRevealHighlightTime, GetTimeSinceNodeRevealedByPlayingTimeline } from 'Store/main/maps/$map';
-import { GetPathNodeIDs, GetNodeView_SelfOnly, MapNodeView_SelfOnly, MapNodeView, ACTMapNodeSelect, ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView';
+import { GetPathNodeIDs, MapNodeView, ACTMapNodeSelect, ACTMapNodeExpandedSet, GetNodeView } from 'Store/main/mapViews/$mapView';
 import { store } from 'Store';
 import { WeightingType, GetLastAcknowledgementTime } from 'Store/main';
 import { runInAction } from 'mobx';
@@ -19,7 +19,7 @@ import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebas
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatings } from '../../../../Store/firebase/nodeRatings';
 import { RatingType, ratingTypes } from '../../../../Store/firebase/nodeRatings/@RatingType';
-import { IsNodeSubnode, GetNodeID } from '../../../../Store/firebase/nodes';
+import { IsNodeSubnode, GetNodeID, GetNode } from '../../../../Store/firebase/nodes';
 import { GetMainRatingType, GetNodeForm, GetNodeL3, GetPaddingForNode, IsPremiseOfSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
 import { ClaimForm, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
 import { GetNodeColor, MapNodeType, MapNodeType_Info } from '../../../../Store/firebase/nodes/@MapNodeType';
@@ -58,7 +58,7 @@ import { NodeUI_Menu_Stub } from './NodeUI_Menu';
 // export type NodeHoverExtras = {panel?: string, term?: number};
 
 type Props = {
-	indexInNodeList: number, map: Map, node: MapNodeL3, nodeView: MapNodeView_SelfOnly, path: string, width: number, widthOverride?: number,
+	indexInNodeList: number, map: Map, node: MapNodeL3, path: string, width: number, widthOverride?: number,
 	panelPosition?: 'left' | 'below', useLocalPanelState?: boolean, style?,
 } & {dragInfo?: DragInfo};
 
@@ -106,12 +106,13 @@ export class NodeUI_Inner extends BaseComponentPlus(
 	});
 
 	render() {
-		const { indexInNodeList, map, node, nodeView, path, width, widthOverride, panelPosition, useLocalPanelState, style } = this.props;
+		const { indexInNodeList, map, node, path, width, widthOverride, panelPosition, useLocalPanelState, style } = this.props;
 		let { hovered, hoverPanel, hoverTermID, local_openPanel, lastWidthWhenNotPreview } = this.state;
 
 		// connector part
 		// ==========
 
+		const nodeView = GetNodeView(map._key, path);
 		let sinceTime = GetTimeFromWhichToShowChangedNodes(map._key);
 		/* let pathsToChangedNodes = GetPathsToNodesChangedSinceX(map._id, sinceTime);
 		let ownNodeChanged = pathsToChangedNodes.Any(a=>a.split("/").Any(b=>b == node._id));
@@ -208,7 +209,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 
 		// const parentNodeView = GetNodeView(map._key, parentPath);
 		// const parentNodeView = Watch(() => parentPath && GetNodeView_SelfOnly(map._key, parentPath), [map._key, parentPath]);
-		const parentNodeView = GetNodeView_SelfOnly(map._key, parentPath);
+		const parentNodeView = GetNodeView(map._key, parentPath);
 		// if combined with parent arg (ie. premise of single-premise arg), use parent's expansion state for this box
 		if (combinedWithParentArgument) {
 			expanded = parentNodeView && parentNodeView.expanded;

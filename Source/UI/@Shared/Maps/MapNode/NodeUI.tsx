@@ -1,17 +1,17 @@
 import { Assert, CachedTransform, E, emptyArray, emptyArray_forLoading, IsNaN, nl } from 'js-vextensions';
 import React from 'react';
 import { Column } from 'react-vcomponents';
-import { BaseComponentPlus, GetInnerComp, RenderSource, ShallowEquals, UseCallback } from 'react-vextensions';
+import { BaseComponentPlus, GetInnerComp, RenderSource, ShallowEquals, UseCallback, WarnOfTransientObjectProps } from 'react-vextensions';
 import { ChangeType, GetPathsToChangedDescendantNodes_WithChangeTypes } from 'Store/firebase/mapNodeEditTimes';
 import { GetParentPath, HolderType, GetNodeChildrenL3_Advanced } from 'Store/firebase/nodes';
 import { MeID } from 'Store/firebase/users';
 import { NodeChildHolder } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolder';
 import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolderBox';
-import { EB_ShowError, EB_StoreError, ExpensiveComponent, MaybeLog, ShouldLog } from 'vwebapp-framework';
+import { EB_ShowError, EB_StoreError, MaybeLog, ShouldLog, Observer } from 'vwebapp-framework';
 import { logTypes } from 'Utils/General/Logging';
-import { GetNodeView_SelfOnly } from 'Store/main/mapViews/$mapView';
 import { GetTimeFromWhichToShowChangedNodes, GetPlayingTimeline, GetPlayingTimelineStepIndex, GetPlayingTimelineRevealNodes_UpToAppliedStep } from 'Store/main/maps/$map';
-import {SlicePath} from 'mobx-firelink';
+import { SlicePath } from 'mobx-firelink';
+import { GetNodeView } from 'Store/main/mapViews/$mapView';
 import { GetSubnodesInEnabledLayersEnhanced } from '../../../../Store/firebase/layers';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetNodeChildrenL3, GetParentNodeL2, GetParentNodeL3, IsRootNode } from '../../../../Store/firebase/nodes';
@@ -23,7 +23,9 @@ import { NodeChildCountMarker } from './NodeUI/NodeChildCountMarker';
 import { GetMeasurementInfoForNode } from './NodeUI/NodeMeasurer';
 import { NodeUI_Inner } from './NodeUI_Inner';
 
-@ExpensiveComponent
+// @ExpensiveComponent
+@WarnOfTransientObjectProps
+@Observer
 export class NodeUI extends BaseComponentPlus(
 	{} as {
 		indexInNodeList: number, map: Map, node: MapNodeL3, path?: string, asSubnode?: boolean, widthOverride?: number, style?,
@@ -70,7 +72,7 @@ export class NodeUI extends BaseComponentPlus(
 		const parentPath = GetParentPath(path);
 		// const parentNodeView = GetNodeView(map._key, parentPath) || new MapNodeView();
 		// const parentNodeView = Watch(() => GetNodeView(map._key, parentPath) || new MapNodeView(), [map._key, parentPath]);
-		const parentNodeView = GetNodeView_SelfOnly(map._key, parentPath, true);
+		const parentNodeView = GetNodeView(map._key, parentPath);
 
 		const isSinglePremiseArgument = IsSinglePremiseArgument(node);
 		const isPremiseOfSinglePremiseArg = IsPremiseOfSinglePremiseArgument(node, parent);
@@ -82,8 +84,8 @@ export class NodeUI extends BaseComponentPlus(
 		/* const nodeView_early = GetNodeView(map._key, path) || new MapNodeView();
 		const nodeView = CachedTransform('nodeView_transform1', [map._key, path], nodeView_early.Excluding('focused', 'viewOffset', 'children'), () => nodeView_early); */
 		// const nodeView = Watch(() => GetNodeView(map._key, path) || new MapNodeView(), [map._key, path]);
-		const nodeView = GetNodeView_SelfOnly(map._key, path, true);
-		const boxExpanded = isPremiseOfSinglePremiseArg ? parentNodeView.expanded : nodeView.expanded;
+		const nodeView = GetNodeView(map._key, path);
+		const boxExpanded = isPremiseOfSinglePremiseArg ? parentNodeView?.expanded : nodeView?.expanded;
 
 		const playingTimeline = GetPlayingTimeline(map._key);
 		const playingTimeline_currentStepIndex = GetPlayingTimelineStepIndex(map._key);
@@ -149,7 +151,7 @@ export class NodeUI extends BaseComponentPlus(
 		let nodeChildHolder_direct: JSX.Element;
 		if (!isPremiseOfSinglePremiseArg && boxExpanded) {
 			const showArgumentsControlBar = (node.type == MapNodeType.Claim || isSinglePremiseArgument) && boxExpanded && nodeChildrenToShow != emptyArray_forLoading;
-			nodeChildHolder_direct = <NodeChildHolder {...{ map, node, path, nodeView, nodeChildren, nodeChildrenToShow, separateChildren, showArgumentsControlBar }}
+			nodeChildHolder_direct = <NodeChildHolder {...{ map, node, path, nodeChildren, nodeChildrenToShow, separateChildren, showArgumentsControlBar }}
 				// type={node.type == MapNodeType.Claim && node._id != demoRootNodeID ? HolderType.Truth : null}
 				type={null}
 				linkSpawnPoint={dividePoint || (selfHeight / 2)}
@@ -165,12 +167,12 @@ export class NodeUI extends BaseComponentPlus(
 				}, [isMultiPremiseArgument])}/>;
 		}
 		const nodeChildHolderBox_truth = isPremiseOfSinglePremiseArg && boxExpanded &&
-			<NodeChildHolderBox {...{ map, node, path, nodeView }} type={HolderType.Truth}
+			<NodeChildHolderBox {...{ map, node, path }} type={HolderType.Truth}
 				widthOfNode={widthOverride || width}
 				nodeChildren={nodeChildren} nodeChildrenToShow={nodeChildrenToShow}
 				onHeightOrDividePointChange={UseCallback((dividePoint) => this.CheckForChanges(), [])}/>;
 		const nodeChildHolderBox_relevance = isPremiseOfSinglePremiseArg && boxExpanded &&
-			<NodeChildHolderBox {...{ map, node: parent, path: parentPath, nodeView: parentNodeView }} type={HolderType.Relevance}
+			<NodeChildHolderBox {...{ map, node: parent, path: parentPath }} type={HolderType.Relevance}
 				widthOfNode={widthOverride || width}
 				nodeChildren={GetNodeChildrenL3(parent, parentPath)} nodeChildrenToShow={relevanceArguments}
 				onHeightOrDividePointChange={UseCallback((dividePoint) => this.CheckForChanges(), [])}/>;
@@ -221,7 +223,7 @@ export class NodeUI extends BaseComponentPlus(
 							<span style={{ margin: 'auto 0' }}>{AccessLevel[node.current.accessLevel][0].toUpperCase()}</span>
 						</div>}
 						{nodeChildHolderBox_truth}
-						<NodeUI_Inner ref={(c) => this.innerUI = GetInnerComp(c)} {...{ indexInNodeList, map, node, nodeView, path, width, widthOverride }}/>
+						<NodeUI_Inner ref={(c) => this.innerUI = GetInnerComp(c)} {...{ indexInNodeList, map, node, path, width, widthOverride }}/>
 						{nodeChildHolderBox_relevance}
 						{isMultiPremiseArgument &&
 							nodeChildHolder_direct}
