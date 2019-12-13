@@ -5,7 +5,7 @@ import Moment from 'moment';
 import { CheckBox, Column, Pre, Row, RowLR, Select, TextInput } from 'react-vcomponents';
 import { BaseComponent, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
-import { InfoButton } from 'vwebapp-framework';
+import { InfoButton, Observer } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
 import { AddTerm } from '../../../Server/Commands/AddTerm';
@@ -15,6 +15,7 @@ import { Term, TermType, Term_disambiguationFormat, Term_nameFormat } from '../.
 import { GetUser } from '../../../Store/firebase/users';
 import { GetNiceNameForTermType } from '../../Database/TermsUI';
 
+@Observer
 export class TermDetailsUI extends BaseComponentPlus(
 	{} as {baseData: Term, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: Term, error: string)=>void},
 	{} as {newData: Term, dataError: string, selectedTermComponent: TermComponent},

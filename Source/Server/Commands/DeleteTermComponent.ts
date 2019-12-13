@@ -1,15 +1,11 @@
 import { UserEdit } from 'Server/CommandMacros';
-import { Assert, IsNumber } from 'js-vextensions';
 import { Command, GetAsync } from 'mobx-firelink';
 import { GetTermComponent } from 'Store/firebase/termComponents';
 import { TermComponent } from '../../Store/firebase/termComponents/@TermComponent';
 
 @UserEdit
 export class DeleteTermComponent extends Command<{termComponentID: string}, {}> {
-	Validate_Early() {
-		const { termComponentID } = this.payload;
-		Assert(IsNumber(termComponentID));
-	}
+	Validate_Early() {}
 
 	oldData: TermComponent;
 	async Prepare() {

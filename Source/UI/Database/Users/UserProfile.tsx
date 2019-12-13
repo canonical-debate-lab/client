@@ -1,5 +1,5 @@
 import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
-import { Column, Row, Pre, Button, TextInput, Div, CheckBox, Select, ColorPickerBox } from 'react-vcomponents';
+import { Column, Row, Pre, Button, TextInput, Div, CheckBox, Select, ColorPickerBox, Text } from 'react-vcomponents';
 import { GetUser, MeID, GetUserPermissionGroups } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
 import { UpdateProfile } from 'Server/Commands/UpdateProfile';
@@ -25,7 +25,7 @@ export class UserProfileUI extends BaseComponentPlus({} as {profileUser: User}, 
 		return (
 			<PageContainer>
 				<Row>
-					<Pre>Username: {profileUser.displayName}</Pre>
+					<Text>Username: {profileUser.displayName}</Text>
 					{profileUser == currentUser &&
 						<Button ml={5} text="Change" onClick={() => {
 							ShowChangeDisplayNameDialog(currentUser._key, currentUser.displayName);

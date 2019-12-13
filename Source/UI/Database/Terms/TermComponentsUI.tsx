@@ -1,8 +1,9 @@
 import { CachedTransform, Clone, ToJSON, WaitXThenRun } from 'js-vextensions';
-import { Button, Column, Div, Pre, Row, TextInput } from 'react-vcomponents';
+import { Button, Column, Div, Pre, Row, TextInput, Text } from 'react-vcomponents';
 import { BaseComponent, RenderSource, BaseComponentPlus } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ES } from 'Utils/UI/GlobalStyles';
+import { Observer } from 'vwebapp-framework';
 import { DeleteTermComponent } from '../../../Server/Commands/DeleteTermComponent';
 import { UpdateTermComponentData } from '../../../Server/Commands/UpdateTermComponentData';
 import { GetTermComponents } from '../../../Store/firebase/termComponents';
@@ -13,6 +14,7 @@ import { MeID } from '../../../Store/firebase/users';
 
 const componentsPlaceholder = [];
 
+@Observer
 export class TermComponentsUI extends BaseComponentPlus({} as {term: Term, editing: boolean, inMap?: boolean, style?}, {}) {
 	render() {
 		const { term, editing, inMap, style } = this.props;
@@ -53,11 +55,11 @@ export class TermComponentUI extends BaseComponent
 		};
 		return (
 			<Row mt={first ? 0 : 5}>
-				{!creating && <Pre mr={7} sel style={E(inMap && { opacity: 0.5 })}>#{termComponent._key}</Pre>}
+				{!creating && <Text mr={7} sel style={E({ whiteSpace: 'pre' }, inMap && { opacity: 0.5 })}>#{termComponent._key}</Text>}
 				{(creating || editing)
 					? <TextInput ref={(a) => a && creating && this.lastRender_source == RenderSource.Mount && WaitXThenRun(0, () => a.DOM_HTML.focus())} style={ES({ flex: 1 })}
 						value={updatedTermComponent.text} onChange={(val) => Change(updatedTermComponent.text = val)}/>
-					: <Div sel>{termComponent.text}</Div>}
+					: <Text sel>{termComponent.text}</Text>}
 				{editing
 					&& <Button ml={5} text="Save" enabled={changes} onClick={(e) => {
 						new UpdateTermComponentData({ termComponentID: termComponent._key, updates: updatedTermComponent.Including('text') }).Run();

@@ -101,10 +101,10 @@ export class TermsUI extends BaseComponentPlus({} as {}, {} as {selectedTerm_new
 					</Column>
 					<Column mt={10} style={{ position: 'relative', background: 'rgba(0,0,0,.5)', borderRadius: 10 }}>
 						<Row style={{ height: 40, justifyContent: 'center', background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' }}>
-							<Div style={{ /* fontSize: 17, */ fontWeight: 500 }}>
+							<Text style={{ /* fontSize: 17, */ fontWeight: 500 }}>
 								{/* Components */}
 								{selectedTerm ? GetHelperTextForTermType(selectedTerm) : null}
-							</Div>
+							</Text>
 							<Div p={7} style={{ position: 'absolute', right: 0 }}>
 								{creatorOrMod
 									&& <Button ml="auto" text="Add component" enabled={selectedTerm != null && CanGetBasicPermissions(MeID())} onClick={async (e) => {
@@ -150,7 +150,7 @@ export class TermUI extends BaseComponentPlus({} as {term: Term, first: boolean,
 					runInAction('TermUI.onClick', () => store.main.database.selectedTermID = term._key);
 				}}>
 				<Pre>{GetFullNameP(term)}<sup>{variantNumber}</sup>: </Pre>
-				{term.shortDescription_current}
+				<Text>{term.shortDescription_current}</Text>
 				<Span ml="auto">
 					<Pre style={{ opacity: 0.7 }}>({GetNiceNameForTermType(term.type)}) </Pre>
 					<Pre>#{term._key}</Pre>
