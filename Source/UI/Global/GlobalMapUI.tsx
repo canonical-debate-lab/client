@@ -8,6 +8,7 @@ import { MapUI } from '../@Shared/Maps/MapUI';
 export class GlobalMapUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
 		const map = GetMap(globalMapID);
+		if (map == null) return null;
 		return (
 			<PageContainer fullWidth={true} fullHeight={true} style={{ margin: 0, padding: 0, background: null, filter: null }}>
 				<MapUI map={map} subNavBarWidth={/* 104 */ 54}/>
