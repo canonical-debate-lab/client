@@ -1,7 +1,13 @@
-const debug = require('debug')('app:build:config');
-const fs = require('fs');
-const path = require('path');
-const pkg = require('../../package.json');
+import debug_base from 'debug';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import pkg from '../../package.json';
+// const pkg = require('../../package.json');
+
+// const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const debug = debug_base('app:build:config');
 
 // TODO: load config from environments
 /* if (process.env.TRAVIS_PULL_REQUEST === false) {
@@ -9,7 +15,7 @@ const pkg = require('../../package.json');
 		env = "production";
 } */
 
-function createConfigFile(callback, environment) {
+export function createConfigFile(callback, environment) {
 	const configObj = {
 		version: pkg.version,
 		// dbVersion: 5,
@@ -32,12 +38,12 @@ function createConfigFile(callback, environment) {
 			},
 	};
 
-	const newText = Object.keys(configObj).map(key => `export const ${key} = ${JSON.stringify(configObj[key])};`).join('\n');
+	const newText = Object.keys(configObj).map((key) => `export const ${key} = ${JSON.stringify(configObj[key])};`).join('\n');
 
 	const pathRel = environment === 'development' ? 'Source/BakedConfig_Dev.ts' : 'Source/BakedConfig_Prod.ts';
 	const outputPath = path.join(__dirname, '..', '..', pathRel);
 
-	const oldText = fs.existsSync(path) ? fs.readFileSync(outputPath, { encoding: 'utf8' }) : null;
+	const oldText = fs.existsSync(outputPath) ? fs.readFileSync(outputPath, { encoding: 'utf8' }) : null;
 	if (newText != oldText) {
 		fs.writeFile(outputPath, newText, 'utf8', (err) => {
 			if (err) {

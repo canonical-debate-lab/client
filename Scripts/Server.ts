@@ -2,8 +2,13 @@ import express from 'express';
 import debug_base from 'debug';
 import webpack from 'webpack';
 import devMiddleware from 'webpack-dev-middleware';
-import { webpackConfig } from './Build/WebpackConfig';
+import connectHistoryAPIFallback from 'connect-history-api-fallback';
+
 import { config } from './Config';
+// import { config } from './Config.js';
+import { webpackConfig } from './Build/WebpackConfig';
+// import { webpackConfig } from 'WebpackConfig';
+// import { webpackConfig } from './Build/WebpackConfig.js';
 
 const debug = debug_base('app:server');
 const app = express();
@@ -11,7 +16,7 @@ const paths = config.utils_paths;
 
 // This rewrites all routes requests to the root /index.html file (ignoring file requests).
 // If you want to implement universal rendering, you'll want to remove this middleware.
-app.use(require('connect-history-api-fallback')({
+app.use(connectHistoryAPIFallback({
 	rewrites: [
 		{
 			from: /^(.(?!\.(html|js|css|png|jpg)))+$/, // paths with these extensions will NOT be redirected to "index.html""

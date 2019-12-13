@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
 import debug_base from 'debug';
-import webpackCompiler from '../Build/WebpackCompiler';
+import { webpackCompiler } from '../Build/WebpackCompiler';
 import { webpackConfig } from '../Build/WebpackConfig';
 import { config } from '../Config';
 

@@ -1,8 +1,10 @@
-import path from 'path';
 import debug_base from 'debug';
-import { argv } from 'yargs';
 import ip from 'ip';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { argv } from 'yargs';
 
+// const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const { NODE_ENV, PORT, USE_TSLOADER, BASENAME } = process.env;
 const debug = debug_base('app:config');
 

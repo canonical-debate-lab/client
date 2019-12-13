@@ -8,6 +8,8 @@ import fs from 'fs';
 import HardSourceWebpackPlugin from 'hard-source-webpack-plugin';
 import SpriteLoaderPlugin from 'svg-sprite-loader/plugin';
 import { WebpackStringReplacer } from 'webpack-string-replacer';
+// import { CE } from 'js-vextensions';
+import { CE } from 'js-vextensions/Source'; // temp; require source, thus ts-node compiles to commonjs (fix for that ts-node doesn't support es2015-modules)
 import { config } from '../Config';
 import { npmPatch_replacerConfig } from './NPMPatches';
 import { MakeSoWebpackConfigOutputsStats } from './WebpackConfig/OutputStats';
@@ -22,6 +24,15 @@ const paths = config.utils_paths;
 const { QUICK, USE_TSLOADER, OUTPUT_STATS } = process.env;
 
 // const root = path.join(__dirname, '..', '..');
+
+const ownModules = [
+	'js-vextensions', // js (base)
+	'react-vextensions', 'react-vcomponents', 'react-vmenu', 'react-vmessagebox', 'react-vscrollview', 'react-vmarkdown', // +react
+	'firebase-feedback', 'firebase-forum', // +firebase
+	'mobx-firelink', // +mobx
+	'vwebapp-framework', // +framework
+	'webpack-runtime-require', // misc
+];
 
 debug('Creating configuration.');
 export const webpackConfig: webpack.Configuration = {
@@ -49,17 +60,17 @@ export const webpackConfig: webpack.Configuration = {
 			'.mjs', // needed for mobx-sync
 		],
 		alias: {
-			// always retrieve these packages from the root node_modules folder (they throw errors if there are multiple instances) [needed for when using "npm link"]
+			// always retrieve these packages from the root node_modules folder (they have issues if there are multiple instances) [needed for when using "npm link"]
 			react: paths.base('node_modules', 'react'),
 			'react-dom': paths.base('node_modules', 'react-dom'),
 			firebase: paths.base('node_modules', 'firebase'),
-			// consolidating for these wouldn't throw errors necessarily, but we do so to keep things tidy (since we know the different versions will be compatible anyway)
-			'js-vextensions': paths.base('node_modules', 'js-vextensions'),
-			'mobx-firelink': paths.base('node_modules', 'mobx-firelink'),
+			mobx: paths.base('node_modules', 'mobx'),
 			// consolidating for these, since they have npm-patches applied (and we don't want to have to adjust the match-counts)
 			'react-beautiful-dnd': paths.base('node_modules', 'react-beautiful-dnd'),
 			immer: paths.base('node_modules', 'immer'),
-			// mobx: paths.base('node_modules', 'mobx'), // maybe temp; used to try to resolve odd bug with Link->immer.produce, which sets a value within firebase-feedback store
+			// consolidating for these wouldn't throw errors necessarily, but we do so to keep things tidy (since we know the different versions will be compatible anyway)
+			// note: just put all own packages here
+			...CE(ownModules).ToMap((name) => name, (name) => paths.base('node_modules', name)),
 		},
 	},
 	module: {
@@ -204,7 +215,9 @@ webpackConfig.module.rules = [
 				[
 					'@babel/env',
 					{
+						// use loose transpilation when possible (makes debugging easier)
 						loose: true,
+						// don't transpile async/await in dev-mode (makes debugging easier)
 						exclude: DEV ? ['babel-plugin-transform-async-to-generator', 'babel-plugin-transform-regenerator'] : [],
 						// targets: {esmodules: true}, // target es2015
 						targets: { node: '6.5' }, // target es2015
