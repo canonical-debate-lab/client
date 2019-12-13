@@ -10,6 +10,8 @@ import SpriteLoaderPlugin from 'svg-sprite-loader/plugin';
 import { WebpackStringReplacer } from 'webpack-string-replacer';
 // import { CE } from 'js-vextensions';
 import { CE } from 'js-vextensions/Source'; // temp; require source, thus ts-node compiles to commonjs (fix for that ts-node doesn't support es2015-modules)
+// import resolverFactory from 'enhanced-resolve/lib/ResolverFactory';
+import SymlinkPlugin from 'enhanced-resolve/lib/SymlinkPlugin';
 import { config } from '../Config';
 import { npmPatch_replacerConfig } from './NPMPatches';
 import { MakeSoWebpackConfigOutputsStats } from './WebpackConfig/OutputStats';
@@ -120,6 +122,16 @@ webpackConfig.output = {
 	path: paths.dist(),
 	publicPath: config.compiler_public_path,
 	pathinfo: true, // include comments next to require-funcs saying path
+};
+
+// fix for symlinks
+// ==========
+
+// don't resolve sym-links to their absolute path (behavior should be the same whether a module is sym-linked or not)
+webpackConfig.resolve.symlinks = false;
+// not sure if this is needed (given flag-set above), but keeping, since it apparently does still get called once
+SymlinkPlugin.prototype.apply = function () {
+	console.log('Symlink-plugin disabled...');
 };
 
 // plugins

@@ -9,7 +9,7 @@ declare function require(name: string): any;*/
 
 // declare var startURL;
 
-declare type voidy = void | Promise<void>;
+//declare type voidy = void | Promise<void>;
 
 // temp fix for mobx/flow.d.ts (fixed by updating @types/webpack, I believe)
 //declare type AsyncGenerator<A, B, C> = any;

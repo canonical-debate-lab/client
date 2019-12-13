@@ -1,3 +1,4 @@
+import 'mobx'; // import mobx before we declare the module below, otherwise vscode auto-importer gets confused at path to mobx
 import { Firelink, GetDoc, SetDefaultFireOptions } from 'mobx-firelink';
 import { dbVersion } from 'Main';
 import { FirebaseDBShape } from 'Store/firebase';
