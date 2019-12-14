@@ -2,6 +2,7 @@ import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
 import { GetUpdates } from 'vwebapp-framework';
 import { store } from 'Store';
+import {runInAction} from 'mobx';
 import { AddNodeRevision } from '../../../../../../Server/Commands/AddNodeRevision';
 import { UpdateLink } from '../../../../../../Server/Commands/UpdateLink';
 import { Map } from '../../../../../../Store/firebase/maps/@Map';
@@ -48,7 +49,7 @@ export class DetailsPanel extends BaseComponentPlus({} as {map?: Map, node: MapN
 							}
 
 							const revisionID = await new AddNodeRevision({ mapID: map._key, revision: this.detailsUI.GetNewRevisionData() }).Run();
-							store.main.nodeLastAcknowledgementTimes.set(node._key, Date.now());
+							runInAction('DetailsPanel.save.onClick', () => store.main.nodeLastAcknowledgementTimes.set(node._key, Date.now()));
 							// await WaitTillPathDataIsReceiving(DBPath(`nodeRevisions/${revisionID}`));
 							// await WaitTillPathDataIsReceived(DBPath(`nodeRevisions/${revisionID}`));
 						}}/>
