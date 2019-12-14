@@ -7,8 +7,11 @@ import { AddNotificationMessage } from 'UI/@Shared/NavBar/NotificationsUI';
 import { logTypes, LogTypes_New } from 'Utils/General/Logging';
 import { ValidateDBData } from 'Utils/Store/DBDataValidator';
 import { DoesURLChangeCountAsPageChange, GetLoadActionFuncForURL, GetNewURL } from 'Utils/URL/URLs';
-import { manager as manager_framework } from 'vwebapp-framework';
+import { manager as manager_framework, ActionFunc, RootStore } from 'vwebapp-framework';
 import './VWAF/Overrides';
+import produce from 'immer';
+import { Feedback_store } from 'firebase-feedback';
+import { WithStore } from 'mobx-firelink';
 
 const context = (require as any).context('../../../Resources/SVGs/', true, /\.svg$/);
 const iconInfo = {};
@@ -35,7 +38,6 @@ export function InitVWAF() {
 		mobxCompatMode: true,
 
 		startURL,
-		routerLocationPathInStore: ['router', 'location'],
 		GetLoadActionFuncForURL,
 		GetNewURL,
 		DoesURLChangeCountAsPageChange,
@@ -62,5 +64,22 @@ export function InitVWAF() {
 		GetUserID: MeID,
 
 		ValidateDBData,
+
+		GetNewURLForStoreChanges,
 	});
+}
+
+export function GetNewURLForStoreChanges<T = RootState>(actionFunc: ActionFunc<T>, getSubOperatedOnByActionFunc: (root: RootState)=>T = ((root) => root as any)) {
+	const newState = produce(store, (draft: RootState) => {
+		actionFunc(getSubOperatedOnByActionFunc(draft));
+	});
+	// have new-state used for our store-accessors (ie. GetNewURL)
+	const newURL = WithStore({}, newState, () => {
+		// and have new-state used for firebase-feedback's store-accessors (ie. GetSelectedProposalID, as called by our GetNewURL)
+		// [this part's probably not actually needed, since project-level Link.actionFunc's are unlikely to modify firebase-feedback's internal state; we do this for completeness, though]
+		return WithStore({ fire: Feedback_store.firelink }, newState.feedback, () => {
+			return GetNewURL();
+		});
+	});
+	return newURL.toString();
 }

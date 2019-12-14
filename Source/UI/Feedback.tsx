@@ -1,4 +1,3 @@
-import { ACTProposalSelect } from 'firebase-feedback';
 import { Column, Switch } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { ProposalsUI } from 'UI/Feedback/ProposalsUI';
@@ -20,7 +19,7 @@ export class FeedbackUI extends BaseComponentPlus({} as {}, {}) {
 		const currentSubpage = store.main.feedback.subpage;
 		const page = 'feedback';
 		return (
-			<Column style={{ flex: 1 }}>
+			<>
 				<SubNavBar>
 					<SubNavBarButton page={page} subpage="proposals" text="Proposals" actionFuncIfAlreadyActive={(s) => s.feedback.main.proposals.selectedProposalID = null}/>
 					{/* <SubNavBarButton page={page} subpage="roadmap" text="Roadmap"/>
@@ -31,7 +30,7 @@ export class FeedbackUI extends BaseComponentPlus({} as {}, {}) {
 					{/* currentSubpage == "roadmap" && <RoadmapUI/>}
 					{currentSubpage == "neutrality" && <NeutralityUI/> */}
 				</Switch>
-			</Column>
+			</>
 		);
 	}
 }

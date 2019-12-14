@@ -68,20 +68,11 @@ export class DefinitionsPanel extends BaseComponentPlus(
 }
 
 class TermDefinitionPanel extends BaseComponent<{term: Term, termVariantNumber: number}, {}> {
-	/* static contextTypes = {
-		router: PropTypes.shape({
-			history: PropTypes.shape({
-				push: PropTypes.func.isRequired,
-				replace: PropTypes.func.isRequired,
-				createHref: PropTypes.func.isRequired
-			}).isRequired
-		}).isRequired
-	}; */
 	render() {
 		const { term, termVariantNumber } = this.props;
 
 		// let creatorOrMod = term != null && IsUserCreatorOrMod(MeID(), term);
-		const showDetailsURL = GetCurrentURL(true).Clone();
+		const showDetailsURL = GetCurrentURL().Clone();
 		showDetailsURL.pathNodes = ['database', 'terms', `${term._key}`];
 		showDetailsURL.queryVars = [];
 

@@ -1,16 +1,18 @@
 import { Feedback_store, manager as manager_feedback } from 'firebase-feedback';
-import { DBPath } from 'mobx-firelink';
+import { DBPath, WithStore } from 'mobx-firelink';
 import Moment from 'moment';
-import { store } from 'Store';
+import { store, RootState } from 'Store';
 import { GetUser, GetUserPermissionGroups, MeID } from 'Store/firebase/users';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { logTypes } from 'Utils/General/Logging';
-import { PushHistoryEntry } from 'Utils/URL/URLs';
+import { PushHistoryEntry, GetNewURL } from 'Utils/URL/URLs';
 import { Link, VReactMarkdown_Remarkable } from 'vwebapp-framework';
+import produce from 'immer';
+import {action} from 'mobx';
+import {GetNewURLForStoreChanges} from './VWAF';
 
 export function InitFeedback() {
-	// g.FirebaseConnect = Connect;
-	const sharedData = {
+	manager_feedback.Populate({
 		GetStore: () => store,
 		/* GetNewURL: (actionsToDispatch: Action<any>[])=> {
 			let newState = State();
@@ -24,7 +26,6 @@ export function InitFeedback() {
 			StopStateDataOverride();
 			return newURL;
 		}, */
-		Link: Link as any,
 		FormatTime: (time: number, formatStr: string) => {
 			if (formatStr == '[calendar]') {
 				const result = Moment(time).calendar();
@@ -34,15 +35,7 @@ export function InitFeedback() {
 			return Moment(time).format(formatStr);
 		},
 
-		/* router_replace: replace,
-		router_push: push, */
-		/* RunActionFuncAsPageReplace: (actionFunc: ActionFunc<RootState>) => {
-			// todo
-		},
-		RunActionFuncAsPagePush: (actionFunc: ActionFunc<RootState>) => {
-			// todo
-		}, */
-		PushHistoryEntry,
+		// PushHistoryEntry,
 
 		logTypes,
 
@@ -52,11 +45,27 @@ export function InitFeedback() {
 		GetUserPermissionGroups,
 
 		MarkdownRenderer: VReactMarkdown_Remarkable,
-	};
 
-	manager_feedback.Populate(sharedData.Extended({
 		dbPath: DBPath({}, 'modules/feedback'),
 		// storePath_mainData: 'feedback',
-	}));
+
+		/* GetNewURLForStoreChanges: (actionFunc) => {
+			/* const newState = produce(Feedback_store, (draft) => {
+				actionFunc(draft);
+			}); *#/
+			const newState = produce(store, (draft: RootState) => {
+				actionFunc(draft.feedback);
+			});
+			// have new-state used for our store-accessors (ie. GetNewURL) [this part's probably not actually needed, since we just call lib store-accessor]
+			const newURL = WithStore({}, newState, () => {
+				// and have new-state used for firebase-feedback's store-accessors (ie. GetSelectedProposalID, as called by our GetNewURL)
+				return WithStore({ fire: Feedback_store.firelink }, newState.feedback, () => {
+					return GetNewURL();
+				});
+			});
+			return newURL.toString();
+		}, */
+		GetNewURLForStoreChanges: (actionFunc) => GetNewURLForStoreChanges(actionFunc, (rootStore) => rootStore.feedback),
+	});
 	store.feedback = Feedback_store;
 }

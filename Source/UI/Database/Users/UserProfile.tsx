@@ -5,13 +5,14 @@ import { User } from 'Store/firebase/users/@User';
 import { UpdateProfile } from 'Server/Commands/UpdateProfile';
 import { BoxController, ShowMessageBox } from 'react-vmessagebox';
 import { presetBackgrounds, defaultPresetBackground } from 'Utils/UI/PresetBackgrounds';
-import { PageContainer } from 'vwebapp-framework';
+import { PageContainer, Observer } from 'vwebapp-framework';
 import { styles, ES } from 'Utils/UI/GlobalStyles';
 import { Fragment } from 'react';
 import { PropNameToTitle } from 'Utils/General/Others';
 import { SetUserPermissionGroups } from 'Server/Commands/SetUserPermissionGroups';
 import { ScrollView } from 'react-vscrollview';
 
+@Observer
 export class UserProfileUI extends BaseComponentPlus({} as {profileUser: User}, {}) {
 	render() {
 		const { profileUser } = this.props;

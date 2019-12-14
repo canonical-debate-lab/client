@@ -2,7 +2,7 @@ import { GetNewURL } from 'Utils/URL/URLs';
 import { VURL, WaitXThenRun, CopyText } from 'js-vextensions';
 import { Button, Column, DropDown, DropDownContent, DropDownTrigger, Pre, Row, RowLR, Select, TextInput } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
-import {GetCurrentURL} from 'vwebapp-framework';
+import { GetCurrentURL } from 'vwebapp-framework';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { GetMapTimelines } from '../../../../../Store/firebase/timelines';
 import { Timeline } from '../../../../../Store/firebase/timelines/@Timeline';
@@ -15,7 +15,7 @@ export class ShareDropDown extends BaseComponentPlus({} as {map: Map}, { timelin
 		const timelines = GetMapTimelines(map);
 
 		newURL.queryVars.Clear();
-		newURL.domain = GetCurrentURL(true).domain;
+		newURL.domain = GetCurrentURL().domain;
 		if (timeline) {
 			newURL.SetQueryVar('timeline', timeline._key);
 		}

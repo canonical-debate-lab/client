@@ -14,6 +14,7 @@ const linkRootPath = `versions/v${dbVersion}-${DB_SHORT}`;
 export const fire = new Firelink<RootState, FirebaseDBShape>(linkRootPath, store, false);
 store.firelink = fire;
 SetDefaultFireOptions({ fire });
+// console.log('Default fire options set:', { fire });
 OnPopulated(() => fire.InitSubs());
 
 // start auto-runs after store+firelink are created
