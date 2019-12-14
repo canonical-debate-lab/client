@@ -6,7 +6,8 @@ import { Area, AreaChart, CartesianGrid, ReferenceLine, Tooltip, XAxis, YAxis } 
 import { SetNodeRating } from 'Server/Commands/SetNodeRating';
 import { store } from 'Store';
 import { GetRatingUISmoothing } from 'Store/main/ratingUI';
-import {SlicePath} from 'mobx-firelink';
+import { SlicePath } from 'mobx-firelink';
+import {Observer} from 'vwebapp-framework';
 import { ShouldRatingTypeBeReversed, TransformRatingForContext } from '../../../../../../Store/firebase/nodeRatings';
 import { GetRatingTypeInfo, RatingType } from '../../../../../../Store/firebase/nodeRatings/@RatingType';
 import { Rating } from '../../../../../../Store/firebase/nodeRatings/@RatingsRoot';
@@ -26,6 +27,8 @@ import { ShowSignInPopup } from '../../../../NavBar/UserPanel';
 ]; */
 
 type RatingsPanel_Props = {node: MapNodeL3, path: string, ratingType: RatingType, ratings: Rating[]};
+
+@Observer
 export class RatingsPanel extends BaseComponentPlus({} as RatingsPanel_Props, { size: null as Vector2i }) {
 	render() {
 		const { node, path, ratingType, ratings } = this.props;

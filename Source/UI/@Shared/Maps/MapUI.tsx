@@ -103,8 +103,8 @@ export class MapUI extends BaseComponentPlus({
 		const { map, rootNode: rootNode_passed, withinPage, padding, subNavBarWidth, ...rest } = this.props;
 		Assert(map._key, 'map._key is null!');
 
-		if (!store.main.maps.has(map._key)) return <MapUIWaitMessage message="Initialing map metadata..."/>;
-		if (GetMapView(map._key) == null) return <MapUIWaitMessage message="Initialing map view..."/>;
+		if (!store.main.maps.has(map._key)) return <MapUIWaitMessage message="Initializing map metadata..."/>;
+		if (GetMapView(map._key) == null) return <MapUIWaitMessage message="Initializing map view..."/>;
 		if (map == null) return <MapUIWaitMessage message="Loading map..."/>;
 		const rootNode = (() => {
 			let result = rootNode_passed;

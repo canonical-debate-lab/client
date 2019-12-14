@@ -7,9 +7,9 @@ import { GetParentNodeID, GetParentNodeL3 } from 'Store/firebase/nodes';
 import { GetUser, GetUserPermissionGroups, MeID } from 'Store/firebase/users';
 import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
 import { UUIDPathStub, UUIDStub } from 'UI/@Shared/UUIDStub';
-import { Icon } from 'vwebapp-framework';
+import { Icon, Observer } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
-import {SlicePath} from 'mobx-firelink';
+import { SlicePath } from 'mobx-firelink';
 import { CanConvertFromClaimTypeXToY, ChangeClaimType } from '../../../../../../Server/Commands/ChangeClaimType';
 import { ReverseArgumentPolarity } from '../../../../../../Server/Commands/ReverseArgumentPolarity';
 import { UpdateLink } from '../../../../../../Server/Commands/UpdateLink';
@@ -21,6 +21,7 @@ import { ArgumentType } from '../../../../../../Store/firebase/nodes/@MapNodeRev
 import { MapNodeType } from '../../../../../../Store/firebase/nodes/@MapNodeType';
 import { IsUserCreatorOrMod } from '../../../../../../Store/firebase/userExtras';
 
+@Observer
 export class OthersPanel extends BaseComponentPlus({} as {map?: Map, node: MapNodeL3, path: string}, { convertToType: null as ClaimType }) {
 	render() {
 		const { map, node, path } = this.props;

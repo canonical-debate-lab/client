@@ -4,7 +4,9 @@ import { Button, Span } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { MeID } from 'Store/firebase/users';
-import {MapNodeView} from 'Store/main/mapViews/$mapView';
+import { MapNodeView, GetNodeView } from 'Store/main/mapViews/$mapView';
+import { SlicePath } from 'mobx-firelink';
+import { Observer } from 'vwebapp-framework';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetRatingAverage_AtPath, GetRatings } from '../../../../Store/firebase/nodeRatings';
 import { RatingsRoot } from '../../../../Store/firebase/nodeRatings/@RatingsRoot';
@@ -13,23 +15,24 @@ import { GetParentNodeL3 } from '../../../../Store/firebase/nodes';
 import { GetNodeForm, GetRatingTypesForNode, IsPremiseOfSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
 import { ClaimForm, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
 import { MapNodeType_Info } from '../../../../Store/firebase/nodes/@MapNodeType';
-import { SlicePath } from 'mobx-firelink';
 
 type Props = {
-	map: Map, path: string, node: MapNodeL3, nodeView?: MapNodeView, ratingsRoot: RatingsRoot,
+	map: Map, path: string, node: MapNodeL3, ratingsRoot: RatingsRoot,
 	panelPosition?: 'left' | 'below', local_openPanel?: string,
 	backgroundColor: chroma.Color, asHover: boolean, inList?: boolean, style?,
 	onPanelButtonHover: (panel: string)=>void, onPanelButtonClick: (panel: string)=>void,
 };
+@Observer
 export class MapNodeUI_LeftBox extends BaseComponentPlus({ panelPosition: 'left' } as Props, {}) {
 	render() {
 		const {
-			map, path, node, nodeView, ratingsRoot,
+			map, path, node, ratingsRoot,
 			panelPosition, local_openPanel,
 			backgroundColor, asHover, inList, onPanelButtonHover, onPanelButtonClick, style,
 			children,
 		} = this.props;
-		const openPanel = local_openPanel || nodeView.openPanel;
+		const nodeView = GetNodeView(map._key, path);
+		const openPanel = local_openPanel || nodeView?.openPanel;
 
 		const form = GetNodeForm(node, path);
 		const parentNode = GetParentNodeL3(path);

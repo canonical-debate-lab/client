@@ -16,7 +16,7 @@ import { MeID } from 'Store/firebase/users';
 import { InfoButton, IsDoubleClick, ParseSegmentsForPatterns, VReactMarkdown_Remarkable, Observer } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { store } from 'Store';
-import { MapNodeView } from 'Store/main/mapViews/$mapView';
+import { MapNodeView, GetNodeViewsAlongPath, GetNodeView } from 'Store/main/mapViews/$mapView';
 import { runInAction } from 'mobx';
 import { NodeMathUI } from '../NodeMathUI';
 import { NodeUI_Inner } from '../NodeUI_Inner';
@@ -39,7 +39,7 @@ export function TitlePanel(props: VProps<TitlePanelInternals, {
 @WarnOfTransientObjectProps
 @Observer
 export class TitlePanel extends BaseComponentPlus(
-	{} as {parent: NodeUI_Inner, map: Map, node: MapNodeL2, nodeView: MapNodeView, path: string, indexInNodeList: number, style},
+	{} as {parent: NodeUI_Inner, map: Map, node: MapNodeL2, path: string, indexInNodeList: number, style},
 	{ newTitle: null as string, editing: false, applyingEdit: false },
 ) {
 	OnDoubleClick = () => {
@@ -55,20 +55,25 @@ export class TitlePanel extends BaseComponentPlus(
 		parent.SetState({ hoverPanel: hovered ? 'definitions' : null, hoverTermID: hovered ? termID : null });
 	};
 	OnTermClick = (termID: string) => {
-		const { map, path, nodeView } = this.props;
+		const { map, path } = this.props;
 		// parent.SetState({hoverPanel: "definitions", hoverTermID: termID});
 		runInAction('TitlePanel_OnTermClick', () => {
-			nodeView.openPanel = 'definitions';
-			nodeView.openTermID = termID;
+			let nodeView_final = GetNodeView(map._key, path);
+			if (nodeView_final == null) {
+				nodeView_final = GetNodeViewsAlongPath(map._key, path, true).Last();
+			}
+			nodeView_final.openPanel = 'definitions';
+			nodeView_final.openTermID = termID;
 		});
 	};
 
 	render() {
 		// const { map, parent, node, nodeView, path, displayText, equationNumber, style, ...rest } = this.props;
-		const { map, parent, node, nodeView, path, style, ...rest } = this.props;
+		const { map, parent, node, path, style, ...rest } = this.props;
 		let { newTitle, editing, applyingEdit } = this.state;
 		// UseImperativeHandle(ref, () => ({ OnDoubleClick }));
 
+		const nodeView = GetNodeView(map._key, path);
 		const latex = node.current.equation && node.current.equation.latex;
 		const isSubnode = IsNodeSubnode(node);
 

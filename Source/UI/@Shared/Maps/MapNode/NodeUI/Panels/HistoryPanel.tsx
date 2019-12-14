@@ -7,6 +7,7 @@ import { ScrollView } from 'react-vscrollview';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { GetNodeRevisions } from 'Store/firebase/nodeRevisions';
 import { UUIDStub } from 'UI/@Shared/UUIDStub';
+import { Observer } from 'vwebapp-framework';
 import { Map } from '../../../../../../Store/firebase/maps/@Map';
 import { GetParentNodeL3 } from '../../../../../../Store/firebase/nodes';
 import { GetLinkUnderParent } from '../../../../../../Store/firebase/nodes/$node';
@@ -18,6 +19,7 @@ import { NodeDetailsUI } from '../../NodeDetailsUI';
 
 export const columnWidths = [0.15, 0.3, 0.35, 0.2];
 
+@Observer
 export class HistoryPanel extends BaseComponentPlus({} as {map?: Map, node: MapNodeL3, path: string}, {}) {
 	detailsUI: NodeDetailsUI;
 	render() {
@@ -52,6 +54,7 @@ export class HistoryPanel extends BaseComponentPlus({} as {map?: Map, node: MapN
 }
 
 type RevisionEntryUI_Props = {index: number, last: boolean, revision: MapNodeRevision, node: MapNodeL3, path: string};
+@Observer
 class RevisionEntryUI extends BaseComponentPlus({} as RevisionEntryUI_Props, {}) {
 	render() {
 		const { index, last, revision, node, path } = this.props;

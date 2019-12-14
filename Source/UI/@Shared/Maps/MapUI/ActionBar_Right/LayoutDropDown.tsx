@@ -4,7 +4,11 @@ import { Map } from 'Store/firebase/maps/@Map';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { Button_GAD } from 'UI/@GAD/GADButton';
 import { store } from 'Store';
+import { runInAction } from 'mobx';
+import { Observer } from 'vwebapp-framework';
+import { ACTEnsureMapStateInit, ACTCreateMapViewIfMissing } from 'Store/main';
 
+@Observer
 export class LayoutDropDown extends BaseComponentPlus({} as {map: Map}, {}) {
 	render() {
 		const { map } = this.props;
@@ -19,16 +23,23 @@ export class LayoutDropDown extends BaseComponentPlus({} as {map: Map}, {}) {
 				<DropDownContent style={{ right: 0, width: 320 }}><Column>
 					<RowLR splitAt={splitAt}>
 						<Pre>Initial child limit: </Pre>
-						<Spinner min={1} style={{ width: '100%' }}
-							value={initialChildLimit} onChange={(val) => store.main.initialChildLimit = val}/>
+						<Spinner min={1} style={{ width: '100%' }} value={initialChildLimit} onChange={(val) => {
+							runInAction('LayoutDropDown.initialChildLimit.onChange', () => store.main.initialChildLimit = val);
+						}}/>
 					</RowLR>
 					<RowLR splitAt={splitAt}>
 						<Pre>Show Reason Score values: </Pre>
-						<CheckBox checked={showReasonScoreValues} onChange={(val) => store.main.showReasonScoreValues = val}/>
+						<CheckBox checked={showReasonScoreValues} onChange={(val) => {
+							runInAction('LayoutDropDown.showReasonScoreValues.onChange', () => store.main.showReasonScoreValues = val);
+						}}/>
 					</RowLR>
 					<Row mt={5}>
 						<Button text="Clear map-view state" onClick={() => {
-							store.main.mapViews.delete(map._key);
+							runInAction('LayoutDropDown.clearMapViewState.onClick', () => {
+								store.main.mapViews.delete(map._key);
+								ACTEnsureMapStateInit(map._key);
+								ACTCreateMapViewIfMissing(map._key);
+							});
 						}}/>
 					</Row>
 				</Column></DropDownContent>

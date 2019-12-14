@@ -28,6 +28,8 @@ import { NodeUI_Menu } from '../../@Shared/Maps/MapNode/NodeUI_Menu';
 import { HistoryPanel } from './MapNode/NodeUI/Panels/HistoryPanel';
 import { MapNodeUI_LeftBox } from './MapNode/NodeUI_LeftBox';
 
+// This file is very old, and left here for now for reference purposes. Will need review if restored in the future.
+
 const columnWidths = [0.68, 0.2, 0.12];
 
 const entriesPerPage = 23;
@@ -233,7 +235,7 @@ class NodeColumn extends BaseComponentPlus({} as NodeColumn_Props, { width: null
 				}} onResize={()=> {
 					if (this.refs.ratingsPanel) GetInnerComp(this.refs.ratingsPanel).Update();
 				}}/> */}
-				<MapNodeUI_LeftBox {...{ map, path, node: nodeL3, nodeView, ratingsRoot, backgroundColor }}
+				<MapNodeUI_LeftBox {...{ map, path, node: nodeL3, ratingsRoot, backgroundColor }}
 					onPanelButtonHover={(panel) => this.SetState({ hoverPanel: panel })}
 					onPanelButtonClick={(panel) => mapInfo.list_selectedNode_openPanel = panel}
 					asHover={false} inList={true} style={{ marginTop: 25 }}/>

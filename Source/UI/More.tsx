@@ -1,12 +1,14 @@
 import { Switch } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
 import { HasAdminPermissions } from 'Store/firebase/userExtras';
-import {store} from 'Store';
+import { store } from 'Store';
+import {Observer} from 'vwebapp-framework';
 import { GetUsers, MeID } from '../Store/firebase/users';
 import { SubNavBar, SubNavBarButton } from './@Shared/SubNavBar';
 import { AdminUI } from './More/Admin';
 import { LinksUI } from './More/Links';
 
+@Observer
 export class MoreUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
 		const admin = HasAdminPermissions(MeID());

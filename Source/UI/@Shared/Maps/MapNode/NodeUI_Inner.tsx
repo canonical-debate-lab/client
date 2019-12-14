@@ -10,7 +10,7 @@ import { GADDemo } from 'UI/@GAD/GAD';
 import { DragInfo, EB_ShowError, EB_StoreError, HSLA, IsDoubleClick, Observer } from 'vwebapp-framework';
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
 import { GetTimeFromWhichToShowChangedNodes, GetNodeRevealHighlightTime, GetTimeSinceNodeRevealedByPlayingTimeline } from 'Store/main/maps/$map';
-import { GetPathNodeIDs, MapNodeView, ACTMapNodeSelect, ACTMapNodeExpandedSet, GetNodeView } from 'Store/main/mapViews/$mapView';
+import { GetPathNodeIDs, MapNodeView, ACTMapNodeSelect, ACTMapNodeExpandedSet, GetNodeView, GetNodeViewsAlongPath } from 'Store/main/mapViews/$mapView';
 import { store } from 'Store';
 import { WeightingType, GetLastAcknowledgementTime } from 'Store/main';
 import { runInAction } from 'mobx';
@@ -284,7 +284,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 					onDirectClick={onDirectClick}
 					beforeChildren={<>
 						{leftPanelShow &&
-						<MapNodeUI_LeftBox {...{ map, path, node, nodeView, ratingsRoot, panelPosition, local_openPanel, backgroundColor }} asHover={hovered}
+						<MapNodeUI_LeftBox {...{ map, path, node, ratingsRoot, panelPosition, local_openPanel, backgroundColor }} asHover={hovered}
 							onPanelButtonHover={(panel) => this.SetState({ hoverPanel: panel })}
 							onPanelButtonClick={(panel) => {
 								if (useLocalPanelState) {
@@ -293,10 +293,12 @@ export class NodeUI_Inner extends BaseComponentPlus(
 								}
 
 								runInAction('NodeUI_Inner.onPanelButtonClick', () => {
-									if (nodeView.openPanel != panel) {
-										nodeView.openPanel = panel;
+									let nodeView_final = nodeView;
+									if (nodeView_final == null) nodeView_final = GetNodeViewsAlongPath(map._key, path, true).Last();
+									if (nodeView_final.openPanel != panel) {
+										nodeView_final.openPanel = panel;
 									} else {
-										nodeView.openPanel = null;
+										nodeView_final.openPanel = null;
 										this.SetState({ hoverPanel: null });
 									}
 								});
@@ -309,7 +311,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 					</>}
 					onTextHolderClick={onTextHolderClick}
 					text={<>
-						<TitlePanel {...{ indexInNodeList, parent: this, map, node, nodeView, path }} {...(dragInfo && dragInfo.provided.dragHandleProps)}
+						<TitlePanel {...{ indexInNodeList, parent: this, map, node, path }} {...(dragInfo && dragInfo.provided.dragHandleProps)}
 							ref={(c) => this.titlePanel = c}
 							style={E(GADDemo && { color: HSLA(222, 0.33, 0.25, 1), fontFamily: 'TypoPRO Bebas Neue', fontSize: 15, letterSpacing: 1 })}/>
 						{subPanelShow && <SubPanel node={node}/>}
@@ -322,7 +324,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 					toggleExpanded={toggleExpanded}
 					afterChildren={<>
 						{bottomPanelShow
-							&& <NodeUI_BottomPanel {...{ map, node, nodeView, path, parent, width, widthOverride, panelPosition, panelToShow, hovered, backgroundColor }}
+							&& <NodeUI_BottomPanel {...{ map, node, path, parent, width, widthOverride, panelPosition, panelToShow, hovered, backgroundColor }}
 								hoverTermID={hoverTermID} onTermHover={(termID) => this.SetState({ hoverTermID: termID })}/>}
 						{reasonScoreValues && showReasonScoreValues
 							&& <ReasonScoreValueMarkers {...{ node, combinedWithParentArgument, reasonScoreValues }}/>}
@@ -377,22 +379,25 @@ WaitXThenRun(0, () => {
 	document.body.appendChild(portal);
 });
 
+@Observer
 class NodeUI_BottomPanel extends BaseComponentPlus(
 	{} as {
-		map: Map, node: MapNodeL3, nodeView: MapNodeView, path: string, parent: MapNodeL3,
+		map: Map, node: MapNodeL3, path: string, parent: MapNodeL3,
 		width: number, widthOverride: number, panelPosition: 'left' | 'below', panelToShow: string, hovered: boolean, hoverTermID: string, onTermHover: (id: string)=>void,
 		backgroundColor: Color,
 	},
 	{ hoverTermID: null as string },
-) {
+	) {
 	componentDidCatch(message, info) { EB_StoreError(this, message, info); }
 	render() {
 		if (this.state['error']) return EB_ShowError(this.state['error']);
 		const {
-			map, node, nodeView, path, parent,
+			map, node, path, parent,
 			width, widthOverride, panelPosition, panelToShow, hovered, hoverTermID, onTermHover,
 			backgroundColor,
 		} = this.props;
+		const nodeView = GetNodeView(map._key, path);
+
 		return (
 			// <ErrorBoundary>
 			<div className="NodeUI_BottomPanel" style={{

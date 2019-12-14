@@ -164,7 +164,7 @@ export class NodeChildHolderBox extends BaseComponentPlus({} as Props, { innerBo
 				</Row>
 				{nodeView[expandKey] &&
 					<NodeChildHolder ref={(c) => this.childHolder = c}
-						{...{ map, node, path, nodeView, nodeChildrenToShow, type, separateChildren, showArgumentsControlBar }}
+						{...{ map, node, path, nodeChildrenToShow, type, separateChildren, showArgumentsControlBar }}
 						linkSpawnPoint={innerBoxOffset + (height / 2)}
 						onHeightOrDividePointChange={this.CheckForChanges}/>}
 			</Row>

@@ -22,7 +22,7 @@ type Props = {
 	parent: MapNodeL3, forNew: boolean, forOldRevision?: boolean, enabled?: boolean,
 	style?, onChange?: (newData: MapNode, newRevisionData: MapNodeRevision, newLinkData: ChildEntry, component: NodeDetailsUI)=>void,
 	// onSetError: (error: string)=>void,
-} & Partial<{creator: User}>;
+};
 type State = {newData: MapNode, newRevisionData: MapNodeRevision, newLinkData: ChildEntry};
 type SharedProps = Props & State & {newDataAsL2, Change, SetState};
 

@@ -1,7 +1,7 @@
 import { CachedTransform } from 'js-vextensions';
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
-import { GetCurrentURL, Link } from 'vwebapp-framework';
+import { GetCurrentURL, Link, Observer } from 'vwebapp-framework';
 import { TermComponentsUI } from 'UI/Database/Terms/TermComponentsUI';
 import { Fragment } from 'react';
 import { ParseSegmentsForPatterns } from '../../../../../../Utils/General/RegexHelpers';
@@ -12,6 +12,7 @@ import { Term } from '../../../../../../Store/firebase/terms/@Term';
 
 const termsPlaceholder = [];
 
+@Observer
 export class DefinitionsPanel extends BaseComponentPlus(
 	{} as {node: MapNodeL2, path: string, hoverTermID?: string, openTermID?: string, onHoverTerm?: (termID: string)=>void, onClickTerm?: (termID: string)=>void},
 	{/* localHoverTerm: Term, localClickTerm: Term */},
