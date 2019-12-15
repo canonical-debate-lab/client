@@ -115,8 +115,6 @@ export class RootUIWrapper extends BaseComponentPlus({}, {}) {
 		// if (!g.storeRehydrated) return <div/>;
 		if (!storeReady) return null;
 
-		const globalMap = GetMap(globalMapID); // test
-
 		return (
 			<DragDropContext_Beautiful onDragEnd={this.OnDragEnd}>
 				<RootUI/>
