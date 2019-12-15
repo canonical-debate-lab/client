@@ -1,4 +1,4 @@
-import { Vector2i, Assert, IsString, GetTreeNodesInObjTree, DeepGet, IsPrimitive, DeepSet, Break } from 'js-vextensions';
+import { Vector2i, Assert, IsString, GetTreeNodesInObjTree, DeepGet, IsPrimitive, DeepSet } from 'js-vextensions';
 import { observable } from 'mobx';
 import { O, Validate, StoreAction } from 'vwebapp-framework';
 import { UUID } from 'Utils/General/KeyGenerator';
@@ -139,7 +139,7 @@ export const GetNodeView = StoreAccessor({ cache_unwrapArgs: [1] }, (s) => (mapI
 	let currentNodeView = mapView.rootNodeViews[pathNodes[0]];
 	pathNodes.Skip(1).ForEach((pathNode) => {
 		currentNodeView = currentNodeView.children[pathNode];
-		if (currentNodeView == null) return Break();
+		if (currentNodeView == null) return 'break';
 	});
 	return currentNodeView;
 });
@@ -226,7 +226,7 @@ export const ACTMapNodeExpandedSet = StoreAction((opt: {
 		if (childGroup[pathNode] == null) {
 			childGroup[pathNode] = new MapNodeView();
 		}
-		return childGroup[pathNode];
+		nodeViews.push(childGroup[pathNode]);
 	}
 
 	if (opt.expandAncestors) {

@@ -10,16 +10,37 @@ import chroma from 'chroma-js';
 // require("./CE_Object");
 import './CE_Object';
 import { ObjectCES, CE } from 'js-vextensions';
+import { ObservableMap } from 'mobx';
 
 // Node
 // ==========
 
-declare global {
-	interface HTMLElement {
-		R: any;
+declare global { interface HTMLElement { R: any; } }
+CE(HTMLElement.prototype)._AddGetter_Inline = function R() { return FindReact(this); };
+
+// Map
+// ==========
+
+// declare global { interface HTMLElement { R: any; } }
+// CE(Map.prototype)._AddGetter_Inline = function raw(this: Map<any, any>) {
+Map.prototype['raw'] = function raw(this: Map<any, any>) {
+	const result = {};
+	for (const key of this.keys()) {
+		result[key] = this.get(key);
 	}
-}
-HTMLElement.prototype._AddGetter_Inline = function R() { return FindReact(this); };
+	return result;
+};
+
+// ObservableMap
+// ==========
+
+CE(ObservableMap.prototype)._AddGetterSetter('raw', function raw(this: Map<any, any>) {
+	const result = {};
+	for (const key of this.keys()) {
+		result[key] = this.get(key);
+	}
+	return result;
+}, null);
 
 // Array
 // ==========

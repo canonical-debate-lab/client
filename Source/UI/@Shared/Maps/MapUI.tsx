@@ -1,5 +1,5 @@
 import { StandardCompProps } from 'Utils/UI/General';
-import { DeepGet, E, SleepAsync, Timer, Vector2i, FindDOMAll, Assert, FromJSON, ToJSON, VRect } from 'js-vextensions';
+import { DeepGet, E, SleepAsync, Timer, Vector2i, FindDOMAll, Assert, FromJSON, ToJSON, VRect, GetTreeNodesInObjTree } from 'js-vextensions';
 import { Column, Row } from 'react-vcomponents';
 import { BaseComponentWithConnector, FindReact, GetDOM, BaseComponentPlus, BaseComponent } from 'react-vextensions';
 import { VMenuStub, VMenuItem } from 'react-vmenu';
@@ -43,6 +43,15 @@ export function GetViewOffsetForNodeBox(nodeBox: Element) {
 }
 
 export const ACTUpdateFocusNodeAndViewOffset = StoreAction((mapID: string) => {
+	// unfocus the old focused node
+	const rootNodeViews = GetMapView(mapID).rootNodeViews;
+	const nodes = GetTreeNodesInObjTree(rootNodeViews, true);
+	const oldFocusNode = nodes.FirstOrX((a) => a.Value && a.Value.focused);
+	if (oldFocusNode) {
+		oldFocusNode.Value.focused = false;
+		oldFocusNode.Value.viewOffset = null;
+	}
+
 	// CreateMapViewIfMissing(mapID);
 	/* let selectedNodePath = GetSelectedNodePath(mapID);
 	let focusNodeBox = selectedNodePath ? GetNodeBoxForPath(selectedNodePath) : GetNodeBoxClosestToViewCenter(); */
@@ -54,12 +63,13 @@ export const ACTUpdateFocusNodeAndViewOffset = StoreAction((mapID: string) => {
 	if (focusNodePath == null) return; // can happen sometimes; not sure what causes
 	const viewOffset = GetViewOffsetForNodeBox(focusNodeBox);
 
-	let oldNodeView = GetNodeView(mapID, focusNodePath);
-	if (oldNodeView == null || !oldNodeView.focused || !viewOffset.Equals(oldNodeView.viewOffset)) {
-		if (oldNodeView == null) {
-			oldNodeView = GetNodeViewsAlongPath(mapID, focusNodePath, true).Last();
+	let nodeView = GetNodeView(mapID, focusNodePath);
+	if (nodeView == null || !nodeView.focused || !viewOffset.Equals(nodeView.viewOffset)) {
+		if (nodeView == null) {
+			nodeView = GetNodeViewsAlongPath(mapID, focusNodePath, true).Last();
 		}
-		oldNodeView.viewOffset = viewOffset;
+		nodeView.focused = true;
+		nodeView.viewOffset = viewOffset;
 	}
 });
 
@@ -231,7 +241,7 @@ export class MapUI extends BaseComponentPlus({
 		MapUI.currentMapUI = null;
 	}
 
-	lastFoundPath: string;
+	lastScrolledToPath: string;
 	loadFocusedNodeTimer = new Timer(100, () => {
 		if (!this.mounted) return this.loadFocusedNodeTimer.Stop();
 
@@ -241,12 +251,14 @@ export class MapUI extends BaseComponentPlus({
 		// if more nodes have been rendered, along the path to the focus-node
 		const foundBox = this.FindNodeBox(focusNodePath, true);
 		const foundPath = foundBox ? foundBox.props.path : '';
-		if (foundPath.length > this.lastFoundPath.length) {
-			this.LoadStoredScroll();
+		if (foundPath.length > this.lastScrolledToPath.length) {
+			if (this.LoadStoredScroll()) {
+				this.lastScrolledToPath = foundPath;
+			}
 		}
-		this.lastFoundPath = foundPath;
 
-		if (foundPath == focusNodePath && this.scrollView) {
+		// if (foundPath == focusNodePath && this.scrollView) {
+		if (this.lastScrolledToPath == focusNodePath && this.scrollView) {
 			this.OnLoadComplete();
 			return this.loadFocusedNodeTimer.Stop();
 		}
@@ -254,7 +266,7 @@ export class MapUI extends BaseComponentPlus({
 	StartLoadingScroll() {
 		/* let playingTimeline = await GetAsync(()=>GetPlayingTimeline(map._id));
 		if (!playingTimeline) { */ // only load-scroll if not playing timeline; timeline gets priority, to focus on its latest-revealed nodes
-		this.lastFoundPath = '';
+		this.lastScrolledToPath = '';
 		this.loadFocusedNodeTimer.Start();
 	}
 	OnLoadComplete() {
@@ -278,12 +290,15 @@ export class MapUI extends BaseComponentPlus({
 
 	// load scroll from store
 	LoadStoredScroll() {
-		const { map, rootNode, withinPage } = this.props;
-		if (this.scrollView == null) return;
-		if (this.scrollView.state.scrollOp_bar) return; // if user is already scrolling manually, don't interrupt
+		const { map } = this.props;
+		if (this.scrollView == null) return false;
+		// if user is already scrolling manually, don't interrupt (but count as successful scroll)
+		if (this.scrollView.state.scrollOp_bar) return true;
+		// if (this.scrollView.state.scrollOp_bar) return false;
 
 		const focusNode_target = GetFocusedNodePath(GetMapView(map._key)); // || map.rootNode.toString();
-		this.ScrollToNode(focusNode_target);
+		// Log(`FocusNode_target:${focusNode_target}`);
+		return this.ScrollToNode(focusNode_target);
 	}
 
 	FindNodeBox(nodePath: string, ifMissingFindAncestor = false) {
@@ -316,12 +331,13 @@ export class MapUI extends BaseComponentPlus({
 
 		const viewOffset_target = GetViewOffset(GetMapView(map._key)); // || new Vector2i(200, 0);
 		// Log(`LoadingScroll:${nodePath};${ToJSON(viewOffset_target)}`);
-		if (nodePath == null || viewOffset_target == null) return;
+		if (nodePath == null || viewOffset_target == null) return true; // if invalid entry, count as success?
 
 		const focusNodeBox = this.FindNodeBox(nodePath, true);
-		if (focusNodeBox == null) return;
+		if (focusNodeBox == null) return false;
 		const focusNodeBoxPos = GetScreenRect(GetDOM(focusNodeBox)).Center.Minus(GetScreenRect(this.mapUIEl).Position);
 		this.ScrollToPosition_Center(focusNodeBoxPos.Plus(viewOffset_target));
+		return true;
 	}
 	ScrollToPosition_Center(posInContainer: Vector2i) {
 		const { withinPage } = this.props;
