@@ -190,13 +190,15 @@ export function GetNodeViewsAlongPath(mapID: string, pathOrPathNodes: string | s
 	const rootNodeViews = GetMapView(mapID).rootNodeViews;
 	const pathNodes = ToPathNodes(pathOrPathNodes);
 	const nodeViews = [] as MapNodeView[];
-	return pathNodes.map((pathNode) => {
+	pathNodes.forEach((pathNode) => {
 		const childGroup = nodeViews.length ? (nodeViews.Last() ? nodeViews.Last().children : new Map()) : rootNodeViews;
 		if (childGroup[pathNode] == null && createNodeViewsIfMissing) {
 			childGroup[pathNode] = new MapNodeView();
 		}
-		return childGroup[pathNode];
+		// return childGroup[pathNode];
+		nodeViews.push(childGroup[pathNode]);
 	});
+	return nodeViews;
 }
 export const GetNodeViewsBelowPath = StoreAccessor({ cache_unwrapArgs: [1] }, (s) => (mapID: string, pathOrPathNodes: string | string[]): MapNodeView[] => {
 	if (pathOrPathNodes == null) return null;
