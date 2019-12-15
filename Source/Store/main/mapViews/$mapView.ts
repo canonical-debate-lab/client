@@ -128,7 +128,7 @@ export function GetNodeViewDataPath_FromRootNodeViews(mapID: string, pathOrPathN
 	const childPathNodes = GetNodeViewDataPath_FromRootNodeViews(mapID, pathOrPathNodes);
 	return ['main', 'mapViews', `${mapID}`, 'rootNodeViews', ...childPathNodes];
 } */
-export const GetNodeView = StoreAccessor({ cache_unwrapArgs: [1] }, (s) => (mapID: string, pathOrPathNodes: string | string[]): MapNodeView => {
+export const GetNodeView = StoreAccessor({ cache_unwrapArgs: [1] }, (s) => (mapID: string, pathOrPathNodes: string | string[], returnEmptyNodeViewIfNull = true): MapNodeView => {
 	if (pathOrPathNodes == null) return null;
 	/* const dataPath = GetNodeViewDataPath_FromStore(mapID, pathOrPathNodes);
 	return DeepGet(s, dataPath) as any; */
@@ -141,6 +141,7 @@ export const GetNodeView = StoreAccessor({ cache_unwrapArgs: [1] }, (s) => (mapI
 		currentNodeView = currentNodeView.children[pathNode];
 		if (currentNodeView == null) return 'break';
 	});
+	if (currentNodeView == null && returnEmptyNodeViewIfNull) return new MapNodeView();
 	return currentNodeView;
 });
 /* export const GetNodeView_SelfOnly = StoreAccessor((s) => (mapID: string, path: string, returnEmptyNodeViewIfNull = false) => {

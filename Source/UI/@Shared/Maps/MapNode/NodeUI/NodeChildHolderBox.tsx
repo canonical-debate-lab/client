@@ -11,7 +11,7 @@ import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { HSLA, Observer } from 'vwebapp-framework';
 import { store } from 'Store';
-import { MapNodeView_SelfOnly, ACTMapNodeExpandedSet, GetNodeView } from 'Store/main/mapViews/$mapView';
+import { MapNodeView_SelfOnly, ACTMapNodeExpandedSet, GetNodeView, MapNodeView } from 'Store/main/mapViews/$mapView';
 import { runInAction } from 'mobx';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath } from '../../../../../Store/firebase/nodeRatings';
@@ -44,6 +44,8 @@ export class NodeChildHolderBox extends BaseComponentPlus({} as Props, { innerBo
 		const { map, node, path, nodeChildren, nodeChildrenToShow, type, widthOfNode, widthOverride } = this.props;
 		const { innerBoxOffset, lineHolderHeight, hovered, hovered_button } = this.state;
 
+		// const nodeView = GetNodeView(map._key, path) ?? new MapNodeView();
+		// const nodeView = GetNodeView(map._key, path, true);
 		const nodeView = GetNodeView(map._key, path);
 		const parent = GetParentNodeL3(path);
 		const combineWithParentArgument = IsPremiseOfSinglePremiseArgument(node, parent);

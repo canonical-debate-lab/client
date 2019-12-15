@@ -16,7 +16,7 @@ import { UpdateTimelineStepOrder } from 'Server/Commands/UpdateTimelineStepOrder
 import { store } from 'Store';
 import { GetNode, GetNodeID, GetParentNode, GetParentPath } from 'Store/firebase/nodes';
 import { GetNodeDisplayText, GetNodeL3, IsPremiseOfSinglePremiseArgument } from 'Store/firebase/nodes/$node';
-import { Polarity } from 'Store/firebase/nodes/@MapNode';
+import { Polarity, globalMapID } from 'Store/firebase/nodes/@MapNode';
 import { GetTimelineStep } from 'Store/firebase/timelines';
 import { NodeReveal } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { Me, MeID } from 'Store/firebase/users';
@@ -44,6 +44,7 @@ import { GetPathNodeIDs } from 'Store/main/mapViews/$mapView';
 import { hasHotReloaded } from 'Main';
 import ReactGA from 'react-ga';
 import { observable, runInAction } from 'mobx';
+import { GetMap } from 'Store/firebase/maps';
 
 ColorPickerBox.Init(ReactColor, chroma);
 
@@ -113,6 +114,8 @@ export class RootUIWrapper extends BaseComponentPlus({}, {}) {
 		const storeReady = this.storeReady;
 		// if (!g.storeRehydrated) return <div/>;
 		if (!storeReady) return null;
+
+		const globalMap = GetMap(globalMapID); // test
 
 		return (
 			<DragDropContext_Beautiful onDragEnd={this.OnDragEnd}>

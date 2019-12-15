@@ -121,11 +121,11 @@ export class MapUI extends BaseComponentPlus({
 			if (result == null && map && map.rootNode) {
 				result = GetNodeL3(`${map.rootNode}`);
 			}
-			if (map) {
+			if (isBot && map) {
 				const mapView = store.main.mapViews.get(map._key);
 				if (mapView) {
 					const nodeID = mapView.bot_currentNodeID;
-					if (isBot && nodeID) {
+					if (nodeID) {
 						result = GetNodeL3(`${nodeID}`);
 					}
 				}
