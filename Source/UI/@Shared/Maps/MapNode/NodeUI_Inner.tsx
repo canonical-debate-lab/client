@@ -201,18 +201,18 @@ export class NodeUI_Inner extends BaseComponentPlus(
 
 		const nodeReversed = form == ClaimForm.Negation;
 
-		const leftPanelShow = (nodeView && nodeView.selected) || hovered; // || local_selected;
-		const panelToShow = hoverPanel || local_openPanel || (nodeView && nodeView.openPanel);
+		const leftPanelShow = nodeView?.selected || hovered; // || local_selected;
+		const panelToShow = hoverPanel || local_openPanel || nodeView?.openPanel;
 		const subPanelShow = node.type == MapNodeType.Claim && (node.current.contentNode || node.current.image);
 		const bottomPanelShow = leftPanelShow && panelToShow;
-		let expanded = nodeView && nodeView.expanded;
+		let expanded = nodeView?.expanded;
 
 		// const parentNodeView = GetNodeView(map._key, parentPath);
 		// const parentNodeView = Watch(() => parentPath && GetNodeView_SelfOnly(map._key, parentPath), [map._key, parentPath]);
 		const parentNodeView = GetNodeView(map._key, parentPath);
 		// if combined with parent arg (ie. premise of single-premise arg), use parent's expansion state for this box
 		if (combinedWithParentArgument) {
-			expanded = parentNodeView && parentNodeView.expanded;
+			expanded = parentNodeView?.expanded;
 		}
 
 		const onMouseEnter = UseCallback(() => {
@@ -230,7 +230,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 				return;
 			} */
 
-			if (nodeView == null || !nodeView.selected) {
+			if (!nodeView?.selected) {
 				ACTMapNodeSelect(map._key, path);
 			}
 		}, [map._key, nodeView, path]);
@@ -417,7 +417,7 @@ class NodeUI_BottomPanel extends BaseComponentPlus(
 				})()}
 				{panelToShow == 'definitions' &&
 					<DefinitionsPanel ref={(c) => this.definitionsPanel = c} {...{ node, path, hoverTermID }}
-						openTermID={nodeView.openTermID}
+						openTermID={nodeView?.openTermID}
 						onHoverTerm={(termID) => onTermHover(termID)}
 						onClickTerm={(termID) => runInAction('NodeUI_Inner_onClickTerm', () => nodeView.openTermID = termID)}/>}
 				{panelToShow == 'phrasings' && <PhrasingsPanel node={node} path={path}/>}

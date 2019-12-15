@@ -225,20 +225,20 @@ export function GetLoadActionFuncForURL(url: VURL) {
 				const idStr = url.pathNodes[2];
 				const idStrMatch = idStr && idStr.match(/([A-Za-z0-9_-]+)$/);
 				const proposalID = idStrMatch ? idStrMatch[1] : null;
-				store.feedback.main.proposals.selectedProposalID = proposalID;
+				store.feedback.main.proposals.selectedProposalID = proposalID!;
 			}
 		}
 
-		let mapID: string;
+		let mapID: string|n;
 		if (page == 'database') {
 			const subpageInURL = url.pathNodes[1] != null;
 			const entryID = url.pathNodes[2] || null; // null needed, else reducer complains
 			if (subpage == 'users' && subpageInURL) {
-				store.main.database.selectedUserID = entryID;
+				store.main.database.selectedUserID = entryID!;
 			} else if (subpage == 'terms' && subpageInURL) {
-				store.main.database.selectedTermID = entryID;
+				store.main.database.selectedTermID = entryID!;
 			} else if (subpage == 'images' && subpageInURL) {
-				store.main.database.selectedImageID = entryID;
+				store.main.database.selectedImageID = entryID!;
 			}
 		} else if (page == 'personal' || page == 'debates') {
 			const urlStr = url.pathNodes[1];
@@ -246,9 +246,9 @@ export function GetLoadActionFuncForURL(url: VURL) {
 			mapID = match ? match[1] : null;
 
 			if (page == 'personal') {
-				store.main.personal.selectedMapID = mapID;
+				store.main.personal.selectedMapID = mapID!;
 			} else {
-				store.main.debates.selectedMapID = mapID;
+				store.main.debates.selectedMapID = mapID!;
 			}
 		} else if (page == 'global') {
 			/* if (subpage == 'map') {
@@ -377,7 +377,7 @@ export const GetNewURL = StoreAccessor((s) => (includeMapViewStr = true) => {
 		}
 	}
 
-	let mapID: string;
+	let mapID: string|n;
 	if (page == 'personal') {
 		mapID = s.main.personal.selectedMapID;
 		if (mapID) {
