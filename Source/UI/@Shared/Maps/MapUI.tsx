@@ -297,7 +297,7 @@ export class MapUI extends BaseComponentPlus({
 		// if (this.scrollView.state.scrollOp_bar) return false;
 
 		const focusNode_target = GetFocusedNodePath(GetMapView(map._key)); // || map.rootNode.toString();
-		Log(`FocusNode_target:${focusNode_target}`);
+		// Log(`FocusNode_target:${focusNode_target}`);
 		return this.ScrollToNode(focusNode_target);
 	}
 
