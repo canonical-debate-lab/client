@@ -15,6 +15,7 @@ import { DroppableInfo } from 'Utils/UI/DNDStructures';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { store } from 'Store';
 import { MapNodeView_SelfOnly, GetNodeView } from 'Store/main/mapViews/$mapView';
+import { runInAction } from 'mobx';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { IsMultiPremiseArgument } from '../../../../../Store/firebase/nodes/$node';
 import { Polarity } from '../../../../../Store/firebase/nodes/@MapNode';
@@ -380,7 +381,9 @@ export class ChildLimitBar extends BaseComponentPlus({} as {map: Map, path: stri
 					</Row>
 				} title="Show more"
 				enabled={childLimit < childCount} style={ES({ flex: 1 })} onClick={() => {
-					nodeView[`childLimit_${direction}`] = (childLimit + 3).KeepAtMost(childCount);
+					runInAction('ChildLimitBar.showMore.onClick', () => {
+						nodeView[`childLimit_${direction}`] = (childLimit + 3).KeepAtMost(childCount);
+					});
 				}}/>
 				<Button ml={5} text={
 					<Row>
@@ -389,7 +392,9 @@ export class ChildLimitBar extends BaseComponentPlus({} as {map: Map, path: stri
 					</Row>
 				} title="Show less"
 				enabled={childLimit > initialChildLimit} style={ES({ flex: 1 })} onClick={() => {
-					nodeView[`childLimit_${direction}`] = (childLimit - 3).KeepAtLeast(initialChildLimit);
+					runInAction('ChildLimitBar.showLess.onClick', () => {
+						nodeView[`childLimit_${direction}`] = (childLimit - 3).KeepAtLeast(initialChildLimit);
+					});
 				}}/>
 			</Row>
 		);

@@ -70,6 +70,7 @@ export const webpackConfig: webpack.Configuration = {
 			// consolidating for these, since they have npm-patches applied (and we don't want to have to adjust the match-counts)
 			'react-beautiful-dnd': paths.base('node_modules', 'react-beautiful-dnd'),
 			immer: paths.base('node_modules', 'immer'),
+			'mobx-utils': paths.base('node_modules', 'mobx-utils'), // not npm-patch, but modified version
 			// consolidating for these wouldn't throw errors necessarily, but we do so to keep things tidy (since we know the different versions will be compatible anyway)
 			// note: just put all own packages here
 			...CE(ownModules).ToMap((name) => name, (name) => paths.base('node_modules', name)),

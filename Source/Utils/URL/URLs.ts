@@ -206,6 +206,13 @@ export function GetLoadActionFuncForURL(url: VURL) {
 			store.main[page].subpage = subpage;
 		}
 
+		// load query-vars
+		if (url.GetQueryVar('extra')) store.main.urlExtraStr = url.GetQueryVar('extra') == 'null' ? null : url.GetQueryVar('extra');
+		if (url.GetQueryVar('env')) store.main.envOverride = url.GetQueryVar('env') == 'null' ? null : url.GetQueryVar('env');
+		if (url.GetQueryVar('db')) store.main.dbOverride = url.GetQueryVar('db') == 'null' ? null : url.GetQueryVar('db');
+		if (url.GetQueryVar('dbVersion')) store.main.dbVersionOverride = url.GetQueryVar('dbVersion') == 'null' ? null : url.GetQueryVar('dbVersion');
+		if (url.GetQueryVar('analyticsEnabled')) store.main.analyticsEnabled = url.GetQueryVar('analyticsEnabled') == "true";
+
 		/* if (url.pathNodes[0] == 'forum') {
 			const subforumStr = url.pathNodes[1];
 			if (subforumStr != '*') {
@@ -353,6 +360,13 @@ export const GetNewURL = StoreAccessor((s) => (includeMapViewStr = true) => {
 		newURL.pathNodes.push(subpage);
 	}
 
+	// query vars
+	if (s.main.urlExtraStr) newURL.SetQueryVar('extra', s.main.urlExtraStr);
+	if (!s.main.analyticsEnabled && newURL.GetQueryVar('analytics') == null) newURL.SetQueryVar('analytics', 'false');
+	if (s.main.envOverride) newURL.SetQueryVar('env', s.main.envOverride);
+	if (s.main.dbOverride) newURL.SetQueryVar('db', s.main.dbOverride);
+	if (s.main.dbVersionOverride) newURL.SetQueryVar('dbVersion', s.main.dbVersionOverride);
+
 	/* if (page == 'forum') {
 		const subforumID = GetSelectedSubforumID();
 		const threadID = GetSelectedThreadID();
@@ -429,22 +443,6 @@ export const GetNewURL = StoreAccessor((s) => (includeMapViewStr = true) => {
 		if (playingTimeline_appliedStep != null) {
 			newURL.SetQueryVar('appliedStep', playingTimeline_appliedStep + 1);
 		}
-	}
-
-	if (s.main.urlExtraStr) {
-		newURL.SetQueryVar('extra', s.main.urlExtraStr);
-	}
-	if (!s.main.analyticsEnabled && newURL.GetQueryVar('analytics') == null) {
-		newURL.SetQueryVar('analytics', 'false');
-	}
-	if (s.main.envOverride) {
-		newURL.SetQueryVar('env', s.main.envOverride);
-	}
-	if (s.main.dbOverride) {
-		newURL.SetQueryVar('db', s.main.dbOverride);
-	}
-	if (s.main.dbVersionOverride) {
-		newURL.SetQueryVar('dbVersion', s.main.dbVersionOverride);
 	}
 
 	// a default-child is only used (ie. removed from url) if there are no path-nodes after it

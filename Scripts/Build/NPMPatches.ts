@@ -26,16 +26,16 @@ AddRule({
 		},
 		// make function-names of store-accessors accessible to watcher debug-info, for react-devtools
 		{
-			pattern: /export const ([a-zA-Z0-9_$]+?) = StoreAccessor\(\(/g,
-			replacement(match, sub1, offset, string) {
-				return `export const ${sub1} = StoreAccessor("${sub1}", (`;
+			pattern: /const ([a-zA-Z0-9_$]+?) = StoreAccessor\(([^'"])/g,
+			replacement(match, sub1, sub2, offset, string) {
+				return `const ${sub1} = StoreAccessor("${sub1}", ${sub2}`;
 			},
 		},
 		// make function-names of store-actions accessible at runtime
 		{
-			pattern: /export const ([a-zA-Z0-9_$]+?) = StoreAction\(\(/g,
-			replacement(match, sub1, offset, string) {
-				return `export const ${sub1} = StoreAction("${sub1}", (`;
+			pattern: /const ([a-zA-Z0-9_$]+?) = StoreAction\(([^'"])/g,
+			replacement(match, sub1, sub2, offset, string) {
+				return `const ${sub1} = StoreAction("${sub1}", ${sub2}`;
 			},
 		},
 		/* {
@@ -211,3 +211,19 @@ AddRule({
 		}, */
 	],
 });
+
+// mobx-utils
+// ==========
+
+/* AddRule({
+	fileInclude: /mobx-utils.module.js$/,
+	fileMatchCount: 1,
+	replacements: [
+		// makes-so computedFn allows the number of passed arguments to change each time (I don't know why that restriction is even there; there seems to be no actual problem with varying lengths)
+		{
+			pattern: 'if (this.argsLength === -1)',
+			patternMatchCount: 1,
+			replacement: 'if (this.argsLength === -1 || true)',
+		},
+	],
+}); */

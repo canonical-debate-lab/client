@@ -18,7 +18,7 @@ SetDefaultFireOptions({ fire });
 OnPopulated(() => fire.InitSubs());
 
 // modify some default options
-StoreAccessorOptions.default.cache_keepAlive = true;
+// StoreAccessorOptions.default.cache_keepAlive = true;
 
 // start auto-runs after store+firelink are created
 require('Utils/AutoRuns');

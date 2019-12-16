@@ -38,7 +38,8 @@ export class MapNodeView {
 	@O openPanel?: string;
 	@O openTermID?: string;
 
-	@O children? = observable.map<string, MapNodeView>();
+	// @O children? = observable.map<string, MapNodeView>();
+	@O children? = {} as {[key: string]: MapNodeView};
 	@O childLimit_up?: number;
 	@O childLimit_down?: number;
 }
@@ -128,21 +129,10 @@ export function GetNodeViewDataPath_FromRootNodeViews(mapID: string, pathOrPathN
 	const childPathNodes = GetNodeViewDataPath_FromRootNodeViews(mapID, pathOrPathNodes);
 	return ['main', 'mapViews', `${mapID}`, 'rootNodeViews', ...childPathNodes];
 } */
-export const GetNodeView = StoreAccessor({ cache_unwrapArgs: [1] }, (s) => (mapID: string, pathOrPathNodes: string | string[], returnEmptyNodeViewIfNull = true): MapNodeView => {
-	if (pathOrPathNodes == null) return null;
-	/* const dataPath = GetNodeViewDataPath_FromStore(mapID, pathOrPathNodes);
-	return DeepGet(s, dataPath) as any; */
-	// return GetNodeView_Advanced(mapID, pathOrPathNodes, createNodeViewsIfMissing).Last();
 
-	const pathNodes = PathOrPathGetterToPathSegments(pathOrPathNodes);
-	const mapView = GetMapView(mapID);
-	let currentNodeView = mapView.rootNodeViews[pathNodes[0]];
-	pathNodes.Skip(1).ForEach((pathNode) => {
-		currentNodeView = currentNodeView.children[pathNode];
-		if (currentNodeView == null) return 'break';
-	});
-	if (currentNodeView == null && returnEmptyNodeViewIfNull) return new MapNodeView();
-	return currentNodeView;
+export const GetNodeView = StoreAccessor((s) => (mapID: string, pathOrPathNodes: string | string[], createNodeViewsIfMissing = true): MapNodeView => {
+	const nodeViews = GetNodeViewsAlongPath(mapID, pathOrPathNodes, createNodeViewsIfMissing);
+	return nodeViews.LastOrX();
 });
 /* export const GetNodeView_SelfOnly = StoreAccessor((s) => (mapID: string, path: string, returnEmptyNodeViewIfNull = false) => {
 	/* const nodeView = GetNodeView(mapID, path);
@@ -187,26 +177,30 @@ export const ACTMapNodeSelect = StoreAction((mapID: string, path: string) => {
 // export const GetNodeView_Advanced = StoreAccessor({ cache_unwrapArgs: [1] }, (s) => (mapID: string, pathOrPathNodes: string | string[], createNodeViewsIfMissing = false): MapNodeView[] => {
 // export const GetNodeViewsAlongPath = StoreAccessor({ cache_unwrapArgs: [1] }, (s) => (mapID: string, pathOrPathNodes: string | string[], createNodeViewsIfMissing = false): MapNodeView[] => {
 export function GetNodeViewsAlongPath(mapID: string, pathOrPathNodes: string | string[], createNodeViewsIfMissing = false): MapNodeView[] {
-	if (pathOrPathNodes == null) return null;
+	if (pathOrPathNodes == null) return [];
 	const rootNodeViews = GetMapView(mapID).rootNodeViews;
 	const pathNodes = ToPathNodes(pathOrPathNodes);
 	const nodeViews = [] as MapNodeView[];
-	pathNodes.forEach((pathNode) => {
-		const childGroup = nodeViews.length ? (nodeViews.Last() ? nodeViews.Last().children : new Map()) : rootNodeViews;
+	for (const pathNode of pathNodes) {
+		if (nodeViews.length && nodeViews.Last() == null) {
+			nodeViews.push(null);
+			continue;
+		}
+		const childGroup = nodeViews.length ? nodeViews.Last().children : rootNodeViews;
 		if (childGroup[pathNode] == null && createNodeViewsIfMissing) {
 			childGroup[pathNode] = new MapNodeView();
 		}
 		// return childGroup[pathNode];
 		nodeViews.push(childGroup[pathNode]);
-	});
+	}
 	return nodeViews;
 }
-export const GetNodeViewsBelowPath = StoreAccessor({ cache_unwrapArgs: [1] }, (s) => (mapID: string, pathOrPathNodes: string | string[]): MapNodeView[] => {
+export const GetNodeViewsBelowPath = StoreAccessor((s) => (mapID: string, pathOrPathNodes: string | string[]): MapNodeView[] => {
 	if (pathOrPathNodes == null) return null;
 	const pathNodes = ToPathNodes(pathOrPathNodes);
 	const nodeView = GetNodeView(mapID, pathOrPathNodes);
 	const result = [];
-	for (const [key, child] of nodeView.children.entries()) {
+	for (const { key, value: child } of nodeView.children.Pairs()) {
 		result.push(child);
 		result.push(GetNodeViewsBelowPath(mapID, pathNodes.concat(key)));
 	}
@@ -219,25 +213,15 @@ export const ACTMapNodeExpandedSet = StoreAction((opt: {
 	expandAncestors?: boolean, resetSubtree?: boolean,
 }) => {
 	// CreateMapViewIfMissing(opt.mapID);
-	const rootNodeViews = GetMapView(opt.mapID).rootNodeViews;
 	const pathNodes = ToPathNodes(opt.path);
-	const nodeViews = [] as MapNodeView[];
-	for (const pathNode of pathNodes) {
-		/* const pathNodesToHere = pathNodes.Take(index);
-		return GetNodeView(mapID, pathNodesToHere); */
-		const childGroup = nodeViews.length ? (nodeViews.Last() ? nodeViews.Last().children : new Map()) : rootNodeViews;
-		if (childGroup[pathNode] == null) {
-			childGroup[pathNode] = new MapNodeView();
-		}
-		nodeViews.push(childGroup[pathNode]);
-	}
+	const nodeViews = GetNodeViewsAlongPath(opt.mapID, pathNodes, true);
 
 	if (opt.expandAncestors) {
 		nodeViews.Take(nodeViews.length - 1).forEach((a) => a.expanded = true);
 	}
 	const nodeView = nodeViews.Last();
 	const expandKeysPresent = ['expanded', 'expanded_truth', 'expanded_relevance'].filter((key) => opt[key] != null);
-	nodeView.Extend(opt.Including(...expandKeysPresent));
+	if (nodeView) nodeView.Extend(opt.Including(...expandKeysPresent));
 
 	// and action is recursive (ie. supposed to apply past target-node), with expansion being set to false
 	if (opt.resetSubtree && opt.Including(...expandKeysPresent).VValues().every((newVal) => newVal == false)) {
