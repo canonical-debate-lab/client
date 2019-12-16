@@ -167,14 +167,14 @@ export class RootUIWrapper extends BaseComponentPlus({}, {}) {
 						controller.Close();
 						const { argumentWrapperID } = await copyCommand.Run();
 						if (argumentWrapperID) {
-							store.main.nodeLastAcknowledgementTimes.set(argumentWrapperID, Date.now());
+							runInAction('OnDragEnd.Copy.onClick', () => store.main.nodeLastAcknowledgementTimes.set(argumentWrapperID, Date.now()));
 						}
 					}}/>
 					<Button ml={5} text="Move" enabled={moveCommand_error == null} title={moveCommand_error} onClick={async () => {
 						controller.Close();
 						const { argumentWrapperID } = await moveCommand.Run();
 						if (argumentWrapperID) {
-							store.main.nodeLastAcknowledgementTimes.set(argumentWrapperID, Date.now());
+							runInAction('OnDragEnd.Move.onClick', () => store.main.nodeLastAcknowledgementTimes.set(argumentWrapperID, Date.now()));
 						}
 					}}/>
 					<Button ml={5} text="Cancel" onClick={() => controller.Close()}/>

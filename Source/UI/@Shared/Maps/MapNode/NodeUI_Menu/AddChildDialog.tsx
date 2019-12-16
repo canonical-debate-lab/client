@@ -8,6 +8,7 @@ import { ES } from 'Utils/UI/GlobalStyles';
 import { store } from 'Store';
 import { Link } from 'vwebapp-framework';
 import { ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView';
+import { runInAction } from 'mobx';
 import { AddChildNode } from '../../../../../Server/Commands/AddChildNode';
 import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
 import { AsNodeL2, AsNodeL3, GetClaimType, GetNodeForm, GetNodeL3 } from '../../../../../Store/firebase/nodes/$node';
@@ -62,7 +63,7 @@ export class AddChildHelper {
 		/* if (validationError) {
 			return void setTimeout(()=>ShowMessageBox({title: `Validation error`, message: `Validation error: ${validationError}`}));
 		} */
-		store.main.currentNodeBeingAdded_path = `${this.node_parentPath}/?`;
+		runInAction('AddChildDialog.Apply_start', () => store.main.currentNodeBeingAdded_path = `${this.node_parentPath}/?`);
 
 		let info;
 		if (this.node.type == MapNodeType.Argument) {
@@ -76,8 +77,10 @@ export class AddChildHelper {
 				ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.argumentNodeID}`, expanded: true, resetSubtree: false });
 				ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.argumentNodeID}/${info.claimNodeID}`, expanded: true,
 					expanded_truth: expandTruthAndRelevance, expanded_relevance: expandTruthAndRelevance, resetSubtree: false });
-				store.main.nodeLastAcknowledgementTimes.set(info.argumentNodeID, Date.now());
-				store.main.nodeLastAcknowledgementTimes.set(info.claimNodeID, Date.now());
+				runInAction('AddChildDialog.Apply_mid', () => {
+					store.main.nodeLastAcknowledgementTimes.set(info.argumentNodeID, Date.now());
+					store.main.nodeLastAcknowledgementTimes.set(info.claimNodeID, Date.now());
+				});
 			}
 		} else {
 			info = await new AddChildNode({
@@ -87,11 +90,11 @@ export class AddChildHelper {
 			if (expandSelf) {
 				ACTMapNodeExpandedSet({ mapID: this.mapID, path: `${this.node_parentPath}/${info.nodeID}`, expanded: true,
 					expanded_truth: expandTruthAndRelevance, expanded_relevance: expandTruthAndRelevance, resetSubtree: false });
-				store.main.nodeLastAcknowledgementTimes.set(info.nodeID, Date.now());
+				runInAction('AddChildDialog.Apply_mid', () => store.main.nodeLastAcknowledgementTimes.set(info.nodeID, Date.now()));
 			}
 		}
 
-		store.main.currentNodeBeingAdded_path = null;
+		runInAction('AddChildDialog.Apply_end', () => store.main.currentNodeBeingAdded_path = null);
 
 		return info;
 	}

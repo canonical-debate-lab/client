@@ -3,6 +3,7 @@ import { Button, Row, TextArea } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { store } from 'Store';
 import { ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView';
+import {runInAction} from 'mobx';
 import { AddChildNode } from '../../../../Server/Commands/AddChildNode';
 import { ChildEntry, ClaimForm, MapNode, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
 import { MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../Store/firebase/nodes/@MapNodeRevision';
@@ -48,7 +49,7 @@ export class PremiseAddHelper extends BaseComponentPlus({} as {mapID: string, pa
 
 		const info = await new AddChildNode({ mapID, parentID: parentNode._key, node: newNode, revision: newRevision, link: newLink }).Run();
 		ACTMapNodeExpandedSet({ mapID, path: `${parentPath}/${info.nodeID}`, expanded: true, resetSubtree: false });
-		store.main.nodeLastAcknowledgementTimes.set(info.nodeID, Date.now());
+		runInAction('PremiseAddHelper.CreatePremise', () => store.main.nodeLastAcknowledgementTimes.set(info.nodeID, Date.now()));
 
 		// await WaitTillPathDataIsReceiving(`nodeRevisions/${info.revisionID}`);
 		// await WaitTillPathDataIsReceived(`nodeRevisions/${info.revisionID}`);

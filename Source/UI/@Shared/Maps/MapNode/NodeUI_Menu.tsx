@@ -10,7 +10,8 @@ import { store } from 'Store';
 import { GetParentNodeID, HolderType } from 'Store/firebase/nodes';
 import { GetCopiedNode, GetCopiedNodePath, GetOpenMapID } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
-import {Observer} from 'vwebapp-framework';
+import { Observer } from 'vwebapp-framework';
+import {runInAction} from 'mobx';
 import { DeleteNode } from '../../../../Server/Commands/DeleteNode';
 import { GetPathsToNodesChangedSinceX } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
@@ -142,7 +143,7 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 						onClick={(e) => {
 							if (e.button != 0) return;
 							for (const path of pathsToChangedInSubtree) {
-								store.main.nodeLastAcknowledgementTimes.set(GetNodeID(path), Date.now());
+								runInAction('MarkSubtreeAsViewed', () => store.main.nodeLastAcknowledgementTimes.set(GetNodeID(path), Date.now()));
 							}
 						}}/>}
 				{inList && GetOpenMapID() != null &&
@@ -309,7 +310,7 @@ class PasteAsLink_MenuItem extends BaseComponent<SharedProps, {}> {
 					async function proceed() {
 						const { argumentWrapperID } = await linkCommand.Run();
 						if (argumentWrapperID) {
-							store.main.nodeLastAcknowledgementTimes.set(argumentWrapperID, Date.now());
+							runInAction('PasteAsLink_MenuItem.proceed', () => store.main.nodeLastAcknowledgementTimes.set(argumentWrapperID, Date.now()));
 						}
 					}
 				}}/>
