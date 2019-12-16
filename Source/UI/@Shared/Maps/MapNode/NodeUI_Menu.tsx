@@ -11,7 +11,7 @@ import { GetParentNodeID, HolderType } from 'Store/firebase/nodes';
 import { GetCopiedNode, GetCopiedNodePath, GetOpenMapID } from 'Store/main';
 import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
 import { Observer } from 'vwebapp-framework';
-import {runInAction} from 'mobx';
+import { runInAction } from 'mobx';
 import { DeleteNode } from '../../../../Server/Commands/DeleteNode';
 import { GetPathsToNodesChangedSinceX } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
@@ -45,11 +45,11 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 	render() {
 		const { map, node, path, inList, holderType } = this.props;
 
-		if (map == null) return null;
-
-		const sinceTime = GetTimeFromWhichToShowChangedNodes(map._key);
-		const pathsToChangedNodes = GetPathsToNodesChangedSinceX(map._key, sinceTime);
-		const pathsToChangedInSubtree = pathsToChangedNodes.filter((a) => a == path || a.startsWith(`${path}/`)); // also include self, for this
+		if (map) {
+			const sinceTime = GetTimeFromWhichToShowChangedNodes(map._key);
+			const pathsToChangedNodes = GetPathsToNodesChangedSinceX(map._key, sinceTime);
+			var pathsToChangedInSubtree = pathsToChangedNodes.filter((a) => a == path || a.startsWith(`${path}/`)); // also include self, for this
+		}
 		const parent = GetParentNodeL3(path);
 
 		const copiedNode = GetCopiedNode();
@@ -143,15 +143,17 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 						onClick={(e) => {
 							if (e.button != 0) return;
 							for (const path of pathsToChangedInSubtree) {
-								runInAction('MarkSubtreeAsViewed', () => store.main.nodeLastAcknowledgementTimes.set(GetNodeID(path), Date.now()));
+								runInAction('NodeUIMenu.MarkSubtreeAsViewed', () => store.main.nodeLastAcknowledgementTimes.set(GetNodeID(path), Date.now()));
 							}
 						}}/>}
 				{inList && GetOpenMapID() != null &&
 					<VMenuItem text="Find in map" style={styles.vMenuItem}
 						onClick={(e) => {
-							store.main.search.findNode_state = 'activating';
-							store.main.search.findNode_node = node._key;
-							store.main.search.findNode_resultPaths = [];
+							runInAction('NodeUIMenu.FindInMap', () => {
+								store.main.search.findNode_state = 'activating';
+								store.main.search.findNode_node = node._key;
+								store.main.search.findNode_resultPaths = [];
+							});
 						}}/>}
 				{!inList && !componentBox &&
 					<VMenuItem text={copiedNode ? <span>Cut <span style={{ fontSize: 10, opacity: 0.7 }}>(right-click to clear)</span></span> as any : 'Cut'}
@@ -160,8 +162,10 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 						onClick={(e) => {
 							e.persist();
 							if (e.button == 2) {
-								store.main.copiedNodePath = path;
-								store.main.copiedNodePath_asCut = true;
+								runInAction('NodeUIMenu.Cut_clear', () => {
+									store.main.copiedNodePath = null;
+									store.main.copiedNodePath_asCut = true;
+								});
 								return;
 							}
 
@@ -170,8 +174,10 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 								pathToCut = SlicePath(path, 1);
 							} */
 
-							store.main.copiedNodePath = path;
-							store.main.copiedNodePath_asCut = true;
+							runInAction('NodeUIMenu.Cut', () => {
+								store.main.copiedNodePath = path;
+								store.main.copiedNodePath_asCut = true;
+							});
 						}}/>}
 				{!componentBox &&
 					<VMenuItem text={copiedNode ? <span>Copy <span style={{ fontSize: 10, opacity: 0.7 }}>(right-click to clear)</span></span> as any : 'Copy'} style={styles.vMenuItem}
@@ -179,8 +185,10 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 						onClick={(e) => {
 							e.persist();
 							if (e.button == 2) {
-								store.main.copiedNodePath = null;
-								store.main.copiedNodePath_asCut = false;
+								runInAction('NodeUIMenu.Copy_clear', () => {
+									store.main.copiedNodePath = null;
+									store.main.copiedNodePath_asCut = false;
+								});
 								return;
 							}
 
@@ -189,8 +197,10 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 								pathToCopy = SlicePath(path, 1);
 							} */
 
-							store.main.copiedNodePath = path;
-							store.main.copiedNodePath_asCut = false;
+							runInAction('NodeUIMenu.Copy', () => {
+								store.main.copiedNodePath = path;
+								store.main.copiedNodePath_asCut = false;
+							});
 						}}/>}
 				<PasteAsLink_MenuItem {...sharedProps}/>
 				{/* // disabled for now, since I need to create a new command to wrap the logic. One route: create a CloneNode_HighLevel command, modeled after LinkNode_HighLevel (or containing it as a sub)

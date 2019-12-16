@@ -1,5 +1,5 @@
 import { CollectionReference, Query } from '@firebase/firestore-types';
-import { SleepAsync, Vector2i } from 'js-vextensions';
+import { SleepAsync, Vector2i, WaitXThenRun } from 'js-vextensions';
 import keycode from 'keycode';
 import Moment from 'moment';
 import { Button, Column, Pre, Row, TextInput } from 'react-vcomponents';
@@ -11,7 +11,7 @@ import { GetNodeRevision } from 'Store/firebase/nodeRevisions';
 import { AsNodeL3, GetAllNodeRevisionTitles, GetNodeDisplayText, GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { GetNodeColor, MapNodeType_Info } from 'Store/firebase/nodes/@MapNodeType';
 import { GetUser } from 'Store/firebase/users';
-import { EB_ShowError, EB_StoreError, InfoButton, LogWarning } from 'vwebapp-framework';
+import { EB_ShowError, EB_StoreError, InfoButton, LogWarning, Observer, O } from 'vwebapp-framework';
 import { UUID } from 'Utils/General/KeyGenerator';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { store } from 'Store';
@@ -19,11 +19,14 @@ import { GetOpenMapID } from 'Store/main';
 import { MapNodeView, MapView, ACTMapViewMerge } from 'Store/main/mapViews/$mapView';
 import { DBPath, GetAsync } from 'mobx-firelink';
 import { fire } from 'Utils/LibIntegrations/MobXFirelink';
+import { runInAction, flow } from 'mobx';
+import { MapNodeL2 } from 'Store/firebase/nodes/@MapNode';
 import { NodeUI_Menu_Stub } from '../Maps/MapNode/NodeUI_Menu';
 import { MapUI } from '../Maps/MapUI';
 
 const columnWidths = [0.68, 0.2, 0.12];
 
+@Observer
 export class SearchPanel extends BaseComponentPlus({} as {}, {}, {} as {queryStr: string}) {
 	async PerformSearch() {
 		let { queryStr } = this.stash;
@@ -33,8 +36,10 @@ export class SearchPanel extends BaseComponentPlus({} as {}, {}, {} as {queryStr
 		}
 
 		// first clear the old results
-		store.main.search.searchResults_partialTerms = [];
-		store.main.search.searchResults_nodeIDs = null;
+		runInAction('SearchPanel.PerformSearch_part1', () => {
+			store.main.search.searchResults_partialTerms = [];
+			store.main.search.searchResults_nodeIDs = null;
+		});
 
 		const searchTerms = GetSearchTerms_Advanced(queryStr);
 		if (searchTerms.wholeTerms.length == 0 && !unrestricted) return;
@@ -46,8 +51,10 @@ export class SearchPanel extends BaseComponentPlus({} as {}, {}, {} as {queryStr
 		// perform the actual search and show the results
 		const { docs } = await query.get();
 		const docIDs = docs.map((a) => a.id);
-		store.main.search.searchResults_partialTerms = searchTerms.partialTerms;
-		store.main.search.searchResults_nodeIDs = docIDs;
+		runInAction('SearchPanel.PerformSearch_part2', () => {
+			store.main.search.searchResults_partialTerms = searchTerms.partialTerms;
+			store.main.search.searchResults_nodeIDs = docIDs;
+		});
 	}
 
 	render() {
@@ -70,7 +77,7 @@ export class SearchPanel extends BaseComponentPlus({} as {}, {}, {} as {queryStr
 				<Row center>
 					<TextInput style={{ flex: 1 }} value={queryStr}
 						onChange={(val) => {
-							store.main.search.queryStr = val;
+							runInAction('SearchPanel.searchInput.onChange', () => store.main.search.queryStr = val);
 						}}
 						onKeyDown={(e) => {
 							if (e.keyCode == keycode.codes.enter) {
@@ -128,6 +135,7 @@ export class SearchPanel extends BaseComponentPlus({} as {}, {}, {} as {queryStr
 	}
 }
 
+@Observer
 export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, index: number}, {}) {
 	/* ComponentWillReceiveProps(props) {
 		const { nodeID, rootNodeID, findNode_state, findNode_node } = props;
@@ -139,6 +147,7 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 		}
 	} */
 	async StartFindingPathsFromXToY(rootNodeX: UUID, targetNodeY: UUID) {
+	// StartFindingPathsFromXToY = flow(function* StartFindingPathsFromXToY(rootNodeX: UUID, targetNodeY: UUID) {
 		const searchDepth = 100;
 
 		const upPathCompletions = [];
@@ -148,6 +157,7 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 			for (const upPath of upPathAttempts) {
 				const nodeID = upPath.split('/').Last();
 				const node = await GetAsync(() => GetNodeL2(nodeID));
+				// const node = (yield GetAsync(() => GetNodeL2(nodeID))) as MapNodeL2;
 				if (node == null) {
 					LogWarning(`Could not find node #${nodeID}, as parent of #${upPath.split('/').XFromLast(1)}.`);
 					continue;
@@ -165,12 +175,16 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 			upPathAttempts = newUpPathAttempts;
 
 			// if (depth === 0 || upPathCompletions.length !== State(a => a.main.search.findNode_resultPaths).length) {
-			store.main.search.findNode_resultPaths = upPathCompletions.slice();
-			store.main.search.findNode_currentSearchDepth = depth + 1;
+			runInAction('SearchResultRow.StartFindingPathsFromXToY_inLoop', () => {
+				store.main.search.findNode_resultPaths = upPathCompletions.slice();
+				store.main.search.findNode_currentSearchDepth = depth + 1;
+			});
 
 			await SleepAsync(100);
+			// yield SleepAsync(100);
 			// if we have no more up-path-attempts to follow, or comp gets unmounted, start stopping search
-			if (upPathAttempts.length == 0 || this.mounted === false) this.StopSearch();
+			if (upPathAttempts.length == 0 || this.mounted === false) break;
+			// if (upPathAttempts.length == 0) this.StopSearch();
 			// if search is marked as "starting to stop", actually stop search here by breaking the loop
 			if (store.main.search.findNode_state === 'inactive') break;
 		}
@@ -178,10 +192,12 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 		this.StopSearch();
 	}
 	StopSearch() {
-		store.main.search.findNode_state = 'inactive';
+		runInAction('SearchResultRow.StopSearch', () => store.main.search.findNode_state = 'inactive');
 	}
 
 	componentDidCatch(message, info) { EB_StoreError(this, message, info); }
+	// searchInProgress = false;
+	static searchInProgress = false;
 	render() {
 		if (this.state['error']) return EB_ShowError(this.state['error']);
 		const { nodeID, index } = this.props;
@@ -192,9 +208,12 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 		const rootNodeID = GetRootNodeID(GetOpenMapID());
 
 		const findNode_state = store.main.search.findNode_state;
-		if (findNode_state === 'activating') {
-			store.main.search.findNode_state = 'active';
-			this.StartFindingPathsFromXToY(rootNodeID, nodeID);
+		if (findNode_state === 'activating' && !SearchResultRow.searchInProgress) {
+			SearchResultRow.searchInProgress = true;
+			WaitXThenRun(0, () => {
+				runInAction('SearchResultRow.call_StartFindingPathsFromXToY_pre', () => store.main.search.findNode_state = 'active');
+				this.StartFindingPathsFromXToY(rootNodeID, nodeID).then(() => SearchResultRow.searchInProgress = false);
+			});
 		}
 		const findNode_node = store.main.search.findNode_node;
 		const findNode_resultPaths = store.main.search.findNode_resultPaths;
@@ -232,10 +251,12 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 						{findNode_state === 'inactive' && <Pre>Locations found in map: (depth: {findNode_currentSearchDepth})</Pre>}
 						<Button ml={5} text="Stop" enabled={findNode_state === 'active'} onClick={() => this.StopSearch()}/>
 						<Button ml={5} text="Close" onClick={() => {
-							store.main.search.findNode_state = 'inactive';
-							store.main.search.findNode_node = null;
-							store.main.search.findNode_resultPaths = [];
-							store.main.search.findNode_currentSearchDepth = 0;
+							runInAction('SearchResultRow.Close', () => {
+								store.main.search.findNode_state = 'inactive';
+								store.main.search.findNode_node = null;
+								store.main.search.findNode_resultPaths = [];
+								store.main.search.findNode_currentSearchDepth = 0;
+							});
 						}}/>
 					</Row>}
 				{findNode_node === nodeID && findNode_resultPaths.length > 0 && findNode_resultPaths.map((resultPath) => {
@@ -253,28 +274,30 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 }
 
 export function JumpToNode(mapID: string, path: string) {
-	const pathNodeIDs = path.split('/');
+	runInAction('JumpToNode', () => {
+		const pathNodeIDs = path.split('/');
 
-	const mapView = new MapView();
-	const rootNodeView = new MapNodeView();
-	mapView.rootNodeViews[pathNodeIDs[0]] = rootNodeView;
+		const mapView = new MapView();
+		const rootNodeView = new MapNodeView();
+		mapView.rootNodeViews[pathNodeIDs[0]] = rootNodeView;
 
-	let currentParentView = rootNodeView;
-	for (const childID of pathNodeIDs.Skip(1)) {
-		currentParentView.expanded = true;
+		let currentParentView = rootNodeView;
+		for (const childID of pathNodeIDs.Skip(1)) {
+			currentParentView.expanded = true;
 
-		const childView = new MapNodeView();
-		currentParentView.children[childID] = childView;
-		currentParentView = childView;
-	}
-	currentParentView.focused = true;
-	currentParentView.viewOffset = new Vector2i(0, 0);
+			const childView = new MapNodeView();
+			currentParentView.children[childID] = childView;
+			currentParentView = childView;
+		}
+		currentParentView.focused = true;
+		currentParentView.viewOffset = new Vector2i(0, 0);
 
-	ACTMapViewMerge(mapID, mapView);
+		ACTMapViewMerge(mapID, mapView);
 
-	// const mapUI = FindReact(document.querySelector('.MapUI')) as MapUI;
-	const mapUI = MapUI.CurrentMapUI;
-	if (mapUI) {
-		mapUI.StartLoadingScroll();
-	}
+		// const mapUI = FindReact(document.querySelector('.MapUI')) as MapUI;
+		const mapUI = MapUI.CurrentMapUI;
+		if (mapUI) {
+			mapUI.StartLoadingScroll();
+		}
+	});
 }
