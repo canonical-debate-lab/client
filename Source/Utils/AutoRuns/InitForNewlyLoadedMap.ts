@@ -1,5 +1,5 @@
 import { autorun, runInAction } from 'mobx';
-import { GetOpenMapID, ACTCreateMapViewIfMissing, ACTEnsureMapStateInit } from 'Store/main';
+import { GetOpenMapID, ACTEnsureMapStateInit } from 'Store/main';
 import { GetMap } from 'Store/firebase/maps';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { GetNodeView, ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView';
@@ -26,7 +26,6 @@ async function StartInitForNewlyLoadedMap(mapID: string) {
 	// storeM.ACTEnsureMapStateInit(action.payload.id);
 	runInAction('StartInitForNewlyLoadedMap_part1', () => {
 		ACTEnsureMapStateInit(mapID);
-		ACTCreateMapViewIfMissing(mapID);
 	});
 
 	let pathsToExpand = [`${map.rootNode}`];
@@ -35,7 +34,7 @@ async function StartInitForNewlyLoadedMap(mapID: string) {
 		for (const path of pathsToExpand) {
 			const nodeID = path.split('/').Last();
 			const node = await GetAsync(() => GetNodeL2(nodeID));
-			if (GetNodeView(map._key, path) == null) {
+			if (GetNodeView(map._key, path, false) == null) {
 				ACTMapNodeExpandedSet({ mapID: map._key, path, expanded: true, resetSubtree: false });
 			}
 			if (node.children) {

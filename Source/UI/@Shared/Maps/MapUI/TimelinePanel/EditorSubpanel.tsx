@@ -14,11 +14,11 @@ import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { MeID } from 'Store/firebase/users';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { TimelineDetailsEditor } from 'UI/@Shared/Timelines/TimelineDetailsUI';
-import { InfoButton } from 'vwebapp-framework';
+import { InfoButton, Observer } from 'vwebapp-framework';
 import { DroppableInfo } from 'Utils/UI/DNDStructures';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { GetOpenMapID } from 'Store/main';
-import {GetTimelinePanelOpen, GetTimelineOpenSubpanel, TimelineSubpanel, GetSelectedTimeline, GetShowTimelineDetails} from 'Store/main/maps/$map';
+import { GetTimelinePanelOpen, GetTimelineOpenSubpanel, TimelineSubpanel, GetSelectedTimeline, GetShowTimelineDetails } from 'Store/main/maps/$map';
 import { StepEditorUI } from './EditorSubpanel/StepEditorUI';
 
 // for use by react-beautiful-dnd (using text replacement)
@@ -28,6 +28,7 @@ function LockMapEdgeScrolling() {
 	return store.main.lockMapScrolling && GetTimelinePanelOpen(mapID) && GetTimelineOpenSubpanel(mapID) == TimelineSubpanel.Editor;
 }
 
+@Observer
 export class EditorSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} as {timeline: Timeline}) {
 	render() {
 		const { map } = this.props;

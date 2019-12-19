@@ -3,10 +3,11 @@ import { BaseComponentPlus } from 'react-vextensions';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetTimelineStep } from 'Store/firebase/timelines';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
-import { VReactMarkdown_Remarkable, YoutubePlayer, YoutubePlayerState } from 'vwebapp-framework';
+import { VReactMarkdown_Remarkable, YoutubePlayer, YoutubePlayerState, Observer } from 'vwebapp-framework';
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { PositionOptionsEnum, NodeRevealUI } from '../EditorSubpanel/StepEditorUI';
 
+@Observer
 export class StepUI extends BaseComponentPlus(
 	{} as {index: number, last: boolean, map: Map, timeline: Timeline, stepID: string, player: YoutubePlayer, jumpToStep: (step: TimelineStep)=>any},
 	{ showNodeReveals: false },

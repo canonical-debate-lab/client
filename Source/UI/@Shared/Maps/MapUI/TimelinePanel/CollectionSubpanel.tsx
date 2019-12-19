@@ -10,7 +10,9 @@ import { GetMapTimelines, GetTimelineSteps } from 'Store/firebase/timelines';
 import { MeID } from 'Store/firebase/users';
 import { GetSelectedTimeline } from 'Store/main/maps/$map';
 import { store } from 'Store';
+import { Observer } from 'vwebapp-framework';
 
+@Observer
 export class CollectionSubpanel extends BaseComponentPlus({} as {map: Map}, {}) {
 	timelineSelect: DropDown;
 	render() {

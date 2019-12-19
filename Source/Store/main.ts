@@ -153,10 +153,9 @@ export const GetCopiedNode = StoreAccessor((s) => () => {
 // ==========
 
 export const ACTEnsureMapStateInit = StoreAction((mapID: string) => {
-	if (store.main.maps.get(mapID)) return;
-	store.main.maps.set(mapID, new MapState());
-});
-export const ACTCreateMapViewIfMissing = StoreAction((mapID: string) => {
+	if (!store.main.maps.has(mapID)) {
+		store.main.maps.set(mapID, new MapState());
+	}
 	if (GetMapView(mapID) == null) {
 		store.main.mapViews.set(mapID, new MapView());
 	}

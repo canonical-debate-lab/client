@@ -6,7 +6,7 @@ import { Button_GAD } from 'UI/@GAD/GADButton';
 import { store } from 'Store';
 import { runInAction } from 'mobx';
 import { Observer } from 'vwebapp-framework';
-import { ACTEnsureMapStateInit, ACTCreateMapViewIfMissing } from 'Store/main';
+import { ACTEnsureMapStateInit } from 'Store/main';
 
 @Observer
 export class LayoutDropDown extends BaseComponentPlus({} as {map: Map}, {}) {
@@ -38,7 +38,6 @@ export class LayoutDropDown extends BaseComponentPlus({} as {map: Map}, {}) {
 							runInAction('LayoutDropDown.clearMapViewState.onClick', () => {
 								store.main.mapViews.delete(map._key);
 								ACTEnsureMapStateInit(map._key);
-								ACTCreateMapViewIfMissing(map._key);
 							});
 						}}/>
 					</Row>

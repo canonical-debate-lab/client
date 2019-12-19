@@ -14,7 +14,7 @@ import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { NodeReveal, TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { MeID } from 'Store/firebase/users';
-import { DragInfo, MakeDraggable } from 'vwebapp-framework';
+import { DragInfo, MakeDraggable, Observer } from 'vwebapp-framework';
 import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
 import { UUIDPathStub } from 'UI/@Shared/UUIDStub';
 import { GetShortestPathFromRootToNode } from 'Utils/Store/PathFinder';
@@ -53,6 +53,7 @@ export type StepEditorUIProps = {index: number, last: boolean, map: Map, timelin
 		// enabled: step != null, // if step is not yet loaded, don't actually apply the draggable-wrapping
 	};
 })
+@Observer
 // @SimpleShouldUpdate({ propsToIgnore: ['dragInfo'] })
 export class StepEditorUI extends BaseComponentPlus({} as StepEditorUIProps, { placeholderRect: null as VRect }) {
 	/* static ValidateProps(props: StepUIProps) {
