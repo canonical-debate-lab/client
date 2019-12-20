@@ -64,7 +64,7 @@ async function StartExpandingToAndFocusingOnNodesForStep(mapID: string, stepInde
 	const step = await GetAsync(() => {
 		// const playingTimeline_currentStep = GetPlayingTimelineStep(mapID);
 		const timeline = GetPlayingTimeline(mapID);
-		const stepID = timeline.steps[stepIndex];
+		const stepID = timeline?.steps[stepIndex];
 		return GetTimelineStep(stepID);
 	});
 	const newlyRevealedNodes = await GetAsync(() => GetNodesRevealedInSteps([step]));
