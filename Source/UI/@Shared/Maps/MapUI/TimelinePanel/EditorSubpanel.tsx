@@ -19,6 +19,7 @@ import { DroppableInfo } from 'Utils/UI/DNDStructures';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { GetOpenMapID } from 'Store/main';
 import { GetTimelinePanelOpen, GetTimelineOpenSubpanel, TimelineSubpanel, GetSelectedTimeline, GetShowTimelineDetails } from 'Store/main/maps/$map';
+import {runInAction} from 'mobx';
 import { StepEditorUI } from './EditorSubpanel/StepEditorUI';
 
 // for use by react-beautiful-dnd (using text replacement)
@@ -57,10 +58,10 @@ export class EditorSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} a
 						new AddTimelineStep({ timelineID: timeline._key, step: newStep, stepIndex: newStepIndex }).Run();
 					}}/>
 					<CheckBox ml={5} text="Details" checked={showTimelineDetails} onChange={(val) => {
-						store.main.maps.get(map._key).showTimelineDetails = val;
+						runInAction('EditorSubpanel.Details.onChange', () => store.main.maps.get(map._key).showTimelineDetails = val);
 					}}/>
 					<CheckBox ml="auto" text="Lock map scrolling" title="Lock map edge-scrolling. (for dragging onto timeline steps)" checked={lockMapScrolling} onChange={(val) => {
-						store.main.lockMapScrolling = val;
+						runInAction('EditorSubpanel.lockMapScrolling.onChange', () => store.main.lockMapScrolling = val);
 					}}/>
 				</Row>
 				<ScrollView style={ES({ flex: 1 })} contentStyle={ES({

@@ -1,4 +1,4 @@
-import { Assert, GetPercentFromXToY, IsNaN, Lerp, Timer, ToNumber, Vector2i, WaitXThenRun } from 'js-vextensions';
+import { Assert, GetPercentFromXToY, IsNaN, Lerp, Timer, ToNumber, Vector2i, WaitXThenRun, AssertWarn } from 'js-vextensions';
 import { computed, observable, runInAction } from 'mobx';
 import React, { useEffect } from 'react';
 import ReactList from 'react-list';
@@ -10,7 +10,7 @@ import { GetTimelineStep, GetTimelineSteps } from 'Store/firebase/timelines';
 import { store } from 'Store';
 import { GetScreenRect, HSLA, Icon, Observer, RunWithRenderingBatched, UseSize, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, ClassHooks } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
-import {GetSelectedTimeline, GetPlayingTimelineStepIndex, GetNodeRevealHighlightTime, GetPlayingTimelineAppliedStepIndex} from 'Store/main/maps/$map';
+import { GetSelectedTimeline, GetPlayingTimelineStepIndex, GetNodeRevealHighlightTime, GetPlayingTimelineAppliedStepIndex } from 'Store/main/maps/$map';
 import { StepUI } from './PlayingSubpanel/StepUI';
 
 /* export class PlayingSubpanel extends BaseComponentPlus(
@@ -88,7 +88,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 					const messageAreaY = GetScreenRect(this.sideBarEl).y;
 					const messageAreaYDiffFromListY = messageAreaY - this.listY;
 					targetTime_yInMessageArea = targetTime_yInList - messageAreaYDiffFromListY;
-					Assert(!IsNaN(targetTime_yInMessageArea));
+					AssertWarn(!IsNaN(targetTime_yInMessageArea));
 				}
 			}
 		}
@@ -123,6 +123,10 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 		// const { targetTime, autoScroll } = this.state;
 		const oldTargetTime = this.targetTime;
 		const mapInfo = store.main.maps.get(map._key);
+
+		// if (this.listRootEl == null && PROD) return; // defensive
+		if (this.listRootEl == null) return; // if something goes wrong with rendering, we don't want to keep spewing new errors
+
 
 		// Log('Checking');
 		// const targetTime_fromRedux = GetPlayingTimelineTime(map._key); // from redux store
@@ -255,7 +259,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 		// const { targetTimeDirection } = this.state;
 		if (this.targetTimeDirection != 'right') {
 			// this.SetState({ autoScroll: false });
-			this.autoScroll = false;
+			runInAction('PlayingSubpanel.OnScroll', () => this.autoScroll = false);
 		}
 
 		// this.UpdateTargetInfo_Throttled();
@@ -277,7 +281,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 		// this.Stash({ messageAreaHeight });
 		// todo: make sure this is correct
 		useEffect(() => {
-			this.messageAreaHeight = messageAreaHeight; // set for other observers
+			runInAction('PlayingSubpanel.render.useEffect', () => this.messageAreaHeight = messageAreaHeight); // set for other observers
 		});
 
 		// const targetTime_floored = GetPlayingTimelineTime(map._key); // no need to watch, since only used as start-pos for video, if in initial mount
@@ -334,21 +338,21 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 					}}
 					onPosChanged={(pos) => {
 						if (pos == 0) return; // ignore "pos 0" event; this just happens when the video first loads (even if seek-to time set otherwise)
-						// this.SetState({ targetTime: pos });
-						// just set state directly, because the timer above will handle the refreshing
-						// this.state['targetTime'] = pos;
-						// if (pos == timeline.videoStartTime && this.newTargetTime == null) return; // don't set newTargetTime
-						// this.newTargetTime = pos;
-						// this.SetState({ targetTime: pos });
-						this.targetTime = pos;
-						// runInAction('PlayingSubpanel_targetTime_set', () => this.targetTime = pos);
-						// Log(`Setting:${this.targetTime}`);
-						if (pos.FloorTo(1) != mapInfo.playingTimeline_time) {
-							// mapInfo.playingTimeline_time_set(pos.FloorTo(1));
-							runInAction('VideoPlayer.onPosChanged: set playingTimeline_time', () => {
+						runInAction('VideoPlayer.onPosChanged', () => {
+							// this.SetState({ targetTime: pos });
+							// just set state directly, because the timer above will handle the refreshing
+							// this.state['targetTime'] = pos;
+							// if (pos == timeline.videoStartTime && this.newTargetTime == null) return; // don't set newTargetTime
+							// this.newTargetTime = pos;
+							// this.SetState({ targetTime: pos });
+							this.targetTime = pos;
+							// runInAction('PlayingSubpanel_targetTime_set', () => this.targetTime = pos);
+							// Log(`Setting:${this.targetTime}`);
+							if (pos.FloorTo(1) != mapInfo.playingTimeline_time) {
+								// mapInfo.playingTimeline_time_set(pos.FloorTo(1));
 								mapInfo.playingTimeline_time = pos.FloorTo(1);
-							});
-						}
+							}
+						});
 					}}/>}
 				{/* <ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, position: 'relative', padding: 7, filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)' })}>
 					{/* timelineSteps && timelineSteps.map((step, index) => <StepUI key={index} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>) *#/}
@@ -370,7 +374,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 							<DropDownContent style={{ right: 0, width: 300, zIndex: 11 }}><Column>
 								<Row>
 									<Text>Node-reveal highlight time:</Text>
-									<Spinner ml={5} min={0} value={nodeRevealHighlightTime} onChange={(val) => store.main.nodeRevealHighlightTime = val}/>
+									<Spinner ml={5} min={0} value={nodeRevealHighlightTime} onChange={(val) => runInAction('PlayingSubpanel.nodeRevealHighlightTime.onChange', () => store.main.nodeRevealHighlightTime = val)}/>
 								</Row>
 							</Column></DropDownContent>
 						</DropDown>
@@ -401,7 +405,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 								/* this.autoScrollDisabling = false;
 								this.SetState({ autoScroll: newAutoScroll }, () => WaitXThenRun(0, () => this.autoScrollDisabling = true)); */
 								// this.SetState({ autoScroll: newAutoScroll });
-								this.autoScroll = newAutoScroll;
+								runInAction('PlayingSubpanel.targetArrow.onClick', () => this.autoScroll = newAutoScroll);
 							}, [targetStepIndex])}/>
 					</Column>
 					<ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, position: 'relative', padding: 7, filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)' })} onScroll={this.OnScroll}>
@@ -438,7 +442,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 												player.SetPosition(step.videoTime);
 												// this.SetState({ targetTime: step.videoTime, autoScroll: true });
 												// this.SetState({ autoScroll: true });
-												this.autoScroll = true;
+												runInAction('PlayingSubpanel.StepUI.jumpToStep', () => this.autoScroll = true);
 											})();
 										}
 									}}

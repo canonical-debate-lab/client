@@ -45,8 +45,8 @@ export class MapNodeView {
 }
 export const emptyNodeView = new MapNodeView();
 
-export type MapNodeView_SelfOnly = Omit<MapNodeView, 'children'>;
-export const MapNodeView_SelfOnly_props = ['expanded', 'expanded_truth', 'expanded_relevance', 'selected', 'focused', 'viewOffset', 'openPanel', 'openTermID', 'childLimit_up', 'childLimit_down'];
+// export type MapNodeView_SelfOnly = Omit<MapNodeView, 'children'>;
+// export const MapNodeView_SelfOnly_props = ['expanded', 'expanded_truth', 'expanded_relevance', 'selected', 'focused', 'viewOffset', 'openPanel', 'openTermID', 'childLimit_up', 'childLimit_down'];
 
 export function GetPathNodes(path: string) {
 	const pathSegments = SplitStringBySlash_Cached(path);
@@ -199,10 +199,10 @@ export const GetNodeViewsBelowPath = StoreAccessor((s) => (mapID: string, pathOr
 	if (pathOrPathNodes == null) return null;
 	const pathNodes = ToPathNodes(pathOrPathNodes);
 	const nodeView = GetNodeView(mapID, pathOrPathNodes);
-	const result = [];
+	const result = [] as MapNodeView[];
 	for (const { key, value: child } of nodeView.children.Pairs()) {
 		result.push(child);
-		result.push(GetNodeViewsBelowPath(mapID, pathNodes.concat(key)));
+		result.push(...GetNodeViewsBelowPath(mapID, pathNodes.concat(key)));
 	}
 	return result;
 });

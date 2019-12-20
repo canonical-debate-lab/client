@@ -14,7 +14,7 @@ import { Icon, IsSpecialEmptyArray, MaybeLog, Observer } from 'vwebapp-framework
 import { DroppableInfo } from 'Utils/UI/DNDStructures';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { store } from 'Store';
-import { MapNodeView_SelfOnly, GetNodeView } from 'Store/main/mapViews/$mapView';
+import { GetNodeView } from 'Store/main/mapViews/$mapView';
 import { runInAction } from 'mobx';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { IsMultiPremiseArgument } from '../../../../../Store/firebase/nodes/$node';

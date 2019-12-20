@@ -4,6 +4,7 @@ import { dbVersion } from 'Main';
 import { FirebaseDBShape } from 'Store/firebase';
 import { store, RootState } from 'Store';
 import { OnPopulated } from 'vwebapp-framework';
+import { Clone } from 'js-vextensions';
 
 declare module 'mobx-firelink/Dist/UserTypes' {
 	interface RootStoreShape extends RootState {}
@@ -22,3 +23,16 @@ OnPopulated(() => fire.InitSubs());
 
 // start auto-runs after store+firelink are created
 require('Utils/AutoRuns');
+
+// mobx debug helper
+// ==========
+
+/* window['mobxDevtools_processChange'] = (change) => {
+	// change.rootStoreData = store;
+	/* change.mapViews = store.main.mapViews['raw'];
+	change.mapViews._sendFull = true; *#/
+	change.mapViews = { _serialize() {
+		// return store.main.mapViews['raw'];
+		return Clone(store.main.mapViews['raw']);
+	} };
+}; */

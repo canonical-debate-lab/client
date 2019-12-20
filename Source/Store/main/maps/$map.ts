@@ -26,20 +26,22 @@ export enum ShowChangesSinceType {
 }
 
 export class MapState {
-	list_sortBy = SortType.CreationDate;
-	list_filter = '';
-	list_page = 0;
+	@O initDone = false;
 
-	list_selectedNodeID = null as string;
-	list_selectedNode_openPanel = null as string;
+	@O list_sortBy = SortType.CreationDate;
+	@O list_filter = '';
+	@O list_page = 0;
 
-	timelinePanelOpen = false;
-	timelineOpenSubpanel = TimelineSubpanel.Collection;
-	showTimelineDetails = false;
-	selectedTimeline = null as string;
+	@O list_selectedNodeID = null as string;
+	@O list_selectedNode_openPanel = null as string;
 
-	showChangesSince_type = ShowChangesSinceType.SinceVisitX;
-	showChangesSince_visitOffset = 1;
+	@O timelinePanelOpen = false;
+	@O timelineOpenSubpanel = TimelineSubpanel.Collection;
+	@O showTimelineDetails = false;
+	@O selectedTimeline = null as string;
+
+	@O showChangesSince_type = ShowChangesSinceType.SinceVisitX;
+	@O showChangesSince_visitOffset = 1;
 
 	@O playingTimeline_time: number;
 	@O playingTimeline_step: number; // step currently scrolled to

@@ -63,6 +63,9 @@ export const ACTUpdateFocusNodeAndViewOffset = StoreAction((mapID: string) => {
 	if (focusNodePath == null) return; // can happen sometimes; not sure what causes
 	const viewOffset = GetViewOffsetForNodeBox(focusNodeBox);
 
+	ACTSetFocusNodeAndViewOffset(mapID, focusNodePath, viewOffset);
+});
+export const ACTSetFocusNodeAndViewOffset = StoreAction((mapID: string, focusNodePath: string | string[], viewOffset: Vector2i) => {
 	let nodeView = GetNodeView(mapID, focusNodePath);
 	if (nodeView == null || !nodeView.focused || !viewOffset.Equals(nodeView.viewOffset)) {
 		if (nodeView == null) {
@@ -113,7 +116,7 @@ export class MapUI extends BaseComponentPlus({
 		const { map, rootNode: rootNode_passed, withinPage, padding, subNavBarWidth, ...rest } = this.props;
 		Assert(map._key, 'map._key is null!');
 
-		if (!store.main.maps.has(map._key)) return <MapUIWaitMessage message="Initializing map metadata..."/>;
+		if (!store.main.maps.get(map._key)?.initDone) return <MapUIWaitMessage message="Initializing map metadata..."/>;
 		if (GetMapView(map._key) == null) return <MapUIWaitMessage message="Initializing map view..."/>;
 		if (map == null) return <MapUIWaitMessage message="Loading map..."/>;
 		const rootNode = (() => {
@@ -133,6 +136,7 @@ export class MapUI extends BaseComponentPlus({
 			return result;
 		})();
 		if (rootNode == null) return <MapUIWaitMessage message="Loading root node..."/>;
+		// if (GetNodeView(map._key, rootNode._key, false) == null) return <MapUIWaitMessage message="Initializing root-node view..."/>; // maybe temp
 
 		if (isBot) {
 			return <NodeUI_ForBots map={map} node={rootNode}/>;

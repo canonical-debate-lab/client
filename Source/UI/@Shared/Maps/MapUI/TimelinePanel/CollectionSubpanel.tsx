@@ -11,6 +11,7 @@ import { MeID } from 'Store/firebase/users';
 import { GetSelectedTimeline } from 'Store/main/maps/$map';
 import { store } from 'Store';
 import { Observer } from 'vwebapp-framework';
+import { runInAction } from 'mobx';
 
 @Observer
 export class CollectionSubpanel extends BaseComponentPlus({} as {map: Map}, {}) {
@@ -38,7 +39,7 @@ export class CollectionSubpanel extends BaseComponentPlus({} as {map: Map}, {}) 
 												index == timelines.length - 1 && { borderRadius: '0 0 10px 10px' },
 											)}
 											onClick={() => {
-												store.main.maps.get(map._key).selectedTimeline = timeline._key;
+												runInAction('CollectionSubpanel.selectedTimeline.onChange', () => store.main.maps.get(map._key).selectedTimeline = timeline._key);
 												this.timelineSelect.Hide();
 											}}>
 											<Row>

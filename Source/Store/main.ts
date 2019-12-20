@@ -159,4 +159,8 @@ export const ACTEnsureMapStateInit = StoreAction((mapID: string) => {
 	if (GetMapView(mapID) == null) {
 		store.main.mapViews.set(mapID, new MapView());
 	}
+	return {
+		mapState: store.main.maps.get(mapID),
+		mapView: GetMapView(mapID),
+	};
 });
