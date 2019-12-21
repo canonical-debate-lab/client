@@ -8,7 +8,7 @@ import { ScrollSource, ScrollView } from 'react-vscrollview';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetTimelineStep, GetTimelineSteps } from 'Store/firebase/timelines';
 import { store } from 'Store';
-import { GetScreenRect, HSLA, Icon, Observer, RunWithRenderingBatched, UseSize, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, ClassHooks } from 'vwebapp-framework';
+import { GetScreenRect, HSLA, Icon, Observer, RunWithRenderingBatched, UseSize, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, ClassHooks, PosChangeSource } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { GetSelectedTimeline, GetPlayingTimelineStepIndex, GetNodeRevealHighlightTime, GetPlayingTimelineAppliedStepIndex } from 'Store/main/maps/$map';
 import { StepUI } from './PlayingSubpanel/StepUI';
@@ -42,6 +42,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 	@observable targetTime: number;
 	@observable autoScroll = true;
 	// targetStepIndex = null as number;
+	lastPosChangeSource: PosChangeSource;
 
 	@computed get SharedInfo() {
 		const { map } = this.props;
@@ -52,8 +53,8 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 
 		const firstNormalStep = GetTimelineStep(timeline ? timeline.steps[1] : null);
 
-		// temp; tell mobx to track these (redux data + if statement breaks the auto-tracking)
-		this.targetTime;
+		// tell mobx to track scroll-pos (we use the derivative, eg. GetScreenRect(listRoot), but mobx doesn't track that; so we explicitly track its source)
+		this.listY;
 
 		let targetStepIndex: number;
 		let targetTime_yInMessageArea: number;
@@ -127,7 +128,6 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 		// if (this.listRootEl == null && PROD) return; // defensive
 		if (this.listRootEl == null) return; // if something goes wrong with rendering, we don't want to keep spewing new errors
 
-
 		// Log('Checking');
 		// const targetTime_fromRedux = GetPlayingTimelineTime(map._key); // from redux store
 		/* const targetTime_fromStore = mapInfo.playingTimeline_time;
@@ -186,7 +186,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 						mapState.playingTimeline_step = newTargetStepIndex;
 						mapState.playingTimeline_appliedStep = newMaxTargetStepIndex;
 
-						if (this.autoScroll) {
+						if (this.autoScroll && this.lastPosChangeSource == 'playback') {
 							// jump one further down, so that the target point *within* the target step is visible (and with enough space for the arrow button itself)
 							// this.list.scrollAround(newTargetStepIndex + 1);
 							// jump X further down, so that we see some of the upcoming text (also for if video-time data is off some)
@@ -336,7 +336,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 						// this.Update();
 						this.forceUpdate();
 					}}
-					onPosChanged={(pos) => {
+					onPosChanged={(pos, source) => {
 						if (pos == 0) return; // ignore "pos 0" event; this just happens when the video first loads (even if seek-to time set otherwise)
 						runInAction('VideoPlayer.onPosChanged', () => {
 							// this.SetState({ targetTime: pos });
@@ -352,6 +352,8 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 								// mapInfo.playingTimeline_time_set(pos.FloorTo(1));
 								mapInfo.playingTimeline_time = pos.FloorTo(1);
 							}
+
+							this.lastPosChangeSource = source;
 						});
 					}}/>}
 				{/* <ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, position: 'relative', padding: 7, filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)' })}>
@@ -439,6 +441,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 													player.Play();
 													await player.WaitTillState(YoutubePlayerState.PLAYING);
 												}
+												// this.targetTime = step.videoTime;
 												player.SetPosition(step.videoTime);
 												// this.SetState({ targetTime: step.videoTime, autoScroll: true });
 												// this.SetState({ autoScroll: true });
