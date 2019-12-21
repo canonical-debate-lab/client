@@ -67,6 +67,7 @@ async function StartExpandingToAndFocusingOnNodesForStep(mapID: string, stepInde
 		const stepID = timeline?.steps[stepIndex];
 		return GetTimelineStep(stepID);
 	});
+	if (step == null) return;
 	const newlyRevealedNodes = await GetAsync(() => GetNodesRevealedInSteps([step]));
 	// Log(`@Step(${step._key}) @NewlyRevealedNodes(${newlyRevealedNodes})`);
 	if (newlyRevealedNodes.length) {

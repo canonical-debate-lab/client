@@ -74,7 +74,7 @@ export class StepEditorUI extends BaseComponentPlus({} as StepEditorUIProps, { p
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), map);
 
 		if (step == null) {
-			return <div style={{ height: 100 }} {...(dragInfo && dragInfo.provided.draggableProps)} {...(dragInfo && dragInfo.provided.dragHandleProps)}/>;
+			return <div style={{ height: 100 }}><div {...(dragInfo && dragInfo.provided.draggableProps)} {...(dragInfo && dragInfo.provided.dragHandleProps)}/></div>;
 		}
 
 		const asDragPreview = dragInfo && dragInfo.snapshot.isDragging;
@@ -214,6 +214,7 @@ export class StepEditorUI extends BaseComponentPlus({} as StepEditorUIProps, { p
 	}
 }
 
+@Observer
 export class NodeRevealUI extends BaseComponentPlus({} as {map: Map, step: TimelineStep, nodeReveal: NodeReveal, editing: boolean, index: number}, { detailsOpen: false }) {
 	render() {
 		const { map, step, nodeReveal, editing, index } = this.props;
