@@ -21,8 +21,9 @@ export class TimelinePanel extends BaseComponentPlus({} as {map: Map}, {}) {
 			runInAction('TimelinePanel.SetSubpanel', () => mapInfo.timelineOpenSubpanel = subpanel);
 		}
 		return (
-			<Row style={{ height: '100%', alignItems: 'flex-start' }}>
-				<Column className="clickThrough" style={{ width: 600, height: '100%', background: 'rgba(0,0,0,.7)' /* borderRadius: "10px 10px 0 0" */ }}>
+			// since we're in a flex:row container, we need to set min-width as well (flex ignores "width:X" alone, when children don't demand enough to match it)
+			<Row style={{ width: 600, minWidth: 600, height: '100%', alignItems: 'flex-start' }}>
+				<Column className="clickThrough" style={{ height: '100%', background: 'rgba(0,0,0,.7)' /* borderRadius: "10px 10px 0 0" */ }}>
 					<Row>
 						<Button text="Collection" style={{ flex: 1 }} onClick={() => SetSubpanel(TimelineSubpanel.Collection)}/>
 						<Button text="Editor" style={{ flex: 1 }} onClick={() => SetSubpanel(TimelineSubpanel.Editor)}/>

@@ -276,7 +276,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 
 		/* const [ref, { width, height }] = UseSize();
 		useEffect(() => ref(this.DOM), [ref]); */
-		const [videoRef, { height: videoHeight }] = UseSize();
+		// const [videoRef, { height: videoHeight }] = UseSize();
 		const [messageAreaRef, { height: messageAreaHeight }] = UseSize();
 		// this.Stash({ messageAreaHeight });
 		// todo: make sure this is correct
@@ -327,9 +327,9 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 		// todo: make-so the UseCallbacks below can't break from this early-return changing the hook-count (atm, not triggering since timeline is always ready when this comp renders)
 		if (timeline == null) return null;
 		return (
-			<Column style={{ height: '100%' }}>
+			<Column style={{ flex: 1, minHeight: 0 }}>
 				{timeline.videoID &&
-				<YoutubePlayerUI ref={videoRef} videoID={timeline.videoID} startTime={mapInfo.playingTimeline_time || timeline.videoStartTime} heightVSWidthPercent={timeline.videoHeightVSWidthPercent}
+				<YoutubePlayerUI /* ref={videoRef} */ videoID={timeline.videoID} startTime={mapInfo.playingTimeline_time || timeline.videoStartTime} heightVSWidthPercent={timeline.videoHeightVSWidthPercent}
 					onPlayerInitialized={(player) => {
 						this.player = player;
 						player.GetPlayerUI().style.position = 'absolute';
@@ -380,7 +380,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 						</DropDown>
 					</Row>
 				</Row>
-				<Row ref={messageAreaRef} style={{ height: `calc(100% - 30px - ${ToNumber(videoHeight, 0)}px)` }}>
+				<Row ref={messageAreaRef} style={{ flex: 1, minHeight: 0 }}>
 					<Column ref={(c) => this.sideBarEl = c ? c.DOM as any : null} style={{ position: 'relative', width: 20, background: HSLA(0, 0, 0, 1) }}>
 						<Button text={<Icon icon={`arrow-${this.targetTimeDirection}`} size={20}/>} /* enabled={targetTime_yInMessageArea < 0 || targetTime_yInMessageArea >= messageAreaHeight - 20} */
 							style={{
