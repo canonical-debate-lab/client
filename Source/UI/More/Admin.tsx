@@ -1,17 +1,14 @@
-import { E, SleepAsync, Assert, Clone, DeepSet } from 'js-vextensions';
-import { Button, Column, Row } from 'react-vcomponents';
-import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
-import { ShowMessageBox } from 'react-vmessagebox';
-import { HasAdminPermissions } from 'Store/firebase/userExtras';
-import { Omit } from 'lodash';
-import { PageContainer } from 'vwebapp-framework';
+import { Assert, AwaitTree, SleepAsync } from 'js-vextensions';
 import { dbVersion } from 'Main';
-import { ValidateDBData } from 'Utils/Store/DBDataValidator';
-import { store, RootState } from 'Store';
-import { ConvertDataToValidDBUpdates, ApplyDBUpdates_InChunks, DBPath, SplitStringBySlash_Cached, GetDoc, GetDocs, GetAsync } from 'mobx-firelink';
+import { ApplyDBUpdates_InChunks, ConvertDataToValidDBUpdates, DBPath, GetAsync, GetDoc, GetDocs, SplitStringBySlash_Cached } from 'mobx-firelink';
+import { Button, Column, Row } from 'react-vcomponents';
+import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
+import { ShowMessageBox } from 'react-vmessagebox';
 import { FirebaseDBShape } from 'Store/firebase';
-import { styles } from '../../Utils/UI/GlobalStyles';
-import { MeID, GetUser } from '../../Store/firebase/users';
+import { HasAdminPermissions } from 'Store/firebase/userExtras';
+import { ValidateDBData } from 'Utils/Store/DBDataValidator';
+import { PageContainer } from 'vwebapp-framework';
+import { MeID } from '../../Store/firebase/users';
 import { ResetCurrentDBRoot } from './Admin/ResetCurrentDBRoot';
 
 type UpgradeFunc = (oldData: FirebaseDBShape, markProgress: MarkProgressFunc)=>Promise<FirebaseDBShape>;
@@ -203,7 +200,7 @@ export async function GetCollectionsDataAsync(versionRootPath: string) {
 
 	let versionCollectionsData: FirebaseDBShape;
 	// we put the db-updates into this variable, so that we know we're importing data for every key (if not, Typescript throws error about value not matching FirebaseData's shape)
-	versionCollectionsData = {
+	versionCollectionsData = await AwaitTree({
 		// modules
 		/* 'modules/feedback/general': await getDocs('modules', 'feedback', 'general'),
 		'modules/feedback/proposals': await getDocs('modules', 'feedback', 'proposals'),
@@ -212,28 +209,28 @@ export async function GetCollectionsDataAsync(versionRootPath: string) {
 			feedback: await getDoc('modules', 'feedback'),
 		},
 
-		general: await getDocs('general'),
-		images: await getDocs('images'),
-		layers: await getDocs('layers'),
-		maps: await getDocs('maps'),
-		mapNodeEditTimes: await getDocs('mapNodeEditTimes'),
-		nodes: await getDocs('nodes'),
+		general: getDocs('general'),
+		images: getDocs('images'),
+		layers: getDocs('layers'),
+		maps: getDocs('maps'),
+		mapNodeEditTimes: getDocs('mapNodeEditTimes'),
+		nodes: getDocs('nodes'),
 		// nodeExtras: await getDocs('nodeExtras'),
-		nodePhrasings: await getDocs('nodePhrasings'),
-		nodeRatings: await getDocs('nodeRatings'),
-		nodeRevisions: await getDocs('nodeRevisions'),
+		nodePhrasings: getDocs('nodePhrasings'),
+		nodeRatings: getDocs('nodeRatings'),
+		nodeRevisions: getDocs('nodeRevisions'),
 		// nodeStats: await getDocs('nodeStats'),
 		// nodeViewers: await getDocs('nodeViewers'),
-		terms: await getDocs('terms'),
-		termComponents: await getDocs('termComponents'),
-		termNames: await getDocs('termNames'),
-		timelines: await getDocs('timelines'),
-		timelineSteps: await getDocs('timelineSteps'),
-		users: await getDocs('users'),
-		userExtras: await getDocs('userExtras'),
-		userMapInfo: await getDocs('userMapInfo'),
+		terms: getDocs('terms'),
+		termComponents: getDocs('termComponents'),
+		termNames: getDocs('termNames'),
+		timelines: getDocs('timelines'),
+		timelineSteps: getDocs('timelineSteps'),
+		users: getDocs('users'),
+		userExtras: getDocs('userExtras'),
+		userMapInfo: getDocs('userMapInfo'),
 		// userViewedNodes: await getDocs('userViewedNodes'),
-	};
+	});
 
 	return versionCollectionsData;
 }

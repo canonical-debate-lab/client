@@ -115,3 +115,6 @@ export interface FirebaseDBShape {
 export const GetAuth = StoreAccessor((s) => () => {
 	return s.firelink.userInfo;
 });
+export const GetAuth_Raw = StoreAccessor((s) => () => {
+	return s.firelink.userInfo_raw;
+});

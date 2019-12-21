@@ -1,4 +1,4 @@
-import { CachedTransform, IsNaN, emptyArray, ToJSON, AsObj, emptyArray_forLoading } from 'js-vextensions';
+import { CachedTransform, IsNaN, emptyArray, ToJSON, emptyArray_forLoading } from 'js-vextensions';
 import { PathSegmentToNodeID } from 'Store/main/mapViews/$mapView';
 import { GetPlayingTimeline, GetPlayingTimelineStepIndex, GetPlayingTimelineRevealNodes_UpToAppliedStep } from 'Store/main/maps/$map';
 import { ObservableMap } from 'mobx';
@@ -219,11 +219,11 @@ export const ForDelete_GetError = StoreAccessor((s) => (userID: string, node: Ma
 	const baseText = `Cannot delete node #${node._key}, since `;
 	if (!IsUserCreatorOrMod(userID, node)) return `${baseText}you are not the owner of this node. (or a mod)`;
 	if (GetParentCount(node) > 1) return `${baseText}it has more than one parent. Try unlinking it instead.`;
-	if (IsRootNode(node) && !AsObj(subcommandInfo).asPartOfMapDelete) return `${baseText}it's the root-node of a map.`;
+	if (IsRootNode(node) && !subcommandInfo?.asPartOfMapDelete) return `${baseText}it's the root-node of a map.`;
 
 	const nodeChildren = GetNodeChildrenL2(node);
 	if (nodeChildren.Any((a) => a == null)) return '[still loading children...]';
-	if (nodeChildren.map((a) => a._key).Except(AsObj(subcommandInfo).childrenToIgnore || []).length) {
+	if (nodeChildren.map((a) => a._key).Except(...(subcommandInfo?.childrenToIgnore ?? [])).length) {
 		return `Cannot delete this node (#${node._key}) until all its children have been unlinked or deleted.`;
 	}
 	return null;

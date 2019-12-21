@@ -220,7 +220,7 @@ export const ACTMapNodeExpandedSet = StoreAction((opt: {
 		nodeViews.Take(nodeViews.length - 1).forEach((a) => a.expanded = true);
 	}
 	const nodeView = nodeViews.Last();
-	const expandKeysPresent = ['expanded', 'expanded_truth', 'expanded_relevance'].filter((key) => opt[key] != null);
+	const expandKeysPresent = (['expanded', 'expanded_truth', 'expanded_relevance'] as const).filter((key) => opt[key] != null);
 	if (nodeView) nodeView.Extend(opt.Including(...expandKeysPresent));
 
 	// and action is recursive (ie. supposed to apply past target-node), with expansion being set to false

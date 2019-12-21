@@ -4,12 +4,13 @@ import { Column, Div, Row } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { columnWidths } from 'UI/Debates';
-import { HSLA, Link } from 'vwebapp-framework';
+import { HSLA, Link, Observer } from 'vwebapp-framework';
 import { store } from 'Store';
 import { runInAction } from 'mobx';
 import { Map, MapType } from '../../../Store/firebase/maps/@Map';
 import { GetUser } from '../../../Store/firebase/users';
 
+@Observer
 export class MapEntryUI extends BaseComponentPlus({} as {index: number, last: boolean, map: Map}, {}) {
 	render() {
 		const { index, last, map } = this.props;

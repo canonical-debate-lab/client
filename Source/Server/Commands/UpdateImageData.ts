@@ -5,7 +5,7 @@ import { GetImage } from 'Store/firebase/images';
 import { AssertValidate } from 'vwebapp-framework';
 import { Image } from '../../Store/firebase/images/@Image';
 
-export const UpdateImageData_allowedPropUpdates = ['name', 'type', 'url', 'description', 'previewWidth', 'sourceChains'];
+export const UpdateImageData_allowedPropUpdates = ['name', 'type', 'url', 'description', 'previewWidth', 'sourceChains'] as const;
 @UserEdit
 export class UpdateImageData extends Command<{id: string, updates: Partial<Image>}, {}> {
 	Validate_Early() {

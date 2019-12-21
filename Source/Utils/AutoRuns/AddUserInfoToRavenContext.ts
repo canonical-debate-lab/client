@@ -1,5 +1,5 @@
 import { autorun } from 'mobx';
-import { GetAuth } from 'Store/firebase';
+import { GetAuth, GetAuth_Raw } from 'Store/firebase';
 import { GetOpenMapID } from 'Store/main';
 import { GetMapView } from 'Store/main/mapViews/$mapView';
 import { Clone } from 'js-vextensions';
@@ -10,7 +10,8 @@ autorun(() => {
 	let lastMapView;
 	let lastContextData; // only gets updated when one of the above components change
 	autorun(() => {
-		const auth = GetAuth();
+		// const auth = GetAuth();
+		const auth = GetAuth_Raw();
 		const mapView = GetOpenMapID() ? GetMapView(GetOpenMapID()) : null;
 
 		let newContextData;
@@ -18,7 +19,7 @@ autorun(() => {
 			if (newContextData == null) newContextData = Clone(lastContextData || {});
 			newContextData.Extend(newData);
 		};
-		// if (auth != lastAuth) ExtendNewContextData(auth ? auth.Including('uid', 'displayName', 'email', 'photoURL') : null);
+		// if (auth != lastAuth) ExtendNewContextData({ auth: auth ? auth.Including('id', 'displayName') : null });
 		if (auth != lastAuth) ExtendNewContextData({ auth: auth ? auth.Including('uid', 'displayName', 'email', 'photoURL') : null });
 		if (mapView != lastMapView) ExtendNewContextData({ mapView });
 

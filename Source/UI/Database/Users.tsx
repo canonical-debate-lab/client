@@ -76,6 +76,7 @@ export class UsersUI extends BaseComponentPlus({} as {}, {}) {
 	}
 }
 
+@Observer
 class UserRow extends BaseComponent<{index: number, last: boolean, user: User, userExtraInfo: UserExtraInfo}, {}> {
 	render() {
 		const { index, last, user, userExtraInfo } = this.props;

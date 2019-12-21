@@ -321,7 +321,7 @@ export class NodeUI extends BaseComponentPlus(
 		if (this.proxyDisplayedNodeUI) return this.proxyDisplayedNodeUI.GetMeasurementInfo();
 
 		const { props } = this;
-		const props_used = this.props.Including('map', 'node', 'path', 'subnodes', 'nodeChildren') as typeof props;
+		const props_used = this.props.Including('map', 'node', 'path') as typeof props;
 		// Log("Checking whether should remeasure info for: " + props_used.node._id);
 		if (this.measurementInfo_cache && ShallowEquals(this.measurementInfo_cache_lastUsedProps, props_used)) return this.measurementInfo_cache;
 
