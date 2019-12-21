@@ -1,7 +1,7 @@
 import { ToJSON, Vector2i, VRect, WaitXThenRun, GetEntries, Clone } from 'js-vextensions';
 import { Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 import { Button, CheckBox, Column, Pre, Row, Select, Text, TextArea, TimeSpanInput } from 'react-vcomponents';
-import { BaseComponentPlus, GetDOM } from 'react-vextensions';
+import { BaseComponentPlus, GetDOM, ShallowChanged } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { DeleteTimelineStep } from 'Server/Commands/DeleteTimelineStep';
 import { UpdateTimelineStep } from 'Server/Commands/UpdateTimelineStep';
@@ -58,6 +58,13 @@ export type StepEditorUIProps = {index: number, last: boolean, map: Map, timelin
 export class StepEditorUI extends BaseComponentPlus({} as StepEditorUIProps, { placeholderRect: null as VRect }) {
 	/* static ValidateProps(props: StepUIProps) {
 		Assert(props.step != null);
+	} */
+
+	/* shouldComponentUpdate(newProps, newState) {
+		if (ShallowChanged(this.props.Excluding('dragInfo'), newProps.Excluding('dragInfo')) || ShallowChanged(this.state, newState)) return true;
+		// for dragInfo, do a json-based comparison (I think this is fine?)
+		if (ToJSON(this.props.dragInfo) != ToJSON(newProps.dragInfo)) return true;
+		return false;
 	} */
 
 	render() {
