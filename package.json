@@ -9,7 +9,7 @@
   },
   "scripts": {
     "clean": "shx rm -rf Dist",
-    "compile": "cross-env DEBUG='app:*' ts-node Scripts/Bin/Compile",
+    "compile": "cross-env DEBUG='app:*' ts-node --project Scripts/tsconfig.json Scripts/Bin/Compile",
     "@lint": "eslint Source Tests Scripts",
     "@lint:fix": "npm run lint -- --fix",
     "@start": "cross-env DEBUG='app:*' ts-node Scripts/Server",

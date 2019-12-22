@@ -59,7 +59,8 @@ if (ENV_COMPILE_TIME != 'production') {
 	g.TEST = ENV == 'test';
 } else {
 	// else, turn the compile-time replacements into true globals
-	Object.assign(g, { ENV, DEV, PROD, TEST });
+	// NOTE: Do NOT "simplify" these to just {X, Y, Z}, else it breaks the compile-time replacement.
+	Object.assign(g, { ENV: ENV, DEV: DEV, PROD: PROD, TEST: TEST }); // eslint-disable-line
 }
 
 // only compile-time if compiled for production (otherwise, can be overriden)
