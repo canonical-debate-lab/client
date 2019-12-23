@@ -29,7 +29,7 @@ export class TimelineDetailsUI extends BaseComponentPlus({ enabled: true } as {b
 		return (
 			<Column style={style}>
 				{!forNew &&
-					<IDAndCreationInfoUI id={newData._key} creator={creator} createdAt={newData.createdAt}/>}
+					<IDAndCreationInfoUI id={baseData._key} creator={creator} createdAt={newData.createdAt}/>}
 				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 					<Pre>Name: </Pre>
 					<TextInput required enabled={enabled} style={{ width: '100%' }}

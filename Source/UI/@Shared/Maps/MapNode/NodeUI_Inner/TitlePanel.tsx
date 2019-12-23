@@ -12,7 +12,7 @@ import { ClaimForm, MapNodeL2 } from 'Store/firebase/nodes/@MapNode';
 import { MapNodeRevision_titlePattern } from 'Store/firebase/nodes/@MapNodeRevision';
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
-import { MeID } from 'Store/firebase/users';
+import { MeID, CanEditNode } from 'Store/firebase/users';
 import { InfoButton, IsDoubleClick, ParseSegmentsForPatterns, VReactMarkdown_Remarkable, Observer } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { store } from 'Store';
@@ -44,8 +44,9 @@ export class TitlePanel extends BaseComponentPlus(
 ) {
 	OnDoubleClick = () => {
 		const { node } = this.props;
-		const creatorOrMod = IsUserCreatorOrMod(MeID(), node);
-		if (creatorOrMod && node.current.equation == null) {
+		/* const creatorOrMod = IsUserCreatorOrMod(MeID(), node);
+		if (creatorOrMod && node.current.equation == null) { */
+		if (CanEditNode(MeID(), node._key) && node.current.equation == null) {
 			this.SetState({ editing: true });
 		}
 	};

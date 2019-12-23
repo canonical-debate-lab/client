@@ -36,7 +36,7 @@ export class ImageDetailsUI extends BaseComponentPlus({} as {baseData: Image, cr
 		return (
 			<Column style={style}>
 				{!creating &&
-					<IDAndCreationInfoUI id={newData._key} creator={creator} createdAt={newData.createdAt}/>}
+					<IDAndCreationInfoUI id={baseData._key} creator={creator} createdAt={newData.createdAt}/>}
 				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 					<Pre>Name: </Pre>
 					<TextInput

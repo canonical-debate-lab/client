@@ -32,6 +32,9 @@ export enum PermissionInfoType {
 	Anyone = 30,
 }
 export class PermissionInfo {
+	constructor(initialData: Partial<PermissionInfo>) {
+		this.Extend(initialData);
+	}
 	type: PermissionInfoType;
 	// if MapEditors
 	mapID?: string;
@@ -65,8 +68,8 @@ export class MapNodeRevision {
 	accessLevel = AccessLevel.Basic;
 	// voteLevel = AccessLevel.Basic;
 	votingDisabled: boolean;
-	// permission_edit: PermissionInfo;
-	permission_contribute: PermissionInfo;
+	permission_edit = new PermissionInfo({ type: PermissionInfoType.Creator });
+	permission_contribute = new PermissionInfo({ type: PermissionInfoType.Anyone });
 
 	fontSizeOverride: number;
 	widthOverride: number;
@@ -98,7 +101,7 @@ AddSchema('MapNodeRevision', {
 		accessLevel: { oneOf: GetValues_ForSchema(AccessLevel).concat({ const: null }) },
 		votingDisabled: { type: ['null', 'boolean'] },
 		// voteLevel: { oneOf: GetValues_ForSchema(AccessLevel).concat({ const: null }) }, // not currently used
-		// permission_edit
+		permission_edit: { $ref: 'PermissionInfo' },
 		permission_contribute: { $ref: 'PermissionInfo' },
 
 		relative: { type: 'boolean' },

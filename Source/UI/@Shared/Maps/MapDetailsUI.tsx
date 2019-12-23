@@ -1,7 +1,8 @@
-import { GetErrorMessagesUnderElement, Clone } from 'js-vextensions';
+import { GetErrorMessagesUnderElement, Clone, ToNumber } from 'js-vextensions';
 import Moment from 'moment';
-import { CheckBox, Column, Pre, RowLR, Spinner, TextInput } from 'react-vcomponents';
+import { CheckBox, Column, Pre, RowLR, Spinner, TextInput, Row } from 'react-vcomponents';
 import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
+import { InfoButton } from 'vwebapp-framework';
 import { Map, Map_namePattern } from '../../../Store/firebase/maps/@Map';
 import { GetUser } from '../../../Store/firebase/users';
 import { IDAndCreationInfoUI } from '../CommonPropUIs/IDAndCreationInfoUI';
@@ -23,33 +24,40 @@ export class MapDetailsUI extends BaseComponentPlus({ enabled: true } as Props, 
 			this.Update();
 		};
 
-		const splitAt = 170;
+		const splitAt = 230;
 		const width = 600;
 		return (
 			<Column style={style}>
 				{!forNew &&
 					<IDAndCreationInfoUI id={baseData._key} creator={creator} createdAt={newData.createdAt}/>}
-				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
-					<Pre>Name: </Pre>
+				<RowLR mt={5} splitAt={100} style={{ width }}>
+					<Pre>Name:</Pre>
 					<TextInput
 						pattern={Map_namePattern} required
 						enabled={enabled} style={{ width: '100%' }}
 						value={newData.name} onChange={(val) => Change(newData.name = val)}/>
 				</RowLR>
-				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
-					<Pre>Note: </Pre>
+				<RowLR mt={5} splitAt={100} style={{ width }}>
+					<Pre>Note:</Pre>
 					<TextInput enabled={enabled} style={{ width: '100%' }}
 						value={newData.note} onChange={(val) => Change(newData.note = val)}/>
 				</RowLR>
-				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
-					<Pre>Inline note: </Pre>
+				<RowLR mt={5} splitAt={100} style={{ width }}>
+					<Pre>Inline note:</Pre>
 					<CheckBox enabled={enabled} style={{ width: '100%' }}
 						checked={newData.noteInline} onChange={(val) => Change(newData.noteInline = val)}/>
 				</RowLR>
 				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
-					<Pre>Default expand depth: </Pre>
+					<Pre>Default expand depth:</Pre>
 					<Spinner min={1} max={3} enabled={enabled}
-						value={newData.defaultExpandDepth | 0} onChange={(val) => Change(newData.defaultExpandDepth = val)}/>
+						value={ToNumber(newData.defaultExpandDepth, 0)} onChange={(val) => Change(newData.defaultExpandDepth = val)}/>
+				</RowLR>
+				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
+					<Row center>
+						<Pre>Require map-editors can edit:</Pre>
+						<InfoButton ml={5} text="Requires that any nodes contributed have the Edit permission set to MapEditors."/>
+					</Row>
+					<CheckBox enabled={enabled} checked={newData.requireMapEditorsCanEdit} onChange={(val) => Change(newData.requireMapEditorsCanEdit = val)}/>
 				</RowLR>
 				{/*! forNew &&
 					<RowLR mt={5} splitAt={splitAt} style={{width}}>

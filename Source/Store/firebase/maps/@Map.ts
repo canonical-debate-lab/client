@@ -21,6 +21,7 @@ export class Map {
 	type: MapType;
 	rootNode: string;
 	defaultExpandDepth = 2;
+	requireMapEditorsCanEdit = true;
 	editorIDs: string[];
 
 	creator: string;
@@ -42,6 +43,7 @@ AddSchema('Map', {
 		rootNode: { type: 'string' },
 		defaultExpandDepth: { type: 'number' },
 		// editors: { patternProperties: { [UUID_regex]: { type: 'boolean' } } },
+		requireMapEditorsCanEdit: { type: 'boolean' },
 		editors: { items: { type: 'string' } },
 
 		creator: { type: 'string' },

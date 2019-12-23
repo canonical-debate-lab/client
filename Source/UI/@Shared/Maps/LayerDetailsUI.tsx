@@ -4,7 +4,7 @@ import { Column, Pre, RowLR, TextInput, Text } from 'react-vcomponents';
 import { BaseComponent, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { User } from 'Store/firebase/users/@User';
-import {GetUser} from 'Store/firebase/users';
+import { GetUser } from 'Store/firebase/users';
 import { IDAndCreationInfoUI } from '../CommonPropUIs/IDAndCreationInfoUI';
 
 type Props = {baseData: Layer, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: Layer, ui: LayerDetailsUI)=>void};
@@ -29,7 +29,7 @@ export class LayerDetailsUI extends BaseComponentPlus({ enabled: true } as Props
 		return (
 			<Column style={style}>
 				{!forNew &&
-					<IDAndCreationInfoUI id={newData._key} creator={creator} createdAt={newData.createdAt}/>}
+					<IDAndCreationInfoUI id={baseData._key} creator={creator} createdAt={newData.createdAt}/>}
 				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 					<Text>Name: </Text>
 					<TextInput required enabled={enabled} style={{ width: '100%' }}

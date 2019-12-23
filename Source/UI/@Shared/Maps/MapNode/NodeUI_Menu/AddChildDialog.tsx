@@ -9,12 +9,13 @@ import { store } from 'Store';
 import { Link } from 'vwebapp-framework';
 import { ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView';
 import { runInAction } from 'mobx';
+import {GetMap} from 'Store/firebase/maps';
 import { AddChildNode } from '../../../../../Server/Commands/AddChildNode';
 import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
 import { AsNodeL2, AsNodeL3, GetClaimType, GetNodeForm, GetNodeL3 } from '../../../../../Store/firebase/nodes/$node';
 import { Equation } from '../../../../../Store/firebase/nodes/@Equation';
 import { ChildEntry, ClaimForm, ClaimType, ImageAttachment, MapNode, Polarity } from '../../../../../Store/firebase/nodes/@MapNode';
-import { ArgumentType, MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../../Store/firebase/nodes/@MapNodeRevision';
+import { ArgumentType, MapNodeRevision, MapNodeRevision_titlePattern, PermissionInfoType } from '../../../../../Store/firebase/nodes/@MapNodeRevision';
 import { GetMapNodeTypeDisplayName, MapNodeType } from '../../../../../Store/firebase/nodes/@MapNodeType';
 import { NodeDetailsUI } from '../NodeDetailsUI';
 
@@ -106,6 +107,8 @@ export function ShowAddChildDialog(parentPath: string, childType: MapNodeType, c
 	const parentForm = GetNodeForm(parentNode);
 	const displayName = GetMapNodeTypeDisplayName(childType, parentNode, parentForm, childPolarity);
 
+	const map = GetMap(mapID); // "not in observer" -- humbug; technically true, but map-data must be loaded already, for this func to be called
+
 	let root;
 	let justShowed = true;
 	let nodeEditorUI: NodeDetailsUI;
@@ -156,6 +159,7 @@ export function ShowAddChildDialog(parentPath: string, childType: MapNodeType, c
 							baseData={AsNodeL3(newNodeAsL2, Polarity.Supporting, null)}
 							baseRevisionData={helper.node_revision}
 							baseLinkData={helper.node_link} forNew={true}
+							forcedEditPermission={map?.requireMapEditorsCanEdit ? { type: PermissionInfoType.MapEditors, mapID: map._key } : null}
 							parent={parentNode}
 							onChange={(newNodeData, newRevisionData, newLinkData, comp) => {
 								helper.node = newNodeData;

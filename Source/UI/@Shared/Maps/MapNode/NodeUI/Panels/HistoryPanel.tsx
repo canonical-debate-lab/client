@@ -8,7 +8,7 @@ import { ES } from 'Utils/UI/GlobalStyles';
 import { GetNodeRevisions } from 'Store/firebase/nodeRevisions';
 import { UUIDStub } from 'UI/@Shared/UUIDStub';
 import { Observer } from 'vwebapp-framework';
-import {E} from 'js-vextensions';
+import { E } from 'js-vextensions';
 import { Map } from '../../../../../../Store/firebase/maps/@Map';
 import { GetParentNodeL3 } from '../../../../../../Store/firebase/nodes';
 import { GetLinkUnderParent } from '../../../../../../Store/firebase/nodes/$node';
@@ -33,7 +33,7 @@ export class HistoryPanel extends BaseComponentPlus({} as {map?: Map, node: MapN
 		// we want the newest ones listed first
 		revisions = revisions.OrderByDescending((a) => a.createdAt);
 
-		const creatorOrMod = IsUserCreatorOrMod(MeID(), node);
+		// const creatorOrMod = IsUserCreatorOrMod(MeID(), node);
 		return (
 			<Column style={{ position: 'relative', maxHeight: 300 }}>
 				<Column className="clickThrough" style={{ background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' }}>
