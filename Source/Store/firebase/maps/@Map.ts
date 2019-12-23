@@ -44,7 +44,7 @@ AddSchema('Map', {
 		defaultExpandDepth: { type: 'number' },
 		// editors: { patternProperties: { [UUID_regex]: { type: 'boolean' } } },
 		requireMapEditorsCanEdit: { type: 'boolean' },
-		editors: { items: { type: 'string' } },
+		editorIDs: { items: { type: 'string' } },
 
 		creator: { type: 'string' },
 		createdAt: { type: 'number' },
