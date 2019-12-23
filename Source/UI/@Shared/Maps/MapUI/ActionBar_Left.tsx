@@ -1,4 +1,4 @@
-import { Button, CheckBox, Column, DropDown, DropDownContent, DropDownTrigger, Row } from 'react-vcomponents';
+import { Button, CheckBox, Column, DropDown, DropDownContent, DropDownTrigger, Row, Text, TextInput } from 'react-vcomponents';
 import { BaseComponent, GetInnerComp, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { ScrollView } from 'react-vscrollview';
@@ -15,6 +15,7 @@ import { GetTimelinePanelOpen } from 'Store/main/mapStates/$mapState';
 import { store } from 'Store';
 import { GetAsync } from 'mobx-firelink';
 import { runInAction } from 'mobx';
+import { Clone, CloneWithPrototypes } from 'js-vextensions';
 import { colors, ES } from '../../../../Utils/UI/GlobalStyles';
 import { DeleteLayer } from '../../../../Server/Commands/DeleteLayer';
 import { DeleteMap } from '../../../../Server/Commands/DeleteMap';
@@ -22,7 +23,7 @@ import { SetLayerAttachedToMap } from '../../../../Server/Commands/SetLayerAttac
 import { SetMapLayerStateForUser } from '../../../../Server/Commands/SetMapLayerStateForUser';
 import { UpdateMapDetails } from '../../../../Server/Commands/UpdateMapDetails';
 import { ForDeleteLayer_GetError, GetLayers, GetMapLayerIDs } from '../../../../Store/firebase/layers';
-import { IsUserMap } from '../../../../Store/firebase/maps';
+import { IsUserMap, GetMapEditors, GetMapEditorIDs } from '../../../../Store/firebase/maps/$map';
 import { Map, MapType } from '../../../../Store/firebase/maps/@Map';
 import { HasModPermissions, IsUserCreatorOrMod } from '../../../../Store/firebase/userExtras';
 import { GetUserLayerStateForMap } from '../../../../Store/firebase/userMapInfo';
@@ -88,7 +89,7 @@ export class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: strin
 		return (
 			<DropDown>
 				<DropDownTrigger><Button_Final ml={5} style={{ height: '100%' }} text="Details"/></DropDownTrigger>
-				<DropDownContent style={{ left: 0, borderRadius: "0 0 5px 0" }}><Column>
+				<DropDownContent style={{ left: 0, borderRadius: '0 0 5px 0' }}><Column>
 					<MapDetailsUI ref={(c) => this.detailsUI = c} baseData={map}
 						forNew={false} enabled={creatorOrMod}
 						onChange={(newData) => {
@@ -98,7 +99,7 @@ export class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: strin
 						<Row>
 							<Button mt={5} text="Save" enabled={dataError == null} onLeftClick={async () => {
 								const mapUpdates = GetUpdates(map, this.detailsUI.GetNewData()).Excluding('layers', 'timelines');
-								await new UpdateMapDetails({ mapID: map._key, mapUpdates }).Run();
+								await new UpdateMapDetails({ id: map._key, updates: mapUpdates }).Run();
 							}}/>
 						</Row>}
 					{creatorOrMod &&
@@ -134,15 +135,51 @@ export class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: strin
 export class PeopleDropDown extends BaseComponent<{map: Map}, {}> {
 	render() {
 		const { map } = this.props;
+		// const editors = GetMapEditors(map._key).filter((a) => a);
+		const editorIDs = GetMapEditorIDs(map._key);
+		const editors = GetMapEditors(map._key);
 
 		const Button_Final = GADDemo ? Button_GAD : Button;
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), map);
 		return (
 			<DropDown>
 				<DropDownTrigger><Button_Final ml={5} style={{ height: '100%' }} text="People"/></DropDownTrigger>
-				<DropDownContent style={{ left: 0, borderRadius: "0 0 5px 0" }}><Column>
-					<Row>Editors:</Row>
-					{}
+				<DropDownContent style={{ left: 0, width: 500, borderRadius: '0 0 5px 0' }}><Column>
+					<Row>
+						<Text>Editors:</Text>
+						{creatorOrMod &&
+						<Button ml="auto" text="Add editor" title="Add a user as an editor, enabling them to contribute anywhere in the map. (use node permissions to restrict other users)" onClick={() => {
+							const newEditors = CloneWithPrototypes(map.editors || []);
+							newEditors.push('(enter user-id here)');
+							new UpdateMapDetails({ id: map._key, updates: { editors: newEditors } }).Run();
+						}}/>}
+					</Row>
+					{editorIDs.map((editorID, index) => {
+						const editor = editors[index];
+						const displayName = editor?.displayName ?? 'n/a';
+						return (
+							<Row key={index} mt={5}>
+								<TextInput delayChangeTillDefocus={true} style={{ width: 250 }} editable={creatorOrMod} value={editorID} onChange={(val) => {
+									const newEditors = CloneWithPrototypes(map.editors);
+									newEditors[index] = val;
+									new UpdateMapDetails({ id: map._key, updates: { editors: newEditors } }).Run();
+								}}/>
+								<Text ml={5}>({displayName})</Text>
+								{creatorOrMod &&
+								<Button ml="auto" text="X" onClick={() => {
+									ShowMessageBox({
+										title: `Remove editor "${displayName}"`, cancelButton: true,
+										message: `Remove editor "${displayName}" (id: ${editorID})?`,
+										onOK: () => {
+											const newEditors = CloneWithPrototypes(map.editors);
+											newEditors.RemoveAt(index);
+											new UpdateMapDetails({ id: map._key, updates: { editors: newEditors } }).Run();
+										},
+									});
+								}}/>}
+							</Row>
+						);
+					})}
 				</Column></DropDownContent>
 			</DropDown>
 		);
@@ -246,7 +283,7 @@ class LayerUI extends BaseComponentPlus({} as {index: number, last: boolean, map
 					</span>
 					<span style={{ flex: columnWidths[1] }}>{creator ? creator.displayName : '...'}</span>
 					<span style={{ flex: columnWidths[2] }}>
-						<CheckBox enabled={creatorOrMod} checked={GetMapLayerIDs(map).Contains(layer._key)} onChange={(val) => {
+						<CheckBox enabled={creatorOrMod} checked={GetMapLayerIDs(map._key).Contains(layer._key)} onChange={(val) => {
 							new SetLayerAttachedToMap({ mapID: map._key, layerID: layer._key, attached: val }).Run();
 						}}/>
 					</span>

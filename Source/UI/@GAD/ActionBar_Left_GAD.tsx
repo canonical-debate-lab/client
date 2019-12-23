@@ -4,7 +4,7 @@ import { colors } from 'Utils/UI/GlobalStyles';
 import { LayoutDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Right/LayoutDropDown';
 import { Map, MapType } from 'Store/firebase/maps/@Map';
 import { MeID } from 'Store/firebase/users';
-import { IsUserMap } from 'Store/firebase/maps';
+import { IsUserMap } from 'Store/firebase/maps/$map';
 import { DetailsDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Left';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { GetTimelinePanelOpen } from 'Store/main/mapStates/$mapState';

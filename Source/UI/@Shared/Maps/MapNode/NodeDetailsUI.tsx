@@ -245,7 +245,7 @@ class PermissionsOptions extends BaseComponent<SharedProps, {}> {
 						Allows changing values in this Details panel. [setting currently disabled]
 						* Creator: Only the node creator is allowed.
 						* MapEditors: Only editors of the current map (and node creator) are allowed.
-						* Anyone: Anyone is allowed.
+						* Anyone: Any signed-in user is allowed.
 					`.AsMultiline(0)}/>
 				</RowLR>
 				<RowLR mt={5} splitAt={splitAt} style={{ display: 'flex', alignItems: 'center' }}>
@@ -264,7 +264,7 @@ class PermissionsOptions extends BaseComponent<SharedProps, {}> {
 						Allows adding children nodes.
 						* Creator: Only the node creator is allowed.
 						* MapEditors: Only editors of the current map (and node creator) are allowed.
-						* Anyone: Anyone is allowed. (only option available in global map)
+						* Anyone: Any signed-in user is allowed. (required for public/global maps)
 					`.AsMultiline(0)}/>
 				</RowLR>
 			</Column>

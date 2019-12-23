@@ -1,48 +1,46 @@
 import { MapEdit } from 'Server/CommandMacros';
-import { AddSchema, AssertValidate, Schema } from 'vwebapp-framework';
+import { AddSchema, AssertValidate, Schema, GetSchemaJSON } from 'vwebapp-framework';
 import { Command, GetAsync } from 'mobx-firelink';
 import { GetMap } from 'Store/firebase/maps';
 import { Map, Map_namePattern } from '../../Store/firebase/maps/@Map';
 import { UserEdit } from '../CommandMacros';
 
-AddSchema('UpdateMapDetails_payload', {
+type MainType = Map;
+const MTName = 'Map';
+
+AddSchema(`Update${MTName}Details_payload`, [MTName], () => ({
 	properties: {
-		mapID: { type: 'string' },
-		mapUpdates: Schema({
-			properties: {
-				name: { type: 'string', pattern: Map_namePattern },
-				note: { type: 'string' },
-				noteInline: { type: 'boolean' },
-				defaultExpandDepth: { type: 'number' },
-			},
+		id: { type: 'string' },
+		updates: Schema({
+			properties: GetSchemaJSON(MTName).properties.Including('name', 'note', 'noteLine', 'defaultExpandDepth', 'editors'),
 		}),
 	},
-	required: ['mapID', 'mapUpdates'],
-});
+	required: ['id', 'updates'],
+}));
 
-@MapEdit
+@MapEdit('id')
 @UserEdit
-export class UpdateMapDetails extends Command<{mapID: string, mapUpdates: Partial<Map>}, {}> {
+export class UpdateMapDetails extends Command<{id: string, updates: Partial<MainType>}, {}> {
 	Validate_Early() {
-		AssertValidate('UpdateMapDetails_payload', this.payload, 'Payload invalid');
+		AssertValidate(`Update${MTName}Details_payload`, this.payload, 'Payload invalid');
 	}
 
-	oldData: Map;
-	newData: Map;
+	oldData: MainType;
+	newData: MainType;
 	async Prepare() {
-		const { mapID, mapUpdates } = this.payload;
+		const { id: mapID, updates: mapUpdates } = this.payload;
 		this.oldData = await GetAsync(() => GetMap(mapID));
 		this.newData = { ...this.oldData, ...mapUpdates };
 		this.newData.editedAt = Date.now();
 	}
 	async Validate() {
-		AssertValidate('Map', this.newData, 'New map-data invalid');
+		AssertValidate(MTName, this.newData, `New ${MTName.toLowerCase()}-data invalid`);
 	}
 
 	GetDBUpdates() {
-		const { mapID, mapUpdates } = this.payload;
+		const { id } = this.payload;
 		const updates = {};
-		updates[`maps/${mapID}`] = this.newData;
+		updates[`maps/${id}`] = this.newData;
 		return updates;
 	}
 }

@@ -6,6 +6,7 @@ import { Map } from './maps/@Map';
 import { AsNodeL3, GetNodeL2 } from './nodes/$node';
 import { GetUserLayerStatesForMap } from './userMapInfo';
 import { MapNodeL3 } from './nodes/@MapNode';
+import {GetMap} from './maps';
 
 export const GetLayers = StoreAccessor((s) => (): Layer[] => {
 	return GetDocs({}, (a) => a.layers);
@@ -14,11 +15,13 @@ export const GetLayer = StoreAccessor((s) => (id: string): Layer => {
 	return GetDoc({}, (a) => a.layers.get(id));
 });
 
-export function GetMapLayerIDs(map: Map) {
-	return (map.layers || {}).VKeys(true);
+export function GetMapLayerIDs(mapID: string) {
+	const map = GetMap(mapID);
+	if (map == null) return null;
+	return map.layers?.VKeys(true) ?? emptyArray;
 }
-export const GetMapLayers = StoreAccessor((s) => (map: Map) => {
-	return GetMapLayerIDs(map).map((id) => GetLayer(id));
+export const GetMapLayers = StoreAccessor((s) => (mapID: string) => {
+	return GetMapLayerIDs(mapID).map((id) => GetLayer(id));
 });
 
 export const GetSubnodeIDsInLayer = StoreAccessor((s) => (anchorNodeID: string, layerID: string) => {
@@ -37,13 +40,13 @@ export const GetSubnodesInLayer = StoreAccessor((s) => (anchorNodeID: string, la
 	return CachedTransform("GetSubnodesInLayerEnhanced", [anchorNodeID, layerID], subnodesEnhanced, ()=>subnodesEnhanced);
 } */
 
-export const GetSubnodesInEnabledLayersEnhanced = StoreAccessor((s) => (userID: string, map: Map, anchorNodeID: string): MapNodeL3[] => {
-	const layersEnabled = GetMapLayers(map);
+export const GetSubnodesInEnabledLayersEnhanced = StoreAccessor((s) => (userID: string, mapID: string, anchorNodeID: string): MapNodeL3[] => {
+	const layersEnabled = GetMapLayers(mapID);
 	// if some layers aren't loaded yet, return nothing
 	if (layersEnabled.Any((a) => a == null)) return emptyArray;
 
 	// const userLayerStates = GetUserLayerStatesForMap(userID, map._key) || {};
-	const userLayerStates = GetUserLayerStatesForMap(userID, map._key);
+	const userLayerStates = GetUserLayerStatesForMap(userID, mapID);
 	if (userLayerStates != null) {
 		for (const { key: layerID, value: state } of userLayerStates.Pairs(true)) {
 			const existingEntry = layersEnabled.find((a) => a._key == layerID);

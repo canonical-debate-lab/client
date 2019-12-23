@@ -21,14 +21,15 @@ export class Map {
 	type: MapType;
 	rootNode: string;
 	defaultExpandDepth = 2;
+	editors: string[];
 
 	creator: string;
 	createdAt: number;
 	edits: number;
 	editedAt: number;
 
-	layers: ObservableMap<number, boolean>;
-	timelines: ObservableMap<number, boolean>;
+	layers: {[key: string]: boolean};
+	timelines: {[key: string]: boolean};
 }
 export const Map_namePattern = '^[a-zA-Z0-9 ,\'"%:.?\\-()\\/]+$';
 // export const Map_namePattern = '^\\S.*$'; // must start with non-whitespace // todo: probably switch to a more lax pattern like this, eg. so works for other languages
@@ -40,6 +41,8 @@ AddSchema('Map', {
 		type: { oneOf: GetValues_ForSchema(MapType) },
 		rootNode: { type: 'string' },
 		defaultExpandDepth: { type: 'number' },
+		// editors: { patternProperties: { [UUID_regex]: { type: 'boolean' } } },
+		editors: { items: { type: 'string' } },
 
 		creator: { type: 'string' },
 		createdAt: { type: 'number' },

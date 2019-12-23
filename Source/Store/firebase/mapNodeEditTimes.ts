@@ -5,8 +5,8 @@ import { AddSchema } from 'vwebapp-framework';
 import { UUID_regex } from 'Utils/General/KeyGenerator';
 import { GetLastAcknowledgementTime } from 'Store/main';
 import { GetDoc, StoreAccessor } from 'mobx-firelink';
-import { GetRootNodeID } from './maps';
 import { MapNode } from './nodes/@MapNode';
+import {GetRootNodeID} from './maps/$map';
 
 export class NodeEditTimes {
 	// [key: number]: ChangeInfo;

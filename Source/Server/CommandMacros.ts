@@ -1,26 +1,41 @@
 import { MergeDBUpdates, GetAsync, GetDoc } from 'mobx-firelink';
 import { GetMap } from 'Store/firebase/maps';
 import { GetUserExtraInfo } from 'Store/firebase/users';
+import { IsString, IsFunction } from 'js-vextensions';
 
-export function MapEdit(target: Function) {
-	const oldPrepare = target.prototype.Prepare;
-	target.prototype.Prepare = async function () {
-		await oldPrepare.apply(this);
-		if (this.payload.mapID) {
-			this.map_oldEditCount = (await GetAsync(() => GetMap(this.payload.mapID)))?.edits ?? 0;
-		}
-	};
+export function MapEdit(targetClass: Function);
+export function MapEdit(mapIDKey: string);
+export function MapEdit(...args) {
+	let mapIDKey = 'mapID';
+	if (IsFunction(args[0])) {
+		ApplyToClass(args[0]);
+	} else {
+		mapIDKey = args[0];
+		return ApplyToClass;
+	}
 
-	const oldGetDBUpdates = target.prototype.GetDBUpdates;
-	target.prototype.GetDBUpdates = function () {
-		const updates = oldGetDBUpdates.apply(this);
-		const newUpdates = {};
-		if (this.payload.mapID) {
-			newUpdates[`maps/${this.payload.mapID}/.edits`] = this.map_oldEditCount + 1;
-			newUpdates[`maps/${this.payload.mapID}/.editedAt`] = Date.now();
-		}
-		return MergeDBUpdates(updates, newUpdates);
-	};
+	function ApplyToClass(targetClass: Function) {
+		const oldPrepare = targetClass.prototype.Prepare;
+		targetClass.prototype.Prepare = async function () {
+			await oldPrepare.apply(this);
+			const mapID = this.payload[mapIDKey];
+			if (mapID) {
+				this.map_oldEditCount = (await GetAsync(() => GetMap(mapID)))?.edits ?? 0;
+			}
+		};
+
+		const oldGetDBUpdates = targetClass.prototype.GetDBUpdates;
+		targetClass.prototype.GetDBUpdates = function () {
+			const updates = oldGetDBUpdates.apply(this);
+			const newUpdates = {};
+			const mapID = this.payload[mapIDKey];
+			if (mapID) {
+				newUpdates[`maps/${mapID}/.edits`] = this.map_oldEditCount + 1;
+				newUpdates[`maps/${mapID}/.editedAt`] = Date.now();
+			}
+			return MergeDBUpdates(updates, newUpdates);
+		};
+	}
 }
 
 export function UserEdit(target: Function) {

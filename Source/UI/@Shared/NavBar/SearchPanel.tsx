@@ -6,7 +6,7 @@ import { Button, Column, Pre, Row, TextInput } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { GetSearchTerms_Advanced } from 'Server/Commands/AddNodeRevision';
-import { GetRootNodeID } from 'Store/firebase/maps';
+import { GetRootNodeID } from 'Store/firebase/maps/$map';
 import { GetNodeRevision } from 'Store/firebase/nodeRevisions';
 import { AsNodeL3, GetAllNodeRevisionTitles, GetNodeDisplayText, GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { GetNodeColor, MapNodeType_Info } from 'Store/firebase/nodes/@MapNodeType';

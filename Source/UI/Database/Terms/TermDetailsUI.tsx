@@ -1,6 +1,6 @@
 import { MeID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
-import { GetErrorMessagesUnderElement, GetEntries, Clone } from 'js-vextensions';
+import { GetErrorMessagesUnderElement, GetEntries, Clone, DEL } from 'js-vextensions';
 import Moment from 'moment';
 import { CheckBox, Column, Pre, Row, RowLR, Select, TextInput } from 'react-vcomponents';
 import { BaseComponent, GetDOM, BaseComponentPlus } from 'react-vextensions';
@@ -65,7 +65,7 @@ export class TermDetailsUI extends BaseComponentPlus(
 							+ '\n\nExample: "element", "planet", and "mythology" would be suitable "disambiguation" texts for the different terms of "Mercury".'}/>
 					</Row>
 					<TextInput enabled={enabled} style={{ width: '100%' }} pattern={Term_disambiguationFormat}
-						value={newData.disambiguation} onChange={(val) => Change(newData.VSet('disambiguation', val, { deleteEmpty: true }))}/>
+						value={newData.disambiguation} onChange={(val) => Change(newData.VSet('disambiguation', val || DEL))}/>
 				</RowLR>
 				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 					<Pre>Type: </Pre>

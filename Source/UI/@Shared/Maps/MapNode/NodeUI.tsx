@@ -326,7 +326,7 @@ export class NodeUI extends BaseComponentPlus(
 		if (this.measurementInfo_cache && ShallowEquals(this.measurementInfo_cache_lastUsedProps, props_used)) return this.measurementInfo_cache;
 
 		const { map, node, path } = props_used;
-		const subnodes = GetSubnodesInEnabledLayersEnhanced(MeID(), map, node._key);
+		const subnodes = GetSubnodesInEnabledLayersEnhanced(MeID(), map._key, node._key);
 		let { expectedBoxWidth, width, expectedHeight } = GetMeasurementInfoForNode(node, path);
 
 		for (const subnode of subnodes) {
