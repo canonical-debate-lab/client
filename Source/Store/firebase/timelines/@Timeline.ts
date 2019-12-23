@@ -8,7 +8,7 @@ export class Timeline {
 	_key: string;
 	mapID: string;
 	name: string;
-	creator: string;
+	creator: string; // probably todo: rename to creatorID
 	createdAt: number;
 
 	videoID: string;

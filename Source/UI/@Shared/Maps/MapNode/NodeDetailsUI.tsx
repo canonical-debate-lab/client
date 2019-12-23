@@ -1,14 +1,16 @@
 import { AsNodeL1, GetFinalPolarity } from 'Store/firebase/nodes/$node';
 import { GetUserAccessLevel, MeID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
-import { GetErrorMessagesUnderElement, GetEntries, Clone, WaitXThenRun } from 'js-vextensions';
-import { CheckBox, Column, Div, Pre, Row, Select, Spinner, TextArea, TextInput, Text } from 'react-vcomponents';
+import { GetErrorMessagesUnderElement, Clone, WaitXThenRun, ToNumber, GetEntries } from 'js-vextensions';
+import { CheckBox, Column, Div, Pre, Row, Select, Spinner, TextArea, TextInput, Text, RowLR } from 'react-vcomponents';
 import { BaseComponent, RenderSource, GetDOM, BaseComponentPlus } from 'react-vextensions';
-import { HasAdminPermissions } from 'Store/firebase/userExtras';
+import { HasAdminPermissions, HasModPermissions } from 'Store/firebase/userExtras';
 import { ES } from 'Utils/UI/GlobalStyles';
+import { InfoButton, Observer } from 'vwebapp-framework';
+import { GetOpenMapID } from 'Store/main';
 import { AsNodeL2, GetClaimType } from '../../../../Store/firebase/nodes/$node';
-import { AccessLevel, ChildEntry, ClaimForm, ClaimType, MapNode, MapNodeL2, MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
-import { ArgumentType, GetArgumentTypeDisplayText, MapNodeRevision, MapNodeRevision_titlePattern } from '../../../../Store/firebase/nodes/@MapNodeRevision';
+import { AccessLevel, ChildEntry, ClaimForm, ClaimType, MapNode, MapNodeL2, MapNodeL3, globalMapID } from '../../../../Store/firebase/nodes/@MapNode';
+import { ArgumentType, GetArgumentTypeDisplayText, MapNodeRevision, MapNodeRevision_titlePattern, PermissionInfo, PermissionInfoType } from '../../../../Store/firebase/nodes/@MapNodeRevision';
 import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
 import { GetUser } from '../../../../Store/firebase/users';
 import { EquationEditorUI } from './EquationEditorUI';
@@ -78,7 +80,9 @@ export class NodeDetailsUI extends BaseComponentPlus({ enabled: true } as Props,
 						value={newRevisionData.note} onChange={(val) => Change(newRevisionData.note = val)}/>
 				</Row>
 				{!forNew &&
-					<AdvancedOptions {...sharedProps}/>}
+					<PermissionsOptions {...sharedProps}/>}
+				{!forNew &&
+					<OthersOptions {...sharedProps}/>}
 			</Column>
 		);
 	}
@@ -199,34 +203,91 @@ class ArgumentInfo extends BaseComponent<SharedProps, {}> {
 	}
 }
 
-class AdvancedOptions extends BaseComponent<SharedProps, {}> {
+@Observer
+class PermissionsOptions extends BaseComponent<SharedProps, {}> {
 	render() {
 		const { newData, newRevisionData, forNew, enabled, Change } = this.props;
+		const openMapID = GetOpenMapID();
+
+		// temp
+		if (newRevisionData.permission_contribute == null) {
+			newRevisionData.permission_contribute = { type: PermissionInfoType.Anyone };
+		}
+
+		const splitAt = 80;
 		return (
 			<Column mt={10}>
-				<Row style={{ fontWeight: 'bold' }}>Advanced:</Row>
-				{HasAdminPermissions(MeID()) &&
-					<Row style={{ display: 'flex', alignItems: 'center' }}>
-						<Pre>Voting enabled: </Pre>
-						<CheckBox enabled={enabled} checked={!newRevisionData.votingDisabled} onChange={(val) => Change(newRevisionData.votingDisabled = val ? null : true)}/>
-					</Row>}
-				{HasAdminPermissions(MeID()) &&
-					<Row style={{ display: 'flex', alignItems: 'center' }}>
-						<Pre>Font-size override: </Pre>
-						<Spinner max={25} enabled={enabled} value={newRevisionData.fontSizeOverride | 0} onChange={(val) => Change(newRevisionData.fontSizeOverride = val != 0 ? val : null)}/>
-						<Pre> px (0 for auto)</Pre>
-					</Row>}
-				<Row mt={5} style={{ display: 'flex', alignItems: 'center' }}>
-					<Pre>Width override: </Pre>
-					<Spinner step={10} max={1000} enabled={enabled} value={newRevisionData.widthOverride | 0} onChange={(val) => Change(newRevisionData.widthOverride = val != 0 ? val : null)}/>
-					<Pre> px (0 for auto)</Pre>
+				<Row center style={{ fontWeight: 'bold' }}>
+					<Text>Permissions:</Text>
+					<InfoButton ml={5} text="In addition to the groups explicitly allowed below, moderators and admins also have full permissions."/>
 				</Row>
-				<Row mt={5} style={{ display: 'flex', alignItems: 'center' }}>
-					<Pre>Access level: </Pre>
+				{HasModPermissions(MeID()) &&
+				<RowLR mt={5} splitAt={splitAt} style={{ display: 'flex', alignItems: 'center' }}>
+					<Text>View:</Text>
 					<Select options={GetEntries(AccessLevel).filter((a) => a.value <= GetUserAccessLevel(MeID()))} enabled={enabled}
 						value={newRevisionData.accessLevel || AccessLevel.Basic}
 						// onChange={val => Change(val == AccessLevel.Basic ? delete newRevisionData.accessLevel : newRevisionData.accessLevel = val)}/>
 						onChange={(val) => Change(newRevisionData.accessLevel = val)}/>
+					<InfoButton ml={5} text="Allows viewing/accessing the node -- both in maps, and when directly linked. (creator always allowed)"/>
+				</RowLR>}
+				{HasAdminPermissions(MeID()) &&
+				<RowLR mt={5} splitAt={splitAt} style={{ display: 'flex', alignItems: 'center' }}>
+					<Text>Rate:</Text>
+					<CheckBox enabled={enabled} checked={!newRevisionData.votingDisabled} onChange={(val) => Change(newRevisionData.votingDisabled = val ? null : true)}/>
+				</RowLR>}
+				<RowLR mt={5} splitAt={splitAt} style={{ display: 'flex', alignItems: 'center' }}>
+					<Text>Edit:</Text>
+					<Select options={GetEntries(PermissionInfoType)} enabled={/* enabled */ false}
+						value={PermissionInfoType.Creator}
+						// onChange={val => Change(val == AccessLevel.Basic ? delete newRevisionData.accessLevel : newRevisionData.accessLevel = val)}/>
+						onChange={(val) => Change(newRevisionData.accessLevel = val)}/>
+					<InfoButton ml={5} text={`
+						Allows changing values in this Details panel. [setting currently disabled]
+						* Creator: Only the node creator is allowed.
+						* MapEditors: Only editors of the current map (and node creator) are allowed.
+						* Anyone: Anyone is allowed.
+					`.AsMultiline(0)}/>
+				</RowLR>
+				<RowLR mt={5} splitAt={splitAt} style={{ display: 'flex', alignItems: 'center' }}>
+					<Text>Contribute:</Text>
+					<Select options={GetEntries(PermissionInfoType).filter((a) => (openMapID == globalMapID ? a.value == PermissionInfoType.Anyone : true))} enabled={enabled}
+						value={newRevisionData.permission_contribute.type}
+						// onChange={val => Change(val == AccessLevel.Basic ? delete newRevisionData.accessLevel : newRevisionData.accessLevel = val)}/>
+						onChange={(val) => {
+							newRevisionData.permission_contribute.type = val;
+							if (val == PermissionInfoType.MapEditors) {
+								newRevisionData.permission_contribute.mapID = openMapID;
+							}
+							Change();
+						}}/>
+					<InfoButton ml={5} text={`
+						Allows adding children nodes.
+						* Creator: Only the node creator is allowed.
+						* MapEditors: Only editors of the current map (and node creator) are allowed.
+						* Anyone: Anyone is allowed. (only option available in global map)
+					`.AsMultiline(0)}/>
+				</RowLR>
+			</Column>
+		);
+	}
+}
+
+class OthersOptions extends BaseComponent<SharedProps, {}> {
+	render() {
+		const { newData, newRevisionData, forNew, enabled, Change } = this.props;
+		return (
+			<Column mt={10}>
+				<Row style={{ fontWeight: 'bold' }}>Others:</Row>
+				{HasAdminPermissions(MeID()) &&
+					<Row style={{ display: 'flex', alignItems: 'center' }}>
+						<Pre>Font-size override: </Pre>
+						<Spinner max={25} enabled={enabled} value={ToNumber(newRevisionData.fontSizeOverride, 0)} onChange={(val) => Change(newRevisionData.fontSizeOverride = val != 0 ? val : null)}/>
+						<Pre> px (0 for auto)</Pre>
+					</Row>}
+				<Row mt={5} style={{ display: 'flex', alignItems: 'center' }}>
+					<Pre>Width override: </Pre>
+					<Spinner step={10} max={1000} enabled={enabled} value={ToNumber(newRevisionData.widthOverride, 0)} onChange={(val) => Change(newRevisionData.widthOverride = val != 0 ? val : null)}/>
+					<Pre> px (0 for auto)</Pre>
 				</Row>
 			</Column>
 		);

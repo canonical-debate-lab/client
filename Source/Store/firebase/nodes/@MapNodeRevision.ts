@@ -26,14 +26,32 @@ AddSchema('TitlesMap', {
 	},
 });
 
+export enum PermissionInfoType {
+	Creator = 10,
+	MapEditors = 20,
+	Anyone = 30,
+}
+export class PermissionInfo {
+	type: PermissionInfoType;
+	// if MapEditors
+	mapID?: string;
+}
+AddSchema('PermissionInfo', {
+	properties: {
+		type: { oneOf: GetValues_ForSchema(PermissionInfoType) },
+		mapID: { type: 'string' },
+	},
+	required: ['type'],
+});
+
 export class MapNodeRevision {
 	constructor(initialData: Partial<MapNodeRevision>) {
 		this.Extend(initialData);
 	}
 
 	_key?: string;
-	node: string;
-	creator?: string;
+	node: string; // probably todo: rename to nodeID
+	creator?: string; // probably todo: rename to creatorID
 	createdAt: number;
 
 	titles = { base: '' } as TitlesMap;
@@ -41,10 +59,14 @@ export class MapNodeRevision {
 
 	// updatedAt: number;
 	// approved = false;
-	votingDisabled: boolean;
+
+	// permissions
 	// only applied client-side; would need to be in protected branch of tree (or use a long, random, and unreferenced node-id) to be "actually" inaccessible
 	accessLevel = AccessLevel.Basic;
 	// voteLevel = AccessLevel.Basic;
+	votingDisabled: boolean;
+	// permission_edit: PermissionInfo;
+	permission_contribute: PermissionInfo;
 
 	fontSizeOverride: number;
 	widthOverride: number;
@@ -72,9 +94,12 @@ AddSchema('MapNodeRevision', {
 		},
 		note: { type: ['null', 'string'] }, // add null-type, for later when the payload-validation schema is derived from the main schema
 		approved: { type: 'boolean' },
-		votingDisabled: { type: ['null', 'boolean'] },
+
 		accessLevel: { oneOf: GetValues_ForSchema(AccessLevel).concat({ const: null }) },
-		voteLevel: { oneOf: GetValues_ForSchema(AccessLevel).concat({ const: null }) }, // not currently used
+		votingDisabled: { type: ['null', 'boolean'] },
+		// voteLevel: { oneOf: GetValues_ForSchema(AccessLevel).concat({ const: null }) }, // not currently used
+		// permission_edit
+		permission_contribute: { $ref: 'PermissionInfo' },
 
 		relative: { type: 'boolean' },
 		fontSizeOverride: { type: ['number', 'null'] },
