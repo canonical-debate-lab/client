@@ -6,6 +6,7 @@ import { ScrollView } from 'react-vscrollview';
 import { Link, PageContainer, Observer } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { GetSelectedUser } from 'Store/main/database';
+import { ToNumber } from 'js-vextensions';
 import { UserExtraInfo } from '../../Store/firebase/userExtras/@UserExtraInfo';
 import { GetUsers, GetUserJoinDate, GetUserExtraInfo } from '../../Store/firebase/users';
 import { UserProfileUI } from './Users/UserProfile';
@@ -27,8 +28,8 @@ export class UsersUI extends BaseComponentPlus({} as {}, {}) {
 		users = users.filter((a) => a);
 		/* users = users.OrderBy((a) => (userExtraInfoMap[a._key] ? userExtraInfoMap[a._key].joinDate : Number.MAX_SAFE_INTEGER));
 		users = users.OrderByDescending((a) => (userExtraInfoMap[a._key] ? (userExtraInfoMap[a._key].edits | 0) : Number.MIN_SAFE_INTEGER)); */
-		users = users.OrderBy((a) => GetUserJoinDate(a._key) ?? Number.MAX_SAFE_INTEGER);
-		users = users.OrderByDescending((a) => GetUserExtraInfo(a._key)?.edits ?? Number.MAX_SAFE_INTEGER);
+		users = users.OrderBy((a) => ToNumber(GetUserJoinDate(a._key), Number.MAX_SAFE_INTEGER));
+		users = users.OrderByDescending((a) => ToNumber(GetUserExtraInfo(a._key)?.edits, 0));
 		return (
 			<PageContainer style={{ padding: 0, background: null }}>
 				<Column className="clickThrough" style={{ height: 40, background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' }}>
