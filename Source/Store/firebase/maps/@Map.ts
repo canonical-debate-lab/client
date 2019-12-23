@@ -21,7 +21,7 @@ export class Map {
 	type: MapType;
 	rootNode: string;
 	defaultExpandDepth = 2;
-	editors: string[];
+	editorIDs: string[];
 
 	creator: string;
 	createdAt: number;

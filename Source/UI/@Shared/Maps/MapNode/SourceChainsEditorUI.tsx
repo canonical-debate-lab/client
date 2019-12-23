@@ -1,11 +1,9 @@
 import { SourceType, SourceChain, Source, Source_linkURLPattern } from 'Store/firebase/contentNodes/@SourceChain';
 import { BaseComponent, GetDOM, BaseComponentPlus } from 'react-vextensions';
-import { Button , Column , Row , TextInput , Select } from 'react-vcomponents';
+import { Button, Column, Row, TextInput, Select } from 'react-vcomponents';
 
 
-
-
-import { GetErrorMessagesUnderElement, GetEntries, Clone } from 'js-vextensions';
+import { GetErrorMessagesUnderElement, GetEntries, Clone, E } from 'js-vextensions';
 import { Validate } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { Image_urlPattern } from 'Store/firebase/images/@Image';

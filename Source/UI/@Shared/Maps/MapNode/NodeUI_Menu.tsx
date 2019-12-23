@@ -20,7 +20,7 @@ import { GetNodeDisplayText, GetNodeL3, GetValidNewChildTypes, IsMultiPremiseArg
 import { ClaimForm, MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
 import { GetMapNodeTypeDisplayName, MapNodeType, MapNodeType_Info } from '../../../../Store/firebase/nodes/@MapNodeType';
 import { CanGetBasicPermissions, IsUserCreatorOrMod } from '../../../../Store/firebase/userExtras';
-import { GetUserPermissionGroups, MeID } from '../../../../Store/firebase/users';
+import { GetUserPermissionGroups, MeID, CanContributeToNode } from '../../../../Store/firebase/users';
 import { styles } from '../../../../Utils/UI/GlobalStyles';
 import { ShowSignInPopup } from '../../NavBar/UserPanel';
 import { ShowAddChildDialog } from './NodeUI_Menu/AddChildDialog';
@@ -81,7 +81,7 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 		const sharedProps: SharedProps = E(this.props, { combinedWithParentArg, copiedNode, copiedNodePath, copiedNode_asCut });
 		return (
 			<div>
-				{CanGetBasicPermissions(userID) && !inList && validChildTypes.map((childType) => {
+				{CanContributeToNode(userID, node._key) && !inList && validChildTypes.map((childType) => {
 					const childTypeInfo = MapNodeType_Info.for[childType];
 					// let displayName = GetMapNodeTypeDisplayName(childType, node, form);
 					const polarities = childType == MapNodeType.Argument ? [Polarity.Supporting, Polarity.Opposing] : [null];

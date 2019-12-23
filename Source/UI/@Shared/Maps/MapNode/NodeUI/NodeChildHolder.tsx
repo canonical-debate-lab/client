@@ -1,4 +1,4 @@
-import { Assert, emptyObj, nl, ToJSON, Vector2i, VRect, WaitXThenRun } from 'js-vextensions';
+import { Assert, emptyObj, nl, ToJSON, Vector2i, VRect, WaitXThenRun, E } from 'js-vextensions';
 import * as React from 'react';
 import { Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 import { Button, Column, Div, Row } from 'react-vcomponents';

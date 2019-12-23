@@ -1,4 +1,4 @@
-import { CachedTransform, Clone, ToJSON, WaitXThenRun } from 'js-vextensions';
+import { CachedTransform, Clone, ToJSON, WaitXThenRun, E } from 'js-vextensions';
 import { Button, Column, Div, Pre, Row, TextInput, Text } from 'react-vcomponents';
 import { BaseComponent, RenderSource, BaseComponentPlus } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';

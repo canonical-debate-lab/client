@@ -2,12 +2,15 @@ import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
 import { GetUpdates } from 'vwebapp-framework';
 import { store } from 'Store';
-import {runInAction} from 'mobx';
+import { runInAction } from 'mobx';
+import { E, ToJSON, Clone } from 'js-vextensions';
+import { GetAsync } from 'mobx-firelink';
+import _ from 'lodash';
 import { AddNodeRevision } from '../../../../../../Server/Commands/AddNodeRevision';
 import { UpdateLink } from '../../../../../../Server/Commands/UpdateLink';
 import { Map } from '../../../../../../Store/firebase/maps/@Map';
 import { GetParentNodeID, GetParentNodeL3, IsNodeSubnode } from '../../../../../../Store/firebase/nodes';
-import { GetLinkUnderParent } from '../../../../../../Store/firebase/nodes/$node';
+import { GetLinkUnderParent, IsPremiseOfSinglePremiseArgument } from '../../../../../../Store/firebase/nodes/$node';
 import { MapNodeL3 } from '../../../../../../Store/firebase/nodes/@MapNode';
 import { IsUserCreatorOrMod } from '../../../../../../Store/firebase/userExtras';
 import { GetUser, MeID } from '../../../../../../Store/firebase/users';
@@ -48,10 +51,25 @@ export class DetailsPanel extends BaseComponentPlus({} as {map?: Map, node: MapN
 								}
 							}
 
-							const revisionID = await new AddNodeRevision({ mapID: map._key, revision: this.detailsUI.GetNewRevisionData() }).Run();
+							const newRevision = this.detailsUI.GetNewRevisionData();
+							const revisionID = await new AddNodeRevision({ mapID: map._key, revision: newRevision }).Run();
 							runInAction('DetailsPanel.save.onClick', () => store.main.nodeLastAcknowledgementTimes.set(node._key, Date.now()));
-							// await WaitTillPathDataIsReceiving(DBPath(`nodeRevisions/${revisionID}`));
-							// await WaitTillPathDataIsReceived(DBPath(`nodeRevisions/${revisionID}`));
+
+							if (IsPremiseOfSinglePremiseArgument(node, parentNode)) {
+								const argumentNode = await GetAsync(() => GetParentNodeL3(path));
+								if (IsUserCreatorOrMod(MeID(), argumentNode)) {
+									const permissionKeys = ['accessLevel', 'votingDisabled', /* "permission_edit", */ 'permission_contribute'] as const;
+									const nodePermissions = newRevision.Including(...permissionKeys);
+									const argumentNodePermissions = argumentNode.current.Including(...permissionKeys);
+									// if argument permissions do not match premise, update argument's permissions to match
+									if (!_.isEqual(argumentNodePermissions, nodePermissions)) {
+										const newArgumentRevision = Clone(argumentNode.current);
+										newArgumentRevision.VSet(nodePermissions);
+										const newArgumentRevisionID = await new AddNodeRevision({ mapID: map._key, revision: newArgumentRevision }).Run();
+										runInAction('DetailsPanel.save.onClick_part2', () => store.main.nodeLastAcknowledgementTimes.set(argumentNode._key, Date.now()));
+									}
+								}
+							}
 						}}/>
 						{/* error && <Pre>{error.message}</Pre> */}
 					</Row>}

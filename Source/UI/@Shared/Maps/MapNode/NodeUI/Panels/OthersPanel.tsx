@@ -1,4 +1,4 @@
-import { GetEntries } from 'js-vextensions';
+import { GetEntries, E } from 'js-vextensions';
 import { Fragment } from 'react';
 import { Button, CheckBox, Column, Div, Pre, Row, Select, Text } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';

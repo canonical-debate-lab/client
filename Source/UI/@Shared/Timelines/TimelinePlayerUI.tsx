@@ -3,7 +3,7 @@ import { BaseComponent, FindReact, BaseComponentPlus } from 'react-vextensions';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
-import { GetEntries } from 'js-vextensions';
+import { GetEntries, E } from 'js-vextensions';
 import { VReactMarkdown_Remarkable } from 'vwebapp-framework';
 import { store } from 'Store';
 import { GetPlayingTimelineAppliedStepIndex, GetPlayingTimelineStep, GetPlayingTimeline, GetPlayingTimelineStepIndex } from 'Store/main/mapStates/$mapState';

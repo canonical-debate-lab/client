@@ -7,6 +7,7 @@ import { store } from 'Store';
 import { GetSelectedImage } from 'Store/main/database';
 import { Observer } from 'vwebapp-framework';
 import { runInAction } from 'mobx';
+import {E} from 'js-vextensions';
 import { DeleteImage } from '../../Server/Commands/DeleteImage';
 import { UpdateImageData, UpdateImageData_allowedPropUpdates } from '../../Server/Commands/UpdateImageData';
 import { GetImages } from '../../Store/firebase/images';

@@ -13,6 +13,7 @@ import { store } from 'Store';
 import { Observer } from 'vwebapp-framework';
 import { runInAction } from 'mobx';
 import { GetMapTimelines } from 'Store/firebase/timelines';
+import { E } from 'js-vextensions';
 
 @Observer
 export class CollectionSubpanel extends BaseComponentPlus({} as {map: Map}, {}) {

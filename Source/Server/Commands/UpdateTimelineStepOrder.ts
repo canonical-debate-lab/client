@@ -8,7 +8,7 @@ export class UpdateTimelineStepOrder extends Command<{timelineID: string, stepID
 	timeline_newSteps: string[];
 	async Prepare() {
 		const { timelineID, stepID, newIndex } = this.payload;
-		this.timeline_oldSteps = await GetAsync(() => GetTimeline(timelineID)?.steps) || [];
+		this.timeline_oldSteps = await GetAsync(() => GetTimeline(timelineID)?.steps) ?? [];
 		this.timeline_newSteps = this.timeline_oldSteps.slice();
 		this.timeline_newSteps.Move(stepID, newIndex, true);
 	}

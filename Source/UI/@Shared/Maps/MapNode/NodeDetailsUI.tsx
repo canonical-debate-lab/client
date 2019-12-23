@@ -1,7 +1,7 @@
 import { AsNodeL1, GetFinalPolarity } from 'Store/firebase/nodes/$node';
 import { GetUserAccessLevel, MeID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
-import { GetErrorMessagesUnderElement, Clone, WaitXThenRun, ToNumber, GetEntries } from 'js-vextensions';
+import { GetErrorMessagesUnderElement, Clone, WaitXThenRun, ToNumber, GetEntries, E } from 'js-vextensions';
 import { CheckBox, Column, Div, Pre, Row, Select, Spinner, TextArea, TextInput, Text, RowLR } from 'react-vcomponents';
 import { BaseComponent, RenderSource, GetDOM, BaseComponentPlus } from 'react-vextensions';
 import { HasAdminPermissions, HasModPermissions } from 'Store/firebase/userExtras';
@@ -209,7 +209,7 @@ class PermissionsOptions extends BaseComponent<SharedProps, {}> {
 		const { newData, newRevisionData, forNew, enabled, Change } = this.props;
 		const openMapID = GetOpenMapID();
 
-		// temp
+		// probably temp
 		if (newRevisionData.permission_contribute == null) {
 			newRevisionData.permission_contribute = { type: PermissionInfoType.Anyone };
 		}

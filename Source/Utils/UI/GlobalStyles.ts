@@ -1,4 +1,5 @@
 import { AddGlobalStyle } from 'react-vextensions';
+import { E } from 'js-vextensions';
 
 export const styles = {
 	page: ES({

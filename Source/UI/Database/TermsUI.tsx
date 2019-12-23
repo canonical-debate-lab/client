@@ -1,4 +1,4 @@
-import { Assert } from 'js-vextensions';
+import { Assert, E } from 'js-vextensions';
 import { Button, Column, Div, Pre, Row, Span, Text } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus, UseEffect } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';

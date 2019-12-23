@@ -1,6 +1,6 @@
 import { Button, Row } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
-import { Assert } from 'js-vextensions';
+import { Assert, E } from 'js-vextensions';
 import React from 'react';
 
 type Props = {
@@ -37,7 +37,7 @@ export class ExpandableBox extends BaseComponent<Props, {}> {
 				onClick={onClick} onMouseEnter={onMouseEnter as any} onMouseLeave={onMouseLeave as any} {...rest}>
 				{beforeChildren}
 				<Row style={{ alignItems: 'stretch', width: innerWidth || '100%', borderRadius: 5, cursor: 'pointer' }} onClick={onDirectClick}>
-					<div ref={c => this.textHolder = c} style={{ position: 'relative', width: 'calc(100% - 17px)', padding,
+					<div ref={(c) => this.textHolder = c} style={{ position: 'relative', width: 'calc(100% - 17px)', padding,
 						// overflow: "hidden" // let it overflow for now, until we have proper handling for katex-overflowing
 					}} onClick={onTextHolderClick}>
 						<div style={{
@@ -56,7 +56,7 @@ export class ExpandableBox extends BaseComponent<Props, {}> {
 						{text}
 						{/* children */}
 					</div>
-					<Button ref={c => this.expandButton = c}
+					<Button ref={(c) => this.expandButton = c}
 						text={expanded ? '-' : '+'} // size={28}
 						style={{
 							display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: '0 5px 5px 0',

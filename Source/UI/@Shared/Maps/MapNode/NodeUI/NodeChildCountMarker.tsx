@@ -1,5 +1,6 @@
 import { BaseComponentPlus } from 'react-vextensions';
 import { LimitBarPos } from 'UI/@Shared/Maps/MapNode/NodeUI';
+import {E} from 'js-vextensions';
 import { ChildLimitBar } from './NodeChildHolder';
 
 export class NodeChildCountMarker extends BaseComponentPlus({ textOutline: 'rgba(10,10,10,1)' } as {childCount: number, textOutline?: string, limitBarPos?: LimitBarPos}, {}) {

@@ -5,6 +5,7 @@ import { GetTimelineStep } from 'Store/firebase/timelineSteps';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { VReactMarkdown_Remarkable, YoutubePlayer, YoutubePlayerState, Observer } from 'vwebapp-framework';
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
+import {E} from 'js-vextensions';
 import { PositionOptionsEnum, NodeRevealUI } from '../EditorSubpanel/StepEditorUI';
 
 @Observer

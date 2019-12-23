@@ -1,4 +1,4 @@
-import { ToNumber } from 'js-vextensions';
+import { ToNumber, E } from 'js-vextensions';
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';

@@ -6,6 +6,11 @@ import { GetAuth } from 'Store/firebase';
 import { IsAuthValid, GetDoc, GetDocs, StoreAccessor } from 'mobx-firelink';
 import { AccessLevel } from './nodes/@MapNode';
 import { UserExtraInfo, PermissionGroupSet } from './userExtras/@UserExtraInfo';
+import { GetNode } from './nodes';
+import { GetNodeL2 } from './nodes/$node';
+import { PermissionInfo, PermissionInfoType } from './nodes/@MapNodeRevision';
+import { HasModPermissions, HasAdminPermissions, CanGetBasicPermissions } from './userExtras';
+import { GetMap } from './maps';
 
 /* export function GetAuth(state: RootState) {
 	return state.firebase.auth;
@@ -76,3 +81,32 @@ export function GetUserBackground(userID: string): BackgroundConfig {
 	const background = presetBackgrounds[user.backgroundID] || presetBackgrounds[defaultPresetBackground];
 	return background;
 }
+
+export const CanContributeToNode = StoreAccessor((s) => (userID: string, nodeID: string): boolean => {
+	// mods and admins can always contribute
+	if (HasModPermissions(userID) || HasAdminPermissions(userID)) {
+		return true;
+	}
+
+	/* let user = GetUser(userID);
+	if (user == null) return false; */
+	const node = GetNodeL2(nodeID);
+	if (node == null) return false;
+	const revision = node.current;
+
+	// probably temp
+	const contributePerm = revision.permission_contribute ?? { type: PermissionInfoType.Anyone };
+
+	if (contributePerm.type == PermissionInfoType.Anyone) {
+		return CanGetBasicPermissions(userID);
+	}
+	if (contributePerm.type == PermissionInfoType.Creator) {
+		return revision.creator == userID;
+	}
+	if (contributePerm.type == PermissionInfoType.MapEditors) {
+		if (revision.creator == userID) return true; // node-creator can always contribute
+		const map = GetMap(contributePerm.mapID);
+		return map?.editorIDs?.Contains(userID) ?? false;
+	}
+	Assert(false, 'Invalid permission-info-type.');
+});

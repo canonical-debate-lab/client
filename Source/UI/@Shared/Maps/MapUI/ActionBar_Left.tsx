@@ -8,14 +8,14 @@ import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { GetUser, MeID } from 'Store/firebase/users';
 import { User } from 'Store/firebase/users/@User';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
-import { GetUpdates, HSLA, Observer } from 'vwebapp-framework';
+import { GetUpdates, HSLA, Observer, InfoButton } from 'vwebapp-framework';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { Button_GAD } from 'UI/@GAD/GADButton';
 import { GetTimelinePanelOpen } from 'Store/main/mapStates/$mapState';
 import { store } from 'Store';
 import { GetAsync } from 'mobx-firelink';
 import { runInAction } from 'mobx';
-import { Clone, CloneWithPrototypes } from 'js-vextensions';
+import { Clone, CloneWithPrototypes, E } from 'js-vextensions';
 import { colors, ES } from '../../../../Utils/UI/GlobalStyles';
 import { DeleteLayer } from '../../../../Server/Commands/DeleteLayer';
 import { DeleteMap } from '../../../../Server/Commands/DeleteMap';
@@ -145,13 +145,14 @@ export class PeopleDropDown extends BaseComponent<{map: Map}, {}> {
 			<DropDown>
 				<DropDownTrigger><Button_Final ml={5} style={{ height: '100%' }} text="People"/></DropDownTrigger>
 				<DropDownContent style={{ left: 0, width: 500, borderRadius: '0 0 5px 0' }}><Column>
-					<Row>
+					<Row center>
 						<Text>Editors:</Text>
+						<InfoButton ml={5} text="Editors have extended permissions, like being able to contribute anywhere in the map. (use node permissions to restrict other users)"/>
 						{creatorOrMod &&
-						<Button ml="auto" text="Add editor" title="Add a user as an editor, enabling them to contribute anywhere in the map. (use node permissions to restrict other users)" onClick={() => {
-							const newEditors = CloneWithPrototypes(map.editors || []);
+						<Button ml="auto" text="Add editor" onClick={() => {
+							const newEditors = CloneWithPrototypes(map.editorIDs || []);
 							newEditors.push('(enter user-id here)');
-							new UpdateMapDetails({ id: map._key, updates: { editors: newEditors } }).Run();
+							new UpdateMapDetails({ id: map._key, updates: { editorIDs: newEditors } }).Run();
 						}}/>}
 					</Row>
 					{editorIDs.map((editorID, index) => {
@@ -160,9 +161,9 @@ export class PeopleDropDown extends BaseComponent<{map: Map}, {}> {
 						return (
 							<Row key={index} mt={5}>
 								<TextInput delayChangeTillDefocus={true} style={{ width: 250 }} editable={creatorOrMod} value={editorID} onChange={(val) => {
-									const newEditors = CloneWithPrototypes(map.editors);
+									const newEditors = CloneWithPrototypes(map.editorIDs);
 									newEditors[index] = val;
-									new UpdateMapDetails({ id: map._key, updates: { editors: newEditors } }).Run();
+									new UpdateMapDetails({ id: map._key, updates: { editorIDs: newEditors } }).Run();
 								}}/>
 								<Text ml={5}>({displayName})</Text>
 								{creatorOrMod &&
@@ -171,9 +172,9 @@ export class PeopleDropDown extends BaseComponent<{map: Map}, {}> {
 										title: `Remove editor "${displayName}"`, cancelButton: true,
 										message: `Remove editor "${displayName}" (id: ${editorID})?`,
 										onOK: () => {
-											const newEditors = CloneWithPrototypes(map.editors);
+											const newEditors = CloneWithPrototypes(map.editorIDs);
 											newEditors.RemoveAt(index);
-											new UpdateMapDetails({ id: map._key, updates: { editors: newEditors } }).Run();
+											new UpdateMapDetails({ id: map._key, updates: { editorIDs: newEditors } }).Run();
 										},
 									});
 								}}/>}

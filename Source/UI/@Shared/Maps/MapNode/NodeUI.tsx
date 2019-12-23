@@ -85,7 +85,7 @@ export class NodeUI extends BaseComponentPlus(
 		const nodeView = CachedTransform('nodeView_transform1', [map._key, path], nodeView_early.Excluding('focused', 'viewOffset', 'children'), () => nodeView_early); */
 		// const nodeView = Watch(() => GetNodeView(map._key, path) || new MapNodeView(), [map._key, path]);
 		const nodeView = GetNodeView(map._key, path);
-		const boxExpanded = isPremiseOfSinglePremiseArg ? parentNodeView?.expanded : nodeView?.expanded;
+		const boxExpanded = (isPremiseOfSinglePremiseArg ? parentNodeView?.expanded : nodeView?.expanded) ?? false;
 
 		const playingTimeline = GetPlayingTimeline(map._key);
 		const playingTimeline_currentStepIndex = GetPlayingTimelineStepIndex(map._key);

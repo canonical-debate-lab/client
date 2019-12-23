@@ -1,4 +1,4 @@
-import { ToJSON, Vector2i, VRect, WaitXThenRun, GetEntries, Clone, DEL } from 'js-vextensions';
+import { ToJSON, Vector2i, VRect, WaitXThenRun, GetEntries, Clone, DEL, E } from 'js-vextensions';
 import { Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 import { Button, CheckBox, Column, Pre, Row, Select, Text, TextArea, TimeSpanInput, Spinner } from 'react-vcomponents';
 import { BaseComponentPlus, GetDOM, ShallowChanged } from 'react-vextensions';

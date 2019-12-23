@@ -1,4 +1,4 @@
-import { VURL } from 'js-vextensions';
+import { VURL, E } from 'js-vextensions';
 import Moment from 'moment';
 import { Column, Div, Row } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';

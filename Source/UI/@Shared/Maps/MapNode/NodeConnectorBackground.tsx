@@ -1,4 +1,4 @@
-import { Vector2i } from 'js-vextensions';
+import { Vector2i, E } from 'js-vextensions';
 import { BaseComponent, SimpleShouldUpdate, WarnOfTransientObjectProps } from 'react-vextensions';
 import { MapNodeL3 } from '../../../../Store/firebase/nodes/@MapNode';
 import { GetNodeColor } from '../../../../Store/firebase/nodes/@MapNodeType';

@@ -6,7 +6,7 @@ import { ScrollView } from 'react-vscrollview';
 import { Link, PageContainer, Observer } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { GetSelectedUser } from 'Store/main/database';
-import { ToNumber } from 'js-vextensions';
+import { ToNumber, E } from 'js-vextensions';
 import { UserExtraInfo } from '../../Store/firebase/userExtras/@UserExtraInfo';
 import { GetUsers, GetUserJoinDate, GetUserExtraInfo } from '../../Store/firebase/users';
 import { UserProfileUI } from './Users/UserProfile';

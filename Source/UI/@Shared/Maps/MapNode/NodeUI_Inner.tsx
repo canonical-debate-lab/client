@@ -1,6 +1,6 @@
 import chroma from 'chroma-js';
 import classNames from 'classnames';
-import { DoNothing, Timer, ToJSON, Vector2i, VRect, WaitXThenRun, ToNumber } from 'js-vextensions';
+import { DoNothing, Timer, ToJSON, Vector2i, VRect, WaitXThenRun, ToNumber, E } from 'js-vextensions';
 import { Draggable } from 'react-beautiful-dnd';
 import ReactDOM from 'react-dom';
 import { BaseComponent, BaseComponentPlus, GetDOM, UseCallback, UseEffect } from 'react-vextensions';
@@ -205,14 +205,14 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		const panelToShow = hoverPanel || local_openPanel || nodeView?.openPanel;
 		const subPanelShow = node.type == MapNodeType.Claim && (node.current.contentNode || node.current.image);
 		const bottomPanelShow = leftPanelShow && panelToShow;
-		let expanded = nodeView?.expanded;
+		let expanded = nodeView?.expanded ?? false;
 
 		// const parentNodeView = GetNodeView(map._key, parentPath);
 		// const parentNodeView = Watch(() => parentPath && GetNodeView_SelfOnly(map._key, parentPath), [map._key, parentPath]);
 		const parentNodeView = GetNodeView(map._key, parentPath);
 		// if combined with parent arg (ie. premise of single-premise arg), use parent's expansion state for this box
 		if (combinedWithParentArgument) {
-			expanded = parentNodeView?.expanded;
+			expanded = parentNodeView?.expanded ?? false;
 		}
 
 		const onMouseEnter = UseCallback(() => {

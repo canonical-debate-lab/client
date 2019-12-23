@@ -11,6 +11,7 @@ import { GetTimelinePanelOpen } from 'Store/main/mapStates/$mapState';
 import { HSLA, Observer } from 'vwebapp-framework';
 import { store } from 'Store';
 import { runInAction } from 'mobx';
+import { E } from 'js-vextensions';
 import { Button_GAD } from './GADButton';
 
 @Observer

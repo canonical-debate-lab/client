@@ -1,10 +1,11 @@
 import { Button } from 'react-vcomponents';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
-import { MeID } from 'Store/firebase/users';
+import { MeID, CanContributeToNode } from 'Store/firebase/users';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
-import { HSLA } from 'vwebapp-framework';
-import { UseCallback } from 'react-vextensions';
+import { HSLA, Observer } from 'vwebapp-framework';
+import { UseCallback, BaseComponent } from 'react-vextensions';
+import { E } from 'js-vextensions';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { MapNodeL3, Polarity } from '../../../../../Store/firebase/nodes/@MapNode';
 import { GetNodeColor, MapNodeType } from '../../../../../Store/firebase/nodes/@MapNodeType';
@@ -60,36 +61,39 @@ type Props = {map: Map, node: MapNodeL3, path: string, polarity: Polarity, style
 		draggedItem: monitor.getItem(),
 	})); */
 // export class AddArgumentButton_Old extends BaseComponent<Props, {}> {
-export function AddArgumentButton(props: Props) {
-	const { map, node, path, polarity, style } = props;
-	const backgroundColor = GetNodeColor({ type: MapNodeType.Argument, finalPolarity: polarity } as MapNodeL3);
+@Observer
+export class AddArgumentButton extends BaseComponent<Props> {
+	render() {
+		const { map, node, path, polarity, style } = this.props;
+		const backgroundColor = GetNodeColor({ type: MapNodeType.Argument, finalPolarity: polarity } as MapNodeL3);
 
-	return (
-		<Button
-			text={`Add ${polarity == Polarity.Supporting ? 'pro' : 'con'}`} title={`Add ${Polarity[polarity].toLowerCase()} argument`}
-			enabled={CanGetBasicPermissions(MeID())}
-			// text={`Add ${Polarity[polarity].toLowerCase()} argument`}
-			style={E(
-				{
-					alignSelf: 'flex-end', backgroundColor: backgroundColor.css(),
-					border: 'none', boxShadow: 'rgba(0,0,0,1) 0px 0px 2px',
-					// width: 150, padding: "2px 12px",
-					width: 60, padding: '2px 12px',
-					':hover': { backgroundColor: backgroundColor.Mix('white', 0.05).alpha(0.9).css() },
-				},
-				/* polarity == Polarity.Supporting && {marginBottom: 5},
-				polarity == Polarity.Opposing && {marginTop: 5}, */
-				{ height: 17, fontSize: 11, padding: '0 12px' }, // vertical
-				// {fontSize: 18, padding: "0 12px"}, // horizontal
-				// canDrop && { outline: `1px solid ${isOver ? 'yellow' : 'white'}` },
-				GADDemo && { color: HSLA(222, 0.1, 0.8, 1), fontFamily: 'TypoPRO Bebas Neue', fontSize: 13, letterSpacing: 1 },
-				style,
-			)}
-			onClick={UseCallback((e) => {
-				if (e.button != 0) return;
-				if (MeID() == null) return ShowSignInPopup();
+		return (
+			<Button
+				text={`Add ${polarity == Polarity.Supporting ? 'pro' : 'con'}`} title={`Add ${Polarity[polarity].toLowerCase()} argument`}
+				enabled={CanContributeToNode(MeID(), node._key)}
+				// text={`Add ${Polarity[polarity].toLowerCase()} argument`}
+				style={E(
+					{
+						alignSelf: 'flex-end', backgroundColor: backgroundColor.css(),
+						border: 'none', boxShadow: 'rgba(0,0,0,1) 0px 0px 2px',
+						// width: 150, padding: "2px 12px",
+						width: 60, padding: '2px 12px',
+						':hover': { backgroundColor: backgroundColor.Mix('white', 0.05).alpha(0.9).css() },
+					},
+					/* polarity == Polarity.Supporting && {marginBottom: 5},
+					polarity == Polarity.Opposing && {marginTop: 5}, */
+					{ height: 17, fontSize: 11, padding: '0 12px' }, // vertical
+					// {fontSize: 18, padding: "0 12px"}, // horizontal
+					// canDrop && { outline: `1px solid ${isOver ? 'yellow' : 'white'}` },
+					GADDemo && { color: HSLA(222, 0.1, 0.8, 1), fontFamily: 'TypoPRO Bebas Neue', fontSize: 13, letterSpacing: 1 },
+					style,
+				)}
+				onClick={UseCallback((e) => {
+					if (e.button != 0) return;
+					if (MeID() == null) return ShowSignInPopup();
 
-				ShowAddChildDialog(path, MapNodeType.Argument, polarity, MeID(), map._key);
-			}, [map._key, path, polarity])}/>
-	);
+					ShowAddChildDialog(path, MapNodeType.Argument, polarity, MeID(), map._key);
+				}, [map._key, path, polarity])}/>
+		);
+	}
 }

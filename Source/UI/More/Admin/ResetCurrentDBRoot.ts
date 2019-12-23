@@ -6,6 +6,7 @@ import { GenerateUUID } from 'Utils/General/KeyGenerator';
 import { observable } from 'mobx';
 import { ConvertDataToValidDBUpdates, ApplyDBUpdates, DBPath } from 'mobx-firelink';
 import { FirebaseDBShape } from 'Store/firebase';
+import {E} from 'js-vextensions';
 import { Map, MapType } from '../../../Store/firebase/maps/@Map';
 import { MapNode, globalRootNodeID, globalMapID } from '../../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../../Store/firebase/nodes/@MapNodeType';
