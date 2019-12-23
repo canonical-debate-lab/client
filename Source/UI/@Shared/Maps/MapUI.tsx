@@ -5,7 +5,7 @@ import { BaseComponentWithConnector, FindReact, GetDOM, BaseComponentPlus, BaseC
 import { VMenuStub, VMenuItem } from 'react-vmenu';
 
 import { ScrollView } from 'react-vscrollview';
-import { TimelinePlayerUI } from 'UI/@Shared/Maps/MapUI/TimelinePlayerUI';
+import { TimelinePlayerUI } from 'UI/@Shared/Timelines/TimelinePlayerUI';
 import { GetDistanceBetweenRectAndPoint, inFirefox, GetScreenRect, StoreAction, Observer } from 'vwebapp-framework';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { ActionBar_Left_GAD } from 'UI/@GAD/ActionBar_Left_GAD';
@@ -15,6 +15,8 @@ import { store } from 'Store';
 import { GetNodeView, GetMapView, GetSelectedNodePath, GetViewOffset, GetFocusedNodePath, GetNodeViewsAlongPath, ACTMapNodeSelect } from 'Store/main/mapViews/$mapView';
 import { GetTimelinePanelOpen, GetPlayingTimeline } from 'Store/main/maps/$map';
 import { GetOpenMapID } from 'Store/main';
+import { TimelinePanel } from 'UI/@Shared/Timelines/TimelinePanel';
+import { TimelineIntroBox } from 'UI/@Shared/Timelines/TimelineIntroBox';
 import { styles, ES } from '../../../Utils/UI/GlobalStyles';
 import { Map } from '../../../Store/firebase/maps/@Map';
 import { GetNodeL3, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument } from '../../../Store/firebase/nodes/$node';
@@ -24,8 +26,6 @@ import { NodeUI_ForBots } from './MapNode/NodeUI_ForBots';
 import { NodeUI_Inner } from './MapNode/NodeUI_Inner';
 import { ActionBar_Left } from './MapUI/ActionBar_Left';
 import { ActionBar_Right } from './MapUI/ActionBar_Right';
-import { TimelinePanel } from './MapUI/TimelinePanel';
-import { TimelineIntroBox } from './MapUI/TimelineIntroBox';
 import { ExpandableBox } from './MapNode/ExpandableBox';
 
 

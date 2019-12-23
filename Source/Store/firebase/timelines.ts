@@ -21,13 +21,3 @@ export const GetMapTimelines = StoreAccessor((s) => (map: Map) => {
 	if (timelines.Any((a) => a == null)) return emptyArray;
 	return timelines;
 });
-
-export const GetTimelineStep = StoreAccessor((s) => (id: string): TimelineStep => {
-	if (id == null) return null;
-	return GetDoc({}, (a) => a.timelineSteps.get(id));
-});
-export const GetTimelineSteps = StoreAccessor((s) => (timeline: Timeline, allowStillLoading = false): TimelineStep[] => {
-	const steps = (timeline.steps || []).map((id) => GetTimelineStep(id));
-	if (!allowStillLoading && steps.Any((a) => a == null)) return emptyArray;
-	return steps;
-});

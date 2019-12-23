@@ -252,5 +252,5 @@ export async function ImportCollectionsData(versionRootPath: string, collections
 	}
 
 	Log('Importing db-data into path. Path: ', versionRootPath, ' DBData: ', collectionsDataToImport, ' DBUpdates: ', allDBUpdates);
-	await ApplyDBUpdates_InChunks({}, versionRootPath, allDBUpdates);
+	await ApplyDBUpdates_InChunks({}, allDBUpdates, versionRootPath);
 }

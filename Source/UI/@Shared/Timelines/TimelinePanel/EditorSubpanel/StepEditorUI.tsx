@@ -1,6 +1,6 @@
-import { ToJSON, Vector2i, VRect, WaitXThenRun, GetEntries, Clone } from 'js-vextensions';
+import { ToJSON, Vector2i, VRect, WaitXThenRun, GetEntries, Clone, DEL } from 'js-vextensions';
 import { Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
-import { Button, CheckBox, Column, Pre, Row, Select, Text, TextArea, TimeSpanInput } from 'react-vcomponents';
+import { Button, CheckBox, Column, Pre, Row, Select, Text, TextArea, TimeSpanInput, Spinner } from 'react-vcomponents';
 import { BaseComponentPlus, GetDOM, ShallowChanged } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { DeleteTimelineStep } from 'Server/Commands/DeleteTimelineStep';
@@ -9,7 +9,7 @@ import { Map } from 'Store/firebase/maps/@Map';
 import { GetNodeID, GetNode } from 'Store/firebase/nodes';
 import { GetNodeDisplayText, GetNodeL2, GetNodeL3 } from 'Store/firebase/nodes/$node';
 import { GetNodeColor, MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
-import { GetTimelineStep } from 'Store/firebase/timelines';
+import { GetTimelineStep } from 'Store/firebase/timelineSteps';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { NodeReveal, TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
@@ -258,7 +258,7 @@ export class NodeRevealUI extends BaseComponentPlus({} as {map: Map, step: Timel
 					}}
 					onClick={() => this.SetState({ detailsOpen: !detailsOpen })}
 				>
-					<span>{displayText}</span>
+					<span>{!nodeReveal.show && !nodeReveal.hide ? '[disabled] ' : ''}{nodeReveal.hide ? '[hide] ' : ''}{displayText}</span>
 					{/* <NodeUI_Menu_Helper {...{map, node}}/> */}
 					{/* <NodeUI_Menu_Stub {...{ node: nodeL3, path: `${node._key}`, inList: true }}/> */}
 					{editing &&
@@ -280,6 +280,33 @@ export class NodeRevealUI extends BaseComponentPlus({} as {map: Map, step: Timel
 							new UpdateTimelineStep({ stepID: step._key, stepUpdates: { nodeReveals: newNodeReveals } }).Run();
 						}}/>}
 					</Row>
+					{editing &&
+					<Row>
+						<CheckBox ml={5} text="Show" checked={nodeReveal.show} onChange={(val) => {
+							const newNodeReveals = Clone(step.nodeReveals) as NodeReveal[];
+							newNodeReveals[index].show = val;
+							if (val) newNodeReveals[index].hide = false;
+							new UpdateTimelineStep({ stepID: step._key, stepUpdates: { nodeReveals: newNodeReveals } }).Run();
+						}}/>
+						{nodeReveal.show &&
+						<>
+							<Text ml={10}>Reveal depth:</Text>
+							<Spinner ml={5} min={0} max={50} value={nodeReveal.show_revealDepth} onChange={(val) => {
+								const newNodeReveals = Clone(step.nodeReveals) as NodeReveal[];
+								newNodeReveals[index].VSet('show_revealDepth', val > 0 ? val : DEL);
+								new UpdateTimelineStep({ stepID: step._key, stepUpdates: { nodeReveals: newNodeReveals } }).Run();
+							}}/>
+						</>}
+					</Row>}
+					{editing &&
+					<Row>
+						<CheckBox ml={5} text="Hide" checked={nodeReveal.hide} onChange={(val) => {
+							const newNodeReveals = Clone(step.nodeReveals) as NodeReveal[];
+							newNodeReveals[index].hide = val;
+							if (val) newNodeReveals[index].show = false;
+							new UpdateTimelineStep({ stepID: step._key, stepUpdates: { nodeReveals: newNodeReveals } }).Run();
+						}}/>
+					</Row>}
 				</Column>}
 			</>
 		);

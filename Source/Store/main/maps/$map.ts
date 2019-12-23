@@ -1,11 +1,12 @@
 import { emptyArray, FromJSON, GetValues, ToNumber } from 'js-vextensions';
 import { GetMap } from 'Store/firebase/maps';
 import { GetNode, GetNodeChildren } from 'Store/firebase/nodes';
-import { GetTimeline, GetTimelineStep } from 'Store/firebase/timelines';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { O } from 'vwebapp-framework';
 import { StoreAccessor } from 'mobx-firelink';
+import { GetNodesRevealedInSteps, GetNodeRevealTimesInSteps, GetTimelineSteps, GetTimelineStep } from 'Store/firebase/timelineSteps';
+import { GetTimeline } from 'Store/firebase/timelines';
 
 export enum SortType {
 	CreatorID = 10,
@@ -113,7 +114,8 @@ export const GetPlayingTimelineRevealNodes_All = StoreAccessor((s) => (mapID: st
 	const map = GetMap(mapID);
 	if (!map) return emptyArray;
 
-	const steps = GetPlayingTimelineSteps(mapID);
+	const playingTimeline = GetPlayingTimeline(mapID);
+	const steps = playingTimeline ? GetTimelineSteps(playingTimeline) : emptyArray;
 	return [`${map.rootNode}`].concat(GetNodesRevealedInSteps(steps));
 });
 
@@ -140,63 +142,6 @@ export const GetPlayingTimelineRevealNodes_UpToAppliedStep = StoreAccessor((s) =
 
 	const appliedSteps = GetPlayingTimelineAppliedSteps(mapID, excludeAfterCurrentStep);
 	return [`${map.rootNode}`].concat(GetNodesRevealedInSteps(appliedSteps));
-});
-
-export const GetPlayingTimelineSteps = StoreAccessor((s) => (mapID: string): TimelineStep[] => {
-	const playingTimeline = GetPlayingTimeline(mapID);
-	if (playingTimeline == null) return emptyArray;
-	const steps = playingTimeline.steps.map((a) => GetTimelineStep(a));
-	if (steps.Any((a) => a == null)) return emptyArray;
-	return steps;
-});
-export const GetNodeRevealTimesInSteps = StoreAccessor((s) => (steps: TimelineStep[], baseOnLastReveal = false) => {
-	const nodeRevealTimes = {} as {[key: string]: number};
-	for (const [index, step] of steps.entries()) {
-		for (const reveal of step.nodeReveals || []) {
-			const stepTime_safe = step.videoTime != null ? step.videoTime : steps.slice(0, index).map((a) => a.videoTime).LastOrX((a) => a != null);
-			if (baseOnLastReveal) {
-				nodeRevealTimes[reveal.path] = Math.max(stepTime_safe, ToNumber(nodeRevealTimes[reveal.path], 0));
-			} else {
-				nodeRevealTimes[reveal.path] = Math.min(stepTime_safe, ToNumber(nodeRevealTimes[reveal.path], Number.MAX_SAFE_INTEGER));
-			}
-
-			if (reveal.revealDepth >= 1) {
-				const node = GetNode(reveal.path.split('/').Last());
-				if (node == null) continue;
-				// todo: fix that a child being null, apparently breaks the GetAsync() call in ActionProcessor.ts (for scrolling to just-revealed nodes)
-				let currentChildren = GetNodeChildren(node).map((child) => ({ node: child, path: child && `${reveal.path}/${child._key}` }));
-				if (currentChildren.Any((a) => a.node == null)) {
-					// if (steps.length == 1 && steps[0]._key == 'clDjK76mSsGXicwd7emriw') debugger;
-					return emptyArray;
-				}
-
-				for (let childrenDepth = 1; childrenDepth <= reveal.revealDepth; childrenDepth++) {
-					const nextChildren = [];
-					for (const child of currentChildren) {
-						if (baseOnLastReveal) {
-							nodeRevealTimes[child.path] = Math.max(stepTime_safe, ToNumber(nodeRevealTimes[child.path], 0));
-						} else {
-							nodeRevealTimes[child.path] = Math.min(stepTime_safe, ToNumber(nodeRevealTimes[child.path], Number.MAX_SAFE_INTEGER));
-						}
-						// if there's another loop/depth after this one
-						if (childrenDepth < reveal.revealDepth) {
-							const childChildren = GetNodeChildren(child.node).map((child2) => ({ node: child2, path: child2 && `${child.path}/${child2._key}` }));
-							if (childChildren.Any((a) => a == null)) {
-								// if (steps.length == 1 && steps[0]._key == 'clDjK76mSsGXicwd7emriw') debugger;
-								return emptyArray;
-							}
-							nextChildren.AddRange(childChildren);
-						}
-					}
-					currentChildren = nextChildren;
-				}
-			}
-		}
-	}
-	return nodeRevealTimes;
-});
-export const GetNodesRevealedInSteps = StoreAccessor((s) => (steps: TimelineStep[]) => {
-	return GetNodeRevealTimesInSteps(steps).VKeys();
 });
 
 export const GetNodeRevealHighlightTime = StoreAccessor((s) => () => {

@@ -32,12 +32,18 @@ AddSchema('TimelineStep', {
 
 export class NodeReveal {
 	path: string;
-	revealDepth: number;
+
+	show: boolean;
+	show_revealDepth: number;
+	hide: boolean;
 }
 AddSchema('NodeReveal', {
 	properties: {
 		path: { type: 'string' },
-		revealDepth: { type: 'number' },
+
+		show: { type: 'boolean' },
+		show_revealDepth: { type: 'number' },
+		hide: { type: 'boolean' },
 	},
-	required: ['path', 'revealDepth'],
+	required: ['path'],
 });

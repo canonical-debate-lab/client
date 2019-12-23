@@ -6,12 +6,13 @@ import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { ShowAddTimelineDialog } from 'UI/@Shared/Timelines/AddTimelineDialog';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { Map } from 'Store/firebase/maps/@Map';
-import { GetMapTimelines, GetTimelineSteps } from 'Store/firebase/timelines';
+import { GetTimelineSteps } from 'Store/firebase/timelineSteps';
 import { MeID } from 'Store/firebase/users';
 import { GetSelectedTimeline } from 'Store/main/maps/$map';
 import { store } from 'Store';
 import { Observer } from 'vwebapp-framework';
 import { runInAction } from 'mobx';
+import { GetMapTimelines } from 'Store/firebase/timelines';
 
 @Observer
 export class CollectionSubpanel extends BaseComponentPlus({} as {map: Map}, {}) {

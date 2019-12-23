@@ -2,7 +2,7 @@ import { Column, Div } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { VReactMarkdown_Remarkable } from 'vwebapp-framework';
-import { GetTimelineStep } from 'Store/firebase/timelines';
+import { GetTimelineStep } from 'Store/firebase/timelineSteps';
 
 export class TimelineIntroBox extends BaseComponentPlus({} as {timeline: Timeline}) {
 	render() {

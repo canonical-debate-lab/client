@@ -1,5 +1,5 @@
 import { autorun, action } from 'mobx';
-import { GetPlayingTimeline, GetPlayingTimelineSteps, GetPlayingTimelineCurrentStepRevealNodes, GetNodesRevealedInSteps } from 'Store/main/maps/$map';
+import { GetPlayingTimeline } from 'Store/main/maps/$map';
 import { GetOpenMapID } from 'Store/main';
 import { ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView';
 import { store } from 'Store';
@@ -8,9 +8,8 @@ import { SleepAsync, VRect } from 'js-vextensions';
 import { NodeUI_Inner } from 'UI/@Shared/Maps/MapNode/NodeUI_Inner';
 import { GetDOM } from 'react-vextensions';
 import { GetScreenRect } from 'vwebapp-framework';
-import { GetTimelineStep } from 'Store/firebase/timelines';
-import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { SlicePath, GetAsync } from 'mobx-firelink';
+import { GetNodesRevealedInSteps, GetTimelineStep } from 'Store/firebase/timelineSteps';
 
 /* function AreSetsEqual(setA, setB) {
 	return setA.size === setB.size && [...setA].every((value) => setB.has(value));

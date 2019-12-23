@@ -17,7 +17,7 @@ import { store } from 'Store';
 import { GetNode, GetNodeID, GetParentNode, GetParentPath } from 'Store/firebase/nodes';
 import { GetNodeDisplayText, GetNodeL3, IsPremiseOfSinglePremiseArgument } from 'Store/firebase/nodes/$node';
 import { Polarity, globalMapID } from 'Store/firebase/nodes/@MapNode';
-import { GetTimelineStep } from 'Store/firebase/timelines';
+import { GetTimelineStep } from 'Store/firebase/timelineSteps';
 import { NodeReveal } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { Me, MeID } from 'Store/firebase/users';
 import { AddressBarWrapper, browserHistory, ErrorBoundary, LoadURL, Observer } from 'vwebapp-framework';
@@ -199,6 +199,7 @@ export class RootUIWrapper extends BaseComponentPlus({}, {}) {
 			const step = GetTimelineStep(targetDroppableInfo.stepID);
 			const newNodeReveal = new NodeReveal();
 			newNodeReveal.path = path;
+			newNodeReveal.show = true;
 			const newNodeReveals = (step.nodeReveals || []).concat(newNodeReveal);
 			new UpdateTimelineStep({ stepID: step._key, stepUpdates: { nodeReveals: newNodeReveals } }).Run();
 		}

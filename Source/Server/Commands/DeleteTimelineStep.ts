@@ -1,7 +1,8 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
 import { Command, GetAsync } from 'mobx-firelink';
-import { GetTimeline, GetTimelineStep } from '../../Store/firebase/timelines';
+import { GetTimelineStep } from 'Store/firebase/timelineSteps';
+import { GetTimeline } from 'Store/firebase/timelines';
 
 
 @UserEdit

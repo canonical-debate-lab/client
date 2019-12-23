@@ -1,7 +1,7 @@
 import { Column, Div, Row } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
 import { Map } from 'Store/firebase/maps/@Map';
-import { GetTimelineStep } from 'Store/firebase/timelines';
+import { GetTimelineStep } from 'Store/firebase/timelineSteps';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { VReactMarkdown_Remarkable, YoutubePlayer, YoutubePlayerState, Observer } from 'vwebapp-framework';
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';

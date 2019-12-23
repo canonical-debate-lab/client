@@ -5,10 +5,10 @@ import { store } from 'Store';
 import { GetSelectedTimeline, GetTimelineOpenSubpanel, TimelineSubpanel } from 'Store/main/maps/$map';
 import { runInAction } from 'mobx';
 import { Observer } from 'vwebapp-framework';
-import { Map } from '../../../../Store/firebase/maps/@Map';
-import { CollectionSubpanel } from '../../Timelines/TimelinePanel/CollectionSubpanel';
-import { EditorSubpanel } from '../../Timelines/TimelinePanel/EditorSubpanel';
-import { PlayingSubpanel } from '../../Timelines/TimelinePanel/PlayingSubpanel';
+import { Map } from '../../../Store/firebase/maps/@Map';
+import { CollectionSubpanel } from './TimelinePanel/CollectionSubpanel';
+import { EditorSubpanel } from './TimelinePanel/EditorSubpanel';
+import { PlayingSubpanel } from './TimelinePanel/PlayingSubpanel';
 
 @Observer
 export class TimelinePanel extends BaseComponentPlus({} as {map: Map}, {}) {
