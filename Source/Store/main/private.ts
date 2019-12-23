@@ -3,12 +3,12 @@ import { store } from 'Store';
 import { GetMap } from 'Store/firebase/maps';
 import { StoreAccessor } from 'mobx-firelink';
 
-export class PersonalState {
+export class PrivatePageState {
 	@O selectedMapID: string;
 }
 
-export const GetSelectedPersonalMap = StoreAccessor((s) => () => {
-	const selectedID = store.main.personal.selectedMapID;
+export const GetSelectedPrivateMap = StoreAccessor((s) => () => {
+	const selectedID = store.main.private.selectedMapID;
 	// return GetData(`maps/${selectedID}`);
 	// return (GetMapsOfType(MapType.Personal) || []).find(a=>a._id == selectedID);
 	return GetMap(selectedID);

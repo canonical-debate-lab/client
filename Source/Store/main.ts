@@ -9,10 +9,10 @@ import { store } from 'Store';
 import { GetNodeL3 } from './firebase/nodes/$node';
 import { globalMapID } from './firebase/nodes/@MapNode';
 import { DatabaseState } from './main/database';
-import { DebatesState } from './main/debates';
+import { PublicPageState } from './main/public';
 import { MapState } from './main/maps/$map';
 import { MapView, GetMapView } from './main/mapViews/$mapView';
-import { PersonalState } from './main/personal';
+import { PrivatePageState } from './main/private';
 import { RatingUIState } from './main/ratingUI';
 import { SearchState } from './main/search';
 
@@ -64,8 +64,8 @@ export class MainState {
 	@O more = {} as {subpage: string};
 	@O home = {} as {subpage: string};
 	// @SocialStateM social: SocialState;
-	@O personal = new PersonalState();
-	@O debates = new DebatesState();
+	@O private = new PrivatePageState();
+	@O public = new PublicPageState();
 	@O global = {} as {subpage: string};
 
 	@O search = new SearchState();
@@ -114,10 +114,8 @@ export const GetOpenMapID = StoreAccessor((s) => () => {
 	// return State(a=>a.main.openMap);
 	const page = s.main.page;
 	// if (page == 'home') return demoMap._id;
-	/* if (page == 'personal') return State((a) => a.main.personal.selectedMapID);
-	if (page == 'debates') return State((a) => a.main.debates.selectedMapID); */
-	if (page == 'personal') return s.main.personal.selectedMapID;
-	if (page == 'debates') return s.main.debates.selectedMapID;
+	if (page == 'private') return s.main.private.selectedMapID;
+	if (page == 'public') return s.main.public.selectedMapID;
 	if (page == 'global') return globalMapID;
 	return null;
 });

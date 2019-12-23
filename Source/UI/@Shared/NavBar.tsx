@@ -83,14 +83,14 @@ export class NavBar extends BaseComponentPlus({} as {}, {}) {
 						<NotificationsUI/>
 					</Div>
 
-					<span style={{ margin: '0 auto', paddingRight: 5 }}>
+					<span style={{ margin: '0 auto', paddingRight: 17 }}>
 						<NavBarPageButton page="database" text="Database"/>
 						<NavBarPageButton page="feedback" text="Feedback"/>
 						{/* <NavBarButton page="forum" text="Forum"/> */}
 						<NavBarPageButton page="more" text="More"/>
 						<NavBarPageButton page="home" text="Canonical Debate" style={{ margin: '0 auto', textAlign: 'center', fontSize: 23 }}/>
-						<NavBarPageButton page="personal" text="Personal"/>
-						<NavBarPageButton page="debates" text="Debates"/>
+						<NavBarPageButton page="private" text="Private"/>
+						<NavBarPageButton page="public" text="Public"/>
 						<NavBarPageButton page="global" text="Global"/>
 					</span>
 
@@ -149,10 +149,10 @@ export class NavBarPageButton extends BaseComponentPlus(
 						}
 					} else if (page == 'feedback') {
 						s.feedback.main.proposals.selectedProposalID = null;
-					} else if (page == 'personal') {
-						s.main.personal.selectedMapID = null;
-					} else if (page == 'debates') {
-						s.main.debates.selectedMapID = null;
+					} else if (page == 'private') {
+						s.main.private.selectedMapID = null;
+					} else if (page == 'public') {
+						s.main.public.selectedMapID = null;
 					}
 				}
 			}

@@ -2,11 +2,11 @@ import { ToNumber } from 'js-vextensions';
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
-import { GetMaps, GetMaps_Debate } from 'Store/firebase/maps';
+import { GetMaps, GetMaps_Public } from 'Store/firebase/maps';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
 import { HSLA, PageContainer, Observer } from 'vwebapp-framework';
-import { GetSelectedDebateMap } from 'Store/main/debates';
+import { GetSelectedDebateMap } from 'Store/main/public';
 import { MapType } from '../Store/firebase/maps/@Map';
 import { ES } from '../Utils/UI/GlobalStyles';
 import { GADDemo } from './@GAD/GAD';
@@ -18,11 +18,11 @@ import { ShowSignInPopup } from './@Shared/NavBar/UserPanel';
 export const columnWidths = [0.64, 0.06, 0.12, 0.18];
 
 @Observer
-export class DebatesUI extends BaseComponentPlus({} as {}, {}) {
+export class PublicUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
 		const userID = MeID();
 		const permissions = GetUserPermissionGroups(userID);
-		const maps = GetMaps_Debate(true);
+		const maps = GetMaps_Public(true);
 		// maps = maps.OrderByDescending(a => ToNumber(a.edits, 0));
 		const selectedMap = GetSelectedDebateMap();
 
@@ -68,7 +68,7 @@ export class DebatesUI extends BaseComponentPlus({} as {}, {}) {
 						<TextInput ml={2} value={filter} onChange={val=>store.dispatch(new ACTMapNodeListFilterSet({mapID: map._id, filter: val}))}/> */}
 						<Button text="Add debate" ml="auto" enabled={CanGetBasicPermissions(MeID())} style={E(GADDemo && { color: 'rgb(255, 255, 255)' })} onClick={() => {
 							if (userID == null) return ShowSignInPopup();
-							ShowAddMapDialog(userID, MapType.Debate);
+							ShowAddMapDialog(userID, MapType.Public);
 						}}/>
 					</Row>
 					<Row style={E(

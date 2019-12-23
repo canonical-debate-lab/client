@@ -41,7 +41,7 @@ export class ActionBar_Left_GAD extends BaseComponentPlus({} as {map: Map, subNa
 					{IsUserMap(map) &&
 						<Button_GAD text="Back" onClick={() => {
 							runInAction('ActionBar_Left_GAD.Back.onClick', () => {
-								store.main[map.type == MapType.Personal ? 'personal' : 'debates'].selectedMapID = null;
+								store.main[map.type == MapType.Private ? 'private' : 'public'].selectedMapID = null;
 							});
 						}}/>}
 					{IsUserMap(map) && <DetailsDropDown map={map}/>}

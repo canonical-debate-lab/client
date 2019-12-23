@@ -119,7 +119,7 @@ async function SeedDB(firebase) {
 	for (let i = 0; i < 10; i++) AddTestMap({});
 	Assert(mapInfo.mapID != null);
 	// RR.store.dispatch(new ACTPersonalMapSelect({ id: mapInfo.mapID }));
-	store.main.personal.selectedMapID = mapInfo.mapID;
+	store.main.private.selectedMapID = mapInfo.mapID;
 	await RR.SleepAsync(50); // wait a bit, till map-data loaded (otherwise nodes can't be expanded)
 
 	const rootNodeID = mapInfo.command.payload.map.rootNode;
@@ -150,7 +150,7 @@ async function SeedDB(firebase) {
 
 context('MapUI', () => {
 	beforeEach(() => {
-		cy.visit('http://localhost:3005/personal/---TestingMap---');
+		cy.visit('http://localhost:3005/private/---TestingMap---');
 		// const mfb = new MockFirebase('', '', '', '');
 		// const firestoreMock = new MockFirestore('', '', '', '');
 

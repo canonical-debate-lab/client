@@ -57,10 +57,11 @@ export class ActionBar_Left extends BaseComponentPlus({} as {map: Map, subNavBar
 					{IsUserMap(map) &&
 						<Button text="Back" style={{ height: '100%' }} onClick={() => {
 							runInAction('ActionBar_Left.Back.onClick', () => {
-								store.main[map.type == MapType.Personal ? 'personal' : 'debates'].selectedMapID = null;
+								store.main[map.type == MapType.Private ? 'private' : 'public'].selectedMapID = null;
 							});
 						}}/>}
 					{IsUserMap(map) && <DetailsDropDown map={map}/>}
+					{/* IsUserMap(map) && <PeopleDropDown map={map}/> */}
 					{/* // disabled for now, so we can iterate quickly on the stuff we're actually using right now
 					{IsUserMap(map) && HasModPermissions(MeID()) && <LayersDropDown map={map}/>} */}
 					{/* IsUserMap(map) && HasModPermissions(MeID()) && <TimelineDropDown map={map}/> */}
@@ -118,7 +119,7 @@ export class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: strin
 										message: `Delete the map "${map.name}"?`,
 										onOK: async () => {
 											await new DeleteMap({ mapID: map._key }).Run();
-											store.main.debates.selectedMapID = null;
+											store.main.public.selectedMapID = null;
 										},
 									});
 								}}/>
@@ -129,6 +130,22 @@ export class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: strin
 		);
 	}
 }
+
+/* export class PeopleDropDown extends BaseComponent<{map: Map}, {}> {
+	render() {
+		const { map } = this.props;
+
+		const Button_Final = GADDemo ? Button_GAD : Button;
+		const creatorOrMod = IsUserCreatorOrMod(MeID(), map);
+		return (
+			<DropDown>
+				<DropDownTrigger><Button_Final ml={5} style={{ height: '100%' }} text="People"/></DropDownTrigger>
+				<DropDownContent style={{ left: 0 }}><Column>
+				</Column></DropDownContent>
+			</DropDown>
+		);
+	}
+} */
 
 export const columnWidths = [0.5, 0.3, 0.1, 0.1];
 

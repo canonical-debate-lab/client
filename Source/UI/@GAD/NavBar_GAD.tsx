@@ -58,10 +58,10 @@ export class NavBar_GAD extends BaseComponentPlus({}, {}) {
 						<NotificationsUI/>
 					</Div>
 
-					<span style={{ margin: '0 auto', paddingRight: 5 }}>
+					<span style={{ margin: '0 auto', paddingRight: 17 }}>
 						<NavBarPageButton page="website" text="Website"/>
 						<NavBarPageButton page="home" text="Home"/>
-						<NavBarPageButton page="debates" text="Debates"/>
+						<NavBarPageButton page="public" text="Debates"/>
 					</span>
 
 					<span style={{ position: 'absolute', right: 30, display: 'flex' }}>
@@ -134,10 +134,10 @@ class NavBarPageButton extends BaseComponent<{page?: string, text: string, panel
 				} else {
 					// go to the page root-contents, if clicking on page in nav-bar we're already on
 					root.main[currentPage].subpage = null;
-					if (page == 'personal') {
-						root.main.personal.selectedMapID = null;
-					} else if (page == 'debates') {
-						root.main.debates.selectedMapID = null;
+					if (page == 'private') {
+						root.main.private.selectedMapID = null;
+					} else if (page == 'public') {
+						root.main.public.selectedMapID = null;
 					}
 				}
 			}

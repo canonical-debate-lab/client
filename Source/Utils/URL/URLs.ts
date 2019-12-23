@@ -15,7 +15,7 @@ export const rootPages = [
 	'stream', 'chat', 'reputation',
 	'database', 'feedback', 'forum', 'more',
 	'home',
-	'social', 'personal', 'debates', 'global',
+	'social', 'private', 'public', 'global',
 	'search', 'guide', 'profile',
 ];
 // a default-child is only used (ie. removed from url) if there are no path-nodes after it
@@ -211,7 +211,7 @@ export function GetLoadActionFuncForURL(url: VURL) {
 		if (url.GetQueryVar('env')) store.main.envOverride = url.GetQueryVar('env') == 'null' ? null : url.GetQueryVar('env');
 		if (url.GetQueryVar('db')) store.main.dbOverride = url.GetQueryVar('db') == 'null' ? null : url.GetQueryVar('db');
 		if (url.GetQueryVar('dbVersion')) store.main.dbVersionOverride = url.GetQueryVar('dbVersion') == 'null' ? null : url.GetQueryVar('dbVersion');
-		if (url.GetQueryVar('analyticsEnabled')) store.main.analyticsEnabled = url.GetQueryVar('analyticsEnabled') == "true";
+		if (url.GetQueryVar('analyticsEnabled')) store.main.analyticsEnabled = url.GetQueryVar('analyticsEnabled') == 'true';
 
 		/* if (url.pathNodes[0] == 'forum') {
 			const subforumStr = url.pathNodes[1];
@@ -247,15 +247,15 @@ export function GetLoadActionFuncForURL(url: VURL) {
 			} else if (subpage == 'images' && subpageInURL) {
 				store.main.database.selectedImageID = entryID!;
 			}
-		} else if (page == 'personal' || page == 'debates') {
+		} else if (page == 'private' || page == 'public') {
 			const urlStr = url.pathNodes[1];
 			const match = urlStr && urlStr.match(/([A-Za-z0-9_-]+)$/);
 			mapID = match ? match[1] : null;
 
-			if (page == 'personal') {
-				store.main.personal.selectedMapID = mapID!;
+			if (page == 'private') {
+				store.main.private.selectedMapID = mapID!;
 			} else {
-				store.main.debates.selectedMapID = mapID!;
+				store.main.public.selectedMapID = mapID!;
 			}
 		} else if (page == 'global') {
 			/* if (subpage == 'map') {
@@ -392,16 +392,16 @@ export const GetNewURL = StoreAccessor((s) => (includeMapViewStr = true) => {
 	}
 
 	let mapID: string|n;
-	if (page == 'personal') {
-		mapID = s.main.personal.selectedMapID;
+	if (page == 'private') {
+		mapID = s.main.private.selectedMapID;
 		if (mapID) {
 			// newURL.pathNodes.push(mapID+"");
 			const urlStr = GetCrawlerURLStrForMap(mapID);
 			newURL.pathNodes.push(urlStr);
 		}
 	}
-	if (page == 'debates') {
-		mapID = s.main.debates.selectedMapID;
+	if (page == 'public') {
+		mapID = s.main.public.selectedMapID;
 		if (mapID) {
 			// newURL.pathNodes.push(mapID+"");
 			const urlStr = GetCrawlerURLStrForMap(mapID);

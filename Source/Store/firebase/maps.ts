@@ -11,11 +11,11 @@ export const GetMaps = StoreAccessor((s) => (orderByEdits = false): Map[] => {
 	if (orderByEdits) result = result.OrderByDescending((a) => ToNumber(a && a.edits, 0));
 	return result;
 });
-export const GetMaps_Personal = StoreAccessor((s) => (orderByEdits = false) => {
-	return GetMaps(orderByEdits).filter((a) => a && a.type == MapType.Personal);
+export const GetMaps_Private = StoreAccessor((s) => (orderByEdits = false) => {
+	return GetMaps(orderByEdits).filter((a) => a && a.type == MapType.Private);
 });
-export const GetMaps_Debate = StoreAccessor((s) => (orderByEdits = false) => {
-	return GetMaps(orderByEdits).filter((a) => a && a.type == MapType.Debate);
+export const GetMaps_Public = StoreAccessor((s) => (orderByEdits = false) => {
+	return GetMaps(orderByEdits).filter((a) => a && a.type == MapType.Public);
 });
 
 /* export function GetMapsOfType(type: MapType): Map[] {
@@ -32,5 +32,5 @@ export const GetRootNodeID = StoreAccessor((s) => (mapID: string): string => {
 });
 
 export function IsUserMap(map: Map) {
-	return map.type == MapType.Personal || map.type == MapType.Debate;
+	return map.type == MapType.Private || map.type == MapType.Public;
 }

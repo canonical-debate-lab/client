@@ -4,8 +4,8 @@ import { UUID_regex } from 'Utils/General/KeyGenerator';
 import { ObservableMap } from 'mobx';
 
 export enum MapType {
-	Personal = 10,
-	Debate = 20,
+	Private = 10,
+	Public = 20,
 	Global = 30,
 }
 export class Map {

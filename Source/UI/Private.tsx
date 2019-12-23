@@ -2,13 +2,13 @@ import { ToNumber } from 'js-vextensions';
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponentPlus, UseCallback } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
-import { GetMaps, GetMaps_Personal } from 'Store/firebase/maps';
+import { GetMaps, GetMaps_Private } from 'Store/firebase/maps';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
-import { columnWidths } from 'UI/Debates';
+import { columnWidths } from 'UI/Public';
 import { PageContainer, Observer } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { GetSelectedPersonalMap } from 'Store/main/personal';
+import { GetSelectedPrivateMap } from 'Store/main/private';
 import { MapType } from '../Store/firebase/maps/@Map';
 import { ShowAddMapDialog } from './@Shared/Maps/AddMapDialog';
 import { MapEntryUI } from './@Shared/Maps/MapEntryUI';
@@ -16,13 +16,13 @@ import { MapUI } from './@Shared/Maps/MapUI';
 import { ShowSignInPopup } from './@Shared/NavBar/UserPanel';
 
 @Observer
-export class PersonalUI extends BaseComponentPlus({} as {}, {}) {
+export class PrivateUI extends BaseComponentPlus({} as {}, {}) {
 	render() {
 		const userID = MeID();
 		const permissions = GetUserPermissionGroups(userID);
-		const maps = GetMaps_Personal(true);
+		const maps = GetMaps_Private(true);
 		// maps = maps.OrderByDescending(a => ToNumber(a.edits, 0));
-		const selectedMap = GetSelectedPersonalMap();
+		const selectedMap = GetSelectedPrivateMap();
 
 		if (selectedMap) {
 			return (
@@ -38,7 +38,7 @@ export class PersonalUI extends BaseComponentPlus({} as {}, {}) {
 					<Row style={{ height: 40, padding: 10 }}>
 						<Button text="Add map" ml="auto" enabled={CanGetBasicPermissions(MeID())} onClick={UseCallback(() => {
 							if (userID == null) return void ShowSignInPopup();
-							ShowAddMapDialog(userID, MapType.Personal);
+							ShowAddMapDialog(userID, MapType.Private);
 						}, [userID])}/>
 					</Row>
 					<Row style={{ height: 40, padding: 10 }}>

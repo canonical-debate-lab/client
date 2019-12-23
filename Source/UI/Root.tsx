@@ -35,10 +35,10 @@ import { HomeUI_GAD } from './@GAD/Home_GAD';
 import { NavBar_GAD } from './@GAD/NavBar_GAD';
 import { DatabaseUI } from './Database';
 import { UserProfileUI } from './Database/Users/UserProfile';
-import { DebatesUI } from './Debates';
+import { PublicUI } from './Public';
 import { FeedbackUI } from './Feedback';
 import { ForumUI } from './Forum';
-import { PersonalUI } from './Personal';
+import { PrivateUI } from './Private';
 import { SocialUI } from './Social';
 import { GetPathNodeIDs } from 'Store/main/mapViews/$mapView';
 import { hasHotReloaded } from 'Main';
@@ -314,8 +314,8 @@ class RootUI extends BaseComponentPlus({} as {}, {}) {
 						{page == 'home' && !GADDemo && <HomeUI/>}
 						{page == 'home' && GADDemo && <HomeUI_GAD/>}
 						{page == 'social' && <SocialUI/>}
-						{page == 'personal' && <PersonalUI/>}
-						{page == 'debates' && <DebatesUI/>}
+						{page == 'private' && <PrivateUI/>}
+						{page == 'public' && <PublicUI/>}
 						{page == 'global' && <GlobalUI/>}
 
 						{/* <Route path='/search'><SearchUI/></Route>
