@@ -11,7 +11,7 @@ import { ShowSignInPopup } from 'UI/@Shared/NavBar/UserPanel';
 import { GetUpdates, HSLA, Observer } from 'vwebapp-framework';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { Button_GAD } from 'UI/@GAD/GADButton';
-import { GetTimelinePanelOpen } from 'Store/main/maps/$map';
+import { GetTimelinePanelOpen } from 'Store/main/mapStates/$mapState';
 import { store } from 'Store';
 import { GetAsync } from 'mobx-firelink';
 import { runInAction } from 'mobx';
@@ -61,14 +61,14 @@ export class ActionBar_Left extends BaseComponentPlus({} as {map: Map, subNavBar
 							});
 						}}/>}
 					{IsUserMap(map) && <DetailsDropDown map={map}/>}
-					{/* IsUserMap(map) && <PeopleDropDown map={map}/> */}
+					{IsUserMap(map) && <PeopleDropDown map={map}/>}
 					{/* // disabled for now, so we can iterate quickly on the stuff we're actually using right now
 					{IsUserMap(map) && HasModPermissions(MeID()) && <LayersDropDown map={map}/>} */}
 					{/* IsUserMap(map) && HasModPermissions(MeID()) && <TimelineDropDown map={map}/> */}
 					{IsUserMap(map) && !GADDemo &&
 						<Button ml={5} text="Timelines" style={{ height: '100%' }} onClick={() => {
 							runInAction('ActionBar_Left.Timelines.onClick', () => {
-								store.main.maps.get(map._key).timelinePanelOpen = !timelinePanelOpen;
+								store.main.mapStates.get(map._key).timelinePanelOpen = !timelinePanelOpen;
 							});
 						}}/>}
 				</Row>
@@ -88,7 +88,7 @@ export class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: strin
 		return (
 			<DropDown>
 				<DropDownTrigger><Button_Final ml={5} style={{ height: '100%' }} text="Details"/></DropDownTrigger>
-				<DropDownContent style={{ left: 0 }}><Column>
+				<DropDownContent style={{ left: 0, borderRadius: "0 0 5px 0" }}><Column>
 					<MapDetailsUI ref={(c) => this.detailsUI = c} baseData={map}
 						forNew={false} enabled={creatorOrMod}
 						onChange={(newData) => {
@@ -131,7 +131,7 @@ export class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: strin
 	}
 }
 
-/* export class PeopleDropDown extends BaseComponent<{map: Map}, {}> {
+export class PeopleDropDown extends BaseComponent<{map: Map}, {}> {
 	render() {
 		const { map } = this.props;
 
@@ -140,12 +140,14 @@ export class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: strin
 		return (
 			<DropDown>
 				<DropDownTrigger><Button_Final ml={5} style={{ height: '100%' }} text="People"/></DropDownTrigger>
-				<DropDownContent style={{ left: 0 }}><Column>
+				<DropDownContent style={{ left: 0, borderRadius: "0 0 5px 0" }}><Column>
+					<Row>Editors:</Row>
+					{}
 				</Column></DropDownContent>
 			</DropDown>
 		);
 	}
-} */
+}
 
 export const columnWidths = [0.5, 0.3, 0.1, 0.1];
 

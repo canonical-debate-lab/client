@@ -24,7 +24,7 @@ export class ShareDropDown extends BaseComponentPlus({} as {map: Map}, { timelin
 		return (
 			<DropDown>
 				<DropDownTrigger><Button mr={5} text="Share"/></DropDownTrigger>
-				<DropDownContent style={{ right: 0, width: 400 }}>
+				<DropDownContent style={{ right: 0, width: 400, borderRadius: "0 0 0 5px" }}>
 					<Column>
 						<RowLR splitAt={splitAt}>
 							<Pre>URL: </Pre>

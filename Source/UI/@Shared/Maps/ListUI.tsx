@@ -8,7 +8,7 @@ import { GetNodesL2, GetNode } from 'Store/firebase/nodes';
 import { Icon, InfoButton } from 'vwebapp-framework';
 import { EnumNameToDisplayName } from 'Utils/General/Others';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { SortType } from 'Store/main/maps/$map';
+import { SortType } from 'Store/main/mapStates/@MapState';
 import { MapNodeView } from 'Store/main/mapViews/$mapView';
 import { Map } from '../../../Store/firebase/maps/@Map';
 import { GetNodeRatingsRoot, GetRatings } from '../../../Store/firebase/nodeRatings';
@@ -38,7 +38,7 @@ type Props = {map: Map};
 export class ListUI extends BaseComponent<Props, {panelToShow?: string}> {
 	render() {
 		const { map } = this.props;
-		const mapInfo = store.main.maps.get(map._key);
+		const mapInfo = store.main.mapStates.get(map._key);
 		const selectedNodeL1 = GetNode(mapInfo.list_selectedNodeID);
 		const selectedNode = selectedNodeL1 && GetNodeL3(selectedNodeL1._key);
 		let page = mapInfo.list_page;
@@ -157,7 +157,7 @@ class NodeRow extends BaseComponentPlus({} as NodeRow_Props, { menuOpened: false
 		const { menuOpened } = this.state;
 
 		const creator = GetUser(node.creator);
-		const mapInfo = store.main.maps.get(map._key);
+		const mapInfo = store.main.mapStates.get(map._key);
 		const selected = GetNode(mapInfo.list_selectedNodeID);
 
 		const nodeL3 = AsNodeL3(node);
@@ -208,7 +208,7 @@ class NodeColumn extends BaseComponentPlus({} as NodeColumn_Props, { width: null
 		const { width, hoverPanel } = this.state;
 
 		const ratingsRoot = GetNodeRatingsRoot(node._key);
-		const mapInfo = store.main.maps.get(map._key);
+		const mapInfo = store.main.mapStates.get(map._key);
 		const openPanel = mapInfo.list_selectedNode_openPanel;
 
 		const nodeL3 = AsNodeL3(node);

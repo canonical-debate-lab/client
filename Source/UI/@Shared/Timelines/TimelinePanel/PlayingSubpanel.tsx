@@ -10,7 +10,7 @@ import { GetTimelineStep, GetTimelineSteps } from 'Store/firebase/timelineSteps'
 import { store } from 'Store';
 import { GetScreenRect, HSLA, Icon, Observer, RunWithRenderingBatched, UseSize, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, ClassHooks, PosChangeSource } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { GetSelectedTimeline, GetPlayingTimelineStepIndex, GetNodeRevealHighlightTime, GetPlayingTimelineAppliedStepIndex } from 'Store/main/maps/$map';
+import { GetSelectedTimeline, GetPlayingTimelineStepIndex, GetNodeRevealHighlightTime, GetPlayingTimelineAppliedStepIndex } from 'Store/main/mapStates/$mapState';
 import { StepUI } from './PlayingSubpanel/StepUI';
 
 /* export class PlayingSubpanel extends BaseComponentPlus(
@@ -123,7 +123,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 		const { map } = this.props;
 		// const { targetTime, autoScroll } = this.state;
 		const oldTargetTime = this.targetTime;
-		const mapInfo = store.main.maps.get(map._key);
+		const mapInfo = store.main.mapStates.get(map._key);
 
 		// if (this.listRootEl == null && PROD) return; // defensive
 		if (this.listRootEl == null) return; // if something goes wrong with rendering, we don't want to keep spewing new errors
@@ -164,7 +164,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 		runInAction('PlayingSubpanel_timer', () => {
 			this.listY = GetScreenRect(this.listRootEl).y;
 
-			const mapState = store.main.maps.get(map._key);
+			const mapState = store.main.mapStates.get(map._key);
 
 			const timeline = GetSelectedTimeline(map._key);
 			const targetStepIndex = GetPlayingTimelineStepIndex(map._key);
@@ -269,7 +269,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 	render() {
 		const { map } = this.props;
 		// const { targetTime, autoScroll, targetTime_yInMessageArea, targetTimeDirection } = this.state;
-		const mapInfo = store.main.maps.get(map._key);
+		const mapInfo = store.main.mapStates.get(map._key);
 		const timeline = GetSelectedTimeline(map._key);
 		// timelineSteps: timeline && GetTimelineSteps(timeline);
 		const targetStepIndex = GetPlayingTimelineAppliedStepIndex(map._key);

@@ -3,7 +3,7 @@ import { Pre, Row, Select } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
 import { store } from 'Store';
 import { WeightingType } from 'Store/main';
-import { ShowChangesSinceType } from 'Store/main/maps/$map';
+import { ShowChangesSinceType } from 'Store/main/mapStates/@MapState';
 import { runInAction } from 'mobx';
 import { Observer } from 'vwebapp-framework';
 import { Map } from '../../../../Store/firebase/maps/@Map';
@@ -22,7 +22,7 @@ changesSince_options.push({ name: 'All unclicked changes', value: `${ShowChanges
 export class ActionBar_Right extends BaseComponentPlus({} as {map: Map, subNavBarWidth: number}, {}) {
 	render() {
 		const { map, subNavBarWidth } = this.props;
-		const mapInfo = store.main.maps.get(map._key);
+		const mapInfo = store.main.mapStates.get(map._key);
 		const showChangesSince_type = mapInfo.showChangesSince_type;
 		const showChangesSince_visitOffset = mapInfo.showChangesSince_visitOffset;
 		const weighting = store.main.weighting;

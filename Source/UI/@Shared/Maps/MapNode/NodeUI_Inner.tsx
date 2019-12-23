@@ -9,7 +9,7 @@ import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { DragInfo, EB_ShowError, EB_StoreError, HSLA, IsDoubleClick, Observer } from 'vwebapp-framework';
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
-import { GetTimeFromWhichToShowChangedNodes, GetNodeRevealHighlightTime, GetTimeSinceNodeRevealedByPlayingTimeline } from 'Store/main/maps/$map';
+import { GetTimeFromWhichToShowChangedNodes, GetNodeRevealHighlightTime, GetTimeSinceNodeRevealedByPlayingTimeline } from 'Store/main/mapStates/$mapState';
 import { GetPathNodeIDs, MapNodeView, ACTMapNodeSelect, ACTMapNodeExpandedSet, GetNodeView, GetNodeViewsAlongPath } from 'Store/main/mapViews/$mapView';
 import { store } from 'Store';
 import { WeightingType, GetLastAcknowledgementTime } from 'Store/main';

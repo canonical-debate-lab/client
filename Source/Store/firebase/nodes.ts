@@ -1,6 +1,6 @@
 import { CachedTransform, IsNaN, emptyArray, ToJSON, emptyArray_forLoading } from 'js-vextensions';
 import { PathSegmentToNodeID } from 'Store/main/mapViews/$mapView';
-import { GetPlayingTimeline, GetPlayingTimelineStepIndex, GetPlayingTimelineRevealNodes_UpToAppliedStep } from 'Store/main/maps/$map';
+import { GetPlayingTimeline, GetPlayingTimelineStepIndex, GetPlayingTimelineRevealNodes_UpToAppliedStep } from 'Store/main/mapStates/$mapState';
 import { ObservableMap } from 'mobx';
 import { SplitStringBySlash_Cached, SlicePath, GetDoc, GetDocs, StoreAccessor } from 'mobx-firelink';
 import { GetNodeL2, GetNodeL3 } from './nodes/$node';

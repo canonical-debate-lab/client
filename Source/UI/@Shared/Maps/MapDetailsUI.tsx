@@ -23,8 +23,8 @@ export class MapDetailsUI extends BaseComponentPlus({ enabled: true } as Props, 
 			this.Update();
 		};
 
-		const splitAt = 170; const
-			width = 600;
+		const splitAt = 170;
+		const width = 600;
 		return (
 			<Column style={style}>
 				{!forNew &&

@@ -7,7 +7,7 @@ import { MeID } from 'Store/firebase/users';
 import { IsUserMap } from 'Store/firebase/maps';
 import { DetailsDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Left';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
-import { GetTimelinePanelOpen } from 'Store/main/maps/$map';
+import { GetTimelinePanelOpen } from 'Store/main/mapStates/$mapState';
 import { HSLA, Observer } from 'vwebapp-framework';
 import { store } from 'Store';
 import { runInAction } from 'mobx';

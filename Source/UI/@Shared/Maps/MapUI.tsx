@@ -13,7 +13,7 @@ import { ActionBar_Right_GAD } from 'UI/@GAD/ActionBar_Right_GAD';
 import { GetParentNodeL3, GetParentPath } from 'Store/firebase/nodes';
 import { store } from 'Store';
 import { GetNodeView, GetMapView, GetSelectedNodePath, GetViewOffset, GetFocusedNodePath, GetNodeViewsAlongPath, ACTMapNodeSelect } from 'Store/main/mapViews/$mapView';
-import { GetTimelinePanelOpen, GetPlayingTimeline } from 'Store/main/maps/$map';
+import { GetTimelinePanelOpen, GetPlayingTimeline } from 'Store/main/mapStates/$mapState';
 import { GetOpenMapID } from 'Store/main';
 import { TimelinePanel } from 'UI/@Shared/Timelines/TimelinePanel';
 import { TimelineIntroBox } from 'UI/@Shared/Timelines/TimelineIntroBox';
@@ -116,7 +116,7 @@ export class MapUI extends BaseComponentPlus({
 		const { map, rootNode: rootNode_passed, withinPage, padding, subNavBarWidth, ...rest } = this.props;
 		Assert(map._key, 'map._key is null!');
 
-		if (!store.main.maps.get(map._key)?.initDone) return <MapUIWaitMessage message="Initializing map metadata..."/>;
+		if (!store.main.mapStates.get(map._key)?.initDone) return <MapUIWaitMessage message="Initializing map metadata..."/>;
 		if (GetMapView(map._key) == null) return <MapUIWaitMessage message="Initializing map view..."/>;
 		if (map == null) return <MapUIWaitMessage message="Loading map..."/>;
 		const rootNode = (() => {

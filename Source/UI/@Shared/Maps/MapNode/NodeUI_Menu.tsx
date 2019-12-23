@@ -9,7 +9,7 @@ import { UnlinkNode } from 'Server/Commands/UnlinkNode';
 import { store } from 'Store';
 import { GetParentNodeID, HolderType } from 'Store/firebase/nodes';
 import { GetCopiedNode, GetCopiedNodePath, GetOpenMapID } from 'Store/main';
-import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/$map';
+import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/mapStates/$mapState';
 import { Observer } from 'vwebapp-framework';
 import { runInAction } from 'mobx';
 import { DeleteNode } from '../../../../Server/Commands/DeleteNode';

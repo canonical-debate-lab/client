@@ -9,7 +9,7 @@ import { NodeChildHolder } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolder'
 import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolderBox';
 import { EB_ShowError, EB_StoreError, MaybeLog, ShouldLog, Observer } from 'vwebapp-framework';
 import { logTypes } from 'Utils/General/Logging';
-import { GetTimeFromWhichToShowChangedNodes, GetPlayingTimeline, GetPlayingTimelineStepIndex, GetPlayingTimelineRevealNodes_UpToAppliedStep } from 'Store/main/maps/$map';
+import { GetTimeFromWhichToShowChangedNodes, GetPlayingTimeline, GetPlayingTimelineStepIndex, GetPlayingTimelineRevealNodes_UpToAppliedStep } from 'Store/main/mapStates/$mapState';
 import { SlicePath } from 'mobx-firelink';
 import { GetNodeView } from 'Store/main/mapViews/$mapView';
 import { GetSubnodesInEnabledLayersEnhanced } from '../../../../Store/firebase/layers';

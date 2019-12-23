@@ -428,7 +428,7 @@ export const GetNewURL = StoreAccessor((s) => (includeMapViewStr = true) => {
 		newURL.SetQueryVar('view', GetMapViewStr(mapID));
 	} */
 
-	const mapInfo = s.main.maps.get(mapID);
+	const mapInfo = s.main.mapStates.get(mapID);
 	// const playingTimeline = mapInfo && mapInfo.playingTimeline;
 	const playingTimeline = mapInfo && mapInfo.selectedTimeline;
 	if (playingTimeline) {

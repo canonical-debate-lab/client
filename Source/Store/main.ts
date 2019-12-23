@@ -10,7 +10,7 @@ import { GetNodeL3 } from './firebase/nodes/$node';
 import { globalMapID } from './firebase/nodes/@MapNode';
 import { DatabaseState } from './main/database';
 import { PublicPageState } from './main/public';
-import { MapState } from './main/maps/$map';
+import { MapState } from './main/mapStates/@MapState';
 import { MapView, GetMapView } from './main/mapViews/$mapView';
 import { PrivatePageState } from './main/private';
 import { RatingUIState } from './main/ratingUI';
@@ -86,7 +86,7 @@ export class MainState {
 	// ==========
 
 	// @O maps = {} as ObservableMap<string, MapState>;
-	@O maps = observable.map<string, MapState>();
+	@O mapStates = observable.map<string, MapState>();
 	/* ACTEnsureMapStateInit(mapID: string) {
 		if (this.maps.get(mapID)) return;
 		this.maps.set(mapID, new MapState());
@@ -151,14 +151,14 @@ export const GetCopiedNode = StoreAccessor((s) => () => {
 // ==========
 
 export const ACTEnsureMapStateInit = StoreAction((mapID: string) => {
-	if (!store.main.maps.has(mapID)) {
-		store.main.maps.set(mapID, new MapState());
+	if (!store.main.mapStates.has(mapID)) {
+		store.main.mapStates.set(mapID, new MapState());
 	}
 	if (GetMapView(mapID) == null) {
 		store.main.mapViews.set(mapID, new MapView());
 	}
 	return {
-		mapState: store.main.maps.get(mapID),
+		mapState: store.main.mapStates.get(mapID),
 		mapView: GetMapView(mapID),
 	};
 });

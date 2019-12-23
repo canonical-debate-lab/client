@@ -7,7 +7,7 @@ import { store } from 'Store';
 import { GetAsync } from 'mobx-firelink';
 import { Assert, Vector2i } from 'js-vextensions';
 import { UserMapInfo } from 'Store/firebase/userMapInfo/@UserMapInfo';
-import { MapState } from 'Store/main/maps/$map';
+import { MapState } from 'Store/main/mapStates/@MapState';
 import { MapUI, ACTUpdateFocusNodeAndViewOffset, ACTSetFocusNodeAndViewOffset } from 'UI/@Shared/Maps/MapUI';
 
 let lastMapID;
@@ -23,7 +23,7 @@ autorun(() => {
 
 async function StartInitForNewlyLoadedMap(mapID: string) {
 	Assert(mapID != null, 'mapID cannot be null.');
-	let mapState = store.main.maps.get(mapID);
+	let mapState = store.main.mapStates.get(mapID);
 	if (mapState?.initDone) return;
 	const map = await GetAsync(() => GetMap(mapID));
 

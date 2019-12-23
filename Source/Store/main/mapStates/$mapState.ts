@@ -7,50 +7,10 @@ import { O } from 'vwebapp-framework';
 import { StoreAccessor } from 'mobx-firelink';
 import { GetNodesRevealedInSteps, GetNodeRevealTimesInSteps, GetTimelineSteps, GetTimelineStep } from 'Store/firebase/timelineSteps';
 import { GetTimeline } from 'Store/firebase/timelines';
-
-export enum SortType {
-	CreatorID = 10,
-	CreationDate = 20,
-	// UpdateDate = 30,
-	// ViewerCount = 40,
-}
-export enum TimelineSubpanel {
-	Collection,
-	Editor,
-	Playing,
-}
-
-export enum ShowChangesSinceType {
-	None = 10,
-	SinceVisitX = 20,
-	AllUnseenChanges = 30,
-}
-
-export class MapState {
-	@O initDone = false;
-
-	@O list_sortBy = SortType.CreationDate;
-	@O list_filter = '';
-	@O list_page = 0;
-
-	@O list_selectedNodeID = null as string;
-	@O list_selectedNode_openPanel = null as string;
-
-	@O timelinePanelOpen = false;
-	@O timelineOpenSubpanel = TimelineSubpanel.Collection;
-	@O showTimelineDetails = false;
-	@O selectedTimeline = null as string;
-
-	@O showChangesSince_type = ShowChangesSinceType.SinceVisitX;
-	@O showChangesSince_visitOffset = 1;
-
-	@O playingTimeline_time: number;
-	@O playingTimeline_step: number; // step currently scrolled to
-	@O playingTimeline_appliedStep: number; // max step scrolled to
-}
+import {TimelineSubpanel, ShowChangesSinceType} from './@MapState';
 
 export const GetSelectedNodeID_InList = StoreAccessor((s) => (mapID: string) => {
-	return s.main.maps.get(mapID).list_selectedNodeID;
+	return s.main.mapStates.get(mapID).list_selectedNodeID;
 });
 export const GetSelectedNode_InList = StoreAccessor((s) => (mapID: string) => {
 	const nodeID = GetSelectedNodeID_InList(mapID);
@@ -58,24 +18,24 @@ export const GetSelectedNode_InList = StoreAccessor((s) => (mapID: string) => {
 });
 
 export const GetMap_List_SelectedNode_OpenPanel = StoreAccessor((s) => (mapID: string) => {
-	return s.main.maps.get(mapID).list_selectedNode_openPanel;
+	return s.main.mapStates.get(mapID).list_selectedNode_openPanel;
 });
 
 export const GetTimelinePanelOpen = StoreAccessor((s) => (mapID: string): boolean => {
 	if (mapID == null) return false;
-	return s.main.maps.get(mapID).timelinePanelOpen;
+	return s.main.mapStates.get(mapID).timelinePanelOpen;
 });
 export const GetTimelineOpenSubpanel = StoreAccessor((s) => (mapID: string) => {
 	if (mapID == null) return null;
-	return s.main.maps.get(mapID).timelineOpenSubpanel;
+	return s.main.mapStates.get(mapID).timelineOpenSubpanel;
 });
 export const GetShowTimelineDetails = StoreAccessor((s) => (mapID: string): boolean => {
 	if (mapID == null) return null;
-	return s.main.maps.get(mapID).showTimelineDetails;
+	return s.main.mapStates.get(mapID).showTimelineDetails;
 });
 export const GetSelectedTimeline = StoreAccessor((s) => (mapID: string): Timeline => {
 	if (mapID == null) return null;
-	const timelineID = s.main.maps.get(mapID).selectedTimeline;
+	const timelineID = s.main.mapStates.get(mapID).selectedTimeline;
 	return GetTimeline(timelineID);
 });
 export const GetPlayingTimeline = StoreAccessor((s) => (mapID: string): Timeline => {
@@ -85,8 +45,8 @@ export const GetPlayingTimeline = StoreAccessor((s) => (mapID: string): Timeline
 	if (mapInfo == null || !mapInfo.timelinePanelOpen || mapInfo.timelineOpenSubpanel != TimelineSubpanel.Playing) return null;
 	const timelineID = mapInfo.selectedTimeline;
 	return GetTimeline(timelineID); */
-	if (!s.main.maps.get(mapID).timelinePanelOpen || s.main.maps.get(mapID).timelineOpenSubpanel != TimelineSubpanel.Playing) return null;
-	const timelineID = s.main.maps.get(mapID).selectedTimeline;
+	if (!s.main.mapStates.get(mapID).timelinePanelOpen || s.main.mapStates.get(mapID).timelineOpenSubpanel != TimelineSubpanel.Playing) return null;
+	const timelineID = s.main.mapStates.get(mapID).selectedTimeline;
 	return GetTimeline(timelineID);
 });
 /* export const GetPlayingTimelineTime = StoreAccessor((mapID: string): number => {
@@ -95,7 +55,7 @@ export const GetPlayingTimeline = StoreAccessor((s) => (mapID: string): Timeline
 }); */
 export const GetPlayingTimelineStepIndex = StoreAccessor((s) => (mapID: string): number => {
 	if (mapID == null) return null;
-	return s.main.maps.get(mapID).playingTimeline_step;
+	return s.main.mapStates.get(mapID).playingTimeline_step;
 });
 export const GetPlayingTimelineStep = StoreAccessor((s) => (mapID: string) => {
 	const playingTimeline = GetPlayingTimeline(mapID);
@@ -121,7 +81,7 @@ export const GetPlayingTimelineRevealNodes_All = StoreAccessor((s) => (mapID: st
 
 export const GetPlayingTimelineAppliedStepIndex = StoreAccessor((s) => (mapID: string): number => {
 	if (mapID == null) return null;
-	return s.main.maps.get(mapID).playingTimeline_appliedStep;
+	return s.main.mapStates.get(mapID).playingTimeline_appliedStep;
 });
 export const GetPlayingTimelineAppliedSteps = StoreAccessor((s) => (mapID: string, excludeAfterCurrentStep = false): TimelineStep[] => {
 	const playingTimeline = GetPlayingTimeline(mapID);
@@ -154,7 +114,7 @@ export const GetTimeSinceNodeRevealedByPlayingTimeline = StoreAccessor((s) => (m
 	if (nodeRevealTime == null) return null;
 
 	// const timelineTime = GetPlayingTimelineTime(mapID);
-	const timelineTime = s.main.maps.get(mapID).playingTimeline_time;
+	const timelineTime = s.main.mapStates.get(mapID).playingTimeline_time;
 	let result = timelineTime - nodeRevealTime;
 	if (limitToJustPastHighlightRange) {
 		result = result.RoundTo(1); // round, to prevent unnecessary re-renders
@@ -164,12 +124,12 @@ export const GetTimeSinceNodeRevealedByPlayingTimeline = StoreAccessor((s) => (m
 });
 
 export const GetTimeFromWhichToShowChangedNodes = StoreAccessor((s) => (mapID: string) => {
-	const type = s.main.maps.get(mapID).showChangesSince_type;
+	const type = s.main.mapStates.get(mapID).showChangesSince_type;
 	if (type == ShowChangesSinceType.None) return Number.MAX_SAFE_INTEGER; // from end of time (nothing)
 	if (type == ShowChangesSinceType.AllUnseenChanges) return 0; // from start of time (everything)
 	if (PROD && !GetValues(ShowChangesSinceType).Contains(type)) return Number.MAX_SAFE_INTEGER; // defensive
 
-	const visitOffset = s.main.maps.get(mapID).showChangesSince_visitOffset;
+	const visitOffset = s.main.mapStates.get(mapID).showChangesSince_visitOffset;
 	const lastMapViewTimes = FromJSON(localStorage.getItem(`lastMapViewTimes_${mapID}`) || '[]') as number[];
 	if (lastMapViewTimes.length == 0) return Number.MAX_SAFE_INTEGER; // our first visit, so don't show anything
 

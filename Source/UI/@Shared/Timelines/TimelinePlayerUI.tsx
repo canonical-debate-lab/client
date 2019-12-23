@@ -6,7 +6,7 @@ import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { GetEntries } from 'js-vextensions';
 import { VReactMarkdown_Remarkable } from 'vwebapp-framework';
 import { store } from 'Store';
-import { GetPlayingTimelineAppliedStepIndex, GetPlayingTimelineStep, GetPlayingTimeline, GetPlayingTimelineStepIndex } from 'Store/main/maps/$map';
+import { GetPlayingTimelineAppliedStepIndex, GetPlayingTimelineStep, GetPlayingTimeline, GetPlayingTimelineStepIndex } from 'Store/main/mapStates/$mapState';
 import { Segment } from '../../../Utils/General/RegexHelpers';
 import { AsNodeL3 } from '../../../Store/firebase/nodes/$node';
 import { MapNodeL3, Polarity } from '../../../Store/firebase/nodes/@MapNode';
@@ -53,7 +53,7 @@ const replacements = {
 		const currentStep = extraInfo.currentStep as TimelineStep;
 		// let ids = currentStep.actions.filter(a=>a.type == TimelineStepActionType.ShowNode).map(a=>a.showNode_nodeID);
 		// let ids = (currentStep.nodeReveals || []).map(a=>a.nodeID);
-		const mapInfo = store.main.maps.get(extraInfo.map._key);
+		const mapInfo = store.main.mapStates.get(extraInfo.map._key);
 		return (
 			<Button text={props.text || 'Place into debate map'} enabled={!extraInfo.stepApplied}
 				style={{ alignSelf: 'center', fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,.7)' }}
@@ -107,7 +107,7 @@ export class TimelinePlayerUI extends BaseComponentPlus({} as {map: Map}, {}) {
 
 		const stepApplied = appliedStepIndex >= currentStepIndex || (currentStep.nodeReveals || []).length == 0;
 
-		const mapInfo = store.main.maps.get(map._key);
+		const mapInfo = store.main.mapStates.get(map._key);
 		return (
 			<Column ref={(c) => this.root = c}
 				style={{ position: 'absolute', zIndex: 2, left: 10, top: 40, width: 500, padding: 10, background: 'rgba(0,0,0,.7)', borderRadius: 5 }}

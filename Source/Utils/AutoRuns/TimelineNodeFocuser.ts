@@ -1,5 +1,5 @@
 import { autorun, action } from 'mobx';
-import { GetPlayingTimeline } from 'Store/main/maps/$map';
+import { GetPlayingTimeline } from 'Store/main/mapStates/$mapState';
 import { GetOpenMapID } from 'Store/main';
 import { ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView';
 import { store } from 'Store';
@@ -48,7 +48,7 @@ autorun(() => {
 
 	// const playingTimeline_currentStep = GetPlayingTimelineStep(mapID);
 	const mapID = GetOpenMapID();
-	const mapInfo = store.main.maps.get(mapID);
+	const mapInfo = store.main.mapStates.get(mapID);
 	if (mapInfo == null) return;
 	const playingTimeline_step = mapInfo.playingTimeline_step;
 	if (playingTimeline_step != lastPlayingTimeline_step) {
