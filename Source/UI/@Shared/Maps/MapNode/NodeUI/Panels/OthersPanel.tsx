@@ -7,14 +7,15 @@ import { GetParentNodeID, GetParentNodeL3 } from 'Store/firebase/nodes';
 import { GetUser, GetUserPermissionGroups, MeID } from 'Store/firebase/users';
 import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
 import { UUIDPathStub, UUIDStub } from 'UI/@Shared/UUIDStub';
-import { Icon, Observer } from 'vwebapp-framework';
+import { Icon, Observer, InfoButton } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { SlicePath } from 'mobx-firelink';
+import { ChangeNodeOwnerMap } from 'Server/Commands/ChangeNodeOwnerMap';
 import { CanConvertFromClaimTypeXToY, ChangeClaimType } from '../../../../../../Server/Commands/ChangeClaimType';
 import { ReverseArgumentPolarity } from '../../../../../../Server/Commands/ReverseArgumentPolarity';
 import { UpdateLink } from '../../../../../../Server/Commands/UpdateLink';
 import { UpdateNodeChildrenOrder } from '../../../../../../Server/Commands/UpdateNodeChildrenOrder';
-import { Map } from '../../../../../../Store/firebase/maps/@Map';
+import { Map, MapType } from '../../../../../../Store/firebase/maps/@Map';
 import { GetClaimType, GetNodeDisplayText, GetNodeForm, GetNodeL3 } from '../../../../../../Store/firebase/nodes/$node';
 import { ClaimForm, ClaimType, MapNodeL3 } from '../../../../../../Store/firebase/nodes/@MapNode';
 import { ArgumentType } from '../../../../../../Store/firebase/nodes/@MapNodeRevision';
@@ -46,7 +47,13 @@ export class OthersPanel extends BaseComponentPlus({} as {map?: Map, node: MapNo
 		convertToType = convertToType || convertToTypes.map((a) => a.value).FirstOrX();
 
 		const isArgument_any = node.current.argumentType === ArgumentType.Any;
-
+		const canChangeOwnershipType = creatorOrMod && (
+			node.ownerMapID == null
+				// if making private, node must be in a private map, and the node must have only one parent (to ensure we don't leave links in other maps, which would make the owner-map-id invalid)
+				? (mapID && map.type == MapType.Private && node.parents.VKeys().length <= 1)
+				// if making public, can't be root node, and the owner map must allow public nodes (at some point, may remove this restriction, by having action cause node to be auto-replaced with in-map private-copy)
+				: (node.parents?.VKeys().length > 0) // && map.allowPublicNodes)
+		);
 		return (
 			<Column sel style={{ position: 'relative' }}>
 				<IDAndCreationInfoUI id={node._key} creator={creator} createdAt={node.createdAt}/>
@@ -68,6 +75,13 @@ export class OthersPanel extends BaseComponentPlus({} as {map?: Map, node: MapNo
 						</Fragment>;
 					})}
 				</Row>
+				<Row center style={{ whiteSpace: 'normal' }}>
+					<Text>Control type:</Text>
+					<Select ml={5} options={['Private', 'Public']} value={node.ownerMapID != null ? 'Private' : 'Public'} enabled={canChangeOwnershipType} onChange={(val) => {
+						new ChangeNodeOwnerMap(E({ nodeID: node._key, newOwnerMapID: val == 'Private' ? mapID : null })).Run();
+					}}/>
+					<InfoButton ml={5} text="Private nodes are locked to a given map, but allow more permission controls to the node-creator and map-editors."/>
+				</Row>
 				{/* <Row>Viewers: {viewers.length || '...'} <InfoButton text="The number of registered users who have had this node displayed in-map at some point."/></Row> */}
 				{nodeArgOrParentSPArg_controlled &&
 					<Row>
@@ -87,7 +101,7 @@ export class OthersPanel extends BaseComponentPlus({} as {map?: Map, node: MapNo
 						<Pre>Convert to: </Pre>
 						<Select options={convertToTypes} value={convertToType} onChange={(val) => this.SetState({ convertToType: val })}/>
 						<Button ml={5} text="Convert" onClick={() => {
-							new ChangeClaimType(E({ mapID }, { nodeID: node._key, newType: convertToType })).Run();
+							new ChangeClaimType(E({ mapID, nodeID: node._key, newType: convertToType })).Run();
 						}}/>
 					</Row>}
 				{node.type === MapNodeType.Argument && node.multiPremiseArgument && !isArgument_any &&

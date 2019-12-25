@@ -32,7 +32,7 @@ AddSchema('ChangeClaimType_payload', {
 
 @MapEdit
 @UserEdit
-export class ChangeClaimType extends Command<{mapID?: number, nodeID: string, newType: ClaimType}, {}> {
+export class ChangeClaimType extends Command<{mapID?: string, nodeID: string, newType: ClaimType}, {}> {
 	Validate_Early() {
 		AssertValidate('ChangeClaimType_payload', this.payload, 'Payload invalid');
 	}
