@@ -17,7 +17,7 @@ export class Image {
 		this.sourceChains = [
 			{ sources: [new Source()] },
 		];
-		this.Extend(initialData);
+		this.VSet(initialData);
 		// this.createdAt = Date.now();
 	}
 

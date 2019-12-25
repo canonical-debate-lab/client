@@ -163,7 +163,7 @@ export function TransformRatingForContext(ratingValue: number, reverseRating: bo
 
 export class RatingFilter {
 	constructor(initialData: Partial<RatingFilter>) {
-		this.Extend(initialData);
+		this.VSet(initialData);
 	}
 
 	includeUser = null as string;

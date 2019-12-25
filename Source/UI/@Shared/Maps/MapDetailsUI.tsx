@@ -1,11 +1,13 @@
-import { GetErrorMessagesUnderElement, Clone, ToNumber } from 'js-vextensions';
+import { GetErrorMessagesUnderElement, Clone, ToNumber, DEL } from 'js-vextensions';
 import Moment from 'moment';
 import { CheckBox, Column, Pre, RowLR, Spinner, TextInput, Row } from 'react-vcomponents';
 import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { InfoButton } from 'vwebapp-framework';
+import { PermissionInfoType, MapNodeRevision, MapNodeRevision_Defaultable_props, PermissionInfo, MapNodeRevision_Defaultable_DefaultsForMap } from 'Store/firebase/nodes/@MapNodeRevision';
 import { Map, Map_namePattern } from '../../../Store/firebase/maps/@Map';
 import { GetUser } from '../../../Store/firebase/users';
 import { IDAndCreationInfoUI } from '../CommonPropUIs/IDAndCreationInfoUI';
+import { PermissionsOptions } from './MapNode/NodeDetailsUI';
 
 type Props = {baseData: Map, forNew: boolean, enabled?: boolean, style?, onChange?: (newData: Map, ui: MapDetailsUI)=>void};
 export class MapDetailsUI extends BaseComponentPlus({ enabled: true } as Props, { newData: null as Map }) {
@@ -55,16 +57,39 @@ export class MapDetailsUI extends BaseComponentPlus({ enabled: true } as Props, 
 				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 					<Row center>
 						<Pre>Require map-editors can edit:</Pre>
-						<InfoButton ml={5} text="Requires that any nodes contributed have the Edit permission set to MapEditors."/>
+						<InfoButton ml={5} text="Requires that any private nodes contributed have the Edit permission set to MapEditors."/>
 					</Row>
 					<CheckBox enabled={enabled} checked={newData.requireMapEditorsCanEdit} onChange={(val) => Change(newData.requireMapEditorsCanEdit = val)}/>
 				</RowLR>
+				{/* <RowLR mt={5} splitAt={splitAt} style={{ width }}>
+					<Row center>
+						<Pre>Allow public nodes:</Pre>
+						<InfoButton ml={5} text=""/>
+					</Row>
+					<CheckBox enabled={enabled} checked={newData.allowPublicNodes} onChange={(val) => Change(newData.allowPublicNodes = val)}/>
+				</RowLR> */}
 				{/*! forNew &&
 					<RowLR mt={5} splitAt={splitAt} style={{width}}>
 						<Pre>Root-node ID: </Pre>
 						<Spinner enabled={enabled} style={{width: "100%"}}
 							value={newData.rootNode} onChange={val=>Change(newData.rootNode = val)}/>
 					</RowLR> */}
+				<Column mt={10}>
+					<CheckBox text="Node defaults:" checked={newData.nodeDefaults != null} onChange={(val) => {
+						const defaultNodeDefaults = MapNodeRevision_Defaultable_DefaultsForMap(newData.type);
+						newData.VSet('nodeDefaults', val ? defaultNodeDefaults : DEL);
+						this.Update();
+					}}/>
+					{newData.nodeDefaults != null &&
+					<Column ml={20}>
+						<PermissionsOptions newRevisionData={newData.nodeDefaults} enabled={enabled} forDefaultsInMap={true} Change={() => {
+							if (newData.nodeDefaults.permission_edit.type == PermissionInfoType.Creator && newData.requireMapEditorsCanEdit) {
+								newData.nodeDefaults.permission_edit.type = PermissionInfoType.MapEditors;
+							}
+							this.Update();
+						}}/>
+					</Column>}
+				</Column>
 			</Column>
 		);
 	}

@@ -2,7 +2,7 @@ import { AddSchema } from 'vwebapp-framework';
 
 export class UserExtraInfo {
 	constructor(initialData: Partial<UserExtraInfo>) {
-		this.Extend(initialData);
+		this.VSet(initialData);
 	}
 	joinDate: number;
 	permissionGroups: PermissionGroupSet;

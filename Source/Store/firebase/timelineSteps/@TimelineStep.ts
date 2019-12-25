@@ -2,7 +2,7 @@ import { AddSchema } from 'vwebapp-framework';
 
 export class TimelineStep {
 	constructor(initialData: Partial<TimelineStep>) {
-		this.Extend(initialData);
+		this.VSet(initialData);
 	}
 
 	_key: string;

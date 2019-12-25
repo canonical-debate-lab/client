@@ -1,7 +1,8 @@
 import { GetValues_ForSchema } from 'js-vextensions';
-import { AddSchema } from 'vwebapp-framework';
+import { AddSchema, GetSchemaJSON, Schema } from 'vwebapp-framework';
 import { UUID_regex } from 'Utils/General/KeyGenerator';
 import { ObservableMap } from 'mobx';
+import { MapNodeRevision_Defaultable, MapNodeRevision_Defaultable_props, MapNodeRevision_Defaultable_DefaultsForMap } from '../nodes/@MapNodeRevision';
 
 export enum MapType {
 	Private = 10,
@@ -10,8 +11,11 @@ export enum MapType {
 }
 export class Map {
 	constructor(initialData: {name: string, type: MapType, creator: string} & Partial<Map>) {
-		this.Extend(initialData);
+		this.VSet(initialData);
 		// this.createdAt = Date.now();
+		if (!('nodeDefaults' in initialData)) {
+			this.nodeDefaults = MapNodeRevision_Defaultable_DefaultsForMap(this.type);
+		}
 	}
 
 	_key: string;
@@ -22,6 +26,8 @@ export class Map {
 	rootNode: string;
 	defaultExpandDepth = 2;
 	requireMapEditorsCanEdit = true;
+	// allowPublicNodes = true; // todo
+	nodeDefaults: MapNodeRevision_Defaultable;
 	editorIDs: string[];
 
 	creator: string;
@@ -34,7 +40,7 @@ export class Map {
 }
 export const Map_namePattern = '^[a-zA-Z0-9 ,\'"%:.?\\-()\\/]+$';
 // export const Map_namePattern = '^\\S.*$'; // must start with non-whitespace // todo: probably switch to a more lax pattern like this, eg. so works for other languages
-AddSchema('Map', {
+AddSchema('Map', ['MapNodeRevision'], () => ({
 	properties: {
 		name: { type: 'string', pattern: Map_namePattern },
 		note: { type: 'string' },
@@ -42,8 +48,11 @@ AddSchema('Map', {
 		type: { oneOf: GetValues_ForSchema(MapType) },
 		rootNode: { type: 'string' },
 		defaultExpandDepth: { type: 'number' },
-		// editors: { patternProperties: { [UUID_regex]: { type: 'boolean' } } },
 		requireMapEditorsCanEdit: { type: 'boolean' },
+		nodeDefaults: Schema({
+			properties: GetSchemaJSON('MapNodeRevision').properties.Including(...MapNodeRevision_Defaultable_props),
+		}),
+		// editors: { patternProperties: { [UUID_regex]: { type: 'boolean' } } },
 		editorIDs: { items: { type: 'string' } },
 
 		creator: { type: 'string' },
@@ -55,4 +64,4 @@ AddSchema('Map', {
 		timelines: { patternProperties: { [UUID_regex]: { type: 'boolean' } } },
 	},
 	required: ['name', 'type', 'rootNode', 'creator', 'createdAt'],
-});
+}));

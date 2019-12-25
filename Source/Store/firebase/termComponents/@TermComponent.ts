@@ -4,7 +4,7 @@ import { ObservableMap } from 'mobx';
 
 export class TermComponent {
 	constructor(initialData: {text: string} & Partial<TermComponent>) {
-		this.Extend(initialData);
+		this.VSet(initialData);
 		// this.createdAt = Date.now();
 	}
 

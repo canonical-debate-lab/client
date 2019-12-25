@@ -1,4 +1,4 @@
-import { Assert, E, GetEntries, GetErrorMessagesUnderElement } from 'js-vextensions';
+import { Assert, E, GetEntries, GetErrorMessagesUnderElement, OmitIfFalsy } from 'js-vextensions';
 import { Column, Pre, Row, Select, TextArea } from 'react-vcomponents';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { AddArgumentAndClaim } from 'Server/Commands/AddArgumentAndClaim';
@@ -9,7 +9,7 @@ import { store } from 'Store';
 import { Link } from 'vwebapp-framework';
 import { ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView';
 import { runInAction } from 'mobx';
-import {GetMap} from 'Store/firebase/maps';
+import { GetMap } from 'Store/firebase/maps';
 import { AddChildNode } from '../../../../../Server/Commands/AddChildNode';
 import { ContentNode } from '../../../../../Store/firebase/contentNodes/@ContentNode';
 import { AsNodeL2, AsNodeL3, GetClaimType, GetNodeForm, GetNodeL3 } from '../../../../../Store/firebase/nodes/$node';
@@ -23,14 +23,17 @@ export class AddChildHelper {
 	constructor(parentPath: string, childType: MapNodeType, title: string, childPolarity: Polarity, userID: string, mapID: string) {
 		this.mapID = mapID;
 		this.node_parentPath = parentPath;
+		const map = GetMap(mapID);
+		Assert(map, 'Map was not pre-loaded into the store. Can use this beforehand: await GetAsync(()=>GetMap(mapID));');
 		const parentNode = GetNode(this.Node_ParentID);
 		Assert(parentNode, 'Parent-node was not pre-loaded into the store. Can use this beforehand: await GetAsync(()=>GetNode(parentID));');
 
 		this.node = new MapNode({
 			parents: { [this.Node_ParentID]: { _: true } },
 			type: childType,
+			ownerMapID: OmitIfFalsy(parentNode.ownerMapID),
 		});
-		this.node_revision = new MapNodeRevision({});
+		this.node_revision = new MapNodeRevision(map.nodeDefaults);
 		this.node_link = E(
 			{ _: true },
 			childType == MapNodeType.Claim && { form: parentNode.type == MapNodeType.Category ? ClaimForm.YesNoQuestion : ClaimForm.Base },
@@ -39,8 +42,8 @@ export class AddChildHelper {
 
 		if (childType == MapNodeType.Argument) {
 			this.node_revision.argumentType = ArgumentType.All;
-			this.subNode = new MapNode({ type: MapNodeType.Claim, creator: userID });
-			this.subNode_revision = new MapNodeRevision({ titles: { base: title } });
+			this.subNode = new MapNode({ type: MapNodeType.Claim, creator: userID, ownerMapID: OmitIfFalsy(parentNode.ownerMapID) });
+			this.subNode_revision = new MapNodeRevision(E(map.nodeDefaults, { titles: { base: title } }));
 		} else {
 			let usedTitleKey = 'base';
 			if (childType == MapNodeType.Claim) {
@@ -159,9 +162,11 @@ export function ShowAddChildDialog(parentPath: string, childType: MapNodeType, c
 							baseData={AsNodeL3(newNodeAsL2, Polarity.Supporting, null)}
 							baseRevisionData={helper.node_revision}
 							baseLinkData={helper.node_link} forNew={true}
-							forcedEditPermission={map?.requireMapEditorsCanEdit ? { type: PermissionInfoType.MapEditors, mapID: map._key } : null}
 							parent={parentNode}
 							onChange={(newNodeData, newRevisionData, newLinkData, comp) => {
+								if (map?.requireMapEditorsCanEdit) {
+									comp.state.newRevisionData.permission_edit = { type: PermissionInfoType.MapEditors };
+								}
 								helper.node = newNodeData;
 								helper.node_revision = newRevisionData;
 								helper.node_link = newLinkData;

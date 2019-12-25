@@ -1,8 +1,9 @@
 import { Command, MergeDBUpdates } from 'mobx-firelink';
 import { AssertValidate } from 'vwebapp-framework';
+import {OmitIfFalsy} from 'js-vextensions';
 import { UserEdit } from '../../Server/CommandMacros';
 import { GenerateUUID, UUID } from '../../Utils/General/KeyGenerator';
-import { Map } from '../../Store/firebase/maps/@Map';
+import { Map, MapType } from '../../Store/firebase/maps/@Map';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeRevision } from '../../Store/firebase/nodes/@MapNodeRevision';
 import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
@@ -19,7 +20,7 @@ export class AddMap extends Command<{map: Map}, UUID> {
 		map.createdAt = Date.now();
 		map.editedAt = map.createdAt;
 
-		const newRootNode = new MapNode({ type: MapNodeType.Category, creator: map.creator });
+		const newRootNode = new MapNode({ type: MapNodeType.Category, creator: map.creator, ownerMapID: OmitIfFalsy(map.type == MapType.Private && map._key) });
 		const newRootNodeRevision = new MapNodeRevision({ titles: { base: 'Root' }, votingDisabled: true });
 		this.sub_addNode = new AddChildNode({ mapID: this.mapID, parentID: null, node: newRootNode, revision: newRootNodeRevision, asMapRoot: true }).MarkAsSubcommand();
 		this.sub_addNode.Validate_Early();

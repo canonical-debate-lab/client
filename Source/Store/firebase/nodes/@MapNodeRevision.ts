@@ -4,6 +4,7 @@ import { ObservableMap } from 'mobx';
 import { AccessLevel, ImageAttachment } from './@MapNode';
 import { Equation } from './@Equation';
 import { ContentNode } from '../contentNodes/@ContentNode';
+import { MapType } from '../maps/@Map';
 
 export const TitlesMap_baseKeys = ['base', 'negation', 'yesNoQuestion'];
 export class TitlesMap {
@@ -33,11 +34,9 @@ export enum PermissionInfoType {
 }
 export class PermissionInfo {
 	constructor(initialData: Partial<PermissionInfo>) {
-		this.Extend(initialData);
+		this.VSet(initialData);
 	}
 	type: PermissionInfoType;
-	// if MapEditors
-	mapID?: string;
 }
 AddSchema('PermissionInfo', {
 	properties: {
@@ -47,9 +46,20 @@ AddSchema('PermissionInfo', {
 	required: ['type'],
 });
 
+export const MapNodeRevision_Defaultable_props = ['accessLevel', 'votingDisabled', 'permission_edit', 'permission_contribute'] as const;
+export type MapNodeRevision_Defaultable = Pick<MapNodeRevision, 'accessLevel' | 'votingDisabled' | 'permission_edit' | 'permission_contribute'>;
+export function MapNodeRevision_Defaultable_DefaultsForMap(mapType: MapType): MapNodeRevision_Defaultable {
+	return {
+		accessLevel: AccessLevel.Basic,
+		votingDisabled: false,
+		permission_edit: new PermissionInfo({ type: PermissionInfoType.MapEditors }),
+		permission_contribute: new PermissionInfo({ type: mapType == MapType.Private ? PermissionInfoType.MapEditors : PermissionInfoType.Anyone }),
+	};
+}
+
 export class MapNodeRevision {
 	constructor(initialData: Partial<MapNodeRevision>) {
-		this.Extend(initialData);
+		this.VSet(initialData);
 	}
 
 	_key?: string;

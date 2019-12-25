@@ -1,5 +1,5 @@
 import { GetNode, GetHolderType, ForNewLink_GetError, GetParentNodeL3, GetParentNodeID } from 'Store/firebase/nodes';
-import { Assert, E } from 'js-vextensions';
+import { Assert, E, OmitIfFalsy } from 'js-vextensions';
 import { GetNodeL2, GetNodeL3 } from 'Store/firebase/nodes/$node';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
@@ -7,6 +7,7 @@ import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
 import { Map } from 'Store/firebase/maps/@Map';
 import { UUID } from 'Utils/General/KeyGenerator';
 import { Command, MergeDBUpdates, GetAsync } from 'mobx-firelink';
+import {GetMap} from 'Store/firebase/maps';
 import { ClaimForm, MapNode, Polarity, MapNodeL3 } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
 import { UserEdit } from './../CommandMacros';
@@ -31,7 +32,7 @@ export function LinkNode_HighLevel_GetCommandError(command: LinkNode_HighLevel, 
 
 	const createWrapperArg = node.type === MapNodeType.Claim && newParent.type === MapNodeType.Claim;
 	if (createWrapperArg) {
-		const argumentWrapper_partial = new MapNode({ type: MapNodeType.Argument });
+		const argumentWrapper_partial = new MapNode({ type: MapNodeType.Argument, ownerMapID: OmitIfFalsy(newParent.ownerMapID) });
 		const error = ForNewLink_GetError(newParentID, argumentWrapper_partial, permissions);
 		if (error) return error;
 		if (newParentID == nodeID) return 'Cannot link node as its own child.';
@@ -82,6 +83,7 @@ export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: st
 		Assert(oldParentID !== newParentID, 'Old-parent-id and new-parent-id cannot be the same!');
 	}
 
+	map_data: Map;
 	node_data: MapNode;
 	newParent_data: MapNode;
 
@@ -94,6 +96,7 @@ export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: st
 		let { newPolarity } = this.payload;
 		this.returnData = {};
 
+		this.map_data = await GetAsync(() => GetMap(nodeID));
 		this.node_data = await GetAsync(() => GetNodeL2(nodeID));
 		const oldParent_data = await GetAsync(() => GetNodeL2(oldParentID));
 		this.newParent_data = await GetAsync(() => GetNodeL2(newParentID));
@@ -106,8 +109,8 @@ export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: st
 			if (createWrapperArg) {
 				// Assert(newPolarity, 'Since this command has to create a wrapper-argument, you must supply the newPolarity property.');
 				newPolarity = newPolarity || Polarity.Supporting; // if new-polarity isn't supplied, just default to Supporting (this can happen if a claim is copied from search-results)
-				const argumentWrapper = new MapNode({ type: MapNodeType.Argument });
-				const argumentWrapperRevision = new MapNodeRevision({});
+				const argumentWrapper = new MapNode({ type: MapNodeType.Argument, ownerMapID: OmitIfFalsy(this.newParent_data.ownerMapID) });
+				const argumentWrapperRevision = new MapNodeRevision(this.map_data.nodeDefaults);
 
 				this.sub_addArgumentWrapper = new AddChildNode({
 					mapID, parentID: newParentID, node: argumentWrapper, revision: argumentWrapperRevision,

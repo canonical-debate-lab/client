@@ -16,6 +16,7 @@ import { store } from 'Store';
 import { GetAsync } from 'mobx-firelink';
 import { runInAction } from 'mobx';
 import { Clone, CloneWithPrototypes, E } from 'js-vextensions';
+import { MapNodeRevision, PermissionInfoType } from 'Store/firebase/nodes/@MapNodeRevision';
 import { colors, ES } from '../../../../Utils/UI/GlobalStyles';
 import { DeleteLayer } from '../../../../Server/Commands/DeleteLayer';
 import { DeleteMap } from '../../../../Server/Commands/DeleteMap';
@@ -29,6 +30,7 @@ import { HasModPermissions, IsUserCreatorOrMod } from '../../../../Store/firebas
 import { GetUserLayerStateForMap } from '../../../../Store/firebase/userMapInfo';
 import { ShowAddLayerDialog } from '../Layers/AddLayerDialog';
 import { MapDetailsUI } from '../MapDetailsUI';
+import { PermissionsOptions } from '../MapNode/NodeDetailsUI';
 
 @Observer
 export class ActionBar_Left extends BaseComponentPlus({} as {map: Map, subNavBarWidth: number}, {}) {
@@ -78,8 +80,10 @@ export class ActionBar_Left extends BaseComponentPlus({} as {map: Map, subNavBar
 	}
 }
 
+@Observer
 export class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: string}> {
 	detailsUI: MapDetailsUI;
+	// permOptions: PermissionsOptions;
 	render() {
 		const { map } = this.props;
 		const { dataError } = this.state;

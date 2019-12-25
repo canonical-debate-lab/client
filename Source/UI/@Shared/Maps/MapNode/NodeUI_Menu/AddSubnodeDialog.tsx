@@ -15,7 +15,7 @@ import { MapNodeRevision } from '../../../../../Store/firebase/nodes/@MapNodeRev
 import { MapNodeType } from '../../../../../Store/firebase/nodes/@MapNodeType';
 import { NodeDetailsUI } from '../NodeDetailsUI';
 
-export function ShowAddSubnodeDialog(mapID: string, anchorNode: MapNodeL2, anchorNodePath: string) {
+/* export function ShowAddSubnodeDialog(mapID: string, anchorNode: MapNodeL2, anchorNodePath: string) {
 	let dialog: AddSubnodeDialog;
 	const boxController = ShowMessageBox({
 		title: 'Add subnode (to layer)', cancelButton: true,
@@ -91,7 +91,7 @@ class AddSubnodeDialog extends BaseComponentPlus({} as Props, {} as {layer: Laye
 						onChange={(newNodeData, newRevisionData, newLinkData, comp) => {
 							this.SetState({ newNode: newNodeData, newRevision: newRevisionData, newLink: newLinkData });
 						}}/>
-					{/* validationError && <Row mt={3} style={{color: "rgba(255,200,200,.5)"}}>{FinalizeValidationError(validationError)}</Row> */}
+					{/* validationError && <Row mt={3} style={{color: "rgba(255,200,200,.5)"}}>{FinalizeValidationError(validationError)}</Row> *#/}
 				</Column>
 			</div>
 		);
@@ -118,7 +118,7 @@ class AddSubnodeDialog extends BaseComponentPlus({} as Props, {} as {layer: Laye
 
 		/* if (validationError) {
 			return void setTimeout(()=>ShowMessageBox({title: `Validation error`, message: `Validation error: ${validationError}`}));
-		} */
+		} *#/
 
 		const newNodeID = await new AddSubnode({
 			mapID, layerID: layer._key, anchorNodeID: anchorNode._key,
@@ -131,4 +131,4 @@ class AddSubnodeDialog extends BaseComponentPlus({} as Props, {} as {layer: Laye
 function FinalizeValidationError(message: string) {
 	if (message == 'Please fill out this field.') return 'Please fill out the highlighted field.';
 	return message;
-}
+} */

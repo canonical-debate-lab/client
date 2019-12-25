@@ -39,8 +39,10 @@ export class DetailsPanel extends BaseComponentPlus({} as {map?: Map, node: MapN
 				<NodeDetailsUI ref={(c) => this.detailsUI = c}
 					baseData={node} baseRevisionData={node.current} baseLinkData={link} parent={parentNode}
 					forNew={false} enabled={canEdit}
-					forcedEditPermission={map?.requireMapEditorsCanEdit ? { type: PermissionInfoType.MapEditors, mapID: map._key } : null}
-					onChange={(newData, newLinkData) => {
+					onChange={(newData, newRevisionData, newLinkData, comp) => {
+						if (map?.requireMapEditorsCanEdit) {
+							comp.state.newRevisionData.permission_edit = { type: PermissionInfoType.MapEditors };
+						}
 						this.SetState({ dataError: this.detailsUI.GetValidationError() });
 					}}/>
 				{canEdit &&

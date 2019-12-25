@@ -12,7 +12,7 @@ AddSchema(`Update${MTName}Details_payload`, [MTName], () => ({
 	properties: {
 		id: { type: 'string' },
 		updates: Schema({
-			properties: GetSchemaJSON(MTName).properties.Including('name', 'note', 'noteLine', 'defaultExpandDepth', 'requireMapEditorsCanEdit', 'editorIDs'),
+			properties: GetSchemaJSON(MTName).properties.Including('name', 'note', 'noteLine', 'defaultExpandDepth', 'requireMapEditorsCanEdit', 'nodeDefaults', 'editorIDs'),
 		}),
 	},
 	required: ['id', 'updates'],

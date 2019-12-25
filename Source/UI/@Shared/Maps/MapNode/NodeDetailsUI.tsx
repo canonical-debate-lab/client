@@ -10,7 +10,7 @@ import { InfoButton, Observer } from 'vwebapp-framework';
 import { GetOpenMapID } from 'Store/main';
 import { AsNodeL2, GetClaimType } from '../../../../Store/firebase/nodes/$node';
 import { AccessLevel, ChildEntry, ClaimForm, ClaimType, MapNode, MapNodeL2, MapNodeL3, globalMapID } from '../../../../Store/firebase/nodes/@MapNode';
-import { ArgumentType, GetArgumentTypeDisplayText, MapNodeRevision, MapNodeRevision_titlePattern, PermissionInfo, PermissionInfoType } from '../../../../Store/firebase/nodes/@MapNodeRevision';
+import { ArgumentType, GetArgumentTypeDisplayText, MapNodeRevision, MapNodeRevision_titlePattern, PermissionInfo, PermissionInfoType, MapNodeRevision_Defaultable } from '../../../../Store/firebase/nodes/@MapNodeRevision';
 import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
 import { GetUser } from '../../../../Store/firebase/users';
 import { EquationEditorUI } from './EquationEditorUI';
@@ -24,7 +24,7 @@ type Props = {
 	parent: MapNodeL3, forNew: boolean, forOldRevision?: boolean, enabled?: boolean,
 	style?, onChange?: (newData: MapNode, newRevisionData: MapNodeRevision, newLinkData: ChildEntry, component: NodeDetailsUI)=>void,
 	// onSetError: (error: string)=>void,
-	forcedEditPermission?: PermissionInfo,
+	// validateNewData: (newData: MapNode, newRevisionData: MapNodeRevision)=>void,
 };
 type State = {newData: MapNode, newRevisionData: MapNodeRevision, newLinkData: ChildEntry};
 type SharedProps = Props & State & {newDataAsL2, Change, SetState};
@@ -43,11 +43,10 @@ export class NodeDetailsUI extends BaseComponentPlus({ enabled: true } as Props,
 
 	quoteEditor: QuoteInfoEditorUI;
 	render() {
-		const { baseData, parent, forNew, forOldRevision, enabled, style, onChange, forcedEditPermission } = this.props;
+		const { baseData, parent, forNew, forOldRevision, enabled, style, onChange } = this.props;
 		const { newData, newLinkData, newRevisionData } = this.state;
 		const creator = !forNew && GetUser(baseData.creator);
 		const Change = (..._) => {
-			if (forcedEditPermission) newRevisionData.permission_edit = forcedEditPermission;
 			if (onChange) { onChange(this.GetNewData(), this.GetNewRevisionData(), this.GetNewLinkData(), this); }
 			this.Update();
 		};
@@ -205,10 +204,11 @@ class ArgumentInfo extends BaseComponent<SharedProps, {}> {
 	}
 }
 
-@Observer
-class PermissionsOptions extends BaseComponent<SharedProps, {}> {
+// @Observer
+// export class PermissionsOptions extends BaseComponent<Pick<SharedProps, 'newData' | 'newRevisionData' | 'enabled' | 'Change'> & {forDefaultsInMap?: boolean}, {}> {
+export class PermissionsOptions extends BaseComponent<Pick<SharedProps, 'enabled' | 'Change'> & {newRevisionData: MapNodeRevision_Defaultable, forDefaultsInMap?: boolean}, {}> {
 	render() {
-		const { newData, newRevisionData, forNew, enabled, Change } = this.props;
+		const { newRevisionData, enabled, Change, forDefaultsInMap } = this.props;
 		const openMapID = GetOpenMapID();
 
 		// probably temp
@@ -221,11 +221,12 @@ class PermissionsOptions extends BaseComponent<SharedProps, {}> {
 
 		const splitAt = 80;
 		return (
-			<Column mt={10}>
+			<Column mt={forDefaultsInMap ? 0 : 10}>
+				{!forDefaultsInMap &&
 				<Row center style={{ fontWeight: 'bold' }}>
 					<Text>Permissions:</Text>
 					<InfoButton ml={5} text="In addition to the groups explicitly allowed below, moderators and admins also have full permissions."/>
-				</Row>
+				</Row>}
 				{HasModPermissions(MeID()) &&
 				<RowLR mt={5} splitAt={splitAt} style={{ display: 'flex', alignItems: 'center' }}>
 					<Text>View:</Text>
@@ -244,42 +245,30 @@ class PermissionsOptions extends BaseComponent<SharedProps, {}> {
 					<Text>Edit:</Text>
 					<Select options={GetEntries(PermissionInfoType)} enabled={enabled}
 						value={newRevisionData.permission_edit.type}
-						onChange={(val) => {
-							newRevisionData.permission_edit.type = val;
-							if (val == PermissionInfoType.MapEditors) {
-								newRevisionData.permission_edit.mapID = openMapID;
-							}
-							Change();
-						}}/>
+						onChange={(val) => Change(newRevisionData.permission_edit.type = val)}/>
 					<InfoButton ml={5} text={`
-						Allows changing values in this Details panel. [setting currently disabled]
+						Allows changing values in ${forDefaultsInMap ? "the node's" : 'this'} Details panel.
 						* Creator: Only the node creator is allowed.
 						* MapEditors: Only editors of the current map (and node creator) are allowed.
 						* Anyone: Any signed-in user is allowed.
 					`.AsMultiline(0)}/>
-					{newRevisionData.permission_edit.type == PermissionInfoType.MapEditors && newRevisionData.permission_edit.mapID != openMapID &&
-						<Text ml={5} sel style={{ opacity: 0.5 }}>(of map: {newRevisionData.permission_edit.mapID})</Text>}
+					{/* newRevisionData.permission_edit.type == PermissionInfoType.MapEditors &&
+						<Text ml={5} sel style={{ opacity: 0.5 }}>(of map: {newData.ownerMapID})</Text> */}
 				</RowLR>
 				<RowLR mt={5} splitAt={splitAt} style={{ display: 'flex', alignItems: 'center' }}>
 					<Text>Contribute:</Text>
 					<Select options={GetEntries(PermissionInfoType).filter((a) => (openMapID == globalMapID ? a.value == PermissionInfoType.Anyone : true))} enabled={enabled}
 						value={newRevisionData.permission_contribute.type}
 						// onChange={val => Change(val == AccessLevel.Basic ? delete newRevisionData.accessLevel : newRevisionData.accessLevel = val)}/>
-						onChange={(val) => {
-							newRevisionData.permission_contribute.type = val;
-							if (val == PermissionInfoType.MapEditors) {
-								newRevisionData.permission_contribute.mapID = openMapID;
-							}
-							Change();
-						}}/>
+						onChange={(val) => Change(newRevisionData.permission_contribute.type = val)}/>
 					<InfoButton ml={5} text={`
-						Allows adding children nodes.
+						Allows adding children nodes (and removing the entries one has added).
 						* Creator: Only the node creator is allowed.
 						* MapEditors: Only editors of the current map (and node creator) are allowed.
 						* Anyone: Any signed-in user is allowed. (required for public/global maps)
 					`.AsMultiline(0)}/>
-					{newRevisionData.permission_contribute.type == PermissionInfoType.MapEditors && newRevisionData.permission_contribute.mapID != openMapID &&
-						<Text ml={5} sel style={{ opacity: 0.5 }}>(of map: {newRevisionData.permission_contribute.mapID})</Text>}
+					{/* newRevisionData.permission_contribute.type == PermissionInfoType.MapEditors &&
+						<Text ml={5} sel style={{ opacity: 0.5 }}>(of map: {newData.ownerMapID})</Text> */}
 				</RowLR>
 			</Column>
 		);

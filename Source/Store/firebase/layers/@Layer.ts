@@ -4,7 +4,7 @@ import { ObservableMap } from 'mobx';
 
 export class Layer {
 	constructor(initialData: {name: string, creator: string} & Partial<Layer>) {
-		this.Extend(initialData);
+		this.VSet(initialData);
 	}
 
 	_key: string;

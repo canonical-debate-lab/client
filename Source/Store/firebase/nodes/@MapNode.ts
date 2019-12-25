@@ -30,13 +30,14 @@ export enum ClaimForm {
 
 export class MapNode {
 	constructor(initialData: {type: MapNodeType} & Partial<MapNode>) {
-		this.Extend(initialData);
+		this.VSet(initialData);
 	}
 
 	_key?: string;
 	type?: MapNodeType;
 	creator?: string;
 	createdAt: number;
+	ownerMapID?: string;
 
 	currentRevision: string;
 
@@ -62,6 +63,7 @@ AddSchema('MapNode', {
 		type: { oneOf: GetValues_ForSchema(MapNodeType) },
 		creator: { type: 'string' },
 		createdAt: { type: 'number' },
+		ownerMapID: { type: 'string' },
 
 		currentRevision: { type: 'string' },
 
