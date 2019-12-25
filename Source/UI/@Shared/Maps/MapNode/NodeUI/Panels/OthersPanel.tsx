@@ -3,11 +3,11 @@ import { Fragment } from 'react';
 import { Button, CheckBox, Column, Div, Pre, Row, Select, Text } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
-import { GetParentNodeID, GetParentNodeL3 } from 'Store/firebase/nodes';
+import { GetParentNodeID, GetParentNodeL3, GetNodesByIDs } from 'Store/firebase/nodes';
 import { GetUser, GetUserPermissionGroups, MeID } from 'Store/firebase/users';
 import { IDAndCreationInfoUI } from 'UI/@Shared/CommonPropUIs/IDAndCreationInfoUI';
 import { UUIDPathStub, UUIDStub } from 'UI/@Shared/UUIDStub';
-import { Icon, Observer, InfoButton } from 'vwebapp-framework';
+import { Icon, Observer, InfoButton, IsSpecialEmptyArray } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { SlicePath } from 'mobx-firelink';
 import { ChangeNodeOwnerMap } from 'Server/Commands/ChangeNodeOwnerMap';
@@ -47,10 +47,12 @@ export class OthersPanel extends BaseComponentPlus({} as {map?: Map, node: MapNo
 		convertToType = convertToType || convertToTypes.map((a) => a.value).FirstOrX();
 
 		const isArgument_any = node.current.argumentType === ArgumentType.Any;
+		const parents = GetNodesByIDs(node.parents.VKeys());
+		const parentsArePrivateInSameMap = !IsSpecialEmptyArray(parents) && mapID && parents.All((a) => a.ownerMapID == mapID);
 		const canChangeOwnershipType = creatorOrMod && (
 			node.ownerMapID == null
-				// if making private, node must be in a private map, and the node must have only one parent (to ensure we don't leave links in other maps, which would make the owner-map-id invalid)
-				? (mapID && map.type == MapType.Private && node.parents.VKeys().length <= 1)
+				// if making private, node must be in a private map, and all its parents must be private nodes within that map (to ensure we don't leave links in other maps, which would make the owner-map-id invalid)
+				? (mapID && map.type == MapType.Private && parentsArePrivateInSameMap)
 				// if making public, can't be root node, and the owner map must allow public nodes (at some point, may remove this restriction, by having action cause node to be auto-replaced with in-map private-copy)
 				: (node.parents?.VKeys().length > 0) // && map.allowPublicNodes)
 		);

@@ -19,19 +19,24 @@ export enum HolderType {
 export const GetNodeMap = StoreAccessor((s) => (): NodeMap => {
 	return GetDocs((a) => a.nodes);
 }); */
-export const GetNodes = StoreAccessor((s) => (): MapNode[] => {
+/* export const GetNodes = StoreAccessor((s) => (): MapNode[] => {
 	/* const nodeMap = GetNodeMap();
-	return CachedTransform('GetNodes', [], nodeMap, () => (nodeMap ? nodeMap.VValues(true) : [])); */
+	return CachedTransform('GetNodes', [], nodeMap, () => (nodeMap ? nodeMap.VValues(true) : [])); *#/
 	return GetDocs({}, (a) => a.nodes);
 });
 export const GetNodesL2 = StoreAccessor((s) => (): MapNodeL2[] => {
 	const nodes = GetNodes();
 	return nodes.map((a) => GetNodeL2(a));
-});
+}); */
 /* export function GetNodes_Enhanced(): MapNode[] {
 	let nodeMap = GetNodeMap();
 	return CachedTransform("GetNodes_Enhanced", [], nodeMap, ()=>nodeMap ? nodeMap.VValues(true) : []);
 } */
+export const GetNodesByIDs = StoreAccessor((s) => (ids: string[], allowStillLoading = false): MapNode[] => {
+	const nodes = ids.map((id) => GetNode(id));
+	if (!allowStillLoading && nodes.Any((a) => a == null)) return emptyArray;
+	return nodes;
+});
 
 export const GetNode = StoreAccessor((s) => (id: string) => {
 	// Assert(id != null && !IsNaN(id), "Node-id cannot be null or NaN.");

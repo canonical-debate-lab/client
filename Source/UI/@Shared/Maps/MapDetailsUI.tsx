@@ -59,7 +59,7 @@ export class MapDetailsUI extends BaseComponentPlus({ enabled: true } as Props, 
 						<Pre>Require map-editors can edit:</Pre>
 						<InfoButton ml={5} text={`
 							Requires that any private nodes contributed have the Edit permission set to MapEditors.
-							(Note: This does not apply retroactively to already-contributed nodes; non-compliant nodes can be unlinked.)
+							(Note: Doesn't apply to already-contributed nodes; those can be unlinked, then cloned as private nodes.)
 						`.AsMultiline(0)}/>
 					</Row>
 					<CheckBox enabled={enabled} checked={newData.requireMapEditorsCanEdit} onChange={(val) => Change(newData.requireMapEditorsCanEdit = val)}/>

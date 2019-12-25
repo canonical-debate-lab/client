@@ -4,7 +4,7 @@ import { Button, Column, Div, Pre, Row, Select, TextInput } from 'react-vcompone
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { store } from 'Store';
-import { GetNodesL2, GetNode } from 'Store/firebase/nodes';
+import { GetNode } from 'Store/firebase/nodes';
 import { Icon, InfoButton } from 'vwebapp-framework';
 import { EnumNameToDisplayName } from 'Utils/General/Others';
 import { ES } from 'Utils/UI/GlobalStyles';
@@ -30,7 +30,7 @@ import { MapNodeUI_LeftBox } from './MapNode/NodeUI_LeftBox';
 
 // This file is very old, and left here for now for reference purposes. Will need review if restored in the future.
 
-const columnWidths = [0.68, 0.2, 0.12];
+/* const columnWidths = [0.68, 0.2, 0.12];
 
 const entriesPerPage = 23;
 
@@ -96,7 +96,7 @@ export class ListUI extends BaseComponent<Props, {panelToShow?: string}> {
 							<Pre>Sort by: </Pre>
 							<Select options={GetEntries(SortType, (name) => EnumNameToDisplayName(name))}
 								value={sortBy} onChange={(val) => mapInfo.list_sortBy = val}/>
-							<Row style={{ position: 'absolute', left: 'calc(50% - 100px)' /* width: 200 */ }}>
+							<Row style={{ position: 'absolute', left: 'calc(50% - 100px)' /* width: 200 *#/ }}>
 								<Button text={<Icon icon="arrow-left" size={15}/>} title="Previous page"
 									enabled={page > 0} onClick={() => {
 										mapInfo.list_page = page - 1;
@@ -182,7 +182,7 @@ class NodeRow extends BaseComponentPlus({} as NodeRow_Props, { menuOpened: false
 				<span style={{ flex: columnWidths[0] }}>{GetNodeDisplayText(node, path)}</span>
 				<span style={{ flex: columnWidths[1] }}>{creator ? creator.displayName : '...'}</span>
 				<span style={{ flex: columnWidths[2] }}>{Moment(node.createdAt).format('YYYY-MM-DD')}</span>
-				{/* <NodeUI_Menu_Helper {...{map, node}}/> */}
+				{/* <NodeUI_Menu_Helper {...{map, node}}/> *#/}
 				{menuOpened && <NodeUI_Menu {...{ map, node: nodeL3, path: `${node._key}`, inList: true }}/>}
 			</Row>
 		);
@@ -199,7 +199,7 @@ class NodeUI_Menu_Helper extends BaseComponent<{map: Map, node: MapNode, nodeEnh
 			<NodeUI_Menu_Helper {...{map, node}}/>
 		);
 	}
-} */
+} *#/
 
 type NodeColumn_Props = {map: Map, node: MapNodeL2};
 class NodeColumn extends BaseComponentPlus({} as NodeColumn_Props, { width: null as number, hoverPanel: null as string }) {
@@ -228,13 +228,13 @@ class NodeColumn extends BaseComponentPlus({} as NodeColumn_Props, { width: null
 			<Row className="clickThrough"
 				style={{
 					height: '100%', padding: 10, alignItems: 'flex-start', position: 'relative',
-					filter: 'drop-shadow(0px 0px 10px rgba(0,0,0,1))', /* background: "rgba(0,0,0,.5)", borderRadius: 10 */
+					filter: 'drop-shadow(0px 0px 10px rgba(0,0,0,1))', /* background: "rgba(0,0,0,.5)", borderRadius: 10 *#/
 				}}>
 				{/* <ResizeSensor ref={()=> {
 					if (this.refs.ratingsPanel) GetInnerComp(this.refs.ratingsPanel).Update();
 				}} onResize={()=> {
 					if (this.refs.ratingsPanel) GetInnerComp(this.refs.ratingsPanel).Update();
-				}}/> */}
+				}}/> *#/}
 				<MapNodeUI_LeftBox {...{ map, path, node: nodeL3, ratingsRoot, backgroundColor }}
 					onPanelButtonHover={(panel) => this.SetState({ hoverPanel: panel })}
 					onPanelButtonClick={(panel) => mapInfo.list_selectedNode_openPanel = panel}
@@ -250,7 +250,7 @@ class NodeColumn extends BaseComponentPlus({} as NodeColumn_Props, { width: null
 								})()}
 								{panelToShow == 'definitions' &&
 									<DefinitionsPanel {...{ node, path, hoverTermID: null }} openTermID={null}
-										/* onHoverTerm={termID=>this.SetState({hoverTermID: termID})} onClickTerm={termID=>this.SetState({clickTermID: termID})} *//>}
+										/* onHoverTerm={termID=>this.SetState({hoverTermID: termID})} onClickTerm={termID=>this.SetState({clickTermID: termID})} *#//>}
 								{panelToShow == 'discussion' && <DiscussionPanel/>}
 								{panelToShow == 'social' && <SocialPanel/>}
 								{panelToShow == 'tags' && <TagsPanel/>}
@@ -263,4 +263,4 @@ class NodeColumn extends BaseComponentPlus({} as NodeColumn_Props, { width: null
 			</Row>
 		);
 	}
-}
+} */
