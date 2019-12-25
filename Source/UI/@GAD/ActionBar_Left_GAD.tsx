@@ -5,13 +5,13 @@ import { LayoutDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Right/LayoutDrop
 import { Map, MapType } from 'Store/firebase/maps/@Map';
 import { MeID } from 'Store/firebase/users';
 import { IsUserMap } from 'Store/firebase/maps/$map';
-import { DetailsDropDown } from 'UI/@Shared/Maps/MapUI/ActionBar_Left';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { GetTimelinePanelOpen } from 'Store/main/mapStates/$mapState';
 import { HSLA, Observer } from 'vwebapp-framework';
 import { store } from 'Store';
 import { runInAction } from 'mobx';
 import { E } from 'js-vextensions';
+import {DetailsDropDown} from 'UI/@Shared/Maps/MapUI/ActionBar_Left/DetailsDropDown';
 import { Button_GAD } from './GADButton';
 
 @Observer

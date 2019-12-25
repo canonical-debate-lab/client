@@ -47,7 +47,7 @@ export class OthersPanel extends BaseComponentPlus({} as {map?: Map, node: MapNo
 		convertToType = convertToType || convertToTypes.map((a) => a.value).FirstOrX();
 
 		const isArgument_any = node.current.argumentType === ArgumentType.Any;
-		const parents = GetNodesByIDs(node.parents.VKeys());
+		const parents = GetNodesByIDs(node.parents?.VKeys() ?? []);
 		const parentsArePrivateInSameMap = !IsSpecialEmptyArray(parents) && mapID && parents.All((a) => a.ownerMapID == mapID);
 		const canChangeOwnershipType = creatorOrMod && (
 			node.ownerMapID == null

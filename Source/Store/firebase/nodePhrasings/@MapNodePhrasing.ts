@@ -2,8 +2,8 @@ import { AddSchema } from 'vwebapp-framework';
 import { GetValues_ForSchema } from 'js-vextensions';
 
 export class MapNodePhrasing {
-	constructor(props: {node: string} & Partial<MapNodePhrasing>) {
-		this.Extend(props);
+	constructor(initialData: {node: string} & Partial<MapNodePhrasing>) {
+		this.VSet(initialData);
 	}
 
 	_key?: string;

@@ -4,6 +4,7 @@ import { GetTimelineSteps } from 'Store/firebase/timelineSteps';
 import { GetAsync, MergeDBUpdates } from 'mobx-firelink';
 import { Clone, ToNumber } from 'js-vextensions';
 import { NodeReveal } from 'Store/firebase/timelineSteps/@TimelineStep';
+import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 
 // temp (for in-console db-upgrades and such)
 // ==========
@@ -28,3 +29,21 @@ import { NodeReveal } from 'Store/firebase/timelineSteps/@TimelineStep';
 	}
 	return mergedDBUpdates;
 } */
+
+export async function GetDBUpdatesFor_MakeNodesPrivate_Recursive(mapID: string, nodeID: string, runInfo = { nodesVisited: new Set<string>() }) {
+	if (runInfo.nodesVisited.has(nodeID)) return;
+	runInfo.nodesVisited.add(nodeID);
+	const node = await GetAsync(() => GetNodeL2(nodeID));
+
+	let dbUpdates = {};
+	// if (node.ownerMapID != mapID) {
+	if (node.ownerMapID == null) {
+		dbUpdates[`nodes/${nodeID}/.ownerMapID`] = mapID;
+	}
+	if (node.children) {
+		for (const childID of node.children.VKeys()) {
+			dbUpdates = MergeDBUpdates(dbUpdates, await GetDBUpdatesFor_MakeNodesPrivate_Recursive(mapID, childID));
+		}
+	}
+	return dbUpdates;
+}

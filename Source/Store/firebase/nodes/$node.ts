@@ -1,4 +1,4 @@
-import { Assert, CachedTransform, GetValues, IsString, VURL } from 'js-vextensions';
+import { Assert, CachedTransform, GetValues, IsString, VURL, E } from 'js-vextensions';
 import katex from 'katex';
 import { SplitStringBySlash_Cached, SlicePath, StoreAccessor } from 'mobx-firelink';
 import { GetImage } from '../images';
@@ -104,7 +104,7 @@ export function IsNodeL2(node: MapNode): node is MapNodeL2 {
 }
 export function AsNodeL2(node: MapNode, currentRevision: MapNodeRevision) {
 	// Assert(currentRevision.titles, "A MapNodeRevision object must have a titles property!"); // temp removed (for db-upgrade)
-	const result = node.Extended({ current: currentRevision }) as MapNodeL2;
+	const result = E(node, { current: currentRevision }) as MapNodeL2;
 	delete result['finalPolarity'];
 	delete result['link'];
 	return result;
@@ -133,7 +133,7 @@ export function AsNodeL3(node: MapNodeL2, finalPolarity?: Polarity, link?: Child
 		seriesAnchor: false,
 		polarity: Polarity.Supporting,
 	};
-	return node.Extended({ finalPolarity, link }) as MapNodeL3;
+	return E(node, { finalPolarity, link }) as MapNodeL3;
 }
 export const GetNodeL3 = StoreAccessor((s) => (path: string) => {
 	if (path == null) return null;

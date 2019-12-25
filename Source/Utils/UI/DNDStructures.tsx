@@ -2,7 +2,7 @@ import { UUID } from 'Utils/General/KeyGenerator';
 
 export class DroppableInfo {
 	constructor(data: Partial<DroppableInfo>) {
-		this.Extend(data);
+		this.VSet(data);
 	}
 	type: 'NodeChildHolder' | 'TimelineStepList' | 'TimelineStepNodeRevealList';
 
@@ -18,8 +18,8 @@ export class DroppableInfo {
 	stepID?: string;
 }
 export class DraggableInfo {
-	constructor(data: Partial<DraggableInfo>) {
-		this.Extend(data);
+	constructor(initialData: Partial<DraggableInfo>) {
+		this.VSet(initialData);
 	}
 
 	// if MapNode (in NodeChildHolder)

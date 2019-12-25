@@ -110,8 +110,8 @@ export function GetRatingTypeInfo(ratingType: RatingType, node: MapNodeL2, paren
 }), */
 
 export class RatingType_Info {
-	constructor(info?: Partial<RatingType_Info>) {
-		this.Extend(info);
+	constructor(initialData?: Partial<RatingType_Info>) {
+		this.VSet(initialData);
 	}
 
 	displayText: string;

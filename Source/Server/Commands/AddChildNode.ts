@@ -1,10 +1,10 @@
-import { Assert } from 'js-vextensions';
+import { Assert, E } from 'js-vextensions';
 import { Command, MergeDBUpdates, GetAsync } from 'mobx-firelink';
+import { AssertValidate } from 'vwebapp-framework';
 import { MapEdit, UserEdit } from '../../Server/CommandMacros';
 import { GetNode } from '../../Store/firebase/nodes';
 import { MapNodeRevision } from '../../Store/firebase/nodes/@MapNodeRevision';
 import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
-import { AssertValidate } from 'vwebapp-framework';
 import { ChildEntry, MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { AddNode } from './AddNode';
 
@@ -27,7 +27,7 @@ export class AddChildNode extends Command<Payload, {nodeID: string, revisionID: 
 	async Prepare() {
 		const { mapID, parentID, node, revision, link, asMapRoot } = this.payload;
 
-		const node_withParents = node.Extended(parentID ? { parents: { [parentID]: { _: true } } } : {});
+		const node_withParents = E(node, parentID ? { parents: { [parentID]: { _: true } } } : {});
 		this.sub_addNode = new AddNode({ mapID, node: node_withParents, revision }).MarkAsSubcommand();
 		// this.sub_addNode.VSet({ lastNodeID_addAmount: this.lastNodeID_addAmount, lastNodeRevisionID_addAmount: this.lastNodeRevisionID_addAmount });
 		this.sub_addNode.Validate_Early();

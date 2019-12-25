@@ -77,6 +77,7 @@ export class MapDetailsUI extends BaseComponentPlus({ enabled: true } as Props, 
 						<Spinner enabled={enabled} style={{width: "100%"}}
 							value={newData.rootNode} onChange={val=>Change(newData.rootNode = val)}/>
 					</RowLR> */}
+				{!forNew && // we don't want to overwhelm new users trying to create their own map...
 				<Column mt={10}>
 					<CheckBox text="Node defaults:" checked={newData.nodeDefaults != null} onChange={(val) => {
 						const defaultNodeDefaults = MapNodeRevision_Defaultable_DefaultsForMap(newData.type);
@@ -92,7 +93,7 @@ export class MapDetailsUI extends BaseComponentPlus({ enabled: true } as Props, 
 							this.Update();
 						}}/>
 					</Column>}
-				</Column>
+				</Column>}
 			</Column>
 		);
 	}
