@@ -2,12 +2,12 @@ import { GetNode, GetHolderType, ForNewLink_GetError, GetParentNodeL3, GetParent
 import { Assert, E, OmitIfFalsy } from 'js-vextensions';
 import { GetNodeL2, GetNodeL3 } from 'Store/firebase/nodes/$node';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
-import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
+import { GetUserPermissionGroups, MeID, CanContributeToNode } from 'Store/firebase/users';
 
 import { Map } from 'Store/firebase/maps/@Map';
 import { UUID } from 'Utils/General/KeyGenerator';
 import { Command, MergeDBUpdates, GetAsync } from 'mobx-firelink';
-import {GetMap} from 'Store/firebase/maps';
+import { GetMap } from 'Store/firebase/maps';
 import { ClaimForm, MapNode, Polarity, MapNodeL3 } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
 import { UserEdit } from './../CommandMacros';
@@ -29,6 +29,7 @@ export function LinkNode_HighLevel_GetCommandError(command: LinkNode_HighLevel, 
 	if (node == null) return 'Node data not found.';
 	const newParent = GetNode(newParentID);
 	if (newParent == null) return 'New-parent data not found.';
+	if (!CanContributeToNode(MeID(), newParentID)) return 'Cannot paste under a node with contributions disabled.';
 
 	const createWrapperArg = node.type === MapNodeType.Claim && newParent.type === MapNodeType.Claim;
 	if (createWrapperArg) {
