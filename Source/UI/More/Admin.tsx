@@ -1,4 +1,4 @@
-import { Assert, AwaitTree, SleepAsync } from 'js-vextensions';
+import { Assert, AwaitTree, SleepAsync, E, IsObject } from 'js-vextensions';
 import { dbVersion } from 'Main';
 import { ApplyDBUpdates_InChunks, ConvertDataToValidDBUpdates, DBPath, GetAsync, GetDoc, GetDocs, SplitStringBySlash_Cached } from 'mobx-firelink';
 import { Button, Column, Row } from 'react-vcomponents';
@@ -194,10 +194,19 @@ export async function GetCollectionsDataAsync(versionRootPath: string) {
 	AssertVersionRootPath(versionRootPath);
 
 	async function getDocs(...collectionSubpath: string[]) {
-		return GetAsync(() => GetDocs({ inLinkRoot: false }, [...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath])) as any;
+		return GetAsync(() => {
+			const docs = GetDocs({ inLinkRoot: false }, [...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath]);
+			/* docs = docs.map((doc) => (doc != null && doc._key != null ? ({ ...doc, _key: doc._key }) : doc)); // make "_key" prop enumerable
+			return docs; */
+			return docs.ToMap((a) => a?._key ?? '[data loading]', (a) => a);
+		}) as any;
 	}
 	async function getDoc(...collectionSubpath: string[]) {
-		return GetAsync(() => GetDocs({ inLinkRoot: false }, [...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath])) as any;
+		return GetAsync(() => {
+			const doc = GetDoc({ inLinkRoot: false }, [...SplitStringBySlash_Cached(versionRootPath), ...collectionSubpath]);
+			// Object.defineProperty(doc, '_key', doc._key)
+			return doc;
+		}) as any;
 	}
 
 	let versionCollectionsData: FirebaseDBShape;
