@@ -58,15 +58,6 @@ export class LinkNode_HighLevel extends CommandNew<Payload, {argumentWrapperID?:
 		AssertV(newParentID !== nodeID, 'New parent-id and child-id cannot be the same!');
 		AssertV(oldParentID !== newParentID, 'Old-parent-id and new-parent-id cannot be the same!');
 
-		// if (command.payload.unlinkFromOldParent && node.parents.VKeys(true).length == 1 && newParentPath.startsWith(draggedNodePath)) {
-		/* if (unlinkFromOldParent && newParentPath.startsWith(draggedNodePath)) {
-			return "Cannot move a node to a path underneath itself. (the move could orphan it and its descendants, if the new-parent's only anchoring was through the dragged-node)";
-		} */
-		if (unlinkFromOldParent) {
-			const closestMapRootNode = SearchUpFromNodeForNodeMatchingX(newParentID, (id) => GetNode(id)?.rootNodeForMap != null, [nodeID]);
-			AssertV(closestMapRootNode != null, 'Cannot move a node to a path that would orphan it.');
-		}
-
 		this.returnData = {};
 
 		this.map_data = GetMap(mapID);
@@ -78,7 +69,16 @@ export class LinkNode_HighLevel extends CommandNew<Payload, {argumentWrapperID?:
 		this.newParent_data = GetNodeL2(newParentID);
 		AssertV(this.newParent_data, 'newParent_data is null.');
 
-		if (!CanContributeToNode(MeID(), newParentID)) return 'Cannot paste under a node with contributions disabled.';
+		AssertV(CanContributeToNode(MeID(), newParentID), 'Cannot paste under a node with contributions disabled.');
+
+		// if (command.payload.unlinkFromOldParent && node.parents.VKeys(true).length == 1 && newParentPath.startsWith(draggedNodePath)) {
+		/* if (unlinkFromOldParent && newParentPath.startsWith(draggedNodePath)) {
+			return "Cannot move a node to a path underneath itself. (the move could orphan it and its descendants, if the new-parent's only anchoring was through the dragged-node)";
+		} */
+		if (unlinkFromOldParent) {
+			const closestMapRootNode = this.newParent_data.rootNodeForMap ? newParentID : SearchUpFromNodeForNodeMatchingX(newParentID, (id) => GetNode(id)?.rootNodeForMap != null, [nodeID]);
+			AssertV(closestMapRootNode != null, 'Cannot move a node to a path that would orphan it.');
+		}
 
 		let newParentID_forClaim = newParentID;
 
