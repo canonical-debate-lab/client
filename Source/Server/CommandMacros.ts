@@ -15,23 +15,29 @@ export function MapEdit(...args) {
 	}
 
 	function ApplyToClass(targetClass: Function) {
-		const oldPrepare = targetClass.prototype.Prepare;
-		targetClass.prototype.Prepare = async function () {
-			await oldPrepare.apply(this);
+		const oldStartValidate = targetClass.prototype.StartValidate;
+		targetClass.prototype.StartValidate = async function () {
+			const result = oldStartValidate.apply(this);
 			const mapID = this.payload[mapIDKey];
 			if (mapID) {
-				this.map_oldEditCount = (await GetAsync(() => GetMap(mapID)))?.edits ?? 0;
+				const map = GetMap(mapID);
+				if (map != null) {
+					this.map_oldEditCount = map.edits ?? 0;
+				}
 			}
+			return result;
 		};
 
 		const oldGetDBUpdates = targetClass.prototype.GetDBUpdates;
 		targetClass.prototype.GetDBUpdates = function () {
 			const updates = oldGetDBUpdates.apply(this);
 			const newUpdates = {};
-			const mapID = this.payload[mapIDKey];
-			if (mapID) {
-				newUpdates[`maps/${mapID}/.edits`] = this.map_oldEditCount + 1;
-				newUpdates[`maps/${mapID}/.editedAt`] = Date.now();
+			if (this.map_oldEditCount != null) {
+				const mapID = this.payload[mapIDKey];
+				if (mapID) {
+					newUpdates[`maps/${mapID}/.edits`] = this.map_oldEditCount + 1;
+					newUpdates[`maps/${mapID}/.editedAt`] = Date.now();
+				}
 			}
 			return MergeDBUpdates(updates, newUpdates);
 		};

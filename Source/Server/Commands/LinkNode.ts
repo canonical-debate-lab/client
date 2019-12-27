@@ -9,6 +9,7 @@ import { UserEdit } from '../CommandMacros';
 @MapEdit
 @UserEdit
 export class LinkNode extends CommandNew<{mapID: string, parentID: string, childID: string, childForm?: ClaimForm, childPolarity?: Polarity}, {}> {
+	child_oldData: MapNode;
 	parent_oldData: MapNode;
 	/* async Prepare(parent_oldChildrenOrder_override?: number[]) {
 		let {parentID, childID, childForm} = this.payload;
@@ -17,10 +18,18 @@ export class LinkNode extends CommandNew<{mapID: string, parentID: string, child
 	StartValidate() {
 		const { parentID, childID } = this.payload;
 		AssertV(parentID != childID, 'Parent-id and child-id cannot be the same!');
+
+		this.child_oldData = GetNode(childID);
+		AssertV(this.child_oldData || this.asSubcommand, 'Child does not exist!');
 		this.parent_oldData = GetNode(parentID);
 		AssertV(this.parent_oldData || this.asSubcommand, 'Parent does not exist!');
+
 		if (this.parent_oldData) {
 			AssertV(this.parent_oldData.childrenOrder == null || !this.parent_oldData.childrenOrder.Contains(childID), `Node #${childID} is already a child of node #${parentID}.`);
+		}
+
+		if (this.child_oldData.ownerMapID != null) {
+			AssertV(this.parent_oldData.ownerMapID == this.child_oldData.ownerMapID, `Cannot paste private node #${childID} into a map not matching its owner map (${this.child_oldData.ownerMapID}).`);
 		}
 	}
 
