@@ -1,6 +1,6 @@
-import { Command, MergeDBUpdates } from 'mobx-firelink';
+import { Command, MergeDBUpdates, CommandNew } from 'mobx-firelink';
 import { AssertValidate } from 'vwebapp-framework';
-import {OmitIfFalsy} from 'js-vextensions';
+import { OmitIfFalsy } from 'js-vextensions';
 import { UserEdit } from '../../Server/CommandMacros';
 import { GenerateUUID, UUID } from '../../Utils/General/KeyGenerator';
 import { Map, MapType } from '../../Store/firebase/maps/@Map';
@@ -10,30 +10,25 @@ import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
 import { AddChildNode } from './AddChildNode';
 
 @UserEdit
-export class AddMap extends Command<{map: Map}, UUID> {
+export class AddMap extends CommandNew<{map: Map}, UUID> {
 	mapID: string;
 	sub_addNode: AddChildNode;
-	async Prepare() {
+	StartValidate() {
 		const { map } = this.payload;
 
 		this.mapID = GenerateUUID();
 		map.createdAt = Date.now();
 		map.editedAt = map.createdAt;
 
-		const newRootNode = new MapNode({ type: MapNodeType.Category, creator: map.creator, ownerMapID: OmitIfFalsy(map.type == MapType.Private && map._key) });
+		const newRootNode = new MapNode({ type: MapNodeType.Category, creator: map.creator, rootNodeForMap: map._key, ownerMapID: OmitIfFalsy(map.type == MapType.Private && map._key) });
 		const newRootNodeRevision = new MapNodeRevision({ titles: { base: 'Root' }, votingDisabled: true });
 		this.sub_addNode = new AddChildNode({ mapID: this.mapID, parentID: null, node: newRootNode, revision: newRootNodeRevision, asMapRoot: true }).MarkAsSubcommand();
-		this.sub_addNode.Validate_Early();
-		await this.sub_addNode.Prepare();
+		this.sub_addNode.StartValidate();
 
 		map.rootNode = this.sub_addNode.sub_addNode.nodeID;
+		AssertValidate('Map', map, 'Map invalid');
 
 		this.returnData = this.mapID;
-	}
-	async Validate() {
-		const { map } = this.payload;
-		AssertValidate('Map', map, 'Map invalid');
-		await this.sub_addNode.Validate();
 	}
 
 	GetDBUpdates() {

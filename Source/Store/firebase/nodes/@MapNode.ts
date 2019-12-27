@@ -37,6 +37,7 @@ export class MapNode {
 	type?: MapNodeType;
 	creator?: string;
 	createdAt: number;
+	rootNodeForMap?: string;
 	ownerMapID?: string;
 
 	currentRevision: string;

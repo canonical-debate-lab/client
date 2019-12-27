@@ -2,16 +2,17 @@ import { GetNode } from 'Store/firebase/nodes';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 
 // todo: probably merge this function with the StartFindingPathsFromXToY function in SearchPanel.tsx
-export function GetShortestPathFromRootToNode(rootNodeID: string, node: MapNode): string {
+export function SearchUpFromNodeForNodeMatchingX(startNodeID: string, xMatchFunc: (nodeID: string)=>boolean, nodeIDsToIgnore?: string[]): string {
 	// return CachedTransform_WithStore('GetShortestPathFromRootToNode', [rootNodeID, node._key], {}, () => {
-	GetNode(node._key); // call this so cache system knows to recalculate when node-data changes
+	const startNode = GetNode(startNodeID); // call this so cache system knows to recalculate when node-data changes
+	if (startNode == null) return null;
 
 	type Head = {id: string, path: string[]};
-	let currentLayerHeads: Head[] = (node.parents || {}).VKeys(true).map((id) => ({ id, path: [id, node._key] }));
+	let currentLayerHeads: Head[] = (startNode.parents || {}).VKeys(true).map((id) => ({ id, path: [id, startNodeID] }));
 	while (currentLayerHeads.length) {
 		// first, quickly check if any current-layer-head parents are the root-node (and if so, return right away, as we found a shortest path)
 		for (const layerHead of currentLayerHeads) {
-			if (layerHead.id == rootNodeID) {
+			if (xMatchFunc(layerHead.id)) {
 				return layerHead.path.join('/');
 			}
 		}
@@ -23,6 +24,7 @@ export function GetShortestPathFromRootToNode(rootNodeID: string, node: MapNode)
 			if (node == null) return null;
 			for (const parentID of (node.parents || {}).VKeys(true)) {
 				if (layerHead.path.Contains(parentID)) continue; // parent-id is already part of path; ignore, so we don't cause infinite-loop
+				if (nodeIDsToIgnore?.Contains(parentID)) continue;
 				newLayerHeads.push({ id: parentID, path: [parentID].concat(layerHead.path) });
 			}
 		}

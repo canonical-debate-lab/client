@@ -2,43 +2,38 @@ import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { Assert } from 'js-vextensions';
 import { GetSchemaJSON, AssertValidate, AssertValidate_Full } from 'vwebapp-framework';
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
-import { Command, MergeDBUpdates } from 'mobx-firelink';
+import { Command, MergeDBUpdates, CommandNew, AssertV } from 'mobx-firelink';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { AddNodeRevision } from './AddNodeRevision';
 
 /** Do not use this from client-side code. This is only to be used internally, by higher-level commands -- usually AddChildNode. */
-export class AddNode extends Command<{mapID: string, node: MapNode, revision: MapNodeRevision}, {}> {
+export class AddNode extends CommandNew<{mapID: string, node: MapNode, revision: MapNodeRevision}, {}> {
 	// set these from parent command if the parent command has earlier subs that increment last-node-id, etc.
 	/* lastNodeID_addAmount = 0;
 	lastNodeRevisionID_addAmount = 0; */
 
 	sub_addRevision: AddNodeRevision;
-	Validate_Early() {
-		const { node, revision } = this.payload;
-		Assert(node.currentRevision == null, "Cannot specifiy node's revision-id. It will be generated automatically.");
-		Assert(revision.node == null, "Cannot specifiy revision's node-id. It will be generated automatically.");
-	}
 
 	nodeID: string;
 	parentID: string;
 	parent_oldChildrenOrder: number[];
-	async Prepare() {
+	StartValidate() {
 		const { mapID, node, revision } = this.payload;
+		AssertV(node.currentRevision == null, "Cannot specifiy node's revision-id. It will be generated automatically.");
+		AssertV(revision.node == null, "Cannot specifiy revision's node-id. It will be generated automatically.");
 
 		// this.nodeID = (await GetDataAsync('general', 'data', '.lastNodeID') as number) + this.lastNodeID_addAmount + 1;
 		this.nodeID = GenerateUUID();
 		node.creator = this.userInfo.id;
 		node.createdAt = Date.now();
+		revision.node = this.nodeID;
 
 		this.sub_addRevision = new AddNodeRevision({ mapID, revision }).MarkAsSubcommand();
 		// this.sub_addRevision.lastNodeRevisionID_addAmount = this.lastNodeRevisionID_addAmount;
-		await this.sub_addRevision.Prepare();
+		this.sub_addRevision.StartValidate();
 
 		node.currentRevision = this.sub_addRevision.revisionID;
-		revision.node = this.nodeID;
-	}
-	async Validate() {
-		const { node } = this.payload;
+
 		if (this.asSubcommand) {
 			const mapNodeSchema = GetSchemaJSON('MapNode');
 			// if as subcommand, we might be called by AddChildNode for new argument; in that case, ignore the "childrenOrder" prop requirement (gets added by later link-impact-node subcommand)
@@ -48,7 +43,6 @@ export class AddNode extends Command<{mapID: string, node: MapNode, revision: Ma
 		} else {
 			AssertValidate('MapNode', node, 'Node invalid');
 		}
-		await this.sub_addRevision.Validate();
 	}
 
 	GetDBUpdates() {

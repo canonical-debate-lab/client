@@ -1,26 +1,29 @@
 import { DEL, E, Clone } from 'js-vextensions';
-import { Command, MergeDBUpdates, SplitStringBySlash_Cached, GetAsync } from 'mobx-firelink';
+import { Command, MergeDBUpdates, SplitStringBySlash_Cached, GetAsync, CommandNew, AssertV } from 'mobx-firelink';
 import { GetLinkAtPath, GetNodeForm, GetNodeL2 } from '../../Store/firebase/nodes/$node';
 import { ClaimForm, MapNode, Polarity } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
 import { AddChildNode } from './AddChildNode';
 import { LinkNode } from './LinkNode';
 
-export class CloneNode extends Command<{mapID: string, baseNodePath: string, newParentID: string}, {nodeID: string, revisionID: string}> {
+export class CloneNode extends CommandNew<{mapID: string, baseNodePath: string, newParentID: string}, {nodeID: string, revisionID: string}> {
 	sub_addNode: AddChildNode;
 	sub_linkChildren: LinkNode[];
-	async Prepare() {
+	StartValidate() {
 		const { mapID, baseNodePath, newParentID } = this.payload;
 
 		// prepare add-node
 		// ==========
 
 		const baseNodeID = SplitStringBySlash_Cached(baseNodePath).Last();
-		const baseNode = await GetAsync(() => GetNodeL2(baseNodeID));
+		const baseNode = GetNodeL2(baseNodeID);
+		AssertV(baseNode, 'baseNode is null.');
 		const isArgument = baseNode.type == MapNodeType.Argument;
 
-		const nodeForm = await GetAsync(() => GetNodeForm(baseNode, baseNodePath)) as ClaimForm;
-		const nodePolarity = await GetAsync(() => GetLinkAtPath(baseNodePath).polarity) as Polarity;
+		const nodeForm = GetNodeForm(baseNode, baseNodePath);
+		AssertV(nodeForm, 'nodeForm is null.');
+		const nodePolarity = GetLinkAtPath(baseNodePath).polarity;
+		AssertV(nodePolarity, 'nodePolarity is null.');
 
 		const newChildNode = Clone(baseNode).VSet({ children: DEL, childrenOrder: DEL, currentRevision: DEL, current: DEL, parents: DEL }) as MapNode;
 
@@ -34,8 +37,7 @@ export class CloneNode extends Command<{mapID: string, baseNodePath: string, new
 				nodePolarity && { polarity: nodePolarity },
 			) as any,
 		}).MarkAsSubcommand();
-		this.sub_addNode.Validate_Early();
-		await this.sub_addNode.Prepare();
+		this.sub_addNode.StartValidate();
 
 		// prepare link-children
 		// ==========
@@ -49,26 +51,25 @@ export class CloneNode extends Command<{mapID: string, baseNodePath: string, new
 
 		this.sub_linkChildren = [];
 		for (const childID of childrenToLink) {
-			const child = await GetAsync(() => GetNodeL2(childID));
-			const childForm = await GetAsync(() => GetNodeForm(child, `${baseNodePath}/${childID}`)) as ClaimForm;
+			const child = GetNodeL2(childID);
+			AssertV(child, `child (for id ${childID}) is null.`);
+			const childForm = GetNodeForm(child, `${baseNodePath}/${childID}`);
+			AssertV(child, `childForm (for id ${childID}) is null.`);
 			const linkChildSub = new LinkNode({ mapID, parentID: this.sub_addNode.sub_addNode.nodeID, childID, childForm }).MarkAsSubcommand();
-			linkChildSub.Validate_Early();
 
 			// linkChildSub.Prepare([]);
 			/* let dbUpdates = this.GetDBUpdates();
 			let node_childrenOrder = dbUpdates[`nodes/${this.sub_addNode.nodeID}/childrenOrder`];
 			linkChildSub.Prepare(node_childrenOrder); */
-			await linkChildSub.Prepare();
 
 			this.sub_linkChildren.push(linkChildSub);
 		}
 
 		this.returnData = this.sub_addNode.returnData;
-	}
-	async Validate() {
-		this.sub_addNode.Validate();
+
+		this.sub_addNode.StartValidate();
 		for (const sub of this.sub_linkChildren) {
-			sub.Validate();
+			sub.StartValidate();
 		}
 	}
 

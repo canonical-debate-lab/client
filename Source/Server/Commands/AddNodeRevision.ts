@@ -2,7 +2,8 @@ import { MapEdit, UserEdit } from 'Server/CommandMacros';
 import { GetNode } from 'Store/firebase/nodes';
 import { AssertValidate } from 'vwebapp-framework';
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
-import { Command, GetAsync } from 'mobx-firelink';
+import { Command, GetAsync, CommandNew, AssertV } from 'mobx-firelink';
+import { Assert } from 'js-vextensions';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeRevision } from '../../Store/firebase/nodes/@MapNodeRevision';
 
@@ -20,14 +21,12 @@ export function GetSearchTerms_Advanced(str: string, separateTermsWithWildcard =
 
 @MapEdit
 @UserEdit
-export class AddNodeRevision extends Command<{mapID: string, revision: MapNodeRevision}, number> {
+export class AddNodeRevision extends CommandNew<{mapID: string, revision: MapNodeRevision}, number> {
 	// lastNodeRevisionID_addAmount = 0;
-
-	Validate_Early() {}
 
 	revisionID: string;
 	node_oldData: MapNode;
-	async Prepare() {
+	StartValidate() {
 		const { revision } = this.payload;
 
 		// this.revisionID = (await GetDataAsync('general', 'data', '.lastNodeRevisionID')) + this.lastNodeRevisionID_addAmount + 1;
@@ -38,12 +37,13 @@ export class AddNodeRevision extends Command<{mapID: string, revision: MapNodeRe
 		const titles_joined = (revision.titles || {}).VValues(true).join(' ');
 		revision.titles.allTerms = GetSearchTerms(titles_joined).ToMap((a) => a, () => true);
 
-		this.node_oldData = await GetAsync(() => GetNode(revision.node));
+		if (!this.asSubcommand) {
+			this.node_oldData = GetNode(revision.node);
+			AssertV(this.node_oldData, 'node_oldData is null.');
+		}
 
 		this.returnData = this.revisionID;
-	}
-	async Validate() {
-		const { revision } = this.payload;
+
 		AssertValidate('MapNodeRevision', revision, 'Revision invalid');
 	}
 

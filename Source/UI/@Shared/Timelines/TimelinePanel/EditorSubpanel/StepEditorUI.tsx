@@ -17,9 +17,9 @@ import { MeID } from 'Store/firebase/users';
 import { DragInfo, MakeDraggable, Observer } from 'vwebapp-framework';
 import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
 import { UUIDPathStub } from 'UI/@Shared/UUIDStub';
-import { GetShortestPathFromRootToNode } from 'Utils/Store/PathFinder';
 import { GetPathNodes } from 'Store/main/mapViews/$mapView';
 import { GetAsync } from 'mobx-firelink';
+import { SearchUpFromNodeForNodeMatchingX } from 'Utils/Store/PathFinder';
 
 export enum PositionOptionsEnum {
 	Full = null,
@@ -274,7 +274,7 @@ export class NodeRevealUI extends BaseComponentPlus({} as {map: Map, step: Timel
 						<UUIDPathStub path={path}/>
 						{!pathValid && editing &&
 						<Button ml="auto" text="Fix path" onClick={async () => {
-							const newPath = await GetAsync(() => GetShortestPathFromRootToNode(map.rootNode, node));
+							const newPath = await GetAsync(() => SearchUpFromNodeForNodeMatchingX(node._key, (id) => id == map.rootNode));
 							const newNodeReveals = Clone(step.nodeReveals) as NodeReveal[];
 							newNodeReveals[index].path = newPath;
 							new UpdateTimelineStep({ stepID: step._key, stepUpdates: { nodeReveals: newNodeReveals } }).Run();

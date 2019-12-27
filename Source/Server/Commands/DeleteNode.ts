@@ -53,8 +53,9 @@ export class DeleteNode extends CommandNew<{mapID?: string, nodeID: string, with
 
 		// this.viewerIDs_main = await GetAsync(() => GetNodeViewers(nodeID));
 
-		this.mapIDs = GetMaps()?.map((a) => a._key);
-		AssertV(this.mapIDs, 'mapIDs is null.');
+		const maps = GetMaps();
+		this.mapIDs = maps?.map((a) => a?._key);
+		AssertV(this.mapIDs && this.mapIDs.All((a) => a != null), 'mapIDs is null, or has null entries.');
 
 		// probably todo: integrate this into the command Validate functions themselves
 		/* Assert((this.oldData.parents || {}).VKeys(true).length <= 1, "Cannot delete this child, as it has more than one parent. Try unlinking it instead.");

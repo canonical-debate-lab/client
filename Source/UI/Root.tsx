@@ -10,7 +10,7 @@ import { Button, ColorPickerBox, Column } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { VMenuLayer } from 'react-vmenu';
 import { MessageBoxUI, ShowMessageBox } from 'react-vmessagebox';
-import { CreateLinkCommand as CreateLinkCommandForDND, LinkNode_HighLevel_GetCommandError } from 'Server/Commands/LinkNode_HighLevel';
+import { CreateLinkCommand as CreateLinkCommandForDND } from 'Server/Commands/LinkNode_HighLevel';
 import { UpdateTimelineStep } from 'Server/Commands/UpdateTimelineStep';
 import { UpdateTimelineStepOrder } from 'Server/Commands/UpdateTimelineStepOrder';
 import { store } from 'Store';
@@ -146,13 +146,13 @@ export class RootUIWrapper extends BaseComponentPlus({}, {}) {
 			const copyCommand = CreateLinkCommandForDND(mapID, draggedNodePath, newParentPath, polarity, true);
 			const moveCommand = CreateLinkCommandForDND(mapID, draggedNodePath, newParentPath, polarity, false);
 
-			const copyCommand_error = LinkNode_HighLevel_GetCommandError(copyCommand, draggedNodePath, newParentPath);
+			const copyCommand_error = copyCommand.StartValidate_ForUI();
 			if (copyCommand_error) {
 				ShowMessageBox({ title: 'Cannot copy/move node', message: `Reason: ${copyCommand_error}` });
 				return;
 			}
 
-			const moveCommand_error = LinkNode_HighLevel_GetCommandError(moveCommand, draggedNodePath, newParentPath);
+			const moveCommand_error = moveCommand.StartValidate_ForUI();
 
 			const controller = ShowMessageBox({
 				title: 'Copy/move the dragged node?', okButton: false, cancelButton: false,

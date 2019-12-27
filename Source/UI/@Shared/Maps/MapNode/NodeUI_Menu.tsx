@@ -3,7 +3,7 @@ import { SlicePath } from 'mobx-firelink';
 import { BaseComponent, BaseComponentPlus, WarnOfTransientObjectProps } from 'react-vextensions';
 import { VMenuItem, VMenuStub } from 'react-vmenu';
 import { ShowMessageBox } from 'react-vmessagebox';
-import { LinkNode_HighLevel, LinkNode_HighLevel_GetCommandError } from 'Server/Commands/LinkNode_HighLevel';
+import { LinkNode_HighLevel } from 'Server/Commands/LinkNode_HighLevel';
 import { SetNodeIsMultiPremiseArgument } from 'Server/Commands/SetNodeIsMultiPremiseArgument';
 import { UnlinkNode } from 'Server/Commands/UnlinkNode';
 import { store } from 'Store';
@@ -279,7 +279,7 @@ class PasteAsLink_MenuItem extends BaseComponent<SharedProps, {}> {
 			allowCreateWrapperArg: holderType != null || !node.multiPremiseArgument,
 			unlinkFromOldParent: copiedNode_asCut, deleteOrphanedArgumentWrapper: true,
 		});
-		const error = LinkNode_HighLevel_GetCommandError(linkCommand, copiedNodePath, path);
+		const error = linkCommand.StartValidate_ForUI();
 
 		return (
 			<VMenuItem text={`Paste${copiedNode_asCut ? '' : ' as link'}: "${GetNodeDisplayText(copiedNode, null, formForClaimChildren).KeepAtMost(50)}"`}

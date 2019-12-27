@@ -1,33 +1,26 @@
 import { MapEdit } from 'Server/CommandMacros';
 import { GetNode } from 'Store/firebase/nodes';
 import { Assert, E } from 'js-vextensions';
-import { Command, GetAsync } from 'mobx-firelink';
+import { Command, GetAsync, CommandNew, AssertV } from 'mobx-firelink';
 import { ClaimForm, MapNode, Polarity } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
 import { UserEdit } from '../CommandMacros';
 
 @MapEdit
 @UserEdit
-export class LinkNode extends Command<{mapID: string, parentID: string, childID: string, childForm?: ClaimForm, childPolarity?: Polarity}, {}> {
-	Validate_Early() {
-		const { parentID, childID } = this.payload;
-		Assert(parentID != childID, 'Parent-id and child-id cannot be the same!');
-	}
-
+export class LinkNode extends CommandNew<{mapID: string, parentID: string, childID: string, childForm?: ClaimForm, childPolarity?: Polarity}, {}> {
 	parent_oldData: MapNode;
 	/* async Prepare(parent_oldChildrenOrder_override?: number[]) {
 		let {parentID, childID, childForm} = this.payload;
 		this.parent_oldChildrenOrder = parent_oldChildrenOrder_override || await GetDataAsync(`nodes/${parentID}/.childrenOrder`) as number[];
 	} */
-	async Prepare() {
+	StartValidate() {
 		const { parentID, childID } = this.payload;
-		this.parent_oldData = await GetAsync(() => GetNode(parentID));
-	}
-	async Validate() {
-		const { parentID, childID } = this.payload;
-		Assert(this.parent_oldData || this.asSubcommand, 'Parent does not exist!');
+		AssertV(parentID != childID, 'Parent-id and child-id cannot be the same!');
+		this.parent_oldData = GetNode(parentID);
+		AssertV(this.parent_oldData || this.asSubcommand, 'Parent does not exist!');
 		if (this.parent_oldData) {
-			Assert(this.parent_oldData.childrenOrder == null || !this.parent_oldData.childrenOrder.Contains(childID), `Node #${childID} is already a child of node #${parentID}.`);
+			AssertV(this.parent_oldData.childrenOrder == null || !this.parent_oldData.childrenOrder.Contains(childID), `Node #${childID} is already a child of node #${parentID}.`);
 		}
 	}
 

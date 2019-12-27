@@ -1,5 +1,5 @@
 import { Assert, E } from 'js-vextensions';
-import { Command, MergeDBUpdates, GetAsync } from 'mobx-firelink';
+import { Command, MergeDBUpdates, GetAsync, CommandNew, AssertV } from 'mobx-firelink';
 import { AssertValidate } from 'vwebapp-framework';
 import { MapEdit, UserEdit } from '../../Server/CommandMacros';
 import { GetNode } from '../../Store/firebase/nodes';
@@ -12,32 +12,27 @@ type Payload = {mapID: string, parentID: string, node: MapNode, revision: MapNod
 
 @MapEdit
 @UserEdit
-export class AddChildNode extends Command<Payload, {nodeID: string, revisionID: string}> {
+export class AddChildNode extends CommandNew<Payload, {nodeID: string, revisionID: string}> {
 	// set these from parent command if the parent command has earlier subs that increment last-node-id, etc.
 	/* lastNodeID_addAmount = 0;
 	lastNodeRevisionID_addAmount = 0; */
 
-	Validate_Early() {
-		const { node } = this.payload;
-		Assert(node.parents == null, 'node.parents must be empty. Instead, supply a parentID property in the payload.');
-	}
-
 	sub_addNode: AddNode;
 	parent_oldData: MapNode;
-	async Prepare() {
+	StartValidate() {
 		const { mapID, parentID, node, revision, link, asMapRoot } = this.payload;
+		AssertV(node.parents == null, 'node.parents must be empty. Instead, supply a parentID property in the payload.');
 
 		const node_withParents = E(node, parentID ? { parents: { [parentID]: { _: true } } } : {});
 		this.sub_addNode = new AddNode({ mapID, node: node_withParents, revision }).MarkAsSubcommand();
 		// this.sub_addNode.VSet({ lastNodeID_addAmount: this.lastNodeID_addAmount, lastNodeRevisionID_addAmount: this.lastNodeRevisionID_addAmount });
-		this.sub_addNode.Validate_Early();
-		await this.sub_addNode.Prepare();
+		this.sub_addNode.StartValidate();
 
 		this.payload.link = link || { _: true };
 
 		if (!asMapRoot) {
 			// this.parent_oldChildrenOrder = await GetDataAsync('nodes', parentID, '.childrenOrder') as number[];
-			this.parent_oldData = await GetAsync(() => GetNode(parentID));
+			this.parent_oldData = GetNode(parentID);
 		}
 
 		this.returnData = {

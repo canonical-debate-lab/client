@@ -1,12 +1,12 @@
-import { GetShortestPathFromRootToNode } from 'Utils/Store/PathFinder';
 import { GetNode, GetNodeID } from 'Store/firebase/nodes';
 import { emptyArray } from 'js-vextensions';
 import { AddSchema } from 'vwebapp-framework';
 import { UUID_regex } from 'Utils/General/KeyGenerator';
 import { GetLastAcknowledgementTime } from 'Store/main';
 import { GetDoc, StoreAccessor } from 'mobx-firelink';
+import { SearchUpFromNodeForNodeMatchingX } from 'Utils/Store/PathFinder';
 import { MapNode } from './nodes/@MapNode';
-import {GetRootNodeID} from './maps/$map';
+import { GetRootNodeID } from './maps/$map';
 
 export class NodeEditTimes {
 	// [key: number]: ChangeInfo;
@@ -65,7 +65,7 @@ export const GetPathsToNodesChangedSinceX = StoreAccessor((s) => (mapID: string,
 	for (const nodeID of nodeIDs) {
 		const node = GetNode(nodeID);
 		if (node == null) return emptyArray;
-		const pathToRoot = GetShortestPathFromRootToNode(mapRootNodeID, node);
+		const pathToRoot = SearchUpFromNodeForNodeMatchingX(nodeID, (id) => id == mapRootNodeID);
 		if (pathToRoot == null) return emptyArray;
 		result.push(pathToRoot);
 	}
