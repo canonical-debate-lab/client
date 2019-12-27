@@ -189,7 +189,14 @@ function AssertVersionRootPath(path: string) {
 /* type WithDifferentValueType<T, NewValueType> = { [P in keyof T]-?: NewValueType; };
 type FirebaseData_AnyValues = WithDifferentValueType<FirebaseData, any>; */
 
-/** Note that this does not capture subcollections (eg. maps/1/nodeEditTimes). Currently not an issue since we aren't using subcollections. (ie. collections stored under a document's path) */
+/**
+Gets all the known collections under a version-root, returning them as maps/objects, within a root object. (in a Promise)
+Note that this does not capture subcollections (eg. maps/1/nodeEditTimes). Currently not an issue since we aren't using subcollections. (ie. collections stored under a document's path)
+
+Usage: (in console)
+data = await RR.GetCollectionsDataAsync(`versions/v${RR.dbVersion}-${RR.DB_SHORT}`)
+RR.StartDownload(new Blob([JSON.stringify(data)]), "Backup.json")
+*/
 export async function GetCollectionsDataAsync(versionRootPath: string) {
 	AssertVersionRootPath(versionRootPath);
 
