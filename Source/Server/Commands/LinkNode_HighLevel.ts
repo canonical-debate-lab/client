@@ -95,7 +95,7 @@ export class LinkNode_HighLevel extends CommandNew<Payload, {argumentWrapperID?:
 					mapID, parentID: newParentID, node: argumentWrapper, revision: argumentWrapperRevision,
 					// link: E({ _: true }, newPolarity && { polarity: newPolarity }) as any,
 					link: E({ _: true, polarity: newPolarity }) as any,
-				}).MarkAsSubcommand();
+				}).MarkAsSubcommand(this);
 				this.sub_addArgumentWrapper.StartValidate();
 
 				this.returnData.argumentWrapperID = this.sub_addArgumentWrapper.sub_addNode.nodeID;
@@ -106,16 +106,16 @@ export class LinkNode_HighLevel extends CommandNew<Payload, {argumentWrapperID?:
 			}
 		}
 
-		this.sub_linkToNewParent = new LinkNode({ mapID, parentID: newParentID_forClaim, childID: nodeID, childForm: newForm, childPolarity: newPolarity }).MarkAsSubcommand();
+		this.sub_linkToNewParent = new LinkNode({ mapID, parentID: newParentID_forClaim, childID: nodeID, childForm: newForm, childPolarity: newPolarity }).MarkAsSubcommand(this);
 
 		if (unlinkFromOldParent) {
-			this.sub_unlinkFromOldParent = new UnlinkNode({ mapID, parentID: oldParentID, childID: nodeID }).MarkAsSubcommand();
+			this.sub_unlinkFromOldParent = new UnlinkNode({ mapID, parentID: oldParentID, childID: nodeID }).MarkAsSubcommand(this);
 			this.sub_unlinkFromOldParent.allowOrphaning = true; // allow "orphaning" of nodeID, since we're going to reparent it simultaneously -- using the sub_linkToNewParent subcommand
 			this.sub_unlinkFromOldParent.StartValidate();
 
 			// if the old parent was an argument, and the moved node was its only child, also delete the old parent
 			if (deleteOrphanedArgumentWrapper && oldParent_data.type === MapNodeType.Argument && oldParent_data.children.VKeys(true).length === 1) {
-				this.sub_deleteOldParent = new DeleteNode({ mapID, nodeID: oldParentID }).MarkAsSubcommand();
+				this.sub_deleteOldParent = new DeleteNode({ mapID, nodeID: oldParentID }).MarkAsSubcommand(this);
 				this.sub_deleteOldParent.childrenToIgnore = [nodeID]; // let DeleteNode sub that it doesn't need to wait for nodeID to be deleted (since we're moving it out from old-parent simultaneously with old-parent's deletion)
 				this.sub_deleteOldParent.StartValidate();
 			}

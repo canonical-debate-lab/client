@@ -28,13 +28,13 @@ export class AddNode extends CommandNew<{mapID: string, node: MapNode, revision:
 		node.createdAt = Date.now();
 		revision.node = this.nodeID;
 
-		this.sub_addRevision = new AddNodeRevision({ mapID, revision }).MarkAsSubcommand();
+		this.sub_addRevision = new AddNodeRevision({ mapID, revision }).MarkAsSubcommand(this);
 		// this.sub_addRevision.lastNodeRevisionID_addAmount = this.lastNodeRevisionID_addAmount;
 		this.sub_addRevision.StartValidate();
 
 		node.currentRevision = this.sub_addRevision.revisionID;
 
-		if (this.asSubcommand) {
+		if (this.parentCommand) {
 			const mapNodeSchema = GetSchemaJSON('MapNode');
 			// if as subcommand, we might be called by AddChildNode for new argument; in that case, ignore the "childrenOrder" prop requirement (gets added by later link-impact-node subcommand)
 			delete mapNodeSchema['allOf'];

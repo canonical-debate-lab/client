@@ -1,4 +1,4 @@
-import { GetEntries, E } from 'js-vextensions';
+import { GetEntries, E, OmitIfFalsy } from 'js-vextensions';
 import { Fragment } from 'react';
 import { Button, CheckBox, Column, Div, Pre, Row, Select, Text } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
@@ -16,7 +16,7 @@ import { ReverseArgumentPolarity } from '../../../../../../Server/Commands/Rever
 import { UpdateLink } from '../../../../../../Server/Commands/UpdateLink';
 import { UpdateNodeChildrenOrder } from '../../../../../../Server/Commands/UpdateNodeChildrenOrder';
 import { Map, MapType } from '../../../../../../Store/firebase/maps/@Map';
-import { GetClaimType, GetNodeDisplayText, GetNodeForm, GetNodeL3 } from '../../../../../../Store/firebase/nodes/$node';
+import { GetClaimType, GetNodeDisplayText, GetNodeForm, GetNodeL3, IsSinglePremiseArgument } from '../../../../../../Store/firebase/nodes/$node';
 import { ClaimForm, ClaimType, MapNodeL3 } from '../../../../../../Store/firebase/nodes/@MapNode';
 import { ArgumentType } from '../../../../../../Store/firebase/nodes/@MapNodeRevision';
 import { MapNodeType } from '../../../../../../Store/firebase/nodes/@MapNodeType';
@@ -47,7 +47,7 @@ export class OthersPanel extends BaseComponentPlus({} as {map?: Map, node: MapNo
 		convertToType = convertToType || convertToTypes.map((a) => a.value).FirstOrX();
 
 		const isArgument_any = node.current.argumentType === ArgumentType.Any;
-		const parents = GetNodesByIDs(node.parents?.VKeys() ?? []);
+		/* const parents = GetNodesByIDs(node.parents?.VKeys() ?? []);
 		const parentsArePrivateInSameMap = !IsSpecialEmptyArray(parents) && mapID && parents.All((a) => a.ownerMapID == mapID);
 		const canChangeOwnershipType = creatorOrMod && (
 			node.ownerMapID == null
@@ -55,7 +55,15 @@ export class OthersPanel extends BaseComponentPlus({} as {map?: Map, node: MapNo
 				? (mapID && map.type == MapType.Private && parentsArePrivateInSameMap)
 				// if making public, can't be root node, and the owner map must allow public nodes (at some point, may remove this restriction, by having action cause node to be auto-replaced with in-map private-copy)
 				: (node.parents?.VKeys().length > 0) // && map.allowPublicNodes)
-		);
+		); */
+
+		const argumentWrapper = IsSinglePremiseArgument(parent) ? parent : null;
+
+		const changeControlType_currentType = node.ownerMapID != null ? 'Private' : 'Public';
+		// const changeControlType_newType = changeControlType_currentType == 'Private' ? 'Public' : 'Private';
+		const changeControlTypeCommand = new ChangeNodeOwnerMap(E({ nodeID: node._key, newOwnerMapID: node.ownerMapID != null ? null : mapID, argumentNodeID: OmitIfFalsy(argumentWrapper?._key) }));
+		const changeControlTypeCommand_error = changeControlTypeCommand.StartValidate_ForUI();
+
 		return (
 			<Column sel style={{ position: 'relative' }}>
 				<IDAndCreationInfoUI id={node._key} creator={creator} createdAt={node.createdAt}/>
@@ -79,8 +87,8 @@ export class OthersPanel extends BaseComponentPlus({} as {map?: Map, node: MapNo
 				</Row>
 				<Row center style={{ whiteSpace: 'normal' }}>
 					<Text>Control type:</Text>
-					<Select ml={5} options={['Private', 'Public']} value={node.ownerMapID != null ? 'Private' : 'Public'} enabled={canChangeOwnershipType} onChange={(val) => {
-						new ChangeNodeOwnerMap(E({ nodeID: node._key, newOwnerMapID: val == 'Private' ? mapID : null })).Run();
+					<Select ml={5} options={['Private', 'Public']} value={changeControlType_currentType} enabled={changeControlTypeCommand_error == null} title={changeControlTypeCommand_error} onChange={(val) => {
+						changeControlTypeCommand.Run();
 					}}/>
 					<InfoButton ml={5} text="Private nodes are locked to a given map, but allow more permission controls to the node-creator and map-editors."/>
 				</Row>

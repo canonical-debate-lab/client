@@ -36,7 +36,7 @@ export class CloneNode extends CommandNew<{mapID: string, baseNodePath: string, 
 				nodeForm && { form: nodeForm },
 				nodePolarity && { polarity: nodePolarity },
 			) as any,
-		}).MarkAsSubcommand();
+		}).MarkAsSubcommand(this);
 		this.sub_addNode.StartValidate();
 
 		// prepare link-children
@@ -55,7 +55,7 @@ export class CloneNode extends CommandNew<{mapID: string, baseNodePath: string, 
 			AssertV(child, `child (for id ${childID}) is null.`);
 			const childForm = GetNodeForm(child, `${baseNodePath}/${childID}`);
 			AssertV(child, `childForm (for id ${childID}) is null.`);
-			const linkChildSub = new LinkNode({ mapID, parentID: this.sub_addNode.sub_addNode.nodeID, childID, childForm }).MarkAsSubcommand();
+			const linkChildSub = new LinkNode({ mapID, parentID: this.sub_addNode.sub_addNode.nodeID, childID, childForm }).MarkAsSubcommand(this);
 
 			// linkChildSub.Prepare([]);
 			/* let dbUpdates = this.GetDBUpdates();

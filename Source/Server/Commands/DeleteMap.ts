@@ -1,28 +1,25 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { DeleteNode } from 'Server/Commands/DeleteNode';
 import { GetMap } from 'Store/firebase/maps';
-import { Command, MergeDBUpdates, GetAsync, GetDocs } from 'mobx-firelink';
+import { Command, MergeDBUpdates, GetAsync, GetDocs, AssertV, CommandNew } from 'mobx-firelink';
 import { MapNode } from 'Store/firebase/nodes/@MapNode';
 import { Map } from '../../Store/firebase/maps/@Map';
 import { UserMapInfoSet } from '../../Store/firebase/userMapInfo/@UserMapInfo';
 
 @UserEdit
-export class DeleteMap extends Command<{mapID: string}, {}> {
+export class DeleteMap extends CommandNew<{mapID: string}, {}> {
 	oldData: Map;
 	userMapInfoSets: UserMapInfoSet[];
 	sub_deleteNode: DeleteNode;
-	async Prepare() {
+	StartValidate() {
 		const { mapID } = this.payload;
-		this.oldData = await GetAsync(() => GetMap(mapID));
-		this.userMapInfoSets = await GetAsync(() => GetDocs({}, (a) => a.userMapInfo) || []);
+		this.oldData = GetMap(mapID);
+		AssertV(this.oldData, 'oldData is null.');
+		this.userMapInfoSets = GetDocs({}, (a) => a.userMapInfo) || [];
 
-		this.sub_deleteNode = new DeleteNode({ mapID, nodeID: this.oldData.rootNode }).MarkAsSubcommand();
+		this.sub_deleteNode = new DeleteNode({ mapID, nodeID: this.oldData.rootNode }).MarkAsSubcommand(this);
 		this.sub_deleteNode.asPartOfMapDelete = true;
-		// this.sub_deleteNode.Validate_Early();
-		// await this.sub_deleteNode.Prepare();
-	}
-	async Validate() {
-		await GetAsync(() => this.sub_deleteNode.Validate(), { errorHandling: 'ignore' });
+		this.sub_deleteNode.StartValidate();
 		// todo: use parents recursion on l2 nodes to make sure they're all connected to at least one other map root
 	}
 

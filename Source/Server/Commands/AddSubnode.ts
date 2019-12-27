@@ -13,7 +13,7 @@ export class AddSubnode extends CommandNew<{mapID: string, layerID: string, anch
 	StartValidate() {
 		const { mapID, layerID, anchorNodeID, subnode, subnodeRevision } = this.payload;
 
-		this.sub_addNode = new AddNode({ mapID, node: subnode, revision: subnodeRevision }).MarkAsSubcommand();
+		this.sub_addNode = new AddNode({ mapID, node: subnode, revision: subnodeRevision }).MarkAsSubcommand(this);
 		this.sub_addNode.StartValidate();
 
 		this.layer_oldData = GetLayer(layerID);

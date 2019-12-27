@@ -37,7 +37,7 @@ export class AddNodeRevision extends CommandNew<{mapID: string, revision: MapNod
 		const titles_joined = (revision.titles || {}).VValues(true).join(' ');
 		revision.titles.allTerms = GetSearchTerms(titles_joined).ToMap((a) => a, () => true);
 
-		if (!this.asSubcommand) {
+		if (this.parentCommand == null) {
 			this.node_oldData = GetNode(revision.node);
 			AssertV(this.node_oldData, 'node_oldData is null.');
 		}

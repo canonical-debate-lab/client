@@ -18,10 +18,10 @@ export class AddArgumentAndClaim extends CommandNew<Payload, {argumentNodeID: st
 
 		this.sub_addArgument = new AddChildNode({
 			mapID, parentID: argumentParentID, node: argumentNode, revision: argumentRevision, link: argumentLink,
-		}).MarkAsSubcommand();
+		}).MarkAsSubcommand(this);
 		this.sub_addArgument.StartValidate();
 
-		this.sub_addClaim = new AddChildNode({ mapID, parentID: this.sub_addArgument.returnData.nodeID, node: claimNode, revision: claimRevision, link: claimLink }).MarkAsSubcommand();
+		this.sub_addClaim = new AddChildNode({ mapID, parentID: this.sub_addArgument.returnData.nodeID, node: claimNode, revision: claimRevision, link: claimLink }).MarkAsSubcommand(this);
 		/* this.sub_addClaim.lastNodeID_addAmount = 1;
 		this.sub_addClaim.lastNodeRevisionID_addAmount = 1; */
 		this.sub_addClaim.StartValidate();

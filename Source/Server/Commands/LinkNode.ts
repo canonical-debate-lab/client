@@ -21,9 +21,9 @@ export class LinkNode extends CommandNew<{mapID: string, parentID: string, child
 		AssertV(parentID != childID, 'Parent-id and child-id cannot be the same!');
 
 		this.child_oldData = GetNode(childID);
-		AssertV(this.child_oldData || this.asSubcommand, 'Child does not exist!');
+		AssertV(this.child_oldData || this.parentCommand != null, 'Child does not exist!');
 		this.parent_oldData = GetNode(parentID);
-		AssertV(this.parent_oldData || this.asSubcommand, 'Parent does not exist!');
+		AssertV(this.parent_oldData || this.parentCommand != null, 'Parent does not exist!');
 
 		if (this.parent_oldData) {
 			AssertV(this.parent_oldData.childrenOrder == null || !this.parent_oldData.childrenOrder.Contains(childID), `Node #${childID} is already a child of node #${parentID}.`);

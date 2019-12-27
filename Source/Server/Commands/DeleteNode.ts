@@ -61,11 +61,11 @@ export class DeleteNode extends CommandNew<{mapID?: string, nodeID: string, with
 		/* Assert((this.oldData.parents || {}).VKeys(true).length <= 1, "Cannot delete this child, as it has more than one parent. Try unlinking it instead.");
 		let normalChildCount = (this.oldData.children || {}).VKeys(true).length;
 		Assert(normalChildCount == 0, "Cannot delete this node until all its (non-impact-premise) children have been unlinked or deleted."); */
-		const earlyError = ForDelete_GetError(this.userInfo.id, this.oldData, this.asSubcommand && { asPartOfMapDelete, childrenToIgnore });
+		const earlyError = ForDelete_GetError(this.userInfo.id, this.oldData, this.parentCommand && { asPartOfMapDelete, childrenToIgnore });
 		AssertV(earlyError == null, earlyError);
 
 		if (withContainerArgument) {
-			this.sub_deleteContainerArgument = new DeleteNode({ mapID, nodeID: withContainerArgument }).MarkAsSubcommand();
+			this.sub_deleteContainerArgument = new DeleteNode({ mapID, nodeID: withContainerArgument }).MarkAsSubcommand(this);
 			this.sub_deleteContainerArgument.childrenToIgnore = [nodeID];
 			// this.sub_deleteContainerArgument.Validate_Early();
 			this.sub_deleteContainerArgument.Validate();

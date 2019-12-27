@@ -1,14 +1,19 @@
-import { Command, GetAsync } from 'mobx-firelink';
-import { GetNode } from 'Store/firebase/nodes';
-import { AddSchema, AssertValidate } from 'vwebapp-framework';
+import { Command, GetAsync, CommandNew, AssertV, MergeDBUpdates } from 'mobx-firelink';
+import { GetNode, GetNodesByIDs, GetNodeChildren } from 'Store/firebase/nodes';
+import { AddSchema, AssertValidate, IsSpecialEmptyArray } from 'vwebapp-framework';
 import { E, OMIT, DEL } from 'js-vextensions';
-import { MapNodeL2, MapNode } from '../../Store/firebase/nodes/@MapNode';
+import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
+import { GetMap } from 'Store/firebase/maps';
+import { MapType } from 'Store/firebase/maps/@Map';
+import { IsPremiseOfSinglePremiseArgument } from 'Store/firebase/nodes/$node';
 import { UserEdit } from '../CommandMacros';
+import { MapNodeL2, MapNode } from '../../Store/firebase/nodes/@MapNode';
 
 AddSchema('ChangeNodeOwnerMap_payload', {
 	properties: {
 		nodeID: { type: 'string' },
 		newOwnerMapID: { type: ['null', 'string'] },
+		argumentNodeID: { type: 'string' },
 	},
 	required: ['nodeID', 'newOwnerMapID'],
 });
@@ -17,25 +22,59 @@ AddSchema('ChangeNodeOwnerMap_payload', {
 
 // @MapEdit
 @UserEdit
-export class ChangeNodeOwnerMap extends Command<{nodeID: string, newOwnerMapID: string}, {}> {
-	Validate_Early() {
-		AssertValidate('ChangeNodeOwnerMap_payload', this.payload, 'Payload invalid');
-	}
-
+export class ChangeNodeOwnerMap extends CommandNew<{nodeID: string, newOwnerMapID: string, argumentNodeID?: string}, {}> {
 	newData: MapNode;
-	async Prepare() {
-		const { nodeID, newOwnerMapID } = this.payload;
-		const oldData = await GetAsync(() => GetNode(nodeID));
+
+	sub_changeOwnerMapForArgument: ChangeNodeOwnerMap;
+
+	StartValidate() {
+		AssertValidate('ChangeNodeOwnerMap_payload', this.payload, 'Payload invalid');
+		const { nodeID, newOwnerMapID, argumentNodeID } = this.payload;
+		const oldData = GetNode(nodeID);
+		AssertV(oldData, 'oldData is null');
+
+		AssertV(IsUserCreatorOrMod(this.userInfo.id, oldData), "User is not the node's creator, or a moderator.");
+		// if making private
+		if (oldData.ownerMapID == null) {
+			const newOwnerMap = GetMap(newOwnerMapID);
+			AssertV(newOwnerMapID, 'newOwnerMap still loading.');
+			AssertV(newOwnerMap.type == MapType.Private, 'Node must be in private map to be made private.');
+
+			const permittedPublicParentIDs = argumentNodeID ? [argumentNodeID] : [];
+
+			const parents = GetNodesByIDs(oldData.parents?.VKeys() ?? []);
+			const parentsArePrivateInSameMap = !IsSpecialEmptyArray(parents) && newOwnerMapID && parents.All((a) => a.ownerMapID == newOwnerMapID || permittedPublicParentIDs.Contains(a._key));
+			AssertV(parentsArePrivateInSameMap, "To make node private, all its parents must be private nodes within the same map. (to ensure we don't leave links in other maps, which would make the owner-map-id invalid)");
+		} else {
+			// if making public
+			AssertV(oldData.rootNodeForMap == null, "Cannot make a map's root-node public.");
+			// the owner map must allow public nodes (at some point, may remove this restriction, by having action cause node to be auto-replaced with in-map private-copy)
+			// AssertV(oldData.parents?.VKeys().length > 0, "Cannot make an")
+
+			const permittedPrivateChildrenIDs = this.parentCommand instanceof ChangeNodeOwnerMap ? [this.parentCommand.payload.nodeID] : [];
+
+			const children = GetNodeChildren(oldData);
+			AssertV(!IsSpecialEmptyArray(children), 'children still loading.');
+			AssertV(children.All((a) => a.ownerMapID == null || permittedPrivateChildrenIDs.Contains(a._key)), 'To make node public, it must not have any private children.');
+		}
+
 		this.newData = E(oldData, { ownerMapID: newOwnerMapID ?? DEL });
-	}
-	async Validate() {
 		AssertValidate('MapNode', this.newData, 'New node-data invalid');
+
+		if (argumentNodeID) {
+			this.sub_changeOwnerMapForArgument = new ChangeNodeOwnerMap({ nodeID: argumentNodeID, newOwnerMapID }).MarkAsSubcommand(this);
+			this.sub_changeOwnerMapForArgument.StartValidate();
+		}
 	}
 
 	GetDBUpdates() {
 		const { nodeID } = this.payload;
-		return {
+		let result = {
 			[`nodes/${nodeID}`]: this.newData,
 		};
+		if (this.sub_changeOwnerMapForArgument) {
+			result = MergeDBUpdates(result, this.sub_changeOwnerMapForArgument.GetDBUpdates());
+		}
+		return result;
 	}
 }

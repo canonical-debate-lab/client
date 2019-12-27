@@ -375,7 +375,7 @@ class DeleteContainerArgument_MenuItem extends BaseComponent<SharedProps, {}> {
 		const argumentCommand = new DeleteNode(E({ mapID, nodeID: argument._key }));
 		if (baseClaimCommand) {
 			// temp; client isn't supposed to be able to set asSubcommand (we do it for now, since we don't have a dedicated DeleteArgument command created yet)
-			argumentCommand.asSubcommand = true;
+			argumentCommand.parentCommand = {} as any;
 			argumentCommand.childrenToIgnore = [node._key];
 		}
 		const error = argumentCommand.StartValidate_ForUI() ?? baseClaimCommand?.StartValidate_ForUI();
