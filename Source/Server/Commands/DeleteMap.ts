@@ -19,10 +19,10 @@ export class DeleteMap extends Command<{mapID: string}, {}> {
 		this.sub_deleteNode = new DeleteNode({ mapID, nodeID: this.oldData.rootNode }).MarkAsSubcommand();
 		this.sub_deleteNode.asPartOfMapDelete = true;
 		this.sub_deleteNode.Validate_Early();
-		await this.sub_deleteNode.Prepare();
+		// await this.sub_deleteNode.Prepare();
 	}
 	async Validate() {
-		await this.sub_deleteNode.Validate();
+		await GetAsync(() => this.sub_deleteNode.Validate(), { errorHandling: 'ignore' });
 		// todo: use parents recursion on l2 nodes to make sure they're all connected to at least one other map root
 	}
 

@@ -1,8 +1,8 @@
-import { Assert, ToInt } from 'js-vextensions';
+import { ToInt } from 'js-vextensions';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { GetNodeRevision, GetNodeRevisions } from 'Store/firebase/nodeRevisions';
-import { Command, MergeDBUpdates, GetAsync } from 'mobx-firelink';
+import { Command, CommandNew, MergeDBUpdates, AssertV } from 'mobx-firelink';
 import { AssertValidate, AddSchema } from 'vwebapp-framework';
 import { GetMaps } from '../../Store/firebase/maps';
 import { ForDelete_GetError, GetNode } from '../../Store/firebase/nodes';
@@ -20,7 +20,7 @@ AddSchema('DeleteNode_payload', {
 
 @MapEdit
 @UserEdit
-export class DeleteNode extends Command<{mapID?: string, nodeID: string, withContainerArgument?: string}, {}> {
+export class DeleteNode extends CommandNew<{mapID?: string, nodeID: string, withContainerArgument?: string}, {}> {
 	Validate_Early() {
 		AssertValidate('DeleteNode_payload', this.payload, 'Payload invalid');
 	}
@@ -36,39 +36,42 @@ export class DeleteNode extends Command<{mapID?: string, nodeID: string, withCon
 	oldParentChildrenOrders: string[][];
 	// viewerIDs_main: string[];
 	mapIDs: string[];
-	async Prepare() {
+	Validate() {
 		const { mapID, nodeID, withContainerArgument } = this.payload;
+		const { asPartOfMapDelete, childrenToIgnore } = this;
 
-		this.oldData = await GetAsync(() => GetNodeL2(nodeID));
+		this.oldData = GetNodeL2(nodeID);
+		AssertV(this.oldData, 'oldData is null.');
 		// this.oldRevisions = await GetAsync(() => GetNodeRevisions(nodeID));
 		// this.oldRevisions = await Promise.all(...oldRevisionIDs.map(id => GetDataAsync('nodeRevisions', id)));
 		// this.oldRevisions = await Promise.all(...oldRevisionIDs.map(id => GetAsync(() => GetNodeRevision(id))));
 		/* const oldRevisionIDs = await GetNodeRevisionIDsForNode_OneTime(nodeID);
 		this.oldRevisions = await GetAsync(() => oldRevisionIDs.map(id => GetNodeRevision(id))); */
-		this.oldRevisions = await GetAsync(() => GetNodeRevisions(nodeID));
+		this.oldRevisions = GetNodeRevisions(nodeID);
+		AssertV(this.oldRevisions.All((a) => a != null) && this.oldRevisions.length, 'oldRevisions has null entries, or length of zero.');
 
 		const parentIDs = (this.oldData.parents || {}).VKeys();
-		this.oldParentChildrenOrders = await Promise.all(parentIDs.map((parentID) => GetAsync(() => GetNode(parentID)?.childrenOrder)));
+		this.oldParentChildrenOrders = parentIDs.map((parentID) => GetNode(parentID)?.childrenOrder);
+		// AssertV(this.oldParentChildrenOrders.All((a) => a != null), 'oldParentChildrenOrders has null entries.');
 
 		// this.viewerIDs_main = await GetAsync(() => GetNodeViewers(nodeID));
 
-		this.mapIDs = (await GetAsync(() => GetMaps())).map((a) => a._key);
+		this.mapIDs = GetMaps()?.map((a) => a._key);
+		AssertV(this.mapIDs, 'mapIDs is null.');
+
+		// probably todo: integrate this into the command Validate functions themselves
+		/* Assert((this.oldData.parents || {}).VKeys(true).length <= 1, "Cannot delete this child, as it has more than one parent. Try unlinking it instead.");
+		let normalChildCount = (this.oldData.children || {}).VKeys(true).length;
+		Assert(normalChildCount == 0, "Cannot delete this node until all its (non-impact-premise) children have been unlinked or deleted."); */
+		const earlyError = ForDelete_GetError(this.userInfo.id, this.oldData, this.asSubcommand && { asPartOfMapDelete, childrenToIgnore });
+		AssertV(earlyError == null, earlyError);
 
 		if (withContainerArgument) {
 			this.sub_deleteContainerArgument = new DeleteNode({ mapID, nodeID: withContainerArgument }).MarkAsSubcommand();
 			this.sub_deleteContainerArgument.childrenToIgnore = [nodeID];
 			this.sub_deleteContainerArgument.Validate_Early();
-			await this.sub_deleteContainerArgument.Prepare();
+			this.sub_deleteContainerArgument.Validate();
 		}
-	}
-	async Validate() {
-		const { asPartOfMapDelete, childrenToIgnore } = this;
-		/* Assert((this.oldData.parents || {}).VKeys(true).length <= 1, "Cannot delete this child, as it has more than one parent. Try unlinking it instead.");
-		let normalChildCount = (this.oldData.children || {}).VKeys(true).length;
-		Assert(normalChildCount == 0, "Cannot delete this node until all its (non-impact-premise) children have been unlinked or deleted."); */
-		const earlyError = await GetAsync(() => ForDelete_GetError(this.userInfo.id, this.oldData, this.asSubcommand && { asPartOfMapDelete, childrenToIgnore }));
-		Assert(earlyError == null, earlyError);
-		if (this.sub_deleteContainerArgument) await this.sub_deleteContainerArgument.Validate();
 	}
 
 	GetDBUpdates() {

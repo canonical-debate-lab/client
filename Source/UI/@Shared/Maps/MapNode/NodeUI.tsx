@@ -1,6 +1,6 @@
 import { Assert, CachedTransform, E, emptyArray, emptyArray_forLoading, IsNaN, nl } from 'js-vextensions';
 import React from 'react';
-import { Column } from 'react-vcomponents';
+import { Column, Row } from 'react-vcomponents';
 import { BaseComponentPlus, GetInnerComp, RenderSource, ShallowEquals, UseCallback, WarnOfTransientObjectProps } from 'react-vextensions';
 import { ChangeType, GetPathsToChangedDescendantNodes_WithChangeTypes } from 'Store/firebase/mapNodeEditTimes';
 import { GetParentPath, HolderType, GetNodeChildrenL3_Advanced } from 'Store/firebase/nodes';
@@ -15,13 +15,14 @@ import { GetNodeView } from 'Store/main/mapViews/$mapView';
 import { GetSubnodesInEnabledLayersEnhanced } from '../../../../Store/firebase/layers';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetNodeChildrenL3, GetParentNodeL2, GetParentNodeL3, IsRootNode } from '../../../../Store/firebase/nodes';
-import { GetNodeForm, IsMultiPremiseArgument, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument } from '../../../../Store/firebase/nodes/$node';
+import { GetNodeForm, IsMultiPremiseArgument, IsNodeL2, IsNodeL3, IsPremiseOfSinglePremiseArgument, IsSinglePremiseArgument, GetNodeDisplayText } from '../../../../Store/firebase/nodes/$node';
 import { AccessLevel, MapNodeL3, Polarity } from '../../../../Store/firebase/nodes/@MapNode';
-import { MapNodeType } from '../../../../Store/firebase/nodes/@MapNodeType';
+import { MapNodeType, GetNodeColor } from '../../../../Store/firebase/nodes/@MapNodeType';
 import { NodeChangesMarker } from './NodeUI/NodeChangesMarker';
 import { NodeChildCountMarker } from './NodeUI/NodeChildCountMarker';
 import { GetMeasurementInfoForNode } from './NodeUI/NodeMeasurer';
 import { NodeUI_Inner } from './NodeUI_Inner';
+import { NodeUI_Menu_Stub } from './NodeUI_Menu';
 
 // @ExpensiveComponent
 @WarnOfTransientObjectProps
@@ -109,21 +110,42 @@ export class NodeUI extends BaseComponentPlus(
 
 		// if single-premise arg, combine arg and premise into one box, by rendering premise box directly (it will add-in this argument's child relevance-arguments)
 		if (isSinglePremiseArgument) {
-			// Assert(premises.length == 1, `Single-premise argument #${node._id} has more than one premise! (${premises.map(a=>a._id).join(",")})`);
-			const premises = nodeChildren.filter((a) => a && a.type == MapNodeType.Claim);
-			const premise = premises[0];
-			if (premise == null) return <div/>; // child data not loaded yet
+			if (node.children.VKeys().length) {
+				// Assert(premises.length == 1, `Single-premise argument #${node._id} has more than one premise! (${premises.map(a=>a._id).join(",")})`);
+				const premises = nodeChildren.filter((a) => a && a.type == MapNodeType.Claim);
+				const premise = premises[0];
+				if (premise == null) return <div/>; // child data not loaded yet
 
-			// if has child-limit bar, correct its path
-			const firstChildComp = this.FlattenedChildren[0] as any;
-			if (firstChildComp && firstChildComp.props.path == path) {
-				firstChildComp.props.path = `${firstChildComp.props.path}/${premise._key}`;
+				// if has child-limit bar, correct its path
+				const firstChildComp = this.FlattenedChildren[0] as any;
+				if (firstChildComp && firstChildComp.props.path == path) {
+					firstChildComp.props.path = `${firstChildComp.props.path}/${premise._key}`;
+				}
+
+				return (
+					<NodeUI ref={(c) => this.proxyDisplayedNodeUI = c} {...this.props} key={premise._key} map={map} node={premise} path={`${path}/${premise._key}`}>
+						{children}
+					</NodeUI>
+				);
 			}
 
+			// placeholder, so user can add the base-claim
+			// const backgroundColor = GetNodeColor(node).desaturate(0.5).alpha(0.8);
 			return (
-				<NodeUI ref={(c) => this.proxyDisplayedNodeUI = c} {...this.props} key={premise._key} map={map} node={premise} path={`${path}/${premise._key}`}>
-					{children}
-				</NodeUI>
+				<Column>
+					<Row /* mt={indexInNodeList === 0 ? 0 : 5} */ className="cursorSet"
+						style={{
+							padding: 5, borderRadius: 5, cursor: 'pointer', border: '1px solid rgba(0,0,0,.5)',
+							background: /* backgroundColor.css() */ 'rgba(0, 0, 0, 0.7)',
+							margin: '5px 0', // emulate usual internal NodeUI
+							fontSize: 14, // emulate usual internal NodeUI_Inner
+						}}
+					>
+						<span style={{ opacity: 0.5 }}>(single-premise arg lacks base-claim; right-click to add)</span>
+						{/* <NodeUI_Menu_Helper {...{map, node}}/> */}
+						<NodeUI_Menu_Stub {...{ map, node, path }}/>
+					</Row>
+				</Column>
 			);
 		}
 

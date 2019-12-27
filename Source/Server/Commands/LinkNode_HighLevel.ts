@@ -144,7 +144,7 @@ export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: st
 				this.sub_deleteOldParent = new DeleteNode({ mapID, nodeID: oldParentID }).MarkAsSubcommand();
 				this.sub_deleteOldParent.childrenToIgnore = [nodeID]; // let DeleteNode sub that it doesn't need to wait for nodeID to be deleted (since we're moving it out from old-parent simultaneously with old-parent's deletion)
 				this.sub_deleteOldParent.Validate_Early();
-				await this.sub_deleteOldParent.Prepare();
+				// await this.sub_deleteOldParent.Prepare();
 			}
 		}
 	}
@@ -152,7 +152,7 @@ export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: st
 		if (this.sub_addArgumentWrapper) await this.sub_addArgumentWrapper.Validate();
 		await this.sub_linkToNewParent.Validate();
 		if (this.sub_unlinkFromOldParent) await this.sub_unlinkFromOldParent.Validate();
-		if (this.sub_deleteOldParent) await this.sub_deleteOldParent.Validate();
+		if (this.sub_deleteOldParent) await GetAsync(() => this.sub_deleteOldParent.Validate(), { errorHandling: 'ignore' });
 	}
 
 	GetDBUpdates() {

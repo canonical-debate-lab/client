@@ -109,11 +109,13 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 			const refName = `${group}ChildHolder`;
 			const childLimit = group == 'up' ? childLimit_up : childLimit_down; // "all" and "down" share a child-limit
 			const childrenHere = group == 'all' ? nodeChildrenToShowHere : group == 'up' ? upChildren : downChildren;
+			// if direction is up, we need to have the first-in-children-array/highest-fill-percent entries show at the *bottom*, so reverse the children-here array
+			if (direction == 'up') childrenHere.reverse();
 			const childrenHereUIs = childrenHere.slice(0, childLimit).map((pack, index) => {
 				return RenderChild(pack, index, childrenHere, direction);
 			});
 			// if direction is up, we need to have the first-in-children-array/highest-fill-percent entries show at the *bottom*, so reverse the children-uis array
-			if (direction == 'up') childrenHereUIs.reverse();
+			// if (direction == 'up') childrenHereUIs.reverse();
 
 			const dragBox = document.querySelector('.NodeUI_Inner.DragPreview');
 			const dragBoxRect = dragBox && VRect.FromLTWH(dragBox.getBoundingClientRect());
