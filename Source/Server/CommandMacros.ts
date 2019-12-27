@@ -16,7 +16,7 @@ export function MapEdit(...args) {
 
 	function ApplyToClass(targetClass: Function) {
 		const oldStartValidate = targetClass.prototype.StartValidate;
-		targetClass.prototype.StartValidate = async function () {
+		targetClass.prototype.StartValidate = function () {
 			const result = oldStartValidate.apply(this);
 			const mapID = this.payload[mapIDKey];
 			if (mapID) {
