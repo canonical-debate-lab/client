@@ -136,15 +136,11 @@ export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: st
 		if (unlinkFromOldParent) {
 			this.sub_unlinkFromOldParent = new UnlinkNode({ mapID, parentID: oldParentID, childID: nodeID }).MarkAsSubcommand();
 			this.sub_unlinkFromOldParent.allowOrphaning = true; // allow "orphaning" of nodeID, since we're going to reparent it simultaneously -- using the sub_linkToNewParent subcommand
-			this.sub_unlinkFromOldParent.Validate_Early();
-			await this.sub_unlinkFromOldParent.Prepare();
 
 			// if the old parent was an argument, and the moved node was its only child, also delete the old parent
 			if (deleteOrphanedArgumentWrapper && oldParent_data.type === MapNodeType.Argument && oldParent_data.children.VKeys(true).length === 1) {
 				this.sub_deleteOldParent = new DeleteNode({ mapID, nodeID: oldParentID }).MarkAsSubcommand();
 				this.sub_deleteOldParent.childrenToIgnore = [nodeID]; // let DeleteNode sub that it doesn't need to wait for nodeID to be deleted (since we're moving it out from old-parent simultaneously with old-parent's deletion)
-				this.sub_deleteOldParent.Validate_Early();
-				// await this.sub_deleteOldParent.Prepare();
 			}
 		}
 	}
@@ -152,7 +148,7 @@ export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: st
 		if (this.sub_addArgumentWrapper) await this.sub_addArgumentWrapper.Validate();
 		await this.sub_linkToNewParent.Validate();
 		if (this.sub_unlinkFromOldParent) await this.sub_unlinkFromOldParent.Validate();
-		if (this.sub_deleteOldParent) await GetAsync(() => this.sub_deleteOldParent.Validate(), { errorHandling: 'ignore' });
+		if (this.sub_deleteOldParent) await this.sub_deleteOldParent.Validate();
 	}
 
 	GetDBUpdates() {

@@ -247,22 +247,7 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 							});
 						}}/>}
 				<DeleteContainerArgument_MenuItem {...sharedProps}/>
-				{IsUserCreatorOrMod(userID, node) && !componentBox &&
-					<VMenuItem text={`Delete${combinedWithParentArg ? ' claim' : ''}`}
-						enabled={ForDelete_GetError(userID, node) == null} title={ForDelete_GetError(userID, node)}
-						style={styles.vMenuItem} onClick={(e) => {
-							if (e.button != 0) return;
-
-							const contextStr = IsNodeSubnode(node) ? ', and its placement in-layer' : ', and its link with 1 parent';
-
-							ShowMessageBox({
-								title: `Delete "${nodeText}"`, cancelButton: true,
-								message: `Delete the node "${nodeText}"${contextStr}?`,
-								onOK: async () => {
-									await new DeleteNode(E({ mapID: map ? mapID : null, nodeID: node._key })).Run();
-								},
-							});
-						}}/>}
+				<DeleteNode_MenuItem {...sharedProps}/>
 			</div>
 		);
 	}
@@ -275,6 +260,7 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 };
 @Connect(connector)
 class PasteAsLink_MenuItem extends BaseComponentWithConnector(PasteAsLink_MenuItem_connector, {}) { */
+@Observer
 class PasteAsLink_MenuItem extends BaseComponent<SharedProps, {}> {
 	render() {
 		const { map, node, path, holderType, copiedNode, copiedNodePath, copiedNode_asCut, combinedWithParentArg, inList } = this.props;
@@ -328,6 +314,7 @@ class PasteAsLink_MenuItem extends BaseComponent<SharedProps, {}> {
 	}
 }
 
+@Observer
 class UnlinkContainerArgument_MenuItem extends BaseComponentPlus({} as SharedProps, {}) {
 	render() {
 		const { map, node, path, holderType, combinedWithParentArg } = this.props;
@@ -361,6 +348,7 @@ class UnlinkContainerArgument_MenuItem extends BaseComponentPlus({} as SharedPro
 	}
 }
 
+@Observer
 class DeleteContainerArgument_MenuItem extends BaseComponent<SharedProps, {}> {
 	render() {
 		const { map, node, path, holderType, combinedWithParentArg } = this.props;
@@ -371,31 +359,73 @@ class DeleteContainerArgument_MenuItem extends BaseComponent<SharedProps, {}> {
 
 		const argumentPath = SlicePath(path, 1);
 		const argument = GetNodeL3(argumentPath);
+		if (argument == null) return null; // wait till loaded
 		const argumentText = GetNodeDisplayText(argument, argumentPath);
-		const forDelete_error = ForDelete_GetError(MeID(), argument, { childrenToIgnore: [node._key] });
-		if (!IsUserCreatorOrMod(MeID(), argument)) return <div/>;
+		// const forDelete_error = ForDelete_GetError(MeID(), argument, { childrenToIgnore: [node._key] });
+		if (!IsUserCreatorOrMod(MeID(), argument)) return null;
+
+		/* const command = new DeleteNode({ mapID, nodeID: node._key, withContainerArgument: argument._key });
+		const error = command.StartValidate_ForUI(); */
 
 		const canDeleteBaseClaim = IsUserCreatorOrMod(MeID(), node);
-		const baseClaim_action = node.parents.VKeys(true).length > 1 || !canDeleteBaseClaim ? 'unlink' : 'delete';
-		const forBaseClaimAction_error = baseClaim_action == 'unlink' ? ForUnlink_GetError(MeID(), node) : ForDelete_GetError(MeID(), node);
+		const baseClaimCommand = node.parents.VKeys(true).length > 1 || !canDeleteBaseClaim
+			? new UnlinkNode({ mapID, parentID: argument._key, childID: node._key })
+			: new DeleteNode({ mapID, nodeID: node._key });
+
+		const argumentCommand = new DeleteNode(E({ mapID, nodeID: argument._key }));
+		if (baseClaimCommand) {
+			// temp; client isn't supposed to be able to set asSubcommand (we do it for now, since we don't have a dedicated DeleteArgument command created yet)
+			argumentCommand.asSubcommand = true;
+			argumentCommand.childrenToIgnore = [node._key];
+		}
+		const error = argumentCommand.StartValidate_ForUI() ?? baseClaimCommand?.StartValidate_ForUI();
 
 		return (
-			<VMenuItem text="Delete argument" enabled={forDelete_error == null && forBaseClaimAction_error == null} title={forDelete_error || baseClaim_action}
+			<VMenuItem text="Delete argument" enabled={error == null} title={error}
 				style={styles.vMenuItem} onClick={(e) => {
 					if (e.button != 0) return;
 
 					ShowMessageBox({
 						title: `Delete "${argumentText}"`, cancelButton: true,
-						message: `Delete the argument "${argumentText}", and ${baseClaim_action} its base-claim?`,
+						message: `Delete the argument "${argumentText}", and ${baseClaimCommand instanceof UnlinkNode ? 'unlink' : 'delete'} its base-claim?`,
 						onOK: async () => {
+							// await command.Run();
 							// if deleting single-premise argument, first delete or unlink the base-claim
-							if (baseClaim_action == 'unlink') {
-								await new UnlinkNode({ mapID, parentID: argument._key, childID: node._key }).Run();
-							} else if (baseClaim_action == 'delete') {
-								await new DeleteNode({ mapID, nodeID: node._key }).Run();
+							if (baseClaimCommand) {
+								await baseClaimCommand.Run();
 							}
+							await argumentCommand.Run();
+						},
+					});
+				}}/>
+		);
+	}
+}
 
-							await new DeleteNode(E({ mapID, nodeID: argument._key })).Run();
+@Observer
+class DeleteNode_MenuItem extends BaseComponentPlus({} as SharedProps, {}) {
+	render() {
+		const { map, node, path, holderType, combinedWithParentArg } = this.props;
+		const componentBox = holderType != null;
+		if (!IsUserCreatorOrMod(MeID(), node) || componentBox) return null;
+		const nodeText = GetNodeDisplayText(node, path);
+
+		const command = new DeleteNode(E({ mapID: map?._key, nodeID: node._key }));
+		const error = command.StartValidate_ForUI();
+
+		return (
+			<VMenuItem text={`Delete${combinedWithParentArg ? ' claim' : ''}`}
+				enabled={error == null} title={error}
+				style={styles.vMenuItem} onClick={(e) => {
+					if (e.button != 0) return;
+
+					const contextStr = IsNodeSubnode(node) ? ', and its placement in-layer' : ', and its link with 1 parent';
+
+					ShowMessageBox({
+						title: `Delete "${nodeText}"`, cancelButton: true,
+						message: `Delete the node "${nodeText}"${contextStr}?`,
+						onOK: async () => {
+							await command.Run();
 						},
 					});
 				}}/>

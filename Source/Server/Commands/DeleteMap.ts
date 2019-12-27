@@ -18,7 +18,7 @@ export class DeleteMap extends Command<{mapID: string}, {}> {
 
 		this.sub_deleteNode = new DeleteNode({ mapID, nodeID: this.oldData.rootNode }).MarkAsSubcommand();
 		this.sub_deleteNode.asPartOfMapDelete = true;
-		this.sub_deleteNode.Validate_Early();
+		// this.sub_deleteNode.Validate_Early();
 		// await this.sub_deleteNode.Prepare();
 	}
 	async Validate() {

@@ -21,10 +21,6 @@ AddSchema('DeleteNode_payload', {
 @MapEdit
 @UserEdit
 export class DeleteNode extends CommandNew<{mapID?: string, nodeID: string, withContainerArgument?: string}, {}> {
-	Validate_Early() {
-		AssertValidate('DeleteNode_payload', this.payload, 'Payload invalid');
-	}
-
 	// as subcommand
 	asPartOfMapDelete = false;
 	childrenToIgnore = [] as string[];
@@ -36,7 +32,8 @@ export class DeleteNode extends CommandNew<{mapID?: string, nodeID: string, with
 	oldParentChildrenOrders: string[][];
 	// viewerIDs_main: string[];
 	mapIDs: string[];
-	Validate() {
+	StartValidate() {
+		AssertValidate('DeleteNode_payload', this.payload, 'Payload invalid');
 		const { mapID, nodeID, withContainerArgument } = this.payload;
 		const { asPartOfMapDelete, childrenToIgnore } = this;
 
@@ -69,7 +66,7 @@ export class DeleteNode extends CommandNew<{mapID?: string, nodeID: string, with
 		if (withContainerArgument) {
 			this.sub_deleteContainerArgument = new DeleteNode({ mapID, nodeID: withContainerArgument }).MarkAsSubcommand();
 			this.sub_deleteContainerArgument.childrenToIgnore = [nodeID];
-			this.sub_deleteContainerArgument.Validate_Early();
+			// this.sub_deleteContainerArgument.Validate_Early();
 			this.sub_deleteContainerArgument.Validate();
 		}
 	}
