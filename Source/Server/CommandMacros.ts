@@ -15,18 +15,31 @@ export function MapEdit(...args) {
 	}
 
 	function ApplyToClass(targetClass: Function) {
-		const oldStartValidate = targetClass.prototype.StartValidate;
-		targetClass.prototype.StartValidate = function () {
-			const result = oldStartValidate.apply(this);
-			const mapID = this.payload[mapIDKey];
-			if (mapID) {
-				const map = GetMap(mapID);
-				if (map != null) {
-					this.map_oldEditCount = map.edits ?? 0;
+		const oldPrepare = targetClass.prototype.Prepare;
+		if (oldPrepare) {
+			targetClass.prototype.Prepare = async function () {
+				await oldPrepare.apply(this);
+				const mapID = this.payload[mapIDKey];
+				if (mapID) {
+					this.map_oldEditCount = (await GetAsync(() => GetMap(mapID)))?.edits ?? 0;
 				}
-			}
-			return result;
-		};
+			};
+		}
+
+		const oldStartValidate = targetClass.prototype.StartValidate;
+		if (oldStartValidate) {
+			targetClass.prototype.StartValidate = function () {
+				const result = oldStartValidate.apply(this);
+				const mapID = this.payload[mapIDKey];
+				if (mapID) {
+					const map = GetMap(mapID);
+					if (map != null) {
+						this.map_oldEditCount = map.edits ?? 0;
+					}
+				}
+				return result;
+			};
+		}
 
 		const oldGetDBUpdates = targetClass.prototype.GetDBUpdates;
 		targetClass.prototype.GetDBUpdates = function () {
