@@ -2,6 +2,7 @@ import { MapEdit } from 'Server/CommandMacros';
 import { GetNode } from 'Store/firebase/nodes';
 import { Assert, E } from 'js-vextensions';
 import { Command, GetAsync, CommandNew, AssertV } from 'mobx-firelink';
+import { GetMap } from 'Store/firebase/maps';
 import { ClaimForm, MapNode, Polarity } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
 import { UserEdit } from '../CommandMacros';
@@ -30,6 +31,9 @@ export class LinkNode extends CommandNew<{mapID: string, parentID: string, child
 
 		if (this.child_oldData.ownerMapID != null) {
 			AssertV(this.parent_oldData.ownerMapID == this.child_oldData.ownerMapID, `Cannot paste private node #${childID} into a map not matching its owner map (${this.child_oldData.ownerMapID}).`);
+			/* const newMap = GetMap(this.parent_oldData.ownerMapID);
+			AssertV(newMap, 'newMap not yet loaded.');
+			if (newMap.requireMapEditorsCanEdit) */
 		}
 	}
 
