@@ -5,7 +5,9 @@ import { E, OMIT, DEL } from 'js-vextensions';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { GetMap } from 'Store/firebase/maps';
 import { MapType } from 'Store/firebase/maps/@Map';
-import { IsPremiseOfSinglePremiseArgument } from 'Store/firebase/nodes/$node';
+import { IsPremiseOfSinglePremiseArgument, GetNodeL2 } from 'Store/firebase/nodes/$node';
+import { PermissionInfoType } from 'Store/firebase/nodes/@MapNodeRevision';
+import {GetNodeRevision} from 'Store/firebase/nodeRevisions';
 import { UserEdit } from '../CommandMacros';
 import { MapNodeL2, MapNode } from '../../Store/firebase/nodes/@MapNode';
 
@@ -50,6 +52,10 @@ export class ChangeNodeOwnerMap extends CommandNew<{nodeID: string, newOwnerMapI
 			AssertV(oldData.rootNodeForMap == null, "Cannot make a map's root-node public.");
 			// the owner map must allow public nodes (at some point, may remove this restriction, by having action cause node to be auto-replaced with in-map private-copy)
 			// AssertV(oldData.parents?.VKeys().length > 0, "Cannot make an")
+
+			const revision = GetNodeRevision(oldData.currentRevision);
+			AssertV(revision, 'revision not yet loaded.');
+			AssertV(revision.permission_contribute?.type == PermissionInfoType.Anyone, 'To make node public, the "Contribute" permission must be set to "Anyone".');
 
 			const permittedPrivateChildrenIDs = this.parentCommand instanceof ChangeNodeOwnerMap ? [this.parentCommand.payload.nodeID] : [];
 
