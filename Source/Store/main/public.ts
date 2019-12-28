@@ -11,7 +11,7 @@ export class PublicPageState {
 	} */
 }
 
-export const GetSelectedDebateMap = StoreAccessor((s) => () => {
+export const GetSelectedPublicMap = StoreAccessor((s) => () => {
 	const selectedID = s.main.public.selectedMapID;
 	// return GetData(`maps/${selectedID}`);
 	// return (GetMapsOfType(MapType.Debate) || []).find(a=>a._id == selectedID);
