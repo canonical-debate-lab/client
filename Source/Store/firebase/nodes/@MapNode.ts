@@ -64,6 +64,7 @@ AddSchema('MapNode', {
 		type: { oneOf: GetValues_ForSchema(MapNodeType) },
 		creator: { type: 'string' },
 		createdAt: { type: 'number' },
+		rootNodeForMap: { type: 'string' },
 		ownerMapID: { type: 'string' },
 
 		currentRevision: { type: 'string' },

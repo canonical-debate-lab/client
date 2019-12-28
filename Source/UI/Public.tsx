@@ -37,13 +37,7 @@ export class PublicUI extends BaseComponentPlus({} as {}, {}) {
 
 		return (
 			<PageContainer style={E({ margin: '20px auto 20px auto', padding: 0, background: null }, GADDemo && { filter: 'drop-shadow(rgba(0,0,0,.5) 0px 0px 10px)' })}>
-				<Column className="clickThrough" style={E(
-					{ height: 80, background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' },
-					GADDemo && {
-						background: 'rgba(222,222,222,1)', color: HSLA(221, 0.13, 0.42, 1),
-						fontFamily: "'Cinzel', serif", fontVariant: 'small-caps', fontSize: 17, fontWeight: 'bold',
-					},
-				)}>
+				<Column className="clickThrough" style={{ height: 80, background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' }}>
 					<Row style={{ height: 40, padding: 10 }}>
 						{/* <Row width={200} style={{position: "absolute", left: "calc(50% - 100px)"}}>
 							<Button text={<Icon icon="arrow-left" size={15}/>} title="Previous page"

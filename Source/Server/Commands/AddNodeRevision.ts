@@ -30,7 +30,7 @@ export class AddNodeRevision extends Command<{mapID: string, revision: MapNodeRe
 		const { revision } = this.payload;
 
 		// this.revisionID = (await GetDataAsync('general', 'data', '.lastNodeRevisionID')) + this.lastNodeRevisionID_addAmount + 1;
-		this.revisionID = GenerateUUID();
+		this.revisionID = this.revisionID ?? GenerateUUID();
 		revision.creator = this.userInfo.id;
 		revision.createdAt = Date.now();
 

@@ -9,7 +9,7 @@ export class AddImage extends Command<{image: Image}, {}> {
 	imageID: string;
 	Validate() {
 		const { image } = this.payload;
-		this.imageID = GenerateUUID();
+		this.imageID = this.imageID ?? GenerateUUID();
 		image.createdAt = Date.now();
 		AssertValidate('Image', image, 'Image invalid');
 	}

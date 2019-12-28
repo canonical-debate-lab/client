@@ -1,4 +1,4 @@
-import { ToNumber } from 'js-vextensions';
+import { ToNumber, E } from 'js-vextensions';
 import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponentPlus, UseCallback } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
@@ -6,7 +6,7 @@ import { GetMaps, GetMaps_Private } from 'Store/firebase/maps';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
 import { columnWidths } from 'UI/Public';
-import { PageContainer, Observer } from 'vwebapp-framework';
+import { PageContainer, Observer, HSLA } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { GetSelectedPrivateMap } from 'Store/main/private';
 import { MapType } from '../Store/firebase/maps/@Map';
@@ -14,6 +14,7 @@ import { ShowAddMapDialog } from './@Shared/Maps/AddMapDialog';
 import { MapEntryUI } from './@Shared/Maps/MapEntryUI';
 import { MapUI } from './@Shared/Maps/MapUI';
 import { ShowSignInPopup } from './@Shared/NavBar/UserPanel';
+import { GADDemo } from './@GAD/GAD';
 
 @Observer
 export class PrivateUI extends BaseComponentPlus({} as {}, {}) {
@@ -34,7 +35,13 @@ export class PrivateUI extends BaseComponentPlus({} as {}, {}) {
 
 		return (
 			<PageContainer style={{ margin: '20px auto 20px auto', padding: 0, background: null }}>
-				<Column className="clickThrough" style={{ height: 80, background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' }}>
+				<Column className="clickThrough" style={E(
+					{ height: 80, background: 'rgba(0,0,0,.7)', borderRadius: '10px 10px 0 0' },
+					GADDemo && {
+						background: 'rgba(222,222,222,1)', color: HSLA(221, 0.13, 0.42, 1),
+						fontFamily: "'Cinzel', serif", fontVariant: 'small-caps', fontSize: 17, fontWeight: 'bold',
+					},
+				)}>
 					<Row style={{ height: 40, padding: 10 }}>
 						<Button text="Add map" ml="auto" enabled={CanGetBasicPermissions(MeID())} onClick={UseCallback(() => {
 							if (userID == null) return void ShowSignInPopup();

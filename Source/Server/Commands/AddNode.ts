@@ -23,7 +23,7 @@ export class AddNode extends Command<{mapID: string, node: MapNode, revision: Ma
 		AssertV(revision.node == null, "Cannot specifiy revision's node-id. It will be generated automatically.");
 
 		// this.nodeID = (await GetDataAsync('general', 'data', '.lastNodeID') as number) + this.lastNodeID_addAmount + 1;
-		this.nodeID = GenerateUUID();
+		this.nodeID = this.nodeID ?? GenerateUUID();
 		node.creator = this.userInfo.id;
 		node.createdAt = Date.now();
 		revision.node = this.nodeID;

@@ -9,7 +9,7 @@ export class AddLayer extends Command<{layer: Layer}, {}> {
 	layerID: string;
 	Validate() {
 		const { layer } = this.payload;
-		this.layerID = GenerateUUID();
+		this.layerID = this.layerID ?? GenerateUUID();
 		layer.createdAt = Date.now();
 		AssertValidate('Layer', layer, 'Layer invalid');
 	}

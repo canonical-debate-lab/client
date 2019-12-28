@@ -47,7 +47,7 @@ export class ChangeClaimType extends Command<{mapID?: string, nodeID: string, ne
 
 		this.newData = { ...oldData.Excluding('current') as any };
 		// this.newRevisionID = (await GetDataAsync('general', 'data', '.lastNodeRevisionID')) + 1;
-		this.newRevisionID = GenerateUUID();
+		this.newRevisionID = this.newRevisionID ?? GenerateUUID();
 		this.newRevision = { ...oldData.current };
 		this.newData.currentRevision = this.newRevisionID;
 

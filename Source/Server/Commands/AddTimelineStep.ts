@@ -2,7 +2,7 @@ import { UserEdit } from 'Server/CommandMacros';
 import { AssertValidate } from 'vwebapp-framework';
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
 import { Command_Old, GetAsync, Command, AssertV } from 'mobx-firelink';
-import {GetTimeline} from 'Store/firebase/timelines';
+import { GetTimeline } from 'Store/firebase/timelines';
 import { TimelineStep } from '../../Store/firebase/timelineSteps/@TimelineStep';
 
 @UserEdit
@@ -14,12 +14,12 @@ export class AddTimelineStep extends Command<{timelineID: string, step: Timeline
 		const { timelineID, step, stepIndex } = this.payload;
 
 		// const lastStepID = await GetDataAsync('general', 'data', '.lastTimelineStepID') as number;
-		this.stepID = GenerateUUID();
+		this.stepID = this.stepID ?? GenerateUUID();
 		step.timelineID = timelineID;
 
 		// this.timeline_oldSteps = await GetDocField_Async(a=>a.timelines.get(timelineID), a=>a.steps) || [];
-		let timeline = GetTimeline(timelineID);
-		AssertV(timeline, "timeline not yet loaded.");
+		const timeline = GetTimeline(timelineID);
+		AssertV(timeline, 'timeline not yet loaded.');
 		this.timeline_oldSteps = timeline?.steps || [];
 		this.timeline_newSteps = this.timeline_oldSteps.slice();
 		if (stepIndex) {

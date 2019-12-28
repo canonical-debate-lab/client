@@ -6,7 +6,7 @@ import { GenerateUUID } from 'Utils/General/KeyGenerator';
 import { observable } from 'mobx';
 import { ConvertDataToValidDBUpdates, ApplyDBUpdates, DBPath } from 'mobx-firelink';
 import { FirebaseDBShape } from 'Store/firebase';
-import {E} from 'js-vextensions';
+import { E } from 'js-vextensions';
 import { Map, MapType } from '../../../Store/firebase/maps/@Map';
 import { MapNode, globalRootNodeID, globalMapID } from '../../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../../Store/firebase/nodes/@MapNodeType';
@@ -66,13 +66,13 @@ function AddMap(data: FirebaseDBShape, entry: Map, id: string) {
 	entry = E(sharedData.creatorInfo, entry);
 
 	// data.maps[id || ++data.general.data.lastMapID] = entry as any;
-	data.maps[id || GenerateUUID()] = entry as any;
+	data.maps[id ?? GenerateUUID()] = entry as any;
 }
 function AddNode(data: FirebaseDBShape, node: MapNode, revision: MapNodeRevision, nodeID?: string) {
 	node = E(sharedData.creatorInfo, node);
 	revision = E(sharedData.creatorInfo, revision);
 
-	nodeID = nodeID || GenerateUUID();
+	nodeID = nodeID ?? GenerateUUID();
 	const revisionID = GenerateUUID();
 
 	node.currentRevision = revisionID;

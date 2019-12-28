@@ -61,7 +61,7 @@ export class NavBar_GAD extends BaseComponentPlus({}, {}) {
 					<span style={{ margin: '0 auto', paddingRight: 17 }}>
 						<NavBarPageButton page="website" text="Website"/>
 						<NavBarPageButton page="home" text="Home"/>
-						<NavBarPageButton page="public" text="Debates"/>
+						<NavBarPageButton page="private" text="Debates"/>
 					</span>
 
 					<span style={{ position: 'absolute', right: 30, display: 'flex' }}>

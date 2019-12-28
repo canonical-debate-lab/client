@@ -11,7 +11,7 @@ export class AddTimeline extends Command<{mapID: string, timeline: Timeline}, st
 	timelineID: string;
 	Validate() {
 		const { mapID, timeline } = this.payload;
-		this.timelineID = GenerateUUID();
+		this.timelineID = this.timelineID ?? GenerateUUID();
 		timeline.mapID = mapID;
 		timeline.createdAt = Date.now();
 		this.returnData = this.timelineID;

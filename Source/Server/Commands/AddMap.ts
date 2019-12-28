@@ -17,7 +17,7 @@ export class AddMap extends Command<{map: Map}, UUID> {
 		const { map } = this.payload;
 		AssertV(map.featured === undefined, 'Cannot set "featured" to true while first adding a map. (hmmm)');
 
-		this.mapID = GenerateUUID();
+		this.mapID = this.mapID ?? GenerateUUID();
 		map.createdAt = Date.now();
 		map.editedAt = map.createdAt;
 
