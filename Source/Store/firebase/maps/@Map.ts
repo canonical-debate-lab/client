@@ -25,6 +25,7 @@ export class Map {
 	type: MapType;
 	rootNode: string;
 	defaultExpandDepth = 2;
+	defaultTimelineID: string;
 	requireMapEditorsCanEdit = true;
 	// allowPublicNodes = true; // todo
 	nodeDefaults: MapNodeRevision_Defaultable;
@@ -49,6 +50,7 @@ AddSchema('Map', ['MapNodeRevision'], () => ({
 		type: { oneOf: GetValues_ForSchema(MapType) },
 		rootNode: { type: 'string' },
 		defaultExpandDepth: { type: 'number' },
+		defaultTimelineID: { type: 'string' },
 		requireMapEditorsCanEdit: { type: 'boolean' },
 		nodeDefaults: Schema({
 			properties: GetSchemaJSON('MapNodeRevision').properties.Including(...MapNodeRevision_Defaultable_props),

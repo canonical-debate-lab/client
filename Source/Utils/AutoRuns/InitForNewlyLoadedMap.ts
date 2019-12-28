@@ -7,7 +7,7 @@ import { store } from 'Store';
 import { GetAsync } from 'mobx-firelink';
 import { Assert, Vector2i } from 'js-vextensions';
 import { UserMapInfo } from 'Store/firebase/userMapInfo/@UserMapInfo';
-import { MapState } from 'Store/main/mapStates/@MapState';
+import { MapState, TimelineSubpanel } from 'Store/main/mapStates/@MapState';
 import { MapUI, ACTUpdateFocusNodeAndViewOffset, ACTSetFocusNodeAndViewOffset } from 'UI/@Shared/Maps/MapUI';
 
 let lastMapID;
@@ -32,6 +32,11 @@ async function StartInitForNewlyLoadedMap(mapID: string) {
 	let mapView: MapView;
 	runInAction('StartInitForNewlyLoadedMap_part1', () => {
 		({ mapState, mapView } = ACTEnsureMapStateInit(mapID));
+		if (map.defaultTimelineID) {
+			mapState.timelinePanelOpen = true;
+			mapState.timelineOpenSubpanel = TimelineSubpanel.Playing;
+			mapState.selectedTimeline = map.defaultTimelineID;
+		}
 	});
 
 	let pathsToExpand = [map.rootNode];

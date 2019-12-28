@@ -1,10 +1,11 @@
 import { Column, Div } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
-import { VReactMarkdown_Remarkable } from 'vwebapp-framework';
+import { VReactMarkdown_Remarkable, Observer } from 'vwebapp-framework';
 import { GetTimelineStep } from 'Store/firebase/timelineSteps';
 import { E } from 'js-vextensions';
 
+@Observer
 export class TimelineIntroBox extends BaseComponentPlus({} as {timeline: Timeline}) {
 	render() {
 		const { timeline } = this.props;

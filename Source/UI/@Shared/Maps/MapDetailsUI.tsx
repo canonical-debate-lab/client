@@ -55,6 +55,11 @@ export class MapDetailsUI extends BaseComponentPlus({ enabled: true } as Props, 
 					<Spinner min={1} max={3} enabled={enabled}
 						value={ToNumber(newData.defaultExpandDepth, 0)} onChange={(val) => Change(newData.defaultExpandDepth = val)}/>
 				</RowLR>}
+				{!forNew &&
+				<RowLR mt={5} splitAt={splitAt}>
+					<Pre>Default timeline:</Pre>
+					<TextInput enabled={enabled} value={newData.defaultTimelineID} onChange={(val) => Change(newData.defaultTimelineID = val)}/>
+				</RowLR>}
 				{newData.type == MapType.Private && !forNew &&
 				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 					<Row center>

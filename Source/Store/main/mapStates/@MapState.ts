@@ -1,4 +1,4 @@
-import {O} from 'vwebapp-framework';
+import { O } from 'vwebapp-framework';
 
 export enum SortType {
 	CreatorID = 10,
@@ -7,9 +7,9 @@ export enum SortType {
 	// ViewerCount = 40,
 }
 export enum TimelineSubpanel {
-	Collection,
-	Editor,
-	Playing,
+	Collection = 10,
+	Editor = 20,
+	Playing = 30,
 }
 
 export enum ShowChangesSinceType {
