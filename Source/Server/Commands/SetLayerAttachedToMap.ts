@@ -1,7 +1,7 @@
 import { Assert } from 'js-vextensions';
 import { MapEdit } from 'Server/CommandMacros';
 import { AddSchema, AssertValidate } from 'vwebapp-framework';
-import { Command, GetAsync } from 'mobx-firelink';
+import { Command_Old, GetAsync, Command, AssertV } from 'mobx-firelink';
 import { GetMap } from 'Store/firebase/maps';
 import { Map } from '../../Store/firebase/maps/@Map';
 import { UserEdit } from '../CommandMacros';
@@ -23,12 +23,10 @@ export class SetLayerAttachedToMap extends Command<{mapID: string, layerID: stri
 	}
 
 	oldData: Map;
-	async Prepare() {
+	Validate() {
 		const { mapID } = this.payload;
-		this.oldData = await GetAsync(() => GetMap(mapID));
-	}
-	async Validate() {
-		Assert(this.oldData, 'Map does not exist!');
+		this.oldData = GetMap(mapID);
+		AssertV(this.oldData, 'Map does not exist!');
 	}
 
 	GetDBUpdates() {

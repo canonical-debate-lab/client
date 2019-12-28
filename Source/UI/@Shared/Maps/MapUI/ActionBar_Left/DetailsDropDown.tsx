@@ -52,6 +52,9 @@ export class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: strin
 
 		const Button_Final = GADDemo ? Button_GAD : Button;
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), map);
+
+		const setMapFeaturedCommand = new SetMapFeatured({ id: map._key, featured: !map.featured });
+
 		return (
 			<DropDown>
 				<DropDownTrigger><Button_Final ml={5} style={{ height: '100%' }} text="Details"/></DropDownTrigger>
@@ -72,8 +75,8 @@ export class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: strin
 						<Column mt={10}>
 							<Row style={{ fontWeight: 'bold' }}>Advanced:</Row>
 							<Row mt={5} center>
-								<CheckBox text="Featured" enabled={HasModPermissions(MeID())} checked={map.featured} onChange={(val) => {
-									new SetMapFeatured({ id: map._key, featured: val }).Run();
+								<CheckBox text="Featured" enabled={setMapFeaturedCommand.Validate_Safe() == null} title={setMapFeaturedCommand.validateError} checked={map.featured} onChange={(val) => {
+									setMapFeaturedCommand.Run();
 								}}/>
 							</Row>
 							<Row center>

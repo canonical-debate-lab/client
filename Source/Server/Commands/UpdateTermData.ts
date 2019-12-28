@@ -1,26 +1,32 @@
 import { Assert } from 'js-vextensions';
 import { UserEdit } from 'Server/CommandMacros';
-import { AssertValidate } from 'vwebapp-framework';
-import { Command, GetAsync } from 'mobx-firelink';
+import { AssertValidate, AddSchema, GetSchemaJSON, Schema } from 'vwebapp-framework';
+import { Command_Old, GetAsync, Command, AssertV } from 'mobx-firelink';
 import { GetTerm } from 'Store/firebase/terms';
 import { Term } from '../../Store/firebase/terms/@Term';
 
+type MainType = Term;
+const MTName = 'Term';
+
+AddSchema(`Update${MTName}_payload`, [MTName], () => ({
+	properties: {
+		id: { type: 'string' },
+		updates: Schema({
+			properties: GetSchemaJSON(MTName)['properties'].Including('name', 'disambiguation', 'type', 'person', 'shortDescription_current'),
+		}),
+	},
+	required: ['id', 'updates'],
+}));
+
 @UserEdit
 export class UpdateTermData extends Command<{termID: string, updates: Partial<Term>}, {}> {
-	Validate_Early() {
-		const { termID, updates } = this.payload;
-		const allowedPropUpdates = ['name', 'disambiguation', 'type', 'person', 'shortDescription_current'];
-		Assert(updates.VKeys().Except(...allowedPropUpdates).length == 0, `Cannot use this command to update props other than: ${allowedPropUpdates.join(', ')}`);
-	}
-
 	oldData: Term;
 	newData: Term;
-	async Prepare() {
+	Validate() {
 		const { termID, updates } = this.payload;
-		this.oldData = await GetAsync(() => GetTerm(termID));
+		this.oldData = GetTerm(termID);
+		AssertV(this.oldData, 'oldData is null.');
 		this.newData = { ...this.oldData, ...updates };
-	}
-	async Validate() {
 		AssertValidate('Term', this.newData, 'New-data invalid');
 	}
 

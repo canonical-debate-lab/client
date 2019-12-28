@@ -2,12 +2,12 @@ import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { Assert } from 'js-vextensions';
 import { GetSchemaJSON, AssertValidate, AssertValidate_Full } from 'vwebapp-framework';
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
-import { Command, MergeDBUpdates, CommandNew, AssertV } from 'mobx-firelink';
+import { Command_Old, MergeDBUpdates, Command, AssertV } from 'mobx-firelink';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { AddNodeRevision } from './AddNodeRevision';
 
 /** Do not use this from client-side code. This is only to be used internally, by higher-level commands -- usually AddChildNode. */
-export class AddNode extends CommandNew<{mapID: string, node: MapNode, revision: MapNodeRevision}, {}> {
+export class AddNode extends Command<{mapID: string, node: MapNode, revision: MapNodeRevision}, {}> {
 	// set these from parent command if the parent command has earlier subs that increment last-node-id, etc.
 	/* lastNodeID_addAmount = 0;
 	lastNodeRevisionID_addAmount = 0; */
@@ -17,7 +17,7 @@ export class AddNode extends CommandNew<{mapID: string, node: MapNode, revision:
 	nodeID: string;
 	parentID: string;
 	parent_oldChildrenOrder: number[];
-	StartValidate() {
+	Validate() {
 		const { mapID, node, revision } = this.payload;
 		AssertV(node.currentRevision == null, "Cannot specifiy node's revision-id. It will be generated automatically.");
 		AssertV(revision.node == null, "Cannot specifiy revision's node-id. It will be generated automatically.");
@@ -30,7 +30,7 @@ export class AddNode extends CommandNew<{mapID: string, node: MapNode, revision:
 
 		this.sub_addRevision = new AddNodeRevision({ mapID, revision }).MarkAsSubcommand(this);
 		// this.sub_addRevision.lastNodeRevisionID_addAmount = this.lastNodeRevisionID_addAmount;
-		this.sub_addRevision.StartValidate();
+		this.sub_addRevision.Validate();
 
 		node.currentRevision = this.sub_addRevision.revisionID;
 

@@ -146,13 +146,10 @@ export class RootUIWrapper extends BaseComponentPlus({}, {}) {
 			const copyCommand = CreateLinkCommandForDND(mapID, draggedNodePath, newParentPath, polarity, true);
 			const moveCommand = CreateLinkCommandForDND(mapID, draggedNodePath, newParentPath, polarity, false);
 
-			const copyCommand_error = copyCommand.StartValidate_ForUI();
-			if (copyCommand_error) {
-				ShowMessageBox({ title: 'Cannot copy/move node', message: `Reason: ${copyCommand_error}` });
+			if (copyCommand.Validate_Safe()) {
+				ShowMessageBox({ title: 'Cannot copy/move node', message: `Reason: ${copyCommand.validateError}` });
 				return;
 			}
-
-			const moveCommand_error = moveCommand.StartValidate_ForUI();
 
 			const controller = ShowMessageBox({
 				title: 'Copy/move the dragged node?', okButton: false, cancelButton: false,
@@ -170,7 +167,7 @@ export class RootUIWrapper extends BaseComponentPlus({}, {}) {
 							runInAction('OnDragEnd.Copy.onClick', () => store.main.nodeLastAcknowledgementTimes.set(argumentWrapperID, Date.now()));
 						}
 					}}/>
-					<Button ml={5} text="Move" enabled={moveCommand_error == null} title={moveCommand_error} onClick={async () => {
+					<Button ml={5} text="Move" enabled={moveCommand.Validate_Safe() == null} title={moveCommand.validateError} onClick={async () => {
 						controller.Close();
 						const { argumentWrapperID } = await moveCommand.Run();
 						if (argumentWrapperID) {

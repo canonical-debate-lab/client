@@ -1,15 +1,15 @@
 import { DEL, E, Clone } from 'js-vextensions';
-import { Command, MergeDBUpdates, SplitStringBySlash_Cached, GetAsync, CommandNew, AssertV } from 'mobx-firelink';
+import { Command_Old, MergeDBUpdates, SplitStringBySlash_Cached, GetAsync, Command, AssertV } from 'mobx-firelink';
 import { GetLinkAtPath, GetNodeForm, GetNodeL2 } from '../../Store/firebase/nodes/$node';
 import { ClaimForm, MapNode, Polarity } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
 import { AddChildNode } from './AddChildNode';
 import { LinkNode } from './LinkNode';
 
-export class CloneNode extends CommandNew<{mapID: string, baseNodePath: string, newParentID: string}, {nodeID: string, revisionID: string}> {
+export class CloneNode extends Command<{mapID: string, baseNodePath: string, newParentID: string}, {nodeID: string, revisionID: string}> {
 	sub_addNode: AddChildNode;
 	sub_linkChildren: LinkNode[];
-	StartValidate() {
+	Validate() {
 		const { mapID, baseNodePath, newParentID } = this.payload;
 
 		// prepare add-node
@@ -37,7 +37,7 @@ export class CloneNode extends CommandNew<{mapID: string, baseNodePath: string, 
 				nodePolarity && { polarity: nodePolarity },
 			) as any,
 		}).MarkAsSubcommand(this);
-		this.sub_addNode.StartValidate();
+		this.sub_addNode.Validate();
 
 		// prepare link-children
 		// ==========
@@ -67,9 +67,9 @@ export class CloneNode extends CommandNew<{mapID: string, baseNodePath: string, 
 
 		this.returnData = this.sub_addNode.returnData;
 
-		this.sub_addNode.StartValidate();
+		this.sub_addNode.Validate();
 		for (const sub of this.sub_linkChildren) {
-			sub.StartValidate();
+			sub.Validate();
 		}
 	}
 

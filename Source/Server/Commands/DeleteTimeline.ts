@@ -1,17 +1,15 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
-import { Command, GetAsync } from 'mobx-firelink';
+import { Command_Old, GetAsync, Command, AssertV } from 'mobx-firelink';
 import { GetTimeline } from '../../Store/firebase/timelines';
-
 
 @UserEdit
 export class DeleteTimeline extends Command<{timelineID: string}, {}> {
 	oldData: Timeline;
-	async Prepare() {
+	Validate() {
 		const { timelineID } = this.payload;
-		this.oldData = await GetAsync(() => GetTimeline(timelineID));
-	}
-	async Validate() {
+		this.oldData = GetTimeline(timelineID);
+		AssertV(this.oldData, 'oldData is null.');
 		if (this.oldData.steps) {
 			throw new Error('Cannot delete a timeline until all its steps have been deleted.');
 		}

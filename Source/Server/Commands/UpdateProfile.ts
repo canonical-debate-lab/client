@@ -1,5 +1,5 @@
 import { AddSchema, AssertValidate, GetSchemaJSON, Schema } from 'vwebapp-framework';
-import { Command, GetAsync } from 'mobx-firelink';
+import { Command_Old, GetAsync, Command } from 'mobx-firelink';
 import { GetUser } from 'Store/firebase/users';
 import { User } from '../../Store/firebase/users/@User';
 
@@ -20,18 +20,14 @@ AddSchema(`Update${MTName}_payload`, [MTName], () => ({
 }));
 
 export class UpdateProfile extends Command<{id: string, updates: Partial<MainType>}, {}> {
-	Validate_Early() {
-		AssertValidate(`Update${MTName}_payload`, this.payload, 'Payload invalid');
-	}
-
 	oldData: MainType;
 	newData: MainType;
-	async Prepare() {
+	Validate() {
+		AssertValidate(`Update${MTName}_payload`, this.payload, 'Payload invalid');
+
 		const { id, updates } = this.payload;
-		this.oldData = await GetAsync(() => GetUser(id));
+		this.oldData = GetUser(id);
 		this.newData = { ...this.oldData, ...updates };
-	}
-	async Validate() {
 		AssertValidate(MTName, this.newData, `New ${MTName.toLowerCase()}-data invalid`);
 	}
 

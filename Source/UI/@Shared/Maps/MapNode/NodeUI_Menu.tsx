@@ -279,7 +279,7 @@ class PasteAsLink_MenuItem extends BaseComponent<SharedProps, {}> {
 			allowCreateWrapperArg: holderType != null || !node.multiPremiseArgument,
 			unlinkFromOldParent: copiedNode_asCut, deleteOrphanedArgumentWrapper: true,
 		});
-		const error = linkCommand.StartValidate_ForUI();
+		const error = linkCommand.Validate_Safe();
 
 		return (
 			<VMenuItem text={`Paste${copiedNode_asCut ? '' : ' as link'}: "${GetNodeDisplayText(copiedNode, null, formForClaimChildren).KeepAtMost(50)}"`}
@@ -365,7 +365,7 @@ class DeleteContainerArgument_MenuItem extends BaseComponent<SharedProps, {}> {
 		if (!IsUserCreatorOrMod(MeID(), argument)) return null;
 
 		/* const command = new DeleteNode({ mapID, nodeID: node._key, withContainerArgument: argument._key });
-		const error = command.StartValidate_ForUI(); */
+		const error = command.Validate_Safe(); */
 
 		const canDeleteBaseClaim = IsUserCreatorOrMod(MeID(), node);
 		const baseClaimCommand = node.parents.VKeys(true).length > 1 || !canDeleteBaseClaim
@@ -378,7 +378,7 @@ class DeleteContainerArgument_MenuItem extends BaseComponent<SharedProps, {}> {
 			argumentCommand.parentCommand = {} as any;
 			argumentCommand.childrenToIgnore = [node._key];
 		}
-		const error = argumentCommand.StartValidate_ForUI() ?? baseClaimCommand?.StartValidate_ForUI();
+		const error = argumentCommand.Validate_Safe() ?? baseClaimCommand?.Validate_Safe();
 
 		return (
 			<VMenuItem text="Delete argument" enabled={error == null} title={error}
@@ -411,11 +411,10 @@ class DeleteNode_MenuItem extends BaseComponentPlus({} as SharedProps, {}) {
 		const nodeText = GetNodeDisplayText(node, path);
 
 		const command = new DeleteNode(E({ mapID: map?._key, nodeID: node._key }));
-		const error = command.StartValidate_ForUI();
 
 		return (
 			<VMenuItem text={`Delete${combinedWithParentArg ? ' claim' : ''}`}
-				enabled={error == null} title={error}
+				enabled={command.Validate_Safe() == null} title={command.validateError}
 				style={styles.vMenuItem} onClick={(e) => {
 					if (e.button != 0) return;
 

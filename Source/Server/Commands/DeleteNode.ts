@@ -2,7 +2,7 @@ import { ToInt } from 'js-vextensions';
 import { GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { GetNodeRevision, GetNodeRevisions } from 'Store/firebase/nodeRevisions';
-import { Command, CommandNew, MergeDBUpdates, AssertV } from 'mobx-firelink';
+import { Command_Old, Command, MergeDBUpdates, AssertV } from 'mobx-firelink';
 import { AssertValidate, AddSchema } from 'vwebapp-framework';
 import { GetMaps } from '../../Store/firebase/maps';
 import { ForDelete_GetError, GetNode } from '../../Store/firebase/nodes';
@@ -20,7 +20,7 @@ AddSchema('DeleteNode_payload', {
 
 @MapEdit
 @UserEdit
-export class DeleteNode extends CommandNew<{mapID?: string, nodeID: string, withContainerArgument?: string}, {}> {
+export class DeleteNode extends Command<{mapID?: string, nodeID: string, withContainerArgument?: string}, {}> {
 	// as subcommand
 	asPartOfMapDelete = false;
 	childrenToIgnore = [] as string[];
@@ -32,7 +32,7 @@ export class DeleteNode extends CommandNew<{mapID?: string, nodeID: string, with
 	oldParentChildrenOrders: string[][];
 	// viewerIDs_main: string[];
 	mapIDs: string[];
-	StartValidate() {
+	Validate() {
 		AssertValidate('DeleteNode_payload', this.payload, 'Payload invalid');
 		const { mapID, nodeID, withContainerArgument } = this.payload;
 		const { asPartOfMapDelete, childrenToIgnore } = this;

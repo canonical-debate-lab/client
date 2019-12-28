@@ -6,7 +6,7 @@ import { ScrollView } from 'react-vscrollview';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { GetSelectedTerm } from 'Store/main/database';
 import { store } from 'Store';
-import { Observer } from 'vwebapp-framework';
+import { Observer, GetUpdates } from 'vwebapp-framework';
 import { runInAction } from 'mobx';
 import { DeleteTerm } from '../../Server/Commands/DeleteTerm';
 import { UpdateTermData } from '../../Server/Commands/UpdateTermData';
@@ -77,7 +77,8 @@ export class TermsUI extends BaseComponentPlus({} as {}, {} as {selectedTerm_new
 								{creatorOrMod &&
 									<Button ml="auto" text="Save details" enabled={selectedTerm_newData != null && selectedTerm_newDataError == null}
 										onClick={async (e) => {
-											const updates = selectedTerm_newData.Including('name', 'disambiguation', 'type', 'person', 'shortDescription_current');
+											// const updates = selectedTerm_newData.Including('name', 'disambiguation', 'type', 'person', 'shortDescription_current');
+											const updates = GetUpdates(selectedTerm, selectedTerm_newData);
 											await new UpdateTermData({ termID: selectedTerm._key, updates }).Run();
 											// this.SetState({selectedTerm_newData: null});
 										}}/>}

@@ -1,20 +1,16 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
-import { Command } from 'mobx-firelink';
+import { Command_Old, Command } from 'mobx-firelink';
 import { AssertValidate } from 'vwebapp-framework';
 
 @UserEdit
 export class AddLayer extends Command<{layer: Layer}, {}> {
 	layerID: string;
-	async Prepare() {
+	Validate() {
 		const { layer } = this.payload;
-
 		this.layerID = GenerateUUID();
 		layer.createdAt = Date.now();
-	}
-	async Validate() {
-		const { layer } = this.payload;
 		AssertValidate('Layer', layer, 'Layer invalid');
 	}
 

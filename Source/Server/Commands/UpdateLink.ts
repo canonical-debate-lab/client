@@ -1,4 +1,4 @@
-import { Command, GetAsync } from 'mobx-firelink';
+import { Command_Old, GetAsync, Command, AssertV } from 'mobx-firelink';
 import { GetNode } from 'Store/firebase/nodes';
 import { AddSchema, AssertValidate, GetSchemaJSON } from 'vwebapp-framework';
 import { GetLinkUnderParent } from '../../Store/firebase/nodes/$node';
@@ -16,18 +16,15 @@ AddSchema('UpdateLink_payload', ['ChildEntry'], () => ({
 
 @UserEdit
 export class UpdateLink extends Command<{linkParentID: string, linkChildID: string, linkUpdates: Partial<ChildEntry>}, {}> {
-	Validate_Early() {
-		AssertValidate('UpdateLink_payload', this.payload, 'Payload invalid');
-	}
-
 	newData: ChildEntry;
-	async Prepare() {
+	Validate() {
+		AssertValidate('UpdateLink_payload', this.payload, 'Payload invalid');
+
 		const { linkParentID, linkChildID, linkUpdates } = this.payload;
-		const parent = await GetAsync(() => GetNode(linkParentID));
+		const parent = GetNode(linkParentID);
+		AssertV(parent, 'parent is null.');
 		const oldData = GetLinkUnderParent(linkChildID, parent);
 		this.newData = { ...oldData, ...linkUpdates };
-	}
-	async Validate() {
 		AssertValidate('ChildEntry', this.newData, 'New link-data invalid');
 	}
 

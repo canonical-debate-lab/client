@@ -1,16 +1,16 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { GetTerm } from 'Store/firebase/terms';
-import { Command, GetAsync } from 'mobx-firelink';
+import { Command_Old, GetAsync, Command, AssertV } from 'mobx-firelink';
 import { Term } from '../../Store/firebase/terms/@Term';
 
 @UserEdit
 export class DeleteTerm extends Command<{termID: string}, {}> {
 	oldData: Term;
-	async Prepare() {
+	Validate() {
 		const { termID } = this.payload;
-		this.oldData = await GetAsync(() => GetTerm(termID));
+		this.oldData = GetTerm(termID);
+		AssertV(this.oldData, 'oldData is null.');
 	}
-	async Validate() {}
 
 	GetDBUpdates() {
 		const { termID } = this.payload;

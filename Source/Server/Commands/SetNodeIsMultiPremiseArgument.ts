@@ -1,6 +1,6 @@
 import { MapEdit, UserEdit } from 'Server/CommandMacros';
 import { AddSchema, AssertValidate } from 'vwebapp-framework';
-import { Command, GetAsync } from 'mobx-firelink';
+import { Command_Old, GetAsync, Command, AssertV } from 'mobx-firelink';
 import { GetNode } from 'Store/firebase/nodes';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 
@@ -16,18 +16,14 @@ AddSchema('SetNodeIsMultiPremiseArgument_payload', {
 @MapEdit
 @UserEdit
 export class SetNodeIsMultiPremiseArgument extends Command<{mapID?: number, nodeID: string, multiPremiseArgument: boolean}, {}> {
-	Validate_Early() {
-		AssertValidate('SetNodeIsMultiPremiseArgument_payload', this.payload, 'Payload invalid');
-	}
-
 	oldNodeData: MapNode;
 	newNodeData: MapNode;
-	async Prepare() {
+	Validate() {
 		const { mapID, nodeID, multiPremiseArgument } = this.payload;
-		this.oldNodeData = await GetAsync(() => GetNode(nodeID));
+		this.oldNodeData = GetNode(nodeID);
+		AssertV(this.oldNodeData, 'oldNodeData is null.');
 		this.newNodeData = { ...this.oldNodeData, ...{ multiPremiseArgument } };
-	}
-	async Validate() {
+		AssertValidate('SetNodeIsMultiPremiseArgument_payload', this.payload, 'Payload invalid');
 		AssertValidate('MapNode', this.newNodeData, 'New node-data invalid');
 	}
 

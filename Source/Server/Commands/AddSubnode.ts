@@ -1,27 +1,27 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { Layer } from 'Store/firebase/layers/@Layer';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
-import { Command, MergeDBUpdates, GetAsync, CommandNew, AssertV } from 'mobx-firelink';
+import { Command_Old, MergeDBUpdates, GetAsync, Command, AssertV } from 'mobx-firelink';
 import { GetLayer } from '../../Store/firebase/layers';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { AddNode } from './AddNode';
 
 @UserEdit
-export class AddSubnode extends CommandNew<{mapID: string, layerID: string, anchorNodeID: string, subnode: MapNode, subnodeRevision: MapNodeRevision}, number> {
+export class AddSubnode extends Command<{mapID: string, layerID: string, anchorNodeID: string, subnode: MapNode, subnodeRevision: MapNodeRevision}, number> {
 	sub_addNode: AddNode;
 	layer_oldData: Layer;
-	StartValidate() {
+	Validate() {
 		const { mapID, layerID, anchorNodeID, subnode, subnodeRevision } = this.payload;
 
 		this.sub_addNode = new AddNode({ mapID, node: subnode, revision: subnodeRevision }).MarkAsSubcommand(this);
-		this.sub_addNode.StartValidate();
+		this.sub_addNode.Validate();
 
 		this.layer_oldData = GetLayer(layerID);
 		AssertV(this.layer_oldData, 'layer_oldData is null.');
 
 		this.returnData = this.sub_addNode.nodeID;
 
-		this.sub_addNode.StartValidate();
+		this.sub_addNode.Validate();
 	}
 
 	GetDBUpdates() {

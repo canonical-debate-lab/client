@@ -1,27 +1,35 @@
 import { Assert } from 'js-vextensions';
-import { Command, GetAsync } from 'mobx-firelink';
+import { Command_Old, GetAsync, AssertV, Command } from 'mobx-firelink';
 import { UserEdit } from 'Server/CommandMacros';
 import { GetImage } from 'Store/firebase/images';
-import { AssertValidate } from 'vwebapp-framework';
+import { AssertValidate, AddSchema, Schema, GetSchemaJSON } from 'vwebapp-framework';
 import { Image } from '../../Store/firebase/images/@Image';
 
-export const UpdateImageData_allowedPropUpdates = ['name', 'type', 'url', 'description', 'previewWidth', 'sourceChains'] as const;
+
+type MainType = Image;
+const MTName = 'Image';
+
+AddSchema(`Update${MTName}Details_payload`, [MTName], () => ({
+	properties: {
+		id: { type: 'string' },
+		updates: Schema({
+			properties: GetSchemaJSON(MTName).properties.Including('name', 'type', 'url', 'description', 'previewWidth', 'sourceChains'),
+		}),
+	},
+	required: ['id', 'updates'],
+}));
+
 @UserEdit
 export class UpdateImageData extends Command<{id: string, updates: Partial<Image>}, {}> {
-	Validate_Early() {
-		const { id, updates } = this.payload;
-		Assert(updates.VKeys().Except(...UpdateImageData_allowedPropUpdates).length == 0,
-			`Cannot use this command to update props other than: ${UpdateImageData_allowedPropUpdates.join(', ')}`);
-	}
-
 	oldData: Image;
 	newData: Image;
-	async Prepare() {
+	Validate() {
+		AssertValidate(`Update${MTName}Details_payload`, this.payload, 'Payload invalid');
+
 		const { id, updates } = this.payload;
-		this.oldData = await GetAsync(() => GetImage(id));
+		this.oldData = GetImage(id);
+		AssertV(this.oldData, 'oldData is null.');
 		this.newData = { ...this.oldData, ...updates };
-	}
-	async Validate() {
 		AssertValidate('Image', this.newData, 'New-data invalid');
 	}
 

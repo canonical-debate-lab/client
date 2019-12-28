@@ -1,5 +1,5 @@
 import { Assert, E } from 'js-vextensions';
-import { Command, MergeDBUpdates, GetAsync, CommandNew, AssertV } from 'mobx-firelink';
+import { Command_Old, MergeDBUpdates, GetAsync, Command, AssertV } from 'mobx-firelink';
 import { AssertValidate } from 'vwebapp-framework';
 import { MapEdit, UserEdit } from '../../Server/CommandMacros';
 import { GetNode } from '../../Store/firebase/nodes';
@@ -12,21 +12,24 @@ type Payload = {mapID: string, parentID: string, node: MapNode, revision: MapNod
 
 @MapEdit
 @UserEdit
-export class AddChildNode extends CommandNew<Payload, {nodeID: string, revisionID: string}> {
+export class AddChildNode extends Command<Payload, {nodeID: string, revisionID: string}> {
 	// set these from parent command if the parent command has earlier subs that increment last-node-id, etc.
 	/* lastNodeID_addAmount = 0;
 	lastNodeRevisionID_addAmount = 0; */
 
 	sub_addNode: AddNode;
 	parent_oldData: MapNode;
-	StartValidate() {
+	Validate() {
 		const { mapID, parentID, node, revision, link, asMapRoot } = this.payload;
 		AssertV(node.parents == null, 'node.parents must be empty. Instead, supply a parentID property in the payload.');
+		if (!asMapRoot) {
+			AssertValidate('ChildEntry', link, 'Link invalid');
+		}
 
 		const node_withParents = E(node, parentID ? { parents: { [parentID]: { _: true } } } : {});
 		this.sub_addNode = new AddNode({ mapID, node: node_withParents, revision }).MarkAsSubcommand(this);
 		// this.sub_addNode.VSet({ lastNodeID_addAmount: this.lastNodeID_addAmount, lastNodeRevisionID_addAmount: this.lastNodeRevisionID_addAmount });
-		this.sub_addNode.StartValidate();
+		this.sub_addNode.Validate();
 
 		this.payload.link = link || { _: true };
 
@@ -39,13 +42,6 @@ export class AddChildNode extends CommandNew<Payload, {nodeID: string, revisionI
 			nodeID: this.sub_addNode.nodeID,
 			revisionID: this.sub_addNode.sub_addRevision.revisionID,
 		};
-	}
-	async Validate() {
-		const { node, link, asMapRoot } = this.payload;
-		await this.sub_addNode.Validate();
-		if (!asMapRoot) {
-			AssertValidate('ChildEntry', link, 'Link invalid');
-		}
 	}
 
 	GetDBUpdates() {

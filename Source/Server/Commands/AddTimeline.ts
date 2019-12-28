@@ -3,23 +3,18 @@ import { Timeline } from 'Store/firebase/timelines/@Timeline';
 
 
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
-import { Command } from 'mobx-firelink';
+import { Command_Old, Command } from 'mobx-firelink';
 import { AssertValidate } from 'vwebapp-framework';
 
 @UserEdit
 export class AddTimeline extends Command<{mapID: string, timeline: Timeline}, string> {
 	timelineID: string;
-	async Prepare() {
+	Validate() {
 		const { mapID, timeline } = this.payload;
-
 		this.timelineID = GenerateUUID();
 		timeline.mapID = mapID;
 		timeline.createdAt = Date.now();
-
 		this.returnData = this.timelineID;
-	}
-	async Validate() {
-		const { timeline } = this.payload;
 		AssertValidate('Timeline', timeline, 'Timeline invalid');
 	}
 

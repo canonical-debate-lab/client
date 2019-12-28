@@ -1,18 +1,16 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
-import { Command } from 'mobx-firelink';
+import { Command_Old, Command } from 'mobx-firelink';
 import { AssertValidate } from 'vwebapp-framework';
 import { Image } from '../../Store/firebase/images/@Image';
 
 @UserEdit
 export class AddImage extends Command<{image: Image}, {}> {
 	imageID: string;
-	async Prepare() {
-		this.imageID = GenerateUUID();
-		this.payload.image.createdAt = Date.now();
-	}
-	async Validate() {
+	Validate() {
 		const { image } = this.payload;
+		this.imageID = GenerateUUID();
+		image.createdAt = Date.now();
 		AssertValidate('Image', image, 'Image invalid');
 	}
 

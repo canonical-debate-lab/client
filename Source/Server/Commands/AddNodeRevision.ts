@@ -2,7 +2,7 @@ import { MapEdit, UserEdit } from 'Server/CommandMacros';
 import { GetNode } from 'Store/firebase/nodes';
 import { AssertValidate } from 'vwebapp-framework';
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
-import { Command, GetAsync, CommandNew, AssertV } from 'mobx-firelink';
+import { Command_Old, GetAsync, Command, AssertV } from 'mobx-firelink';
 import { Assert } from 'js-vextensions';
 import { MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeRevision } from '../../Store/firebase/nodes/@MapNodeRevision';
@@ -21,12 +21,12 @@ export function GetSearchTerms_Advanced(str: string, separateTermsWithWildcard =
 
 @MapEdit
 @UserEdit
-export class AddNodeRevision extends CommandNew<{mapID: string, revision: MapNodeRevision}, number> {
+export class AddNodeRevision extends Command<{mapID: string, revision: MapNodeRevision}, number> {
 	// lastNodeRevisionID_addAmount = 0;
 
 	revisionID: string;
 	node_oldData: MapNode;
-	StartValidate() {
+	Validate() {
 		const { revision } = this.payload;
 
 		// this.revisionID = (await GetDataAsync('general', 'data', '.lastNodeRevisionID')) + this.lastNodeRevisionID_addAmount + 1;

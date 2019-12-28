@@ -5,11 +5,11 @@ import { ScrollView } from 'react-vscrollview';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { store } from 'Store';
 import { GetSelectedImage } from 'Store/main/database';
-import { Observer } from 'vwebapp-framework';
+import { Observer, GetUpdates } from 'vwebapp-framework';
 import { runInAction } from 'mobx';
-import {E} from 'js-vextensions';
+import { E } from 'js-vextensions';
 import { DeleteImage } from '../../Server/Commands/DeleteImage';
-import { UpdateImageData, UpdateImageData_allowedPropUpdates } from '../../Server/Commands/UpdateImageData';
+import { UpdateImageData } from '../../Server/Commands/UpdateImageData';
 import { GetImages } from '../../Store/firebase/images';
 import { GetNiceNameForImageType, Image } from '../../Store/firebase/images/@Image';
 import { IsUserCreatorOrMod, CanGetBasicPermissions } from '../../Store/firebase/userExtras';
@@ -77,7 +77,7 @@ export class ImagesUI extends BaseComponentPlus({} as {}, {} as { selectedImage_
 								{creatorOrMod &&
 									<Button ml="auto" text="Save details" enabled={selectedImage_newData != null && selectedImage_newDataError == null}
 										onClick={async (e) => {
-											const updates = selectedImage_newData.Including(...UpdateImageData_allowedPropUpdates);
+											const updates = GetUpdates(selectedImage, selectedImage_newData);
 											await new UpdateImageData({ id: selectedImage._key, updates }).Run();
 											// this.SetState({selectedImage_newData: null});
 										}}/>}

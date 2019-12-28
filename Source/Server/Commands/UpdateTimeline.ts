@@ -1,8 +1,7 @@
-import { AddSchema, AssertValidate, GetSchemaJSON, Schema } from 'vwebapp-framework';
-import { Timeline } from 'Store/firebase/timelines/@Timeline';
+import { AssertV, Command } from 'mobx-firelink';
 import { GetTimeline } from 'Store/firebase/timelines';
-import { Command, GetAsync } from 'mobx-firelink';
-import { User } from '../../Store/firebase/users/@User';
+import { Timeline } from 'Store/firebase/timelines/@Timeline';
+import { AddSchema, AssertValidate, GetSchemaJSON, Schema } from 'vwebapp-framework';
 
 type MainType = Timeline;
 const MTName = 'Timeline';
@@ -18,19 +17,16 @@ AddSchema(`Update${MTName}_payload`, [MTName], () => ({
 }));
 
 export class UpdateTimeline extends Command<{id: string, updates: Partial<MainType>}, {}> {
-	Validate_Early() {
-		AssertValidate(`Update${MTName}_payload`, this.payload, 'Payload invalid');
-	}
-
 	oldData: MainType;
 	newData: MainType;
-	async Prepare() {
+	Validate() {
+		AssertValidate(`Update${MTName}_payload`, this.payload, 'Payload invalid');
+
 		const { id, updates } = this.payload;
 		// this.oldData = await GetAsync(() => GetTimeline(id));
-		this.oldData = await GetAsync(() => GetTimeline(id));
+		this.oldData = GetTimeline(id);
+		AssertV(this.oldData, 'oldData is null.');
 		this.newData = { ...this.oldData, ...updates };
-	}
-	async Validate() {
 		AssertValidate(MTName, this.newData, `New ${MTName.toLowerCase()}-data invalid`);
 	}
 

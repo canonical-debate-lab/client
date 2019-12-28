@@ -1,18 +1,15 @@
 import { UserEdit } from 'Server/CommandMacros';
-import { Command, GetAsync } from 'mobx-firelink';
+import { Command_Old, GetAsync, Command, AssertV } from 'mobx-firelink';
 import { GetTermComponent } from 'Store/firebase/termComponents';
 import { TermComponent } from '../../Store/firebase/termComponents/@TermComponent';
 
 @UserEdit
 export class DeleteTermComponent extends Command<{termComponentID: string}, {}> {
-	Validate_Early() {}
-
 	oldData: TermComponent;
-	async Prepare() {
+	Validate() {
 		const { termComponentID } = this.payload;
-		this.oldData = await GetAsync(() => GetTermComponent(termComponentID));
-	}
-	async Validate() {
+		this.oldData = GetTermComponent(termComponentID);
+		AssertV(this.oldData, 'oldData is null.');
 	}
 
 	GetDBUpdates() {

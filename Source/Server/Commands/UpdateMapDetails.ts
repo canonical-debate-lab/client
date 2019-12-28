@@ -1,6 +1,6 @@
 import { MapEdit } from 'Server/CommandMacros';
 import { AddSchema, AssertValidate, Schema, GetSchemaJSON } from 'vwebapp-framework';
-import { Command, GetAsync } from 'mobx-firelink';
+import { Command_Old, GetAsync, Command, AssertV } from 'mobx-firelink';
 import { GetMap } from 'Store/firebase/maps';
 import { Map, Map_namePattern } from '../../Store/firebase/maps/@Map';
 import { UserEdit } from '../CommandMacros';
@@ -21,19 +21,16 @@ AddSchema(`Update${MTName}Details_payload`, [MTName], () => ({
 @MapEdit('id')
 @UserEdit
 export class UpdateMapDetails extends Command<{id: string, updates: Partial<MainType>}, {}> {
-	Validate_Early() {
-		AssertValidate(`Update${MTName}Details_payload`, this.payload, 'Payload invalid');
-	}
-
 	oldData: MainType;
 	newData: MainType;
-	async Prepare() {
+	Validate() {
+		AssertValidate(`Update${MTName}Details_payload`, this.payload, 'Payload invalid');
+
 		const { id: mapID, updates: mapUpdates } = this.payload;
-		this.oldData = await GetAsync(() => GetMap(mapID));
+		this.oldData = GetMap(mapID);
+		AssertV(this.oldData, 'oldData is null.');
 		this.newData = { ...this.oldData, ...mapUpdates };
 		this.newData.editedAt = Date.now();
-	}
-	async Validate() {
 		AssertValidate(MTName, this.newData, `New ${MTName.toLowerCase()}-data invalid`);
 	}
 

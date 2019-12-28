@@ -4,12 +4,11 @@ import {GetAsync} from 'vwebapp-framework';
 import {Command} from 'vwebapp-framework';
 
 export class NotifyNodeViewed extends Command<{nodeID: string}, {}> {
-	async Prepare() {}
-	async Validate() {
+	Validate() {
 		const { nodeID } = this.payload;
 		// const nodeData = await GetDataAsync('nodes', nodeID) as MapNode;
-		const nodeData = await GetAsync(() => GetNode(nodeID));
-		Assert(nodeData, `Node #${nodeID} must exist for you to view it!`);
+		const nodeData = GetNode(nodeID);
+		AssertV(nodeData, `Node #${nodeID} must exist for you to view it!`);
 	}
 
 	GetDBUpdates() {

@@ -62,7 +62,6 @@ export class OthersPanel extends BaseComponentPlus({} as {map?: Map, node: MapNo
 		const changeControlType_currentType = node.ownerMapID != null ? 'Private' : 'Public';
 		// const changeControlType_newType = changeControlType_currentType == 'Private' ? 'Public' : 'Private';
 		const changeControlTypeCommand = new ChangeNodeOwnerMap(E({ nodeID: node._key, newOwnerMapID: node.ownerMapID != null ? null : mapID, argumentNodeID: OmitIfFalsy(argumentWrapper?._key) }));
-		const changeControlTypeCommand_error = changeControlTypeCommand.StartValidate_ForUI();
 
 		return (
 			<Column sel style={{ position: 'relative' }}>
@@ -87,7 +86,7 @@ export class OthersPanel extends BaseComponentPlus({} as {map?: Map, node: MapNo
 				</Row>
 				<Row center style={{ whiteSpace: 'normal' }}>
 					<Text>Control type:</Text>
-					<Select ml={5} options={['Private', 'Public']} value={changeControlType_currentType} enabled={changeControlTypeCommand_error == null} title={changeControlTypeCommand_error} onChange={(val) => {
+					<Select ml={5} options={['Private', 'Public']} value={changeControlType_currentType} enabled={changeControlTypeCommand.Validate_Safe() == null} title={changeControlTypeCommand.validateError} onChange={(val) => {
 						changeControlTypeCommand.Run();
 					}}/>
 					<InfoButton ml={5} text="Private nodes are locked to a given map, but allow more permission controls to the node-creator and map-editors."/>

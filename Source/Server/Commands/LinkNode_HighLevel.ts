@@ -6,7 +6,7 @@ import { GetUserPermissionGroups, MeID, CanContributeToNode } from 'Store/fireba
 
 import { Map } from 'Store/firebase/maps/@Map';
 import { UUID } from 'Utils/General/KeyGenerator';
-import { Command, MergeDBUpdates, GetAsync, CommandNew, AssertV } from 'mobx-firelink';
+import { Command_Old, MergeDBUpdates, GetAsync, Command, AssertV } from 'mobx-firelink';
 import { GetMap } from 'Store/firebase/maps';
 import { SearchUpFromNodeForNodeMatchingX } from 'Utils/Store/PathFinder';
 import { ClaimForm, MapNode, Polarity, MapNodeL3 } from '../../Store/firebase/nodes/@MapNode';
@@ -41,7 +41,7 @@ export function CreateLinkCommand(mapID: UUID, draggedNodePath: string, dropOnNo
 	});
 }
 
-export class LinkNode_HighLevel extends CommandNew<Payload, {argumentWrapperID?: string}> {
+export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: string}> {
 	static defaultPayload = { allowCreateWrapperArg: true };
 
 	map_data: Map;
@@ -52,7 +52,7 @@ export class LinkNode_HighLevel extends CommandNew<Payload, {argumentWrapperID?:
 	sub_linkToNewParent: LinkNode;
 	sub_unlinkFromOldParent: UnlinkNode;
 	sub_deleteOldParent: DeleteNode;
-	StartValidate() {
+	Validate() {
 		let { mapID, oldParentID, newParentID, nodeID, newForm, allowCreateWrapperArg, unlinkFromOldParent, deleteOrphanedArgumentWrapper, newPolarity } = this.payload;
 		AssertV(oldParentID !== nodeID, 'Old parent-id and child-id cannot be the same!');
 		AssertV(newParentID !== nodeID, 'New parent-id and child-id cannot be the same!');
@@ -96,7 +96,7 @@ export class LinkNode_HighLevel extends CommandNew<Payload, {argumentWrapperID?:
 					// link: E({ _: true }, newPolarity && { polarity: newPolarity }) as any,
 					link: E({ _: true, polarity: newPolarity }) as any,
 				}).MarkAsSubcommand(this);
-				this.sub_addArgumentWrapper.StartValidate();
+				this.sub_addArgumentWrapper.Validate();
 
 				this.returnData.argumentWrapperID = this.sub_addArgumentWrapper.sub_addNode.nodeID;
 				newParentID_forClaim = this.sub_addArgumentWrapper.sub_addNode.nodeID;
@@ -111,17 +111,17 @@ export class LinkNode_HighLevel extends CommandNew<Payload, {argumentWrapperID?:
 		if (unlinkFromOldParent) {
 			this.sub_unlinkFromOldParent = new UnlinkNode({ mapID, parentID: oldParentID, childID: nodeID }).MarkAsSubcommand(this);
 			this.sub_unlinkFromOldParent.allowOrphaning = true; // allow "orphaning" of nodeID, since we're going to reparent it simultaneously -- using the sub_linkToNewParent subcommand
-			this.sub_unlinkFromOldParent.StartValidate();
+			this.sub_unlinkFromOldParent.Validate();
 
 			// if the old parent was an argument, and the moved node was its only child, also delete the old parent
 			if (deleteOrphanedArgumentWrapper && oldParent_data.type === MapNodeType.Argument && oldParent_data.children.VKeys(true).length === 1) {
 				this.sub_deleteOldParent = new DeleteNode({ mapID, nodeID: oldParentID }).MarkAsSubcommand(this);
 				this.sub_deleteOldParent.childrenToIgnore = [nodeID]; // let DeleteNode sub that it doesn't need to wait for nodeID to be deleted (since we're moving it out from old-parent simultaneously with old-parent's deletion)
-				this.sub_deleteOldParent.StartValidate();
+				this.sub_deleteOldParent.Validate();
 			}
 		}
 
-		this.sub_linkToNewParent.StartValidate();
+		this.sub_linkToNewParent.Validate();
 	}
 
 	GetDBUpdates() {

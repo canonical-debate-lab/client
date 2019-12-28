@@ -1,4 +1,4 @@
-import { Command, GetAsync, CommandNew, AssertV, MergeDBUpdates } from 'mobx-firelink';
+import { Command_Old, GetAsync, Command, AssertV, MergeDBUpdates } from 'mobx-firelink';
 import { GetNode, GetNodesByIDs, GetNodeChildren } from 'Store/firebase/nodes';
 import { AddSchema, AssertValidate, IsSpecialEmptyArray } from 'vwebapp-framework';
 import { E, OMIT, DEL } from 'js-vextensions';
@@ -24,12 +24,12 @@ AddSchema('ChangeNodeOwnerMap_payload', {
 
 // @MapEdit
 @UserEdit
-export class ChangeNodeOwnerMap extends CommandNew<{nodeID: string, newOwnerMapID: string, argumentNodeID?: string}, {}> {
+export class ChangeNodeOwnerMap extends Command<{nodeID: string, newOwnerMapID: string, argumentNodeID?: string}, {}> {
 	newData: MapNode;
 
 	sub_changeOwnerMapForArgument: ChangeNodeOwnerMap;
 
-	StartValidate() {
+	Validate() {
 		AssertValidate('ChangeNodeOwnerMap_payload', this.payload, 'Payload invalid');
 		const { nodeID, newOwnerMapID, argumentNodeID } = this.payload;
 		const oldData = GetNode(nodeID);
@@ -69,7 +69,7 @@ export class ChangeNodeOwnerMap extends CommandNew<{nodeID: string, newOwnerMapI
 
 		if (argumentNodeID) {
 			this.sub_changeOwnerMapForArgument = new ChangeNodeOwnerMap({ nodeID: argumentNodeID, newOwnerMapID }).MarkAsSubcommand(this);
-			this.sub_changeOwnerMapForArgument.StartValidate();
+			this.sub_changeOwnerMapForArgument.Validate();
 		}
 	}
 

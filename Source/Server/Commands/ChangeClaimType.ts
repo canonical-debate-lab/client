@@ -4,7 +4,7 @@ import { AssertValidate, AddSchema } from 'vwebapp-framework';
 
 
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
-import { Command, GetAsync } from 'mobx-firelink';
+import { Command_Old, GetAsync, Command, AssertV } from 'mobx-firelink';
 import { GetClaimType, GetNodeL2 } from '../../Store/firebase/nodes/$node';
 import { Equation } from '../../Store/firebase/nodes/@Equation';
 import { ClaimType, MapNodeL2 } from '../../Store/firebase/nodes/@MapNode';
@@ -33,18 +33,16 @@ AddSchema('ChangeClaimType_payload', {
 @MapEdit
 @UserEdit
 export class ChangeClaimType extends Command<{mapID?: string, nodeID: string, newType: ClaimType}, {}> {
-	Validate_Early() {
-		AssertValidate('ChangeClaimType_payload', this.payload, 'Payload invalid');
-	}
-
 	oldType: ClaimType;
 	newData: MapNodeL2;
 	newRevision: MapNodeRevision;
 	newRevisionID: string;
-	async Prepare() {
+	Validate() {
+		AssertValidate('ChangeClaimType_payload', this.payload, 'Payload invalid');
 		const { nodeID, newType } = this.payload;
 		// let oldData = await GetDataAsync({addHelpers: false}, "nodes", nodeID) as MapNode;
-		const oldData = await GetAsync(() => GetNodeL2(nodeID));
+		const oldData = GetNodeL2(nodeID);
+		AssertV(oldData, 'oldData is null.');
 		this.oldType = GetClaimType(oldData);
 
 		this.newData = { ...oldData.Excluding('current') as any };
@@ -64,10 +62,7 @@ export class ChangeClaimType extends Command<{mapID?: string, nodeID: string, ne
 				delete this.newRevision.equation;
 			}
 		}
-	}
-	async Validate() {
-		const { newType } = this.payload;
-		Assert(CanConvertFromClaimTypeXToY(this.oldType, newType), `Cannot convert from claim-type ${ClaimType[this.oldType]} to ${ClaimType[newType]}.`);
+		AssertV(CanConvertFromClaimTypeXToY(this.oldType, newType), `Cannot convert from claim-type ${ClaimType[this.oldType]} to ${ClaimType[newType]}.`);
 		AssertValidate('MapNode', this.newData, 'New node-data invalid');
 		AssertValidate('MapNodeRevision', this.newRevisionID, 'New revision-data invalid');
 	}

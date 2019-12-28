@@ -1,7 +1,7 @@
 import { MapEdit } from 'Server/CommandMacros';
 import { GetNode } from 'Store/firebase/nodes';
 import { Assert, E } from 'js-vextensions';
-import { Command, GetAsync, CommandNew, AssertV } from 'mobx-firelink';
+import { Command_Old, GetAsync, Command, AssertV } from 'mobx-firelink';
 import { GetMap } from 'Store/firebase/maps';
 import { ClaimForm, MapNode, Polarity } from '../../Store/firebase/nodes/@MapNode';
 import { MapNodeType } from '../../Store/firebase/nodes/@MapNodeType';
@@ -9,14 +9,14 @@ import { UserEdit } from '../CommandMacros';
 
 @MapEdit
 @UserEdit
-export class LinkNode extends CommandNew<{mapID: string, parentID: string, childID: string, childForm?: ClaimForm, childPolarity?: Polarity}, {}> {
+export class LinkNode extends Command<{mapID: string, parentID: string, childID: string, childForm?: ClaimForm, childPolarity?: Polarity}, {}> {
 	child_oldData: MapNode;
 	parent_oldData: MapNode;
 	/* async Prepare(parent_oldChildrenOrder_override?: number[]) {
 		let {parentID, childID, childForm} = this.payload;
 		this.parent_oldChildrenOrder = parent_oldChildrenOrder_override || await GetDataAsync(`nodes/${parentID}/.childrenOrder`) as number[];
 	} */
-	StartValidate() {
+	Validate() {
 		const { parentID, childID } = this.payload;
 		AssertV(parentID != childID, 'Parent-id and child-id cannot be the same!');
 

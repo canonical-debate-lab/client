@@ -1,4 +1,4 @@
-import { Command, GetAsync, CommandNew, AssertV } from 'mobx-firelink';
+import { Command_Old, GetAsync, Command, AssertV } from 'mobx-firelink';
 import { ForUnlink_GetError, GetNode } from '../../Store/firebase/nodes';
 import { GetNodeL2 } from '../../Store/firebase/nodes/$node';
 import { MapEdit, UserEdit } from '../CommandMacros';
@@ -7,11 +7,11 @@ import { MapEdit, UserEdit } from '../CommandMacros';
 
 @MapEdit
 @UserEdit
-export class UnlinkNode extends CommandNew<{mapID: string, parentID: string, childID: string}, {}> {
+export class UnlinkNode extends Command<{mapID: string, parentID: string, childID: string}, {}> {
 	allowOrphaning = false; // could also be named "asPartOfCut", to be consistent with ForUnlink_GetError parameter
 
 	parent_oldChildrenOrder: string[];
-	StartValidate() {
+	Validate() {
 		const { parentID, childID } = this.payload;
 		this.parent_oldChildrenOrder = GetNode(parentID)?.childrenOrder;
 

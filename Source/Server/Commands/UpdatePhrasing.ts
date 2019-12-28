@@ -1,7 +1,7 @@
 import { MapNodePhrasing } from 'Store/firebase/nodePhrasings/@MapNodePhrasing';
 import { AddSchema, GetSchemaJSON, Schema, AssertValidate } from 'vwebapp-framework';
 import { UserEdit } from 'Server/CommandMacros';
-import { Command, GetAsync } from 'mobx-firelink';
+import { Command_Old, GetAsync, Command, AssertV } from 'mobx-firelink';
 import { GetNodePhrasings, GetNodePhrasing } from 'Store/firebase/nodePhrasings';
 
 type MainType = MapNodePhrasing;
@@ -19,18 +19,15 @@ AddSchema(`Update${MTName}_payload`, [MTName], () => ({
 
 @UserEdit
 export class UpdatePhrasing extends Command<{id: string, updates: Partial<MainType>}> {
-	Validate_Early() {
-		AssertValidate(`Update${MTName}_payload`, this.payload, 'Payload invalid');
-	}
-
 	oldData: MainType;
 	newData: MainType;
-	async Prepare() {
+	Validate() {
+		AssertValidate(`Update${MTName}_payload`, this.payload, 'Payload invalid');
+
 		const { id, updates } = this.payload;
-		this.oldData = await GetAsync(() => GetNodePhrasing(id));
+		this.oldData = GetNodePhrasing(id);
+		AssertV(this.oldData, 'oldData is null.');
 		this.newData = { ...this.oldData, ...updates };
-	}
-	async Validate() {
 		AssertValidate(MTName, this.newData, `New ${MTName.toLowerCase()}-data invalid`);
 	}
 

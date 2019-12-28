@@ -1,7 +1,7 @@
 import { Assert } from 'js-vextensions';
 import { MapEdit } from 'Server/CommandMacros';
 import { AddSchema, AssertValidate } from 'vwebapp-framework';
-import {Command} from 'mobx-firelink';
+import { Command, AssertV } from 'mobx-firelink';
 import { UserEdit } from '../CommandMacros';
 
 AddSchema('SetMapLayerStateForUser_payload', {
@@ -17,14 +17,10 @@ AddSchema('SetMapLayerStateForUser_payload', {
 @MapEdit
 @UserEdit
 export class SetMapLayerStateForUser extends Command<{userID: string, mapID: string, layerID: string, state: boolean}, {}> {
-	Validate_Early() {
+	Validate() {
 		AssertValidate('SetMapLayerStateForUser_payload', this.payload, 'Payload invalid');
-	}
-
-	async Prepare() {}
-	async Validate() {
 		const { userID } = this.payload;
-		Assert(userID == this.userInfo.id, 'Cannot change this setting for another user!');
+		AssertV(userID == this.userInfo.id, 'Cannot change this setting for another user!');
 	}
 
 	GetDBUpdates() {

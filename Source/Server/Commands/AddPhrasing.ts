@@ -4,7 +4,7 @@ import { AddSchema, AssertValidate } from 'vwebapp-framework';
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
 import { GetNode } from 'Store/firebase/nodes';
 import { Assert } from 'js-vextensions';
-import { Command, GetAsync } from 'mobx-firelink';
+import { Command_Old, GetAsync, Command } from 'mobx-firelink';
 
 /* AddSchema({
 	properties: {
@@ -20,17 +20,15 @@ export class AddPhrasing extends Command<{phrasing: MapNodePhrasing}, {}> {
 	} */
 
 	id: string;
-	async Prepare() {
+	Validate() {
 		const { phrasing } = this.payload;
 
 		this.id = GenerateUUID();
 		phrasing.creator = this.userInfo.id;
 		phrasing.createdAt = Date.now();
-	}
-	async Validate() {
-		const { phrasing } = this.payload;
 		AssertValidate('MapNodePhrasing', phrasing, 'MapNodePhrasing invalid');
-		const node = await GetAsync(() => GetNode(phrasing.node));
+
+		const node = GetNode(phrasing.node);
 		Assert(node, `Node with id ${phrasing.node} does not exist.`);
 	}
 

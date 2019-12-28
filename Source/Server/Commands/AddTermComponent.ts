@@ -1,6 +1,6 @@
 import { UserEdit } from 'Server/CommandMacros';
 import { GenerateUUID } from 'Utils/General/KeyGenerator';
-import {Command} from 'mobx-firelink';
+import {Command_Old, Command} from 'mobx-firelink';
 import {AssertValidate} from 'vwebapp-framework';
 import {TermComponent} from '../../Store/firebase/termComponents/@TermComponent';
 
@@ -11,15 +11,10 @@ export class AddTermComponent extends Command<{termID: string, termComponent: Te
 	} */
 
 	termComponentID: string;
-	async Prepare() {
+	Validate() {
 		const { termID, termComponent } = this.payload;
-
 		this.termComponentID = GenerateUUID();
-
 		termComponent.parentTerms = { [termID]: true };
-	}
-	async Validate() {
-		const { termID, termComponent } = this.payload;
 		AssertValidate('TermComponent', termComponent, 'Term-component invalid');
 	}
 

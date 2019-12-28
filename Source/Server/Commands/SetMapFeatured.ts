@@ -1,8 +1,10 @@
-import { CommandNew } from 'mobx-firelink';
+import { Command, AssertV } from 'mobx-firelink';
 import { AssertValidate } from 'vwebapp-framework';
+import { HasModPermissions } from 'Store/firebase/userExtras';
 
-export class SetMapFeatured extends CommandNew<{id: string, featured: boolean}, {}> {
-	StartValidate() {
+export class SetMapFeatured extends Command<{id: string, featured: boolean}, {}> {
+	Validate() {
+		AssertV(HasModPermissions(this.userInfo.id), 'Only mods can set whether a map is featured.');
 		AssertValidate({
 			properties: {
 				id: { type: 'string' },
@@ -10,7 +12,6 @@ export class SetMapFeatured extends CommandNew<{id: string, featured: boolean}, 
 			},
 			required: ['id', 'featured'],
 		}, this.payload, 'Payload invalid');
-
 	}
 
 	GetDBUpdates() {
