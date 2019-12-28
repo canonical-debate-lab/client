@@ -1,22 +1,22 @@
-import { ToNumber, E } from 'js-vextensions';
+import { E } from 'js-vextensions';
+import { runInAction } from 'mobx';
 import { Button, Column, Row, Select } from 'react-vcomponents';
 import { BaseComponentPlus, UseCallback } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
-import { GetMaps, GetMaps_Private, GetMaps_Public } from 'Store/firebase/maps';
+import { store } from 'Store';
+import { GetMaps_Private, GetMaps_Public } from 'Store/firebase/maps';
+import { MapType } from 'Store/firebase/maps/@Map';
 import { CanGetBasicPermissions } from 'Store/firebase/userExtras';
 import { GetUserPermissionGroups, MeID } from 'Store/firebase/users';
-import { PageContainer, Observer, HSLA } from 'vwebapp-framework';
-import { ES } from 'Utils/UI/GlobalStyles';
 import { GetSelectedPrivateMap } from 'Store/main/private';
 import { GetSelectedPublicMap } from 'Store/main/public';
-import { MapType } from 'Store/firebase/maps/@Map';
-import { store } from 'Store';
-import { runInAction } from 'mobx';
+import { ES } from 'Utils/UI/GlobalStyles';
+import { HSLA, Observer, PageContainer } from 'vwebapp-framework';
+import { GADDemo } from '../../@GAD/GAD';
 import { ShowAddMapDialog } from '../../@Shared/Maps/AddMapDialog';
 import { MapEntryUI } from '../../@Shared/Maps/MapEntryUI';
 import { MapUI } from '../../@Shared/Maps/MapUI';
 import { ShowSignInPopup } from '../../@Shared/NavBar/UserPanel';
-import { GADDemo } from '../../@GAD/GAD';
 
 export const columnWidths = [0.64, 0.06, 0.12, 0.18];
 
