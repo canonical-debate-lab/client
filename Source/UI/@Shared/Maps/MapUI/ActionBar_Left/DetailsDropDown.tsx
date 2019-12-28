@@ -1,5 +1,5 @@
 import { GetAsync } from 'mobx-firelink';
-import { Button, Column, DropDown, DropDownContent, DropDownTrigger, Row } from 'react-vcomponents';
+import { Button, Column, DropDown, DropDownContent, DropDownTrigger, Row, CheckBox, Text } from 'react-vcomponents';
 import { BaseComponent } from 'react-vextensions';
 import { ShowMessageBox } from 'react-vmessagebox';
 import { store } from 'Store';
@@ -12,10 +12,11 @@ import { GetUpdates, InfoButton, Observer } from 'vwebapp-framework';
 import { MapNodeRevision_Defaultable } from 'Store/firebase/nodes/@MapNodeRevision';
 import { AddNodeRevision } from 'Server/Commands/AddNodeRevision';
 import { Clone, ToJSON, FromJSON, E } from 'js-vextensions';
+import { SetMapFeatured } from 'Server/Commands/SetMapFeatured';
 import { DeleteMap } from '../../../../../Server/Commands/DeleteMap';
 import { UpdateMapDetails } from '../../../../../Server/Commands/UpdateMapDetails';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
-import { IsUserCreatorOrMod } from '../../../../../Store/firebase/userExtras';
+import { IsUserCreatorOrMod, HasModPermissions } from '../../../../../Store/firebase/userExtras';
 import { MapDetailsUI } from '../../MapDetailsUI';
 
 export async function ApplyNodeDefaults(nodeID: string, nodeDefaults: MapNodeRevision_Defaultable, recursive: boolean, mapID: string, runInfo = { revisionsUpdated: new Set<string>() }) {
@@ -71,7 +72,13 @@ export class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: strin
 						<Column mt={10}>
 							<Row style={{ fontWeight: 'bold' }}>Advanced:</Row>
 							<Row mt={5} center>
-								<Button text="Apply node-defaults" onLeftClick={async () => {
+								<CheckBox text="Featured" enabled={HasModPermissions(MeID())} checked={map.featured} onChange={(val) => {
+									new SetMapFeatured({ id: map._key, featured: val }).Run();
+								}}/>
+							</Row>
+							<Row center>
+								<Text>Actions:</Text>
+								<Button ml={5} text="Apply node-defaults" onLeftClick={async () => {
 									ShowMessageBox({
 										title: 'Recursively apply node-defaults', cancelButton: true,
 										message: `
@@ -93,9 +100,7 @@ export class DetailsDropDown extends BaseComponent<{map: Map}, {dataError: strin
 									});
 								}}/>
 								<InfoButton ml={5} text="Recurses down from the root node, modifying nodes to match the node-defaults; ignores paths where we lack the edit permission."/>
-							</Row>
-							<Row mt={5}>
-								<Button text="Delete" onLeftClick={async () => {
+								<Button ml={5} text="Delete" onLeftClick={async () => {
 									const rootNode = await GetAsync(() => GetNodeL2(map.rootNode));
 									if (GetChildCount(rootNode) != 0) {
 										return void ShowMessageBox({

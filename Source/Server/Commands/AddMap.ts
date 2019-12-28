@@ -1,6 +1,6 @@
-import { Command, MergeDBUpdates, CommandNew } from 'mobx-firelink';
+import { Command, MergeDBUpdates, CommandNew, AssertV } from 'mobx-firelink';
 import { AssertValidate } from 'vwebapp-framework';
-import { OmitIfFalsy } from 'js-vextensions';
+import { OmitIfFalsy, Assert } from 'js-vextensions';
 import { UserEdit } from '../../Server/CommandMacros';
 import { GenerateUUID, UUID } from '../../Utils/General/KeyGenerator';
 import { Map, MapType } from '../../Store/firebase/maps/@Map';
@@ -15,6 +15,7 @@ export class AddMap extends CommandNew<{map: Map}, UUID> {
 	sub_addNode: AddChildNode;
 	StartValidate() {
 		const { map } = this.payload;
+		AssertV(map.featured === undefined, 'Cannot set "featured" to true while first adding a map. (hmmm)');
 
 		this.mapID = GenerateUUID();
 		map.createdAt = Date.now();

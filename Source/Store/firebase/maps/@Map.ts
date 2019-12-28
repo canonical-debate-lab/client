@@ -28,6 +28,7 @@ export class Map {
 	requireMapEditorsCanEdit = true;
 	// allowPublicNodes = true; // todo
 	nodeDefaults: MapNodeRevision_Defaultable;
+	featured: boolean;
 	editorIDs: string[];
 
 	creator: string;
@@ -52,6 +53,7 @@ AddSchema('Map', ['MapNodeRevision'], () => ({
 		nodeDefaults: Schema({
 			properties: GetSchemaJSON('MapNodeRevision').properties.Including(...MapNodeRevision_Defaultable_props),
 		}),
+		featured: { type: 'boolean' },
 		// editors: { patternProperties: { [UUID_regex]: { type: 'boolean' } } },
 		editorIDs: { items: { type: 'string' } },
 
