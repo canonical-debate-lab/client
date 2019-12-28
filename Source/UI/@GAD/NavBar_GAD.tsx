@@ -22,7 +22,7 @@ export class NavBar_GAD extends BaseComponentPlus({}, {}) {
 	render() {
 		const { topRightOpenPanel } = store.main;
 		const auth = GetAuth();
-		const dbNeedsInit = GetDocs({ useUndefinedForInProgress: true }, (a) => a.maps) === null; // use maps because it won't cause too much data to be downloaded-and-watched; improve this later
+		const dbNeedsInit = GetDocs({ undefinedForLoading: true }, (a) => a.maps) === null; // use maps because it won't cause too much data to be downloaded-and-watched; improve this later
 		return (
 			<nav style={{
 				position: 'relative', zIndex: 11, height: 150, boxShadow: colors.navBarBoxShadow,

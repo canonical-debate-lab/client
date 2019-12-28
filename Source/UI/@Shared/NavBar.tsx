@@ -39,7 +39,7 @@ export class NavBar extends BaseComponentPlus({} as {}, {}) {
 		// const topLeftOpenPanel = State((a) => a.main.topLeftOpenPanel);
 		// const topRightOpenPanel = State(a => a.main.topRightOpenPanel);
 		const { topLeftOpenPanel, topRightOpenPanel } = store.main;
-		const dbNeedsInit = GetDocs({ useUndefinedForInProgress: true }, (a) => a.maps) === null; // use maps because it won't cause too much data to be downloaded-and-watched; improve this later
+		const dbNeedsInit = GetDocs({ undefinedForLoading: true }, (a) => a.maps) === null; // use maps because it won't cause too much data to be downloaded-and-watched; improve this later
 		return (
 			<nav style={{
 				position: 'relative', zIndex: 11, padding: '0 10px', boxShadow: colors.navBarBoxShadow,

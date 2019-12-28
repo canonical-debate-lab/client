@@ -15,7 +15,7 @@ export class DeleteLayer extends Command<{layerID: string}, {}> {
 		// this.oldData = await GetDoc_Async({}, (a) => a.layers.get(layerID));
 		this.oldData = GetLayer(layerID);
 		AssertV(this.oldData, 'oldData is null.');
-		this.userMapInfoSets = GetDocs({ useUndefinedForInProgress: true }, (a) => a.userMapInfo);
+		this.userMapInfoSets = GetDocs({ undefinedForLoading: true }, (a) => a.userMapInfo);
 		AssertV(this.userMapInfoSets, 'userMapInfoSets is null.');
 
 		const earlyError = ForDeleteLayer_GetError(this.userInfo.id, this.oldData);
