@@ -4,7 +4,7 @@ import { CheckBox, Column, Pre, RowLR, Spinner, TextInput, Row } from 'react-vco
 import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { InfoButton } from 'vwebapp-framework';
 import { PermissionInfoType, MapNodeRevision, MapNodeRevision_Defaultable_props, PermissionInfo, MapNodeRevision_Defaultable_DefaultsForMap } from 'Store/firebase/nodes/@MapNodeRevision';
-import { Map, Map_namePattern } from '../../../Store/firebase/maps/@Map';
+import { Map, Map_namePattern, MapType } from '../../../Store/firebase/maps/@Map';
 import { GetUser } from '../../../Store/firebase/users';
 import { IDAndCreationInfoUI } from '../CommonPropUIs/IDAndCreationInfoUI';
 import { PermissionsOptions } from './MapNode/NodeDetailsUI';
@@ -49,11 +49,13 @@ export class MapDetailsUI extends BaseComponentPlus({ enabled: true } as Props, 
 					<CheckBox enabled={enabled} style={{ width: '100%' }}
 						checked={newData.noteInline} onChange={(val) => Change(newData.noteInline = val)}/>
 				</RowLR>
+				{!forNew &&
 				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 					<Pre>Default expand depth:</Pre>
 					<Spinner min={1} max={3} enabled={enabled}
 						value={ToNumber(newData.defaultExpandDepth, 0)} onChange={(val) => Change(newData.defaultExpandDepth = val)}/>
-				</RowLR>
+				</RowLR>}
+				{newData.type == MapType.Private && !forNew &&
 				<RowLR mt={5} splitAt={splitAt} style={{ width }}>
 					<Row center>
 						<Pre>Require map-editors can edit:</Pre>
@@ -63,7 +65,7 @@ export class MapDetailsUI extends BaseComponentPlus({ enabled: true } as Props, 
 						`.AsMultiline(0)}/>
 					</Row>
 					<CheckBox enabled={enabled} checked={newData.requireMapEditorsCanEdit} onChange={(val) => Change(newData.requireMapEditorsCanEdit = val)}/>
-				</RowLR>
+				</RowLR>}
 				{/* <RowLR mt={5} splitAt={splitAt} style={{ width }}>
 					<Row center>
 						<Pre>Allow public nodes:</Pre>
