@@ -1,5 +1,5 @@
 import { ToNumber, E } from 'js-vextensions';
-import { Button, Column, Row } from 'react-vcomponents';
+import { Button, Column, Row, Select } from 'react-vcomponents';
 import { BaseComponentPlus, UseCallback } from 'react-vextensions';
 import { ScrollView } from 'react-vscrollview';
 import { GetMaps, GetMaps_Private, GetMaps_Public } from 'Store/firebase/maps';
@@ -10,6 +10,8 @@ import { ES } from 'Utils/UI/GlobalStyles';
 import { GetSelectedPrivateMap } from 'Store/main/private';
 import { GetSelectedPublicMap } from 'Store/main/public';
 import { MapType } from 'Store/firebase/maps/@Map';
+import { store } from 'Store';
+import { runInAction } from 'mobx';
 import { ShowAddMapDialog } from '../../@Shared/Maps/AddMapDialog';
 import { MapEntryUI } from '../../@Shared/Maps/MapEntryUI';
 import { MapUI } from '../../@Shared/Maps/MapUI';
@@ -24,10 +26,13 @@ export class MapListUI extends BaseComponentPlus({} as {type: MapType}, {}) {
 		const { type } = this.props;
 		const userID = MeID();
 		const permissions = GetUserPermissionGroups(userID);
+		const storeNode = store.main[type == MapType.Private ? 'private' : 'public'];
 		const maps = type == MapType.Private ? GetMaps_Private(true) : GetMaps_Public(true);
 		// maps = maps.OrderByDescending(a => ToNumber(a.edits, 0));
-		const selectedMap = type == MapType.Private ? GetSelectedPrivateMap() : GetSelectedPublicMap();
+		const featuredMaps = maps.filter((a) => a.featured);
+		const mapsToShow = storeNode.listType == 'featured' ? featuredMaps : maps;
 
+		const selectedMap = type == MapType.Private ? GetSelectedPrivateMap() : GetSelectedPublicMap();
 		if (selectedMap) {
 			return (
 				<PageContainer fullWidth={true} fullHeight={true} style={{ margin: 0, padding: 0, background: null, filter: null }}>
@@ -36,6 +41,7 @@ export class MapListUI extends BaseComponentPlus({} as {type: MapType}, {}) {
 			);
 		}
 
+		const listTypeOptions = [{ name: `Featured (${featuredMaps.length})`, value: 'featured' }, { name: `All (${maps.length})`, value: 'all' }];
 		return (
 			<PageContainer style={{ margin: '20px auto 20px auto', padding: 0, background: null }}>
 				<Column className="clickThrough" style={E(
@@ -46,6 +52,9 @@ export class MapListUI extends BaseComponentPlus({} as {type: MapType}, {}) {
 					},
 				)}>
 					<Row style={{ height: 40, padding: 10 }}>
+						<Select displayType="button bar" options={listTypeOptions} value={storeNode.listType} onChange={(val) => {
+							runInAction('MapListUI.listTypeBar.onChange', () => storeNode.listType = val);
+						}}/>
 						<Button text="Add map" ml="auto" enabled={CanGetBasicPermissions(MeID())} onClick={UseCallback(() => {
 							if (userID == null) return void ShowSignInPopup();
 							ShowAddMapDialog(userID, type);
@@ -59,8 +68,8 @@ export class MapListUI extends BaseComponentPlus({} as {type: MapType}, {}) {
 					</Row>
 				</Column>
 				<ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1 })}>
-					{maps.length == 0 && <div style={{ textAlign: 'center', fontSize: 18 }}>Loading...</div>}
-					{maps.map((map, index) => <MapEntryUI key={index} index={index} last={index == maps.length - 1} map={map}/>)}
+					{mapsToShow.length == 0 && <div style={{ textAlign: 'center', fontSize: 18 }}>Loading...</div>}
+					{mapsToShow.map((map, index) => <MapEntryUI key={index} index={index} last={index == mapsToShow.length - 1} map={map}/>)}
 				</ScrollView>
 			</PageContainer>
 		);

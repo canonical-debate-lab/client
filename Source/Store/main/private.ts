@@ -4,6 +4,7 @@ import { GetMap } from 'Store/firebase/maps';
 import { StoreAccessor } from 'mobx-firelink';
 
 export class PrivatePageState {
+	@O listType = 'featured' as 'featured' | 'all';
 	@O selectedMapID: string;
 }
 
