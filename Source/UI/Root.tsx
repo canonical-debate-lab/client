@@ -10,7 +10,7 @@ import { Button, ColorPickerBox, Column } from 'react-vcomponents';
 import { BaseComponent, BaseComponentPlus } from 'react-vextensions';
 import { VMenuLayer } from 'react-vmenu';
 import { MessageBoxUI, ShowMessageBox } from 'react-vmessagebox';
-import { CreateLinkCommand as CreateLinkCommandForDND } from 'Server/Commands/LinkNode_HighLevel';
+import { CreateLinkCommand } from 'Server/Commands/LinkNode_HighLevel';
 import { UpdateTimelineStep } from 'Server/Commands/UpdateTimelineStep';
 import { UpdateTimelineStepOrder } from 'Server/Commands/UpdateTimelineStepOrder';
 import { store } from 'Store';
@@ -143,8 +143,8 @@ export class RootUIWrapper extends BaseComponentPlus({}, {}) {
 			const draggedNodeID = GetPathNodeIDs(draggedNodePath).Last();
 			const draggedNode = GetNodeL3(draggedNodeID);
 
-			const copyCommand = CreateLinkCommandForDND(mapID, draggedNodePath, newParentPath, polarity, true);
-			const moveCommand = CreateLinkCommandForDND(mapID, draggedNodePath, newParentPath, polarity, false);
+			const copyCommand = CreateLinkCommand(mapID, draggedNodePath, newParentPath, polarity, true);
+			const moveCommand = CreateLinkCommand(mapID, draggedNodePath, newParentPath, polarity, false);
 
 			if (copyCommand.Validate_Safe()) {
 				ShowMessageBox({ title: 'Cannot copy/move node', message: `Reason: ${copyCommand.validateError}` });

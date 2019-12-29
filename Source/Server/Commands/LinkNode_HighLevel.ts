@@ -91,7 +91,7 @@ export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: st
 				const argumentWrapper = new MapNode({ type: MapNodeType.Argument, ownerMapID: OmitIfFalsy(this.newParent_data.ownerMapID) });
 				const argumentWrapperRevision = new MapNodeRevision(this.map_data.nodeDefaults);
 
-				this.sub_addArgumentWrapper = new AddChildNode({
+				this.sub_addArgumentWrapper = this.sub_addArgumentWrapper ?? new AddChildNode({
 					mapID, parentID: newParentID, node: argumentWrapper, revision: argumentWrapperRevision,
 					// link: E({ _: true }, newPolarity && { polarity: newPolarity }) as any,
 					link: E({ _: true, polarity: newPolarity }) as any,
@@ -106,22 +106,21 @@ export class LinkNode_HighLevel extends Command<Payload, {argumentWrapperID?: st
 			}
 		}
 
-		this.sub_linkToNewParent = new LinkNode({ mapID, parentID: newParentID_forClaim, childID: nodeID, childForm: newForm, childPolarity: newPolarity }).MarkAsSubcommand(this);
+		this.sub_linkToNewParent = this.sub_linkToNewParent ?? new LinkNode({ mapID, parentID: newParentID_forClaim, childID: nodeID, childForm: newForm, childPolarity: newPolarity }).MarkAsSubcommand(this);
+		this.sub_linkToNewParent.Validate();
 
 		if (unlinkFromOldParent) {
-			this.sub_unlinkFromOldParent = new UnlinkNode({ mapID, parentID: oldParentID, childID: nodeID }).MarkAsSubcommand(this);
+			this.sub_unlinkFromOldParent = this.sub_unlinkFromOldParent ?? new UnlinkNode({ mapID, parentID: oldParentID, childID: nodeID }).MarkAsSubcommand(this);
 			this.sub_unlinkFromOldParent.allowOrphaning = true; // allow "orphaning" of nodeID, since we're going to reparent it simultaneously -- using the sub_linkToNewParent subcommand
 			this.sub_unlinkFromOldParent.Validate();
 
 			// if the old parent was an argument, and the moved node was its only child, also delete the old parent
 			if (deleteOrphanedArgumentWrapper && oldParent_data.type === MapNodeType.Argument && oldParent_data.children.VKeys(true).length === 1) {
-				this.sub_deleteOldParent = new DeleteNode({ mapID, nodeID: oldParentID }).MarkAsSubcommand(this);
+				this.sub_deleteOldParent = this.sub_deleteOldParent ?? new DeleteNode({ mapID, nodeID: oldParentID }).MarkAsSubcommand(this);
 				this.sub_deleteOldParent.childrenToIgnore = [nodeID]; // let DeleteNode sub that it doesn't need to wait for nodeID to be deleted (since we're moving it out from old-parent simultaneously with old-parent's deletion)
 				this.sub_deleteOldParent.Validate();
 			}
 		}
-
-		this.sub_linkToNewParent.Validate();
 	}
 
 	GetDBUpdates() {

@@ -15,7 +15,7 @@ import { store } from 'Store';
 import { WeightingType } from 'Store/main';
 import { runInAction } from 'mobx';
 import { SlicePath } from 'mobx-firelink';
-import {GetLastAcknowledgementTime} from 'Store/main/maps';
+import { GetLastAcknowledgementTime } from 'Store/main/maps';
 import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatings } from '../../../../Store/firebase/nodeRatings';
@@ -344,7 +344,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 			if (!path.includes('/')) return null; // don't make draggable if root-node of map
 			return {
 				type: 'MapNode',
-				draggableInfo: new DraggableInfo({ nodePath: path }),
+				draggableInfo: new DraggableInfo({ nodePath: path, mapID: map._key }), // mapID needed for DND-completer to create the link command
 				index: indexInNodeList,
 			};
 		};

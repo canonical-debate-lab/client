@@ -27,7 +27,7 @@ export class AddChildNode extends Command<Payload, {nodeID: string, revisionID: 
 		}
 
 		const node_withParents = E(node, parentID ? { parents: { [parentID]: { _: true } } } : {});
-		this.sub_addNode = new AddNode({ mapID, node: node_withParents, revision }).MarkAsSubcommand(this);
+		this.sub_addNode = this.sub_addNode ?? new AddNode({ mapID, node: node_withParents, revision }).MarkAsSubcommand(this);
 		// this.sub_addNode.VSet({ lastNodeID_addAmount: this.lastNodeID_addAmount, lastNodeRevisionID_addAmount: this.lastNodeRevisionID_addAmount });
 		this.sub_addNode.Validate();
 

@@ -29,7 +29,7 @@ export class CloneNode extends Command<{mapID: string, baseNodePath: string, new
 
 		const newChildRevision = Clone(baseNode.current).VSet({ node: DEL });
 
-		this.sub_addNode = new AddChildNode({
+		this.sub_addNode = this.sub_addNode ?? new AddChildNode({
 			mapID, parentID: newParentID, node: newChildNode, revision: newChildRevision,
 			link: E(
 				{ _: true },

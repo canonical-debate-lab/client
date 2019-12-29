@@ -7,7 +7,7 @@ import { GetMap } from 'Store/firebase/maps';
 import { MapType } from 'Store/firebase/maps/@Map';
 import { IsPremiseOfSinglePremiseArgument, GetNodeL2 } from 'Store/firebase/nodes/$node';
 import { PermissionInfoType } from 'Store/firebase/nodes/@MapNodeRevision';
-import {GetNodeRevision} from 'Store/firebase/nodeRevisions';
+import { GetNodeRevision } from 'Store/firebase/nodeRevisions';
 import { UserEdit } from '../CommandMacros';
 import { MapNodeL2, MapNode } from '../../Store/firebase/nodes/@MapNode';
 
@@ -68,7 +68,7 @@ export class ChangeNodeOwnerMap extends Command<{nodeID: string, newOwnerMapID: 
 		AssertValidate('MapNode', this.newData, 'New node-data invalid');
 
 		if (argumentNodeID) {
-			this.sub_changeOwnerMapForArgument = new ChangeNodeOwnerMap({ nodeID: argumentNodeID, newOwnerMapID }).MarkAsSubcommand(this);
+			this.sub_changeOwnerMapForArgument = this.sub_changeOwnerMapForArgument ?? new ChangeNodeOwnerMap({ nodeID: argumentNodeID, newOwnerMapID }).MarkAsSubcommand(this);
 			this.sub_changeOwnerMapForArgument.Validate();
 		}
 	}

@@ -17,7 +17,7 @@ export class DeleteMap extends Command<{mapID: string}, {}> {
 		AssertV(this.oldData, 'oldData is null.');
 		this.userMapInfoSets = GetDocs({}, (a) => a.userMapInfo) || [];
 
-		this.sub_deleteNode = new DeleteNode({ mapID, nodeID: this.oldData.rootNode }).MarkAsSubcommand(this);
+		this.sub_deleteNode = this.sub_deleteNode ?? new DeleteNode({ mapID, nodeID: this.oldData.rootNode }).MarkAsSubcommand(this);
 		this.sub_deleteNode.asPartOfMapDelete = true;
 		this.sub_deleteNode.Validate();
 		// todo: use parents recursion on l2 nodes to make sure they're all connected to at least one other map root

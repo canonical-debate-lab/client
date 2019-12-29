@@ -23,7 +23,7 @@ export class AddMap extends Command<{map: Map}, UUID> {
 
 		const newRootNode = new MapNode({ type: MapNodeType.Category, creator: map.creator, rootNodeForMap: map._key, ownerMapID: OmitIfFalsy(map.type == MapType.Private && map._key) });
 		const newRootNodeRevision = new MapNodeRevision({ titles: { base: 'Root' }, votingDisabled: true });
-		this.sub_addNode = new AddChildNode({ mapID: this.mapID, parentID: null, node: newRootNode, revision: newRootNodeRevision, asMapRoot: true }).MarkAsSubcommand(this);
+		this.sub_addNode = this.sub_addNode ?? new AddChildNode({ mapID: this.mapID, parentID: null, node: newRootNode, revision: newRootNodeRevision, asMapRoot: true }).MarkAsSubcommand(this);
 		this.sub_addNode.Validate();
 
 		map.rootNode = this.sub_addNode.sub_addNode.nodeID;

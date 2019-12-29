@@ -65,7 +65,7 @@ export class DeleteNode extends Command<{mapID?: string, nodeID: string, withCon
 		AssertV(earlyError == null, earlyError);
 
 		if (withContainerArgument) {
-			this.sub_deleteContainerArgument = new DeleteNode({ mapID, nodeID: withContainerArgument }).MarkAsSubcommand(this);
+			this.sub_deleteContainerArgument = this.sub_deleteContainerArgument ?? new DeleteNode({ mapID, nodeID: withContainerArgument }).MarkAsSubcommand(this);
 			this.sub_deleteContainerArgument.childrenToIgnore = [nodeID];
 			// this.sub_deleteContainerArgument.Validate_Early();
 			this.sub_deleteContainerArgument.Validate();
