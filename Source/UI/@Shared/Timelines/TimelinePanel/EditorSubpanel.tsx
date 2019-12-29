@@ -19,9 +19,10 @@ import { DroppableInfo } from 'Utils/UI/DNDStructures';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { GetOpenMapID } from 'Store/main';
 import { GetTimelinePanelOpen, GetTimelineOpenSubpanel, GetSelectedTimeline, GetShowTimelineDetails } from 'Store/main/mapStates/$mapState';
-import {runInAction} from 'mobx';
+import { runInAction } from 'mobx';
+import { TimelineSubpanel } from 'Store/main/mapStates/@MapState';
+import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { StepEditorUI } from './EditorSubpanel/StepEditorUI';
-import {TimelineSubpanel} from 'Store/main/mapStates/@MapState';
 
 // for use by react-beautiful-dnd (using text replacement)
 G({ LockMapEdgeScrolling });
@@ -31,33 +32,36 @@ function LockMapEdgeScrolling() {
 }
 
 @Observer
-export class EditorSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} as {timeline: Timeline}) {
+export class EditorSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} as {timeline: Timeline, creatorOrMod: boolean}) {
 	render() {
 		const { map } = this.props;
 		const timeline = GetSelectedTimeline(map && map._key);
+		const creatorOrMod = IsUserCreatorOrMod(MeID(), timeline);
 		// timelineSteps: timeline && GetTimelineSteps(timeline, true),
 		const showTimelineDetails = GetShowTimelineDetails(map && map._key);
 		const lockMapScrolling = store.main.lockMapScrolling;
 		const droppableInfo = new DroppableInfo({ type: 'TimelineStepList', timelineID: timeline ? timeline._key : null });
 
-		this.Stash({ timeline });
+		this.Stash({ timeline, creatorOrMod });
 		if (timeline == null) return null;
 		return (
 			<>
-				<Row center mlr={5}>
-					<Text>Add: </Text>
-					<Button ml={5} text="Video" enabled={timeline != null && timeline.videoID == null} onClick={() => {
-						if (MeID() == null) return ShowSignInPopup();
-						new UpdateTimeline({ id: timeline._key, updates: { videoID: '' } }).Run();
-					}}/>
-					<Button ml={5} text="Statement" enabled={timeline != null} onClick={() => {
-						if (MeID() == null) return ShowSignInPopup();
-						const lastVisibleStepIndex = this.stepList.getVisibleRange()[1];
-						const newStepIndex = lastVisibleStepIndex == timeline.steps.length - 1 ? null : lastVisibleStepIndex;
+				<Row center mlr={5} style={{ minHeight: 25 }}>
+					{creatorOrMod && <>
+						<Text>Add: </Text>
+						<Button ml={5} text="Video" enabled={timeline != null && timeline.videoID == null} onClick={() => {
+							if (MeID() == null) return ShowSignInPopup();
+							new UpdateTimeline({ id: timeline._key, updates: { videoID: '' } }).Run();
+						}}/>
+						<Button ml={5} text="Statement" enabled={timeline != null} onClick={() => {
+							if (MeID() == null) return ShowSignInPopup();
+							const lastVisibleStepIndex = this.stepList.getVisibleRange()[1];
+							const newStepIndex = lastVisibleStepIndex == timeline.steps.length - 1 ? null : lastVisibleStepIndex;
 
-						const newStep = new TimelineStep({});
-						new AddTimelineStep({ timelineID: timeline._key, step: newStep, stepIndex: newStepIndex }).Run();
-					}}/>
+							const newStep = new TimelineStep({});
+							new AddTimelineStep({ timelineID: timeline._key, step: newStep, stepIndex: newStepIndex }).Run();
+						}}/>
+					</>}
 					<CheckBox ml={5} text="Details" checked={showTimelineDetails} onChange={(val) => {
 						runInAction('EditorSubpanel.Details.onChange', () => store.main.mapStates.get(map._key).showTimelineDetails = val);
 					}}/>
@@ -70,21 +74,21 @@ export class EditorSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} a
 					// filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)', // disabled for now, since otherwise causes issue with dnd system (and portal fix causes errors here, fsr)
 				})}>
 					{showTimelineDetails &&
-					<TimelineDetailsEditor timeline={timeline}/>}
+					<TimelineDetailsEditor timeline={timeline} editing={creatorOrMod}/>}
 					{timeline.videoID != null &&
 					<Row center mb={7} p="7px 10px" style={{ background: 'rgba(0,0,0,.7)', borderRadius: 10, border: '1px solid rgba(255,255,255,.15)' }}>
 						<Pre>Video ID: </Pre>
-						<TextInput value={timeline.videoID} delayChangeTillDefocus={true} onChange={(val) => {
+						<TextInput value={timeline.videoID} delayChangeTillDefocus={true} enabled={creatorOrMod} onChange={(val) => {
 							new UpdateTimeline({ id: timeline._key, updates: { videoID: val } }).Run();
 						}}/>
-						<CheckBox ml={5} text="Start: " checked={timeline.videoStartTime != null} onChange={(val) => {
+						<CheckBox ml={5} text="Start: " checked={timeline.videoStartTime != null} enabled={creatorOrMod} onChange={(val) => {
 							if (val) {
 								new UpdateTimeline({ id: timeline._key, updates: { videoStartTime: 0 } }).Run();
 							} else {
 								new UpdateTimeline({ id: timeline._key, updates: { videoStartTime: null } }).Run();
 							}
 						}}/>
-						<TimeSpanInput mr={5} style={{ width: 60 }} enabled={timeline.videoStartTime != null} delayChangeTillDefocus={true} value={timeline.videoStartTime}
+						<TimeSpanInput mr={5} style={{ width: 60 }} enabled={creatorOrMod && timeline.videoStartTime != null} delayChangeTillDefocus={true} value={timeline.videoStartTime}
 							onChange={(val) => new UpdateTimeline({ id: timeline._key, updates: { videoStartTime: val } }).Run()}/>
 						<Row center>
 							<Text>Height</Text>
@@ -96,11 +100,11 @@ export class EditorSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} a
 							`.AsMultiline(0)}/>
 							<Text>: </Text>
 						</Row>
-						<Spinner min={0} max={100} step={0.01} delayChangeTillDefocus={true} style={{ width: 62 }} value={(timeline.videoHeightVSWidthPercent * 100).RoundTo(0.01)} onChange={(val) => {
+						<Spinner min={0} max={100} step={0.01} delayChangeTillDefocus={true} style={{ width: 62 }} value={(timeline.videoHeightVSWidthPercent * 100).RoundTo(0.01)} enabled={creatorOrMod} onChange={(val) => {
 							new UpdateTimeline({ id: timeline._key, updates: { videoHeightVSWidthPercent: (val / 100).RoundTo(0.0001) } }).Run();
 						}}/>
 						<Pre>%</Pre>
-						<Button ml="auto" text="X" onClick={() => {
+						<Button ml="auto" text="X" enabled={creatorOrMod} onClick={() => {
 							ShowMessageBox({
 								title: 'Delete video attachment', cancelButton: true,
 								message: 'Remove the video attachment for this timeline?',
@@ -110,15 +114,17 @@ export class EditorSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} a
 							});
 						}}/>
 					</Row>}
-					<Droppable type="TimelineStep" droppableId={ToJSON(droppableInfo.VSet({ timelineID: timeline._key }))}>{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-						<Column ref={(c) => provided.innerRef(GetDOM(c) as any)} {...provided.droppableProps}>
-							{/* timelineSteps && timelineSteps.map((step, index) => {
-								if (step == null) return null;
-								return <StepUI key={index} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>;
-							}) */}
-							<ReactList ref={(c) => this.stepList = c} type='variable' length={timeline.steps.length} itemSizeEstimator={this.EstimateStepHeight} itemRenderer={this.RenderStep}/>
-						</Column>
-					)}</Droppable>
+					<Droppable type="TimelineStep" droppableId={ToJSON(droppableInfo.VSet({ timelineID: timeline._key }))} isDropDisabled={!creatorOrMod}>
+						{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
+							<Column ref={(c) => provided.innerRef(GetDOM(c) as any)} {...provided.droppableProps}>
+								{/* timelineSteps && timelineSteps.map((step, index) => {
+									if (step == null) return null;
+									return <StepUI key={index} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} step={step}/>;
+								}) */}
+								<ReactList ref={(c) => this.stepList = c} type='variable' length={timeline.steps.length} itemSizeEstimator={this.EstimateStepHeight} itemRenderer={this.RenderStep}/>
+							</Column>
+						)}
+					</Droppable>
 				</ScrollView>
 			</>
 		);
@@ -129,8 +135,8 @@ export class EditorSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} a
 		return 100;
 	};
 	RenderStep = (index: number, key: any) => {
-		const { map, timeline } = this.PropsStash;
+		const { map, timeline, creatorOrMod } = this.PropsStash;
 		const stepID = timeline.steps[index];
-		return <StepEditorUI key={stepID} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} stepID={stepID}/>;
+		return <StepEditorUI key={stepID} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} stepID={stepID} draggable={creatorOrMod}/>;
 	};
 }

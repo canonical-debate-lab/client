@@ -20,6 +20,9 @@ import { UUIDPathStub } from 'UI/@Shared/UUIDStub';
 import { GetPathNodes } from 'Store/main/mapViews/$mapView';
 import { GetAsync } from 'mobx-firelink';
 import { SearchUpFromNodeForNodeMatchingX } from 'Utils/Store/PathFinder';
+import { VMenuStub, VMenuItem } from 'react-vmenu';
+import { styles } from 'Utils/UI/GlobalStyles';
+import { AddTimelineStep } from 'Server/Commands/AddTimelineStep';
 
 export enum PositionOptionsEnum {
 	Full = null,
@@ -72,7 +75,7 @@ export class StepEditorUI extends BaseComponentPlus({} as StepEditorUIProps, { p
 		const { index, last, map, timeline, stepID, dragInfo } = this.props;
 		const { placeholderRect } = this.state;
 		const step = GetTimelineStep(stepID);
-		const creatorOrMod = IsUserCreatorOrMod(MeID(), map);
+		const creatorOrMod = IsUserCreatorOrMod(MeID(), timeline);
 
 		if (step == null) {
 			return <div style={{ height: 100 }}><div {...(dragInfo && dragInfo.provided.draggableProps)} {...(dragInfo && dragInfo.provided.dragHandleProps)}/></div>;
@@ -96,23 +99,23 @@ export class StepEditorUI extends BaseComponentPlus({} as StepEditorUIProps, { p
 						<Row center ml="auto">
 							{timeline.videoID != null &&
 								<>
-									<CheckBox text="Video time: " checked={step.videoTime != null} onChange={(val) => {
+									<CheckBox text="Video time: " checked={step.videoTime != null} enabled={creatorOrMod} onChange={(val) => {
 										if (val) {
 											new UpdateTimelineStep({ stepID: step._key, stepUpdates: { videoTime: 0 } }).Run();
 										} else {
 											new UpdateTimelineStep({ stepID: step._key, stepUpdates: { videoTime: null } }).Run();
 										}
 									}}/>
-									<TimeSpanInput mr={5} style={{ width: 60 }} enabled={step.videoTime != null} delayChangeTillDefocus={true} value={step.videoTime}
+									<TimeSpanInput mr={5} style={{ width: 60 }} enabled={creatorOrMod && step.videoTime != null} delayChangeTillDefocus={true} value={step.videoTime}
 										onChange={(val) => new UpdateTimelineStep({ stepID: step._key, stepUpdates: { videoTime: val } }).Run()}/>
 								</>}
 							{/* <Pre>Speaker: </Pre>
 							<Select value={} onChange={val=> {}}/> */}
 							<Pre>Position: </Pre>
-							<Select options={positionOptions} value={step.groupID} onChange={(val) => {
+							<Select options={positionOptions} value={step.groupID} enabled={creatorOrMod} onChange={(val) => {
 								new UpdateTimelineStep({ stepID: step._key, stepUpdates: { groupID: val } }).Run();
 							}}/>
-							<Button ml={5} text="X" onClick={() => {
+							<Button ml={5} text="X" enabled={creatorOrMod} onClick={() => {
 								ShowMessageBox({
 									title: `Delete step ${index + 1}`, cancelButton: true,
 									message: `
@@ -126,14 +129,23 @@ export class StepEditorUI extends BaseComponentPlus({} as StepEditorUIProps, { p
 								});
 							}}/>
 						</Row>
+						{creatorOrMod &&
+						<VMenuStub>
+							<VMenuItem text="Clone" style={styles.vMenuItem}
+								onClick={(e) => {
+									if (e.button != 0) return;
+									const newTimelineStep = Clone(step);
+									new AddTimelineStep({ timelineID: timeline._key, step: newTimelineStep, stepIndex: index + 1 }).Run();
+								}}/>
+						</VMenuStub>}
 					</Row>
 					{/* <Row ml={5} style={{ minHeight: 20 }}>{step.message}</Row> */}
 					<TextArea /* {...{ useCacheForDOMMeasurements: true } as any} */ autoSize={true} delayChangeTillDefocus={true} style={{ background: 'rgba(255,255,255,.2)', color: 'rgba(255,255,255,.7)', padding: 5, outline: 'none' }}
-						value={step.message}
+						value={step.message} enabled={creatorOrMod}
 						onChange={(val) => {
 							new UpdateTimelineStep({ stepID: step._key, stepUpdates: { message: val } }).Run();
 						}}/>
-					<Droppable type="MapNode" droppableId={ToJSON(new DroppableInfo({ type: 'TimelineStepNodeRevealList', stepID: step._key }))}>
+					<Droppable type="MapNode" droppableId={ToJSON(new DroppableInfo({ type: 'TimelineStepNodeRevealList', stepID: step._key }))} isDropDisabled={!creatorOrMod}>
 						{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => {
 							const dragIsOverDropArea = provided.placeholder.props['on'] != null;
 							if (dragIsOverDropArea) {
@@ -149,7 +161,7 @@ export class StepEditorUI extends BaseComponentPlus({} as StepEditorUIProps, { p
 									{(step.nodeReveals == null || step.nodeReveals.length == 0) && !dragIsOverDropArea &&
 									<div style={{ fontSize: 11, opacity: 0.7, textAlign: 'center' }}>Drag nodes here to have them display when the playback reaches this step.</div>}
 									{step.nodeReveals && step.nodeReveals.map((nodeReveal, index) => {
-										return <NodeRevealUI key={index} map={map} step={step} nodeReveal={nodeReveal} editing={true} index={index}/>;
+										return <NodeRevealUI key={index} map={map} step={step} nodeReveal={nodeReveal} editing={creatorOrMod} index={index}/>;
 									})}
 									{provided.placeholder}
 									{dragIsOverDropArea && placeholderRect &&

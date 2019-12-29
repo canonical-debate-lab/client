@@ -48,7 +48,7 @@ export class TimelineDetailsUI extends BaseComponentPlus({ enabled: true } as {b
 	}
 }
 
-export class TimelineDetailsEditor extends BaseComponentPlus({} as {timeline: Timeline}, { dataError: null as string }) {
+export class TimelineDetailsEditor extends BaseComponentPlus({} as {timeline: Timeline, editing: boolean}, { dataError: null as string }) {
 	/* ComponentWillMountOrReceiveProps(props, forMount) {
 		if (forMount || props.timeline != this.props.timeline) { // if base-data changed
 			this.SetState({ newData: Clone(props.baseData) });
@@ -56,23 +56,24 @@ export class TimelineDetailsEditor extends BaseComponentPlus({} as {timeline: Ti
 	} */
 	detailsUI: TimelineDetailsUI;
 	render() {
-		const { timeline } = this.props;
+		const { timeline, editing } = this.props;
 		// const { newData, dataError } = this.state;
 		const { dataError } = this.state;
 		return (
 			<>
-				<TimelineDetailsUI ref={(c) => this.detailsUI = c} baseData={timeline} forNew={false}
+				<TimelineDetailsUI ref={(c) => this.detailsUI = c} baseData={timeline} forNew={false} enabled={editing}
 					onChange={(newData, ui) => {
 						// this.SetState({ newData, dataError: ui.GetValidationError() });
 						this.SetState({ dataError: ui.GetValidationError() });
 					}}/>
+				{editing &&
 				<Row>
 					<Button text="Save" enabled={dataError == null} onLeftClick={async () => {
 						const updates = GetUpdates(timeline, this.detailsUI.GetNewData()).Excluding('steps');
 						new UpdateTimeline({ id: timeline._key, updates }).Run();
 					}}/>
 					{/* error && <Pre>{error.message}</Pre> */}
-				</Row>
+				</Row>}
 			</>
 		);
 	}
