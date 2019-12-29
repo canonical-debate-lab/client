@@ -62,13 +62,17 @@ export class SearchPanel extends BaseComponentPlus({} as {}, {}, {} as {queryStr
 		const searchResultIDs = store.main.search.searchResults_nodeIDs;
 
 		let results_nodeRevisions = searchResultIDs == null ? null : searchResultIDs.map((revisionID) => GetNodeRevision(revisionID));
+		// after finding node-revisions matching the whole-terms, filter to those that match the partial-terms as well
 		if (searchResults_partialTerms.length) {
 			for (const term of searchResults_partialTerms) {
-				results_nodeRevisions = results_nodeRevisions.filter((a) => GetAllNodeRevisionTitles(a).find((a) => a.toLowerCase().includes(term)));
+				results_nodeRevisions = results_nodeRevisions.filter((a) => {
+					const titles = GetAllNodeRevisionTitles(a);
+					return titles.Any((a) => a.toLowerCase().includes(term));
+				});
 			}
 		}
 
-		const results_nodeIDs = results_nodeRevisions == null ? null : results_nodeRevisions.map((a) => a && a.node).Distinct();
+		const results_nodeIDs = results_nodeRevisions?.filter((a) => a).map((a) => a.node).Distinct();
 		const queryStr = store.main.search.queryStr;
 
 		this.Stash({ queryStr });
@@ -122,8 +126,8 @@ export class SearchPanel extends BaseComponentPlus({} as {}, {}, {} as {queryStr
 					e.preventDefault();
 				}}>
 					{results_nodeIDs == null && 'Search in progress...'}
-					{results_nodeIDs && results_nodeIDs.filter((a) => a).length == 0 && 'No search results.'}
-					{results_nodeIDs && results_nodeIDs.filter((a) => a).length > 0 && results_nodeIDs.map((nodeID, index) => {
+					{results_nodeIDs && results_nodeIDs.length == 0 && 'No search results.'}
+					{results_nodeIDs && results_nodeIDs.length > 0 && results_nodeIDs.map((nodeID, index) => {
 						return (
 							// <ErrorBoundary key={nodeID}>
 							<SearchResultRow key={nodeID} nodeID={nodeID} index={index}/>
@@ -208,14 +212,14 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 		const rootNodeID = GetRootNodeID(GetOpenMapID());
 
 		const findNode_state = store.main.search.findNode_state;
-		if (findNode_state === 'activating' && !SearchResultRow.searchInProgress) {
+		const findNode_node = store.main.search.findNode_node;
+		if (findNode_state === 'activating' && findNode_node == nodeID && !SearchResultRow.searchInProgress) {
 			SearchResultRow.searchInProgress = true;
 			WaitXThenRun(0, () => {
 				runInAction('SearchResultRow.call_StartFindingPathsFromXToY_pre', () => store.main.search.findNode_state = 'active');
 				this.StartFindingPathsFromXToY(rootNodeID, nodeID).then(() => SearchResultRow.searchInProgress = false);
 			});
 		}
-		const findNode_node = store.main.search.findNode_node;
 		const findNode_resultPaths = store.main.search.findNode_resultPaths;
 		const findNode_currentSearchDepth = store.main.search.findNode_currentSearchDepth;
 
