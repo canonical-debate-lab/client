@@ -9,9 +9,9 @@ import { NodeChildHolder } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolder'
 import { NodeChildHolderBox } from 'UI/@Shared/Maps/MapNode/NodeUI/NodeChildHolderBox';
 import { EB_ShowError, EB_StoreError, MaybeLog, ShouldLog, Observer } from 'vwebapp-framework';
 import { logTypes } from 'Utils/General/Logging';
-import { GetTimeFromWhichToShowChangedNodes, GetPlayingTimeline, GetPlayingTimelineStepIndex, GetPlayingTimelineRevealNodes_UpToAppliedStep } from 'Store/main/mapStates/$mapState';
+import { GetTimeFromWhichToShowChangedNodes, GetPlayingTimeline, GetPlayingTimelineStepIndex, GetPlayingTimelineRevealNodes_UpToAppliedStep } from 'Store/main/maps/mapStates/$mapState';
 import { SlicePath } from 'mobx-firelink';
-import { GetNodeView } from 'Store/main/mapViews/$mapView';
+import { GetNodeView } from 'Store/main/maps/mapViews/$mapView';
 import { GetSubnodesInEnabledLayersEnhanced } from '../../../../Store/firebase/layers';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetNodeChildrenL3, GetParentNodeL2, GetParentNodeL3, IsRootNode } from '../../../../Store/firebase/nodes';

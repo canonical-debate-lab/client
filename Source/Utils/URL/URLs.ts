@@ -7,6 +7,7 @@ import { GetSelectedUserID, GetSelectedTermID, GetSelectedImageID } from 'Store/
 import { GetOpenMapID, GetPage, GetSubpage } from 'Store/main';
 import ReactGA from 'react-ga';
 import { StoreAccessor } from 'mobx-firelink';
+import {GetMapState} from 'Store/main/maps/mapStates/$mapState';
 import { GetMap } from '../../Store/firebase/maps';
 import { GetNodeDisplayText } from '../../Store/firebase/nodes/$node';
 import { MapNodeL2 } from '../../Store/firebase/nodes/@MapNode';
@@ -428,18 +429,18 @@ export const GetNewURL = StoreAccessor((s) => (includeMapViewStr = true) => {
 		newURL.SetQueryVar('view', GetMapViewStr(mapID));
 	} */
 
-	const mapInfo = s.main.mapStates.get(mapID);
+	const mapState = GetMapState(mapID);
 	// const playingTimeline = mapInfo && mapInfo.playingTimeline;
-	const playingTimeline = mapInfo && mapInfo.selectedTimeline;
+	const playingTimeline = mapState?.selectedTimeline;
 	if (playingTimeline) {
 		newURL.SetQueryVar('timeline', playingTimeline);
 
-		const playingTimeline_step = mapID ? mapInfo.playingTimeline_step : null;
+		const playingTimeline_step = mapID ? mapState.playingTimeline_step : null;
 		if (playingTimeline_step != null) {
 			newURL.SetQueryVar('step', playingTimeline_step + 1);
 		}
 
-		const playingTimeline_appliedStep = mapID ? mapInfo.playingTimeline_appliedStep : null;
+		const playingTimeline_appliedStep = mapID ? mapState.playingTimeline_appliedStep : null;
 		if (playingTimeline_appliedStep != null) {
 			newURL.SetQueryVar('appliedStep', playingTimeline_appliedStep + 1);
 		}

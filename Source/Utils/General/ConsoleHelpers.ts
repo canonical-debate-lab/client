@@ -1,4 +1,4 @@
-import { GetPlayingTimeline, GetSelectedTimeline } from 'Store/main/mapStates/$mapState';
+import { GetPlayingTimeline, GetSelectedTimeline } from 'Store/main/maps/mapStates/$mapState';
 import { GetOpenMapID } from 'Store/main';
 import { GetTimelineSteps } from 'Store/firebase/timelineSteps';
 import { GetAsync, MergeDBUpdates } from 'mobx-firelink';

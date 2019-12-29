@@ -16,7 +16,7 @@ import { MeID, CanEditNode } from 'Store/firebase/users';
 import { InfoButton, IsDoubleClick, ParseSegmentsForPatterns, VReactMarkdown_Remarkable, Observer } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { store } from 'Store';
-import { MapNodeView, GetNodeViewsAlongPath, GetNodeView } from 'Store/main/mapViews/$mapView';
+import { MapNodeView, GetNodeViewsAlongPath, GetNodeView } from 'Store/main/maps/mapViews/$mapView';
 import { runInAction } from 'mobx';
 import { NodeMathUI } from '../NodeMathUI';
 import { NodeUI_Inner } from '../NodeUI_Inner';
@@ -184,7 +184,7 @@ export class TitlePanel extends BaseComponentPlus(
 
 			const command = new AddNodeRevision({ mapID: map._key, revision: newRevision });
 			const revisionID = await command.Run();
-			runInAction('TitlePanel.ApplyEdit', () => store.main.nodeLastAcknowledgementTimes.set(node._key, Date.now()));
+			runInAction('TitlePanel.ApplyEdit', () => store.main.maps.nodeLastAcknowledgementTimes.set(node._key, Date.now()));
 			// await WaitTillPathDataIsReceiving(DBPath(`nodeRevisions/${revisionID}`));
 			// await WaitTillPathDataIsReceived(DBPath(`nodeRevisions/${revisionID}`));
 			// await command.WaitTillDBUpdatesReceived();

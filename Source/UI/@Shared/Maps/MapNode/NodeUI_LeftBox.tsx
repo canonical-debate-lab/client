@@ -4,7 +4,7 @@ import { Button, Span } from 'react-vcomponents';
 import { BaseComponent, BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { MeID } from 'Store/firebase/users';
-import { MapNodeView, GetNodeView } from 'Store/main/mapViews/$mapView';
+import { MapNodeView, GetNodeView } from 'Store/main/maps/mapViews/$mapView';
 import { SlicePath } from 'mobx-firelink';
 import { Observer } from 'vwebapp-framework';
 import { Map } from '../../../../Store/firebase/maps/@Map';

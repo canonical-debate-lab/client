@@ -10,15 +10,17 @@ import { VMenuItem, VMenuStub } from 'react-vmenu';
 import { styles } from 'Utils/UI/GlobalStyles';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { MeID } from 'Store/firebase/users';
+import { runInAction } from 'mobx';
+import {store} from 'Store';
 import { PositionOptionsEnum, NodeRevealUI, StepEditorUI } from '../EditorSubpanel/StepEditorUI';
 
 @Observer
 export class StepUI extends BaseComponentPlus(
-	{} as {index: number, last: boolean, map: Map, timeline: Timeline, stepID: string, player: YoutubePlayer, jumpToStep: (step: TimelineStep)=>any},
+	{} as {index: number, last: boolean, map: Map, timeline: Timeline, stepID: string, player: YoutubePlayer},
 	{ showNodeReveals: false, editorOpen: false },
 ) {
 	render() {
-		const { index, last, map, timeline, stepID, player, jumpToStep } = this.props;
+		const { index, last, map, timeline, stepID, player } = this.props;
 		const { showNodeReveals, editorOpen } = this.state;
 		const step = GetTimelineStep(stepID);
 		if (step == null) return <div style={{ height: 50 }}/>;
@@ -38,7 +40,23 @@ export class StepUI extends BaseComponentPlus(
 					)}
 				>
 					<Div sel p="7px 10px"
-						onClick={() => jumpToStep(step)}
+						onClick={() => {
+							const step = GetTimelineStep(stepID);
+							if (player && step.videoTime != null) {
+								// this shouldn't be necessary, but apparently is
+								(async () => {
+									if (player.state == YoutubePlayerState.CUED) {
+										player.Play();
+										await player.WaitTillState(YoutubePlayerState.PLAYING);
+									}
+									// this.targetTime = step.videoTime;
+									player.SetPosition(step.videoTime);
+									// this.SetState({ targetTime: step.videoTime, autoScroll: true });
+									// this.SetState({ autoScroll: true });
+									runInAction('PlayingSubpanel.StepUI.jumpToStep', () => store.main.timelines.autoScroll = true);
+								})();
+							}
+						}}
 						/* onClick={async () => {
 							if (player && step.videoTime != null) {
 								// this shouldn't be necessary, but apparently is

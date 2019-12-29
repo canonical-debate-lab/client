@@ -2,9 +2,9 @@ import { GetNode, GetNodeID } from 'Store/firebase/nodes';
 import { emptyArray } from 'js-vextensions';
 import { AddSchema } from 'vwebapp-framework';
 import { UUID_regex } from 'Utils/General/KeyGenerator';
-import { GetLastAcknowledgementTime } from 'Store/main';
 import { GetDoc, StoreAccessor } from 'mobx-firelink';
 import { SearchUpFromNodeForNodeMatchingX } from 'Utils/Store/PathFinder';
+import {GetLastAcknowledgementTime} from 'Store/main/maps';
 import { MapNode } from './nodes/@MapNode';
 import { GetRootNodeID } from './maps/$map';
 

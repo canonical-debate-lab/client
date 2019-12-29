@@ -18,9 +18,9 @@ import { InfoButton, Observer } from 'vwebapp-framework';
 import { DroppableInfo } from 'Utils/UI/DNDStructures';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { GetOpenMapID } from 'Store/main';
-import { GetTimelinePanelOpen, GetTimelineOpenSubpanel, GetSelectedTimeline, GetShowTimelineDetails } from 'Store/main/mapStates/$mapState';
+import { GetTimelinePanelOpen, GetTimelineOpenSubpanel, GetSelectedTimeline, GetShowTimelineDetails, GetMapState } from 'Store/main/maps/mapStates/$mapState';
 import { runInAction } from 'mobx';
-import { TimelineSubpanel } from 'Store/main/mapStates/@MapState';
+import { TimelineSubpanel } from 'Store/main/maps/mapStates/@MapState';
 import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { StepEditorUI } from './EditorSubpanel/StepEditorUI';
 
@@ -28,7 +28,7 @@ import { StepEditorUI } from './EditorSubpanel/StepEditorUI';
 G({ LockMapEdgeScrolling });
 function LockMapEdgeScrolling() {
 	const mapID = GetOpenMapID();
-	return store.main.lockMapScrolling && GetTimelinePanelOpen(mapID) && GetTimelineOpenSubpanel(mapID) == TimelineSubpanel.Editor;
+	return store.main.maps.lockMapScrolling && GetTimelinePanelOpen(mapID) && GetTimelineOpenSubpanel(mapID) == TimelineSubpanel.Editor;
 }
 
 @Observer
@@ -39,7 +39,7 @@ export class EditorSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} a
 		const creatorOrMod = IsUserCreatorOrMod(MeID(), timeline);
 		// timelineSteps: timeline && GetTimelineSteps(timeline, true),
 		const showTimelineDetails = GetShowTimelineDetails(map && map._key);
-		const lockMapScrolling = store.main.lockMapScrolling;
+		const lockMapScrolling = store.main.maps.lockMapScrolling;
 		const droppableInfo = new DroppableInfo({ type: 'TimelineStepList', timelineID: timeline ? timeline._key : null });
 
 		this.Stash({ timeline, creatorOrMod });
@@ -63,10 +63,10 @@ export class EditorSubpanel extends BaseComponentPlus({} as {map: Map}, {}, {} a
 						}}/>
 					</>}
 					<CheckBox ml={5} text="Details" checked={showTimelineDetails} onChange={(val) => {
-						runInAction('EditorSubpanel.Details.onChange', () => store.main.mapStates.get(map._key).showTimelineDetails = val);
+						runInAction('EditorSubpanel.Details.onChange', () => GetMapState(map._key).showTimelineDetails = val);
 					}}/>
 					<CheckBox ml="auto" text="Lock map scrolling" title="Lock map edge-scrolling. (for dragging onto timeline steps)" checked={lockMapScrolling} onChange={(val) => {
-						runInAction('EditorSubpanel.lockMapScrolling.onChange', () => store.main.lockMapScrolling = val);
+						runInAction('EditorSubpanel.lockMapScrolling.onChange', () => store.main.maps.lockMapScrolling = val);
 					}}/>
 				</Row>
 				<ScrollView style={ES({ flex: 1 })} contentStyle={ES({

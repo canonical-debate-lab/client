@@ -8,7 +8,7 @@ import { ES } from 'Utils/UI/GlobalStyles';
 import { Map } from 'Store/firebase/maps/@Map';
 import { GetTimelineSteps } from 'Store/firebase/timelineSteps';
 import { MeID } from 'Store/firebase/users';
-import { GetSelectedTimeline } from 'Store/main/mapStates/$mapState';
+import { GetSelectedTimeline, GetMapState } from 'Store/main/maps/mapStates/$mapState';
 import { store } from 'Store';
 import { Observer } from 'vwebapp-framework';
 import { runInAction } from 'mobx';
@@ -41,7 +41,7 @@ export class CollectionSubpanel extends BaseComponentPlus({} as {map: Map}, {}) 
 												index == timelines.length - 1 && { borderRadius: '0 0 10px 10px' },
 											)}
 											onClick={() => {
-												runInAction('CollectionSubpanel.selectedTimeline.onChange', () => store.main.mapStates.get(map._key).selectedTimeline = timeline._key);
+												runInAction('CollectionSubpanel.selectedTimeline.onChange', () => GetMapState(map._key).selectedTimeline = timeline._key);
 												this.timelineSelect.Hide();
 											}}>
 											<Row>

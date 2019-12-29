@@ -1,7 +1,7 @@
 import { autorun, action } from 'mobx';
-import { GetPlayingTimeline } from 'Store/main/mapStates/$mapState';
+import { GetPlayingTimeline, GetMapState } from 'Store/main/maps/mapStates/$mapState';
 import { GetOpenMapID } from 'Store/main';
-import { ACTMapNodeExpandedSet } from 'Store/main/mapViews/$mapView';
+import { ACTMapNodeExpandedSet } from 'Store/main/maps/mapViews/$mapView';
 import { store } from 'Store';
 import { MapUI, ACTUpdateFocusNodeAndViewOffset } from 'UI/@Shared/Maps/MapUI';
 import { SleepAsync, VRect } from 'js-vextensions';
@@ -48,9 +48,9 @@ autorun(() => {
 
 	// const playingTimeline_currentStep = GetPlayingTimelineStep(mapID);
 	const mapID = GetOpenMapID();
-	const mapInfo = store.main.mapStates.get(mapID);
-	if (mapInfo == null) return;
-	const playingTimeline_step = mapInfo.playingTimeline_step;
+	const mapState = GetMapState(mapID);
+	if (mapState == null) return;
+	const playingTimeline_step = mapState.playingTimeline_step;
 	if (playingTimeline_step != lastPlayingTimeline_step) {
 		lastPlayingTimeline_step = playingTimeline_step;
 		StartExpandingToAndFocusingOnNodesForStep(GetOpenMapID(), playingTimeline_step);

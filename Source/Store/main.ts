@@ -10,11 +10,13 @@ import { GetNodeL3 } from './firebase/nodes/$node';
 import { globalMapID } from './firebase/nodes/@MapNode';
 import { DatabaseState } from './main/database';
 import { PublicPageState } from './main/public';
-import { MapState } from './main/mapStates/@MapState';
-import { MapView, GetMapView } from './main/mapViews/$mapView';
+import { MapState } from './main/maps/mapStates/@MapState';
+import { MapView, GetMapView } from './main/maps/mapViews/$mapView';
 import { PrivatePageState } from './main/private';
 import { RatingUIState } from './main/ratingUI';
 import { SearchState } from './main/search';
+import { MapsState } from './main/maps';
+import { TimelinesState } from './main/timelines';
 
 export enum WeightingType {
 	Votes = 10,
@@ -48,7 +50,6 @@ export class MainState {
 	@O analyticsEnabled = true;
 	// topLeftOpenPanel: string;
 	// topRightOpenPanel: string;
-	@O ratingUI = new RatingUIState();
 	@O @ignore notificationMessages: NotificationMessage[];
 
 	// pages (and nav-bar panels)
@@ -77,37 +78,12 @@ export class MainState {
 	@O topRightOpenPanel: string;
 	// set topRightOpenPanel_set(val) { this.topRightOpenPanel = val; }
 
-	// @Oervable maps = observable.map<string, MapState>();
-	// @ref(MapState_) maps = {} as {[key: string]: MapState};
-	// @map(MapState_) maps = observable.map<string, MapState>();
-
-
-	// maps
+	// non-page-specific sections/components (corresponds to @Shared folder)
 	// ==========
 
-	// @O maps = {} as ObservableMap<string, MapState>;
-	@O mapStates = observable.map<string, MapState>();
-	/* ACTEnsureMapStateInit(mapID: string) {
-		if (this.maps.get(mapID)) return;
-		this.maps.set(mapID, new MapState());
-	} */
-	@O mapViews = observable.map<string, MapView>();
-
-	@O nodeLastAcknowledgementTimes = observable.map<string, number>();
-	@O @ignore currentNodeBeingAdded_path: string;
-
-	// openMap: number;
-
-	@O copiedNodePath: string;
-	@O copiedNodePath_asCut: boolean;
-
-	@O lockMapScrolling = true;
-	@O initialChildLimit = 5;
-	@O showReasonScoreValues = false;
-	@O weighting = WeightingType.Votes;
-
-	// timelines
-	@O nodeRevealHighlightTime = 20;
+	@O maps = new MapsState();
+	@O timelines = new TimelinesState();
+	@O ratingUI = new RatingUIState();
 }
 
 export const GetOpenMapID = StoreAccessor((s) => () => {
@@ -127,38 +103,4 @@ export const GetPage = StoreAccessor((s) => () => {
 export const GetSubpage = StoreAccessor((s) => () => {
 	const page = GetPage();
 	return s.main[page].subpage as string || rootPageDefaultChilds[page];
-});
-
-export const GetLastAcknowledgementTime = StoreAccessor((s) => (nodeID: string) => {
-	return s.main.nodeLastAcknowledgementTimes.get(nodeID) || 0;
-});
-
-/* export const GetLastAcknowledgementTime2 = StoreAccessor((nodeID: string) => {
-	GetCopiedNodePath();
-	return State('main', 'nodeLastAcknowledgementTimes', nodeID) as number || 0;
-}); */
-
-export const GetCopiedNodePath = StoreAccessor((s) => () => {
-	return s.main.copiedNodePath;
-});
-export const GetCopiedNode = StoreAccessor((s) => () => {
-	const path = GetCopiedNodePath();
-	if (!path) return null;
-	return GetNodeL3(path);
-});
-
-// actions
-// ==========
-
-export const ACTEnsureMapStateInit = StoreAction((mapID: string) => {
-	if (!store.main.mapStates.has(mapID)) {
-		store.main.mapStates.set(mapID, new MapState());
-	}
-	if (GetMapView(mapID) == null) {
-		store.main.mapViews.set(mapID, new MapView());
-	}
-	return {
-		mapState: store.main.mapStates.get(mapID),
-		mapView: GetMapView(mapID),
-	};
 });

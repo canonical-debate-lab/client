@@ -58,7 +58,7 @@ export class DetailsPanel extends BaseComponentPlus({} as {map?: Map, node: MapN
 
 							const newRevision = this.detailsUI.GetNewRevisionData();
 							const revisionID = await new AddNodeRevision({ mapID: map._key, revision: newRevision }).Run();
-							runInAction('DetailsPanel.save.onClick', () => store.main.nodeLastAcknowledgementTimes.set(node._key, Date.now()));
+							runInAction('DetailsPanel.save.onClick', () => store.main.maps.nodeLastAcknowledgementTimes.set(node._key, Date.now()));
 
 							if (IsPremiseOfSinglePremiseArgument(node, parentNode)) {
 								const argumentNode = await GetAsync(() => GetParentNodeL3(path));
@@ -71,7 +71,7 @@ export class DetailsPanel extends BaseComponentPlus({} as {map?: Map, node: MapN
 										const newArgumentRevision = Clone(argumentNode.current);
 										newArgumentRevision.VSet(nodePermissions);
 										const newArgumentRevisionID = await new AddNodeRevision({ mapID: map._key, revision: newArgumentRevision }).Run();
-										runInAction('DetailsPanel.save.onClick_part2', () => store.main.nodeLastAcknowledgementTimes.set(argumentNode._key, Date.now()));
+										runInAction('DetailsPanel.save.onClick_part2', () => store.main.maps.nodeLastAcknowledgementTimes.set(argumentNode._key, Date.now()));
 									}
 								}
 							}

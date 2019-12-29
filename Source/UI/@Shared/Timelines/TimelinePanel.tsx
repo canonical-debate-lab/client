@@ -2,14 +2,14 @@ import { Button, Column, Row } from 'react-vcomponents';
 import { BaseComponentWithConnector, BaseComponentPlus } from 'react-vextensions';
 import { MeID } from 'Store/firebase/users';
 import { store } from 'Store';
-import { GetSelectedTimeline, GetTimelineOpenSubpanel } from 'Store/main/mapStates/$mapState';
+import { GetSelectedTimeline, GetTimelineOpenSubpanel, GetMapState } from 'Store/main/maps/mapStates/$mapState';
 import { runInAction } from 'mobx';
 import { Observer } from 'vwebapp-framework';
+import { TimelineSubpanel } from 'Store/main/maps/mapStates/@MapState';
 import { Map } from '../../../Store/firebase/maps/@Map';
 import { CollectionSubpanel } from './TimelinePanel/CollectionSubpanel';
 import { EditorSubpanel } from './TimelinePanel/EditorSubpanel';
 import { PlayingSubpanel } from './TimelinePanel/PlayingSubpanel';
-import {TimelineSubpanel} from 'Store/main/mapStates/@MapState';
 
 @Observer
 export class TimelinePanel extends BaseComponentPlus({} as {map: Map}, {}) {
@@ -17,9 +17,9 @@ export class TimelinePanel extends BaseComponentPlus({} as {map: Map}, {}) {
 		const { map } = this.props;
 		const subpanel = GetTimelineOpenSubpanel(map._key);
 
-		const mapInfo = store.main.mapStates.get(map._key);
+		const mapState = GetMapState(map._key);
 		function SetSubpanel(subpanel: TimelineSubpanel) {
-			runInAction('TimelinePanel.SetSubpanel', () => mapInfo.timelineOpenSubpanel = subpanel);
+			runInAction('TimelinePanel.SetSubpanel', () => mapState.timelineOpenSubpanel = subpanel);
 		}
 		return (
 			<Row style={{ height: '100%', alignItems: 'flex-start' }}>

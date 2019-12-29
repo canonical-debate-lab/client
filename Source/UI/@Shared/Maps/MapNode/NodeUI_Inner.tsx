@@ -9,12 +9,13 @@ import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { DragInfo, EB_ShowError, EB_StoreError, HSLA, IsDoubleClick, Observer } from 'vwebapp-framework';
 import { DraggableInfo } from 'Utils/UI/DNDStructures';
-import { GetTimeFromWhichToShowChangedNodes, GetNodeRevealHighlightTime, GetTimeSinceNodeRevealedByPlayingTimeline } from 'Store/main/mapStates/$mapState';
-import { GetPathNodeIDs, MapNodeView, ACTMapNodeSelect, ACTMapNodeExpandedSet, GetNodeView, GetNodeViewsAlongPath } from 'Store/main/mapViews/$mapView';
+import { GetTimeFromWhichToShowChangedNodes, GetNodeRevealHighlightTime, GetTimeSinceNodeRevealedByPlayingTimeline } from 'Store/main/maps/mapStates/$mapState';
+import { GetPathNodeIDs, MapNodeView, ACTMapNodeSelect, ACTMapNodeExpandedSet, GetNodeView, GetNodeViewsAlongPath } from 'Store/main/maps/mapViews/$mapView';
 import { store } from 'Store';
-import { WeightingType, GetLastAcknowledgementTime } from 'Store/main';
+import { WeightingType } from 'Store/main';
 import { runInAction } from 'mobx';
 import { SlicePath } from 'mobx-firelink';
+import {GetLastAcknowledgementTime} from 'Store/main/maps';
 import { ChangeType, GetChangeTypeOutlineColor } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath, GetMarkerPercent_AtPath, GetNodeRatingsRoot, GetRatings } from '../../../../Store/firebase/nodeRatings';
@@ -141,7 +142,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		// let mainRating_mine = GetRatingValue(ratingNode._id, mainRatingType, MeID());
 		const mainRating_mine = Watch(() => GetRatingAverage_AtPath(ratingNode, mainRatingType, new RatingFilter({ includeUser: MeID() }))); */
 
-		const useReasonScoreValuesForThisNode = store.main.weighting == WeightingType.ReasonScore && (node.type == MapNodeType.Argument || node.type == MapNodeType.Claim);
+		const useReasonScoreValuesForThisNode = store.main.maps.weighting == WeightingType.ReasonScore && (node.type == MapNodeType.Argument || node.type == MapNodeType.Claim);
 		const reasonScoreValues = useReasonScoreValuesForThisNode && RS_GetAllValues(node._key, path, true) as ReasonScoreValues_RSPrefix;
 
 		const backgroundFillPercent = GetFillPercent_AtPath(ratingNode, ratingNodePath, null);
@@ -149,7 +150,7 @@ export class NodeUI_Inner extends BaseComponentPlus(
 
 		const form = GetNodeForm(node, path);
 		const ratingsRoot = GetNodeRatingsRoot(node._key);
-		const showReasonScoreValues = store.main.showReasonScoreValues;
+		const showReasonScoreValues = store.main.maps.showReasonScoreValues;
 
 		/* const playingTimeline_currentStepRevealNodes = GetPlayingTimelineCurrentStepRevealNodes(map._key);
 		let revealedByCurrentTimelineStep = playingTimeline_currentStepRevealNodes.Contains(path);
@@ -237,9 +238,9 @@ export class NodeUI_Inner extends BaseComponentPlus(
 		const onDirectClick = UseCallback((e) => {
 			runInAction('NodeUI_Inner.onDirectClick', () => {
 				if (combinedWithParentArgument) {
-					store.main.nodeLastAcknowledgementTimes.set(parent && parent._key, Date.now());
+					store.main.maps.nodeLastAcknowledgementTimes.set(parent && parent._key, Date.now());
 				}
-				store.main.nodeLastAcknowledgementTimes.set(node._key, Date.now());
+				store.main.maps.nodeLastAcknowledgementTimes.set(node._key, Date.now());
 			});
 		}, [combinedWithParentArgument, node._key, parent]);
 		const onTextHolderClick = UseCallback((e) => IsDoubleClick(e) && this.titlePanel && this.titlePanel.OnDoubleClick(), []);

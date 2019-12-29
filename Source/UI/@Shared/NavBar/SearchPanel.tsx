@@ -16,7 +16,7 @@ import { UUID } from 'Utils/General/KeyGenerator';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { store } from 'Store';
 import { GetOpenMapID } from 'Store/main';
-import { MapNodeView, MapView, ACTMapViewMerge } from 'Store/main/mapViews/$mapView';
+import { MapNodeView, MapView, ACTMapViewMerge } from 'Store/main/maps/mapViews/$mapView';
 import { DBPath, GetAsync } from 'mobx-firelink';
 import { fire } from 'Utils/LibIntegrations/MobXFirelink';
 import { runInAction, flow } from 'mobx';

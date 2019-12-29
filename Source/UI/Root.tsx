@@ -40,7 +40,7 @@ import { FeedbackUI } from './Feedback';
 import { ForumUI } from './Forum';
 import { PrivateUI } from './Private';
 import { SocialUI } from './Social';
-import { GetPathNodeIDs } from 'Store/main/mapViews/$mapView';
+import { GetPathNodeIDs } from 'Store/main/maps/mapViews/$mapView';
 import { hasHotReloaded } from 'Main';
 import ReactGA from 'react-ga';
 import { observable, runInAction } from 'mobx';
@@ -164,14 +164,14 @@ export class RootUIWrapper extends BaseComponentPlus({}, {}) {
 						controller.Close();
 						const { argumentWrapperID } = await copyCommand.Run();
 						if (argumentWrapperID) {
-							runInAction('OnDragEnd.Copy.onClick', () => store.main.nodeLastAcknowledgementTimes.set(argumentWrapperID, Date.now()));
+							runInAction('OnDragEnd.Copy.onClick', () => store.main.maps.nodeLastAcknowledgementTimes.set(argumentWrapperID, Date.now()));
 						}
 					}}/>
 					<Button ml={5} text="Move" enabled={moveCommand.Validate_Safe() == null} title={moveCommand.validateError} onClick={async () => {
 						controller.Close();
 						const { argumentWrapperID } = await moveCommand.Run();
 						if (argumentWrapperID) {
-							runInAction('OnDragEnd.Move.onClick', () => store.main.nodeLastAcknowledgementTimes.set(argumentWrapperID, Date.now()));
+							runInAction('OnDragEnd.Move.onClick', () => store.main.maps.nodeLastAcknowledgementTimes.set(argumentWrapperID, Date.now()));
 						}
 					}}/>
 					<Button ml={5} text="Cancel" onClick={() => controller.Close()}/>

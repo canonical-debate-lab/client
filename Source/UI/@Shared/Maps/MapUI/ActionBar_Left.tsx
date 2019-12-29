@@ -4,7 +4,7 @@ import { Button, Row } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
 import { store } from 'Store';
 import { MeID } from 'Store/firebase/users';
-import { GetTimelinePanelOpen } from 'Store/main/mapStates/$mapState';
+import { GetTimelinePanelOpen, GetMapState } from 'Store/main/maps/mapStates/$mapState';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { HSLA, Observer } from 'vwebapp-framework';
 import { IsUserMap } from '../../../../Store/firebase/maps/$map';
@@ -53,7 +53,7 @@ export class ActionBar_Left extends BaseComponentPlus({} as {map: Map, subNavBar
 					{IsUserMap(map) && !GADDemo &&
 						<Button ml={5} text="Timelines" style={{ height: '100%' }} onClick={() => {
 							runInAction('ActionBar_Left.Timelines.onClick', () => {
-								store.main.mapStates.get(map._key).timelinePanelOpen = !timelinePanelOpen;
+								GetMapState(map._key).timelinePanelOpen = !timelinePanelOpen;
 							});
 						}}/>}
 				</Row>

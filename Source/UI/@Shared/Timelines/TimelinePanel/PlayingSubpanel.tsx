@@ -10,7 +10,7 @@ import { GetTimelineStep, GetTimelineSteps } from 'Store/firebase/timelineSteps'
 import { store } from 'Store';
 import { GetScreenRect, HSLA, Icon, Observer, RunWithRenderingBatched, UseSize, YoutubePlayer, YoutubePlayerState, YoutubePlayerUI, ClassHooks, PosChangeSource } from 'vwebapp-framework';
 import { ES } from 'Utils/UI/GlobalStyles';
-import { GetSelectedTimeline, GetPlayingTimelineStepIndex, GetNodeRevealHighlightTime, GetPlayingTimelineAppliedStepIndex } from 'Store/main/mapStates/$mapState';
+import { GetSelectedTimeline, GetPlayingTimelineStepIndex, GetNodeRevealHighlightTime, GetPlayingTimelineAppliedStepIndex, GetMapState } from 'Store/main/maps/mapStates/$mapState';
 import { StepUI } from './PlayingSubpanel/StepUI';
 
 /* export class PlayingSubpanel extends BaseComponentPlus(
@@ -40,7 +40,6 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 	@observable messageAreaHeight = 0;
 
 	@observable targetTime: number;
-	@observable autoScroll = true;
 	// targetStepIndex = null as number;
 	lastPosChangeSource: PosChangeSource;
 
@@ -123,7 +122,6 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 		const { map } = this.props;
 		// const { targetTime, autoScroll } = this.state;
 		const oldTargetTime = this.targetTime;
-		const mapInfo = store.main.mapStates.get(map._key);
 
 		// if (this.listRootEl == null && PROD) return; // defensive
 		if (this.listRootEl == null) return; // if something goes wrong with rendering, we don't want to keep spewing new errors
@@ -161,42 +159,45 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 			this.UpdateTargetInfo();
 			this.lastListY = listY;
 		} */
-		runInAction('PlayingSubpanel_timer', () => {
-			this.listY = GetScreenRect(this.listRootEl).y;
+		const newListY = GetScreenRect(this.listRootEl).y;
+		if (this.listY != newListY) {
+			runInAction('PlayingSubpanel_timer.setListY', () => this.listY = newListY);
+		}
 
-			const mapState = store.main.mapStates.get(map._key);
+		const mapState = GetMapState(map._key);
 
-			const timeline = GetSelectedTimeline(map._key);
-			const targetStepIndex = GetPlayingTimelineStepIndex(map._key);
-			// const maxTargetStepIndex = GetPlayingTimelineAppliedStepIndex(map._key);
-			const firstStep = GetTimelineStep(timeline ? timeline.steps[0] : null);
-			if (timeline && this.targetTime != null) {
-				// const steps = timeline ? GetTimelineSteps(timeline, true) : null;
-				const steps = GetTimelineSteps(timeline, true);
-				const targetStep = steps.LastOrX((a) => a && a.videoTime <= this.targetTime, firstStep);
-				if (targetStep) {
-					const newTargetStepIndex = timeline.steps.indexOf(targetStep._key);
-					const newMaxTargetStepIndex = newTargetStepIndex.KeepAtLeast(targetStepIndex);
-					if (newTargetStepIndex != targetStepIndex) {
-						Log('Target-step changing @Old:', targetStepIndex, '@New:', newTargetStepIndex, '@Time:', this.targetTime);
-						/* store.dispatch(new ActionSet(
-							new ACTMap_PlayingTimelineStepSet({ mapID: map._key, stepIndex: newTargetStepIndex }),
-							new ACTMap_PlayingTimelineAppliedStepSet({ mapID: map._key, stepIndex: newMaxTargetStepIndex }),
-						)); */
+		const timeline = GetSelectedTimeline(map._key);
+		const targetStepIndex = GetPlayingTimelineStepIndex(map._key);
+		// const maxTargetStepIndex = GetPlayingTimelineAppliedStepIndex(map._key);
+		const firstStep = GetTimelineStep(timeline ? timeline.steps[0] : null);
+		if (timeline && this.targetTime != null) {
+			// const steps = timeline ? GetTimelineSteps(timeline, true) : null;
+			const steps = GetTimelineSteps(timeline, true);
+			const targetStep = steps.LastOrX((a) => a && a.videoTime <= this.targetTime, firstStep);
+			if (targetStep) {
+				const newTargetStepIndex = timeline.steps.indexOf(targetStep._key);
+				const newMaxTargetStepIndex = newTargetStepIndex.KeepAtLeast(targetStepIndex);
+				if (newTargetStepIndex != targetStepIndex) {
+					Log('Target-step changing @Old:', targetStepIndex, '@New:', newTargetStepIndex, '@Time:', this.targetTime);
+					/* store.dispatch(new ActionSet(
+						new ACTMap_PlayingTimelineStepSet({ mapID: map._key, stepIndex: newTargetStepIndex }),
+						new ACTMap_PlayingTimelineAppliedStepSet({ mapID: map._key, stepIndex: newMaxTargetStepIndex }),
+					)); */
+					runInAction('PlayingSubpanel_timer.setStepAndAppliedStep', () => {
 						mapState.playingTimeline_step = newTargetStepIndex;
 						mapState.playingTimeline_appliedStep = newMaxTargetStepIndex;
+					});
 
-						if (this.autoScroll && this.lastPosChangeSource == 'playback') {
-							// jump one further down, so that the target point *within* the target step is visible (and with enough space for the arrow button itself)
-							// this.list.scrollAround(newTargetStepIndex + 1);
-							// jump X further down, so that we see some of the upcoming text (also for if video-time data is off some)
-							this.list.scrollAround(newTargetStepIndex + 3);
-							WaitXThenRun(0, () => this.list.scrollAround(newTargetStepIndex)); // make sure target box itself is still visible, however
-						}
+					if (store.main.timelines.autoScroll && this.lastPosChangeSource == 'playback') {
+						// jump one further down, so that the target point *within* the target step is visible (and with enough space for the arrow button itself)
+						// this.list.scrollAround(newTargetStepIndex + 1);
+						// jump X further down, so that we see some of the upcoming text (also for if video-time data is off some)
+						this.list.scrollAround(newTargetStepIndex + 3);
+						WaitXThenRun(0, () => this.list.scrollAround(newTargetStepIndex)); // make sure target box itself is still visible, however
 					}
 				}
 			}
-		});
+		}
 	});
 
 	/* PostSelfOrTargetStepRender() {
@@ -259,7 +260,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 		// const { targetTimeDirection } = this.state;
 		if (this.targetTimeDirection != 'right') {
 			// this.SetState({ autoScroll: false });
-			runInAction('PlayingSubpanel.OnScroll', () => this.autoScroll = false);
+			runInAction('PlayingSubpanel.OnScroll', () => store.main.timelines.autoScroll = false);
 		}
 
 		// this.UpdateTargetInfo_Throttled();
@@ -269,7 +270,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 	render() {
 		const { map } = this.props;
 		// const { targetTime, autoScroll, targetTime_yInMessageArea, targetTimeDirection } = this.state;
-		const mapInfo = store.main.mapStates.get(map._key);
+		const mapState = GetMapState(map._key);
 		const timeline = GetSelectedTimeline(map._key);
 		// timelineSteps: timeline && GetTimelineSteps(timeline);
 		const targetStepIndex = GetPlayingTimelineAppliedStepIndex(map._key);
@@ -329,7 +330,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 		return (
 			<Column style={{ flex: 1, minHeight: 0 }}>
 				{timeline.videoID &&
-				<YoutubePlayerUI /* ref={videoRef} */ videoID={timeline.videoID} startTime={mapInfo.playingTimeline_time || timeline.videoStartTime} heightVSWidthPercent={timeline.videoHeightVSWidthPercent}
+				<YoutubePlayerUI /* ref={videoRef} */ videoID={timeline.videoID} startTime={mapState.playingTimeline_time || timeline.videoStartTime} heightVSWidthPercent={timeline.videoHeightVSWidthPercent}
 					onPlayerInitialized={(player) => {
 						this.player = player;
 						player.GetPlayerUI().style.position = 'absolute';
@@ -348,9 +349,9 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 							this.targetTime = pos;
 							// runInAction('PlayingSubpanel_targetTime_set', () => this.targetTime = pos);
 							// Log(`Setting:${this.targetTime}`);
-							if (pos.FloorTo(1) != mapInfo.playingTimeline_time) {
+							if (pos.FloorTo(1) != mapState.playingTimeline_time) {
 								// mapInfo.playingTimeline_time_set(pos.FloorTo(1));
-								mapInfo.playingTimeline_time = pos.FloorTo(1);
+								mapState.playingTimeline_time = pos.FloorTo(1);
 							}
 
 							this.lastPosChangeSource = source;
@@ -376,7 +377,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 							<DropDownContent style={{ right: 0, width: 300, zIndex: 11 }}><Column>
 								<Row>
 									<Text>Node-reveal highlight time:</Text>
-									<Spinner ml={5} min={0} value={nodeRevealHighlightTime} onChange={(val) => runInAction('PlayingSubpanel.nodeRevealHighlightTime.onChange', () => store.main.nodeRevealHighlightTime = val)}/>
+									<Spinner ml={5} min={0} value={nodeRevealHighlightTime} onChange={(val) => runInAction('PlayingSubpanel.nodeRevealHighlightTime.onChange', () => store.main.timelines.nodeRevealHighlightTime = val)}/>
 								</Row>
 							</Column></DropDownContent>
 						</DropDown>
@@ -389,7 +390,7 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 								background: 'none', padding: 0,
 								position: 'absolute', top: this.targetTime_yInMessageArea ? this.targetTime_yInMessageArea.KeepBetween(0, messageAreaHeight - 20) : 0,
 								// opacity: autoScroll ? 1 : 0.7,
-								filter: this.autoScroll ? 'sepia(1) saturate(15) hue-rotate(55deg)' : null,
+								filter: store.main.timelines.autoScroll ? 'sepia(1) saturate(15) hue-rotate(55deg)' : null,
 							}}
 							onClick={UseCallback(() => {
 								if (this.list == null || targetStepIndex == null) return;
@@ -403,11 +404,11 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 								}
 
 								// const newAutoScroll = targetOffScreen;
-								const newAutoScroll = !this.autoScroll;
+								const newAutoScroll = !store.main.timelines.autoScroll;
 								/* this.autoScrollDisabling = false;
 								this.SetState({ autoScroll: newAutoScroll }, () => WaitXThenRun(0, () => this.autoScrollDisabling = true)); */
 								// this.SetState({ autoScroll: newAutoScroll });
-								runInAction('PlayingSubpanel.targetArrow.onClick', () => this.autoScroll = newAutoScroll);
+								runInAction('PlayingSubpanel.targetArrow.onClick', () => store.main.timelines.autoScroll = newAutoScroll);
 							}, [targetStepIndex])}/>
 					</Column>
 					<ScrollView style={ES({ flex: 1 })} contentStyle={ES({ flex: 1, position: 'relative', padding: 7, filter: 'drop-shadow(rgb(0, 0, 0) 0px 0px 10px)' })} onScroll={this.OnScroll}>
@@ -431,24 +432,6 @@ export class PlayingSubpanel extends BaseComponent<{map: Map}, {}, { messageArea
 								if (index == 0) return <div key={key}/>; // atm, hide first step, since just intro message
 								const stepID = timeline.steps[index];
 								return <StepUI key={stepID} index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} stepID={stepID} player={this.player}
-									jumpToStep={() => {
-										const { player } = this;
-										const step = GetTimelineStep(stepID);
-										if (player && step.videoTime != null) {
-											// this shouldn't be necessary, but apparently is
-											(async () => {
-												if (player.state == YoutubePlayerState.CUED) {
-													player.Play();
-													await player.WaitTillState(YoutubePlayerState.PLAYING);
-												}
-												// this.targetTime = step.videoTime;
-												player.SetPosition(step.videoTime);
-												// this.SetState({ targetTime: step.videoTime, autoScroll: true });
-												// this.SetState({ autoScroll: true });
-												runInAction('PlayingSubpanel.StepUI.jumpToStep', () => this.autoScroll = true);
-											})();
-										}
-									}}
 									ref={(c) => {
 										if (c == null || c.DOM_HTML == null) return;
 										/* const listRoot = c.DOM_HTML.parentElement.parentElement.parentElement;

@@ -14,7 +14,7 @@ import { Icon, IsSpecialEmptyArray, MaybeLog, Observer } from 'vwebapp-framework
 import { DroppableInfo } from 'Utils/UI/DNDStructures';
 import { ES } from 'Utils/UI/GlobalStyles';
 import { store } from 'Store';
-import { GetNodeView } from 'Store/main/mapViews/$mapView';
+import { GetNodeView } from 'Store/main/maps/mapViews/$mapView';
 import { runInAction } from 'mobx';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { IsMultiPremiseArgument } from '../../../../../Store/firebase/nodes/$node';
@@ -53,8 +53,8 @@ export class NodeChildHolder extends BaseComponentPlus({ minWidth: 0 } as Props,
 		});
 		this.Stash({ nodeChildren_fillPercents });
 
-		const initialChildLimit = store.main.initialChildLimit;
-		const currentNodeBeingAdded_path = store.main.currentNodeBeingAdded_path;
+		const initialChildLimit = store.main.maps.initialChildLimit;
+		const currentNodeBeingAdded_path = store.main.maps.currentNodeBeingAdded_path;
 
 		let nodeChildrenToShowHere = nodeChildrenToShow;
 		let nodeChildrenToShowInRelevanceBox;
@@ -370,7 +370,7 @@ export class ChildLimitBar extends BaseComponentPlus({} as {map: Map, path: stri
 	render() {
 		const { map, path, childrenWidthOverride, direction, childCount, childLimit } = this.props;
 		const nodeView = GetNodeView(map._key, path);
-		const initialChildLimit = store.main.initialChildLimit;
+		const initialChildLimit = store.main.maps.initialChildLimit;
 		return (
 			<Row style={{
 				// position: "absolute", marginTop: -30,

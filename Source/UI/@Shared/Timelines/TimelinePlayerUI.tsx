@@ -6,7 +6,7 @@ import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { GetEntries, E } from 'js-vextensions';
 import { VReactMarkdown_Remarkable } from 'vwebapp-framework';
 import { store } from 'Store';
-import { GetPlayingTimelineAppliedStepIndex, GetPlayingTimelineStep, GetPlayingTimeline, GetPlayingTimelineStepIndex } from 'Store/main/mapStates/$mapState';
+import { GetPlayingTimelineAppliedStepIndex, GetPlayingTimelineStep, GetPlayingTimeline, GetPlayingTimelineStepIndex, GetMapState } from 'Store/main/maps/mapStates/$mapState';
 import { Segment } from '../../../Utils/General/RegexHelpers';
 import { AsNodeL3 } from '../../../Store/firebase/nodes/$node';
 import { MapNodeL3, Polarity } from '../../../Store/firebase/nodes/@MapNode';
@@ -53,13 +53,13 @@ const replacements = {
 		const currentStep = extraInfo.currentStep as TimelineStep;
 		// let ids = currentStep.actions.filter(a=>a.type == TimelineStepActionType.ShowNode).map(a=>a.showNode_nodeID);
 		// let ids = (currentStep.nodeReveals || []).map(a=>a.nodeID);
-		const mapInfo = store.main.mapStates.get(extraInfo.map._key);
+		const mapState = GetMapState(extraInfo.map._key);
 		return (
 			<Button text={props.text || 'Place into debate map'} enabled={!extraInfo.stepApplied}
 				style={{ alignSelf: 'center', fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,.7)' }}
 				onClick={(e) => {
 					// let currentStep = await GetAsync(()=>GetPlayingTimelineStepIndex(extraInfo.map._id));
-					mapInfo.playingTimeline_appliedStep = extraInfo.currentStepIndex;
+					mapState.playingTimeline_appliedStep = extraInfo.currentStepIndex;
 				}}/>
 		);
 	},
@@ -107,7 +107,7 @@ export class TimelinePlayerUI extends BaseComponentPlus({} as {map: Map}, {}) {
 
 		const stepApplied = appliedStepIndex >= currentStepIndex || (currentStep.nodeReveals || []).length == 0;
 
-		const mapInfo = store.main.mapStates.get(map._key);
+		const mapState = GetMapState(map._key);
 		return (
 			<Column ref={(c) => this.root = c}
 				style={{ position: 'absolute', zIndex: 2, left: 10, top: 40, width: 500, padding: 10, background: 'rgba(0,0,0,.7)', borderRadius: 5 }}
@@ -121,17 +121,17 @@ export class TimelinePlayerUI extends BaseComponentPlus({} as {map: Map}, {}) {
 					<Pre style={{ fontSize: 18, textAlign: 'center', width: '100%' }}>Timeline</Pre>
 					<Button text="X" style={{ position: 'absolute', right: 0, padding: '3px 6px', marginTop: -2, marginRight: -2, fontSize: 13 }} onClick={() => {
 						// mapInfo.playingTimeline = null;
-						mapInfo.playingTimeline_step = null;
-						mapInfo.playingTimeline_appliedStep = null;
+						mapState.playingTimeline_step = null;
+						mapState.playingTimeline_appliedStep = null;
 					}}/>
 				</Row>
 				<Row mt={5} style={{ position: 'relative' }}>
 					<Button text="<" enabled={currentStepIndex > 0} onClick={() => {
-						mapInfo.playingTimeline_step = currentStepIndex - 1;
+						mapState.playingTimeline_step = currentStepIndex - 1;
 					}}/>
 					{stepApplied && currentStepIndex == 0 && appliedStepIndex >= 0
 						&& <Button ml={5} text="Restart" onClick={() => {
-							mapInfo.playingTimeline_appliedStep = null;
+							mapState.playingTimeline_appliedStep = null;
 						}}/>}
 					<Pre className="clickThrough" style={{ position: 'absolute', fontSize: 15, textAlign: 'center', width: '100%' }}>
 						Step {currentStepIndex + 1}{currentStep.title ? `: ${currentStep.title}` : ''}
@@ -141,11 +141,11 @@ export class TimelinePlayerUI extends BaseComponentPlus({} as {map: Map}, {}) {
 					}}/> */}
 					{stepApplied
 						&& <Button ml="auto" text=">" enabled={playingTimeline.steps && currentStepIndex < playingTimeline.steps.length - 1} onClick={() => {
-							mapInfo.playingTimeline_step = currentStepIndex + 1;
+							mapState.playingTimeline_step = currentStepIndex + 1;
 						}}/>}
 					{!stepApplied
 						&& <Button ml="auto" text="Place" onClick={() => {
-							mapInfo.playingTimeline_appliedStep = currentStepIndex;
+							mapState.playingTimeline_appliedStep = currentStepIndex;
 						}}/>}
 				</Row>
 				<Row sel>

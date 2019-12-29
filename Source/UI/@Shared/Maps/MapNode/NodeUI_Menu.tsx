@@ -8,10 +8,11 @@ import { SetNodeIsMultiPremiseArgument } from 'Server/Commands/SetNodeIsMultiPre
 import { UnlinkNode } from 'Server/Commands/UnlinkNode';
 import { store } from 'Store';
 import { GetParentNodeID, HolderType } from 'Store/firebase/nodes';
-import { GetCopiedNode, GetCopiedNodePath, GetOpenMapID } from 'Store/main';
-import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/mapStates/$mapState';
+import { GetCopiedNode, GetCopiedNodePath } from 'Store/main/maps';
+import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/mapStates/$mapState';
 import { Observer } from 'vwebapp-framework';
 import { runInAction } from 'mobx';
+import {GetOpenMapID} from 'Store/main';
 import { DeleteNode } from '../../../../Server/Commands/DeleteNode';
 import { GetPathsToNodesChangedSinceX } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
@@ -62,7 +63,7 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 		// nodeChildren: GetNodeChildrenL3(node, path),
 		const nodeChildren = GetNodeChildrenL3(node, path);
 		const combinedWithParentArg = IsPremiseOfSinglePremiseArgument(node, parent);
-		const copiedNode_asCut = store.main.copiedNodePath_asCut;
+		const copiedNode_asCut = store.main.maps.copiedNodePath_asCut;
 
 		const mapID = map ? map._key : null;
 		// let validChildTypes = MapNodeType_Info.for[node.type].childTypes;
@@ -143,7 +144,7 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 						onClick={(e) => {
 							if (e.button != 0) return;
 							for (const path of pathsToChangedInSubtree) {
-								runInAction('NodeUIMenu.MarkSubtreeAsViewed', () => store.main.nodeLastAcknowledgementTimes.set(GetNodeID(path), Date.now()));
+								runInAction('NodeUIMenu.MarkSubtreeAsViewed', () => store.main.maps.nodeLastAcknowledgementTimes.set(GetNodeID(path), Date.now()));
 							}
 						}}/>}
 				{inList && GetOpenMapID() != null &&
@@ -163,8 +164,8 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 							e.persist();
 							if (e.button == 2) {
 								runInAction('NodeUIMenu.Cut_clear', () => {
-									store.main.copiedNodePath = null;
-									store.main.copiedNodePath_asCut = true;
+									store.main.maps.copiedNodePath = null;
+									store.main.maps.copiedNodePath_asCut = true;
 								});
 								return;
 							}
@@ -175,8 +176,8 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 							} */
 
 							runInAction('NodeUIMenu.Cut', () => {
-								store.main.copiedNodePath = path;
-								store.main.copiedNodePath_asCut = true;
+								store.main.maps.copiedNodePath = path;
+								store.main.maps.copiedNodePath_asCut = true;
 							});
 						}}/>}
 				{!componentBox &&
@@ -186,8 +187,8 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 							e.persist();
 							if (e.button == 2) {
 								runInAction('NodeUIMenu.Copy_clear', () => {
-									store.main.copiedNodePath = null;
-									store.main.copiedNodePath_asCut = false;
+									store.main.maps.copiedNodePath = null;
+									store.main.maps.copiedNodePath_asCut = false;
 								});
 								return;
 							}
@@ -198,8 +199,8 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 							} */
 
 							runInAction('NodeUIMenu.Copy', () => {
-								store.main.copiedNodePath = path;
-								store.main.copiedNodePath_asCut = false;
+								store.main.maps.copiedNodePath = path;
+								store.main.maps.copiedNodePath_asCut = false;
 							});
 						}}/>}
 				<PasteAsLink_MenuItem {...sharedProps}/>
@@ -306,7 +307,7 @@ class PasteAsLink_MenuItem extends BaseComponent<SharedProps, {}> {
 					async function proceed() {
 						const { argumentWrapperID } = await linkCommand.Run();
 						if (argumentWrapperID) {
-							runInAction('PasteAsLink_MenuItem.proceed', () => store.main.nodeLastAcknowledgementTimes.set(argumentWrapperID, Date.now()));
+							runInAction('PasteAsLink_MenuItem.proceed', () => store.main.maps.nodeLastAcknowledgementTimes.set(argumentWrapperID, Date.now()));
 						}
 					}
 				}}/>

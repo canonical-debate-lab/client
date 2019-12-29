@@ -17,7 +17,7 @@ import { MeID } from 'Store/firebase/users';
 import { DragInfo, MakeDraggable, Observer } from 'vwebapp-framework';
 import { DraggableInfo, DroppableInfo } from 'Utils/UI/DNDStructures';
 import { UUIDPathStub } from 'UI/@Shared/UUIDStub';
-import { GetPathNodes } from 'Store/main/mapViews/$mapView';
+import { GetPathNodes } from 'Store/main/maps/mapViews/$mapView';
 import { GetAsync } from 'mobx-firelink';
 import { SearchUpFromNodeForNodeMatchingX } from 'Utils/Store/PathFinder';
 import { VMenuStub, VMenuItem } from 'react-vmenu';

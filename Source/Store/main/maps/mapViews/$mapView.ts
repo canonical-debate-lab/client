@@ -117,7 +117,7 @@ export const GetFocusedNodeID = StoreAccessor((s) => (mapID: string) => {
 });
 
 export const GetMapView = StoreAccessor((s) => (mapID: string) => {
-	return s.main.mapViews.get(mapID);
+	return s.main.maps.mapViews.get(mapID);
 });
 export function GetNodeViewDataPath_FromRootNodeViews(mapID: string, pathOrPathNodes: string | string[]): string[] {
 	const pathNodes = ToPathNodes(pathOrPathNodes);
@@ -243,7 +243,7 @@ export const ACTMapNodeExpandedSet = StoreAction((opt: {
 export const ACTMapViewMerge = StoreAction((mapID: string, toMergeMapView: MapView) => {
 	// CreateMapViewIfMissing(opt.mapID);
 	if (GetMapView(mapID) == null) {
-		store.main.mapViews.set(mapID, toMergeMapView);
+		store.main.maps.mapViews.set(mapID, toMergeMapView);
 		return;
 	}
 	const inStoreMapView = GetMapView(mapID);

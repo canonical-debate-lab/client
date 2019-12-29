@@ -1,7 +1,7 @@
 import { autorun } from 'mobx';
 import { GetAuth, GetAuth_Raw } from 'Store/firebase';
 import { GetOpenMapID } from 'Store/main';
-import { GetMapView } from 'Store/main/mapViews/$mapView';
+import { GetMapView } from 'Store/main/maps/mapViews/$mapView';
 import { Clone } from 'js-vextensions';
 import Raven from 'raven-js';
 

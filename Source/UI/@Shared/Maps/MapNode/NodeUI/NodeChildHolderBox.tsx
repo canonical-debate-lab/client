@@ -10,7 +10,7 @@ import { MapNodeL3 } from 'Store/firebase/nodes/@MapNode';
 import { MapNodeType } from 'Store/firebase/nodes/@MapNodeType';
 import { GADDemo } from 'UI/@GAD/GAD';
 import { HSLA, Observer } from 'vwebapp-framework';
-import { ACTMapNodeExpandedSet, GetNodeView, MapNodeView } from 'Store/main/mapViews/$mapView';
+import { ACTMapNodeExpandedSet, GetNodeView, MapNodeView } from 'Store/main/maps/mapViews/$mapView';
 import { runInAction } from 'mobx';
 import { Map } from '../../../../../Store/firebase/maps/@Map';
 import { GetFillPercent_AtPath } from '../../../../../Store/firebase/nodeRatings';

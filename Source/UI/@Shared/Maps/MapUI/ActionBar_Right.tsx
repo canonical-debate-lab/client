@@ -3,9 +3,10 @@ import { Pre, Row, Select } from 'react-vcomponents';
 import { BaseComponentPlus } from 'react-vextensions';
 import { store } from 'Store';
 import { WeightingType } from 'Store/main';
-import { ShowChangesSinceType } from 'Store/main/mapStates/@MapState';
+import { ShowChangesSinceType } from 'Store/main/maps/mapStates/@MapState';
 import { runInAction } from 'mobx';
 import { Observer } from 'vwebapp-framework';
+import {GetMapState} from 'Store/main/maps/mapStates/$mapState';
 import { Map } from '../../../../Store/firebase/maps/@Map';
 import { colors } from '../../../../Utils/UI/GlobalStyles';
 import { LayoutDropDown } from './ActionBar_Right/LayoutDropDown';
@@ -22,10 +23,10 @@ changesSince_options.push({ name: 'All unclicked changes', value: `${ShowChanges
 export class ActionBar_Right extends BaseComponentPlus({} as {map: Map, subNavBarWidth: number}, {}) {
 	render() {
 		const { map, subNavBarWidth } = this.props;
-		const mapInfo = store.main.mapStates.get(map._key);
-		const showChangesSince_type = mapInfo.showChangesSince_type;
-		const showChangesSince_visitOffset = mapInfo.showChangesSince_visitOffset;
-		const weighting = store.main.weighting;
+		const mapState = GetMapState(map._key);
+		const showChangesSince_type = mapState.showChangesSince_type;
+		const showChangesSince_visitOffset = mapState.showChangesSince_visitOffset;
+		const weighting = store.main.maps.weighting;
 
 		const tabBarWidth = 104;
 		return (
@@ -42,14 +43,14 @@ export class ActionBar_Right extends BaseComponentPlus({} as {map: Map, subNavBa
 						<Select options={changesSince_options} value={`${showChangesSince_type}_${showChangesSince_visitOffset}`} onChange={(val) => {
 							runInAction('ActionBar_Right.ShowChangesSince.onChange', () => {
 								const parts = val.split('_');
-								mapInfo.showChangesSince_type = ToNumber(parts[0]);
-								mapInfo.showChangesSince_visitOffset = FromJSON(parts[1]);
+								mapState.showChangesSince_type = ToNumber(parts[0]);
+								mapState.showChangesSince_visitOffset = FromJSON(parts[1]);
 							});
 						}}/>
 						<Pre ml={5}>Weighting: </Pre>
 						<Select options={GetEntries(WeightingType, (name) => ({ ReasonScore: 'Reason score' })[name] || name)} value={weighting} onChange={(val) => {
 							runInAction('ActionBar_Right.Weighting.onChange', () => {
-								store.main.weighting = val;
+								store.main.maps.weighting = val;
 							});
 						}}/>
 					</Row>

@@ -12,8 +12,8 @@ import { ActionBar_Left_GAD } from 'UI/@GAD/ActionBar_Left_GAD';
 import { ActionBar_Right_GAD } from 'UI/@GAD/ActionBar_Right_GAD';
 import { GetParentNodeL3, GetParentPath } from 'Store/firebase/nodes';
 import { store } from 'Store';
-import { GetNodeView, GetMapView, GetSelectedNodePath, GetViewOffset, GetFocusedNodePath, GetNodeViewsAlongPath, ACTMapNodeSelect } from 'Store/main/mapViews/$mapView';
-import { GetTimelinePanelOpen, GetPlayingTimeline } from 'Store/main/mapStates/$mapState';
+import { GetNodeView, GetMapView, GetSelectedNodePath, GetViewOffset, GetFocusedNodePath, GetNodeViewsAlongPath, ACTMapNodeSelect } from 'Store/main/maps/mapViews/$mapView';
+import { GetTimelinePanelOpen, GetPlayingTimeline, GetMapState } from 'Store/main/maps/mapStates/$mapState';
 import { GetOpenMapID } from 'Store/main';
 import { TimelinePanel } from 'UI/@Shared/Timelines/TimelinePanel';
 import { TimelineIntroBox } from 'UI/@Shared/Timelines/TimelineIntroBox';
@@ -116,7 +116,7 @@ export class MapUI extends BaseComponentPlus({
 		const { map, rootNode: rootNode_passed, withinPage, padding, subNavBarWidth, ...rest } = this.props;
 		Assert(map._key, 'map._key is null!');
 
-		if (!store.main.mapStates.get(map._key)?.initDone) return <MapUIWaitMessage message="Initializing map metadata..."/>;
+		if (!GetMapState(map._key)?.initDone) return <MapUIWaitMessage message="Initializing map metadata..."/>;
 		if (GetMapView(map._key) == null) return <MapUIWaitMessage message="Initializing map view..."/>;
 		if (map == null) return <MapUIWaitMessage message="Loading map..."/>;
 		const rootNode = (() => {
@@ -125,7 +125,7 @@ export class MapUI extends BaseComponentPlus({
 				result = GetNodeL3(`${map.rootNode}`);
 			}
 			if (isBot && map) {
-				const mapView = store.main.mapViews.get(map._key);
+				const mapView = GetMapView(map._key);
 				if (mapView) {
 					const nodeID = mapView.bot_currentNodeID;
 					if (nodeID) {
