@@ -5,17 +5,21 @@ import { GetTimelineStep } from 'Store/firebase/timelineSteps';
 import { Timeline } from 'Store/firebase/timelines/@Timeline';
 import { VReactMarkdown_Remarkable, YoutubePlayer, YoutubePlayerState, Observer } from 'vwebapp-framework';
 import { TimelineStep } from 'Store/firebase/timelineSteps/@TimelineStep';
-import {E} from 'js-vextensions';
-import { PositionOptionsEnum, NodeRevealUI } from '../EditorSubpanel/StepEditorUI';
+import { E } from 'js-vextensions';
+import { VMenuItem, VMenuStub } from 'react-vmenu';
+import { styles } from 'Utils/UI/GlobalStyles';
+import { IsUserCreatorOrMod } from 'Store/firebase/userExtras';
+import { MeID } from 'Store/firebase/users';
+import { PositionOptionsEnum, NodeRevealUI, StepEditorUI } from '../EditorSubpanel/StepEditorUI';
 
 @Observer
 export class StepUI extends BaseComponentPlus(
 	{} as {index: number, last: boolean, map: Map, timeline: Timeline, stepID: string, player: YoutubePlayer, jumpToStep: (step: TimelineStep)=>any},
-	{ showNodeReveals: false },
+	{ showNodeReveals: false, editorOpen: false },
 ) {
 	render() {
 		const { index, last, map, timeline, stepID, player, jumpToStep } = this.props;
-		const { showNodeReveals } = this.state;
+		const { showNodeReveals, editorOpen } = this.state;
 		const step = GetTimelineStep(stepID);
 		if (step == null) return <div style={{ height: 50 }}/>;
 
@@ -67,7 +71,17 @@ export class StepUI extends BaseComponentPlus(
 							})}
 						</Column>}
 					</Column>}
+					{IsUserCreatorOrMod(MeID(), timeline) &&
+					<VMenuStub /* preOpen={(e) => e.passThrough != true} */>
+						<VMenuItem text={editorOpen ? 'Close editor' : 'Edit'} style={styles.vMenuItem}
+							onClick={(e) => {
+								if (e.button != 0) return;
+								this.SetState({ editorOpen: !editorOpen });
+							}}/>
+					</VMenuStub>}
 				</Column>
+				{editorOpen &&
+					<StepEditorUI index={index} last={index == timeline.steps.length - 1} map={map} timeline={timeline} stepID={stepID} draggable={false}/>}
 			</div>
 		);
 	}

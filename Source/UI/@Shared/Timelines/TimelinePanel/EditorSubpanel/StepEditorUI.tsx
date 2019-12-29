@@ -41,9 +41,10 @@ WaitXThenRun(0, () => {
 	document.body.appendChild(portal);
 }); */
 
-export type StepEditorUIProps = {index: number, last: boolean, map: Map, timeline: Timeline, stepID: string} & {dragInfo?: DragInfo};
+export type StepEditorUIProps = {index: number, last: boolean, map: Map, timeline: Timeline, stepID: string, draggable?: boolean} & {dragInfo?: DragInfo};
 
-@MakeDraggable(({ index, stepID }: StepEditorUIProps) => {
+@MakeDraggable(({ index, stepID, draggable }: StepEditorUIProps) => {
+	if (!draggable) return null;
 	// upgrade note: make sure dnd isn't broken from having to comment the next line out
 	// if (step == null) return null; // if step is not yet loaded, don't actually apply the draggable-wrapping
 	return {
@@ -55,7 +56,7 @@ export type StepEditorUIProps = {index: number, last: boolean, map: Map, timelin
 })
 @Observer
 // @SimpleShouldUpdate({ propsToIgnore: ['dragInfo'] })
-export class StepEditorUI extends BaseComponentPlus({} as StepEditorUIProps, { placeholderRect: null as VRect }) {
+export class StepEditorUI extends BaseComponentPlus({ draggable: true } as StepEditorUIProps, { placeholderRect: null as VRect }) {
 	/* static ValidateProps(props: StepUIProps) {
 		Assert(props.step != null);
 	} */
