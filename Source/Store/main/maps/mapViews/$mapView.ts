@@ -200,7 +200,7 @@ export const GetNodeViewsBelowPath = StoreAccessor((s) => (mapID: string, pathOr
 	const pathNodes = ToPathNodes(pathOrPathNodes);
 	const nodeView = GetNodeView(mapID, pathOrPathNodes);
 	const result = [] as MapNodeView[];
-	for (const { key, value: child } of nodeView.children.Pairs()) {
+	for (const { key, value: child } of nodeView.children?.Pairs() ?? []) {
 		result.push(child);
 		result.push(...GetNodeViewsBelowPath(mapID, pathNodes.concat(key)));
 	}
