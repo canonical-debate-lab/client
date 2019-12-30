@@ -24,8 +24,8 @@ export class LinkNode extends Command<{mapID: string, parentID: string, childID:
 		this.child_oldData = GetNode(childID);
 		AssertV(this.child_oldData || this.parentCommand != null, 'Child does not exist!');
 		this.parent_oldData =
-			this.parentCommand instanceof LinkNode_HighLevel && this == this.parentCommand.sub_linkToNewParent ? this.parentCommand.sub_addArgumentWrapper.payload.node :
-				GetNode(parentID);
+			(this.parentCommand instanceof LinkNode_HighLevel && this == this.parentCommand.sub_linkToNewParent ? this.parentCommand.sub_addArgumentWrapper?.payload.node : null)
+			?? GetNode(parentID);
 		AssertV(this.parent_oldData || this.parentCommand != null, 'Parent does not exist!');
 
 		if (this.parent_oldData) {

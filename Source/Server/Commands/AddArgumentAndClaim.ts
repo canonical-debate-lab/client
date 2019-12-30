@@ -1,6 +1,7 @@
 import { MapEdit, UserEdit } from 'Server/CommandMacros';
 import { MapNodeRevision } from 'Store/firebase/nodes/@MapNodeRevision';
 import { Command_Old, MergeDBUpdates, Command } from 'mobx-firelink';
+import { AssertValidate } from 'vwebapp-framework';
 import { ChildEntry, MapNode } from '../../Store/firebase/nodes/@MapNode';
 import { AddChildNode } from './AddChildNode';
 
@@ -14,6 +15,15 @@ export class AddArgumentAndClaim extends Command<Payload, {argumentNodeID: strin
 	sub_addArgument: AddChildNode;
 	sub_addClaim: AddChildNode;
 	Validate() {
+		AssertValidate({
+			properties: {
+				mapID: { type: 'string' },
+				argumentParentID: { type: 'string' }, argumentNode: { $ref: 'MapNode_Partial' }, argumentRevision: { $ref: 'MapNodeRevision_Partial' }, argumentLink: { $ref: 'ChildEntry' },
+				claimNode: { $ref: 'MapNode_Partial' }, claimRevision: { $ref: 'MapNodeRevision_Partial' }, claimLink: { $ref: 'ChildEntry' },
+			},
+			required: ['mapID', 'argumentParentID', 'argumentNode', 'argumentRevision', 'claimNode', 'claimRevision'],
+		}, this.payload, 'Payload invalid');
+
 		const { mapID, argumentParentID, argumentNode, argumentRevision, argumentLink, claimNode, claimRevision, claimLink } = this.payload;
 
 		this.sub_addArgument = this.sub_addArgument ?? new AddChildNode({

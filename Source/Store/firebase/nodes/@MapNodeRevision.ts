@@ -1,5 +1,5 @@
 import { GetValues_ForSchema } from 'js-vextensions';
-import { AddSchema } from 'vwebapp-framework';
+import { AddSchema, GetSchemaJSON } from 'vwebapp-framework';
 import { ObservableMap } from 'mobx';
 import { AccessLevel, ImageAttachment } from './@MapNode';
 import { Equation } from './@Equation';
@@ -132,6 +132,12 @@ AddSchema('MapNodeRevision', {
 		},
 	],
 });
+AddSchema('MapNodeRevision_Partial', (() => {
+	const schema = GetSchemaJSON('MapNodeRevision');
+	// schema.required = (schema.required as string[]).Except('creator', 'createdAt');
+	schema.required = [];
+	return schema;
+})());
 
 // argument
 // ==========

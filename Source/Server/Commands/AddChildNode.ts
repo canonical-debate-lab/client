@@ -20,11 +20,15 @@ export class AddChildNode extends Command<Payload, {nodeID: string, revisionID: 
 	sub_addNode: AddNode;
 	parent_oldData: MapNode;
 	Validate() {
+		AssertValidate({
+			properties: {
+				mapID: { type: 'string' }, parentID: { type: 'string' }, node: { $ref: 'MapNode_Partial' }, revision: { $ref: 'MapNodeRevision_Partial' }, link: { $ref: 'ChildEntry' }, asMapRoot: { type: 'boolean' },
+			},
+			required: ['mapID', 'parentID', 'node', 'revision'],
+		}, this.payload, 'Payload invalid');
+
 		const { mapID, parentID, node, revision, link, asMapRoot } = this.payload;
 		AssertV(node.parents == null, 'node.parents must be empty. Instead, supply a parentID property in the payload.');
-		if (!asMapRoot) {
-			AssertValidate('ChildEntry', link, 'Link invalid');
-		}
 
 		const node_withParents = E(node, parentID ? { parents: { [parentID]: { _: true } } } : {});
 		this.sub_addNode = this.sub_addNode ?? new AddNode({ mapID, node: node_withParents, revision }).MarkAsSubcommand(this);

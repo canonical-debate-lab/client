@@ -1,5 +1,5 @@
 import { GetValues_ForSchema } from 'js-vextensions';
-import { AddAJVExtraCheck, AddSchema } from 'vwebapp-framework';
+import { AddAJVExtraCheck, AddSchema, GetSchemaJSON } from 'vwebapp-framework';
 import { UUID_regex, UUID, UUID_regex_partial } from 'Utils/General/KeyGenerator';
 import { MapNodeRevision } from './@MapNodeRevision';
 import { MapNodeType } from './@MapNodeType';
@@ -92,6 +92,12 @@ AddSchema('MapNode', {
 		}
 	], */
 });
+AddSchema('MapNode_Partial', (() => {
+	const schema = GetSchemaJSON('MapNode');
+	// schema.required = (schema.required as string[]).Except('creator', 'createdAt');
+	schema.required = ['type'];
+	return schema;
+})());
 // disabled for now, simply because we haven't finished making all places that manipulate "MapNode.children" reliably update "MapNode.childrenOrder" as well
 /* AddAJVExtraCheck('MapNode', (node: MapNode) => {
 	if (node.type == MapNodeType.Argument) {
