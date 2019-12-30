@@ -12,7 +12,7 @@ import { GetCopiedNode, GetCopiedNodePath } from 'Store/main/maps';
 import { GetTimeFromWhichToShowChangedNodes } from 'Store/main/maps/mapStates/$mapState';
 import { Observer } from 'vwebapp-framework';
 import { runInAction } from 'mobx';
-import {GetOpenMapID} from 'Store/main';
+import { GetOpenMapID } from 'Store/main';
 import { DeleteNode } from '../../../../Server/Commands/DeleteNode';
 import { GetPathsToNodesChangedSinceX } from '../../../../Store/firebase/mapNodeEditTimes';
 import { Map } from '../../../../Store/firebase/maps/@Map';
@@ -147,10 +147,30 @@ export class NodeUI_Menu extends BaseComponentPlus({} as Props, {}) {
 								runInAction('NodeUIMenu.MarkSubtreeAsViewed', () => store.main.maps.nodeLastAcknowledgementTimes.set(GetNodeID(path), Date.now()));
 							}
 						}}/>}
-				{inList && GetOpenMapID() != null &&
-					<VMenuItem text="Find in map" style={styles.vMenuItem}
+				{/* inList &&
+					<VMenuItem text="Find containing maps" style={styles.vMenuItem}
 						onClick={(e) => {
-							runInAction('NodeUIMenu.FindInMap', () => {
+							runInAction('NodeUIMenu.FindContainingMaps', () => {
+								store.main.search.findNode_state = 'activating';
+								store.main.search.findNode_node = node._key;
+								store.main.search.findNode_type = 'FindContainingMaps';
+								store.main.search.findNode_resultPaths = [];
+							});
+						}}/>}
+				{inList && GetOpenMapID() != null &&
+					<VMenuItem text="Find in current map" style={styles.vMenuItem}
+						onClick={(e) => {
+							runInAction('NodeUIMenu.FindInCurrentMap', () => {
+								store.main.search.findNode_state = 'activating';
+								store.main.search.findNode_node = node._key;
+								store.main.search.findNode_type = 'FindInCurrentMap';
+								store.main.search.findNode_resultPaths = [];
+							});
+						}}/> */}
+				{inList && GetOpenMapID() != null &&
+					<VMenuItem text="Find in maps" style={styles.vMenuItem}
+						onClick={(e) => {
+							runInAction('NodeUIMenu.FindInCurrentMap', () => {
 								store.main.search.findNode_state = 'activating';
 								store.main.search.findNode_node = node._key;
 								store.main.search.findNode_resultPaths = [];

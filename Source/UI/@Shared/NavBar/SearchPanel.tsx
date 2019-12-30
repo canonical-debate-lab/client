@@ -21,6 +21,9 @@ import { DBPath, GetAsync } from 'mobx-firelink';
 import { fire } from 'Utils/LibIntegrations/MobXFirelink';
 import { runInAction, flow } from 'mobx';
 import { MapNodeL2 } from 'Store/firebase/nodes/@MapNode';
+import { GetNode } from 'Store/firebase/nodes';
+import { GetMap } from 'Store/firebase/maps';
+import { MapType } from 'Store/firebase/maps/@Map';
 import { NodeUI_Menu_Stub } from '../Maps/MapNode/NodeUI_Menu';
 import { MapUI } from '../Maps/MapUI';
 
@@ -150,7 +153,7 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 			}
 		}
 	} */
-	async StartFindingPathsFromXToY(rootNodeX: UUID, targetNodeY: UUID) {
+	async StartFindingPathsFromRootsToX(targetNodeY: UUID) {
 	// StartFindingPathsFromXToY = flow(function* StartFindingPathsFromXToY(rootNodeX: UUID, targetNodeY: UUID) {
 		const searchDepth = 100;
 
@@ -159,7 +162,7 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 		for (let depth = 0; depth < searchDepth; depth++) {
 			const newUpPathAttempts = [];
 			for (const upPath of upPathAttempts) {
-				const nodeID = upPath.split('/').Last();
+				const nodeID = upPath.split('/').First();
 				const node = await GetAsync(() => GetNodeL2(nodeID));
 				// const node = (yield GetAsync(() => GetNodeL2(nodeID))) as MapNodeL2;
 				if (node == null) {
@@ -167,13 +170,14 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 					continue;
 				}
 
+				if (node.rootNodeForMap != null) {
+					upPathCompletions.push(upPath);
+					// continue; // commented; node may be a map-root, and still have parents
+				}
+
 				for (const parentID of (node.parents || {}).Pairs(true).map((a) => a.key)) {
-					const newUpPath = `${upPath}/${parentID}`;
-					if (parentID === rootNodeX) {
-						upPathCompletions.push(newUpPath.split('/').Reversed().join('/'));
-					} else {
-						newUpPathAttempts.push(newUpPath);
-					}
+					const newUpPath = `${parentID}/${upPath}`;
+					newUpPathAttempts.push(newUpPath);
 				}
 			}
 			upPathAttempts = newUpPathAttempts;
@@ -217,7 +221,7 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 			SearchResultRow.searchInProgress = true;
 			WaitXThenRun(0, () => {
 				runInAction('SearchResultRow.call_StartFindingPathsFromXToY_pre', () => store.main.search.findNode_state = 'active');
-				this.StartFindingPathsFromXToY(rootNodeID, nodeID).then(() => SearchResultRow.searchInProgress = false);
+				this.StartFindingPathsFromRootsToX(nodeID).then(() => SearchResultRow.searchInProgress = false);
 			});
 		}
 		const findNode_resultPaths = store.main.search.findNode_resultPaths;
@@ -252,7 +256,7 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 				{findNode_node === nodeID &&
 					<Row>
 						{findNode_state === 'active' && <Pre>Finding in map... (depth: {findNode_currentSearchDepth})</Pre>}
-						{findNode_state === 'inactive' && <Pre>Locations found in map: (depth: {findNode_currentSearchDepth})</Pre>}
+						{findNode_state === 'inactive' && <Pre>Locations found in maps: (depth: {findNode_currentSearchDepth})</Pre>}
 						<Button ml={5} text="Stop" enabled={findNode_state === 'active'} onClick={() => this.StopSearch()}/>
 						<Button ml={5} text="Close" onClick={() => {
 							runInAction('SearchResultRow.Close', () => {
@@ -264,10 +268,30 @@ export class SearchResultRow extends BaseComponentPlus({} as {nodeID: string, in
 						}}/>
 					</Row>}
 				{findNode_node === nodeID && findNode_resultPaths.length > 0 && findNode_resultPaths.map((resultPath) => {
+					const mapRootNodeID = resultPath.split('/')[0];
+					const mapRootNode = GetNode(mapRootNodeID);
+					if (mapRootNode == null) return; // still loading
+					const mapRootNode_map = GetMap(mapRootNode.rootNodeForMap);
+					const inCurrentMap = mapRootNodeID == rootNodeID;
 					return (
 						<Row key={resultPath}>
-							<Button mr="auto" text={`Jump to ${resultPath}`} onClick={() => {
-								JumpToNode(mapID, resultPath);
+							<Button mr="auto" text={inCurrentMap ? `Jump to ${resultPath}` : `Open containing map (${mapRootNode.rootNodeForMap})`} onClick={() => {
+								if (inCurrentMap) {
+									JumpToNode(mapID, resultPath);
+								} else {
+									if (mapRootNode_map == null) return; // still loading
+									runInAction('SearchResultRow.OpenContainingMap', () => {
+										if (mapRootNode_map.type == MapType.Private) {
+											store.main.page = 'private';
+											store.main.private.selectedMapID = mapRootNode_map._key;
+										} else if (mapRootNode_map.type == MapType.Public) {
+											store.main.page = 'public';
+											store.main.public.selectedMapID = mapRootNode_map._key;
+										} else {
+											store.main.page = 'global';
+										}
+									});
+								}
 							}}/>
 						</Row>
 					);
