@@ -4,9 +4,9 @@ import { VReactMarkdown, PageContainer } from 'vwebapp-framework';
 import { styles } from '../../Utils/UI/GlobalStyles';
 
 const pageText = `
-Welcome to the Canonical Debate website.
+This instance of Debate Map is outdated and only kept up for reference purposes.
 
-Description text will be added here later.
+New version: https://debatemap.app
 `;
 
 export class HomeUI2 extends BaseComponent<{}, {}> {
