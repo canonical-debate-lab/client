@@ -1,6 +1,6 @@
 > NOTE: This repo was a version of Debate Map intended to be used as the Canonical Debate official client.
 >
-> Due to restructuring, Debate Map is now instead a "tier 2" project, which just uses the Canonical Debate service layer for claim/argument storage. You can find a link to the current version of Debate Map repo [here](https://github.com/debate-map/client). (live site [here](https://debatemap.app))
+> Due to restructuring, Debate Map is now instead a "tier 2" project, which just uses the Canonical Debate service layer for claim/argument storage. You can find a link to the current version of Debate Map repo [here](https://github.com/debate-map/app). (live site [here](https://debatemap.app))
 >
 > This repo will be replaced in the future with a simpler "base client" for the CD service layer; it's just up for now until that base client is ready for use.
 
